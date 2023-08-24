@@ -1,106 +1,91 @@
 import { html2text, sanitizeHtml } from "@bluemind/html-utils";
-import { Flag, InlineImageHelper, PartsBuilder } from "@bluemind/email";
+import { Flag, MimeType } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
 import { partUtils } from "@bluemind/mail";
+import store from "@bluemind/store";
 
 const { sanitizeTextPartForCyrus } = partUtils;
 
-import { draftUtils, fileUtils, messageUtils, signatureUtils } from "@bluemind/mail";
-import { ADD_FLAG, DELETE_FLAG } from "~/actions";
+import { draftUtils, messageUtils, signatureUtils } from "@bluemind/mail";
+import { ADD_FLAG } from "~/actions";
 import {
     SET_MESSAGE_DATE,
     SET_MESSAGE_HEADERS,
     SET_MESSAGE_INTERNAL_ID,
     SET_MESSAGE_IMAP_UID,
     SET_MESSAGES_STATUS,
-    SET_SAVED_INLINE_IMAGES,
-    SET_MESSAGE_INLINE_PARTS_BY_CAPABILITIES,
-    SET_MESSAGE_PREVIEW,
     SET_SAVE_ERROR,
-    SET_MESSAGE_SIZE
+    SET_MESSAGE_SIZE,
+    DELETE_FLAG
 } from "~/mutations";
 import { FolderAdaptor } from "~/store/folders/helpers/FolderAdaptor";
 import { VCard } from "@bluemind/addressbook.api";
 import { fetchMembersWithAddress } from "@bluemind/contact";
 import { DISCLAIMER_SELECTOR } from "@bluemind/mail/src/signature";
+import { cloneDeep } from "lodash";
 
 const { isNewMessage } = draftUtils;
-const { FileStatus } = fileUtils;
-const { MessageAdaptor, MessageHeader, MessageStatus, generateMessageIDHeader, computeParts } = messageUtils;
+const { MessageAdaptor, MessageHeader, MessageStatus, generateMessageIDHeader } = messageUtils;
 const { CORPORATE_SIGNATURE_PLACEHOLDER, CORPORATE_SIGNATURE_SELECTOR } = signatureUtils;
 
-export function isReadyToBeSaved(draft, files) {
-    const attachmentsAreUploaded = files.every(f => f.status === FileStatus.UPLOADED);
+export function isReadyToBeSaved(draft) {
     return (
-        (draft.status === MessageStatus.IDLE ||
-            draft.status === MessageStatus.NEW ||
-            draft.status === MessageStatus.SAVE_ERROR) &&
-        attachmentsAreUploaded
+        draft.status === MessageStatus.IDLE ||
+        draft.status === MessageStatus.NEW ||
+        draft.status === MessageStatus.SAVE_ERROR
     );
 }
 
-export async function save(context, draft, messageCompose, files) {
+export async function save(draft, messageCompose) {
     draft = { ...draft };
     const service = inject("MailboxItemsPersistence", draft.folderRef.uid);
-    let tmpAddresses = [],
-        inlineImages = [];
+    let htmlAddress, textAddress;
     try {
-        context.commit(SET_MESSAGES_STATUS, [{ key: draft.key, status: MessageStatus.SAVING }]);
-        ({ tmpAddresses, inlineImages } = await prepareDraft(context, service, draft, messageCompose));
-        const structure = createDraftStructure(tmpAddresses[0], tmpAddresses[1], files, inlineImages);
+        store.commit(`mail/${SET_MESSAGES_STATUS}`, [{ key: draft.key, status: MessageStatus.SAVING }]);
+        ({ htmlAddress, textAddress } = await prepareDraft(service, draft, messageCompose));
+
+        const structure = updateStructure(draft.structure, textAddress, htmlAddress);
 
         await expandGroups(draft);
-        await manageDispositionNotification(context, draft);
-        await createEmlOnServer(context, draft, service, structure);
+        await manageDispositionNotification(draft);
+        await createEmlOnServer(draft, service, structure);
 
-        context.commit(SET_MESSAGES_STATUS, [{ key: draft.key, status: MessageStatus.IDLE }]);
-        context.commit(SET_SAVE_ERROR, null);
+        store.commit(`mail/${SET_MESSAGES_STATUS}`, [{ key: draft.key, status: MessageStatus.IDLE }]);
+        store.commit(`mail/${SET_SAVE_ERROR}`, null);
     } catch (err) {
         // eslint-disable-next-line no-console
         console.error(err);
-        context.commit(SET_MESSAGES_STATUS, [{ key: draft.key, status: MessageStatus.SAVE_ERROR }]);
-        context.commit(SET_SAVE_ERROR, err);
+        store.commit(`mail/${SET_MESSAGES_STATUS}`, [{ key: draft.key, status: MessageStatus.SAVE_ERROR }]);
+        store.commit(`mail/${SET_SAVE_ERROR}`, err);
     } finally {
-        tmpAddresses.slice(0, 2).forEach(address => service.removePart(address));
+        [htmlAddress, textAddress].forEach(address => service.removePart(address));
     }
 }
 
-async function prepareDraft(context, service, draft, messageCompose) {
+async function prepareDraft(service, draft, messageCompose) {
     let wholeContent = messageCompose.collapsedContent
         ? messageCompose.editorContent + messageCompose.collapsedContent
         : messageCompose.editorContent;
     wholeContent = removeCorporateSignatureContent(wholeContent, messageCompose);
     wholeContent = sanitizeHtml(wholeContent, true);
 
-    const insertionResult = InlineImageHelper.insertCid(wholeContent, messageCompose.inlineImagesSaved);
+    const textHtml = sanitizeTextPartForCyrus(wholeContent);
+    const textPlain = sanitizeTextPartForCyrus(html2text(wholeContent));
+    store.commit(`mail/${SET_MESSAGE_SIZE}`, { key: draft.key, preview: textPlain });
+    const tmpAddresses = await uploadParts(service, textPlain, textHtml);
 
-    const textHtml = sanitizeTextPartForCyrus(insertionResult.htmlWithCids);
-    const textPlain = sanitizeTextPartForCyrus(html2text(insertionResult.htmlWithCids));
-    context.commit(SET_MESSAGE_PREVIEW, { key: draft.key, preview: textPlain });
-    const tmpAddresses = await uploadParts(service, textPlain, textHtml, insertionResult.newContentByCid);
-
-    const newInlineImages = insertionResult.newParts.map((part, index) => ({
-        ...part,
-        address: tmpAddresses[index + 2]
-    }));
-    const inlineImages = insertionResult.alreadySaved.concat(newInlineImages);
-    context.commit(SET_SAVED_INLINE_IMAGES, inlineImages);
-
-    return { tmpAddresses, inlineImages };
+    return tmpAddresses;
 }
 
-async function createEmlOnServer(context, draft, service, structure) {
-    const inlinePartsByCapabilities = computeParts(structure).inlinePartsByCapabilities;
-    context.commit(SET_MESSAGE_INLINE_PARTS_BY_CAPABILITIES, { key: draft.key, inlinePartsByCapabilities });
-
+async function createEmlOnServer(draft, service, structure) {
     const { saveDate, headers } = forceMailRewriteOnServer(draft);
 
     if (!headers.find(h => h.name.toUpperCase() === MessageHeader.MESSAGE_ID.toUpperCase())) {
         headers.push(generateMessageIDHeader(draft.from.address));
     }
 
-    context.commit(SET_MESSAGE_HEADERS, { messageKey: draft.key, headers });
-    context.commit(SET_MESSAGE_DATE, { messageKey: draft.key, date: saveDate });
+    store.commit(`mail/${SET_MESSAGE_HEADERS}`, { messageKey: draft.key, headers });
+    store.commit(`mail/${SET_MESSAGE_DATE}`, { messageKey: draft.key, date: saveDate });
 
     const remoteMessage = MessageAdaptor.toMailboxItem({ ...draft, headers }, structure);
     const { imapUid, id: internalId } = isNewMessage(draft)
@@ -109,21 +94,17 @@ async function createEmlOnServer(context, draft, service, structure) {
               ...(await service.updateById(draft.remoteRef.internalId, remoteMessage)),
               id: draft.remoteRef.internalId
           };
-    context.commit(SET_MESSAGE_INTERNAL_ID, { key: draft.key, internalId });
-    context.commit(SET_MESSAGE_IMAP_UID, { key: draft.key, imapUid });
+    store.commit(`mail/${SET_MESSAGE_INTERNAL_ID}`, { key: draft.key, internalId });
+    store.commit(`mail/${SET_MESSAGE_IMAP_UID}`, { key: draft.key, imapUid });
     const mailItem = await inject("MailboxItemsPersistence", draft.folderRef.uid).getCompleteById(internalId);
     const adapted = MessageAdaptor.fromMailboxItem(mailItem, FolderAdaptor.toRef(draft.folderRef.uid));
-    context.commit(SET_MESSAGE_SIZE, { key: draft.key, size: adapted.size });
-    context.commit(SET_MESSAGE_INLINE_PARTS_BY_CAPABILITIES, {
-        key: draft.key,
-        inlinePartsByCapabilities: adapted.inlinePartsByCapabilities
-    });
+    store.commit(`mail/${SET_MESSAGE_SIZE}`, { key: draft.key, size: adapted.size });
 }
 
 function removeCorporateSignatureContent(content, { corporateSignature, disclaimer }) {
     let html = content;
     if (corporateSignature || disclaimer) {
-        const htlmDoc = new DOMParser().parseFromString(html, "text/html");
+        const htlmDoc = new DOMParser().parseFromString(html, MimeType.TEXT_HTML);
         if (corporateSignature) {
             const element = htlmDoc.querySelector(CORPORATE_SIGNATURE_SELECTOR);
             if (element) {
@@ -147,22 +128,32 @@ function removeCorporateSignatureContent(content, { corporateSignature, disclaim
     return html;
 }
 
-function uploadParts(service, textPlain, textHtml, newContentByCid) {
+async function uploadParts(service, textPlain, textHtml) {
     const promises = [];
     promises.push(service.uploadPart(textPlain));
     promises.push(service.uploadPart(textHtml));
-    promises.push(...Object.values(newContentByCid).map(imgContent => service.uploadPart(imgContent)));
-    return Promise.all(promises);
+    const [textAddress, htmlAddress] = await Promise.all(promises);
+    return { textAddress, htmlAddress };
 }
 
-function createDraftStructure(textPlainAddress, textHtmlAddress, attachments, inlineImages) {
-    let structure;
+function updateStructure(existingStructure, textPlainAddress, textHtmlAddress) {
+    const structure = cloneDeep(existingStructure);
+    let alternativePart;
+    if (existingStructure.mime === MimeType.MULTIPART_ALTERNATIVE) {
+        alternativePart = structure;
+    } else {
+        alternativePart = structure.children.find(({ mime }) => mime === MimeType.MULTIPART_ALTERNATIVE);
+    }
 
-    const textPart = PartsBuilder.createTextPart(textPlainAddress);
-    const htmlPart = PartsBuilder.createHtmlPart(textHtmlAddress);
-    structure = PartsBuilder.createAlternativePart(textPart, htmlPart);
-    structure = PartsBuilder.createInlineImageParts(structure, inlineImages);
-    structure = PartsBuilder.createAttachmentParts(attachments, structure);
+    let textPart = alternativePart.children.find(({ mime }) => mime === MimeType.TEXT_PLAIN);
+    textPart.address = textPlainAddress;
+
+    let htmlPart;
+    const relatedPart = alternativePart.children.find(({ mime }) => mime === MimeType.MULTIPART_RELATED);
+    let htmlParent = relatedPart ? relatedPart : alternativePart;
+    htmlPart = htmlParent.children.find(({ mime }) => mime === MimeType.TEXT_HTML);
+
+    htmlPart.address = textHtmlAddress;
 
     return structure;
 }
@@ -208,15 +199,15 @@ async function expandGroupRecipients(recipients) {
     return expanded;
 }
 
-async function manageDispositionNotification(context, draft) {
+async function manageDispositionNotification(draft) {
     const index = draft.headers.findIndex(
         header =>
             new RegExp(MessageHeader.DISPOSITION_NOTIFICATION_TO, "i").test(header.name) &&
             header.values?.filter(Boolean)?.length
     );
     if (index >= 0) {
-        await context.dispatch(ADD_FLAG, { messages: [draft], flag: Flag.MDN_SENT });
+        await store.dispatch(`mail/${ADD_FLAG}`, { messages: [draft], flag: Flag.MDN_SENT });
     } else {
-        await context.dispatch(DELETE_FLAG, { messages: [draft], flag: Flag.MDN_SENT });
+        await store.commit(`mail/${DELETE_FLAG}`, { messages: [draft], flag: Flag.MDN_SENT });
     }
 }

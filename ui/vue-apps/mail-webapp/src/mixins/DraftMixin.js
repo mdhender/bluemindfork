@@ -10,8 +10,7 @@ export default {
                     if (message?.composing) {
                         await this.$store.dispatch(`mail/${SAVE_MESSAGE}`, {
                             draft: message,
-                            messageCompose: this.$store.state.mail.messageCompose,
-                            files: this.message.attachments.map(({ fileKey }) => this.$store.state.mail.files[fileKey])
+                            messageCompose: this.$store.state.mail.messageCompose
                         });
                         this.$store.commit(`mail/${SET_MESSAGE_COMPOSING}`, { messageKey, composing: false });
                     }

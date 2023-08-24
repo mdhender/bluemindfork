@@ -2,10 +2,10 @@ import store from "@bluemind/store";
 import { REMOVE_ATTACHMENT } from "~/actions";
 import { useCommand } from "@bluemind/command";
 
-async function removeAttachment({ attachment, message }) {
+async function removeAttachment({ address, message }) {
     await store.dispatch(`mail/${REMOVE_ATTACHMENT}`, {
         messageKey: message.key,
-        attachment,
+        address,
         messageCompose: store.state.mail.messageCompose
     });
 }

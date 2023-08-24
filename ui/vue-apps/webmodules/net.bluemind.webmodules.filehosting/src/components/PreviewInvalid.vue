@@ -1,7 +1,7 @@
 <script>
-import { mapGetters } from "vuex";
+import { mapMutations } from "vuex";
 import { BmIcon } from "@bluemind/ui-components";
-import { GET_FH_FILE } from "../store/types/getters";
+import { GET_FH_FILE } from "../store/types/mutations";
 
 export default {
     name: "PreviewInvalid",
@@ -17,11 +17,13 @@ export default {
         }
     },
     computed: {
-        ...mapGetters("mail", [GET_FH_FILE]),
         isFhExpiredFile() {
             const file = this.GET_FH_FILE(this.file);
             return file && file.expirationDate < Date.now();
         }
+    },
+    methods: {
+        ...mapMutations("mail", { GET_FH_FILE })
     },
     render(h) {
         if (this.isFhExpiredFile) {

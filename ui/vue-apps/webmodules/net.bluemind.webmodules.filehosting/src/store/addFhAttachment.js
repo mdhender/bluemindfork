@@ -4,21 +4,27 @@ import { ADD_FH_FILE } from "./types/actions";
 const { createFromFile: createPartFromFile } = partUtils;
 const { create, AttachmentAdaptor } = attachmentUtils;
 const { FileStatus } = fileUtils;
+import { PartsBuilder } from "@bluemind/email";
 
 export default async function addFhAttachment({ commit, dispatch }, { file, message, shareFn }) {
     const attachment = createFhAttachment(file, message);
-    const { files, attachments } = AttachmentAdaptor.extractFiles([attachment], message);
-    const adaptedFile = files[0];
-    const adaptedAttachment = attachments[0];
-    commit("ADD_ATTACHMENT", { messageKey: message.key, attachment: adaptedAttachment });
-    commit("SET_MESSAGE_HAS_ATTACHMENT", { key: message.key, hasAttachment: true });
+    const adaptedAttachment = PartsBuilder.createAttachmentPart(attachment);
 
-    const { address } = await dispatch(ADD_FH_FILE, { message, file: adaptedFile, content: file, shareFn });
+    const adaptedFile = AttachmentAdaptor.extractFiles([attachment], message).pop();
+
+    commit("ADD_ATTACHMENT", { messageKey: message.key, attachment: adaptedAttachment });
+
+    const { address, headers } = await dispatch(ADD_FH_FILE, { message, file: adaptedFile, content: file, shareFn });
 
     commit("SET_ATTACHMENT_ADDRESS", {
         messageKey: message.key,
         oldAddress: adaptedAttachment.address,
         address
+    });
+    commit("SET_ATTACHMENT_HEADERS", {
+        messageKey: message.key,
+        address,
+        headers
     });
 }
 

@@ -72,13 +72,13 @@
     </bm-modal>
 </template>
 <script>
-import { mapActions, mapGetters } from "vuex";
+import { mapActions, mapMutations } from "vuex";
 import { BmModal, BmButtonClose, BmButton, BmIcon, BmLabelIcon } from "@bluemind/ui-components";
 import { computeUnit } from "@bluemind/file-utils";
 import { fileUtils } from "@bluemind/mail";
 import DetachmentItem from "./DetachmentItem";
-import { GET_FH_FILE } from "../store/types/getters";
 import { REMOVE_FH_ATTACHMENT } from "../store/types/actions";
+import { getFhInfos } from "../helpers";
 
 const { FileStatus, isUploading } = fileUtils;
 
@@ -99,12 +99,11 @@ export default {
         return { fhFileKeys: [] };
     },
     computed: {
-        ...mapGetters("mail", [GET_FH_FILE]),
         isUploading() {
-            return this.fhFiles.filter(({ status }) => isUploading({ status })).length === this.fhFiles.length;
+            return this.fhFiles.some(({ status }) => status && isUploading({ status }));
         },
-        attachments() {
-            return this.$store.state.mail.conversations.messages[this.message.key]?.attachments || [];
+        allFiles() {
+            return Object.values(this.$store.state.mail.messageCompose.uploadingFiles) || [];
         },
         hasSomeErrorStatus() {
             return this.fhFiles.some(this.hasErrorStatus);
@@ -113,20 +112,19 @@ export default {
             return this.isUploading ? "dots" : "text-secondary";
         },
         fhFiles() {
-            return this.fhFileKeys.map(key => {
-                return { ...this.$store.state.mail.files[key], ...this.GET_FH_FILE({ key }) };
+            return this.fhFileKeys.flatMap(key => {
+                const file = this.$store.state.mail.messageCompose.uploadingFiles[key];
+                const fhFile = file && getFhInfos(file);
+                return { ...file, ...fhFile };
             });
         }
     },
     watch: {
-        attachments(value) {
-            value.forEach(attachment => {
-                const fhFile = this.GET_FH_FILE({ key: attachment.fileKey });
-                if (fhFile && !this.fhFiles.includes(fhFile)) {
-                    const file = this.$store.state.mail.files[attachment.fileKey];
-                    if (file.status === FileStatus.NOT_LOADED) {
-                        this.fhFileKeys.push(file.key);
-                    }
+        allFiles(values) {
+            values.forEach(file => {
+                const fhFile = getFhInfos(file);
+                if (getFhInfos(file) && !this.fhFileKeys.includes(file.key) && file.status === FileStatus.NOT_LOADED) {
+                    this.fhFileKeys.push(file.key);
                 }
             });
         },

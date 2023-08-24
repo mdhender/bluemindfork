@@ -1,1 +1,2 @@
 export const SET_CONFIGURATION = "SET_CONFIGURATION";
+export const GET_FH_FILE = "GET_FH_FILE";

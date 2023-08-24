@@ -9,7 +9,7 @@ import { Flag } from "@bluemind/email";
 import { LoadingStatus } from "../loading-status";
 import EmlParser from "./EmlParser";
 import MessageAdaptor from "./MessageAdaptor";
-import { getReportsParts, hasAttachment, computeParts } from "./structureParsers";
+import { getReportsParts, hasAttachment, computeParts, getLeafParts } from "./structureParsers";
 
 export function createOnlyMetadata({ internalId, folder: { key, uid }, conversationRef, date }) {
     return {
@@ -291,6 +291,7 @@ export default {
     extractHeaderValues,
     findDispositionNotificationHeaderIndex,
     generateMessageIDHeader,
+    getLeafParts,
     getReportsParts,
     hasAttachment,
     isFlagged,

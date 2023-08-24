@@ -7,14 +7,15 @@ import { folderUtils, messageUtils } from "@bluemind/mail";
 
 import { ADD_FLAG, SAVE_MESSAGE } from "~/actions";
 import { REMOVE_MESSAGES, SET_MESSAGES_STATUS } from "~/mutations";
+import apiMessages from "../../api/apiMessages";
 
 const { MessageAdaptor, MessageStatus, MessageHeader, MessageCreationModes } = messageUtils;
 
 /** Send draft: save it, move it to the Outbox then flush. */
-export default async function (context, { draft, myMailboxKey, outbox, myDraftsFolder, messageCompose, files }) {
+export default async function (context, { draft, myMailboxKey, outbox, myDraftsFolder, messageCompose }) {
     draft = context.state[draft.key];
 
-    await context.dispatch(SAVE_MESSAGE, { draft, messageCompose, files });
+    await context.dispatch(SAVE_MESSAGE, { draft, messageCompose });
 
     context.commit(SET_MESSAGES_STATUS, [{ key: draft.key, status: MessageStatus.SENDING }]);
 
@@ -29,15 +30,9 @@ export default async function (context, { draft, myMailboxKey, outbox, myDraftsF
     const taskResult = await flush(); // flush means send mail + move to sentbox
 
     manageFlagOnPreviousMessage(context, draft);
-    removeAttachmentAndInlineTmpParts(draft, messageCompose);
+    apiMessages.removeParts(draft);
 
     return await getSentMessage(taskResult, messageInOutboxId, outbox);
-}
-
-function removeAttachmentAndInlineTmpParts(draft, messageCompose) {
-    const service = inject("MailboxItemsPersistence", draft.folderRef.uid);
-    const addresses = draft.attachments.concat(messageCompose.inlineImagesSaved).map(part => part.address);
-    addresses.forEach(address => service.removePart(address));
 }
 
 async function getSentMessage(taskResult, messageInOutboxId, outbox) {

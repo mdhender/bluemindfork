@@ -48,16 +48,10 @@ export default async function addFhFile({ commit }, { file, message, content, sh
 function handleError(commit, message, error, file) {
     if (error.name === "AbortError") {
         commit("REMOVE_ATTACHMENT", { messageKey: message.key, address: file.address });
-        commit("REMOVE_FILE", { key: file.key });
-        commit("SET_MESSAGE_HAS_ATTACHMENT", {
-            key: message.key,
-            hasAttachment: message.attachments.length > 0
-        });
     } else {
         commit("SET_FILE_PROGRESS", {
             key: file.key,
-            loaded: 100,
-            total: 100
+            progress: { loaded: 100, total: 100 }
         });
         commit("SET_FILE_STATUS", {
             key: file.key,

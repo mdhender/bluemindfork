@@ -13,9 +13,9 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapMutations } from "vuex";
 import { BmLabelIcon, BmIcon } from "@bluemind/ui-components";
-import { GET_FH_FILE } from "../store/types/getters";
+import { getFhHeader } from "../helpers";
 
 export default {
     name: "CloudIcon",
@@ -27,9 +27,8 @@ export default {
         }
     },
     computed: {
-        ...mapGetters("mail", [GET_FH_FILE]),
         isFhFile() {
-            return !!this.GET_FH_FILE(this.file);
+            return !!getFhHeader(this.file.headers);
         },
         hasExpired() {
             return this.file.expirationDate && this.file.expirationDate < Date.now();

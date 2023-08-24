@@ -1,21 +1,27 @@
+import Vue from "vue";
 import { inject } from "@bluemind/inject";
 import { LOAD_MAX_MESSAGE_SIZE } from "~/actions";
 import {
+    ADD_FILE,
     RESET_COMPOSER,
+    RESET_FILES,
     SET_CORPORATE_SIGNATURE,
-    SET_PERSONAL_SIGNATURE,
     SET_DISCLAIMER,
     SET_DRAFT_COLLAPSED_CONTENT,
     SET_DRAFT_EDITOR_CONTENT,
-    SET_MAX_MESSAGE_SIZE,
+    SET_FILE_ADDRESS,
+    SET_FILE_HEADERS,
+    SET_FILE_PROGRESS,
+    SET_FILE_STATUS,
     SET_MAIL_TIPS,
+    SET_MAX_MESSAGE_SIZE,
+    SET_PERSONAL_SIGNATURE,
     SET_SAVED_INLINE_IMAGES,
     SHOW_SENDER,
     UNSET_CORPORATE_SIGNATURE
 } from "~/mutations";
 import { IS_SENDER_SHOWN } from "~/getters";
 import templateChooser from "./templateChooser";
-
 export default {
     mutations: {
         [RESET_COMPOSER]: state => {
@@ -64,6 +70,33 @@ export default {
         },
         SET_SAVE_ERROR: (state, error) => {
             state.maxMessageSizeExceeded = error?.data?.errorCode === "ENTITY_TOO_LARGE";
+        },
+        [RESET_FILES]: state => {
+            state.uploadingFiles = {};
+        },
+        [ADD_FILE]: (state, { file }) => {
+            Vue.set(state.uploadingFiles, file.key, file);
+        },
+        [SET_FILE_PROGRESS]: (state, { key, progress }) => {
+            updateUploadingFiles(state, key, { progress });
+        },
+        [SET_FILE_STATUS]: (state, { key, status }) => {
+            updateUploadingFiles(state, key, { status });
+        },
+        [SET_FILE_HEADERS]: (state, { key, headers }) => {
+            updateUploadingFiles(state, key, { headers });
+        },
+        [SET_FILE_ADDRESS]: (state, { key, address }) => {
+            updateUploadingFiles(state, key, { address });
+        },
+
+        // Listeners
+        REMOVE_ATTACHMENT: (state, { address }) => {
+            const index = Object.values(state.uploadingFiles).findIndex(file => address === file.address);
+            if (index > -1) {
+                const key = Object.keys(state.uploadingFiles)[index];
+                Vue.delete(state.uploadingFiles, key);
+            }
         }
     },
 
@@ -91,9 +124,24 @@ export default {
         maxMessageSizeExceeded: false,
         showFormattingToolbar: false,
         synced: ["showFormattingToolbar"],
-        mailTips: []
+        mailTips: [],
+        uploadingFiles: {}
     },
     modules: {
         templateChooser
     }
 };
+
+function updateUploadingFiles(state, key, update) {
+    if (!state.uploadingFiles[key]) {
+        Vue.set(state.uploadingFiles, key, {});
+    }
+    const file = state.uploadingFiles[key];
+    Object.keys(update).forEach(keyEntry => {
+        const value = update[keyEntry];
+        if (!(keyEntry in file)) {
+            Vue.set(file, keyEntry, value);
+        }
+        file[keyEntry] = value;
+    });
+}

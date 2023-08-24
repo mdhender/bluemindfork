@@ -80,5 +80,5 @@ export const SHOW_MORE_FOR_USERS = "SHOW_MORE_FOR_USERS";
 // search
 export const RESET_CURRENT_SEARCH = "RESET_CURRENT_SEARCH";
 
-//files
-export const SET_FILES = "SET_FILES";
+//preview
+export const SET_PREVIEW = "SET_PREVIEW";

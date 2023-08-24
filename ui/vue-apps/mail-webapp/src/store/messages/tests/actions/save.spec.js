@@ -4,15 +4,13 @@ import ServiceLocator from "@bluemind/inject";
 import { messageUtils, fileUtils } from "@bluemind/mail";
 
 import { saveAsap } from "../../actions/save";
-import htmlWithBase64Images from "../data/htmlWithBase64Images";
 import { MY_DRAFTS } from "~/getters";
 import { SET_MESSAGES_STATUS } from "~/mutations";
 
 const { MessageAdaptor, MessageStatus, createWithMetadata } = messageUtils;
 const { FileStatus } = fileUtils;
-
+import store from "@bluemind/store";
 jest.mock("../../../api/apiMessages");
-
 let itemsService, draft, context, saveParams;
 
 const draftInternalId = "draft-internal-id";
@@ -21,6 +19,8 @@ const messageCompose = { editorContent: "", collapsedContent: null, inlineImages
 
 describe("[Mail-WebappStore][actions] :  save", () => {
     beforeEach(() => {
+        store.commit = jest.fn();
+
         itemsService = new MockMailboxItemsClient();
         ServiceLocator.register({ provide: "MailboxItemsPersistence", factory: () => itemsService });
 
@@ -28,6 +28,30 @@ describe("[Mail-WebappStore][actions] :  save", () => {
             internalId: draftInternalId,
             folder: { key: draftFolderKey, uid: draftFolderKey }
         });
+        draft.structure = {
+            mime: "multipart/mixed",
+            children: [
+                {
+                    mime: "multipart/alternative",
+                    children: [
+                        {
+                            address: "old",
+                            charset: "utf-8",
+                            encoding: "quoted-printable",
+                            mime: "text/plain"
+                        },
+                        {
+                            address: "old",
+                            charset: "utf-8",
+                            encoding: "quoted-printable",
+                            mime: "text/html"
+                        }
+                    ]
+                },
+                { address: "2" },
+                { address: "3" }
+            ]
+        };
         draft.inlinePartsByCapabilities = [{ capabilities: [MimeType.TEXT_HTML], parts: [] }];
         draft.date = new Date();
         draft.status = MessageStatus.IDLE;
@@ -49,13 +73,13 @@ describe("[Mail-WebappStore][actions] :  save", () => {
 
     test("Save new draft", async () => {
         await saveAsap(context, saveParams);
-        expect(context.commit).toHaveBeenNthCalledWith(1, SET_MESSAGES_STATUS, [
+        expect(store.commit).toHaveBeenNthCalledWith(1, `mail/${SET_MESSAGES_STATUS}`, [
             {
                 key: draft.key,
                 status: MessageStatus.SAVING
             }
         ]);
-        expect(context.commit).toHaveBeenNthCalledWith(11, SET_MESSAGES_STATUS, [
+        expect(store.commit).toHaveBeenNthCalledWith(9, `mail/${SET_MESSAGES_STATUS}`, [
             {
                 key: draft.key,
                 status: MessageStatus.IDLE
@@ -121,81 +145,12 @@ describe("[Mail-WebappStore][actions] :  save", () => {
         await saveAsap(context, saveParams);
         expect(itemsService.updateById).toHaveBeenCalledWith(draftInternalId, expect.anything());
         expect(itemsService.updateById).toThrow(new Error());
-        expect(context.commit).toHaveBeenNthCalledWith(7, SET_MESSAGES_STATUS, [
+        expect(store.commit).toHaveBeenNthCalledWith(6, `mail/${SET_MESSAGES_STATUS}`, [
             {
                 key: draft.key,
                 status: MessageStatus.SAVE_ERROR
             }
         ]);
         jest.spyOn(global.console, "error");
-    });
-
-    test("With inline images", async () => {
-        messageCompose.editorContent = htmlWithBase64Images;
-        const expectedStructureInlineImages = {
-            children: [
-                {
-                    address: "tmpAddress",
-                    charset: "utf-8",
-                    encoding: "quoted-printable",
-                    mime: "text/plain"
-                },
-                {
-                    children: [
-                        {
-                            address: "tmpAddress",
-                            charset: "utf-8",
-                            encoding: "quoted-printable",
-                            mime: "text/html"
-                        },
-                        {
-                            address: "tmpAddress",
-                            contentId: "<cid1@bluemind.net>",
-                            dispositionType: "INLINE",
-                            encoding: "base64",
-                            mime: "image/png"
-                        },
-                        {
-                            address: "tmpAddress",
-                            contentId: "<cid2@bluemind.net>",
-                            dispositionType: "INLINE",
-                            encoding: "base64",
-                            mime: "image/svg+xml"
-                        }
-                    ],
-                    mime: "multipart/related"
-                }
-            ],
-            mime: "multipart/alternative"
-        };
-
-        await saveAsap(context, saveParams);
-        expect(context.commit).toHaveBeenNthCalledWith(1, SET_MESSAGES_STATUS, [
-            {
-                key: draft.key,
-                status: MessageStatus.SAVING
-            }
-        ]);
-        expect(context.commit).toHaveBeenNthCalledWith(11, SET_MESSAGES_STATUS, [
-            {
-                key: draft.key,
-                status: MessageStatus.IDLE
-            }
-        ]);
-        expect(itemsService.uploadPart).toBeCalledTimes(4);
-        expect(itemsService.uploadPart).toHaveBeenCalledWith(
-            expect.stringContaining('<img data-bm-cid="<cid1@bluemind.net>" src="cid:cid1@bluemind.net">')
-        );
-        expect(itemsService.uploadPart).toHaveBeenCalledWith(
-            expect.stringContaining('<img data-bm-cid="<cid2@bluemind.net>" src="cid:cid2@bluemind.net">')
-        );
-
-        expect(itemsService.updateById).toHaveBeenCalledWith(draftInternalId, expect.anything());
-        const mailboxItemArg = itemsService.updateById.mock.calls[0][1];
-        expect(mailboxItemArg).toMatchObject({
-            body: {
-                structure: expectedStructureInlineImages
-            }
-        });
     });
 });

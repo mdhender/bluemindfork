@@ -38,8 +38,7 @@ async function addAttachments({ files, message, maxSize }) {
     await Promise.all(promises);
     await store.dispatch(`mail/${DEBOUNCED_SAVE_MESSAGE}`, {
         draft: message,
-        messageCompose: store.state.mail.messageCompose,
-        files: message.attachments.map(({ fileKey }) => store.state.mail.files[fileKey])
+        messageCompose: store.state.mail.messageCompose
     });
 }
 

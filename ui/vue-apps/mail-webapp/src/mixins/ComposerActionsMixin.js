@@ -30,11 +30,12 @@ import {
     SET_MESSAGE_COMPOSING,
     SET_MESSAGE_SUBJECT
 } from "~/mutations";
+import { MAX_RECIPIENTS } from "../utils";
+import apiMessages from "~/store/api/apiMessages";
 
 const { isNewMessage, createFromDraft } = draftUtils;
 const { MessageStatus } = messageUtils;
 const { FileStatus } = fileUtils;
-import { MAX_RECIPIENTS } from "../utils";
 
 /**
  * Provide composition Vuex actions to components
@@ -73,7 +74,9 @@ export default {
             return this.message.folderRef.key === this.$store.getters[`mail/${MY_TEMPLATES}`].key;
         },
         anyAttachmentInError() {
-            return this.message.attachments.some(a => a.status === FileStatus.ERROR);
+            return Object.values(this.$store.state.mail.messageCompose.uploadingFiles).some(
+                ({ status }) => status === FileStatus.ERROR
+            );
         },
         maxRecipientsExceeded() {
             return this.message.to.length + this.message.cc.length + this.message.bcc.length > MAX_RECIPIENTS;
@@ -120,15 +123,13 @@ export default {
         async debouncedSave() {
             await this.$_ComposerActionsMixin_DEBOUNCED_SAVE({
                 draft: this.message,
-                messageCompose: cloneDeep(this.$_ComposerActionsMixin_messageCompose),
-                files: this.message.attachments.map(({ fileKey }) => this.$store.state.mail.files[fileKey])
+                messageCompose: cloneDeep(this.$_ComposerActionsMixin_messageCompose)
             });
         },
         async saveAsap() {
             await this.$_ComposerActionsMixin_SAVE_MESSAGE({
                 draft: this.message,
-                messageCompose: cloneDeep(this.$_ComposerActionsMixin_messageCompose),
-                files: this.message.attachments.map(({ fileKey }) => this.$store.state.mail.files[fileKey])
+                messageCompose: cloneDeep(this.$_ComposerActionsMixin_messageCompose)
             });
         },
         async saveMessageAs(saveAction, folder) {
@@ -177,7 +178,7 @@ export default {
                     conversation: this.$_ComposerActionsMixin_CURRENT_CONVERSATION_METADATA,
                     messages: [this.message]
                 });
-                this.removeAttachmentAndInlineTmpParts();
+                apiMessages.removeParts(this.message);
                 if (!this.$_ComposerActionsMixin_CONVERSATIONS_ACTIVATED) {
                     this.$router.navigate("v:mail:home");
                 } else {
@@ -195,7 +196,6 @@ export default {
                 outbox: this.$_ComposerActionsMixin_MY_OUTBOX,
                 myDraftsFolder: this.$_ComposerActionsMixin_MY_DRAFTS,
                 messageCompose: cloneDeep(this.$_ComposerActionsMixin_messageCompose),
-                files: this.message.attachments.map(({ fileKey }) => this.$store.state.mail.files[fileKey]),
                 subject: this.message.subject
             });
             if (
@@ -204,15 +204,6 @@ export default {
                 this.$_ComposerActionsMixin_CURRENT_CONVERSATION_METADATA.messages.length < 2
             ) {
                 this.$router.navigate("v:mail:home");
-            }
-        },
-        removeAttachmentAndInlineTmpParts() {
-            const addresses = this.message.attachments
-                .concat(this.$_ComposerActionsMixin_messageCompose.inlineImagesSaved)
-                .map(part => part.address);
-            if (addresses?.length) {
-                const service = inject("MailboxItemsPersistence", this.message.folderRef.uid);
-                addresses.forEach(address => service.removePart(address));
             }
         },
         async endEdition() {

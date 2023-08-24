@@ -44,12 +44,17 @@
 import { mapActions, mapMutations, mapState } from "vuex";
 import { BmAlertArea, BmCollapse, BmModal } from "@bluemind/ui-components";
 import { REMOVE } from "@bluemind/alert.store";
+import { attachmentUtils, messageUtils } from "@bluemind/mail";
 
 import { RESET_PREVIEW, SET_PREVIEW_FILE_KEY } from "~/mutations";
 import PreviewFile from "./Preview/PreviewFile";
 import PreviewMessage from "./Preview/PreviewMessage";
 import PreviewHeader from "./Preview/PreviewHeader";
 import GlobalEvents from "vue-global-events";
+import PreviewFileHeader from "./Preview/PreviewFileHeader";
+const { computeParts } = messageUtils;
+
+const { AttachmentAdaptor } = attachmentUtils;
 
 export default {
     name: "PreviewModal",
@@ -63,14 +68,18 @@ export default {
         GlobalEvents
     },
     data() {
-        return { expanded: true };
+        return { expanded: true, computedParts: {} };
     },
     computed: {
-        ...mapState({ alerts: state => state.alert.filter(({ area }) => !area) }),
-        ...mapState("mail", ["files"]),
+        ...mapState({
+            alerts: state => state.alert.filter(({ area }) => !area),
+            fileKeyToPreview: state => state.mail.preview.fileKey
+        }),
+        files() {
+            return AttachmentAdaptor.extractFiles(this.computedParts.attachments, this.message);
+        },
         message() {
             const message = this.$store.state.mail.conversations.messages[this.$store.state.mail.preview.messageKey];
-
             return message
                 ? {
                       ...message,
@@ -79,13 +88,21 @@ export default {
                 : undefined;
         },
         file() {
-            return this.files[this.$store.state.mail.preview.fileKey];
+            return this.files.find(({ key }) => key === this.fileKeyToPreview);
         },
         fileIndex() {
-            return Object.keys(this.files).findIndex(key => this.$store.state.mail.preview.fileKey === key);
+            return this.files.findIndex(({ key }) => this.fileKeyToPreview === key);
         },
         filesCount() {
-            return Object.keys(this.files).length;
+            return this.files.length;
+        }
+    },
+    watch: {
+        "message.structure": {
+            handler(structure) {
+                this.computedParts = computeParts(structure);
+            },
+            immediate: true
         }
     },
     methods: {
@@ -98,10 +115,9 @@ export default {
             this.selectPreview(this.fileIndex, index => index + this.filesCount - 1);
         },
         selectPreview(current, iterator) {
-            const files = Object.values(this.files);
             const index = iterator(current) % this.filesCount;
             if (index !== this.fileIndex) {
-                const file = files[index];
+                const file = this.files[index];
                 this.SET_PREVIEW_FILE_KEY(file.key);
             }
         }

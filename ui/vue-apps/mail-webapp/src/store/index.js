@@ -3,7 +3,6 @@ import addressAutocomplete from "./addressAutocomplete";
 import consultPanel from "./consultPanel";
 import conversationList from "./conversationList";
 import conversations from "./conversations";
-import files from "./files";
 import folderList from "./folderList";
 import folders from "./folders";
 import mailboxes from "./mailboxes";
@@ -25,7 +24,6 @@ export default {
         consultPanel,
         conversationList,
         conversations,
-        files,
         folderList,
         folders,
         mailboxes,

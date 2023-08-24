@@ -47,8 +47,7 @@ function onUploadProgressMonitor(commit, fileKey) {
     return progress => {
         commit("SET_FILE_PROGRESS", {
             key: fileKey,
-            loaded: progress.loaded,
-            total: progress.total
+            progress: { loaded: progress.loaded, total: progress.total }
         });
     };
 }

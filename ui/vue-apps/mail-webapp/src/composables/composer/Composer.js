@@ -77,8 +77,7 @@ export function useComposer(message, contentRef) {
         store.dispatch(`mail/${TOGGLE_DSN_REQUEST}`, message.value);
         store.dispatch(`mail/${DEBOUNCED_SAVE_MESSAGE}`, {
             draft: message.value,
-            messageCompose: cloneDeep(store.state.mail.messageCompose),
-            files: message.value.attachments.map(({ fileKey }) => store.state.mail.files[fileKey])
+            messageCompose: cloneDeep(store.state.mail.messageCompose)
         });
     }
 
@@ -92,8 +91,7 @@ export function useComposer(message, contentRef) {
         store.commit(`mail/${SET_MESSAGE_HEADERS}`, { messageKey: message.value.key, headers });
         store.dispatch(`mail/${DEBOUNCED_SAVE_MESSAGE}`, {
             draft: message.value,
-            messageCompose: cloneDeep(store.state.mail.messageCompose),
-            files: message.value.attachments.map(({ fileKey }) => store.state.mail.files[fileKey])
+            messageCompose: cloneDeep(store.state.mail.messageCompose)
         });
     }
 

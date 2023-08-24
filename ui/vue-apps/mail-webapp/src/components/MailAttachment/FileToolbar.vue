@@ -4,7 +4,7 @@
             v-if="hasButton(ActionButtons.PREVIEW) && isViewable(file)"
             :file="file"
             :disabled="!isAllowedToPreview(file)"
-            @preview="$emit('preview')"
+            @preview="preview(file)"
         />
         <download-button v-if="hasButton(ActionButtons.DOWNLOAD)" :ref="`download-button-${file.key}`" :file="file" />
         <bm-extension id="webapp" type="list" path="file.actions" :file="file" class="d-flex align-items-center" />
@@ -16,9 +16,9 @@
 </template>
 
 <script>
-import { mapMutations } from "vuex";
+import { mapActions, mapMutations } from "vuex";
 import { BmButtonToolbar } from "@bluemind/ui-components";
-import { SET_PREVIEW_MESSAGE_KEY, SET_PREVIEW_FILE_KEY } from "~/mutations";
+import { SET_PREVIEW } from "~/actions";
 import { RemoveAttachmentCommand } from "~/commands";
 import { fileUtils, partUtils } from "@bluemind/mail";
 import { BmExtension } from "@bluemind/extensions.vue";
@@ -64,17 +64,19 @@ export default {
         };
     },
     methods: {
-        ...mapMutations("mail", { SET_PREVIEW_MESSAGE_KEY, SET_PREVIEW_FILE_KEY }),
-
+        ...mapActions("mail", { SET_PREVIEW }),
         download(file) {
             this.$refs[`download-button-${file.key}`].download();
         },
-        removeAttachment({ key }) {
-            const attachment = this.message.attachments.find(attachment => attachment.fileKey === key);
-            this.$execute("remove-attachment", { attachment, message: this.message });
+        removeAttachment({ address }) {
+            this.$execute("remove-attachment", { address, message: this.message });
         },
         hasButton(button) {
             return this.buttons.length === 0 || this.buttons.includes(button);
+        },
+        preview(file) {
+            this.SET_PREVIEW({ messageKey: this.message.key, fileKey: file.key });
+            this.$bvModal.show("preview-modal");
         },
         isViewable,
         isAllowedToPreview

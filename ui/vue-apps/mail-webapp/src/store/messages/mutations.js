@@ -1,4 +1,6 @@
 import Vue from "vue";
+import { PartsBuilder, MimeType } from "@bluemind/email";
+
 import {
     ADD_ATTACHMENT,
     ADD_FLAG,
@@ -11,13 +13,12 @@ import {
     REMOVE_MESSAGES,
     RESET_CONVERSATIONS,
     SET_ATTACHMENT_ADDRESS,
-    SET_ATTACHMENTS,
+    SET_ATTACHMENT_HEADERS,
     SET_MESSAGE_BCC,
     SET_MESSAGE_CC,
     SET_MESSAGE_COMPOSING,
     SET_MESSAGE_DATE,
     SET_MESSAGE_FROM,
-    SET_MESSAGE_HAS_ATTACHMENT,
     SET_MESSAGE_HEADERS,
     SET_MESSAGE_IMAP_UID,
     SET_MESSAGE_INLINE_PARTS_BY_CAPABILITIES,
@@ -25,13 +26,13 @@ import {
     SET_MESSAGE_PREVIEW,
     SET_MESSAGE_STRUCTURE,
     SET_MESSAGE_SUBJECT,
-    SET_MESSAGE_TMP_ADDRESSES,
     SET_MESSAGE_TO,
     SET_MESSAGE_LOADING_STATUS,
     SET_MESSAGES_LOADING_STATUS,
     SET_MESSAGE_SIZE,
     SET_MESSAGES_STATUS
 } from "~/mutations";
+import { cloneDeep } from "lodash";
 
 export default {
     [ADD_MESSAGES]: (state, { messages, preserve }) => {
@@ -78,6 +79,15 @@ export default {
     [SET_MESSAGE_STRUCTURE]: (state, { messageKey, structure }) => {
         state[messageKey].structure = structure;
     },
+    [ADD_ATTACHMENT]: (state, { messageKey, attachment }) => {
+        let structure = cloneDeep(state[messageKey].structure);
+        if (structure.mime === MimeType.MULTIPART_ALTERNATIVE) {
+            structure = PartsBuilder.createAttachmentParts([attachment], state[messageKey].structure);
+        } else {
+            structure.children.push(attachment);
+        }
+        state[messageKey].structure = structure;
+    },
     [SET_MESSAGE_SUBJECT]: (state, { messageKey, subject }) => {
         state[messageKey].subject = subject;
     },
@@ -86,9 +96,6 @@ export default {
     },
     [SET_MESSAGE_FROM]: (state, { messageKey, from }) => {
         state[messageKey].from = from;
-    },
-    [SET_MESSAGE_HAS_ATTACHMENT]: (state, { key, hasAttachment }) => {
-        state[key].hasAttachment = hasAttachment;
     },
     [SET_MESSAGE_HEADERS]: (state, { messageKey, headers }) => {
         state[messageKey].headers = headers;
@@ -117,28 +124,23 @@ export default {
     [SET_MESSAGE_IMAP_UID]: (state, { key, imapUid }) => {
         state[key].remoteRef.imapUid = imapUid;
     },
-    [SET_MESSAGE_TMP_ADDRESSES]: (state, { key, attachments, inlinePartsByCapabilities }) => {
-        state[key].attachments = attachments;
-        state[key].inlinePartsByCapabilities = inlinePartsByCapabilities;
-    },
-    [ADD_ATTACHMENT]: (state, { messageKey, attachment }) => {
-        state[messageKey].attachments.push(attachment);
-    },
-    [SET_ATTACHMENTS]: (state, { messageKey, attachments }) => {
-        state[messageKey].attachments = attachments;
-    },
     [REMOVE_ATTACHMENT]: (state, { messageKey, address }) => {
-        const attachments = state[messageKey].attachments;
-        const index = attachments.findIndex(a => a.address === address);
-        attachments.splice(index, 1);
+        let structure = cloneDeep(state[messageKey].structure);
+        const index = structure.children?.findIndex(part => part.address === address);
+        if (index > -1) {
+            structure.children.splice(index, 1);
+        }
+        if (structure.children.length === 1 && structure.children[0].mime === MimeType.MULTIPART_ALTERNATIVE) {
+            structure = structure.children[0];
+        }
+        state[messageKey].structure = structure;
     },
     [SET_ATTACHMENT_ADDRESS]: (state, { messageKey, oldAddress, address }) => {
-        const attachment = state[messageKey].attachments.find(a => a.address === oldAddress);
-        if (attachment) {
-            attachment.address = address;
-        }
+        state[messageKey].structure = updateAttachment(state[messageKey].structure, oldAddress, { address });
     },
-
+    [SET_ATTACHMENT_HEADERS]: (state, { messageKey, address, headers }) => {
+        state[messageKey].structure = updateAttachment(state[messageKey].structure, address, { headers });
+    },
     // Hooks
     [REMOVE_CONVERSATIONS]: (state, conversations) => {
         conversations.forEach(({ messages }) => messages.forEach(key => Vue.delete(state, key)));
@@ -149,3 +151,13 @@ export default {
         }
     }
 };
+
+function updateAttachment(structure, address, update = {}) {
+    const newStructure = cloneDeep(structure);
+    const index = newStructure.children?.findIndex(part => part.address === address);
+    if (index > -1) {
+        const key = Object.keys(update).pop();
+        newStructure.children[index][key] = update[key];
+    }
+    return newStructure;
+}

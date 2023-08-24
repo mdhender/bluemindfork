@@ -12,13 +12,7 @@
                     @click-item="previewOrDownload"
                 >
                     <template #actions="{ file: slotFile }">
-                        <file-toolbar
-                            ref="toolbar"
-                            :buttons="actionButtons"
-                            :file="slotFile"
-                            :message="message"
-                            @preview="previewFile(file.key)"
-                        />
+                        <file-toolbar ref="toolbar" :buttons="actionButtons" :file="slotFile" :message="message" />
                     </template>
                     <template #overlay="{ file: slotFile, hasPreview }">
                         <preview-overlay v-if="hasPreview" />
@@ -31,9 +25,9 @@
 </template>
 
 <script>
-import { mapMutations, mapState } from "vuex";
+import { mapActions, mapMutations, mapState } from "vuex";
 import { partUtils, fileUtils } from "@bluemind/mail";
-import { SET_PREVIEW_MESSAGE_KEY, SET_PREVIEW_FILE_KEY } from "~/mutations";
+import { SET_PREVIEW } from "~/actions";
 import MailViewerContent from "../../MailViewer/MailViewerContent";
 import FileItem from "../FileItem";
 import FilesHeader from "../FilesHeader";
@@ -74,9 +68,8 @@ export default {
         })
     },
     methods: {
-        ...mapMutations("mail", {
-            SET_PREVIEW_MESSAGE_KEY,
-            SET_PREVIEW_FILE_KEY
+        ...mapActions("mail", {
+            SET_PREVIEW
         }),
         download(file) {
             this.$refs.toolbar[0].download(file);
@@ -91,11 +84,7 @@ export default {
             }
         },
         previewFile(fileKey) {
-            if (!Object.keys(this.filesToPreview).includes(fileKey)) {
-                this.SET_FILES({ files: this.files });
-            }
-            this.SET_PREVIEW_MESSAGE_KEY(this.message.key);
-            this.SET_PREVIEW_FILE_KEY(fileKey);
+            this.SET_PREVIEW({ messageKey: this.message.key, fileKey: fileKey });
         },
         isViewable,
         isLarge

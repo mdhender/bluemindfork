@@ -24,8 +24,7 @@ export default {
 
             await this.$store.dispatch(`mail/DEBOUNCED_SAVE_MESSAGE`, {
                 draft: message,
-                messageCompose: this.$store.state.mail.messageCompose,
-                files: message.attachments.map(({ fileKey }) => this.$store.state.mail.files[fileKey])
+                messageCompose: this.$store.state.mail.messageCompose
             });
         }
     }

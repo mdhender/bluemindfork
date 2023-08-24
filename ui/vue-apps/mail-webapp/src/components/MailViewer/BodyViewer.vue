@@ -16,13 +16,7 @@
                     @remote-content="triggerRemoteContent"
                 >
                     <template #actions="{ file }">
-                        <file-toolbar
-                            ref="toolbar"
-                            :buttons="actionButtons"
-                            :file="file"
-                            :message="message"
-                            @preview="previewFiles(file.key)"
-                        />
+                        <file-toolbar ref="toolbar" :buttons="actionButtons" :file="file" :message="message" />
                     </template>
                     <template #overlay="slotProps">
                         <preview-overlay v-if="slotProps.hasPreview" />
@@ -47,9 +41,8 @@ import { BmExtension } from "@bluemind/extensions.vue";
 import { hasRemoteImages } from "@bluemind/html-utils";
 import { attachmentUtils, fileUtils, partUtils, messageUtils } from "@bluemind/mail";
 
-import { FETCH_PART_DATA, SET_FILES } from "~/actions";
+import { FETCH_PART_DATA, SET_PREVIEW } from "~/actions";
 import { CONVERSATION_MESSAGE_BY_KEY } from "~/getters";
-import { SET_PREVIEW_FILE_KEY, SET_PREVIEW_MESSAGE_KEY } from "~/mutations";
 
 import FilesBlock from "../MailAttachment/FilesBlock";
 import FileToolbar from "../MailAttachment/FileToolbar";
@@ -88,8 +81,7 @@ export default {
     },
     computed: {
         ...mapState("mail", {
-            currentEvent: state => state.consultPanel.currentEvent,
-            filesToPreview: state => state.files || {}
+            currentEvent: state => state.consultPanel.currentEvent
         }),
         ...mapGetters("mail", { CONVERSATION_MESSAGE_BY_KEY }),
         contents() {
@@ -99,7 +91,7 @@ export default {
             return getPartsFromCapabilities(this.computedParts, VIEWER_CAPABILITIES);
         },
         files() {
-            const { files } = AttachmentAdaptor.extractFiles(this.computedParts.attachments, this.message);
+            const files = AttachmentAdaptor.extractFiles(this.computedParts.attachments, this.message);
             const fallback = this.inlineParts
                 .filter(part => !isViewable(part))
                 .map(part => createAttachment(part, FileStatus.ONLY_LOCAL));
@@ -129,8 +121,7 @@ export default {
         }
     },
     methods: {
-        ...mapActions("mail", { FETCH_PART_DATA, SET_FILES }),
-        ...mapMutations("mail", { SET_PREVIEW_MESSAGE_KEY, SET_PREVIEW_FILE_KEY }),
+        ...mapActions("mail", { FETCH_PART_DATA, SET_PREVIEW }),
         download(file) {
             this.$refs.toolbar.download(file);
         },
@@ -140,18 +131,14 @@ export default {
         previewOrDownload(file) {
             if (!isUploading(file)) {
                 if (isAllowedToPreview(file)) {
-                    this.previewFiles(file.key);
+                    this.previewFile(file.key);
                 } else {
                     this.download(file);
                 }
             }
         },
-        previewFiles(fileKey) {
-            if (!Object.keys(this.filesToPreview).includes(fileKey)) {
-                this.SET_FILES({ files: this.files });
-            }
-            this.SET_PREVIEW_MESSAGE_KEY(this.message.key);
-            this.SET_PREVIEW_FILE_KEY(fileKey);
+        previewFile(fileKey) {
+            this.SET_PREVIEW({ messageKey: this.message.key, fileKey: fileKey });
             this.$bvModal.show("preview-modal");
         },
         isViewable,

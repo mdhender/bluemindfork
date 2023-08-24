@@ -1,11 +1,12 @@
 import { LINKS_CLASSNAME, renderLinksWithFrameComponent } from "./renderers";
-import { fileUtils, messageUtils, signatureUtils } from "@bluemind/mail";
+import { attachmentUtils, fileUtils, messageUtils, signatureUtils } from "@bluemind/mail";
 import store from "@bluemind/store";
-import { GET_FH_FILE } from "../store/types/getters";
+import { getFhHeader, getFhInfos } from "./index";
 
 const { CORPORATE_SIGNATURE_SELECTOR, PERSONAL_SIGNATURE_SELECTOR } = signatureUtils;
 const { FileStatus } = fileUtils;
-const { MessageReplyAttributeSeparator, MessageForwardAttributeSeparator } = messageUtils;
+const { MessageReplyAttributeSeparator, MessageForwardAttributeSeparator, computeParts } = messageUtils;
+const { AttachmentAdaptor } = attachmentUtils;
 
 export default function (vm, message) {
     const messageCompose = store.state.mail.messageCompose;
@@ -17,6 +18,7 @@ export default function (vm, message) {
         previousLinks.remove();
     }
     const files = getUploadedFiles(message);
+
     const composerLinks = renderLinksWithFrameComponent(vm, files);
     composerLinks.$mount();
     const signatureNode = getSignatureNode.call(this, fragment, messageCompose);
@@ -37,11 +39,22 @@ function getSignatureNode(fragment, messageCompose) {
 }
 
 function getUploadedFiles(message) {
-    return message.attachments.flatMap(attachment => {
-        const fhFile = store.getters[`mail/${GET_FH_FILE}`]({ key: attachment.fileKey });
-        const file = store.state.mail.files[attachment.fileKey];
+    const parts = computeParts(message.structure);
+    const files = AttachmentAdaptor.extractFiles(parts.attachments, message);
 
-        return fhFile && file.status === FileStatus.UPLOADED ? { ...file, ...fhFile } : [];
+    return files.flatMap(file => {
+        const isFh = !!getFhHeader(file.headers);
+        if (isFh && file.status === FileStatus.UPLOADED) {
+            const uploadedFile = Object.values(store.state.mail.messageCompose.uploadingFiles).find(
+                ({ address }) => file.address === address
+            );
+            return {
+                ...file,
+                ...getFhInfos(file.headers),
+                ...uploadedFile
+            };
+        }
+        return [];
     });
 }
 

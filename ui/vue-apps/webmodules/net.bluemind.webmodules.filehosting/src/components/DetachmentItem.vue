@@ -7,7 +7,7 @@
                     <div class="text-truncate bold">{{ file.name }}</div>
                     <span class="text-neutral text-right">
                         <span v-if="!hasErrorStatus">
-                            {{ displaySize(file.progress.loaded) }} / {{ displaySize(file.progress.total) }}
+                            {{ displaySize(progress.loaded) }} / {{ displaySize(progress.total) }}
                         </span>
                     </span>
                     <bm-label-icon v-if="isLarge" icon="exclamation-circle-fill" class="text-warning">
@@ -18,8 +18,8 @@
             </div>
         </div>
         <bm-progress
-            :value="file.progress.loaded"
-            :max="file.progress.total"
+            :value="progress.loaded"
+            :max="progress.total"
             :variant="hasErrorStatus ? 'danger' : 'secondary'"
         />
     </div>
@@ -43,10 +43,13 @@ export default {
     },
     computed: {
         isLarge() {
-            return this.file.progress.total > VERY_LARGE_FILE_SIZE;
+            return this.progress.total > VERY_LARGE_FILE_SIZE;
         },
         hasErrorStatus() {
             return this.file.status === FileStatus.ERROR;
+        },
+        progress() {
+            return this.file.progress || {};
         }
     },
     methods: {

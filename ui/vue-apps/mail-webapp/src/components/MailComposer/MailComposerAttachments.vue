@@ -36,11 +36,13 @@ import { BmIcon, BmFileDropZone } from "@bluemind/ui-components";
 import { attachmentUtils, partUtils, fileUtils, messageUtils } from "@bluemind/mail";
 import FilesBlock from "../MailAttachment/FilesBlock";
 import { RemoveAttachmentCommand } from "~/commands";
-import { SET_PREVIEW_MESSAGE_KEY, SET_PREVIEW_FILE_KEY } from "~/mutations";
-import { SET_FILES } from "~/actions";
+import { RESET_FILES } from "~/mutations";
+import { SET_PREVIEW } from "~/actions";
 import PreviewOverlay from "../MailAttachment/Overlays/PreviewOverlay";
 import FiletypeOverlay from "../MailAttachment/Overlays/FiletypeOverlay";
 import FileToolbar from "../MailAttachment/FileToolbar";
+import messageCompose from "~/store/messageCompose";
+
 const { isViewable } = partUtils;
 const { ActionButtons, isUploading, isAllowedToPreview } = fileUtils;
 const { AttachmentAdaptor } = attachmentUtils;
@@ -74,10 +76,13 @@ export default {
         };
     },
     computed: {
-        ...mapState("mail", { attachmentsMaxWeight: ({ messageCompose }) => messageCompose.maxMessageSize }),
+        ...mapState("mail", {
+            attachmentsMaxWeight: ({ messageCompose }) => messageCompose.maxMessageSize,
+            uploadingFiles: ({ messageCompose }) => messageCompose.uploadingFiles
+        }),
         files() {
-            const { files } = AttachmentAdaptor.extractFiles(this.computedParts.attachments ?? [], this.message);
-            return files;
+            const files = AttachmentAdaptor.extractFiles(this.computedParts.attachments, this.message);
+            return files.map(file => ({ ...file, ...this.uploadingFiles[file.key] }));
         }
     },
     watch: {
@@ -89,14 +94,12 @@ export default {
             immediate: true
         }
     },
+    destroyed() {
+        this.RESET_FILES();
+    },
     methods: {
-        ...mapMutations("mail", {
-            SET_PREVIEW_MESSAGE_KEY,
-            SET_PREVIEW_FILE_KEY
-        }),
-        ...mapActions("mail", {
-            SET_FILES
-        }),
+        ...mapMutations("mail", { RESET_FILES }),
+        ...mapActions("mail", { SET_PREVIEW }),
         shouldActivateForImages(event) {
             const regex = "image/(jpeg|jpg|png|gif)";
             const files = event.dataTransfer.items.length
@@ -106,9 +109,7 @@ export default {
             return files.length > 0 && files.every(matchFunction);
         },
         openPreview(fileKey) {
-            this.SET_FILES({ files: this.files });
-            this.SET_PREVIEW_MESSAGE_KEY(this.message.key);
-            this.SET_PREVIEW_FILE_KEY(fileKey);
+            this.SET_PREVIEW({ messageKey: this.message.key, fileKey: fileKey });
             this.$bvModal.show("preview-modal");
         },
         download(file) {
@@ -117,7 +118,7 @@ export default {
         previewOrDownload(file) {
             if (!isUploading(file)) {
                 if (isAllowedToPreview(file)) {
-                    this.openPreview(file);
+                    this.openPreview(file.key);
                 } else {
                     this.download(file);
                 }

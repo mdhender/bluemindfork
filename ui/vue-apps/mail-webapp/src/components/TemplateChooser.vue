@@ -142,8 +142,7 @@ export default {
                 await this.mergeBody(target, template);
                 this.DEBOUNCED_SAVE_MESSAGE({
                     draft: target,
-                    messageCompose: this.$store.state.mail.messageCompose,
-                    files: target.attachments.map(({ fileKey }) => this.$store.state.mail.files[fileKey])
+                    messageCompose: this.$store.state.mail.messageCompose
                 });
             }
         },

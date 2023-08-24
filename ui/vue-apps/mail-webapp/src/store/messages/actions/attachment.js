@@ -1,7 +1,7 @@
 import { ProgressMonitor } from "@bluemind/api.commons";
 import { inject } from "@bluemind/inject";
 import { attachmentUtils, fileUtils } from "@bluemind/mail";
-import { getPartDownloadUrl } from "@bluemind/email";
+import { PartsBuilder } from "@bluemind/email";
 
 import { DEBOUNCED_SAVE_MESSAGE } from "~/actions";
 
@@ -9,13 +9,10 @@ import {
     ADD_ATTACHMENT,
     ADD_FILE,
     REMOVE_ATTACHMENT,
-    REMOVE_FILE,
     SET_ATTACHMENT_ADDRESS,
     SET_FILE_ADDRESS,
     SET_FILE_PROGRESS,
-    SET_FILE_STATUS,
-    SET_FILE_URL,
-    SET_MESSAGE_HAS_ATTACHMENT
+    SET_FILE_STATUS
 } from "~/mutations";
 
 const { AttachmentAdaptor } = attachmentUtils;
@@ -24,117 +21,94 @@ const { FileStatus } = fileUtils;
 const AbortControllers = new Map();
 
 export async function addAttachment({ commit }, { message, attachment, content }) {
-    const { attachments, files } = AttachmentAdaptor.extractFiles([attachment], message);
-    const file = files.pop();
-    const attachmentInfos = attachments.pop();
+    const file = AttachmentAdaptor.extractFiles([attachment], message).pop();
+    const attachmentPart = PartsBuilder.createAttachmentPart(file);
+    commit(ADD_ATTACHMENT, { messageKey: message.key, attachment: attachmentPart });
 
-    commit(ADD_FILE, { file });
-    commit(ADD_ATTACHMENT, { messageKey: message.key, attachment: attachmentInfos });
     const canceller = new AbortController();
     AbortControllers.set(file.key, canceller);
 
-    commit(SET_FILE_STATUS, { key: attachmentInfos.fileKey, status: FileStatus.NOT_LOADED });
-    commit(SET_MESSAGE_HAS_ATTACHMENT, { key: message.key, hasAttachment: true });
-
+    commit(SET_FILE_STATUS, {
+        key: file.key,
+        status: FileStatus.NOT_LOADED
+    });
     try {
         const service = inject("MailboxItemsPersistence", message.folderRef.uid);
         const monitor = new ProgressMonitor();
-        monitor.addEventListener("progress", onUploadProgressMonitor(commit, attachmentInfos), {
+        monitor.addEventListener("progress", onUploadProgressMonitor(commit, file), {
             mode: ProgressMonitor.UPLOAD
         });
         const address = await service.uploadPart(content, { signal: canceller.signal, monitor });
+
         commit(SET_ATTACHMENT_ADDRESS, {
             messageKey: message.key,
-            oldAddress: attachmentInfos.address,
-            address
-        });
-        commit(SET_FILE_URL, {
-            key: attachmentInfos.fileKey,
-            url: getPartDownloadUrl(message.folderRef.uid, message.remoteRef.imapUid, {
-                ...file,
-                address
-            })
+            oldAddress: attachmentPart.address,
+            address: address
         });
         commit(SET_FILE_STATUS, {
-            key: attachmentInfos.fileKey,
+            key: file.key,
             status: FileStatus.UPLOADED
         });
         commit(SET_FILE_ADDRESS, {
-            key: attachmentInfos.fileKey,
+            key: file.key,
             address
         });
     } catch (event) {
         const error = event.target && event.target.error ? event.target.error : event;
-        handleError(commit, message, error, attachmentInfos);
+        handleError(commit, message, error, attachmentPart, file.key);
     } finally {
         AbortControllers.delete(file.key);
     }
 }
 
 export function addLocalAttachment({ commit }, { message, attachment, content }) {
-    const { attachments, files } = AttachmentAdaptor.extractFiles([attachment], message);
+    const files = AttachmentAdaptor.extractFiles([attachment], message);
     const file = files.pop();
-    const attachmentInfos = attachments.pop();
-
+    const attachmentPart = PartsBuilder.createAttachmentPart(file);
+    const newFile = {};
     if (content instanceof ArrayBuffer ? !content.byteLength : !content.length) {
-        file.url = null;
-        file.size = 0;
+        newFile.url = null;
+        newFile.size = 0;
     } else {
         const fileBlob = new File([content], file.fileName, { type: file.mime });
-        file.url = URL.createObjectURL(fileBlob);
-        file.size = fileBlob.size;
+        newFile.url = URL.createObjectURL(fileBlob);
+        newFile.size = fileBlob.size;
     }
 
-    commit(ADD_FILE, { file });
-    commit(REMOVE_ATTACHMENT, { messageKey: message.key, address: attachment.address });
-    commit(ADD_ATTACHMENT, { messageKey: message.key, attachment: attachmentInfos });
-    commit(SET_FILE_STATUS, { key: attachmentInfos.fileKey, status: FileStatus.ONLY_LOCAL });
-    commit(SET_MESSAGE_HAS_ATTACHMENT, { key: message.key, hasAttachment: true });
+    commit(ADD_FILE, { file: newFile });
+    commit(REMOVE_ATTACHMENT, { messageKey: message.key, address: attachmentPart.address });
+    commit(ADD_ATTACHMENT, { messageKey: message.key, attachment: attachmentPart });
+    commit(SET_FILE_STATUS, { key: file.key, status: FileStatus.ONLY_LOCAL });
 }
 
-function handleError(commit, draft, error, attachment) {
+function handleError(commit, draft, error, attachment, fileKey) {
     if (error.name === "AbortError") {
         commit(REMOVE_ATTACHMENT, { messageKey: draft.key, address: attachment.address });
-        commit("REMOVE_FILE", { key: attachment.fileKey });
-        commit("SET_MESSAGE_HAS_ATTACHMENT", {
-            key: draft.key,
-            hasAttachment: draft.attachments.length > 0
-        });
     } else {
         commit(SET_FILE_PROGRESS, {
-            key: attachment.fileKey,
-            loaded: 100,
-            total: 100
+            key: fileKey,
+            progress: { loaded: 100, total: 100 }
         });
-        commit(SET_FILE_STATUS, {
-            key: attachment.fileKey,
-            status: FileStatus.ERROR
-        });
+        commit(SET_FILE_STATUS, { key: fileKey, status: FileStatus.ERROR });
     }
 }
 
-export async function removeAttachment({ commit, dispatch, state }, { messageKey, attachment, messageCompose }) {
+export async function removeAttachment({ commit, dispatch, state }, { messageKey, address, messageCompose }) {
     const draft = state[messageKey];
-    if (AbortControllers.has(attachment.fileKey)) {
-        AbortControllers.get(attachment.fileKey).abort();
+    if (AbortControllers.has(address)) {
+        AbortControllers.get(address).abort();
     } else {
-        commit(REMOVE_FILE, { key: attachment.fileKey });
-        commit(REMOVE_ATTACHMENT, { messageKey, address: attachment.address });
-        commit(SET_MESSAGE_HAS_ATTACHMENT, {
-            key: messageKey,
-            hasAttachment: draft.attachments.length > 0
-        });
+        commit(REMOVE_ATTACHMENT, { messageKey, address });
         dispatch(DEBOUNCED_SAVE_MESSAGE, { draft, messageCompose });
-        inject("MailboxItemsPersistence", draft.folderRef.uid).removePart(attachment.address);
+        inject("MailboxItemsPersistence", draft.folderRef.uid).removePart(address);
     }
 }
 
-function onUploadProgressMonitor(commit, attachment) {
+function onUploadProgressMonitor(commit, file) {
     return progress => {
         commit(SET_FILE_PROGRESS, {
-            key: attachment.fileKey,
-            loaded: progress.loaded,
-            total: progress.total
+            key: file.key,
+            progress: { loaded: progress.loaded, total: progress.total }
         });
     };
 }

@@ -6,7 +6,7 @@ import { messageUtils } from "@bluemind/mail";
 import { extractFolderUid } from "@bluemind/mbox";
 import { ItemFlag } from "@bluemind/core.container.api";
 import { FolderAdaptor } from "../folders/helpers/FolderAdaptor";
-const { MessageAdaptor } = messageUtils;
+const { MessageAdaptor, getLeafParts } = messageUtils;
 import { ConversationListFilter, SortOrder } from "../conversationList";
 import SearchHelper from "../../components/MailSearch/SearchHelper";
 
@@ -79,6 +79,11 @@ export default {
     },
     fetchComplete(message) {
         return api(message.folderRef.uid).fetchComplete(message.remoteRef.imapUid);
+    },
+    removeParts(message) {
+        getLeafParts(message.structure).forEach(
+            part => part.address && api(message.folderRef.uid).removePart(part.address)
+        );
     }
 };
 

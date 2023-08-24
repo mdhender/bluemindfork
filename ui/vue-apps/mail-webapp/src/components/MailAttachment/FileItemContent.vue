@@ -26,9 +26,9 @@
             </file-infos>
             <bm-progress
                 v-if="isUploading(file)"
-                :value="file.progress.loaded"
-                :max="file.progress.total"
-                :animated="file.progress.animated"
+                :value="progress.loaded"
+                :max="progress.total"
+                :animated="progress.animated"
                 :variant="errorMessage ? 'danger' : 'secondary'"
             />
         </bm-container>
@@ -64,6 +64,11 @@ export default {
     },
     data() {
         return { hover: false };
+    },
+    computed: {
+        progress() {
+            return this.file.progress || {};
+        }
     },
     watch: {
         file: {

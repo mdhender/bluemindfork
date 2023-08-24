@@ -1,5 +1,6 @@
 import { MessageBody } from "@bluemind/backend.mail.api";
 import Visitor from "./Visitor";
+import GetLeafsVisitor from "./GetLeafsVisitor";
 
 /**
  * Walk a tree of nodes having a 'children' property.
@@ -31,4 +32,4 @@ export default class TreeWalker {
     }
 }
 
-export { Visitor };
+export { Visitor, GetLeafsVisitor };

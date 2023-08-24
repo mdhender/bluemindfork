@@ -1,4 +1,4 @@
-import TreeWalker from "@bluemind/mime-tree-walker";
+import TreeWalker, { GetLeafsVisitor } from "@bluemind/mime-tree-walker";
 import { isAttachment } from "../attachment";
 import { isLeaf, isViewable } from "../part";
 import GetAttachmentPartsVisitor from "./GetAttachmentPartsVisitor";
@@ -35,4 +35,11 @@ export function getReportsParts(structure) {
     const walker = new TreeWalker(structure, [reportVisitor]);
     walker.walk();
     return reportVisitor.result();
+}
+
+export function getLeafParts(structure) {
+    const visitor = new GetLeafsVisitor();
+    const walker = new TreeWalker(structure, [visitor]);
+    walker.walk();
+    return visitor.result();
 }

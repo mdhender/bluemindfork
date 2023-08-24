@@ -54,19 +54,13 @@ export function isAttachment(part) {
 }
 
 const AttachmentAdaptor = {
-    extractFiles(attachments, message) {
-        const adaptedAttachements = [];
-        const adaptedFiles = [];
-        attachments.forEach(att => {
-            const key = att.address + ":" + message.key;
-            adaptedAttachements.push({ fileKey: key, address: att.address });
-            adaptedFiles.push(this.createFileFromPart(att, key, message));
+    extractFiles(attachments = [], message) {
+        return attachments.map(attachment => {
+            const key = message.key + ":" + attachment.address;
+            return this.createFileFromPart(attachment, key, message);
         });
-        return {
-            attachments: adaptedAttachements,
-            files: adaptedFiles
-        };
     },
+
     createFileFromPart(part, key, message) {
         const progress =
             part.status === FileStatus.NOT_LOADED ? { loaded: 0, total: 100 } : { loaded: 100, total: 100 };
