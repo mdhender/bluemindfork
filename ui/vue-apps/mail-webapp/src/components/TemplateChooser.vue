@@ -19,7 +19,10 @@
             <bm-modal-header
                 :class="{ 'with-mobile-search-input': showMobileSearchInput }"
                 :title="$t('mail.compose.template_chooser.title')"
-                @close="close"
+                @close="
+                    if (showMobileSearchInput) showMobileSearchInput = false;
+                    else close();
+                "
             >
                 <bm-form-input
                     :value="pattern"
@@ -36,11 +39,12 @@
                 />
                 <bm-form-input
                     v-if="showMobileSearchInput"
+                    autofocus
+                    variant="inline-on-fill-primary"
                     :value="pattern"
                     :placeholder="$t('common.search')"
                     class="mobile-search-input"
                     icon="search"
-                    resettable
                     left-icon
                     :aria-label="$t('common.search')"
                     autocomplete="off"
@@ -100,6 +104,13 @@ export default {
         }),
         ...mapState("root-app", ["identities"]),
         ...mapGetters("root-app", { identity: "DEFAULT_IDENTITY" })
+    },
+    watch: {
+        showMobileSearchInput(value) {
+            if (value === false) {
+                this.reset();
+            }
+        }
     },
     methods: {
         ...mapMutations("mail", { SET_TEMPLATE_CHOOSER_VISIBLE, SET_TEMPLATE_LIST_SEARCH_PATTERN }),
@@ -184,8 +195,8 @@ export default {
             @include from-lg {
                 display: none !important;
             }
-            background-color: $surface !important;
-            margin: 0 $sp-4;
+            margin-left: $sp-5;
+            margin-right: $sp-3;
             flex: 1;
         }
 

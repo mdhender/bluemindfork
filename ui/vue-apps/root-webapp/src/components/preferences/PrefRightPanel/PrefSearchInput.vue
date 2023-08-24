@@ -1,10 +1,12 @@
 <template>
     <bm-form-input
-        :value="search"
         class="pref-search-input"
+        autofocus
+        :variant="variant"
+        :value="search"
         :placeholder="$t('common.search')"
         icon="search"
-        resettable
+        :resettable="resettable"
         left-icon
         :aria-label="$t('common.search')"
         autocomplete="off"
@@ -20,6 +22,19 @@ import { mapMutations, mapState } from "vuex";
 export default {
     name: "PrefSearchInput",
     components: { BmFormInput },
+    props: {
+        variant: {
+            type: String,
+            default: "outline",
+            validator: function (value) {
+                return ["outline", "inline-on-fill-primary"].includes(value);
+            }
+        },
+        resettable: {
+            type: Boolean,
+            default: false
+        }
+    },
     computed: {
         ...mapState("preferences", ["search"])
     },
@@ -28,14 +43,3 @@ export default {
     }
 };
 </script>
-
-<style lang="scss">
-@import "~@bluemind/ui-components/src/css/utils/responsiveness";
-@import "~@bluemind/ui-components/src/css/utils/variables";
-
-.pref-search-input {
-    @include until-lg {
-        background-color: $surface;
-    }
-}
-</style>

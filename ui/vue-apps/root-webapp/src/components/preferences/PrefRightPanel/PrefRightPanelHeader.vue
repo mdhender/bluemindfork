@@ -1,21 +1,24 @@
 <template>
     <div class="pref-right-panel-header">
-        <bm-navbar class="small-panel-header d-lg-none">
-            <bm-navbar-back @click="SET_SELECTED_SECTION(null)" />
-            <template v-if="!openedInMobile">
+        <bm-navbar class="d-lg-none">
+            <template v-if="showMobileSearchInput">
+                <bm-navbar-back @click="showMobileSearchInput = false" />
+                <pref-search-input class="flex-fill ml-5 mr-3" variant="inline-on-fill-primary" />
+            </template>
+            <template v-else>
+                <bm-navbar-back @click="SET_SELECTED_SECTION(null)" />
                 <bm-navbar-title :title="selectedSection.name" />
                 <bm-icon-button
-                    class="ml-auto"
+                    class="mx-3"
                     variant="compact-on-fill-primary"
                     size="lg"
                     icon="search"
-                    @click="openedInMobile = true"
+                    @click="showMobileSearchInput = true"
                 />
             </template>
-            <pref-search-input v-else class="flex-fill mx-3" />
         </bm-navbar>
         <div class="d-none d-lg-flex align-items-center large-panel-header">
-            <pref-search-input class="my-4 w-50" />
+            <pref-search-input class="my-4 w-50" resettable />
             <bm-button-close size="lg" class="ml-auto mr-5" @click="$emit('close')" />
         </div>
     </div>
@@ -28,7 +31,14 @@ import { mapMutations, mapState } from "vuex";
 
 export default {
     name: "PrefRightPanelHeader",
-    components: { BmIconButton, BmButtonClose, BmNavbar, BmNavbarBack, BmNavbarTitle, PrefSearchInput },
+    components: {
+        BmIconButton,
+        BmButtonClose,
+        BmNavbar,
+        BmNavbarBack,
+        BmNavbarTitle,
+        PrefSearchInput
+    },
     props: {
         selectedSection: {
             type: Object,
@@ -36,18 +46,23 @@ export default {
         }
     },
     data() {
-        return { openedInMobile: false };
+        return { showMobileSearchInput: false };
     },
     computed: {
         ...mapState("preferences", ["selectedSectionId"])
     },
     watch: {
         selectedSectionId() {
-            this.openedInMobile = false;
+            this.showMobileSearchInput = false;
+        },
+        showMobileSearchInput(value) {
+            if (value === false) {
+                this.SET_SEARCH("");
+            }
         }
     },
     methods: {
-        ...mapMutations("preferences", ["SET_SELECTED_SECTION"])
+        ...mapMutations("preferences", ["SET_SELECTED_SECTION", "SET_SEARCH"])
     }
 };
 </script>
@@ -58,14 +73,8 @@ export default {
 @import "../variables";
 
 .pref-right-panel-header {
-    .small-panel-header {
-        padding-right: $sp-3;
-    }
     .large-panel-header {
-        padding-left: $prefs-padding-left;
-        @include from-lg {
-            padding-left: $prefs-padding-left-lg;
-        }
+        padding-left: $prefs-padding-left-lg;
     }
 }
 </style>
