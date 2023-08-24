@@ -25,7 +25,7 @@ package net.bluemind.cli.authentication;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -51,9 +51,10 @@ import net.bluemind.domain.api.IDomains;
 import net.bluemind.keycloak.api.BluemindProviderComponent;
 import net.bluemind.keycloak.api.IKeycloakAdmin;
 import net.bluemind.keycloak.api.IKeycloakBluemindProviderAdmin;
+import net.bluemind.keycloak.api.IKeycloakClientAdmin;
 import net.bluemind.keycloak.api.IKeycloakUids;
+import net.bluemind.keycloak.api.OidcClient;
 import net.bluemind.keycloak.api.Realm;
-import net.bluemind.system.api.SysConfKeys;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -87,14 +88,19 @@ public class GetAuthConfCommand implements ICmdLet, Runnable {
 		}
 
 		public static AuthSettings internal(boolean jsonOutput, String domainUid, Realm realm,
-				BluemindProviderComponent component) {
+				BluemindProviderComponent component, OidcClient client) {
 			return new AuthSettings(domainUid, AuthTypes.INTERNAL.name(),
-					realmProperties(jsonOutput, realm, component));
+					realmProperties(jsonOutput, realm, component, client));
+		}
+
+		public static AuthSettings kerberos(boolean jsonOutput, String domainUid, Realm realm) {
+			return new AuthSettings(domainUid, AuthTypes.KERBEROS.name(),
+					realmProperties(jsonOutput, realm, null, null));
 		}
 
 		private static Map<String, String> realmProperties(boolean jsonOutput, Realm realm,
-				BluemindProviderComponent component) {
-			Map<String, String> properties = new HashMap<>();
+				BluemindProviderComponent component, OidcClient client) {
+			Map<String, String> properties = new LinkedHashMap<>();
 			if (realm == null) {
 				properties.put("realmStatus", "realm not found!");
 			} else {
@@ -115,14 +121,21 @@ public class GetAuthConfCommand implements ICmdLet, Runnable {
 			if (component == null) {
 				properties.put("componentStatus", "Keycloak BlueMind component not found!");
 			} else {
-				properties.put("componentName", component.getName());
-				properties.put("componentBmUrl", component.getBmUrl());
+				properties.put("componentName", component.name);
+				properties.put("componentBmUrl", component.bmUrl);
+			}
+
+			if (client == null) {
+				properties.put("clientStatus", "Keycloak BlueMind client not found!");
+			} else {
+				properties.put("clientId", client.id);
+				properties.put("clientSecret", client.secret);
 			}
 
 			return properties;
 		}
 
-		private static String secondsToString(int seconds) {
+		private static String secondsToString(long seconds) {
 			Duration duration = Duration.ofSeconds(seconds);
 
 			String durationAsString = "";
@@ -187,25 +200,14 @@ public class GetAuthConfCommand implements ICmdLet, Runnable {
 		}
 
 		Set<String> authTypeProperties = Collections.emptySet();
-
 		switch (authType) {
 		case INTERNAL:
-			String domainId = ctx.adminApi().instance(IDomainSettings.class, domain.uid).get()
-					.get(DomainSettingsKeys.external_url.name()) != null ? domain.uid : "global.virt";
-
-			Realm realm = ctx.adminApi().instance(IKeycloakAdmin.class, domain.uid).getRealm(domainId);
-			BluemindProviderComponent component = ctx.adminApi()
-					.instance(IKeycloakBluemindProviderAdmin.class, domain.uid)
-					.getBluemindProvider(IKeycloakUids.bmProviderId(domainId));
-
-			return AuthSettings.internal(json, domain.uid, realm, component);
+			return internal(domain);
 		case CAS:
 			authTypeProperties = Set.of(AuthDomainProperties.CAS_URL.name());
 			break;
 		case KERBEROS:
-			authTypeProperties = Set.of(AuthDomainProperties.KRB_AD_DOMAIN.name(),
-					AuthDomainProperties.KRB_AD_IP.name(), SysConfKeys.krb_keytab.name());
-			break;
+			return kerberos(domain);
 		case OPENID:
 			authTypeProperties = Set.of(AuthDomainProperties.OPENID_HOST.name(),
 					AuthDomainProperties.OPENID_CLIENT_ID.name(), AuthDomainProperties.OPENID_CLIENT_SECRET.name());
@@ -214,6 +216,31 @@ public class GetAuthConfCommand implements ICmdLet, Runnable {
 
 		domain.value.properties.keySet().retainAll(authTypeProperties);
 		return new AuthSettings(domain.uid, authType.name(), domain.value.properties);
+	}
+
+	private String getKeycloakDomainId(ItemValue<Domain> domain) {
+		return ctx.adminApi().instance(IDomainSettings.class, domain.uid).get()
+				.get(DomainSettingsKeys.external_url.name()) != null ? domain.uid : "global.virt";
+	}
+
+	private AuthSettings internal(ItemValue<Domain> domain) {
+		String keycloakDomainId = getKeycloakDomainId(domain);
+
+		Realm realm = ctx.adminApi().instance(IKeycloakAdmin.class, domain.uid).getRealm(keycloakDomainId);
+		BluemindProviderComponent component = ctx.adminApi()
+				.instance(IKeycloakBluemindProviderAdmin.class, keycloakDomainId)
+				.getBluemindProvider(IKeycloakUids.bmProviderId(keycloakDomainId));
+		OidcClient client = ctx.adminApi().instance(IKeycloakClientAdmin.class, keycloakDomainId)
+				.getOidcClient(IKeycloakUids.clientId(keycloakDomainId));
+
+		return AuthSettings.internal(json, domain.uid, realm, component, client);
+	}
+
+	private AuthSettings kerberos(ItemValue<Domain> domain) {
+		String keycloakDomainId = getKeycloakDomainId(domain);
+
+		Realm realm = ctx.adminApi().instance(IKeycloakAdmin.class, domain.uid).getRealm(keycloakDomainId);
+		return AuthSettings.kerberos(json, domain.uid, realm);
 	}
 
 	@Override

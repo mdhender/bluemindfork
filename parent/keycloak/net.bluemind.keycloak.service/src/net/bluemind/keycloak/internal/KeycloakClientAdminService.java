@@ -21,8 +21,11 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,13 +33,14 @@ import org.slf4j.LoggerFactory;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.keycloak.api.IKeycloakClientAdmin;
 import net.bluemind.keycloak.api.IKeycloakUids;
 import net.bluemind.keycloak.api.OidcClient;
-import net.bluemind.keycloak.utils.KeycloakHelper;
+import net.bluemind.keycloak.utils.adapters.OidcClientAdapter;
 import net.bluemind.role.api.BasicRoles;
 
 public class KeycloakClientAdminService extends KeycloakAdminClient implements IKeycloakClientAdmin {
@@ -68,44 +72,18 @@ public class KeycloakClientAdminService extends KeycloakAdminClient implements I
 			}
 		}
 
-		JsonObject client = new JsonObject();
-		client.put("id", clientId);
-		client.put("clientId", clientId);
-		client.put("enabled", true);
-		client.put("directAccessGrantsEnabled", true);
-
-		JsonArray redirectUris = new JsonArray();
-		KeycloakHelper.getDomainUrls(domainId).forEach(redirectUris::add);
-		client.put("redirectUris", redirectUris);
-		client.put("webOrigins", new JsonArray().add("+"));
-		client.put("attributes", new JsonObject().put("post.logout.redirect.uris", "*"));
-		client.put("baseUrl", KeycloakHelper.getExternalUrl(domainId));
-
-		JsonObject overrides = new JsonObject();
-		overrides.put("browser", ourFlowId);
-		client.put("authenticationFlowBindingOverrides", overrides);
-
-		JsonObject mapper = new JsonObject();
-		mapper.put("name", "bm_pubpriv");
-		mapper.put("protocol", "openid-connect");
-		mapper.put("protocolMapper", "oidc-usermodel-attribute-mapper");
-		mapper.put("consentRequired", false);
-		mapper.put("config",
-				new JsonObject().put("user.attribute", "bm_pubpriv").put("claim.name", "bm_pubpriv")
-						.put("aggregate.attrs", "false").put("multivalued", "false").put("access.token.claim", "true")
-						.put("userinfo.token.claim", "false").put("id.token.claim", "false"));
-		JsonArray protocolMappers = new JsonArray();
-		protocolMappers.add(mapper);
-		client.put("protocolMappers", protocolMappers);
-
-		CompletableFuture<JsonObject> response = execute(String.format(CLIENTS_URL, domainId), HttpMethod.POST, client);
+		CompletableFuture<JsonObject> response = execute(String.format(CLIENTS_URL, domainId), HttpMethod.POST,
+				OidcClientAdapter.build(domainId, clientId, Optional.ofNullable(ourFlowId)).toJson());
 
 		try {
-			response.get(TIMEOUT, TimeUnit.SECONDS);
-		} catch (Exception e) {
-			throw new ServerFault("Failed to create client");
+			JsonObject json = response.get(TIMEOUT, TimeUnit.SECONDS);
+			if (json.containsKey("error")) {
+				throw new ServerFault("Error: " + json.getString("error") + " - " + json.getString("error_description"),
+						ErrorCode.UNKNOWN);
+			}
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			throw new ServerFault("Failed to create client", e);
 		}
-
 	}
 
 	@Override
@@ -118,8 +96,8 @@ public class KeycloakClientAdminService extends KeycloakAdminClient implements I
 		JsonObject json;
 		try {
 			json = response.get(TIMEOUT, TimeUnit.SECONDS);
-		} catch (Exception e) {
-			throw new ServerFault("Failed to get client secret");
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			throw new ServerFault("Failed to get client secret", e);
 		}
 		if (json == null) {
 			logger.warn("Failed to fetch secret");
@@ -139,16 +117,15 @@ public class KeycloakClientAdminService extends KeycloakAdminClient implements I
 		JsonObject json;
 		try {
 			json = response.get(TIMEOUT, TimeUnit.SECONDS);
-		} catch (Exception e) {
-			logger.error("EXCeptkion " + e.getClass().getName() + " : " + e.getMessage(), e);
-			throw new ServerFault("Failed to fetch clients for realm " + domainId);
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			throw new ServerFault("Failed to fetch clients for realm " + domainId, e);
 		}
 
 		List<OidcClient> ret = new ArrayList<>();
 		JsonArray results = json.getJsonArray("results");
 		results.forEach(cli -> {
 			if (cli != null && "openid-connect".equals(((JsonObject) cli).getString("protocol"))) {
-				ret.add(jsonToOidcClient(((JsonObject) cli)));
+				ret.add(OidcClientAdapter.fromJson((JsonObject) cli).oidcClient);
 			}
 		});
 		return ret;
@@ -165,7 +142,7 @@ public class KeycloakClientAdminService extends KeycloakAdminClient implements I
 		JsonObject json;
 		try {
 			json = response.get(TIMEOUT, TimeUnit.SECONDS);
-		} catch (Exception e) {
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
 			logger.error("EXCeptkion " + e.getClass().getName() + " : " + e.getMessage(), e);
 			throw new ServerFault("Failed to fetch client " + clientId + " in realm " + domainId);
 		}
@@ -178,7 +155,7 @@ public class KeycloakClientAdminService extends KeycloakAdminClient implements I
 				|| !"openid-connect".equals(json.getJsonArray("results").getJsonObject(0).getString("protocol"))) {
 			return null;
 		}
-		return jsonToOidcClient(json.getJsonArray("results").getJsonObject(0));
+		return OidcClientAdapter.fromJson(json.getJsonArray("results").getJsonObject(0)).oidcClient;
 	}
 
 	@Override
@@ -191,8 +168,8 @@ public class KeycloakClientAdminService extends KeycloakAdminClient implements I
 				HttpMethod.DELETE);
 		try {
 			response.get(TIMEOUT, TimeUnit.SECONDS);
-		} catch (Exception e) {
-			throw new ServerFault("Failed to delete client");
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			throw new ServerFault("Failed to delete client", e);
 		}
 	}
 
@@ -204,46 +181,22 @@ public class KeycloakClientAdminService extends KeycloakAdminClient implements I
 
 		String clid = oc.id;
 		if (clid == null) {
-			OidcClient cli = null;
-			try {
-				cli = getOidcClient(clientId);
-			} catch (Throwable t) {
-			}
+			OidcClient cli = getOidcClient(clientId);
+
 			if (cli == null) {
-				throw new ServerFault("Couldn't get client " + clientId + " in realm " + domainId + " to update it");
+				throw new ServerFault(clientId + " not foubd in realm " + domainId + " to update it");
 			}
+
 			clid = cli.id;
 		}
 
 		CompletableFuture<JsonObject> response = execute(String.format(CLIENTS_URL, domainId) + "/" + oc.id,
-				HttpMethod.PUT, oc.toJson());
+				HttpMethod.PUT, new OidcClientAdapter(oc).toJson());
 		try {
 			response.get(TIMEOUT, TimeUnit.SECONDS);
-		} catch (Exception e) {
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
 			throw new ServerFault("Failed to update client " + clientId, e);
 		}
-	}
-
-	@SuppressWarnings("unchecked")
-	private OidcClient jsonToOidcClient(JsonObject ret) {
-		if (ret == null) {
-			return null;
-		}
-
-		OidcClient cli = new OidcClient();
-		cli.id = ret.getString("id");
-		cli.clientId = ret.getString("clientId");
-		cli.publicClient = ret.getBoolean("publicClient");
-		cli.secret = ret.getString("secret");
-		cli.standardFlowEnabled = ret.getBoolean("standardFlowEnabled");
-		cli.directAccessGrantsEnabled = ret.getBoolean("directAccessGrantsEnabled");
-		cli.serviceAccountsEnabled = ret.getBoolean("serviceAccountsEnabled");
-		cli.rootUrl = ret.getString("rootUrl");
-		cli.redirectUris = ret.getJsonArray("redirectUris").getList();
-		cli.webOrigins = ret.getJsonArray("webOrigins").getList();
-		cli.baseUrl = ret.getString("baseUrl");
-
-		return cli;
 	}
 
 }

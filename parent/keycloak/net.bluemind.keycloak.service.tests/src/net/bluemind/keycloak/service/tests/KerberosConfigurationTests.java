@@ -58,7 +58,7 @@ public class KerberosConfigurationTests extends AbstractServiceTests {
 		KerberosComponent kerberosComponent = getKeycloakKerberosService("global.virt")
 				.getKerberosProvider("global.virt-kerberos");
 		assertNotNull(kerberosComponent);
-		assertEquals(domainUid.toUpperCase(), kerberosComponent.getKerberosRealm());
+		assertEquals(domainUid.toUpperCase(), kerberosComponent.kerberosRealm);
 
 		domainUid = "another.lan";
 		PopulateHelper.createDomain(domainUid);
@@ -85,7 +85,7 @@ public class KerberosConfigurationTests extends AbstractServiceTests {
 
 		kerberosComponent = getKeycloakKerberosService(domainUid).getKerberosProvider(domainUid + "-kerberos");
 		assertNotNull(kerberosComponent);
-		assertEquals(domainUid.toUpperCase(), kerberosComponent.getKerberosRealm());
+		assertEquals(domainUid.toUpperCase(), kerberosComponent.kerberosRealm);
 	}
 
 }

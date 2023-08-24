@@ -71,7 +71,7 @@ public class KeycloakDomainHookTests extends AbstractServiceTests {
 		BluemindProviderComponent provider = getKeycloakBluemindProviderService(domainUid)
 				.getBluemindProvider(providerName);
 		assertNotNull(provider);
-		assertTrue(provider.isEnabled());
+		assertTrue(provider.enabled);
 
 		ItemValue<Domain> domain = getDomainService().get(domainUid);
 

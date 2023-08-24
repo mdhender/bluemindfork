@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Strings;
 
 import io.vertx.core.json.JsonObject;
-import net.bluemind.config.Token;
 import net.bluemind.core.api.auth.AuthDomainProperties;
 import net.bluemind.core.api.auth.AuthTypes;
 import net.bluemind.core.api.fault.ServerFault;
@@ -42,7 +41,6 @@ import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.domain.api.IInCoreDomains;
-import net.bluemind.keycloak.api.BluemindProviderComponent;
 import net.bluemind.keycloak.api.IKeycloakAdmin;
 import net.bluemind.keycloak.api.IKeycloakBluemindProviderAdmin;
 import net.bluemind.keycloak.api.IKeycloakClientAdmin;
@@ -51,7 +49,7 @@ import net.bluemind.keycloak.api.IKeycloakKerberosAdmin;
 import net.bluemind.keycloak.api.IKeycloakUids;
 import net.bluemind.keycloak.api.KerberosComponent;
 import net.bluemind.keycloak.api.OidcClient;
-import net.bluemind.network.topology.Topology;
+import net.bluemind.keycloak.utils.adapters.BlueMindComponentAdapter;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
@@ -84,13 +82,7 @@ public class KeycloakHelper {
 
 		IKeycloakBluemindProviderAdmin keycloakBluemindProviderService = provider
 				.instance(IKeycloakBluemindProviderAdmin.class, domain.uid);
-		BluemindProviderComponent bpComponent = new BluemindProviderComponent();
-		bpComponent.setParentId(realm);
-		bpComponent.setName(IKeycloakUids.bmProviderId(realm));
-		bpComponent.setBmUrl("http://" + Topology.get().core().value.address() + ":8090");
-
-		bpComponent.setBmCoreToken(Token.admin0());
-		keycloakBluemindProviderService.create(bpComponent);
+		keycloakBluemindProviderService.create(BlueMindComponentAdapter.build(domain).component);
 
 		String authType = domain.value.properties.get(AuthDomainProperties.AUTH_TYPE.name());
 		if (Strings.isNullOrEmpty(authType)) {
@@ -204,7 +196,7 @@ public class KeycloakHelper {
 			IKeycloakKerberosAdmin krbProv = provider.instance(IKeycloakKerberosAdmin.class, GLOBAL_VIRT);
 			KerberosComponent krbComp = null;
 			if (GLOBAL_VIRT.equals(domainUid)) {
-				krbComp = krbProv.getKerberosProvider(KerberosConfigHelper.KRB_GLOBAL_VIRT_NAME);
+				krbComp = krbProv.getKerberosProvider(IKeycloakUids.kerberosComponentName(GLOBAL_VIRT));
 			}
 
 			provider.instance(IKeycloakAdmin.class).deleteRealm(domain.uid);
@@ -280,20 +272,24 @@ public class KeycloakHelper {
 	}
 
 	public static String getExternalUrl(String domainId) {
+		String externalUrl = NO_REDIRECT_URI;
+
 		if (GLOBAL_VIRT.equals(domainId)) {
 			SystemConf sysconf = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 					.instance(ISystemConfiguration.class).getValues();
-			return sysconf.stringValue(SysConfKeys.external_protocol.name()) + "://"
-					+ sysconf.stringValue(SysConfKeys.external_url.name());
+			String globalExternalUrl = sysconf.stringValue(SysConfKeys.external_url.name());
+			if (!Strings.isNullOrEmpty(globalExternalUrl)) {
+				externalUrl = "https://" + globalExternalUrl;
+			}
+		} else {
+			Map<String, String> domainSettings = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+					.instance(IDomainSettings.class, domainId).get();
+			if (domainSettings != null && domainSettings.get(DomainSettingsKeys.external_url.name()) != null) {
+				externalUrl = "https://" + domainSettings.get(DomainSettingsKeys.external_url.name());
+			}
 		}
 
-		Map<String, String> domainSettings = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IDomainSettings.class, domainId).get();
-		if (domainSettings != null && domainSettings.get(DomainSettingsKeys.external_url.name()) != null) {
-			return "https://" + domainSettings.get(DomainSettingsKeys.external_url.name());
-		}
-
-		return NO_REDIRECT_URI;
+		return externalUrl;
 	}
 
 	public static void initForDomain(String domainId) {

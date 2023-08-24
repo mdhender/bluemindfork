@@ -29,7 +29,7 @@ import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.task.api.TaskRef;
 
-@BMApi(version = "3")
+@BMApi(version = "3", internal = true)
 @Path("/keycloak")
 public interface IKeycloakAdmin {
 

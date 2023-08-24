@@ -39,18 +39,15 @@ import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.hornetq.client.MQ;
-import net.bluemind.hornetq.client.MQ.SharedMap;
 import net.bluemind.hornetq.client.Shared;
 import net.bluemind.keycloak.api.IKeycloakKerberosAdmin;
 import net.bluemind.keycloak.api.IKeycloakUids;
-import net.bluemind.keycloak.api.KerberosComponent;
-import net.bluemind.keycloak.api.KerberosComponent.CachePolicy;
+import net.bluemind.keycloak.utils.adapters.KerberosComponentAdapter;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NCUtils;
 import net.bluemind.node.api.NodeActivator;
 import net.bluemind.server.api.TagDescriptor;
-import net.bluemind.system.api.SysConfKeys;
 
 public class KerberosConfigHelper {
 
@@ -58,7 +55,6 @@ public class KerberosConfigHelper {
 	private static final String LAST_CONF_LOCATION = "/etc/bm-keycloak/krbconf.json";
 	private static final String KRB5_CONF_PATH = "/etc/krb5.conf";
 	private static final String GLOBAL_VIRT = "global.virt";
-	public static final String KRB_GLOBAL_VIRT_NAME = IKeycloakUids.kerberosComponentName(GLOBAL_VIRT);
 
 	private KerberosConfigHelper() {
 
@@ -92,40 +88,25 @@ public class KerberosConfigHelper {
 		krdAdDomain = krdAdDomain != null ? krdAdDomain.toUpperCase() : null;
 		String krbKeytab = domain.value.properties.get(AuthDomainProperties.KRB_KEYTAB.name());
 
-		SharedMap<String, String> smap = MQ.sharedMap(Shared.MAP_SYSCONF);
 		Map<String, String> domainSettings = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
 				.get(domain.uid);
 		String domainExternalUrl = domainSettings.get(DomainSettingsKeys.external_url.name());
-		String globalExternalUrl = smap.get(SysConfKeys.external_url.name());
-		String srvPrincHost = domainExternalUrl != null ? domainExternalUrl : globalExternalUrl;
-
-		String serverPrincipal = "HTTP/" + srvPrincHost + "@" + krdAdDomain;
 
 		String keytabPath = getKeytabFilename(domain.uid);
 		String kcServerAddr = Topology.get().any(TagDescriptor.bm_keycloak.getTag()).value.address();
 		INodeClient nodeClient = NodeActivator.get(kcServerAddr);
 		nodeClient.writeFile(keytabPath, new ByteArrayInputStream(Base64.getDecoder().decode(krbKeytab)));
 
-		KerberosComponent kerb = new KerberosComponent();
-		kerb.setKerberosRealm(krdAdDomain);
-		kerb.setServerPrincipal(serverPrincipal);
-		kerb.setKeyTab(keytabPath);
-		kerb.setEnabled(true);
-		kerb.setDebug(true);
-		kerb.setCachePolicy(CachePolicy.DEFAULT);
+		KerberosComponentAdapter kca = KerberosComponentAdapter.build(domain);
 
 		if (!GLOBAL_VIRT.equals(domain.uid) && domainExternalUrl == null) {
 			IKeycloakKerberosAdmin kerbProv = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 					.instance(IKeycloakKerberosAdmin.class, GLOBAL_VIRT);
-			kerbProv.deleteKerberosProvider(KRB_GLOBAL_VIRT_NAME);
-			kerb.setName(KRB_GLOBAL_VIRT_NAME);
-			kerb.setParentId(GLOBAL_VIRT);
-			kerbProv.create(kerb);
+			kerbProv.deleteKerberosProvider(IKeycloakUids.kerberosComponentName(GLOBAL_VIRT));
+			kerbProv.create(kca.component);
 		} else {
-			kerb.setName(IKeycloakUids.kerberosComponentName(domain.uid));
-			kerb.setParentId(domain.uid);
 			ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-					.instance(IKeycloakKerberosAdmin.class, domain.uid).create(kerb);
+					.instance(IKeycloakKerberosAdmin.class, domain.uid).create(kca.component);
 		}
 	}
 
@@ -135,7 +116,7 @@ public class KerberosConfigHelper {
 
 		if (domainService.all().stream().noneMatch(domain -> isKerberosWithoutExternalUrl(domain))) {
 			IKeycloakKerberosAdmin kerbProv = provider.instance(IKeycloakKerberosAdmin.class, GLOBAL_VIRT);
-			kerbProv.deleteKerberosProvider(KRB_GLOBAL_VIRT_NAME);
+			kerbProv.deleteKerberosProvider(IKeycloakUids.kerberosComponentName(GLOBAL_VIRT));
 		}
 	}
 
@@ -224,7 +205,7 @@ public class KerberosConfigHelper {
 				.get().get(DomainSettingsKeys.external_url.name());
 	}
 
-	private static String getKeytabFilename(String domainUid) {
+	public static String getKeytabFilename(String domainUid) {
 		return "/etc/bm-keycloak/" + domainUid + ".keytab";
 	}
 

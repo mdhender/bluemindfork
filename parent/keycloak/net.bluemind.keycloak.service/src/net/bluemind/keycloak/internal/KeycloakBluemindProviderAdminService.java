@@ -23,12 +23,11 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.keycloak.api.BluemindProviderComponent;
-import net.bluemind.keycloak.api.BluemindProviderComponent.CachePolicy;
 import net.bluemind.keycloak.api.IKeycloakBluemindProviderAdmin;
+import net.bluemind.keycloak.utils.adapters.BlueMindComponentAdapter;
 import net.bluemind.role.api.BasicRoles;
 
 public class KeycloakBluemindProviderAdminService extends ComponentService implements IKeycloakBluemindProviderAdmin {
@@ -41,7 +40,7 @@ public class KeycloakBluemindProviderAdminService extends ComponentService imple
 	@Override
 	public void create(BluemindProviderComponent component) throws ServerFault {
 		rbacManager.check(BasicRoles.ROLE_MANAGE_DOMAIN);
-		createComponent(component);
+		createComponent(new BlueMindComponentAdapter(component).toJson());
 	}
 
 	@Override
@@ -50,7 +49,8 @@ public class KeycloakBluemindProviderAdminService extends ComponentService imple
 		logger.info("Realm {}: Get all Bluemind providers", domainId);
 
 		List<BluemindProviderComponent> ret = new ArrayList<>();
-		allComponents(ComponentProvider.BLUEMIND).forEach(cmp -> ret.add(jsonToBluemindProviderComponent(cmp)));
+		allComponents(ComponentProvider.BLUEMIND)
+				.forEach(cmp -> BlueMindComponentAdapter.fromJson(cmp).ifPresent(ret::add));
 		return ret;
 	}
 
@@ -59,7 +59,7 @@ public class KeycloakBluemindProviderAdminService extends ComponentService imple
 		rbacManager.check(BasicRoles.ROLE_MANAGE_DOMAIN);
 		logger.info("Realm {}: Get Bluemind provider {}", domainId, componentName);
 
-		return jsonToBluemindProviderComponent(getComponent(ComponentProvider.BLUEMIND, componentName));
+		return BlueMindComponentAdapter.fromJson(getComponent(ComponentProvider.BLUEMIND, componentName)).orElse(null);
 	}
 
 	@Override
@@ -69,37 +69,4 @@ public class KeycloakBluemindProviderAdminService extends ComponentService imple
 
 		deleteComponent(ComponentProvider.BLUEMIND, componentName);
 	}
-
-	BluemindProviderComponent jsonToBluemindProviderComponent(JsonObject ret) {
-		if (ret == null) {
-			return null;
-		}
-
-		BluemindProviderComponent bp = new BluemindProviderComponent();
-		bp.setId(ret.getString("id"));
-		bp.setParentId(ret.getString("parentId"));
-		bp.setName(ret.getString("name"));
-		JsonObject config = ret.getJsonObject("config");
-
-		if (config.getJsonArray("bmDomain") != null) {
-			bp.setBmDomain(config.getJsonArray("bmDomain").getString(0));
-		}
-		if (config.getJsonArray("bmUrl") != null) {
-			bp.setBmUrl(config.getJsonArray("bmUrl").getString(0));
-		}
-		if (config.getJsonArray("bmCoreToken") != null) {
-			bp.setBmCoreToken(config.getJsonArray("bmCoreToken").getString(0));
-		}
-
-		if (config.getJsonArray("enabled") != null) {
-			bp.setEnabled(Boolean.valueOf(config.getJsonArray("enabled").getString(0)));
-		}
-
-		if (config.getJsonArray("cachePolicy") != null) {
-			bp.setCachePolicy(CachePolicy.valueOf(config.getJsonArray("cachePolicy").getString(0)));
-		}
-
-		return bp;
-	}
-
 }

@@ -27,21 +27,24 @@ import jakarta.ws.rs.PathParam;
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
 
-@BMApi(version = "3")
+@BMApi(version = "3", internal = true)
 @Path("/keycloak_bluemind_provider/{domainId}")
 public interface IKeycloakBluemindProviderAdmin {
 	@PUT
 	public void create(BluemindProviderComponent component) throws ServerFault;
-	
+
 	@GET
 	public List<BluemindProviderComponent> allBluemindProviders() throws ServerFault;
-		// Caution : when reading bluemind provider components from Keycloak, the bmCoreToken attribute is (intentionally) obfuscated
-	
+	// Caution : when reading bluemind provider components from Keycloak, the
+	// bmCoreToken attribute is (intentionally) obfuscated
+
 	@GET
 	@Path("{componentName}")
-	public BluemindProviderComponent getBluemindProvider(@PathParam(value = "componentName") String componentName) throws ServerFault;
-		// Caution : when reading bluemind provider components from Keycloak, the bmCoreToken attribute is (intentionally) obfuscated  
-	
+	public BluemindProviderComponent getBluemindProvider(@PathParam(value = "componentName") String componentName)
+			throws ServerFault;
+	// Caution : when reading bluemind provider components from Keycloak, the
+	// bmCoreToken attribute is (intentionally) obfuscated
+
 	@DELETE
 	@Path("{componentName}")
 	public void deleteBluemindProvider(@PathParam(value = "componentName") String componentName) throws ServerFault;

@@ -31,8 +31,8 @@ public class Realm {
 	public boolean internationalizationEnabled;
 	public String defaultLocale;
 	public List<String> supportedLocales;
-	public int accessCodeLifespanLogin; // login timeout, in seconds
-	public int accessTokenLifespan;
-	public int ssoSessionIdleTimeout;
-	public int ssoSessionMaxLifespan;
+	public long accessCodeLifespanLogin; // login timeout, in seconds
+	public long accessTokenLifespan;
+	public long ssoSessionIdleTimeout;
+	public long ssoSessionMaxLifespan;
 }

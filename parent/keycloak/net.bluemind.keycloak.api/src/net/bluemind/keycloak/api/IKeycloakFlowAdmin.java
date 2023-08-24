@@ -31,7 +31,7 @@ import jakarta.ws.rs.QueryParam;
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
 
-@BMApi(version = "3")
+@BMApi(version = "3", internal = true)
 @Path("/keycloak_flow/{domainId}")
 public interface IKeycloakFlowAdmin {
 

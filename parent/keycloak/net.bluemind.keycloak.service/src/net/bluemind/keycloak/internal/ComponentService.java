@@ -35,7 +35,6 @@ import net.bluemind.keycloak.api.Component;
 
 public abstract class ComponentService extends KeycloakAdminClient {
 	private static final Logger logger = LoggerFactory.getLogger(ComponentService.class);
-	private static final String PROVIDER_TYPE = "org.keycloak.storage.UserStorageProvider";
 
 	protected RBACManager rbacManager;
 	protected String domainId;
@@ -59,11 +58,11 @@ public abstract class ComponentService extends KeycloakAdminClient {
 		this.domainId = domainId;
 	}
 
-	protected void createComponent(Component component) {
+	protected void createComponent(JsonObject component) {
 		logger.info("Create component {}", component);
 
 		CompletableFuture<JsonObject> response = execute(String.format(COMPONENTS_URL, domainId), HttpMethod.POST,
-				component.toJson());
+				component);
 		try {
 			response.get(TIMEOUT, TimeUnit.SECONDS);
 		} catch (Exception e) {
@@ -73,7 +72,7 @@ public abstract class ComponentService extends KeycloakAdminClient {
 
 	protected List<JsonObject> allComponents(ComponentProvider provider) {
 		CompletableFuture<JsonObject> response = execute(
-				String.format(COMPONENTS_URL, domainId) + "?type=" + PROVIDER_TYPE, HttpMethod.GET);
+				String.format(COMPONENTS_URL, domainId) + "?type=" + Component.PROVIDER_TYPE, HttpMethod.GET);
 		JsonObject json;
 		try {
 			json = response.get(TIMEOUT, TimeUnit.SECONDS);
@@ -94,7 +93,7 @@ public abstract class ComponentService extends KeycloakAdminClient {
 
 	protected JsonObject getComponent(ComponentProvider provider, String componentName) {
 		CompletableFuture<JsonObject> response = execute(
-				String.format(COMPONENTS_URL, domainId) + "?type=" + PROVIDER_TYPE, HttpMethod.GET);
+				String.format(COMPONENTS_URL, domainId) + "?type=" + Component.PROVIDER_TYPE, HttpMethod.GET);
 		JsonObject json;
 		try {
 			json = response.get(TIMEOUT, TimeUnit.SECONDS);

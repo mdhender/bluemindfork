@@ -17,157 +17,45 @@
   */
 package net.bluemind.keycloak.api;
 
-import java.util.Arrays;
+import java.util.Objects;
 
-import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.BMApi;
 
 @BMApi(version = "3")
 public class KerberosComponent extends Component {
-	private String providerId;
-	private String providerType;
-	private String id;
-	private String parentId;
-	private String name;
-
-	private String kerberosRealm;
-	private String serverPrincipal;
-	private String keyTab;
-	private Boolean enabled = Boolean.FALSE;
-	private Boolean debug = Boolean.FALSE;
-	private Boolean allowPasswordAuthentication = Boolean.FALSE;
-	private Boolean updateProfileFirstLogin = Boolean.FALSE;
-	private CachePolicy cachePolicy = CachePolicy.DEFAULT;
-
-	@BMApi(version = "3")
-	public enum CachePolicy {
-		DEFAULT, EVICT_DAILY, EVICT_WEEKLY, MAX_LIFESPAN, NO_CACHE;
-	}
+	public String kerberosRealm;
+	public String serverPrincipal;
+	public String keyTab;
+	public Boolean debug = Boolean.FALSE;
+	public Boolean allowPasswordAuthentication = Boolean.FALSE;
+	public Boolean updateProfileFirstLogin = Boolean.FALSE;
 
 	public KerberosComponent() {
-		providerId = "kerberos";
-		providerType = "org.keycloak.storage.UserStorageProvider";
-	}
-	
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	public String getParentId() {
-		return parentId;
-	}
-
-	public void setParentId(String parentId) {
-		this.parentId = parentId;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getKerberosRealm() {
-		return kerberosRealm;
-	}
-
-	public void setKerberosRealm(String kerberosRealm) {
-		this.kerberosRealm = kerberosRealm;
-	}
-
-	public String getServerPrincipal() {
-		return serverPrincipal;
-	}
-
-	public void setServerPrincipal(String serverPrincipal) {
-		this.serverPrincipal = serverPrincipal;
-	}
-
-	public String getKeyTab() {
-		return keyTab;
-	}
-
-	public void setKeyTab(String keyTab) {
-		this.keyTab = keyTab;
-	}
-
-	public Boolean isEnabled() {
-		return enabled;
-	}
-
-	public void setEnabled(Boolean enabled) {
-		this.enabled = enabled;
-	}
-
-	public Boolean isDebug() {
-		return debug;
-	}
-
-	public void setDebug(Boolean debug) {
-		this.debug = debug;
-	}
-
-	public Boolean isAllowPasswordAuthentication() {
-		return allowPasswordAuthentication;
-	}
-
-	public void setAllowPasswordAuthentication(Boolean allowPasswordAuthentication) {
-		this.allowPasswordAuthentication = allowPasswordAuthentication;
-	}
-
-	public Boolean isUpdateProfileFirstLogin() {
-		return updateProfileFirstLogin;
-	}
-
-	public void setUpdateProfileFirstLogin(Boolean updateProfileFirstLogin) {
-		this.updateProfileFirstLogin = updateProfileFirstLogin;
-	}
-
-	public CachePolicy getCachePolicy() {
-		return cachePolicy;
-	}
-
-	public void setCachePolicy(CachePolicy cachePolicy) {
-		this.cachePolicy = cachePolicy;
+		super(ProviderId.kerberos, PROVIDER_TYPE);
+		enabled = false;
 	}
 
 	@Override
-	public JsonObject toJson() {
-		JsonObject component = new JsonObject();
-		component.put("id", id);
-		component.put("providerId", providerId);
-		component.put("providerType", providerType);
-		component.put("parentId", parentId);
-		component.put("name", name);
-
-		JsonObject config = new JsonObject();
-		config.put("kerberosRealm", Arrays.asList(kerberosRealm));
-		config.put("serverPrincipal", Arrays.asList(serverPrincipal));
-		config.put("keyTab", Arrays.asList(keyTab));
-		config.put("enabled", Arrays.asList(enabled.toString()));
-		config.put("debug", Arrays.asList(debug.toString()));
-		config.put("allowPasswordAuthentication", Arrays.asList(allowPasswordAuthentication.toString()));
-		config.put("updateProfileFirstLogin", Arrays.asList(updateProfileFirstLogin.toString()));
-		config.put("cachePolicy", Arrays.asList(cachePolicy.name()));
-
-		component.put("config", config);
-
-		return component;
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + Objects.hash(allowPasswordAuthentication, debug, kerberosRealm, keyTab,
+				serverPrincipal, updateProfileFirstLogin);
+		return result;
 	}
 
 	@Override
-	public String toString() {
-		return "KerberosComponent [kerberosRealm=" + kerberosRealm + ", serverPrincipal=" + serverPrincipal
-				+ ", keyTab=" + keyTab + ", enabled=" + enabled + ", debug=" + debug + ", allowPasswordAuthentication="
-				+ allowPasswordAuthentication + ", updateProfileFirstLogin=" + updateProfileFirstLogin
-				+ ", cachePolicy=" + cachePolicy + ", providerId=" + providerId + ", providerType=" + providerType
-				+ ", parentId=" + parentId + ", name=" + name + "]";
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		KerberosComponent other = (KerberosComponent) obj;
+		return Objects.equals(allowPasswordAuthentication, other.allowPasswordAuthentication)
+				&& Objects.equals(debug, other.debug) && Objects.equals(kerberosRealm, other.kerberosRealm)
+				&& Objects.equals(keyTab, other.keyTab) && Objects.equals(serverPrincipal, other.serverPrincipal)
+				&& Objects.equals(updateProfileFirstLogin, other.updateProfileFirstLogin);
 	}
-
 }

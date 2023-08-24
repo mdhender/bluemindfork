@@ -3,7 +3,8 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.keycloak.utils
 Bundle-SymbolicName: net.bluemind.keycloak.utils
 Bundle-Version: 5.0.0.qualifier
-Export-Package: net.bluemind.keycloak.utils
+Export-Package: net.bluemind.keycloak.utils,
+ net.bluemind.keycloak.utils.adapters
 Require-Bundle: net.bluemind.keycloak.api,
  net.bluemind.server.api,
  slf4j.api,

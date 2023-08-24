@@ -29,9 +29,9 @@ import org.junit.Test;
 
 import net.bluemind.keycloak.api.AuthenticationFlow;
 import net.bluemind.keycloak.api.BluemindProviderComponent;
+import net.bluemind.keycloak.api.Component.CachePolicy;
 import net.bluemind.keycloak.api.IKeycloakUids;
 import net.bluemind.keycloak.api.KerberosComponent;
-import net.bluemind.keycloak.api.KerberosComponent.CachePolicy;
 import net.bluemind.keycloak.api.OidcClient;
 import net.bluemind.keycloak.api.Realm;
 
@@ -179,18 +179,18 @@ public class KeycloakServiceTests extends AbstractServiceTests {
 
 		String providerName = IKeycloakUids.bmProviderId(domainUid);
 		BluemindProviderComponent bpComponent = new BluemindProviderComponent();
-		bpComponent.setParentId(domainUid);
-		bpComponent.setName(providerName);
-		bpComponent.setBmUrl("http://localhost:8090");
-		bpComponent.setBmCoreToken("toktok");
+		bpComponent.parentId = domainUid;
+		bpComponent.name = providerName;
+		bpComponent.bmUrl = "http://localhost:8090";
+		bpComponent.bmCoreToken = "toktok";
 
 		getKeycloakBluemindProviderService(domainUid).create(bpComponent);
 
 		BluemindProviderComponent provider = getKeycloakBluemindProviderService(domainUid)
 				.getBluemindProvider(providerName);
 		assertNotNull(provider);
-		assertTrue(provider.isEnabled());
-		assertEquals("http://localhost:8090", provider.getBmUrl());
+		assertTrue(provider.enabled);
+		assertEquals("http://localhost:8090", provider.bmUrl);
 
 		getKeycloakBluemindProviderService(domainUid).deleteBluemindProvider(providerName);
 		provider = getKeycloakBluemindProviderService(domainUid).getBluemindProvider(providerName);
@@ -204,23 +204,23 @@ public class KeycloakServiceTests extends AbstractServiceTests {
 
 		String providerName = IKeycloakUids.kerberosComponentName(domainUid);
 		KerberosComponent krbComponent = new KerberosComponent();
-		krbComponent.setKerberosRealm("TEST-DOMAIN.LOCAL");
-		krbComponent.setServerPrincipal("HTTP/keycloak.test-domain.local@TEST-DOMAIN.LOCAL");
-		krbComponent.setKeyTab("/tmp/keytab");
-		krbComponent.setEnabled(true);
-		krbComponent.setDebug(true);
-		krbComponent.setCachePolicy(CachePolicy.DEFAULT);
-		krbComponent.setName(providerName);
-		krbComponent.setParentId(domainUid);
+		krbComponent.kerberosRealm = "TEST-DOMAIN.LOCAL";
+		krbComponent.serverPrincipal = "HTTP/keycloak.test-domain.local@TEST-DOMAIN.LOCAL";
+		krbComponent.keyTab = "/tmp/keytab";
+		krbComponent.enabled = true;
+		krbComponent.debug = true;
+		krbComponent.cachePolicy = CachePolicy.DEFAULT;
+		krbComponent.name = providerName;
+		krbComponent.parentId = domainUid;
 
 		getKeycloakKerberosService(domainUid).create(krbComponent);
 
 		KerberosComponent provider = getKeycloakKerberosService(domainUid).getKerberosProvider(providerName);
 		assertNotNull(provider);
-		assertEquals(providerName, provider.getName());
-		assertEquals("HTTP/keycloak.test-domain.local@TEST-DOMAIN.LOCAL", provider.getServerPrincipal());
+		assertEquals(providerName, provider.name);
+		assertEquals("HTTP/keycloak.test-domain.local@TEST-DOMAIN.LOCAL", provider.serverPrincipal);
 
-		assertTrue(provider.isEnabled());
+		assertTrue(provider.enabled);
 
 		getKeycloakKerberosService(domainUid).deleteKerberosProvider(providerName);
 		provider = getKeycloakKerberosService(domainUid).getKerberosProvider(providerName);
