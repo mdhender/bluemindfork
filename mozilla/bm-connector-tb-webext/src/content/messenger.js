@@ -326,6 +326,15 @@ var gBMOverlay = {
 		}
 	},
     _openWebPage: async function(aServer, aAskedUri, aBackground) {
+		let matchesUrl = ["https://*" + aAskedUri + "/*"];
+		switch (aAskedUri) {
+			case "/cal" :
+				matchesUrl.push("https://*/webapp/calendar/*");
+				break;
+			case "/task" :
+				matchesUrl.push("https://*/webapp/tasks/*");
+				break;
+		}
         let url = aServer + aAskedUri + "/index.html";
 		if (bmUtils.getBoolPref("extensions.bm.openInTab", false)) {
 			let tabBm = await this._getBmTab(aAskedUri);
@@ -339,12 +348,12 @@ var gBMOverlay = {
 					linkHandler: "single-page"
 				});
 			} else {
-				await this._notify.notifyTools.notifyBackground({command: "activateTab", matchUrl: "https://*" + aAskedUri + "/*"});
+				await this._notify.notifyTools.notifyBackground({command: "activateTab", matchUrl: matchesUrl});
 			}
 			if (aAskedUri == "/cal") {
 				let self = this;
 				window.setTimeout(() => {
-					self._notify.notifyTools.notifyBackground({command: "injectCalTabScript", matchUrl: "https://*" + aAskedUri + "/*"});
+					self._notify.notifyTools.notifyBackground({command: "injectCalTabScript", matchUrl: matchesUrl});
 				}, 10000);
 			}
 		} else {

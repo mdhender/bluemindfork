@@ -236,7 +236,7 @@ messenger.notifications.onClicked.addListener(async (id) => {
     let win = await messenger.windows.getAll({windowTypes: ["normal"]});
     if (win && win.length > 0) {
       await messenger.windows.update(win[0].id, {focused: true});
-      let calTab = await messenger.tabs.query({url: "https://*/cal/*"});
+      let calTab = await messenger.tabs.query({url: ["https://*/cal/*", "https://*/webapp/calendar/*"]});
       if (calTab && calTab.length > 0) {
         await messenger.tabs.update(calTab[0].id, {active: true});
       }
