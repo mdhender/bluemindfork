@@ -37,14 +37,12 @@ public class TokenSessionProvider implements ISessionsProvider {
 	private IInCoreAuthentication coreAuth;
 
 	public TokenSessionProvider() {
-		logger.info("SCL - TokenSessionProvider");
 		ServerSideServiceProvider apis = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 		this.coreAuth = apis.instance(IInCoreAuthentication.class);
 	}
 
 	@Override
 	public Optional<SecurityContext> get(String token) {
-		logger.info("SCL - TokenSessionProvider get");
 		return Optional.ofNullable(TokensStore.get().byKey(token)).map(tok -> {
 			if (tok.expiresTimestamp < System.currentTimeMillis()) {
 				logger.warn("[{}@{}] Token {} is expired since {}", tok.subjectUid, tok.subjectDomain, tok.key,

@@ -74,6 +74,33 @@ public class AuditLogService<T> {
 		}
 	}
 
+	public void loginLog(SecurityContext securityContext) {
+		AuditLogEntry auditLogEntry = new AuditLogEntry();
+		SecurityContextElement securityContextElement;
+
+		try {
+			DirEntry entrySecurityContext = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+					.instance(IDirectory.class, securityContext.getContainerUid())
+					.findByEntryUid(securityContext.getOwnerPrincipal());
+			if (entrySecurityContext != null) {
+				securityContextElement = new SecurityContextElement.SecurityContextElementBuilder()
+						.displayName(entrySecurityContext.displayName).email(entrySecurityContext.email)
+						.uid(securityContext.getSubject()).origin(securityContext.getOrigin()).build();
+				auditLogEntry.securityContext = securityContextElement;
+			}
+		} catch (ServerFault e) {
+			logger.error("Problem fetching security context data : {}", e.getMessage());
+			securityContextElement = new SecurityContextElement.SecurityContextElementBuilder()
+					.displayName(securityContext.getSubjectDisplayName()).uid(securityContext.getSubject())
+					.origin(securityContext.getOrigin()).build();
+			auditLogEntry.securityContext = securityContextElement;
+		}
+
+		auditLogEntry.logtype = "LoginEvent";
+		auditLogEntry.action = Type.Created.name();
+		store(auditLogEntry);
+	}
+
 	protected void store(AuditLogEntry entry) {
 		auditLogClient.store(entry);
 	}

@@ -20,15 +20,11 @@ package net.bluemind.core.sessions;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 
 public class SessionProviders {
 
 	private static final List<ISessionsProvider> providers = load();
-	private static final Logger logger = LoggerFactory.getLogger(SessionProviders.class);
 
 	private SessionProviders() {
 
@@ -36,7 +32,6 @@ public class SessionProviders {
 
 	private static List<ISessionsProvider> load() {
 		RunnableExtensionLoader<ISessionsProvider> rel = new RunnableExtensionLoader<>();
-		logger.info("SCL - SessionProviders");
 		return rel.loadExtensionsWithPriority("net.bluemind.core.sessions", "provider", "provider", "impl");
 	}
 

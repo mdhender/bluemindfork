@@ -62,6 +62,7 @@ import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcHelper;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -85,6 +86,7 @@ public class AuthenticationTests {
 	@Before
 	public void setup() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
+		ElasticsearchTestHelper.getInstance().beforeTest();
 
 		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
@@ -138,6 +140,7 @@ public class AuthenticationTests {
 	@After
 	public void after() throws Exception {
 		JdbcTestHelper.getInstance().afterTest();
+		ElasticsearchTestHelper.getInstance().afterTest();
 	}
 
 	@Test

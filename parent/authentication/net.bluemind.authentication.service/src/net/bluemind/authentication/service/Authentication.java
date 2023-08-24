@@ -50,6 +50,7 @@ import net.bluemind.authentication.service.internal.AuthContextCache;
 import net.bluemind.authentication.service.tokens.TokensStore;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.container.service.internal.AuditLogService;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
@@ -81,17 +82,19 @@ public class Authentication implements IInCoreAuthentication {
 	private final List<ILoginValidationListener> loginListeners;
 	private final List<ILoginSessionValidator> sessionValidators;
 	private final IDomains domainService;
+	private final AuditLogService<String> auditLogService;
 
 	private BmContext context;
 
 	public Authentication(BmContext context, List<IAuthProvider> authProviders,
-			List<ILoginValidationListener> loginListeners, List<ILoginSessionValidator> sessionValidators)
-			throws ServerFault {
+			List<ILoginValidationListener> loginListeners, List<ILoginSessionValidator> sessionValidators,
+			AuditLogService<String> auditLogService) throws ServerFault {
 		this.context = context;
 		this.securityContext = context.getSecurityContext();
 		this.authProviders = authProviders;
 		this.loginListeners = loginListeners;
 		this.sessionValidators = sessionValidators;
+		this.auditLogService = auditLogService;
 		this.domainService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomains.class);
 	}
 
@@ -147,14 +150,12 @@ public class Authentication implements IInCoreAuthentication {
 
 	@Override
 	public LoginResponse login(String login, String password, String origin) throws ServerFault {
-		logger.info("SCL Authentication - login");
 		return loginWithParams(login, password, origin, false);
 	}
 
 	@Override
 	public LoginResponse loginWithParams(String login, String password, String origin, Boolean interactive)
 			throws ServerFault {
-		logger.info("SCL Authentication - loginWithParams");
 		if (!verifyNonEmptyCredentials(login, password, origin)) {
 			LoginResponse resp = new LoginResponse();
 			resp.status = Status.Bad;
@@ -301,11 +302,13 @@ public class Authentication implements IInCoreAuthentication {
 
 			Sessions.get().put(resp.authKey, context);
 		} else {
+
 			logger.debug("login: '{}', origin: '{}', from: '{}' successfully authentified with session token", login,
 					origin, securityContext.getRemoteAddresses());
 			resp.authKey = context.getSessionId();
 		}
 
+		auditLogService.loginLog(context);
 		resp.authUser = AuthUser.create(context.getContainerUid(), context.getSubject(), authContext.user.displayName,
 				authContext.user.value, new HashSet<>(context.getRoles()), context.getRolesByOrgUnits(), settings);
 		return resp;
@@ -460,7 +463,6 @@ public class Authentication implements IInCoreAuthentication {
 
 	@Override
 	public LoginResponse suWithParams(String login, Boolean inter) throws ServerFault {
-		logger.info("SCL Authentication - suWithParams");
 		boolean interactive = inter != null && inter;
 		String performer = securityContext.getSubject();
 		if (interactive && !securityContext.isDomainGlobal()) {
@@ -515,6 +517,7 @@ public class Authentication implements IInCoreAuthentication {
 			SecurityContext builtContext = buildSecurityContext(resp.authKey, user, domainPart, settings,
 					securityContext.getOrigin(), false, interactive);
 
+			auditLogService.loginLog(builtContext);
 			resp.authUser = AuthUser.create(builtContext.getContainerUid(), builtContext.getSubject(), user.displayName,
 					user.value, new HashSet<>(builtContext.getRoles()), builtContext.getRolesByOrgUnits(), settings);
 			Sessions.get().put(resp.authKey, builtContext);
@@ -590,6 +593,7 @@ public class Authentication implements IInCoreAuthentication {
 	public SecurityContext buildContext(String sid, String origin, String domainUid, String userUid)
 			throws ServerFault {
 		logger.info("SCL Authentication - buildContext");
+		// TODO SCL loguer ici aussi ?
 		ItemValue<User> user = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IUser.class, domainUid).getComplete(userUid);
 		Map<String, String> settings = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)

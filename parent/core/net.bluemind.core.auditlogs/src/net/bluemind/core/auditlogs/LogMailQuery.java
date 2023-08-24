@@ -31,7 +31,6 @@ public class LogMailQuery {
 
 	public String description;
 
-	// TODO SCL : bonne valeur ?
 	public String container;
 
 	public Date timestamp;

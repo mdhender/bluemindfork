@@ -38,6 +38,7 @@ Require-Bundle: org.junit,
  net.bluemind.backend.mail.replica.indexing;bundle-version="5.0.0",
  net.bluemind.core.sessions,
  org.awaitility,
- org.hamcrest;bundle-version="2.2.0"
+ org.hamcrest;bundle-version="2.2.0",
+ net.bluemind.core.auditlogs
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.imap.tests

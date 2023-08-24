@@ -81,9 +81,6 @@
             "action":{
                "type":"keyword"
             },
-            "origin":{
-               "type":"keyword"
-            },
             "content":{
                "properties":{
                   "key":{
