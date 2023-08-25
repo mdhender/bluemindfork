@@ -18,6 +18,11 @@
     border-right: none;
 }
 
+.form-input.inline > .form-control {
+    border-radius: 0;
+    border: none !important;
+}
+
 .form-input {
     &:focus-within,
     &:focus,
@@ -41,13 +46,9 @@ $items-info: (
     )
 );
 
-@mixin generate-paddings-for-root($underline, $padding-x) {
-    @if $underline {
-        .form-input.underline > .form-control {
-            padding: 0 $padding-x !important;
-        }
-    } @else {
-        .form-input:not(.underline) {
+@mixin generate-paddings-for-root($outline, $padding-x) {
+    @if $outline {
+        .form-input.outline {
             > .form-control {
                 padding: 0 $padding-x !important;
             }
@@ -59,6 +60,10 @@ $items-info: (
                     padding: 0 calc(#{$padding-x} - #{$input-border-width}) !important;
                 }
             }
+        }
+    } @else {
+        .form-input:not(.outline) > .form-control {
+            padding: 0 $padding-x !important;
         }
     }
 }
@@ -72,13 +77,13 @@ $items-info: (
     }
 }
 
-@mixin generate-paddings-for($item, $underline, $padding-x, $spacing-x) {
+@mixin generate-paddings-for($item, $outline, $padding-x, $spacing-x) {
     $offset: $padding-x + map-get($items-info, $item, "width") + $spacing-x;
-    $root-selector: ".form-input" + if($underline, ".underline", ":not(.underline)");
+    $root-selector: ".form-input" + if($outline, ".outline", ":not(.outline)");
     $control-selector: " > .form-control.with-" + $item;
     #{$root-selector} #{$control-selector} {
         @include padding-in-form-control($offset);
-        @if not $underline {
+        @if $outline {
             &:focus-within,
             &:focus,
             &.focus {
@@ -89,15 +94,15 @@ $items-info: (
     }
 }
 
-@mixin generate-variant-paddings($underline, $padding-x, $spacing-x) {
-    @include generate-paddings-for-root($underline, $padding-x);
+@mixin generate-variant-paddings($outline, $padding-x, $spacing-x) {
+    @include generate-paddings-for-root($outline, $padding-x);
     @each $item in "icon", "reset" {
-        @include generate-paddings-for($item, $underline, $padding-x, $spacing-x);
+        @include generate-paddings-for($item, $outline, $padding-x, $spacing-x);
     }
 }
 
-@include generate-variant-paddings($underline: false, $padding-x: $sp-5, $spacing-x: $sp-4);
-@include generate-variant-paddings($underline: true, $padding-x: $sp-4, $spacing-x: $sp-4);
+@include generate-variant-paddings($outline: true, $padding-x: $sp-5, $spacing-x: $sp-4);
+@include generate-variant-paddings($outline: false, $padding-x: $sp-4, $spacing-x: $sp-4);
 
 // Icon and reset button padding and margin
 
@@ -107,7 +112,7 @@ $items-info: (
     gap: $sp-3;
 }
 
-@each $selector, $margin-x in (":not(.underline)": $sp-5, ".underline": $sp-4) {
+@each $selector, $margin-x in (".outline": $sp-5, ":not(.outline)": $sp-4) {
     .form-input#{$selector} {
         .icon-wrapper,
         .reset-btn {
@@ -132,34 +137,43 @@ $items-info: (
 // Colors
 
 @mixin form-input-colors(
-    $stroke,
-    $hover-stroke,
-    $focus-stroke: $secondary-fg,
-    $icon: $stroke,
-    $hover-icon: $hover-stroke,
-    $focus-icon: $focus-stroke
+    $normal-text: null,
+    $normal-placeholder: null,
+    $normal-icon: null,
+    $normal-stroke: null,
+    $hovered-text: null,
+    $hovered-icon: null,
+    $hovered-stroke: null,
+    $disabled-text: null,
+    $disabled-placeholder: null,
+    $disabled-icon: null,
+    $disabled-stroke: null,
+    $disabled-bg: null,
+    $focused-text: null,
+    $focused-icon: null,
+    $focused-stroke: null
 ) {
     > .form-control {
-        color: $neutral-fg;
-        border-color: $stroke;
+        color: $normal-text;
+        border-color: $normal-stroke;
         background-image: none !important;
         box-shadow: none !important;
         &::placeholder {
-            color: $neutral-fg-lo1;
+            color: $normal-placeholder;
         }
     }
     .ornament-icon {
-        color: $icon;
+        color: $normal-icon;
     }
 
     &:hover,
     &.hover {
         > .form-control {
-            color: $neutral-fg-hi1;
-            border-color: $hover-stroke;
+            color: $hovered-text;
+            border-color: $hovered-stroke;
         }
         .ornament-icon {
-            color: $hover-icon;
+            color: $hovered-icon;
         }
     }
 
@@ -167,49 +181,99 @@ $items-info: (
     &:focus,
     &.focus {
         > .form-control {
-            color: $neutral-fg-hi1;
-            border-color: $focus-stroke;
+            color: $focused-text;
+            border-color: $focused-stroke;
         }
         .ornament-icon {
-            color: $focus-icon;
+            color: $focused-icon;
         }
     }
 
     &.disabled {
         > .form-control {
-            color: $neutral-fg-lo1;
-            border-color: $neutral-fg-disabled;
+            color: $disabled-text;
+            border-color: $disabled-stroke;
             &::placeholder {
-                color: $neutral-fg-lo2;
+                color: $disabled-placeholder;
             }
         }
-        &:not(.underline) > .form-control {
-            background-color: $neutral-bg-lo1;
+        &.outline > .form-control {
+            background-color: $disabled-bg;
         }
         &.underline > .form-control {
             border-color: transparent;
         }
         .ornament-icon {
-            color: $neutral-fg-disabled;
+            color: $disabled-icon;
         }
     }
 }
 
 .form-input {
-    &:not(.underline) {
-        @include form-input-colors($neutral-fg-lo1, $neutral-fg-hi1, $icon: $neutral-fg);
-    }
-    &.underline {
-        @include form-input-colors($neutral-fg-lo2, $neutral-fg, $icon: $neutral-fg, $hover-icon: $neutral-fg-hi1);
-    }
+    @include form-input-colors(
+        $normal-text: $neutral-fg,
+        $normal-placeholder: $neutral-fg-lo1,
+        $normal-icon: $neutral-fg,
+        $normal-stroke: $neutral-fg-lo1,
+        $hovered-text: $neutral-fg-hi1,
+        $hovered-icon: $neutral-fg-hi1,
+        $hovered-stroke: $neutral-fg-hi1,
+        $disabled-text: $neutral-fg-lo1,
+        $disabled-placeholder: $neutral-fg-disabled,
+        $disabled-icon: $neutral-fg-disabled,
+        $disabled-stroke: $neutral-fg-disabled,
+        $disabled-bg: $neutral-bg-lo1,
+        $focused-text: $neutral-fg-hi1,
+        $focused-icon: $secondary-fg,
+        $focused-stroke: $secondary-fg
+    );
+}
+
+.form-input.underline {
+    @include form-input-colors(
+        $normal-stroke: $neutral-fg-lo2,
+        $hovered-stroke: $neutral-fg,
+        $disabled-stroke: transparent,
+        $focused-stroke: $secondary-fg
+    );
 }
 
 .form-input.is-invalid {
-    @include form-input-colors($danger-fg, $danger-fg-hi1, $danger-fg-hi1);
+    @include form-input-colors(
+        $normal-icon: $danger-fg,
+        $normal-stroke: $danger-fg,
+        $hovered-icon: $danger-fg-hi1,
+        $hovered-stroke: $danger-fg-hi1,
+        $disabled-icon: $neutral-fg-disabled,
+        $disabled-stroke: $neutral-fg-disabled,
+        $focused-icon: $danger-fg-hi1,
+        $focused-stroke: $danger-fg-hi1
+    );
 }
 
 .form-input.is-valid {
-    @include form-input-colors($success-fg, $success-fg-hi1);
+    @include form-input-colors(
+        $normal-stroke: $success-fg,
+        $hovered-stroke: $success-fg-hi1,
+        $disabled-stroke: $neutral-fg-disabled,
+        $focused-stroke: $secondary-fg
+    );
+}
+
+.form-input.inline.on-fill-primary {
+    @include form-input-colors(
+        $normal-text: $fill-primary-fg,
+        $normal-placeholder: $fill-primary-fg-lo1,
+        $normal-icon: $fill-primary-fg,
+        $hovered-text: $fill-primary-fg,
+        $hovered-icon: $fill-primary-fg-hi1,
+        $disabled-text: $fill-primary-fg-lo1,
+        $disabled-placeholder: $fill-primary-fg-disabled,
+        $disabled-icon: $fill-primary-fg-disabled,
+        $disabled-bg: $fill-primary-bg-lo1,
+        $focused-text: $fill-primary-fg,
+        $focused-icon: $fill-primary-fg-hi1
+    );
 }
 
 // Form group

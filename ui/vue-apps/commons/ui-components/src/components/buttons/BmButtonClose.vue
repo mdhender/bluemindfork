@@ -1,5 +1,5 @@
 <template>
-    <b-button v-bind="[$props]" class="bm-button-close" v-on="$listeners">
+    <b-button v-bind="[$props]" class="bm-button-close" :class="{ 'on-fill-primary': onFillPrimary }" v-on="$listeners">
         <bm-icon icon="cross-thin" />
     </b-button>
 </template>
@@ -22,6 +22,10 @@ export default {
         disabled: {
             type: Boolean,
             default: false
+        },
+        onFillPrimary: {
+            type: Boolean,
+            default: false
         }
     }
 };
@@ -35,6 +39,10 @@ export default {
     flex: none;
 
     @include bm-icon-button-compact-variant("neutral");
+
+    &.on-fill-primary {
+        @include bm-icon-button-compact-variant("fill-primary");
+    }
 
     @each $name, $value in $btn-close-sizes {
         &.btn-#{$name} {

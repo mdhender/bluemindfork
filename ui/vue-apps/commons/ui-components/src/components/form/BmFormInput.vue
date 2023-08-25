@@ -2,7 +2,10 @@
     <div
         class="bm-form-input form-input position-relative"
         :class="{
+            outline: variant === 'outline',
             underline: variant === 'underline',
+            inline: variant.startsWith('inline'),
+            'on-fill-primary': variant.endsWith('on-fill-primary'),
             ['form-input-' + size]: true,
             'is-invalid': state === false,
             'is-valid': state === true,
@@ -30,6 +33,7 @@
             size="sm"
             class="reset-btn position-absolute"
             :class="{ 'icon-left': leftIcon }"
+            :on-fill-primary="variant.endsWith('on-fill-primary')"
             :aria-label="$t('styleguide.input.clear')"
             :title="$t('styleguide.input.clear')"
             :disabled="disabled"
@@ -75,7 +79,7 @@ export default {
             type: String,
             default: "outline",
             validator: function (value) {
-                return ["outline", "underline"].includes(value);
+                return ["outline", "underline", "inline", "inline-on-fill-primary"].includes(value);
             }
         },
         size: {
