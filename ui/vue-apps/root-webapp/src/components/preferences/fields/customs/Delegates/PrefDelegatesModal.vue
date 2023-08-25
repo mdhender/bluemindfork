@@ -210,10 +210,22 @@ export default {
                     this.delegations?.find(({ subject }) => subject === value)?.verb || Verb.SendOnBehalf;
                 this.delegationRight = this.initialDelegationRight;
 
-                this.calendarRight = aclToRight(this.acls.calendar.acl, value, Right.AUTHOR);
-                this.todoListRight = aclToRight(this.acls.todoList.acl, value, Right.AUTHOR);
-                this.messageRight = aclToRight(this.acls.mailbox.acl, value, Right.NONE);
-                this.contactsRight = aclToRight(this.acls.addressBook.acl, value, Right.NONE);
+                this.calendarRight = aclToRight(
+                    this.acls.calendar.acl,
+                    value,
+                    this.delegate ? undefined : Right.AUTHOR
+                );
+                this.todoListRight = aclToRight(
+                    this.acls.todoList.acl,
+                    value,
+                    this.delegate ? undefined : Right.AUTHOR
+                );
+                this.messageRight = aclToRight(this.acls.mailbox.acl, value, this.delegate ? undefined : Right.NONE);
+                this.contactsRight = aclToRight(
+                    this.acls.addressBook.acl,
+                    value,
+                    this.delegate ? undefined : Right.NONE
+                );
             },
             immediate: true
         }

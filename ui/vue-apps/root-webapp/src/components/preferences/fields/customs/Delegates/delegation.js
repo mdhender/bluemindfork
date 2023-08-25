@@ -50,10 +50,8 @@ export const fetchAcls = async () => {
 
 export const delegations = computed(() => {
     return Object.values(acls.value)
-        .map(({ uid, acl }) =>
-            acl?.filter(({ verb }) => [Verb.SendOnBehalf, Verb.SendAs].includes(verb)).map(ac => ({ uid, ac }))
-        )
-        .flatMap(r => r)
+        .map(({ uid, acl }) => acl?.filter(({ verb }) => DELEGATION_VERBS.includes(verb)).map(ac => ({ uid, ac })))
+        .flat()
         .filter(Boolean);
 });
 
@@ -77,7 +75,8 @@ export const removeDelegate = userUid => {
         Object.values(acls.value).map(({ uid, acl }) =>
             inject("ContainerManagementPersistence", uid).setAccessControlList(
                 acl.filter(
-                    ({ subject, verb }) => subject !== userUid || ![Verb.SendOnBehalf, Verb.SendAs].includes(verb)
+                    ({ subject, verb }) =>
+                        subject !== userUid || ![...DELEGATION_VERBS, ...SHARED_CONTAINERS_VERBS].includes(verb)
                 )
             )
         )
@@ -94,6 +93,9 @@ export const setCalendarAcl = (acl, delegate) => setAclForDelegate(calendarUid.v
 export const setMailboxAcl = (acl, delegate) => setAclForDelegate(mailboxUid.value, acl, delegate);
 export const setTodoListAcl = (acl, delegate) => setAclForDelegate(todoListUid.value, acl, delegate);
 export const setContactsAcl = (acl, delegate) => setAclForDelegate(addressBookUid.value, acl, delegate);
+
+const DELEGATION_VERBS = [Verb.SendOnBehalf, Verb.SendAs];
+const SHARED_CONTAINERS_VERBS = [Verb.Read, Verb.Write, Verb.Manage];
 
 export const Right = {
     NONE: { verbs: [], text: () => i18n.t("preferences.account.delegates.right.none") },
@@ -135,13 +137,13 @@ export const aclToRight = (acl, delegate, defaultRight) => {
     }
 
     const filteredAclVerbs = acl
-        .filter(({ subject, verb }) => subject === delegate && [Verb.Read, Verb.Write, Verb.Manage].includes(verb))
+        .filter(({ subject, verb }) => subject === delegate && SHARED_CONTAINERS_VERBS.includes(verb))
         .map(({ verb }) => verb);
 
     for (const right of orderedRights) {
         const rightVerbs = right.verbs;
         if (without(rightVerbs, ...filteredAclVerbs).length === 0) {
-            return right;
+            return defaultRight && right === Right.NONE ? defaultRight : right;
         }
     }
 };

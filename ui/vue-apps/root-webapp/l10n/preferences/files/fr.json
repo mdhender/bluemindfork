@@ -18,6 +18,8 @@
     "preferences.account.delegates.calendar.private": "Peut voir les éléments privés",
     "preferences.account.delegates.create": "Créer une délégation",
     "preferences.account.delegates.delegate": "Délégué",
+    "preferences.account.delegates.delete": "Supprimer la délégation",
+    "preferences.account.delegates.delete.confirm": "Supprimer la délégation à {user} ? Tous les droits associés seront perdus.",
     "preferences.account.delegates.description": "Permettre aux utilisateurs de votre choix de recevoir des éléments ou d’effectuer des actions de votre part ou en votre nom.",
     "preferences.account.delegates.edit.send_as": "Écrit en tant que moi (impersonnification totale)",
     "preferences.account.delegates.edit.send_on_behalf": "Écrit de ma part (mon nom est mentionné)",

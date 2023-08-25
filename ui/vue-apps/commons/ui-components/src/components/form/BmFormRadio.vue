@@ -2,14 +2,14 @@
     <div :class="{ 'with-img': withImage }" class="bm-form-radio">
         <label
             v-if="withImage"
-            :for="_uid + JSON.stringify(value)"
+            :for="radioId"
             class="bm-form-radio-img-label"
             :class="{ 'bm-form-radio-checked': isChecked }"
         >
             <slot name="img" />
         </label>
         <b-form-radio
-            :id="_uid + JSON.stringify(value)"
+            :id="radioId"
             inline
             :class="{ 'd-flex flex-fill justify-content-center': withImage }"
             v-bind="$props"
@@ -17,7 +17,7 @@
         >
             <template v-if="!withImage"><slot /></template>
         </b-form-radio>
-        <label v-if="withImage" :for="_uid + JSON.stringify(value)"><slot /></label>
+        <label v-if="withImage" :for="radioId"><slot /></label>
     </div>
 </template>
 
@@ -29,6 +29,9 @@ export default {
     components: { BFormRadio },
     extends: BFormRadio,
     computed: {
+        radioId() {
+            return `${this._uid}#${JSON.stringify(this.value)}`;
+        },
         withImage() {
             return !!this.$slots.img;
         }

@@ -3,10 +3,10 @@ import { computed, ref, watch, watchEffect } from "vue";
 import { Contact } from "@bluemind/business-components";
 import { DirEntryAdaptor } from "@bluemind/contact";
 import { Verb } from "@bluemind/core.container.api";
-import i18n from "@bluemind/i18n";
+import i18nInstance from "@bluemind/i18n";
 import { inject } from "@bluemind/inject";
 import { matchPattern } from "@bluemind/string";
-import { BmFormInput, BmIconButton, BmPagination, BmTable } from "@bluemind/ui-components";
+import { BmFormInput, BmIconButton, BmModal, BmPagination, BmTable } from "@bluemind/ui-components";
 import {
     acls,
     getCalendarRight,
@@ -27,25 +27,29 @@ const fields = computed(() => {
     const fields = [];
     fields.push({
         key: "contact",
-        label: i18n.t("preferences.account.delegates.delegate"),
+        label: i18nInstance.t("preferences.account.delegates.delegate"),
         class: "contact-cell",
         sortable: true
     });
     if (acls.value.calendar.acl) {
         fields.push({
             key: "calendarRight",
-            label: i18n.t("common.application.calendar"),
+            label: i18nInstance.t("common.application.calendar"),
             class: "right-cell calendar-right-cell"
         });
     }
     if (acls.value.todoList.acl) {
-        fields.push({ key: "todoListRight", label: i18n.t("common.application.tasks"), class: "right-cell" });
+        fields.push({ key: "todoListRight", label: i18nInstance.t("common.application.tasks"), class: "right-cell" });
     }
     if (acls.value.mailbox.acl) {
-        fields.push({ key: "messageRight", label: i18n.t("common.application.webmail"), class: "right-cell" });
+        fields.push({ key: "messageRight", label: i18nInstance.t("common.application.webmail"), class: "right-cell" });
     }
     if (acls.value.addressBook.acl) {
-        fields.push({ key: "contactsRight", label: i18n.t("common.application.contacts"), class: "right-cell" });
+        fields.push({
+            key: "contactsRight",
+            label: i18nInstance.t("common.application.contacts"),
+            class: "right-cell"
+        });
     }
     fields.push({ key: "edit", label: "", class: "edit-cell" });
     return fields;
@@ -78,9 +82,16 @@ watchEffect(async () => {
     items.value = await Promise.all(promises);
 });
 
-const remove = async userUid => {
-    await removeDelegate(userUid);
-    fetchAcls();
+const confirmDeleteModal = ref();
+const deletedDelegate = ref();
+const remove = async contact => {
+    deletedDelegate.value = contact?.dn || contact?.address;
+    confirmDeleteModal.value.onOk = async () => {
+        await removeDelegate(contact.uid);
+        fetchAcls();
+        confirmDeleteModal.value.hide();
+    };
+    confirmDeleteModal.value.show();
 };
 </script>
 
@@ -122,11 +133,25 @@ const remove = async userUid => {
             <template #cell(edit)="cell">
                 <div>
                     <bm-icon-button variant="compact" icon="pencil" @click="$emit('edit', cell.item.uid)" />
-                    <bm-icon-button variant="compact" icon="trash" @click="remove(cell.item.uid)" />
+                    <bm-icon-button variant="compact" icon="trash" @click="remove(cell.item.contact)" />
                 </div>
             </template>
         </bm-table>
         <bm-pagination v-model="currentPage" :total-rows="filteredItems.length" :per-page="perPage" />
+        <bm-modal
+            ref="confirmDeleteModal"
+            :title="i18nInstance.t('preferences.account.delegates.delete')"
+            :ok-title="i18nInstance.t('common.delete')"
+            :cancel-title="i18nInstance.t('common.cancel')"
+            centered
+            auto-focus-button="ok"
+        >
+            <i18n path="preferences.account.delegates.delete.confirm">
+                <template #user>
+                    <span class="font-weight-bold">{{ deletedDelegate }}</span>
+                </template>
+            </i18n>
+        </bm-modal>
     </div>
 </template>
 

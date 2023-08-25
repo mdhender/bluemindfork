@@ -18,6 +18,8 @@
     "preferences.account.delegates.calendar.private": "Can see private elements",
     "preferences.account.delegates.create": "Add delegate",
     "preferences.account.delegates.delegate": "Delegate",
+    "preferences.account.delegates.delete": "Remove delegate",
+    "preferences.account.delegates.delete.confirm": "Remove {user} from delegates? Bound rights will be lost.",
     "preferences.account.delegates.description": "Allow users of your choice to receive items or perform actions from you or on your behalf.",
     "preferences.account.delegates.edit.send_as": "Write as me (impersonnation)",
     "preferences.account.delegates.edit.send_on_behalf": "Write on my behalf (my name is mentioned)",

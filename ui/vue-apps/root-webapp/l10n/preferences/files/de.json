@@ -17,6 +17,8 @@
     "preferences.account.delegates.calendar.invitations": "Empfängt und beantwortet einladungsbezogene Nachrichten",
     "preferences.account.delegates.calendar.private": "Kann private Elemente sehen",
     "preferences.account.delegates": "Delegierter",
+    "preferences.account.delegates.delete": "Delegierten entfernen",
+    "preferences.account.delegates.delete.confirm": "{user} aus Delegierten entfernen? Gebundene Rechte gehen verloren.",
     "preferences.account.delegates.create": "Delegierten hinzufügen",
     "preferences.account.delegates.description": "Nutzern Ihrer Wahl erlauben, Material zu empfangen oder Aktionen von Ihnen oder in Ihrem Namen auszuführen.",
     "preferences.account.delegates.edit": "Delegierten bearbeiten",
