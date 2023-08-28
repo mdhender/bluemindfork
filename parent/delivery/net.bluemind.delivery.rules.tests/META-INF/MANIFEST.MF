@@ -25,5 +25,7 @@ Require-Bundle: org.junit,
  org.apache.james.apache-mime4j-core,
  net.bluemind.mime4j.common,
  com.google.truth,
- com.google.truth.extensions.truth-java8-extension
+ com.google.truth.extensions.truth-java8-extension,
+ net.bluemind.core.elasticsearch.testshelper,
+ net.bluemind.mailindex.schema
 Import-Package: org.junit.jupiter.api

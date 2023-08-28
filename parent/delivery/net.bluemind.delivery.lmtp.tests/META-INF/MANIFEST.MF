@@ -20,4 +20,6 @@ Require-Bundle: org.junit,
  net.bluemind.delivery.conversationreference.sqlschema,
  net.bluemind.delivery.lmtp.common,
  net.bluemind.backend.mail.replica.api,
- net.bluemind.core.tests.testshelper
+ net.bluemind.core.tests.testshelper,
+ net.bluemind.core.elasticsearch.testshelper,
+ net.bluemind.mailindex.schema

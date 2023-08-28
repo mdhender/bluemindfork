@@ -16,6 +16,8 @@ import org.apache.james.mime4j.dom.Multipart;
 import org.apache.james.mime4j.dom.TextBody;
 import org.junit.jupiter.api.BeforeEach;
 
+import com.google.common.collect.Lists;
+
 import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
@@ -24,6 +26,7 @@ import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.IServiceProvider;
@@ -74,6 +77,7 @@ public class AbstractRuleEngineTests {
 	public void before() throws Exception {
 		domainUid = "test" + System.currentTimeMillis() + ".lab";
 		JdbcTestHelper.getInstance().beforeTest();
+		ElasticsearchTestHelper.getInstance().beforeTest();
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
 
 		var pipo = new Server();
@@ -82,7 +86,11 @@ public class AbstractRuleEngineTests {
 
 		VertxPlatform.spawnBlocking(25, TimeUnit.SECONDS);
 
-		PopulateHelper.initGlobalVirt(pipo);
+		Server esServer = new Server();
+		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
+		esServer.tags = Lists.newArrayList("bm/es");
+
+		PopulateHelper.initGlobalVirt(pipo, esServer);
 		PopulateHelper.addDomain(domainUid, Routing.none);
 
 		this.provider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);

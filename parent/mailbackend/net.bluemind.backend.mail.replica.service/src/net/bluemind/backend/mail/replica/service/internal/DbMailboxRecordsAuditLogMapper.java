@@ -34,6 +34,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
+import net.bluemind.backend.mail.replica.indexing.IMailIndexService;
 import net.bluemind.core.auditlogs.AuditLogEntry;
 import net.bluemind.core.auditlogs.ContentElement;
 import net.bluemind.core.auditlogs.ContentElement.ContentElementBuilder;
@@ -41,16 +42,15 @@ import net.bluemind.core.auditlogs.ILogMapperProvider;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.ChangeLogEntry.Type;
 import net.bluemind.core.container.model.Item;
-import net.bluemind.index.mail.MailIndexService;
 
 public class DbMailboxRecordsAuditLogMapper implements ILogMapperProvider<MailboxRecord> {
 
 	private static final Logger logger = LoggerFactory.getLogger(DbMailboxRecordsAuditLogMapper.class);
 	private static final ObjectMapper objectMapper = new ObjectMapper();
-	private final MailIndexService mailIndexService;
+	private final IMailIndexService mailIndexService;
 	private final BaseContainerDescriptor container;
 
-	public DbMailboxRecordsAuditLogMapper(BaseContainerDescriptor bcd, MailIndexService mis) {
+	public DbMailboxRecordsAuditLogMapper(BaseContainerDescriptor bcd, IMailIndexService mis) {
 		mailIndexService = mis;
 		container = bcd;
 	}

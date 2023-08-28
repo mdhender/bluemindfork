@@ -28,6 +28,9 @@ import javax.sql.DataSource;
 
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
+import net.bluemind.backend.mail.replica.indexing.IMailIndexService;
+import net.bluemind.backend.mail.replica.indexing.NoopMailIndexService;
+import net.bluemind.backend.mail.replica.indexing.RecordIndexActivator;
 import net.bluemind.backend.mail.replica.persistence.MailboxRecordStore;
 import net.bluemind.backend.mail.replica.service.internal.DbMailboxRecordsAuditLogMapper;
 import net.bluemind.backend.mail.replica.service.internal.RecordsItemFlagProvider;
@@ -44,7 +47,6 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
-import net.bluemind.index.mail.MailIndexService;
 
 public abstract class AbstractMailboxRecordServiceFactory<T>
 		implements ServerSideServiceProvider.IServerSideServiceFactory<T> {
@@ -53,6 +55,7 @@ public abstract class AbstractMailboxRecordServiceFactory<T>
 
 	private final IWeightSeedProvider<MailboxRecord> recordSeedProvider;
 	private final IWeightProvider toWeight;
+	private static final IMailIndexService NOOP = new NoopMailIndexService();
 
 	protected AbstractMailboxRecordServiceFactory() {
 		this.flagsProvider = new RecordsItemFlagProvider();
@@ -88,7 +91,7 @@ public abstract class AbstractMailboxRecordServiceFactory<T>
 			}
 			MailboxRecordStore recordStore = new MailboxRecordStore(ds, recordsContainer, subtreeContainer);
 
-			MailIndexService mailIndexService = new MailIndexService();
+			IMailIndexService mailIndexService = RecordIndexActivator.getIndexer().orElse(NOOP);
 
 			BaseContainerDescriptor descriptor = BaseContainerDescriptor.create(recordsContainer.uid,
 					recordsContainer.name, recordsContainer.owner, recordsContainer.type, recordsContainer.domainUid,

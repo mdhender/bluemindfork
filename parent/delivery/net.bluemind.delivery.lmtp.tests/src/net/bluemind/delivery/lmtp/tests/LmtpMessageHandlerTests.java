@@ -23,10 +23,12 @@ import java.io.InputStream;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.google.common.collect.Lists;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 
@@ -38,6 +40,7 @@ import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.IServiceProvider;
@@ -77,6 +80,7 @@ public class LmtpMessageHandlerTests {
 	public void before() throws Exception {
 		String domainUid = "test" + System.currentTimeMillis() + ".lab";
 		JdbcTestHelper.getInstance().beforeTest();
+		ElasticsearchTestHelper.getInstance().beforeTest();
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
 
 		long conversation1Id = -1060821470570927639L;
@@ -90,6 +94,10 @@ public class LmtpMessageHandlerTests {
 		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
 		pipo.tags = Collections.singletonList("mail/imap");
 
+		Server esServer = new Server();
+		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
+		esServer.tags = Lists.newArrayList("bm/es");
+
 		HashFunction hf = Hashing.sipHash24();
 		long hashMessage1Id = hf.hashBytes(message1Id.getBytes()).asLong();
 		long hashMessage3Id = hf.hashBytes(message3Id.getBytes()).asLong();
@@ -97,7 +105,7 @@ public class LmtpMessageHandlerTests {
 
 		VertxPlatform.spawnBlocking(25, TimeUnit.SECONDS);
 
-		PopulateHelper.initGlobalVirt(pipo);
+		PopulateHelper.initGlobalVirt(pipo, esServer);
 		PopulateHelper.addDomain(domainUid, Routing.none);
 		String user1Uid = PopulateHelper.addUser("user1", domainUid, Routing.internal);
 		String user2Uid = PopulateHelper.addUser("user2", domainUid, Routing.internal);
@@ -125,6 +133,12 @@ public class LmtpMessageHandlerTests {
 		ApiProv prov = s -> ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 		this.lookup = new MailboxLookup(prov);
 		Assert.assertNotNull(lookup);
+	}
+
+	@After
+	public void tearDown() throws Exception {
+		ElasticsearchTestHelper.getInstance().afterTest();
+		JdbcTestHelper.getInstance().afterTest();
 	}
 
 	@Test
