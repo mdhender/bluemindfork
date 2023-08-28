@@ -41,6 +41,7 @@
             @input="updateSubject"
             @keypress.enter.prevent
         />
+        <composer-top-frame :message="message" :attachments="computedParts.attachments" />
         <bm-dropzone
             v-show="showConversationDropzone"
             class="h-100 my-2"
@@ -67,6 +68,7 @@
                     class="m-4"
                     :dragged-files-count="draggedFilesCount"
                     :message="message"
+                    :attachments="computedParts.attachments"
                     @files-count="draggedFilesCount = $event"
                     @drop-files="execAddAttachments({ files: $event, message, maxSize })"
                 />
@@ -108,7 +110,11 @@ import MailComposerSender from "./MailComposerSender";
 import TemplateChooser from "~/components/TemplateChooser";
 import MailOpenInPopup from "../MailOpenInPopup";
 import MailComposerAttachZone from "./MailComposerAttachZone";
+
 import { computed, ref } from "vue";
+import ComposerTopFrame from "./ComposerTopFrame/ComposerTopFrame";
+import { messageUtils } from "@bluemind/mail";
+const { computeParts } = messageUtils;
 
 export default {
     name: "MailComposer",
@@ -125,7 +131,8 @@ export default {
         MailComposerSender,
         MailComposerRecipients,
         MailOpenInPopup,
-        TemplateChooser
+        TemplateChooser,
+        ComposerTopFrame
     },
     mixins: [ComposerActionsMixin, FileDropzoneMixin],
     props: {
@@ -186,6 +193,9 @@ export default {
         },
         subject() {
             return this.message.subject?.trim() || "";
+        },
+        computedParts() {
+            return computeParts(this.message.structure);
         }
     },
     methods: {

@@ -46,7 +46,6 @@ export default {
         }
     },
     render(h) {
-        // const src = this.untrusted ? "encrypted" : "untrusted" ;
         const text = this.untrusted
             ? this.$t("common.whats_going_on")
             : this.$t("smime.mailapp.body_wrapper.cant_display");

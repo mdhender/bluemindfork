@@ -109,6 +109,9 @@ export default {
                 this.anyAttachmentInError ||
                 this.maxRecipientsExceeded
             );
+        },
+        messageAttachments() {
+            return this.message.attachments ?? [];
         }
     },
 
@@ -125,8 +128,7 @@ export default {
         },
         async saveAsap() {
             await this.$_ComposerActionsMixin_SAVE_MESSAGE({
-                draft: this.message,
-                messageCompose: cloneDeep(this.$_ComposerActionsMixin_messageCompose)
+                draft: this.message
             });
         },
         async saveMessageAs(saveAction, folder) {
@@ -136,7 +138,7 @@ export default {
             await this.$store.dispatch(`mail/${saveAction}`, {
                 message,
                 messageCompose: this.$_ComposerActionsMixin_messageCompose,
-                files: this.message.attachments.map(({ fileKey }) => this.$store.state.mail.files[fileKey])
+                files: this.messageAttachments.map(({ fileKey }) => this.$store.state.mail.files[fileKey])
             });
             this.$router.navigate({ name: "v:mail:message", params: { message } });
             this.$store.commit(`mail/${SET_ACTIVE_MESSAGE}`, message);

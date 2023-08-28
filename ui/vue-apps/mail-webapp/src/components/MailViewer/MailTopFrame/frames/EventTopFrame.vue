@@ -2,7 +2,7 @@
 import { computed, watch } from "vue";
 import { messageUtils, loadingStatusUtils } from "@bluemind/mail";
 import store from "@bluemind/store";
-import ChainOfResponsibility from "../ChainOfResponsibility";
+import ChainOfResponsibility from "../../../ChainOfResponsibility.vue";
 import { CURRENT_MAILBOX } from "~/getters";
 import { FETCH_EVENT } from "~/actions";
 import useEventComponent from "../../EventViewer/useEventComponent";

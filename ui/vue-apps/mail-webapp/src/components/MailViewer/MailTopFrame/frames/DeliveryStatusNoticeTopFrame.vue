@@ -66,7 +66,7 @@ import { MimeType } from "@bluemind/email";
 import { messageUtils } from "@bluemind/mail";
 import { BmResponsiveIllustration } from "@bluemind/ui-components";
 import { FETCH_PART_DATA } from "~/actions";
-import ChainOfResponsibility from "../ChainOfResponsibility";
+import ChainOfResponsibility from "../../../ChainOfResponsibility";
 import ReportTopFrameMixin from "./ReportTopFrameMixin";
 import TopFrameSkeleton from "./TopFrameSkeleton";
 

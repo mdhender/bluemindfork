@@ -33,7 +33,7 @@ import { MY_INBOX, MY_DRAFTS, MY_TEMPLATES } from "~/getters";
 import { BmButton, BmIcon, BmIllustration } from "@bluemind/ui-components";
 
 import NewMessage from "~/components/NewMessage";
-import ChainOfResponsibility from "../ChainOfResponsibility";
+import ChainOfResponsibility from "../../ChainOfResponsibility";
 
 export default {
     name: "MailInboxScreen",

@@ -1,5 +1,6 @@
 import TreeWalker, { GetLeafsVisitor } from "@bluemind/mime-tree-walker";
 import { isAttachment } from "../attachment";
+import { MimeType } from "@bluemind/email";
 import { isLeaf, isViewable } from "../part";
 import GetAttachmentPartsVisitor from "./GetAttachmentPartsVisitor";
 import GetInlinePartsVisitor from "./GetInlinePartsVisitor";
@@ -28,6 +29,13 @@ export function hasAttachment(node) {
         return true;
     }
     return node.children?.some(hasAttachment);
+}
+
+export function hasCalendarPart(node) {
+    if (MimeType.isCalendar(node)) {
+        return true;
+    }
+    return node.children?.some(hasCalendarPart);
 }
 
 export function getReportsParts(structure) {

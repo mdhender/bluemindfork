@@ -26,8 +26,10 @@ export default {
                 let calendarUid;
                 let calendarOwner;
                 if (message.eventInfo.isResourceBooking) {
-                    calendarUid = getCalendarUid(message.eventInfo.resourceUid, true);
-                    event = await inject("CalendarPersistence", calendarUid).getComplete(message.eventInfo.icsUid);
+                    event = await inject(
+                        "CalendarPersistence",
+                        "calendar:" + message.eventInfo.resourceUid
+                    ).getComplete(message.eventInfo.icsUid);
                     calendarOwner = message.eventInfo.resourceUid;
                 } else {
                     const otherCalendarUid = (messageUtils.extractHeaderValues(
@@ -46,7 +48,7 @@ export default {
                     }
                 }
                 const events = await inject("CalendarPersistence", calendarUid).getByIcsUid(message.eventInfo.icsUid);
-                event = findEvent(events, message.eventInfo.recuridIsoDate);
+                event = EventHelper.findEvent(events, message.eventInfo.recuridIsoDate);
                 const mailboxOwner = message.eventInfo.isResourceBooking
                     ? message.eventInfo.resourceUid
                     : mailbox.owner;
@@ -122,13 +124,6 @@ async function updateCounterEvent({ state, commit }, updateFunction) {
     commit(SET_CURRENT_EVENT, updatedEvent);
     await inject("CalendarPersistence", event.calendarUid).update(event.uid, updatedEvent.serverEvent.value, true);
 }
-
-const findEvent = (events, recuridIsoDate) => {
-    return events.find(
-        event =>
-            !recuridIsoDate || event.value.occurrences.some(occurrence => occurrence.recurid.iso8601 === recuridIsoDate)
-    );
-};
 
 function getCalendarUid(owner, isRessource) {
     return isRessource ? `calendar:${owner}` : `calendar:Default:${owner}`;

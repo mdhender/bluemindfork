@@ -16,7 +16,7 @@ import { mapGetters, mapState } from "vuex";
 import { CURRENT_MAILBOX, MY_MAILBOX } from "~/getters";
 import { BmIllustration } from "@bluemind/ui-components";
 
-import ChainOfResponsibility from "../ChainOfResponsibility";
+import ChainOfResponsibility from "../../ChainOfResponsibility";
 
 export default {
     name: "MailFolderScreen",

@@ -31,7 +31,7 @@ import { MY_INBOX, MY_JUNK } from "~/getters";
 import { BmButton, BmIcon, BmIllustration } from "@bluemind/ui-components";
 
 import EmptyFolderAction from "~/components/MailFolder/EmptyFolderAction";
-import ChainOfResponsibility from "../ChainOfResponsibility";
+import ChainOfResponsibility from "../../ChainOfResponsibility";
 
 export default {
     name: "MailJunkScreen",

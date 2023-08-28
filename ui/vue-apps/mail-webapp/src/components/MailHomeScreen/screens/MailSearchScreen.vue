@@ -21,7 +21,7 @@ import { CONVERSATION_LIST_IS_RESOLVED, CONVERSATION_LIST_IS_FILTERED, CONVERSAT
 
 import { BmButton, BmIllustration } from "@bluemind/ui-components";
 
-import ChainOfResponsibility from "../ChainOfResponsibility";
+import ChainOfResponsibility from "../../ChainOfResponsibility";
 
 export default {
     name: "MailSearchScreen",

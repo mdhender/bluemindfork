@@ -31,7 +31,7 @@ import { mapGetters, mapState } from "vuex";
 import { MY_INBOX, MY_OUTBOX, MY_SENT } from "~/getters";
 import { BmButton, BmIcon, BmIllustration } from "@bluemind/ui-components";
 
-import ChainOfResponsibility from "../ChainOfResponsibility";
+import ChainOfResponsibility from "../../ChainOfResponsibility";
 
 export default {
     name: "MailSentScreen",

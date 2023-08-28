@@ -60,19 +60,13 @@ export default {
     },
     mixins: [RemoveAttachmentCommand],
     props: {
-        draggedFilesCount: {
-            type: Number,
-            default: 0
-        },
-        message: {
-            type: Object,
-            required: true
-        }
+        draggedFilesCount: { type: Number, default: 0 },
+        message: { type: Object, required: true },
+        attachments: { type: Array, required: true }
     },
     data() {
         return {
-            actionButtons: [ActionButtons.PREVIEW, ActionButtons.DOWNLOAD, ActionButtons.REMOVE],
-            computedParts: {}
+            actionButtons: [ActionButtons.PREVIEW, ActionButtons.DOWNLOAD, ActionButtons.REMOVE]
         };
     },
     computed: {

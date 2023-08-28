@@ -37,7 +37,7 @@ import { CONVERSATION_LIST_COUNT, FOLDER_HAS_CHILDREN, MY_INBOX, MY_TRASH } from
 import { BmButton, BmIcon, BmIllustration } from "@bluemind/ui-components";
 
 import EmptyFolderAction from "~/components/MailFolder/EmptyFolderAction";
-import ChainOfResponsibility from "../ChainOfResponsibility";
+import ChainOfResponsibility from "../../ChainOfResponsibility";
 
 export default {
     name: "MailTrashScreen",
