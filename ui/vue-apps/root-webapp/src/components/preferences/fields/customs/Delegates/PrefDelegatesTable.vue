@@ -6,7 +6,7 @@ import { Verb } from "@bluemind/core.container.api";
 import i18nInstance from "@bluemind/i18n";
 import { inject } from "@bluemind/inject";
 import { matchPattern } from "@bluemind/string";
-import { BmFormInput, BmIconButton, BmModal, BmPagination, BmTable } from "@bluemind/ui-components";
+import { BmFormInput, BmIcon, BmIconButton, BmModal, BmPagination, BmTable } from "@bluemind/ui-components";
 import {
     acls,
     getCalendarRight,
@@ -15,6 +15,7 @@ import {
     getTodoListRight,
     delegates,
     fetchAcls,
+    hasCopyImipMailboxRuleAction,
     removeDelegate,
     Right
 } from "./delegation";
@@ -76,7 +77,8 @@ watchEffect(async () => {
         calendarRight: getCalendarRight(uid),
         todoListRight: getTodoListRight(uid),
         messageRight: getMessageRight(uid),
-        contactsRight: getContactsRight(uid)
+        contactsRight: getContactsRight(uid),
+        hasCopyImip: await hasCopyImipMailboxRuleAction(uid)
     }));
 
     items.value = await Promise.all(promises);
@@ -119,7 +121,10 @@ const remove = async contact => {
                 <contact :contact="cell.value" transparent bold enable-card />
             </template>
             <template #cell(calendarRight)="cell">
-                {{ cell.value.text() }}
+                <div class="d-flex align-items-center">
+                    {{ cell.value.text() }}
+                    <bm-icon v-if="cell.item.hasCopyImip" icon="open-envelope" class="ml-4" />
+                </div>
             </template>
             <template #cell(todoListRight)="cell">
                 {{ cell.value.text() }}
