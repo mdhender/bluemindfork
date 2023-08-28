@@ -101,7 +101,7 @@ export default {
             )?.value;
         },
         modifyCriterionType(index, { matcher, target }) {
-            const updated = { ...this.filter.criteria[index], matcher, target: { ...target }, isNew: false };
+            const updated = { ...this.criteria[index], matcher, target: { ...target }, isNew: false };
             this.$emit(
                 "update:criteria",
                 this.criteria.map((criterion, i) => (i === index ? updated : criterion))
