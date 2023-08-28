@@ -132,7 +132,7 @@ public class ReplicatedMailboxesMgmtService implements IReplicatedMailboxesMgmt 
 		indexQuery.query.scope = new SearchScope();
 		String domainUid = context.getSecurityContext().getContainerUid();
 		SearchResult searchResult = MailIndexActivator.getService().searchItems(domainUid, mailbox,
-				SearchQueryAdapter.adapt(domainUid, mailbox, indexQuery));
+				SearchQueryAdapter.adapt(context, domainUid, mailbox, indexQuery));
 
 		Set<String> bodyGuids = new HashSet<>();
 		searchResult.results.forEach(ret -> {

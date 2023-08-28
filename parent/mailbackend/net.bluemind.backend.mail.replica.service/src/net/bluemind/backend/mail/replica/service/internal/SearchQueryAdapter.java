@@ -27,6 +27,8 @@ import net.bluemind.backend.mail.api.utils.FolderTree;
 import net.bluemind.backend.mail.api.utils.MailIndexQuery;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
@@ -39,7 +41,8 @@ public class SearchQueryAdapter {
 
 	}
 
-	public static MailIndexQuery adapt(String domainUid, String dirEntryUid, MailboxFolderSearchQuery query) {
+	public static MailIndexQuery adapt(BmContext context, String domainUid, String dirEntryUid,
+			MailboxFolderSearchQuery query) {
 		if (!isRecursive(query)) {
 			return MailIndexQuery.simpleQuery(query);
 		} else {
@@ -54,7 +57,9 @@ public class SearchQueryAdapter {
 				subtree = IMailReplicaUids.subtreeUid(domainUid, Type.user, dirEntryUid);
 			}
 			List<String> folders = new ArrayList<>();
-			IMailboxFoldersByContainer service = provider.instance(IMailboxFoldersByContainer.class, subtree);
+
+			IServiceProvider contextProvider = ServerSideServiceProvider.getProvider(context);
+			IMailboxFoldersByContainer service = contextProvider.instance(IMailboxFoldersByContainer.class, subtree);
 			if (query.query.scope.folderScope != null && query.query.scope.folderScope.folderUid != null) {
 				FolderTree fullTree = FolderTree.of(service.all());
 				folders.add(query.query.scope.folderScope.folderUid);

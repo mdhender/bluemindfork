@@ -224,7 +224,7 @@ public class BaseReplicatedMailboxesService implements IBaseMailboxFolders {
 		rbac.check(Verb.Read.name());
 
 		return MailIndexActivator.getService().searchItems(container.domainUid, container.owner,
-				SearchQueryAdapter.adapt(container.domainUid, container.owner, query));
+				SearchQueryAdapter.adapt(context, container.domainUid, container.owner, query));
 	}
 
 }
