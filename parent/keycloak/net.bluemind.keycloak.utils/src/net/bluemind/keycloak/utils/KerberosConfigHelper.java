@@ -163,11 +163,9 @@ public class KerberosConfigHelper {
 					new ByteArrayInputStream(currentConf.encode().getBytes(StandardCharsets.UTF_8)));
 
 			nodeClient.listFiles("/etc/bm-keycloak/", "keytab").forEach(file -> nodeClient.deleteFile(file.getPath()));
-			currentConf.fieldNames()
-					.forEach(domainUid -> nodeClient.writeFile(getKeytabFilename(domainUid),
-							new ByteArrayInputStream(currentConf.getJsonObject(domainUid)
-									.getString(AuthDomainProperties.KRB_KEYTAB.name())
-									.getBytes(StandardCharsets.UTF_8))));
+			currentConf.fieldNames().forEach(domainUid -> nodeClient.writeFile(getKeytabFilename(domainUid),
+					new ByteArrayInputStream(Base64.getDecoder().decode(
+							currentConf.getJsonObject(domainUid).getString(AuthDomainProperties.KRB_KEYTAB.name())))));
 
 			// TODO check if we need to restart keycloak here
 			logger.info("Keycloak restarting on server {}...", kcServerAddr);
