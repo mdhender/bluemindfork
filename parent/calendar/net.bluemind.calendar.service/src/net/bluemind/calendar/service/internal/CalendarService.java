@@ -354,7 +354,7 @@ public class CalendarService implements IInternalCalendar {
 		}
 
 		if (ret.value.main != null && ret.value.main.classification != Classification.Public
-				&& !rbacManager.can(Verb.All.name())) {
+				&& !rbacManager.can(Verb.ReadExtended.name())) {
 			ret.value.main = ret.value.main.filtered();
 			ret.value.occurrences = ret.value.occurrences.stream().map(VEventOccurrence::filtered)
 					.collect(Collectors.toList());

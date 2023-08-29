@@ -22,15 +22,6 @@ import net.bluemind.core.container.model.acl.Verb;
 
 public class ContainerPermission implements Permission {
 
-	public static final ContainerPermission INVIVATION = new ContainerPermission(Verb.Invitation);
-	public static final ContainerPermission FREEBUSY = new ContainerPermission(Verb.Freebusy);
-	public static final ContainerPermission SEND_ON_BEHALF = new ContainerPermission(Verb.SendOnBehalf);
-	public static final ContainerPermission SEND_AS = new ContainerPermission(Verb.SendAs);
-	public static final ContainerPermission READ = new ContainerPermission(Verb.Read);
-	public static final ContainerPermission WRITE = new ContainerPermission(Verb.Write);
-	public static final ContainerPermission MANAGE = new ContainerPermission(Verb.Manage);
-	public static final ContainerPermission ALL = new ContainerPermission(Verb.All);
-
 	private final Verb verb;
 
 	public ContainerPermission(Verb verb) {
@@ -58,26 +49,7 @@ public class ContainerPermission implements Permission {
 	}
 
 	public static Permission asPerm(Verb v) {
-		switch (v) {
-		case Invitation:
-			return INVIVATION;
-		case Freebusy:
-			return FREEBUSY;
-		case SendOnBehalf:
-			return SEND_ON_BEHALF;
-		case SendAs:
-			return SEND_AS;
-		case Read:
-			return READ;
-		case Write:
-			return WRITE;
-		case Manage:
-			return MANAGE;
-		case All:
-			return ALL;
-		default:
-			return null;
-		}
+		return new ContainerPermission(v);
 	}
 
 	@Override

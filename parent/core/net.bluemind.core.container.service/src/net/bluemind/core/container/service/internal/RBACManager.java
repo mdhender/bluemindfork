@@ -350,7 +350,7 @@ public class RBACManager {
 		@Override
 		public Set<Permission> resolve() {
 			Set<Permission> perms = super.resolve();
-			perms.add(ContainerPermission.ALL);
+			perms.add(new ContainerPermission(Verb.All));
 			return perms;
 		}
 	}
