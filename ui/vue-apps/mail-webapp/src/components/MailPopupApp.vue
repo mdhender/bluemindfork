@@ -1,5 +1,5 @@
 <template>
-    <main class="flex-fill mail-popup-app scroller-y">
+    <main class="flex-fill mail-popup-app scroller-y-stable">
         <bm-extension id="webapp.mail" path="app.header" />
         <router-view class="flex-fill" />
     </main>

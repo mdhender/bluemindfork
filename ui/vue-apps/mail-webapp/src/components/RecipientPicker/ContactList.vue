@@ -1,5 +1,5 @@
 <template>
-    <div class="contact-list flex-fill scroller-y">
+    <div class="contact-list flex-fill scroller-y-stable">
         <bm-table
             ref="contactTable"
             :items="contacts"
@@ -12,7 +12,6 @@
             selectable
             selected-variant=""
             show-empty
-            class="scroller-y"
             @row-selected="$emit('selected', $event)"
         >
             <template #table-busy>

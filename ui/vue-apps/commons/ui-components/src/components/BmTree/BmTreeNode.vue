@@ -151,7 +151,6 @@ $btn-width: 1.25rem;
     @include from-lg {
         height: $tree-node-height;
     }
-    border-bottom: 1px solid $neutral-fg-lo3;
     cursor: pointer;
     &:hover {
         background-color: $neutral-bg-lo1;

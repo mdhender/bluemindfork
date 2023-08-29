@@ -163,6 +163,7 @@ export default {
 .mail-composer {
     @include from-lg {
         margin: $sp-5;
+        margin-right: 0;
     }
 
     word-break: break-word !important;

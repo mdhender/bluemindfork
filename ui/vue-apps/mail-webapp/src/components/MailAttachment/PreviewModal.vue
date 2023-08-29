@@ -34,7 +34,7 @@
                         <component :is="context.alert.renderer" :alert="context.alert" />
                     </template>
                 </bm-alert-area>
-                <preview-file class="scroller-y" :message="message" :file="file" />
+                <preview-file :message="message" :file="file" />
             </div>
         </div>
     </bm-modal>

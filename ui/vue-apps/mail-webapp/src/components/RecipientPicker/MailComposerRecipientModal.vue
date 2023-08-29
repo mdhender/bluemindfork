@@ -54,7 +54,7 @@
         <selected-contacts :contacts.sync="selectedContacts" :contacts-type="recipientContactsType" />
         <hr />
 
-        <div class="recipient-modal-body d-flex flex-fill">
+        <div class="d-flex flex-fill">
             <address-book-list
                 class="d-none d-lg-flex"
                 :addressbooks="addressBooks"
@@ -368,9 +368,6 @@ function toContact(contactItem) {
     }
     hr {
         margin: 0;
-    }
-    .recipient-modal-body {
-        gap: $sp-4;
     }
 
     .bm-form-input.mobile-search-input {

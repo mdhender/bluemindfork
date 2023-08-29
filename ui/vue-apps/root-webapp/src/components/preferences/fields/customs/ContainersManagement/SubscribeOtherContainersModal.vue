@@ -41,7 +41,7 @@
             autocomplete="off"
             @reset="pattern = ''"
         />
-        <div class="scrollable scroller-y">
+        <div class="scrollable scroller-y-stable">
             <bm-table
                 v-if="suggested.length > 0"
                 :items="suggested"

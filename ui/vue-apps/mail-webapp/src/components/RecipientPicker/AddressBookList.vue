@@ -1,5 +1,5 @@
 <template>
-    <bm-list-group class="address-book-list scroller-y">
+    <bm-list-group class="address-book-list scroller-y-stable">
         <bm-list-group-item
             v-for="addressBook in addressbooks"
             :key="addressBook.uid"
@@ -58,6 +58,7 @@ $padding-y: $sp-3 + $sp-2;
 
 .address-book-list {
     background-color: $surface;
+    border-right: 1px solid $neutral-fg-lo2;
     .list-group-item {
         flex: none;
         padding-top: $padding-y;
@@ -65,7 +66,7 @@ $padding-y: $sp-3 + $sp-2;
         padding-bottom: $padding-y;
         padding-left: $sp-6;
         gap: $sp-4;
-        border-color: $neutral-fg-lo3 !important;
+        border: none !important;
         height: $tree-node-height-tactile;
         @include from-lg {
             height: $tree-node-height;

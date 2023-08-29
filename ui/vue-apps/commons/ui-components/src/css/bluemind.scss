@@ -131,6 +131,9 @@ a.nav-link:focus {
 .scroller-y {
     @include scroller-y;
 }
+.scroller-y-stable {
+    @include scroller-y($stable: true);
+}
 
 .tooltip {
     top: 0; //tooltip positionning fix

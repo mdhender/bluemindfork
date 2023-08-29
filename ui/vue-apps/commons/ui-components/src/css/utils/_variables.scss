@@ -506,14 +506,17 @@ $theme-variants: "neutral", "primary", "secondary", "tertiary", "danger", "warni
 // Scrollbars
 
 $scroll-width: 8px;
-$scrollbar-color: $neutral-fg-lo2;
+$scrollbar-thumb-color: $neutral-fg-lo2;
+$scrollbar-thumb-hover-color: $neutral-fg-lo1;
+$scrollbar-thumb-active-color: $secondary-fg-hi1;
 $scrollbar-thumb-border-radius: 4px;
 
-// Separators
+// Separators and resizers
 
-$separator-thickness: base-px-to-rem(8);
-$separator-color: $neutral-bg-lo1;
-$resizer-hover-color: $neutral-bg;
+$separator-color: $neutral-fg-lo2;
+$resizer-size: 8px;
+$resizer-hover-color: $neutral-fg;
+$resizer-active-color: $secondary-fg-hi1;
 
 // Illustrations
 

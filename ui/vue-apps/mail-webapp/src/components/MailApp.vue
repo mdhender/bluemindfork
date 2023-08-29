@@ -17,7 +17,7 @@
             <bm-multipane class="flex-fill" layout="vertical" @paneResizeStop="onPanelResize">
                 <mail-conversation-list :class="{ 'd-none': hideListInResponsiveMode }" />
                 <bm-multipane-resizer class="d-none d-lg-flex" />
-                <div class="flex-grow-1 flex-basis-0 scroller-y right-panel">
+                <div class="flex-grow-1 flex-basis-0 scroller-y-stable right-panel">
                     <router-view />
                 </div>
             </bm-multipane>
@@ -118,7 +118,7 @@ export default {
         z-index: 300;
         @include from-lg {
             background-color: $surface;
-            border-right: $separator-thickness solid $separator-color;
+            border-right: 1px solid $separator-color;
             z-index: 200;
         }
     }
