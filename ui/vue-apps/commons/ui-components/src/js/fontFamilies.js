@@ -33,5 +33,5 @@ const FONT_FAMILIES = [
 export default FONT_FAMILIES;
 
 export function fontFamilyByID(fontId, extraFont = []) {
-    return [...FONT_FAMILIES, ...extraFont].find(family => family.id === fontId).value;
+    return [...FONT_FAMILIES, ...extraFont].find(family => family.id === fontId)?.value;
 }
