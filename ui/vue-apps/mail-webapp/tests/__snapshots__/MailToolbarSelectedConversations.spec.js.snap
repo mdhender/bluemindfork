@@ -250,7 +250,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
                 tabindex="-1"
               >
                 <div
-                  class="bm-form-input form-input position-relative form-input-md"
+                  class="bm-form-input form-input position-relative outline form-input-md"
                 >
                   <input
                     autocomplete="off"
@@ -634,7 +634,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
                 tabindex="-1"
               >
                 <div
-                  class="bm-form-input form-input position-relative form-input-md"
+                  class="bm-form-input form-input position-relative outline form-input-md"
                 >
                   <input
                     autocomplete="off"

@@ -20,7 +20,7 @@ exports[`ContactInput ContactInput should match snapshot 1`] = `
         data-browse-key="new"
       >
         <div
-          class="bm-form-input form-input position-relative form-input-sm"
+          class="bm-form-input form-input position-relative outline form-input-sm"
         >
           <input
             autocomplete="off"
