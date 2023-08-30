@@ -138,12 +138,21 @@ export function getEventInfo(headers) {
     const icsHeaderValue = icsHeader.values[0].trim();
     const semiColonIndex = icsHeaderValue.indexOf(";");
     const uid = semiColonIndex === -1 ? icsHeaderValue : icsHeaderValue.substring(0, semiColonIndex);
+    const calendarUid = (icsHeaderValue.match(/calendar_uid="(.*?)"/i) ?? [])[1];
     let recuridIsoDate = icsHeaderValue.match(/recurid="(.*?)"/i);
     recuridIsoDate = recuridIsoDate && recuridIsoDate[1];
 
     const hasICS = !!uid;
-    const needsReply =
-        isCounterEvent || icsHeaderValue.includes('rsvp="true"') || icsHeaderValue.includes("rsvp='true'"); //TODO regexp
+    const needsReply = isCounterEvent || Boolean(icsHeaderValue.match(/rsvp=["']true["']/i));
 
-    return { hasICS, isCounterEvent, icsUid: uid, needsReply, recuridIsoDate, isResourceBooking, resourceUid };
+    return {
+        hasICS,
+        isCounterEvent,
+        icsUid: uid,
+        needsReply,
+        recuridIsoDate,
+        isResourceBooking,
+        resourceUid,
+        calendarUid
+    };
 }
