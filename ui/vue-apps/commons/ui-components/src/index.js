@@ -70,7 +70,6 @@ export { default as BmListGroupSeparator } from "./components/lists/BmListGroupS
 export { default as BmLogo } from "./assets/logo-bluemind.svg";
 export { default as BmModal } from "./components/modals/BmModal";
 export { default as BmModalHeader } from "./components/modals/BmModalHeader";
-export { default as BmModalDeprecated } from "./components/modals/BmModalDeprecated";
 export { default as BmModalPlugin } from "./plugins/BmModalPlugin";
 export { default as BmMoreItemsBadge } from "./components/BmMoreItemsBadge";
 export { default as BmMultipane } from "./components/layout/BmMultipane";
