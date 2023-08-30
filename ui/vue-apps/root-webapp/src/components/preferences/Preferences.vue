@@ -4,7 +4,7 @@
         <bm-container
             v-else
             fluid
-            class="flex-fill bg-surface visible-container"
+            class="bg-surface visible-container"
             tabindex="0"
             @click="lockClose = true"
             @keydown.esc="closePreferences"
@@ -169,8 +169,9 @@ export default {
 @media only screen {
     @include from-lg {
         .preferences .visible-container {
-            max-width: 90%;
-            height: 90%;
+            width: $modal-xl;
+            max-width: $modal-max-width;
+            height: map-get($modal-heights, "lg", "xl");
             margin: auto;
         }
     }
