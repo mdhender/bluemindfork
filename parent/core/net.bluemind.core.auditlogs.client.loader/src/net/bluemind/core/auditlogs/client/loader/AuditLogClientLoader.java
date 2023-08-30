@@ -57,6 +57,12 @@ public class AuditLogClientLoader {
 			public void initIfNotExists(String name) {
 				//
 			}
+
+			@Override
+			public void remove() {
+				//
+
+			}
 		};
 	}
 
@@ -70,6 +76,10 @@ public class AuditLogClientLoader {
 
 	public void initIfNotExists(String name) {
 		auditLogClient.initIfNotExists(name);
+	}
+
+	public void remove() {
+		auditLogClient.remove();
 	}
 
 }

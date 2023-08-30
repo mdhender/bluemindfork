@@ -41,4 +41,10 @@ public class ElasticSearchAuditLogClientFactory implements IAuditLogClientFactor
 		DataStreamActivator.initDataStreamIfNotExists(name);
 	}
 
+	@Override
+	public void remove() {
+		DataStreamActivator.removeDataStreams();
+
+	}
+
 }

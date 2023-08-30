@@ -148,9 +148,13 @@ public class AuditLogService<T> {
 					.origin(securityContext.getOrigin()).build();
 			auditLogEntry.securityContext = securityContextElement;
 		}
-		itemElement = new ItemElement.ItemElementBuilder().uid(item.uid).id(item.id).displayName(item.displayName)
-				.version(item.version).build();
-		auditLogEntry.item = itemElement;
+
+		if (item != null) {
+			itemElement = new ItemElement.ItemElementBuilder().uid(item.uid).id(item.id).displayName(item.displayName)
+					.version(item.version).build();
+			auditLogEntry.item = itemElement;
+		}
+
 		auditLogEntry.logtype = newValue.getClass().getSimpleName();
 
 		auditLogEntry.action = action.toString();

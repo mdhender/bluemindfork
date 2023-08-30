@@ -39,6 +39,7 @@ import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.io.ByteStreams;
 
 import co.elastic.clients.ApiClient;
@@ -92,6 +93,16 @@ public class DataStreamActivator implements BundleActivator {
 		indexTemplates.values().forEach(v -> resetDataStream(v.indexTemplateName, v.datastreamName));
 	}
 
+	@VisibleForTesting
+	public static void removeDataStreams() {
+		indexTemplates.values().forEach(v -> {
+			ESearchActivator.waitForElasticsearchHosts();
+			ElasticsearchClient esClient = ESearchActivator.getClient();
+			deleteDataStream(esClient, v.datastreamName);
+			deleteIndexTemplate(esClient, v.indexTemplateName);
+		});
+	}
+
 	private static void deleteDataStream(ElasticsearchClient esClient, String dataStreamName) {
 		try {
 			esClient.indices().deleteDataStream(d -> d.name(Arrays.asList(dataStreamName)));
@@ -111,6 +122,7 @@ public class DataStreamActivator implements BundleActivator {
 		try {
 			esClient.indices().deleteIndexTemplate(it -> it.name(Arrays.asList(indexTemplateName)));
 			logger.info("index template '{}' deleted.", indexTemplateName);
+
 		} catch (ElasticsearchException e) {
 			if (e.error() != null && "index_template_missing_exception".equals(e.error().type())) {
 				logger.warn("index template '{}' not found, can't be delete", indexTemplateName);

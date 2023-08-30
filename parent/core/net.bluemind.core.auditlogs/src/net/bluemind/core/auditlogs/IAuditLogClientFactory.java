@@ -27,4 +27,6 @@ public interface IAuditLogClientFactory {
 
 	public void initIfNotExists(String name);
 
+	public void remove();
+
 }

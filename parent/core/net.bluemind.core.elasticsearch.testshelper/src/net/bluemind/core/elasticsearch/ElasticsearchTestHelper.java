@@ -91,9 +91,23 @@ public class ElasticsearchTestHelper implements BundleActivator {
 	public void afterTest() {
 		try {
 			getClient().indices().delete(d -> d.index("contact"));
+		} catch (Exception e) {
+		}
+		try {
 			getClient().indices().delete(d -> d.index("event"));
+		} catch (Exception e) {
+		}
+		try {
 			getClient().indices().delete(d -> d.index("todo"));
+		} catch (Exception e) {
+		}
+		try {
 			getClient().indices().delete(d -> d.index("note"));
+		} catch (Exception e) {
+		}
+		try {
+			AuditLogClientLoader auditLogClientProvider = new AuditLogClientLoader();
+			auditLogClientProvider.remove();
 		} catch (Exception e) {
 		}
 	}
