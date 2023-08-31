@@ -24,9 +24,8 @@ export default {
             return this.GET_FH_FILE(this.file);
         },
         isReadOnly() {
-            const CURRENT_CONVERSATION_METADATA = this.$store.getters["mail/CURRENT_CONVERSATION_METADATA"];
-            const folder = CURRENT_CONVERSATION_METADATA && this.folders[CURRENT_CONVERSATION_METADATA.folderRef.key];
-            return !folder.writable;
+            const CURRENT_CONVERSATION = this.$store.getters["mail/CURRENT_CONVERSATION_METADATA"];
+            return CURRENT_CONVERSATION && !this.folders[CURRENT_CONVERSATION.folderRef.key]?.writable;
         }
     },
     async beforeMount() {
