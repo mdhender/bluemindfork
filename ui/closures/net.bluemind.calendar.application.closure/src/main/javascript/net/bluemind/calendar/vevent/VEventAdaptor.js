@@ -130,7 +130,7 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.toModelView = function(veve
   model.states = {};
   model = this.updateStates(model, calendar, vseries);
 
-  if (!(calendar.owner == this.ctx_.user['uid']) && model.class == "Private" && !model.states.updatable) {
+  if (!model.states.readable) {
     /** @meaning calendar.event.privacy.private */ 
     var MSG_PRIVATE = goog.getMsg('Private');
     model.summary = MSG_PRIVATE;
@@ -285,6 +285,7 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.updateStates = function(mod
   model.states.past = model.dtend.getTime() < goog.now();
   model.states.updatable = (calendar.states.writable) && (!model.states.private_ || (calendar.owner == this.ctx_.user['uid']) || this.canAll_(calendar.verbs)) ;
   model.states.attendee = goog.isDefAndNotNull(model.attendee) && model.states.meeting && !model.states.master
+  model.states.readable = !model.states.private_ || this.canReadExtended_(calendar.verbs) || (calendar.owner == this.ctx_.user['uid']);
   model.states.removable = model.states.updatable && !!model.id;
   model.states.hasAttachments = model.attachments.length > 0;
   model.states.draft = !!model.draft;
@@ -308,6 +309,9 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.canAll_ = function(verbs) {
   return verbs && goog.array.contains(verbs, 'All');
 }
 
+net.bluemind.calendar.vevent.VEventAdaptor.prototype.canReadExtended_ = function(verbs) {
+  return this.canAll_(verbs) || verbs && goog.array.contains(verbs, 'ReadExtended');
+}
 /**
  * Build a new event model from view model
  * 

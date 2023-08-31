@@ -164,7 +164,7 @@ net.bluemind.calendar.CalendarsMgmt.prototype.filterWithFreebusy_ = function(fol
  */
 net.bluemind.calendar.CalendarsMgmt.prototype.isReadable_ = function(container) {
   return goog.array.some(container['verbs'], function (verb) {
-    return goog.array.contains(["Read", "Write", "All"], verb);
+    return goog.array.contains(["ReadExtended", "Read", "Write", "All"], verb);
   });
 }
 

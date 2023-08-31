@@ -314,7 +314,7 @@ net.bluemind.calendar.service.CalendarsService.prototype.getSeries = function(ra
  */
 net.bluemind.calendar.service.CalendarsService.prototype.isReadable_ = function(container) {
   return goog.array.some(container.verbs, function (verb) {
-    return goog.array.contains(["Read", "Write", "All"], verb);
+    return goog.array.contains(["ReadExtended", "Read", "Write", "All"], verb);
   });
 }
 

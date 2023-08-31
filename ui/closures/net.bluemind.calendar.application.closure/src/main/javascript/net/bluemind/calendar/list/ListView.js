@@ -187,7 +187,7 @@ net.bluemind.calendar.list.ListView.prototype.drawEvent = function(event, parent
     detail += ', ' + event.location;
   }
 
-  if (event.states.private_ && !event.states.updatable) {
+  if (!event.states.readable) {
     var evtDetail = dom.createDom('span', {}, detail);
   } else {
     var evtDetail = dom.createDom('a', {}, detail);

@@ -312,7 +312,7 @@
     </table>
   </div>
   
-  <div class="{css eb-buttons}" style="text-align: right; {if $event.states.private_} display:none; {/if}">
+  <div class="{css eb-buttons}" style="text-align: right; {if not $event.states.readable} display:none; {/if}">
     <input id="eb-btn-event-consult-screen" class="{css goog-button-base} {css goog-primaryactionbutton}" type="button" value="{msg meaning="calendar.event.detail" desc="event detail"}Detail{/msg}" />
     <div class="{css goog-toolbar-separator} {css goog-inline-block}"  role="separator" style="user-select: none;">&nbsp;</div>
   </div>
