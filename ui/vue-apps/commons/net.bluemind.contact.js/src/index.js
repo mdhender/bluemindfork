@@ -177,6 +177,7 @@ export {
     DirEntryAdaptor,
     fetchContactMembers,
     fetchMembersWithAddress,
+    guessName,
     isCollectAddressBook,
     isDirectoryAddressBook,
     isPersonalAddressBook,
@@ -184,9 +185,9 @@ export {
     recipientStringToVCardItem,
     searchVCardsByIdHelper,
     searchVCardsHelper,
+    sortAddressBooks,
     VCardAdaptor,
-    VCardInfoAdaptor,
-    sortAddressBooks
+    VCardInfoAdaptor
 };
 
 function escape(term) {

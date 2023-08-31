@@ -1,5 +1,5 @@
 <template>
-    <div class="contact">
+    <div class="contact" :class="{ 'no-avatar': noAvatar }">
         <a
             :id="uniqueId"
             class="btn btn-link"

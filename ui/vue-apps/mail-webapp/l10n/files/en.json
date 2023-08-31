@@ -272,6 +272,7 @@
     "mail.content.print": "Print {fileType} '{name}'.",
     "mail.content.reply_all.aria": "Reply all",
     "mail.content.reply.aria": "Reply",
+    "mail.content.sender_suffix": "(sent by {name})",
     "mail.content.to": "to",
     "mail.conversation.icon.title": "Conversation of {count} messages",
     "mail.conversations.selected": "{count} conversations selected",

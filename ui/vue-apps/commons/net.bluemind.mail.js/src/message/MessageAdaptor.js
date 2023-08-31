@@ -81,7 +81,10 @@ function computeRecipients(remoteRecipients) {
             .map(rcpt => ({ dn: normalizeDn(rcpt.dn), address: rcpt.address })),
         bcc: remoteRecipients
             .filter(rcpt => rcpt.kind === MessageBody.RecipientKind.BlindCarbonCopy)
-            .map(rcpt => ({ dn: normalizeDn(rcpt.dn), address: rcpt.address }))
+            .map(rcpt => ({ dn: normalizeDn(rcpt.dn), address: rcpt.address })),
+        sender: remoteRecipients
+            .filter(rcpt => rcpt.kind === MessageBody.RecipientKind.Sender)
+            .map(rcpt => ({ dn: normalizeDn(rcpt.dn), address: rcpt.address }))[0]
     };
 }
 

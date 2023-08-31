@@ -66,9 +66,11 @@ export default {
         justify-content: space-between;
 
         .contact {
-            flex: 1;
-            .contact-main-part {
+            &:not(.no-avatar) .contact-main-part {
                 margin-left: $single-mail-avatar-main-gap !important;
+            }
+            &.no-avatar {
+                margin-right: 0;
             }
         }
         .date {

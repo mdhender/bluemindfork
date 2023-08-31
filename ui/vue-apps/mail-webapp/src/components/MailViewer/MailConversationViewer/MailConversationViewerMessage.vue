@@ -115,6 +115,9 @@ export default {
         height: $input-height;
         .contact {
             flex-shrink: 10;
+            &.no-avatar {
+                margin-right: 0;
+            }
         }
         .mail-folder-icon {
             margin-left: $sp-3;

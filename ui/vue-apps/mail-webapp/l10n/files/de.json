@@ -272,6 +272,7 @@
     "mail.content.print": "{fileType} '{name}' drucken.",
     "mail.content.reply_all.aria": "Allen Empfängern antworten",
     "mail.content.reply.aria": "Einem Empfänger antworten",
+    "mail.content.sender_suffix": "(gesendet von {name})",
     "mail.content.to": "an",
     "mail.conversation.icon.title": "Gespräch von {count} Nachrichten",
     "mail.conversations.selected": "{count} Konversationen ausgewählt",
