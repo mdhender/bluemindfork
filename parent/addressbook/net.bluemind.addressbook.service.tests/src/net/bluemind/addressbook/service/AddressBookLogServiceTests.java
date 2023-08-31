@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2023
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -21,6 +21,7 @@ package net.bluemind.addressbook.service;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -36,7 +37,6 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import co.elastic.clients.elasticsearch._types.query_dsl.TermQuery;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
-import co.elastic.clients.json.JsonData;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.addressbook.api.AddressBookBusAddresses;
@@ -52,6 +52,7 @@ import net.bluemind.addressbook.api.VCard.Parameter;
 import net.bluemind.addressbook.api.VCardChanges;
 import net.bluemind.addressbook.hook.internal.VCardMessage;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.auditlogs.AuditLogEntry;
 import net.bluemind.core.container.model.ChangeLogEntry.Type;
 import net.bluemind.core.container.model.ContainerUpdatesResult;
 import net.bluemind.core.container.model.Item;
@@ -154,14 +155,36 @@ public class AddressBookLogServiceTests extends AbstractServiceTests {
 		ElasticsearchClient esClient = ESearchActivator.getClient();
 		ESearchActivator.refreshIndex("audit_log");
 
-		SearchResponse<JsonData> response = esClient.search(s -> s //
+		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
 				.index("audit_log") //
-				.query(q -> q.bool(b -> b
-						.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
-						.must(TermQuery.of(t -> t.field("logtype").value(VCard.class.getSimpleName()))._toQuery())
-						.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
-				JsonData.class);
+				.query(q -> q
+						.bool(b -> b.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
+								.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
+								.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
+				AuditLogEntry.class);
 		assertEquals(1L, response.hits().total().value());
+		AuditLogEntry auditLogEntry = response.hits().hits().get(0).source();
+		assertEquals("test", auditLogEntry.securityContext.uid());
+		assertEquals("test", auditLogEntry.securityContext.displayName());
+		assertEquals("unknown-origin", auditLogEntry.securityContext.origin());
+		assertEquals("test@bm.lan", auditLogEntry.securityContext.email());
+
+		assertEquals("test", auditLogEntry.container.name());
+		assertEquals("test", auditLogEntry.container.ownerElement().displayName());
+		assertEquals("test@bm.lan", auditLogEntry.container.ownerElement().email());
+		assertEquals("test", auditLogEntry.container.ownerElement().entryUid());
+		assertEquals("bm.lan/users/test", auditLogEntry.container.ownerElement().path());
+
+		assertTrue(auditLogEntry.item.id() > 0);
+		assertTrue(auditLogEntry.item.version() > 0);
+
+		assertEquals(null, auditLogEntry.content.key());
+		assertEquals(null, auditLogEntry.content.description());
+		assertTrue(auditLogEntry.content.with().isEmpty());
+		assertTrue(!auditLogEntry.content.newValue().isBlank());
+		assertEquals(null, auditLogEntry.content.author());
+		assertEquals(null, auditLogEntry.content.is());
+		assertEquals(null, auditLogEntry.content.has());
 	}
 
 	@Test
@@ -178,23 +201,46 @@ public class AddressBookLogServiceTests extends AbstractServiceTests {
 		ElasticsearchClient esClient = ESearchActivator.getClient();
 
 		ESearchActivator.refreshIndex("audit_log");
-		SearchResponse<JsonData> response = esClient.search(s -> s //
+		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
 				.index("audit_log") //
-				.query(q -> q.bool(b -> b
-						.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
-						.must(TermQuery.of(t -> t.field("logtype").value(VCard.class.getSimpleName()))._toQuery())
-						.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
-				JsonData.class);
+				.query(q -> q
+						.bool(b -> b.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
+								.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
+								.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
+				AuditLogEntry.class);
 		assertEquals(1L, response.hits().total().value());
 
 		response = esClient.search(s -> s //
 				.index("audit_log") //
-				.query(q -> q.bool(b -> b
-						.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
-						.must(TermQuery.of(t -> t.field("logtype").value(VCard.class.getSimpleName()))._toQuery())
-						.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
-				JsonData.class);
+				.query(q -> q
+						.bool(b -> b.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
+								.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
+								.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
+				AuditLogEntry.class);
 		assertEquals(1L, response.hits().total().value());
+
+		AuditLogEntry auditLogEntry = response.hits().hits().get(0).source();
+		assertEquals("test", auditLogEntry.securityContext.uid());
+		assertEquals("test", auditLogEntry.securityContext.displayName());
+		assertEquals("unknown-origin", auditLogEntry.securityContext.origin());
+		assertEquals("test@bm.lan", auditLogEntry.securityContext.email());
+
+		assertEquals("test", auditLogEntry.container.name());
+		assertEquals("test", auditLogEntry.container.ownerElement().displayName());
+		assertEquals("test@bm.lan", auditLogEntry.container.ownerElement().email());
+		assertEquals("test", auditLogEntry.container.ownerElement().entryUid());
+		assertEquals("bm.lan/users/test", auditLogEntry.container.ownerElement().path());
+
+		assertTrue(auditLogEntry.item.id() > 0);
+		assertTrue(auditLogEntry.item.version() > 0);
+
+		assertEquals(null, auditLogEntry.content.key());
+		assertEquals(null, auditLogEntry.content.description());
+		assertTrue(auditLogEntry.content.with().isEmpty());
+		assertTrue(!auditLogEntry.content.newValue().isBlank());
+		assertEquals(null, auditLogEntry.content.author());
+		assertEquals(null, auditLogEntry.content.is());
+		assertEquals(null, auditLogEntry.content.has());
 	}
 
 	@Test
@@ -231,32 +277,55 @@ public class AddressBookLogServiceTests extends AbstractServiceTests {
 
 		ESearchActivator.refreshIndex("audit_log");
 
-		SearchResponse<JsonData> response = esClient.search(s -> s //
+		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
 				.index("audit_log") //
-				.query(q -> q.bool(b -> b
-						.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
-						.must(TermQuery.of(t -> t.field("logtype").value(VCard.class.getSimpleName()))._toQuery())
-						.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
-				JsonData.class);
+				.query(q -> q
+						.bool(b -> b.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
+								.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
+								.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
+				AuditLogEntry.class);
 		assertEquals(1L, response.hits().total().value());
 
 		response = esClient.search(s -> s //
 				.index("audit_log") //
-				.query(q -> q.bool(b -> b
-						.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
-						.must(TermQuery.of(t -> t.field("logtype").value(VCard.class.getSimpleName()))._toQuery())
-						.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
-				JsonData.class);
+				.query(q -> q
+						.bool(b -> b.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
+								.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
+								.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
+				AuditLogEntry.class);
 		assertEquals(0L, response.hits().total().value());
 
 		response = esClient.search(s -> s //
 				.index("audit_log") //
-				.query(q -> q.bool(b -> b
-						.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
-						.must(TermQuery.of(t -> t.field("logtype").value(VCard.class.getSimpleName()))._toQuery())
-						.must(TermQuery.of(t -> t.field("action").value(Type.Deleted.toString()))._toQuery()))),
-				JsonData.class);
+				.query(q -> q
+						.bool(b -> b.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
+								.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
+								.must(TermQuery.of(t -> t.field("action").value(Type.Deleted.toString()))._toQuery()))),
+				AuditLogEntry.class);
 		assertEquals(1L, response.hits().total().value());
+
+		AuditLogEntry auditLogEntry = response.hits().hits().get(0).source();
+		assertEquals("test", auditLogEntry.securityContext.uid());
+		assertEquals("test", auditLogEntry.securityContext.displayName());
+		assertEquals("unknown-origin", auditLogEntry.securityContext.origin());
+		assertEquals("test@bm.lan", auditLogEntry.securityContext.email());
+
+		assertEquals("test", auditLogEntry.container.name());
+		assertEquals("test", auditLogEntry.container.ownerElement().displayName());
+		assertEquals("test@bm.lan", auditLogEntry.container.ownerElement().email());
+		assertEquals("test", auditLogEntry.container.ownerElement().entryUid());
+		assertEquals("bm.lan/users/test", auditLogEntry.container.ownerElement().path());
+
+		assertTrue(auditLogEntry.item.id() > 0);
+		assertTrue(auditLogEntry.item.version() > 0);
+
+		assertEquals(null, auditLogEntry.content.key());
+		assertEquals(null, auditLogEntry.content.description());
+		assertTrue(auditLogEntry.content.with().isEmpty());
+		assertTrue(!auditLogEntry.content.newValue().isBlank());
+		assertEquals(null, auditLogEntry.content.author());
+		assertEquals(null, auditLogEntry.content.is());
+		assertEquals(null, auditLogEntry.content.has());
 	}
 
 	@Test
@@ -316,22 +385,22 @@ public class AddressBookLogServiceTests extends AbstractServiceTests {
 		ElasticsearchClient esClient = ESearchActivator.getClient();
 		ESearchActivator.refreshIndex("audit_log");
 
-		SearchResponse<JsonData> response = esClient.search(s -> s //
+		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
 				.index("audit_log") //
-				.query(q -> q.bool(b -> b
-						.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
-						.must(TermQuery.of(t -> t.field("logtype").value(VCard.class.getSimpleName()))._toQuery())
-						.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
-				JsonData.class);
+				.query(q -> q
+						.bool(b -> b.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
+								.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
+								.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
+				AuditLogEntry.class);
 		assertEquals(3L, response.hits().total().value());
 
 		response = esClient.search(s -> s //
 				.index("audit_log") //
-				.query(q -> q.bool(b -> b
-						.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
-						.must(TermQuery.of(t -> t.field("logtype").value(VCard.class.getSimpleName()))._toQuery())
-						.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
-				JsonData.class);
+				.query(q -> q
+						.bool(b -> b.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
+								.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
+								.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
+				AuditLogEntry.class);
 		assertEquals(1L, response.hits().total().value());
 
 	}

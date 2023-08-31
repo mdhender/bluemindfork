@@ -22,7 +22,7 @@ package net.bluemind.core.container.service;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.auditlogs.IAuditLogClient;
 import net.bluemind.core.auditlogs.api.ILogRequestService;
-import net.bluemind.core.auditlogs.client.loader.AuditLogClientLoader;
+import net.bluemind.core.auditlogs.client.loader.AuditLogLoader;
 import net.bluemind.core.container.service.internal.LogRequestService;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -41,8 +41,8 @@ public class LogRequestServiceFactory
 			throw new ServerFault("wrong number of instance parameters");
 		}
 
-		AuditLogClientLoader auditLogClientProvider = new AuditLogClientLoader();
-		IAuditLogClient client = auditLogClientProvider.get();
+		AuditLogLoader auditLogProvider = new AuditLogLoader();
+		IAuditLogClient client = auditLogProvider.getClient();
 		if (client == null) {
 			throw new ServerFault("AuditLog client cannot be found");
 		}

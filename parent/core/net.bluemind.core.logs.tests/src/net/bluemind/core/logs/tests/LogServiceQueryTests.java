@@ -34,17 +34,18 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.sql.DataSource;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
-import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
@@ -76,6 +77,7 @@ import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.server.api.Server;
+import net.bluemind.system.state.StateContext;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.todolist.api.ITodoList;
 import net.bluemind.todolist.api.ITodoUids;
@@ -85,12 +87,19 @@ public class LogServiceQueryTests {
 	private String domainUid;
 	private String user1;
 	private SecurityContext userSecurityContext1;
-	private ElasticsearchClient esClient;
 	private String datalocation;
 	private DataSource dataDataSource;
 	private Container container;
 	private String partition;
 	private String mboxUniqueId;
+	private static final AtomicReference<Long> timerId = new AtomicReference<>();
+
+	@BeforeClass
+	public static void beforeClass() throws Exception {
+		StateContext.setState("core.stopped");
+		StateContext.setState("core.started");
+		StateContext.setState("core.started");
+	}
 
 	@Before
 	public void before() throws Exception {
@@ -136,13 +145,11 @@ public class LogServiceQueryTests {
 
 		getTodoService(userSecurityContext1).update(uid, todo);
 
-		ItemValue<MailboxRecord> mailRecord1 = createBodyAndRecord(1, adaptDate(5), "data/sort_1.eml");
-		ItemValue<MailboxRecord> mailRecord2 = createBodyAndRecord(2, adaptDate(10), "data/sort_2.eml");
-		ItemValue<MailboxRecord> mailRecord3 = createBodyAndRecord(3, adaptDate(12), "data/sort_3.eml");
+		createBodyAndRecord(1, adaptDate(5), "data/sort_1.eml");
+		createBodyAndRecord(2, adaptDate(10), "data/sort_2.eml");
+		createBodyAndRecord(3, adaptDate(12), "data/sort_3.eml");
+		ESearchActivator.refreshIndex("audit_log");
 
-		esClient = ESearchActivator.getClient();
-
-		Thread.sleep(3_000);
 	}
 
 	@After
@@ -155,7 +162,7 @@ public class LogServiceQueryTests {
 	public void testSQueryAllEmailsFromUser1() throws InterruptedException {
 
 		LogMailQuery logQuery = new LogMailQuery();
-		logQuery.logtype = "MailboxRecord";
+		logQuery.logtype = "mailbox_records";
 		logQuery.author = "user1@devenv.net";
 
 		ILogRequestService logRequestService = getLogQueryService(userSecurityContext1);
@@ -286,4 +293,5 @@ public class LogServiceQueryTests {
 	private ILogRequestService getLogQueryService(SecurityContext ctx) {
 		return ServerSideServiceProvider.getProvider(ctx).instance(ILogRequestService.class);
 	}
+
 }

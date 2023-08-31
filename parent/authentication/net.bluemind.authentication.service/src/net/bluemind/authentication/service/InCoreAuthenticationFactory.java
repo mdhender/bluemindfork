@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2023
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -27,6 +27,8 @@ import net.bluemind.authentication.provider.ILoginSessionValidator;
 import net.bluemind.authentication.provider.ILoginValidationListener;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.service.internal.AuditLogService;
+import net.bluemind.core.container.service.internal.SecurityContextAuditLogService;
+import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
@@ -60,7 +62,7 @@ public class InCoreAuthenticationFactory
 
 	@Override
 	public IInCoreAuthentication instance(BmContext context, String... params) throws ServerFault {
-		AuditLogService<String> auditLogService = new AuditLogService<>(context.getSecurityContext(), null);
+		AuditLogService<SecurityContext, Void> auditLogService = new SecurityContextAuditLogService("login");
 		return new Authentication(context, authProviders, loginListeners, sessionValidators, auditLogService);
 	}
 }

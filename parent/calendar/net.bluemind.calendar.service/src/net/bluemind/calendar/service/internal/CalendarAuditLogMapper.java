@@ -34,29 +34,24 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventSeries;
-import net.bluemind.core.auditlogs.AuditLogEntry;
 import net.bluemind.core.auditlogs.ContentElement;
 import net.bluemind.core.auditlogs.ContentElement.ContentElementBuilder;
 import net.bluemind.core.auditlogs.ILogMapperProvider;
-import net.bluemind.core.container.model.ChangeLogEntry.Type;
-import net.bluemind.core.container.model.Item;
 import net.bluemind.icalendar.api.ICalendarElement;
 
 public class CalendarAuditLogMapper implements ILogMapperProvider<VEventSeries> {
 
 	private static final ObjectMapper objectMapper = new ObjectMapper();
-	private static Logger logger = LoggerFactory.getLogger(CalendarAuditLogMapper.class);
+	private static final Logger logger = LoggerFactory.getLogger(CalendarAuditLogMapper.class);
 
 	@Override
-	public AuditLogEntry enhanceAuditLogEntry(Item item, VEventSeries oldValue, VEventSeries newValue, Type action,
-			AuditLogEntry auditLogEntry) {
-		ContentElement content = buildContent(newValue);
-		if (content != null) {
-			auditLogEntry.content = content;
-			if (oldValue != null) {
-				auditLogEntry.updatemessage = computeUpdateDifference(oldValue, newValue);
-			}
-			return auditLogEntry;
+	public ContentElement createContentElement(VEventSeries newValue) {
+		return buildContent(newValue);
+	}
+
+	public String createUpdateMessage(VEventSeries oldValue, VEventSeries newValue) {
+		if (oldValue != null) {
+			return computeUpdateDifference(oldValue, newValue);
 		}
 		return null;
 	}
@@ -117,13 +112,6 @@ public class CalendarAuditLogMapper implements ILogMapperProvider<VEventSeries> 
 		if (value.main == null && value.occurrences.isEmpty()) {
 			return null;
 		}
-		try {
-			String source = objectMapper.writeValueAsString(value);
-			builder.newValue(source);
-		} catch (JsonProcessingException e) {
-			logger.error(e.getMessage());
-			e.printStackTrace();
-		}
 
 		VEvent event = (value.main != null) ? value.main : value.occurrences.get(0);
 
@@ -155,6 +143,15 @@ public class CalendarAuditLogMapper implements ILogMapperProvider<VEventSeries> 
 		}
 		if (!has.isEmpty()) {
 			builder.has(has);
+		}
+
+		try {
+			String source = objectMapper.writeValueAsString(value);
+			builder.newValue(source);
+		} catch (JsonProcessingException e) {
+			logger.error(e.getMessage());
+			e.printStackTrace();
+
 		}
 		return builder.build();
 	}

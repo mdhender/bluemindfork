@@ -65,5 +65,7 @@ Require-Bundle: org.junit,
  net.bluemind.resource.helper,
  net.bluemind.core.rest.http,
  net.bluemind.common.task,
- net.bluemind.core.auditlogs.schema;bundle-version="5.0.0"
+ net.bluemind.core.auditlogs.schema,
+ net.bluemind.core.auditlogs.client.es,
+ net.bluemind.system.state
 Automatic-Module-Name: net.bluemind.calendar.service.tests

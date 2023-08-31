@@ -122,6 +122,7 @@ public class RestoreTopology {
 			} while (true);
 			target.instance(IInstallation.class).resetIndexes();
 		}
+		target.instance(IInstallation.class).resetAuditLogClient();
 
 		Map<String, PromotingServer> serverByUid = touched.stream()
 				.collect(Collectors.toMap(iv -> iv.leader.uid, iv -> iv, (iv1, iv2) -> iv2));

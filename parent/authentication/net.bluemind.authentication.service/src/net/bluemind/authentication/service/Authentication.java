@@ -82,13 +82,13 @@ public class Authentication implements IInCoreAuthentication {
 	private final List<ILoginValidationListener> loginListeners;
 	private final List<ILoginSessionValidator> sessionValidators;
 	private final IDomains domainService;
-	private final AuditLogService<String> auditLogService;
+	private final AuditLogService<SecurityContext, Void> auditLogService;
 
 	private BmContext context;
 
 	public Authentication(BmContext context, List<IAuthProvider> authProviders,
 			List<ILoginValidationListener> loginListeners, List<ILoginSessionValidator> sessionValidators,
-			AuditLogService<String> auditLogService) throws ServerFault {
+			AuditLogService<SecurityContext, Void> auditLogService) throws ServerFault {
 		this.context = context;
 		this.securityContext = context.getSecurityContext();
 		this.authProviders = authProviders;
@@ -308,7 +308,11 @@ public class Authentication implements IInCoreAuthentication {
 			resp.authKey = context.getSessionId();
 		}
 
-		auditLogService.loginLog(context);
+		try {
+			auditLogService.logCreate(context);
+		} catch (Exception e) {
+			logger.error("Error with authentication auditlog: {}", e.getMessage());
+		}
 		resp.authUser = AuthUser.create(context.getContainerUid(), context.getSubject(), authContext.user.displayName,
 				authContext.user.value, new HashSet<>(context.getRoles()), context.getRolesByOrgUnits(), settings);
 		return resp;
@@ -517,7 +521,11 @@ public class Authentication implements IInCoreAuthentication {
 			SecurityContext builtContext = buildSecurityContext(resp.authKey, user, domainPart, settings,
 					securityContext.getOrigin(), false, interactive);
 
-			auditLogService.loginLog(builtContext);
+			try {
+				auditLogService.logCreate(builtContext);
+			} catch (Exception e) {
+				logger.error("Error with authentication auditlog: {}", e.getMessage());
+			}
 			resp.authUser = AuthUser.create(builtContext.getContainerUid(), builtContext.getSubject(), user.displayName,
 					user.value, new HashSet<>(builtContext.getRoles()), builtContext.getRolesByOrgUnits(), settings);
 			Sessions.get().put(resp.authKey, builtContext);
@@ -592,8 +600,6 @@ public class Authentication implements IInCoreAuthentication {
 	@Override
 	public SecurityContext buildContext(String sid, String origin, String domainUid, String userUid)
 			throws ServerFault {
-		logger.info("SCL Authentication - buildContext");
-		// TODO SCL loguer ici aussi ?
 		ItemValue<User> user = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IUser.class, domainUid).getComplete(userUid);
 		Map<String, String> settings = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)

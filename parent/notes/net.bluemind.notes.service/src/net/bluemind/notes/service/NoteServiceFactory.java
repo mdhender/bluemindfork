@@ -29,7 +29,7 @@ import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.DataSourceRouter;
-import net.bluemind.core.container.service.internal.AuditLogService;
+import net.bluemind.core.container.service.internal.ItemValueAuditLogService;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
@@ -71,7 +71,8 @@ public class NoteServiceFactory implements ServerSideServiceProvider.IServerSide
 				container.owner, container.type, container.domainUid, container.defaultContainer);
 		descriptor.internalId = container.id;
 
-		AuditLogService<VNote> logService = new AuditLogService<>(context.getSecurityContext(), descriptor);
+		ItemValueAuditLogService<VNote> logService = new ItemValueAuditLogService<>(context.getSecurityContext(),
+				descriptor);
 
 		VNoteStore vnoteStore = new VNoteStore(ds, container);
 		VNoteContainerStoreService storeService = new VNoteContainerStoreService(context, ds,

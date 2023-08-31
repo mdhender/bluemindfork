@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2023
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -50,7 +50,7 @@ import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.container.persistence.ItemStore;
-import net.bluemind.core.container.service.internal.AuditLogService;
+import net.bluemind.core.container.service.internal.ItemValueAuditLogService;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.tests.BmTestContext;
@@ -315,7 +315,7 @@ public class VCardSanitizerTests extends AbstractServiceTests {
 		BaseContainerDescriptor descriptor = BaseContainerDescriptor.create(container.uid, container.name,
 				container.owner, container.type, container.domainUid, container.defaultContainer);
 		descriptor.internalId = container.id;
-		AuditLogService<VCard> logService = new AuditLogService<>(context, descriptor);
+		ItemValueAuditLogService<VCard> logService = new ItemValueAuditLogService<>(context, descriptor);
 
 		VCardStore vcardStore = new VCardStore(dataDataSource, container);
 		VCardIndexStore indexStore = new VCardIndexStore(esearchClient, container,

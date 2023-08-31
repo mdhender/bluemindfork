@@ -36,7 +36,7 @@ import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.DataSourceRouter;
-import net.bluemind.core.container.service.internal.AuditLogService;
+import net.bluemind.core.container.service.internal.ItemValueAuditLogService;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
@@ -85,7 +85,8 @@ public class InCoreAddressBookFactory
 				container.owner, container.type, container.domainUid, container.defaultContainer);
 		descriptor.internalId = container.id;
 
-		AuditLogService<VCard> logService = new AuditLogService<>(context.getSecurityContext(), descriptor);
+		ItemValueAuditLogService<VCard> logService = new ItemValueAuditLogService<>(context.getSecurityContext(),
+				descriptor);
 
 		VCardContainerStoreService storeService = new VCardContainerStoreService(context, ds,
 				context.getSecurityContext(), container, vcardStore, indexStore, logService);

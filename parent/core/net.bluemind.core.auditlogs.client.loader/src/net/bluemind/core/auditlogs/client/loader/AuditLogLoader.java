@@ -25,61 +25,52 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.auditlogs.IAuditLogClient;
-import net.bluemind.core.auditlogs.IAuditLogClientFactory;
+import net.bluemind.core.auditlogs.IAuditLogFactory;
+import net.bluemind.core.auditlogs.IAuditLogMgmt;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.network.topology.Topology;
 
-public class AuditLogClientLoader {
-	private static final Logger logger = LoggerFactory.getLogger(AuditLogClientLoader.class);
+public class AuditLogLoader {
+	private static final Logger logger = LoggerFactory.getLogger(AuditLogLoader.class);
 
-	private static final IAuditLogClientFactory auditLogClient = loadAuditLogClient();
+	private static final IAuditLogFactory auditLog = loadAuditLog();
 
-	private static IAuditLogClientFactory loadAuditLogClient() {
-		RunnableExtensionLoader<IAuditLogClientFactory> rel = new RunnableExtensionLoader<>();
-		List<IAuditLogClientFactory> plugins = rel.loadExtensions("net.bluemind.core", "auditlogs", "store", "factory");
+	private static IAuditLogFactory loadAuditLog() {
+		RunnableExtensionLoader<IAuditLogFactory> rel = new RunnableExtensionLoader<>();
+		List<IAuditLogFactory> plugins = rel.loadExtensions("net.bluemind.core", "auditlogs", "store", "factory");
 		if (plugins != null && plugins.size() == 1) {
 			return plugins.get(0);
 		}
 		logger.warn("Cannot find plugin 'net.bluemind.core.auditlogs', load NoopAuditLogClient");
-		return new IAuditLogClientFactory() {
+		return new IAuditLogFactory() {
 
 			@Override
-			public IAuditLogClient load() {
+			public IAuditLogClient createClient() {
 				return NoopAuditLogClient.INSTANCE;
 			}
 
 			@Override
-			public void initialize() {
-				//
+			public IAuditLogMgmt createManager() {
+				return NoopAuditLogManager.INSTANCE;
 			}
 
-			@Override
-			public void initIfNotExists(String name) {
-				//
-			}
-
-			@Override
-			public void remove() {
-				//
-
-			}
 		};
 	}
 
-	public IAuditLogClient get() {
-		return Topology.getIfAvailable().map(t -> auditLogClient.load()).orElse(NoopAuditLogClient.INSTANCE);
+	public IAuditLogClient getClient() {
+		return Topology.getIfAvailable().map(t -> auditLog.createClient()).orElse(NoopAuditLogClient.INSTANCE);
+	}
+
+	public IAuditLogMgmt getManager() {
+		return Topology.getIfAvailable().map(t -> auditLog.createManager()).orElse(NoopAuditLogManager.INSTANCE);
 	}
 
 	public void initialize() {
-		auditLogClient.initialize();
-	}
-
-	public void initIfNotExists(String name) {
-		auditLogClient.initIfNotExists(name);
+		auditLog.createManager().resetDatastream();
 	}
 
 	public void remove() {
-		auditLogClient.remove();
+		auditLog.createManager().removeDatastream();
 	}
 
 }

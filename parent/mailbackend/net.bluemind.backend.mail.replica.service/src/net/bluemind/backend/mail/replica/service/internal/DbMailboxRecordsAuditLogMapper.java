@@ -26,27 +26,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.indexing.IMailIndexService;
-import net.bluemind.core.auditlogs.AuditLogEntry;
 import net.bluemind.core.auditlogs.ContentElement;
 import net.bluemind.core.auditlogs.ContentElement.ContentElementBuilder;
 import net.bluemind.core.auditlogs.ILogMapperProvider;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
-import net.bluemind.core.container.model.ChangeLogEntry.Type;
-import net.bluemind.core.container.model.Item;
 
 public class DbMailboxRecordsAuditLogMapper implements ILogMapperProvider<MailboxRecord> {
 
-	private static final Logger logger = LoggerFactory.getLogger(DbMailboxRecordsAuditLogMapper.class);
-	private static final ObjectMapper objectMapper = new ObjectMapper();
 	private final IMailIndexService mailIndexService;
 	private final BaseContainerDescriptor container;
 
@@ -56,24 +45,24 @@ public class DbMailboxRecordsAuditLogMapper implements ILogMapperProvider<Mailbo
 	}
 
 	@Override
-	public AuditLogEntry enhanceAuditLogEntry(Item item, MailboxRecord oldValue, MailboxRecord newValue, Type action,
-			AuditLogEntry auditLogEntry) {
+	public ContentElement createContentElement(MailboxRecord itemValue) {
 		String mailboxUniqueId = container.uid.replace("mbox_records_", "");
 
-		Map<String, Object> messageBodyMap = mailIndexService.fetchBody(mailboxUniqueId, newValue);
+		Map<String, Object> messageBodyMap = mailIndexService.fetchBody(mailboxUniqueId, itemValue);
 		if (messageBodyMap != null) {
 			// Remove useless fields
-			ContentElement filteredBody = filterMessageBody(messageBodyMap, newValue);
-			auditLogEntry.content = filteredBody;
+			return filterMessageBody(messageBodyMap, itemValue);
 		}
-		if (oldValue != null) {
-			var tagDifference = new UpdateTagDifference(oldValue, newValue);
-			if (!tagDifference.isTagDifference) {
-				return null;
-			}
-			auditLogEntry.updatemessage = tagDifference.getUpdateMessage();
+		return null;
+	}
+
+	@Override
+	public String createUpdateMessage(MailboxRecord oldValue, MailboxRecord newValue) {
+		var tagDifference = new UpdateTagDifference(oldValue, newValue);
+		if (!tagDifference.isTagDifference) {
+			return null;
 		}
-		return auditLogEntry;
+		return tagDifference.getUpdateMessage();
 	}
 
 	private ContentElement filterMessageBody(Map<String, Object> body, MailboxRecord newValue) {
@@ -111,13 +100,6 @@ public class DbMailboxRecordsAuditLogMapper implements ILogMapperProvider<Mailbo
 			builder.with(recipientsList);
 		}
 
-		try {
-			String source = objectMapper.writeValueAsString(newValue);
-			builder.newValue(source);
-		} catch (JsonProcessingException e) {
-			logger.error(e.getMessage());
-			e.printStackTrace();
-		}
 		return builder.build();
 	}
 

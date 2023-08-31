@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2023
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -76,8 +76,8 @@ import net.bluemind.core.container.persistence.AclStore;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.container.persistence.ItemStore;
-import net.bluemind.core.container.service.internal.AuditLogService;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
+import net.bluemind.core.container.service.internal.ItemValueAuditLogService;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcActivator;
@@ -105,6 +105,7 @@ import net.bluemind.pool.impl.docker.DockerContainer;
 import net.bluemind.server.api.Server;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
+import net.bluemind.system.state.StateContext;
 import net.bluemind.tag.api.ITagUids;
 import net.bluemind.tag.api.Tag;
 import net.bluemind.tag.api.TagRef;
@@ -416,6 +417,9 @@ public abstract class AbstractCalendarTests {
 		// elasticsearch
 		esClient = ElasticsearchTestHelper.getInstance().getClient();
 		System.out.println("vx3 before() " + junitName.getMethodName());
+		StateContext.setState("core.stopped");
+		StateContext.setState("core.started");
+		StateContext.setState("core.started");
 	}
 
 	@After
@@ -576,7 +580,8 @@ public abstract class AbstractCalendarTests {
 				container.owner, container.type, container.domainUid, container.defaultContainer);
 		descriptor.internalId = container.id;
 		CalendarAuditLogMapper mapper = new CalendarAuditLogMapper();
-		AuditLogService<VEventSeries> calendarLogService = new AuditLogService<>(context, descriptor, mapper);
+		ItemValueAuditLogService<VEventSeries> calendarLogService = new ItemValueAuditLogService<>(context, descriptor,
+				mapper);
 
 		VEventContainerStoreService storeService = new VEventContainerStoreService(ctx, ds, context, container,
 				veventStore, calendarLogService);

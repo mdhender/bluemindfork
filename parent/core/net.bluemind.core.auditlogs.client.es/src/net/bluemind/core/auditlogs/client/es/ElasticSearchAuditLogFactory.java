@@ -17,16 +17,23 @@
  * END LICENSE
  */
 
-package net.bluemind.core.auditlogs;
+package net.bluemind.core.auditlogs.client.es;
 
-public interface IAuditLogClientFactory {
+import net.bluemind.core.auditlogs.IAuditLogClient;
+import net.bluemind.core.auditlogs.IAuditLogFactory;
+import net.bluemind.core.auditlogs.IAuditLogMgmt;
+import net.bluemind.core.auditlogs.client.es.datastreams.DataStreamActivator;
 
-	public IAuditLogClient load();
+public class ElasticSearchAuditLogFactory implements IAuditLogFactory {
 
-	public void initialize();
+	@Override
+	public IAuditLogClient createClient() {
+		return new ElasticSearchAuditLogClient();
+	}
 
-	public void initIfNotExists(String name);
-
-	public void remove();
+	@Override
+	public IAuditLogMgmt createManager() {
+		return new DataStreamActivator();
+	}
 
 }

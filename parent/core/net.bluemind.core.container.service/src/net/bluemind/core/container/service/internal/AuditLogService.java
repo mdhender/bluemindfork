@@ -32,7 +32,7 @@ import net.bluemind.core.auditlogs.ILogMapperProvider;
 import net.bluemind.core.auditlogs.ItemElement;
 import net.bluemind.core.auditlogs.OwnerElement;
 import net.bluemind.core.auditlogs.SecurityContextElement;
-import net.bluemind.core.auditlogs.client.loader.AuditLogClientLoader;
+import net.bluemind.core.auditlogs.client.loader.AuditLogLoader;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.ChangeLogEntry.Type;
 import net.bluemind.core.container.model.Item;
@@ -41,74 +41,85 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
 
-public class AuditLogService<T> {
+public abstract class AuditLogService<T, U> {
 
 	private static final Logger logger = LoggerFactory.getLogger(AuditLogService.class);
-	private ILogMapperProvider<T> mapper;
-
-	private AuditLogClientLoader auditLogClientProvider = new AuditLogClientLoader();
+	private AuditLogLoader auditLogProvider = new AuditLogLoader();
 	private IAuditLogClient auditLogClient;
-	private SecurityContext securityContext;
-	private BaseContainerDescriptor container;
 
-	public AuditLogService(SecurityContext sc, BaseContainerDescriptor cont, ILogMapperProvider<T> documentMapper) {
+	protected SecurityContext securityContext;
+	protected BaseContainerDescriptor container;
+	protected ILogMapperProvider<U> mapper;
+	protected String type;
+
+	protected AuditLogService(SecurityContext sc, BaseContainerDescriptor cont, ILogMapperProvider<U> dm) {
 		securityContext = sc;
 		container = cont;
-		mapper = documentMapper;
-		auditLogClient = auditLogClientProvider.get();
+		mapper = dm;
+		type = cont.type;
+		auditLogClient = auditLogProvider.getClient();
 	}
 
-	public AuditLogService(SecurityContext sc, BaseContainerDescriptor cont) {
+	protected AuditLogService(SecurityContext sc, BaseContainerDescriptor cont) {
 		securityContext = sc;
 		container = cont;
+		type = cont.type;
 		this.mapper = new DefaultLogMapperProvider<>();
-		auditLogClient = auditLogClientProvider.get();
+		auditLogClient = auditLogProvider.getClient();
 	}
 
-	public void log(Item item, T oldValue, T newValue, Type action) {
-		AuditLogEntry defaultAuditLogEntry = createAuditLogEntry(item, newValue, action);
-		AuditLogEntry auditLogEntry = mapper.enhanceAuditLogEntry(item, oldValue, newValue, action,
-				defaultAuditLogEntry);
-		if (auditLogEntry != null) {
-			store(auditLogEntry);
-		}
+	protected AuditLogService(SecurityContext sc, String type) {
+		securityContext = sc;
+		this.type = type;
+		this.mapper = new DefaultLogMapperProvider<>();
+		auditLogClient = auditLogProvider.getClient();
 	}
 
-	public void loginLog(SecurityContext securityContext) {
-		AuditLogEntry auditLogEntry = new AuditLogEntry();
-		SecurityContextElement securityContextElement;
+	protected AuditLogService(String type) {
+		this.type = type;
+		this.mapper = new DefaultLogMapperProvider<>();
+		auditLogClient = auditLogProvider.getClient();
+	}
 
-		try {
-			DirEntry entrySecurityContext = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-					.instance(IDirectory.class, securityContext.getContainerUid())
-					.findByEntryUid(securityContext.getOwnerPrincipal());
-			if (entrySecurityContext != null) {
-				securityContextElement = new SecurityContextElement.SecurityContextElementBuilder()
-						.displayName(entrySecurityContext.displayName).email(entrySecurityContext.email)
-						.uid(securityContext.getSubject()).origin(securityContext.getOrigin()).build();
-				auditLogEntry.securityContext = securityContextElement;
-			}
-		} catch (ServerFault e) {
-			logger.error("Problem fetching security context data : {}", e.getMessage());
-			securityContextElement = new SecurityContextElement.SecurityContextElementBuilder()
-					.displayName(securityContext.getSubjectDisplayName()).uid(securityContext.getSubject())
-					.origin(securityContext.getOrigin()).build();
-			auditLogEntry.securityContext = securityContextElement;
-		}
-
-		auditLogEntry.logtype = "LoginEvent";
+	public void logCreate(T value) {
+		AuditLogEntry auditLogEntry = createAuditLogEntry(value);
 		auditLogEntry.action = Type.Created.name();
 		store(auditLogEntry);
 	}
 
-	protected void store(AuditLogEntry entry) {
-		auditLogClient.store(entry);
+	public void logUpdate(T value, U oldValue) {
+		AuditLogEntry auditLogEntry = createAuditLogEntry(value);
+		auditLogEntry.action = Type.Updated.name();
+		if (oldValue != null) {
+			auditLogEntry.updatemessage = createUpdateMessage(value, oldValue);
+		}
+		store(auditLogEntry);
 	}
 
-	public AuditLogEntry createAuditLogEntry(Item item, T newValue, Type action) {
+	public void logDelete(T value) {
+		AuditLogEntry auditLogEntry = createAuditLogEntry(value);
+		auditLogEntry.action = Type.Deleted.name();
+		store(auditLogEntry);
+	}
+
+	protected SecurityContextElement createSecurityContextElement(SecurityContext sc) {
 		SecurityContextElement securityContextElement;
-		ItemElement itemElement;
-		AuditLogEntry auditLogEntry = new AuditLogEntry();
+		try {
+			DirEntry entrySecurityContext = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+					.instance(IDirectory.class, sc.getContainerUid()).findByEntryUid(sc.getOwnerPrincipal());
+			securityContextElement = new SecurityContextElement.SecurityContextElementBuilder()
+					.displayName(entrySecurityContext.displayName).email(entrySecurityContext.email)
+					.uid(sc.getSubject()).origin(sc.getOrigin()).build();
+			return securityContextElement;
+		} catch (Exception e) {
+			securityContextElement = new SecurityContextElement.SecurityContextElementBuilder()
+					.displayName(sc.getSubjectDisplayName()).uid(sc.getSubject()).origin(sc.getOrigin()).build();
+			return securityContextElement;
+		}
+
+	}
+
+	protected ContainerElement createContainerElement() {
 
 		ContainerElementBuilder builder = new ContainerElement.ContainerElementBuilder();
 		builder.name(container.name).uid(container.uid);
@@ -128,38 +139,25 @@ public class AuditLogService<T> {
 		} catch (ServerFault e) {
 			logger.error("Problem fetching container owner data : {}", e.getMessage());
 		}
+		return builder.build();
 
-		auditLogEntry.container = builder.build();
-
-		try {
-			DirEntry entrySecurityContext = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-					.instance(IDirectory.class, securityContext.getContainerUid())
-					.findByEntryUid(securityContext.getOwnerPrincipal());
-			if (entrySecurityContext != null) {
-				securityContextElement = new SecurityContextElement.SecurityContextElementBuilder()
-						.displayName(entrySecurityContext.displayName).email(entrySecurityContext.email)
-						.uid(securityContext.getSubject()).origin(securityContext.getOrigin()).build();
-				auditLogEntry.securityContext = securityContextElement;
-			}
-		} catch (ServerFault e) {
-			logger.error("Problem fetching security context data : {}", e.getMessage());
-			securityContextElement = new SecurityContextElement.SecurityContextElementBuilder()
-					.displayName(securityContext.getSubjectDisplayName()).uid(securityContext.getSubject())
-					.origin(securityContext.getOrigin()).build();
-			auditLogEntry.securityContext = securityContextElement;
-		}
-
-		if (item != null) {
-			itemElement = new ItemElement.ItemElementBuilder().uid(item.uid).id(item.id).displayName(item.displayName)
-					.version(item.version).build();
-			auditLogEntry.item = itemElement;
-		}
-
-		auditLogEntry.logtype = newValue.getClass().getSimpleName();
-
-		auditLogEntry.action = action.toString();
-
-		return auditLogEntry;
 	}
+
+	protected ItemElement createItemElement(Item item) {
+		return new ItemElement.ItemElementBuilder().uid(item.uid).id(item.id).displayName(item.displayName)
+				.version(item.version).build();
+	}
+
+	protected void store(AuditLogEntry entry) {
+		auditLogClient.storeAuditLog(entry);
+	}
+
+	protected String type() {
+		return type;
+	}
+
+	protected abstract AuditLogEntry createAuditLogEntry(T value);
+
+	protected abstract String createUpdateMessage(T newValue, U oldValue);
 
 }

@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2023
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -57,7 +57,7 @@ import net.bluemind.addressbook.service.internal.VCardService;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.container.service.internal.AuditLogService;
+import net.bluemind.core.container.service.internal.ItemValueAuditLogService;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.lib.ical4j.vcard.Builder;
@@ -917,7 +917,8 @@ public class VCardServiceImportTests extends AbstractServiceTests {
 		BaseContainerDescriptor descriptor = BaseContainerDescriptor.create(container.uid, container.name,
 				container.owner, container.type, container.domainUid, container.defaultContainer);
 		descriptor.internalId = container.id;
-		AuditLogService<VCard> logService = new AuditLogService<>(context.getSecurityContext(), descriptor);
+		ItemValueAuditLogService<VCard> logService = new ItemValueAuditLogService<>(context.getSecurityContext(),
+				descriptor);
 
 		return new VCardContainerStoreService(context, dataDataSource, SecurityContext.SYSTEM, container, logService);
 	}

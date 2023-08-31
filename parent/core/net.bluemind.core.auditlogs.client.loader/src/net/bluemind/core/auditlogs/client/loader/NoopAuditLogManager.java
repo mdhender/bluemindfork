@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2023
+ * Copyright © Blue Mind SAS, 2012-2016
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -17,17 +17,27 @@
  * END LICENSE
  */
 
-package net.bluemind.core.auditlogs;
+package net.bluemind.core.auditlogs.client.loader;
 
-import java.util.List;
+import net.bluemind.core.auditlogs.IAuditLogMgmt;
 
-import net.bluemind.core.container.model.ItemChangelog;
+public final class NoopAuditLogManager implements IAuditLogMgmt {
 
-public interface IAuditLogClient {
+	public static final IAuditLogMgmt INSTANCE = new NoopAuditLogManager();
 
-	public void storeAuditLog(AuditLogEntry document);
+	@Override
+	public void createDataStreamIfNotExists(String name) {
+		//
+	}
 
-	public ItemChangelog getItemChangeLog(String containerUid, String itemUid, Long since);
+	@Override
+	public void removeDatastream() {
+		//
+	}
 
-	public List<AuditLogEntry> queryAuditLog(LogMailQuery query);
+	@Override
+	public void resetDatastream() {
+		//
+	}
+
 }

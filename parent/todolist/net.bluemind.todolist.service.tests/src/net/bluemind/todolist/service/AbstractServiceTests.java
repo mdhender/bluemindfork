@@ -53,7 +53,7 @@ import net.bluemind.core.container.persistence.AclStore;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.ItemStore;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
-import net.bluemind.core.container.service.internal.AuditLogService;
+import net.bluemind.core.container.service.internal.ItemValueAuditLogService;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcActivator;
@@ -67,6 +67,7 @@ import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.server.api.Server;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
+import net.bluemind.system.state.StateContext;
 import net.bluemind.tag.api.ITagUids;
 import net.bluemind.tag.api.Tag;
 import net.bluemind.tag.api.TagRef;
@@ -156,10 +157,14 @@ public abstract class AbstractServiceTests {
 				container.owner, container.type, container.domainUid, container.defaultContainer);
 		descriptor.internalId = container.id;
 
-		AuditLogService<VTodo> logService = new AuditLogService<>(defaultContext.getSecurityContext(), descriptor);
+		ItemValueAuditLogService<VTodo> logService = new ItemValueAuditLogService<>(defaultContext.getSecurityContext(),
+				descriptor);
 
 		vtodoStoreService = new VTodoContainerStoreService(defaultContext, JdbcTestHelper.getInstance().getDataSource(),
 				SecurityContext.SYSTEM, container, vtodoStore, logService);
+		StateContext.setState("core.stopped");
+		StateContext.setState("core.started");
+		StateContext.setState("core.started");
 
 	}
 

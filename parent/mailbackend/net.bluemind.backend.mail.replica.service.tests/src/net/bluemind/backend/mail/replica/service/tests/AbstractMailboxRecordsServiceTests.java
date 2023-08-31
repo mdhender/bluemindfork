@@ -129,6 +129,7 @@ public abstract class AbstractMailboxRecordsServiceTests<T> {
 	@After
 	public void after() throws Exception {
 		JdbcTestHelper.getInstance().afterTest();
+		ElasticsearchTestHelper.getInstance().afterTest();
 	}
 
 	protected abstract T getService(SecurityContext ctx);

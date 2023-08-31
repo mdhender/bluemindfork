@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2023
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -36,8 +36,8 @@ import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.container.persistence.IItemValueStore;
-import net.bluemind.core.container.service.internal.AuditLogService;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
+import net.bluemind.core.container.service.internal.ItemValueAuditLogService;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.document.storage.DocumentStorage;
@@ -53,7 +53,7 @@ public class VCardContainerStoreService extends ContainerStoreService<VCard> {
 	private VCardIndexStore indexStore;
 
 	public VCardContainerStoreService(BmContext context, DataSource dataSource, SecurityContext securityContext,
-			Container container, AuditLogService<VCard> logService) {
+			Container container, ItemValueAuditLogService<VCard> logService) {
 		this(context, dataSource, securityContext, container, new VCardStore(dataSource, container),
 				new VCardIndexStore(ESearchActivator.getClient(), container,
 						DataSourceRouter.location(context, container.uid)),
@@ -62,7 +62,7 @@ public class VCardContainerStoreService extends ContainerStoreService<VCard> {
 
 	public VCardContainerStoreService(BmContext context, DataSource dataSource, SecurityContext securityContext,
 			Container container, IItemValueStore<VCard> itemValueStore, VCardIndexStore indexStore,
-			AuditLogService<VCard> logService) {
+			ItemValueAuditLogService<VCard> logService) {
 		super(dataSource, securityContext, container, itemValueStore, card -> ItemFlag.SEEN, c -> 0L, s -> s,
 				logService);
 		tagRefService = context.su().provider().instance(IInCoreTagRef.class, container.uid);

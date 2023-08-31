@@ -28,7 +28,6 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.auditlogs.ILogMapperProvider;
 import net.bluemind.core.container.api.internal.IAccessControlList;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
-import net.bluemind.core.container.model.ChangeLogEntry.Type;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.persistence.AclStore;
@@ -38,15 +37,15 @@ import net.bluemind.core.rest.BmContext;
 public class AclService implements IAccessControlList {
 
 	private final AclStore aclStore;
-	private AuditLogService<AccessControlEntry> auditLog;
-	Container container;
+	private final AuditLogService<AccessControlEntry, AccessControlEntry> auditLog;
+	private final Container container;
 
 	public AclService(BmContext ctx, SecurityContext sc, DataSource pool, BaseContainerDescriptor desc) {
 		container = Container.create(desc.uid, desc.type, desc.name, desc.owner, desc.domainUid, desc.defaultContainer);
 		container.id = desc.internalId;
-		aclStore = new AclStore(ctx, pool);
 		ILogMapperProvider<AccessControlEntry> mapper = new AccessControlEntryAuditLogMapper();
-		auditLog = new AuditLogService<>(sc, desc, mapper);
+		aclStore = new AclStore(ctx, pool);
+		auditLog = new ValueAuditLogService<>(sc, desc, mapper);
 	}
 
 	public AclService(BmContext ctx, SecurityContext sc, DataSource pool, Container cont) {
@@ -55,14 +54,13 @@ public class AclService implements IAccessControlList {
 		desc.internalId = cont.id;
 		container = cont;
 		aclStore = new AclStore(ctx, pool);
-		ILogMapperProvider<AccessControlEntry> mapper = new AccessControlEntryAuditLogMapper();
-		auditLog = new AuditLogService<>(sc, desc, mapper);
+		auditLog = new ValueAuditLogService<>(sc, desc);
 	}
 
 	@Override
 	public void store(final List<AccessControlEntry> entries) throws ServerFault, SQLException {
 		if (auditLog != null) {
-			entries.forEach(e -> auditLog.log(null, null, e, Type.Created));
+			entries.forEach(e -> auditLog.logCreate(e));
 		}
 		aclStore.store(container, entries);
 	}
@@ -70,7 +68,7 @@ public class AclService implements IAccessControlList {
 	@Override
 	public void add(final List<AccessControlEntry> entries) throws SQLException {
 		if (auditLog != null) {
-			entries.forEach(e -> auditLog.log(null, null, e, Type.Created));
+			entries.forEach(e -> auditLog.logCreate(e));
 		}
 		aclStore.add(container, entries);
 	}
@@ -84,7 +82,7 @@ public class AclService implements IAccessControlList {
 	public void deleteAll() throws SQLException {
 		List<AccessControlEntry> entries = aclStore.get(container);
 		if (auditLog != null) {
-			entries.forEach(e -> auditLog.log(null, null, e, Type.Deleted));
+			entries.forEach(e -> auditLog.logDelete(e));
 		}
 		aclStore.deleteAll(container);
 	}

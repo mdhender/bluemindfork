@@ -56,7 +56,7 @@ import net.bluemind.core.api.BMVersion;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.auditlogs.client.loader.AuditLogClientLoader;
+import net.bluemind.core.auditlogs.client.loader.AuditLogLoader;
 import net.bluemind.core.backup.continuous.api.CloneDefaults;
 import net.bluemind.core.backup.continuous.api.InstallationWriteLeader;
 import net.bluemind.core.bo.report.provider.HostReportProvider;
@@ -564,8 +564,15 @@ public class InstallationService implements IInstallation {
 
 		ESearchActivator.clearClientCache();
 		ESearchActivator.resetIndexes();
-		AuditLogClientLoader auditLogClientProvider = new AuditLogClientLoader();
-		auditLogClientProvider.initialize();
+	}
+
+	@Override
+	public void resetAuditLogClient() {
+		if (!context.getSecurityContext().isDomainGlobal()) {
+			throw new ServerFault("only admin0 can reset auditLogClient", ErrorCode.PERMISSION_DENIED);
+		}
+		AuditLogLoader auditLogProvider = new AuditLogLoader();
+		auditLogProvider.getManager().resetDatastream();
 	}
 
 	@Override

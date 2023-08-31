@@ -26,5 +26,6 @@ Require-Bundle: org.junit,
  net.bluemind.scheduledjob.service,
  net.bluemind.system.state,
  net.bluemind.core.elasticsearch.testshelper,
- net.bluemind.core.auditlogs.schema
+ net.bluemind.core.auditlogs.schema,
+ net.bluemind.core.auditlogs.client.es
 Automatic-Module-Name: net.bluemind.smime.cacerts.service.tests

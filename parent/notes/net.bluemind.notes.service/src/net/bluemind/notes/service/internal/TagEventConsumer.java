@@ -33,7 +33,7 @@ import net.bluemind.core.container.model.ItemUri;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.DataSourceRouter;
-import net.bluemind.core.container.service.internal.AuditLogService;
+import net.bluemind.core.container.service.internal.ItemValueAuditLogService;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -97,7 +97,8 @@ public class TagEventConsumer implements ITagEventConsumer {
 					currentContainer.defaultContainer);
 			descriptor.internalId = currentContainer.id;
 
-			AuditLogService<VNote> logService = new AuditLogService<>(context.getSecurityContext(), descriptor);
+			ItemValueAuditLogService<VNote> logService = new ItemValueAuditLogService<>(context.getSecurityContext(),
+					descriptor);
 
 			VNoteContainerStoreService vnoteContainerStore = new VNoteContainerStoreService(context, dsNote,
 					SecurityContext.SYSTEM, currentContainer, new VNoteStore(dsNote, currentContainer), logService);

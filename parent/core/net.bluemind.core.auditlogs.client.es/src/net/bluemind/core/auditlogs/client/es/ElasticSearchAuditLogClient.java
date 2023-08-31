@@ -48,13 +48,18 @@ import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.lib.elasticsearch.exception.ElasticDocumentException;
 import net.bluemind.network.topology.TopologyException;
+import net.bluemind.system.api.SystemState;
+import net.bluemind.system.state.StateContext;
 
 public class ElasticSearchAuditLogClient implements IAuditLogClient {
 	private static final String INDEX_AUDIT_LOG = "audit_log";
 	private static final Logger logger = LoggerFactory.getLogger(ElasticSearchAuditLogClient.class);
 
 	@Override
-	public void store(AuditLogEntry document) {
+	public void storeAuditLog(AuditLogEntry document) {
+		if (StateContext.getState() != SystemState.CORE_STATE_RUNNING) {
+			return;
+		}
 		try {
 			ElasticsearchClient esClient = ESearchActivator.getClient();
 			if (esClient == null) {

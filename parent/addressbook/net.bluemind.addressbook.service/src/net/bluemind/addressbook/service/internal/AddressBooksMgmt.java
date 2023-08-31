@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2023
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -64,7 +64,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.ContainerSyncStore;
 import net.bluemind.core.container.persistence.DataSourceRouter;
-import net.bluemind.core.container.service.internal.AuditLogService;
+import net.bluemind.core.container.service.internal.ItemValueAuditLogService;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
@@ -152,7 +152,8 @@ public class AddressBooksMgmt
 		BaseContainerDescriptor descriptor = BaseContainerDescriptor.create(container.uid, container.name,
 				container.owner, container.type, container.domainUid, container.defaultContainer);
 		descriptor.internalId = container.id;
-		AuditLogService<VCard> logService = new AuditLogService<>(context.getSecurityContext(), descriptor);
+		ItemValueAuditLogService<VCard> logService = new ItemValueAuditLogService<>(context.getSecurityContext(),
+				descriptor);
 		VCardContainerStoreService storeService = new VCardContainerStoreService(context, ds,
 				context.getSecurityContext(), container, new VCardStore(ds, container), indexStore, logService);
 
@@ -246,7 +247,8 @@ public class AddressBooksMgmt
 		BaseContainerDescriptor descriptor = BaseContainerDescriptor.create(container.uid, container.name,
 				container.owner, container.type, container.domainUid, container.defaultContainer);
 		descriptor.internalId = container.id;
-		AuditLogService<VCard> logService = new AuditLogService<>(context.getSecurityContext(), descriptor);
+		ItemValueAuditLogService<VCard> logService = new ItemValueAuditLogService<>(context.getSecurityContext(),
+				descriptor);
 		VCardContainerStoreService storeService = new VCardContainerStoreService(context, ds,
 				context.getSecurityContext(), container, new VCardStore(ds, container),
 				new VCardIndexStore(ESearchActivator.getClient(), container,
@@ -324,7 +326,8 @@ public class AddressBooksMgmt
 		BaseContainerDescriptor descriptor = BaseContainerDescriptor.create(container.uid, container.name,
 				container.owner, container.type, container.domainUid, container.defaultContainer);
 		descriptor.internalId = container.id;
-		AuditLogService<VCard> logService = new AuditLogService<>(context.getSecurityContext(), descriptor);
+		ItemValueAuditLogService<VCard> logService = new ItemValueAuditLogService<>(context.getSecurityContext(),
+				descriptor);
 		final VCardContainerStoreService storeService = new VCardContainerStoreService(context, ds,
 				context.getSecurityContext(), container, new VCardStore(ds, container),
 				new VCardIndexStore(ESearchActivator.getClient(), container,
@@ -401,7 +404,8 @@ public class AddressBooksMgmt
 		BaseContainerDescriptor containerDescriptor = BaseContainerDescriptor.create(container.uid, container.name,
 				container.owner, container.type, container.domainUid, container.defaultContainer);
 		containerDescriptor.internalId = container.id;
-		AuditLogService<VCard> logService = new AuditLogService<>(context.getSecurityContext(), containerDescriptor);
+		ItemValueAuditLogService<VCard> logService = new ItemValueAuditLogService<>(context.getSecurityContext(),
+				containerDescriptor);
 		VCardContainerStoreService storeService = new VCardContainerStoreService(context, ds,
 				context.getSecurityContext(), container, new VCardStore(ds, container),
 				new VCardIndexStore(ESearchActivator.getClient(), container,

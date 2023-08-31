@@ -127,6 +127,10 @@ public interface IInstallation extends ICustomTheme {
 	public void resetIndexes();
 
 	@POST
+	@Path("_resetAuditLogClient")
+	public void resetAuditLogClient();
+
+	@POST
 	@Path("{index}/_resetIndex")
 	public void resetIndex(@PathParam("index") String index);
 

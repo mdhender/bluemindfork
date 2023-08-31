@@ -37,5 +37,7 @@ Require-Bundle: org.junit,
  net.bluemind.core.validator,
  net.bluemind.core.sanitizer,
  net.bluemind.common.task,
- net.bluemind.core.auditlogs.schema
+ net.bluemind.core.auditlogs.schema,
+ net.bluemind.core.auditlogs.client.es,
+ net.bluemind.system.state
 Automatic-Module-Name: net.bluemind.addressbook.service.tests

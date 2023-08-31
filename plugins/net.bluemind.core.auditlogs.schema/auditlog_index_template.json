@@ -62,7 +62,7 @@
                   }
                }
             },
-            "securityContext":{
+            "securitycontext":{
                "properties":{
                   "displayName":{
                      "type":"keyword"

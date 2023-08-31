@@ -37,7 +37,7 @@ import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.DataSourceRouter;
-import net.bluemind.core.container.service.internal.AuditLogService;
+import net.bluemind.core.container.service.internal.ItemValueAuditLogService;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -80,7 +80,8 @@ public class VCardServiceFactory implements ServerSideServiceProvider.IServerSid
 		BaseContainerDescriptor descriptor = BaseContainerDescriptor.create(container.uid, container.name,
 				container.owner, container.type, container.domainUid, container.defaultContainer);
 		descriptor.internalId = container.id;
-		AuditLogService<VCard> logService = new AuditLogService<>(context.getSecurityContext(), descriptor);
+		ItemValueAuditLogService<VCard> logService = new ItemValueAuditLogService<>(context.getSecurityContext(),
+				descriptor);
 
 		VCardStore vcardStore = new VCardStore(ds, container);
 		VCardIndexStore indexStore = new VCardIndexStore(esClient, container,

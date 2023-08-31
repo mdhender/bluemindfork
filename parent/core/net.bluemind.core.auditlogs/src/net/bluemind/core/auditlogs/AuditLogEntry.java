@@ -26,6 +26,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class AuditLogEntry {
 
+	@JsonProperty("securitycontext")
 	public SecurityContextElement securityContext;
 
 	public ContainerElement container;

@@ -26,30 +26,28 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import net.bluemind.core.auditlogs.ContentElement.ContentElementBuilder;
-import net.bluemind.core.container.model.ChangeLogEntry.Type;
-import net.bluemind.core.container.model.Item;
 
 public class DefaultLogMapperProvider<T> implements ILogMapperProvider<T> {
 
-	private static Logger logger = LoggerFactory.getLogger(DefaultLogMapperProvider.class);
 	private static final ObjectMapper objectMapper = new ObjectMapper();
+	private static final Logger logger = LoggerFactory.getLogger(DefaultLogMapperProvider.class);
+
+	public ContentElement createContentElement(T newValue) {
+
+		ContentElementBuilder builder = new ContentElement.ContentElementBuilder();
+		try {
+			String source = objectMapper.writeValueAsString(newValue);
+			builder.newValue(source);
+			return builder.build();
+		} catch (JsonProcessingException e) {
+			logger.error(e.getMessage());
+			e.printStackTrace();
+			return builder.build();
+		}
+	}
 
 	@Override
-	public AuditLogEntry enhanceAuditLogEntry(Item item, T oldValue, T newValue, Type action,
-			AuditLogEntry auditLogEntry) {
-
-		ContentElement content;
-		if (auditLogEntry.content == null) {
-			String source;
-			try {
-				source = objectMapper.writeValueAsString(newValue);
-				ContentElementBuilder builder = new ContentElement.ContentElementBuilder();
-				content = builder.newValue(source).build();
-				auditLogEntry.content = content;
-			} catch (JsonProcessingException e) {
-				logger.error(e.getMessage());
-			}
-		}
-		return auditLogEntry;
+	public String createUpdateMessage(T oldValue, T newValue) {
+		return null;
 	}
 }

@@ -29,7 +29,7 @@ import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.DataSourceRouter;
-import net.bluemind.core.container.service.internal.AuditLogService;
+import net.bluemind.core.container.service.internal.ItemValueAuditLogService;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
@@ -74,7 +74,8 @@ public class TodoListServiceFactory implements ServerSideServiceProvider.IServer
 		BaseContainerDescriptor descriptor = BaseContainerDescriptor.create(container.uid, container.name,
 				container.owner, container.type, container.domainUid, container.defaultContainer);
 		descriptor.internalId = container.id;
-		AuditLogService<VTodo> logService = new AuditLogService<>(context.getSecurityContext(), descriptor);
+		ItemValueAuditLogService<VTodo> logService = new ItemValueAuditLogService<>(context.getSecurityContext(),
+				descriptor);
 
 		VTodoStore vtodoStore = new VTodoStore(ds, container);
 		VTodoContainerStoreService storeService = new VTodoContainerStoreService(context, ds,

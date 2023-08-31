@@ -165,7 +165,7 @@ public class AuthenticationAuditLogTests {
 
 		SearchResponse<AuditLogEntry> esResponse = esClient.search(s -> s //
 				.index(AUDIT_LOG_NAME) //
-				.query(q -> q.bool(b -> b.must(TermQuery.of(t -> t.field("logtype").value("LoginEvent"))._toQuery()))),
+				.query(q -> q.bool(b -> b.must(TermQuery.of(t -> t.field("logtype").value("login"))._toQuery()))),
 				AuditLogEntry.class);
 		assertEquals(4L, esResponse.hits().total().value());
 		List<String> loggedUserMails = esResponse.hits().hits().stream().map(h -> h.source().securityContext.email())
@@ -174,6 +174,15 @@ public class AuthenticationAuditLogTests {
 		assertTrue(loggedUserMails.contains("nomail@bm.lan"));
 		assertTrue(loggedUserMails.contains("expiredpassword@bm.lan"));
 
+		AuditLogEntry auditLogEntry = esResponse.hits().hits().get(0).source();
+		assertEquals("admin0", auditLogEntry.securityContext.uid());
+		assertEquals("admin0", auditLogEntry.securityContext.displayName());
+		assertEquals("junit", auditLogEntry.securityContext.origin());
+		assertEquals("admin0@global.virt", auditLogEntry.securityContext.email());
+
+		assertTrue(auditLogEntry.container == null);
+		assertTrue(auditLogEntry.item == null);
+		assertTrue(auditLogEntry.content == null);
 	}
 
 	private void initState() {
@@ -203,12 +212,22 @@ public class AuthenticationAuditLogTests {
 
 		SearchResponse<AuditLogEntry> esResponse = esClient.search(s -> s //
 				.index(AUDIT_LOG_NAME) //
-				.query(q -> q.bool(b -> b.must(TermQuery.of(t -> t.field("logtype").value("LoginEvent"))._toQuery()))),
+				.query(q -> q.bool(b -> b.must(TermQuery.of(t -> t.field("logtype").value("login"))._toQuery()))),
 				AuditLogEntry.class);
 		assertEquals(2L, esResponse.hits().total().value());
 		List<String> loggedUserMails = esResponse.hits().hits().stream().map(h -> h.source().securityContext.email())
 				.toList();
 		assertTrue(loggedUserMails.contains("admin0@global.virt"));
+
+		AuditLogEntry auditLogEntry = esResponse.hits().hits().get(0).source();
+		assertEquals("admin0", auditLogEntry.securityContext.uid());
+		assertEquals("admin0", auditLogEntry.securityContext.displayName());
+		assertEquals("junit", auditLogEntry.securityContext.origin());
+		assertEquals("admin0@global.virt", auditLogEntry.securityContext.email());
+
+		assertTrue(auditLogEntry.container == null);
+		assertTrue(auditLogEntry.item == null);
+		assertTrue(auditLogEntry.content == null);
 	}
 
 	@Test
@@ -237,12 +256,22 @@ public class AuthenticationAuditLogTests {
 
 		SearchResponse<AuditLogEntry> esResponse = esClient.search(s -> s //
 				.index(AUDIT_LOG_NAME) //
-				.query(q -> q.bool(b -> b.must(TermQuery.of(t -> t.field("logtype").value("LoginEvent"))._toQuery()))),
+				.query(q -> q.bool(b -> b.must(TermQuery.of(t -> t.field("logtype").value("login"))._toQuery()))),
 				AuditLogEntry.class);
 		assertEquals(1L, esResponse.hits().total().value());
 		List<String> loggedUserMails = esResponse.hits().hits().stream().map(h -> h.source().securityContext.email())
 				.toList();
 		assertTrue(loggedUserMails.contains("admin0@global.virt"));
+
+		AuditLogEntry auditLogEntry = esResponse.hits().hits().get(0).source();
+		assertEquals("admin0", auditLogEntry.securityContext.uid());
+		assertEquals("admin0", auditLogEntry.securityContext.displayName());
+		assertEquals("testApiKey", auditLogEntry.securityContext.origin());
+		assertEquals("admin0@global.virt", auditLogEntry.securityContext.email());
+
+		assertTrue(auditLogEntry.container == null);
+		assertTrue(auditLogEntry.item == null);
+		assertTrue(auditLogEntry.content == null);
 	}
 
 }

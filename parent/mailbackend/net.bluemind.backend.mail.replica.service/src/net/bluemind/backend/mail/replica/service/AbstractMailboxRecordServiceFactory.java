@@ -40,9 +40,9 @@ import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.container.persistence.IWeightProvider;
-import net.bluemind.core.container.service.internal.AuditLogService;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.container.service.internal.ContainerStoreService.IWeightSeedProvider;
+import net.bluemind.core.container.service.internal.ItemValueAuditLogService;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.directory.api.DirEntry;
@@ -99,8 +99,8 @@ public abstract class AbstractMailboxRecordServiceFactory<T>
 			descriptor.internalId = recordsContainer.id;
 
 			DbMailboxRecordsAuditLogMapper mapper = new DbMailboxRecordsAuditLogMapper(descriptor, mailIndexService);
-			AuditLogService<MailboxRecord> logService = new AuditLogService<>(context.getSecurityContext(), descriptor,
-					mapper);
+			ItemValueAuditLogService<MailboxRecord> logService = new ItemValueAuditLogService<>(
+					context.getSecurityContext(), descriptor, mapper);
 
 			ContainerStoreService<MailboxRecord> storeService = new HookMailboxRecordStoreService(ds,
 					context.getSecurityContext(), recordsContainer, recordStore, flagsProvider, recordSeedProvider,

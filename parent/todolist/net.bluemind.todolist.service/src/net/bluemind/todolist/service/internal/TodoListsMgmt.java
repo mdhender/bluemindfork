@@ -39,7 +39,7 @@ import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.DataSourceRouter;
-import net.bluemind.core.container.service.internal.AuditLogService;
+import net.bluemind.core.container.service.internal.ItemValueAuditLogService;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.service.BlockingServerTask;
@@ -142,7 +142,8 @@ public class TodoListsMgmt implements ITodoListsMgmt, IInCoreTodoListsMgmt {
 		BaseContainerDescriptor containerDescriptor = BaseContainerDescriptor.create(container.uid, container.name,
 				container.owner, container.type, container.domainUid, container.defaultContainer);
 		containerDescriptor.internalId = container.id;
-		AuditLogService<VTodo> logService = new AuditLogService<>(context.getSecurityContext(), containerDescriptor);
+		ItemValueAuditLogService<VTodo> logService = new ItemValueAuditLogService<>(context.getSecurityContext(),
+				containerDescriptor);
 		VTodoContainerStoreService storeService = new VTodoContainerStoreService(context, ds,
 				context.getSecurityContext(), container, new VTodoStore(ds, container), logService);
 

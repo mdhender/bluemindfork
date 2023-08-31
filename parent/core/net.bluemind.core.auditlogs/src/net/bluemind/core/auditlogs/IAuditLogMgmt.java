@@ -19,15 +19,12 @@
 
 package net.bluemind.core.auditlogs;
 
-import java.util.List;
+public interface IAuditLogMgmt {
 
-import net.bluemind.core.container.model.ItemChangelog;
+	public void resetDatastream();
 
-public interface IAuditLogClient {
+	public void createDataStreamIfNotExists(String name);
 
-	public void storeAuditLog(AuditLogEntry document);
+	public void removeDatastream();
 
-	public ItemChangelog getItemChangeLog(String containerUid, String itemUid, Long since);
-
-	public List<AuditLogEntry> queryAuditLog(LogMailQuery query);
 }

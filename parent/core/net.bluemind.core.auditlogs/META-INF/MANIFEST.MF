@@ -13,5 +13,5 @@ Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.fasterxml.jackson.core.jackson-annotations,
  net.bluemind.core.container.persistence,
  slf4j.api,
- com.fasterxml.jackson.core.jackson-databind,
- net.bluemind.directory.api
+ net.bluemind.directory.api,
+ com.fasterxml.jackson.core.jackson-databind

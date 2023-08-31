@@ -40,7 +40,6 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import co.elastic.clients.elasticsearch._types.query_dsl.TermQuery;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
-import co.elastic.clients.json.JsonData;
 import net.bluemind.attachment.api.AttachedFile;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventSeries;
@@ -77,19 +76,36 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
 				.index("audit_log") //
-				.query(q -> q.bool(b -> b
-						.must(TermQuery.of(t -> t.field("logtype").value(VEventSeries.class.getSimpleName()))
-								._toQuery())
-						.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
+				.query(q -> q.bool(
+						b -> b.must(TermQuery.of(t -> t.field("logtype").value(userCalendarContainer.type))._toQuery())
+								.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
 				AuditLogEntry.class);
 		assertEquals(1L, response.hits().total().value());
 		AuditLogEntry firstEntry = response.hits().hits().get(0).source();
 		assertEquals(6L, firstEntry.content.with().size());
 		assertEquals(2L, firstEntry.content.author().size());
+		assertTrue(firstEntry.content.newValue() != null);
+
+		assertEquals(testUser.uid, firstEntry.securityContext.uid());
+		assertEquals(testUser.displayName, firstEntry.securityContext.displayName());
+		assertEquals("unknown-origin", firstEntry.securityContext.origin());
+		assertEquals(testUser.value.defaultEmailAddress(), firstEntry.securityContext.email());
+
+		assertEquals(userCalendarContainer.name, firstEntry.container.name());
+		assertEquals(userCalendarContainer.name, firstEntry.container.ownerElement().displayName());
+
+		assertTrue(firstEntry.item.id() > 0);
+		assertTrue(firstEntry.item.version() > 0);
+
+		assertEquals(uid, firstEntry.content.key());
+		assertEquals(event.main.summary, firstEntry.content.description());
+		assertTrue(!firstEntry.content.newValue().isBlank());
+		assertTrue(firstEntry.content.is() != null);
+		assertTrue(firstEntry.content.has() != null);
 	}
 
 	@Test
-	public void testUpdateEndDate() throws ServerFault, ElasticsearchException, IOException, ParseException {
+	public void testUpdateEndDate() throws ServerFault, ElasticsearchException, IOException {
 
 		ElasticsearchClient esClient = ESearchActivator.getClient();
 		VEventSeries event = defaultVEvent();
@@ -102,14 +118,32 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
 				.index("audit_log") //
-				.query(q -> q.bool(b -> b
-						.must(TermQuery.of(t -> t.field("logtype").value(VEventSeries.class.getSimpleName()))
-								._toQuery())
-						.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
+				.query(q -> q.bool(
+						b -> b.must(TermQuery.of(t -> t.field("logtype").value(userCalendarContainer.type))._toQuery())
+								.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
 				AuditLogEntry.class);
 		assertEquals(1L, response.hits().total().value());
 		AuditLogEntry firstEntry = response.hits().hits().get(0).source();
 		assertTrue(firstEntry.updatemessage.contains("event end date changed:"));
+
+		assertEquals(testUser.uid, firstEntry.securityContext.uid());
+		assertEquals(testUser.displayName, firstEntry.securityContext.displayName());
+		assertEquals("unknown-origin", firstEntry.securityContext.origin());
+		assertEquals(testUser.value.defaultEmailAddress(), firstEntry.securityContext.email());
+
+		assertEquals(userCalendarContainer.name, firstEntry.container.name());
+		assertEquals(userCalendarContainer.name, firstEntry.container.ownerElement().displayName());
+
+		assertTrue(firstEntry.item.id() > 0);
+		assertTrue(firstEntry.item.version() > 0);
+
+		assertEquals(uid, firstEntry.content.key());
+		assertEquals(event.main.summary, firstEntry.content.description());
+		assertEquals(6L, firstEntry.content.with().size());
+		assertTrue(!firstEntry.content.newValue().isBlank());
+		assertEquals(2L, firstEntry.content.author().size());
+		assertTrue(firstEntry.content.is() != null);
+		assertTrue(firstEntry.content.has() != null);
 	}
 
 	@Test
@@ -126,14 +160,31 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
 				.index("audit_log") //
-				.query(q -> q.bool(b -> b
-						.must(TermQuery.of(t -> t.field("logtype").value(VEventSeries.class.getSimpleName()))
-								._toQuery())
-						.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
+				.query(q -> q.bool(
+						b -> b.must(TermQuery.of(t -> t.field("logtype").value(userCalendarContainer.type))._toQuery())
+								.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
 				AuditLogEntry.class);
 		assertEquals(1L, response.hits().total().value());
 		AuditLogEntry firstEntry = response.hits().hits().get(0).source();
 		assertTrue(firstEntry.updatemessage.contains("removed attendees: 'external@attendee.lan,david@attendee.lan'"));
+
+		assertEquals(testUser.uid, firstEntry.securityContext.uid());
+		assertEquals(testUser.displayName, firstEntry.securityContext.displayName());
+		assertEquals("unknown-origin", firstEntry.securityContext.origin());
+		assertEquals(testUser.value.defaultEmailAddress(), firstEntry.securityContext.email());
+
+		assertEquals(userCalendarContainer.name, firstEntry.container.name());
+		assertEquals(userCalendarContainer.name, firstEntry.container.ownerElement().displayName());
+
+		assertTrue(firstEntry.item.id() > 0);
+		assertTrue(firstEntry.item.version() > 0);
+
+		assertEquals(uid, firstEntry.content.key());
+		assertEquals(event.main.summary, firstEntry.content.description());
+		assertTrue(firstEntry.content.with().isEmpty());
+		assertTrue(!firstEntry.content.newValue().isBlank());
+		assertTrue(firstEntry.content.is() != null);
+		assertTrue(firstEntry.content.has() != null);
 	}
 
 	@Test
@@ -155,14 +206,34 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
 				.index("audit_log") //
-				.query(q -> q.bool(b -> b
-						.must(TermQuery.of(t -> t.field("logtype").value(VEventSeries.class.getSimpleName()))
-								._toQuery())
-						.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
+				.query(q -> q.bool(
+						b -> b.must(TermQuery.of(t -> t.field("logtype").value(userCalendarContainer.type))._toQuery())
+								.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
 				AuditLogEntry.class);
 		assertEquals(1L, response.hits().total().value());
 		AuditLogEntry firstEntry = response.hits().hits().get(0).source();
 		assertTrue(firstEntry.updatemessage.contains("added attendees: 'sylvain@attendee.lan,nico@attendee.lan'"));
+
+		assertTrue(firstEntry.content.newValue() != null);
+
+		assertEquals(testUser.uid, firstEntry.securityContext.uid());
+		assertEquals(testUser.displayName, firstEntry.securityContext.displayName());
+		assertEquals("unknown-origin", firstEntry.securityContext.origin());
+		assertEquals(testUser.value.defaultEmailAddress(), firstEntry.securityContext.email());
+
+		assertEquals(userCalendarContainer.name, firstEntry.container.name());
+		assertEquals(userCalendarContainer.name, firstEntry.container.ownerElement().displayName());
+
+		assertTrue(firstEntry.item.id() > 0);
+		assertTrue(firstEntry.item.version() > 0);
+
+		assertEquals(uid, firstEntry.content.key());
+		assertEquals(event.main.summary, firstEntry.content.description());
+		assertEquals(10L, firstEntry.content.with().size());
+		assertTrue(!firstEntry.content.newValue().isBlank());
+		assertEquals(2L, firstEntry.content.author().size());
+		assertTrue(firstEntry.content.is() != null);
+		assertTrue(firstEntry.content.has() != null);
 	}
 
 	@Test
@@ -179,14 +250,32 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
 				.index("audit_log") //
-				.query(q -> q.bool(b -> b
-						.must(TermQuery.of(t -> t.field("logtype").value(VEventSeries.class.getSimpleName()))
-								._toQuery())
-						.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
+				.query(q -> q.bool(
+						b -> b.must(TermQuery.of(t -> t.field("logtype").value(userCalendarContainer.type))._toQuery())
+								.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
 				AuditLogEntry.class);
 		assertEquals(1L, response.hits().total().value());
 		AuditLogEntry firstEntry = response.hits().hits().get(0).source();
 		assertTrue(firstEntry.updatemessage.contains("event location changed: 'Toulouse' -> 'Marseillette'"));
+
+		assertEquals(testUser.uid, firstEntry.securityContext.uid());
+		assertEquals(testUser.displayName, firstEntry.securityContext.displayName());
+		assertEquals("unknown-origin", firstEntry.securityContext.origin());
+		assertEquals(testUser.value.defaultEmailAddress(), firstEntry.securityContext.email());
+
+		assertEquals(userCalendarContainer.name, firstEntry.container.name());
+		assertEquals(userCalendarContainer.name, firstEntry.container.ownerElement().displayName());
+
+		assertTrue(firstEntry.item.id() > 0);
+		assertTrue(firstEntry.item.version() > 0);
+
+		assertEquals(uid, firstEntry.content.key());
+		assertEquals(event.main.summary, firstEntry.content.description());
+		assertEquals(6L, firstEntry.content.with().size());
+		assertTrue(!firstEntry.content.newValue().isBlank());
+		assertEquals(2L, firstEntry.content.author().size());
+		assertTrue(firstEntry.content.is() != null);
+		assertTrue(firstEntry.content.has() != null);
 	}
 
 	@Test
@@ -217,32 +306,49 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 		assertNotNull(CalendarTestSyncHook.message());
 		ESearchActivator.refreshIndex("audit_log");
 
-		SearchResponse<JsonData> response = esClient.search(s -> s //
+		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
 				.index("audit_log") //
-				.query(q -> q.bool(b -> b
-						.must(TermQuery.of(t -> t.field("logtype").value(VEventSeries.class.getSimpleName()))
-								._toQuery())
-						.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
-				JsonData.class);
+				.query(q -> q.bool(
+						b -> b.must(TermQuery.of(t -> t.field("logtype").value(userCalendarContainer.type))._toQuery())
+								.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
+				AuditLogEntry.class);
 		assertEquals(0L, response.hits().total().value());
 
 		response = esClient.search(s -> s //
 				.index("audit_log") //
-				.query(q -> q.bool(b -> b
-						.must(TermQuery.of(t -> t.field("logtype").value(VEventSeries.class.getSimpleName()))
-								._toQuery())
-						.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
-				JsonData.class);
+				.query(q -> q.bool(
+						b -> b.must(TermQuery.of(t -> t.field("logtype").value(userCalendarContainer.type))._toQuery())
+								.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
+				AuditLogEntry.class);
 		assertEquals(1L, response.hits().total().value());
 
 		response = esClient.search(s -> s //
 				.index("audit_log") //
-				.query(q -> q.bool(b -> b
-						.must(TermQuery.of(t -> t.field("logtype").value(VEventSeries.class.getSimpleName()))
-								._toQuery())
-						.must(TermQuery.of(t -> t.field("action").value(Type.Deleted.toString()))._toQuery()))),
-				JsonData.class);
+				.query(q -> q.bool(
+						b -> b.must(TermQuery.of(t -> t.field("logtype").value(userCalendarContainer.type))._toQuery())
+								.must(TermQuery.of(t -> t.field("action").value(Type.Deleted.toString()))._toQuery()))),
+				AuditLogEntry.class);
 		assertEquals(1L, response.hits().total().value());
+
+		AuditLogEntry firstEntry = response.hits().hits().get(0).source();
+		assertEquals(testUser.uid, firstEntry.securityContext.uid());
+		assertEquals(testUser.displayName, firstEntry.securityContext.displayName());
+		assertEquals("unknown-origin", firstEntry.securityContext.origin());
+		assertEquals(testUser.value.defaultEmailAddress(), firstEntry.securityContext.email());
+
+		assertEquals(userCalendarContainer.name, firstEntry.container.name());
+		assertEquals(userCalendarContainer.name, firstEntry.container.ownerElement().displayName());
+
+		assertTrue(firstEntry.item.id() > 0);
+		assertTrue(firstEntry.item.version() > 0);
+
+		assertEquals(uid, firstEntry.content.key());
+		assertEquals(event.main.summary, firstEntry.content.description());
+		assertEquals(8L, firstEntry.content.with().size());
+		assertTrue(!firstEntry.content.newValue().isBlank());
+		assertEquals(2L, firstEntry.content.author().size());
+		assertTrue(firstEntry.content.is() != null);
+		assertTrue(firstEntry.content.has() != null);
 	}
 
 	@After

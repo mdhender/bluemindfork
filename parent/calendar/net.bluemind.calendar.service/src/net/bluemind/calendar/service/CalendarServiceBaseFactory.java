@@ -38,7 +38,7 @@ import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.DataSourceRouter;
-import net.bluemind.core.container.service.internal.AuditLogService;
+import net.bluemind.core.container.service.internal.ItemValueAuditLogService;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 
@@ -73,8 +73,8 @@ public class CalendarServiceBaseFactory {
 				container.owner, container.type, container.domainUid, container.defaultContainer);
 		descriptor.internalId = container.id;
 		CalendarAuditLogMapper mapper = new CalendarAuditLogMapper();
-		AuditLogService<VEventSeries> calendarLogService = new AuditLogService<>(context.getSecurityContext(),
-				descriptor, mapper);
+		ItemValueAuditLogService<VEventSeries> calendarLogService = new ItemValueAuditLogService<>(
+				context.getSecurityContext(), descriptor, mapper);
 
 		VEventContainerStoreService storeService = new VEventContainerStoreService(context, ds,
 				context.getSecurityContext(), container, veventStore, calendarLogService);

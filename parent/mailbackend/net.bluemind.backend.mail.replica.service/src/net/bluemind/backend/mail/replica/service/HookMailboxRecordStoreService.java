@@ -13,8 +13,8 @@ import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.persistence.IItemValueStore;
 import net.bluemind.core.container.persistence.IWeightProvider;
-import net.bluemind.core.container.service.internal.AuditLogService;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
+import net.bluemind.core.container.service.internal.ItemValueAuditLogService;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 
@@ -25,7 +25,7 @@ public class HookMailboxRecordStoreService extends ContainerStoreService<Mailbox
 	public HookMailboxRecordStoreService(DataSource pool, SecurityContext securityContext, Container container,
 			IItemValueStore<MailboxRecord> itemValueStore, IItemFlagsProvider<MailboxRecord> fProv,
 			IWeightSeedProvider<MailboxRecord> wsProv, IWeightProvider wProv,
-			AuditLogService<MailboxRecord> logService) {
+			ItemValueAuditLogService<MailboxRecord> logService) {
 		super(pool, securityContext, container, itemValueStore, fProv, wsProv, wProv, logService);
 	}
 

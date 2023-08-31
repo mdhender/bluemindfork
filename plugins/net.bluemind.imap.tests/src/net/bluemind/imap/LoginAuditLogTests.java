@@ -48,6 +48,7 @@ import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.server.api.Server;
+import net.bluemind.system.state.StateContext;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class LoginAuditLogTests {
@@ -82,6 +83,9 @@ public class LoginAuditLogTests {
 		loginUid = "user" + System.currentTimeMillis();
 		PopulateHelper.addDomain(domainUid);
 		PopulateHelper.addUser(loginUid, domainUid);
+		StateContext.setState("core.stopped");
+		StateContext.setState("core.started");
+		StateContext.setState("core.started");
 	}
 
 	@After
@@ -116,7 +120,7 @@ public class LoginAuditLogTests {
 
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
 				.index("audit_log") //
-				.query(q -> q.bool(b -> b.must(TermQuery.of(t -> t.field("logtype").value("LoginEvent"))._toQuery())
+				.query(q -> q.bool(b -> b.must(TermQuery.of(t -> t.field("logtype").value("login"))._toQuery())
 						.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
 				AuditLogEntry.class);
 

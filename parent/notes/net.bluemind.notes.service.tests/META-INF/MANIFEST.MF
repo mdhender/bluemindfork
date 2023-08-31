@@ -25,5 +25,7 @@ Require-Bundle: org.junit,
  net.bluemind.notes.api,
  net.bluemind.core.container.service,
  net.bluemind.notes.hook,
- net.bluemind.core.auditlogs.schema
+ net.bluemind.core.auditlogs.schema,
+ net.bluemind.core.auditlogs.client.es,
+ net.bluemind.system.state
 Automatic-Module-Name: net.bluemind.notes.service.tests

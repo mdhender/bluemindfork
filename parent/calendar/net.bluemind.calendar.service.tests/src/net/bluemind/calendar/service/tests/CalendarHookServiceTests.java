@@ -62,7 +62,7 @@ import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.persistence.AclStore;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.DataSourceRouter;
-import net.bluemind.core.container.service.internal.AuditLogService;
+import net.bluemind.core.container.service.internal.ItemValueAuditLogService;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcTestHelper;
@@ -247,7 +247,8 @@ public class CalendarHookServiceTests {
 		descriptor.internalId = container.id;
 
 		CalendarAuditLogMapper mapper = new CalendarAuditLogMapper();
-		AuditLogService<VEventSeries> calendarLogService = new AuditLogService<>(context, descriptor, mapper);
+		ItemValueAuditLogService<VEventSeries> calendarLogService = new ItemValueAuditLogService<>(context, descriptor,
+				mapper);
 
 		VEventContainerStoreService storeService = new VEventContainerStoreService(ctx, ds, context, container,
 				veventStore, calendarLogService);

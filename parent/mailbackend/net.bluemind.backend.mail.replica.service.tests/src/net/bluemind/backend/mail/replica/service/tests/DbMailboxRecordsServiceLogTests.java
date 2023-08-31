@@ -121,8 +121,7 @@ public class DbMailboxRecordsServiceLogTests extends AbstractMailboxRecordsServi
 				.query(q -> q.bool(b -> b
 						.must(TermQuery.of(t -> t.field("container.uid").value("mbox_records_" + mboxUniqueId))
 								._toQuery())
-						.must(TermQuery.of(t -> t.field("logtype").value(MailboxRecord.class.getSimpleName()))
-								._toQuery())
+						.must(TermQuery.of(t -> t.field("logtype").value("mailbox_records"))._toQuery())
 						.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
 				AuditLogEntry.class);
 		assertEquals(3L, response.hits().total().value());
@@ -132,13 +131,12 @@ public class DbMailboxRecordsServiceLogTests extends AbstractMailboxRecordsServi
 				.query(q -> q.bool(b -> b
 						.must(TermQuery.of(t -> t.field("container.uid").value("mbox_records_" + mboxUniqueId))
 								._toQuery())
-						.must(TermQuery.of(t -> t.field("logtype").value(MailboxRecord.class.getSimpleName()))
-								._toQuery())
+						.must(TermQuery.of(t -> t.field("logtype").value("mailbox_records"))._toQuery())
 						.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
 				AuditLogEntry.class);
-		assertEquals(1L, response.hits().total().value());
+		assertEquals(2L, response.hits().total().value());
 
-		AuditLogEntry auditLogEntry = response.hits().hits().get(0).source();
+		AuditLogEntry auditLogEntry = response.hits().hits().get(1).source();
 
 		assertEquals("second subject", auditLogEntry.content.description());
 		assertEquals("Flag \\Deleted has been added.", auditLogEntry.updatemessage);

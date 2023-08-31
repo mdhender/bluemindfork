@@ -10,7 +10,7 @@ Require-Bundle: net.bluemind.pool;bundle-version="1.0.0",
  net.bluemind.node.api,
  org.apache.httpcomponents.httpcore,
  net.bluemind.core.auditlogs.client.loader,
- net.bluemind.core.auditlogs.client.es
+ net.bluemind.core.auditlogs
 Bundle-Activator: net.bluemind.core.elasticsearch.ElasticsearchTestHelper
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.core.elasticsearch

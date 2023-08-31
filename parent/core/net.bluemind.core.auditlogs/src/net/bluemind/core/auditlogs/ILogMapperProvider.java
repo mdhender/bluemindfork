@@ -19,11 +19,10 @@
 
 package net.bluemind.core.auditlogs;
 
-import net.bluemind.core.container.model.ChangeLogEntry.Type;
-import net.bluemind.core.container.model.Item;
-
 public interface ILogMapperProvider<T> {
 
-	AuditLogEntry enhanceAuditLogEntry(Item item, T oldValue, T newValue, Type action, AuditLogEntry auditLogEntry);
+	ContentElement createContentElement(T newValue);
+
+	public String createUpdateMessage(T oldValue, T newValue);
 
 }

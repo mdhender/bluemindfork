@@ -31,7 +31,7 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import co.elastic.clients.elasticsearch.indices.ResolveIndexResponse;
 import co.elastic.clients.transport.ElasticsearchTransport;
-import net.bluemind.core.auditlogs.client.loader.AuditLogClientLoader;
+import net.bluemind.core.auditlogs.client.loader.AuditLogLoader;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NodeActivator;
@@ -106,8 +106,8 @@ public class ElasticsearchTestHelper implements BundleActivator {
 		} catch (Exception e) {
 		}
 		try {
-			AuditLogClientLoader auditLogClientProvider = new AuditLogClientLoader();
-			auditLogClientProvider.remove();
+			AuditLogLoader auditLogProvider = new AuditLogLoader();
+			auditLogProvider.getManager().removeDatastream();
 		} catch (Exception e) {
 		}
 	}
@@ -118,8 +118,8 @@ public class ElasticsearchTestHelper implements BundleActivator {
 			ESearchActivator.initClient(getTransport());
 			deleteAll();
 			ESearchActivator.resetIndexes();
-			AuditLogClientLoader auditLogClientProvider = new AuditLogClientLoader();
-			auditLogClientProvider.initialize();
+			AuditLogLoader auditLogProvider = new AuditLogLoader();
+			auditLogProvider.getManager().resetDatastream();
 		} catch (Exception n) {
 			String host = getHost();
 			System.err.println("Starting checks on " + host + " after " + n.getMessage() + " klass: " + n.getClass());

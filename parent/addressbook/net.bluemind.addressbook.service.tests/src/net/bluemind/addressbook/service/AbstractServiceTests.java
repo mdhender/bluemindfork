@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2023
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -56,8 +56,8 @@ import net.bluemind.core.container.persistence.AclStore;
 import net.bluemind.core.container.persistence.ChangelogStore;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.ItemStore;
-import net.bluemind.core.container.service.internal.AuditLogService;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
+import net.bluemind.core.container.service.internal.ItemValueAuditLogService;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcActivator;
@@ -66,6 +66,7 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.server.api.Server;
+import net.bluemind.system.state.StateContext;
 import net.bluemind.tag.api.ITagUids;
 import net.bluemind.tag.api.Tag;
 import net.bluemind.tag.api.TagRef;
@@ -156,11 +157,15 @@ public abstract class AbstractServiceTests {
 		BaseContainerDescriptor descriptor = BaseContainerDescriptor.create(container.uid, container.name,
 				container.owner, container.type, container.domainUid, container.defaultContainer);
 		descriptor.internalId = container.id;
-		AuditLogService<VCard> logService = new AuditLogService<>(context.getSecurityContext(), descriptor);
+		ItemValueAuditLogService<VCard> logService = new ItemValueAuditLogService<>(context.getSecurityContext(),
+				descriptor);
 
 		cardStoreService = new VCardContainerStoreService(context, dataDataSource, SecurityContext.SYSTEM, container,
 				new VCardStore(dataDataSource, container),
 				new VCardIndexStore(ElasticsearchTestHelper.getInstance().getClient(), container, null), logService);
+		StateContext.setState("core.stopped");
+		StateContext.setState("core.started");
+		StateContext.setState("core.started");
 	}
 
 	private void initTags(String userUid) throws SQLException, ServerFault {

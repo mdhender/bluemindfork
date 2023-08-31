@@ -47,10 +47,11 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import co.elastic.clients.elasticsearch._types.HealthStatus;
 import co.elastic.clients.transport.ElasticsearchTransport;
+import net.bluemind.core.auditlogs.IAuditLogMgmt;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.lib.elasticsearch.exception.ElasticIndexException;
 
-public class DataStreamActivator implements BundleActivator {
+public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 
 	private static final Map<String, IndexTemplateDefinition> indexTemplates = new HashMap<>();
 	private static Logger logger = LoggerFactory.getLogger(DataStreamActivator.class);
@@ -89,20 +90,6 @@ public class DataStreamActivator implements BundleActivator {
 		initDataStream(esClient, indexName, dataStreamName);
 	}
 
-	public static void resetDataStreams() {
-		indexTemplates.values().forEach(v -> resetDataStream(v.indexTemplateName, v.datastreamName));
-	}
-
-	@VisibleForTesting
-	public static void removeDataStreams() {
-		indexTemplates.values().forEach(v -> {
-			ESearchActivator.waitForElasticsearchHosts();
-			ElasticsearchClient esClient = ESearchActivator.getClient();
-			deleteDataStream(esClient, v.datastreamName);
-			deleteIndexTemplate(esClient, v.indexTemplateName);
-		});
-	}
-
 	private static void deleteDataStream(ElasticsearchClient esClient, String dataStreamName) {
 		try {
 			esClient.indices().deleteDataStream(d -> d.name(Arrays.asList(dataStreamName)));
@@ -132,18 +119,6 @@ public class DataStreamActivator implements BundleActivator {
 		} catch (IOException e) {
 			throw new ElasticIndexException(indexTemplateName, e);
 		}
-	}
-
-	public static void initDataStreamIfNotExists(String indexName) {
-		ElasticsearchClient esClient = ESearchActivator.getClient();
-		indexDefinitionOf(indexName).map(indexDefinition -> ESearchActivator.indexNames(esClient).stream() //
-				.filter(indexDefinition::supportsIndex) //
-				.findFirst() //
-				.orElseGet(() -> {
-					initDataStream(esClient, indexDefinition.indexTemplateName, indexDefinition.datastreamName);
-					return indexDefinition.datastreamName;
-				}));
-
 	}
 
 	public static void initDataStream(ElasticsearchClient esClient, String indexName, String dataStreamName) {
@@ -191,6 +166,35 @@ public class DataStreamActivator implements BundleActivator {
 		} else {
 			return builder.apply(transport);
 		}
+	}
+
+	@Override
+	public void resetDatastream() {
+		indexTemplates.values().forEach(v -> resetDataStream(v.indexTemplateName, v.datastreamName));
+	}
+
+	@Override
+	public void createDataStreamIfNotExists(String name) {
+		ElasticsearchClient esClient = ESearchActivator.getClient();
+		indexDefinitionOf(name).map(indexDefinition -> ESearchActivator.indexNames(esClient).stream() //
+				.filter(indexDefinition::supportsIndex) //
+				.findFirst() //
+				.orElseGet(() -> {
+					initDataStream(esClient, indexDefinition.indexTemplateName, indexDefinition.datastreamName);
+					return indexDefinition.datastreamName;
+				}));
+
+	}
+
+	@VisibleForTesting
+	@Override
+	public void removeDatastream() {
+		indexTemplates.values().forEach(v -> {
+			ESearchActivator.waitForElasticsearchHosts();
+			ElasticsearchClient esClient = ESearchActivator.getClient();
+			deleteDataStream(esClient, v.datastreamName);
+			deleteIndexTemplate(esClient, v.indexTemplateName);
+		});
 	}
 
 }

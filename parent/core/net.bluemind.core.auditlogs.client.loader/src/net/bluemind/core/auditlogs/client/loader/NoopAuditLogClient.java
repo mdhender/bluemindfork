@@ -19,6 +19,7 @@
 
 package net.bluemind.core.auditlogs.client.loader;
 
+import java.util.Collections;
 import java.util.List;
 
 import net.bluemind.core.auditlogs.AuditLogEntry;
@@ -31,18 +32,18 @@ public final class NoopAuditLogClient implements IAuditLogClient {
 	public static final IAuditLogClient INSTANCE = new NoopAuditLogClient();
 
 	@Override
-	public void store(AuditLogEntry document) {
-
+	public void storeAuditLog(AuditLogEntry document) {
+		//
 	}
 
 	@Override
 	public ItemChangelog getItemChangeLog(String containerUid, String itemUid, Long since) {
-		return null;
+		return new ItemChangelog();
 	}
 
 	@Override
 	public List<AuditLogEntry> queryAuditLog(LogMailQuery query) {
-		return null;
+		return Collections.emptyList();
 	}
 
 }

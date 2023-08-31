@@ -37,8 +37,8 @@ import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.persistence.IItemValueStore;
-import net.bluemind.core.container.service.internal.AuditLogService;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
+import net.bluemind.core.container.service.internal.ItemValueAuditLogService;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.tag.api.TagRef;
@@ -50,7 +50,7 @@ public class VEventContainerStoreService extends ContainerStoreService<VEventSer
 
 	public VEventContainerStoreService(BmContext context, DataSource dataSource, SecurityContext securityContext,
 			Container container, IItemValueStore<VEventSeries> itemValueStore,
-			AuditLogService<VEventSeries> logService) {
+			ItemValueAuditLogService<VEventSeries> logService) {
 		super(dataSource, securityContext, container, itemValueStore, v -> ItemFlag.SEEN, VEventWeight.seedProvider(),
 				VEventWeight.weigthProvider(), logService);
 
@@ -60,7 +60,7 @@ public class VEventContainerStoreService extends ContainerStoreService<VEventSer
 	public VEventContainerStoreService(BmContext context, DataSource dataSource, SecurityContext securityContext,
 			Container container) {
 		this(context, dataSource, securityContext, container, new VEventSeriesStore(dataSource, container),
-				new AuditLogService<>(securityContext, container.asDescriptor(null)));
+				new ItemValueAuditLogService<>(securityContext, container.asDescriptor(null)));
 	}
 
 	@Override

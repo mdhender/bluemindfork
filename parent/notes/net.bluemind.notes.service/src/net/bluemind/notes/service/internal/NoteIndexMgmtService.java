@@ -39,7 +39,7 @@ import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.DataSourceRouter;
-import net.bluemind.core.container.service.internal.AuditLogService;
+import net.bluemind.core.container.service.internal.ItemValueAuditLogService;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.service.BlockingServerTask;
@@ -137,7 +137,8 @@ public class NoteIndexMgmtService implements INoteIndexMgmt {
 				container.owner, container.type, container.domainUid, container.defaultContainer);
 		descriptor.internalId = container.id;
 
-		AuditLogService<VNote> logService = new AuditLogService<>(context.getSecurityContext(), descriptor);
+		ItemValueAuditLogService<VNote> logService = new ItemValueAuditLogService<>(context.getSecurityContext(),
+				descriptor);
 
 		VNoteContainerStoreService storeService = new VNoteContainerStoreService(context, ds,
 				context.getSecurityContext(), container, new VNoteStore(ds, container), logService);

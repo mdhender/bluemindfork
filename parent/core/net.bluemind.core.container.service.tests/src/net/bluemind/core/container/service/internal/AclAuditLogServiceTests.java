@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2023
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -52,6 +52,7 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.server.api.Server;
+import net.bluemind.system.state.StateContext;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class AclAuditLogServiceTests {
@@ -84,11 +85,14 @@ public class AclAuditLogServiceTests {
 		container = Container.create(containerId, "test", "test", "me", true);
 		container = containerHome.create(container);
 
-		BaseContainerDescriptor desc = BaseContainerDescriptor.create(container.uid, container.type, container.name,
-				container.owner, container.domainUid, container.defaultContainer);
+		BaseContainerDescriptor desc = BaseContainerDescriptor.create(container.uid, container.name, container.owner,
+				container.type, container.domainUid, container.defaultContainer);
 		desc.internalId = container.id;
 		aclService = new AclService(context, context.getSecurityContext(), context.getDataSource(), desc);
 		esClient = ESearchActivator.getClient();
+		StateContext.setState("core.stopped");
+		StateContext.setState("core.started");
+		StateContext.setState("core.started");
 
 	}
 
@@ -102,8 +106,8 @@ public class AclAuditLogServiceTests {
 	public void storeAcl() throws ServerFault, SQLException, ElasticsearchException, IOException {
 		AccessControlEntry test = AccessControlEntry.create("test", Verb.All);
 		AccessControlEntry toto = AccessControlEntry.create("toto", Verb.Read);
-		BaseContainerDescriptor desc = BaseContainerDescriptor.create(container.uid, container.type, container.name,
-				container.owner, container.domainUid, container.defaultContainer);
+		BaseContainerDescriptor desc = BaseContainerDescriptor.create(container.uid, container.name, container.owner,
+				container.type, container.domainUid, container.defaultContainer);
 		desc.internalId = container.id;
 		aclService.store(Arrays.asList(test, toto));
 		List<AccessControlEntry> actual = aclService.get();
@@ -114,11 +118,10 @@ public class AclAuditLogServiceTests {
 		ESearchActivator.refreshIndex("audit_log");
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
 				.index("audit_log") //
-				.query(q -> q.bool(b -> b
-						.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
-						.must(TermQuery.of(t -> t.field("logtype").value(AccessControlEntry.class.getSimpleName()))
-								._toQuery())
-						.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
+				.query(q -> q
+						.bool(b -> b.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
+								.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
+								.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
 				AuditLogEntry.class);
 		assertEquals(2L, response.hits().total().value());
 		assertTrue(response.hits().hits().stream().anyMatch(h -> h.source().content.key().equals("test")));
@@ -126,14 +129,25 @@ public class AclAuditLogServiceTests {
 		assertTrue(response.hits().hits().stream().filter(h -> h.source().content.key().equals("toto")).findFirst()
 				.get().source().content.description().equals(Verb.Read.name()));
 
+		AuditLogEntry firstEntry = response.hits().hits().get(0).source();
+
+		assertEquals("test", firstEntry.securityContext.uid());
+		assertEquals("test", firstEntry.securityContext.displayName());
+		assertEquals("unknown-origin", firstEntry.securityContext.origin());
+
+		assertEquals("test", firstEntry.container.name());
+
+		assertTrue(firstEntry.item == null);
+		assertEquals(0L, firstEntry.content.with().size());
+		assertTrue(firstEntry.content.newValue() != null);
 	}
 
 	@Test
 	public void storeAndRemoveAcl() throws ServerFault, SQLException, ElasticsearchException, IOException {
 		AccessControlEntry test = AccessControlEntry.create("test", Verb.All);
 		AccessControlEntry toto = AccessControlEntry.create("toto", Verb.Read);
-		BaseContainerDescriptor desc = BaseContainerDescriptor.create(container.uid, container.type, container.name,
-				container.owner, container.domainUid, container.defaultContainer);
+		BaseContainerDescriptor desc = BaseContainerDescriptor.create(container.uid, container.name, container.owner,
+				container.type, container.domainUid, container.defaultContainer);
 		desc.internalId = container.id;
 		aclService.store(Arrays.asList(test, toto));
 		List<AccessControlEntry> actual = aclService.get();
@@ -145,23 +159,39 @@ public class AclAuditLogServiceTests {
 		ESearchActivator.refreshIndex("audit_log");
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
 				.index("audit_log") //
-				.query(q -> q.bool(b -> b
-						.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
-						.must(TermQuery.of(t -> t.field("logtype").value(AccessControlEntry.class.getSimpleName()))
-								._toQuery())
-						.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
+				.query(q -> q
+						.bool(b -> b.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
+								.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
+								.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
 				AuditLogEntry.class);
 		assertEquals(2L, response.hits().total().value());
 
 		response = esClient.search(s -> s //
 				.index("audit_log") //
-				.query(q -> q.bool(b -> b
-						.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
-						.must(TermQuery.of(t -> t.field("logtype").value(AccessControlEntry.class.getSimpleName()))
-								._toQuery())
-						.must(TermQuery.of(t -> t.field("action").value(Type.Deleted.toString()))._toQuery()))),
+				.query(q -> q
+						.bool(b -> b.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
+								.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
+								.must(TermQuery.of(t -> t.field("action").value(Type.Deleted.toString()))._toQuery()))),
 				AuditLogEntry.class);
 		assertEquals(2L, response.hits().total().value());
+
+		AuditLogEntry firstEntry = response.hits().hits().get(0).source();
+		assertEquals(0L, firstEntry.content.with().size());
+		assertTrue(firstEntry.content.newValue() != null);
+
+		assertEquals("test", firstEntry.securityContext.uid());
+		assertEquals("test", firstEntry.securityContext.displayName());
+		assertEquals("unknown-origin", firstEntry.securityContext.origin());
+
+		assertEquals("test", firstEntry.container.name());
+
+		assertTrue(firstEntry.item == null);
+
+		assertEquals("test", firstEntry.content.key());
+		assertEquals("All", firstEntry.content.description());
+		assertTrue(!firstEntry.content.newValue().isBlank());
+		assertTrue(firstEntry.content.is() == null);
+		assertTrue(firstEntry.content.has() == null);
 
 	}
 
@@ -169,8 +199,8 @@ public class AclAuditLogServiceTests {
 	public void addAcl() throws ServerFault, SQLException, ElasticsearchException, IOException {
 		AccessControlEntry test = AccessControlEntry.create("test", Verb.All);
 		AccessControlEntry toto = AccessControlEntry.create("toto", Verb.Read);
-		BaseContainerDescriptor desc = BaseContainerDescriptor.create(container.uid, container.type, container.name,
-				container.owner, container.domainUid, container.defaultContainer);
+		BaseContainerDescriptor desc = BaseContainerDescriptor.create(container.uid, container.name, container.owner,
+				container.type, container.domainUid, container.defaultContainer);
 		desc.internalId = container.id;
 		aclService.store(Arrays.asList(test, toto));
 		List<AccessControlEntry> actual = aclService.get();
@@ -181,12 +211,29 @@ public class AclAuditLogServiceTests {
 		ESearchActivator.refreshIndex("audit_log");
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
 				.index("audit_log") //
-				.query(q -> q.bool(b -> b
-						.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
-						.must(TermQuery.of(t -> t.field("logtype").value(AccessControlEntry.class.getSimpleName()))
-								._toQuery())
-						.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
+				.query(q -> q
+						.bool(b -> b.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
+								.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
+								.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
 				AuditLogEntry.class);
 		assertEquals(2L, response.hits().total().value());
+
+		AuditLogEntry firstEntry = response.hits().hits().get(0).source();
+		assertEquals(0L, firstEntry.content.with().size());
+		assertTrue(firstEntry.content.newValue() != null);
+
+		assertEquals("test", firstEntry.securityContext.uid());
+		assertEquals("test", firstEntry.securityContext.displayName());
+		assertEquals("unknown-origin", firstEntry.securityContext.origin());
+
+		assertEquals("test", firstEntry.container.name());
+
+		assertTrue(firstEntry.item == null);
+
+		assertEquals("test", firstEntry.content.key());
+		assertEquals("All", firstEntry.content.description());
+		assertTrue(!firstEntry.content.newValue().isBlank());
+		assertTrue(firstEntry.content.is() == null);
+		assertTrue(firstEntry.content.has() == null);
 	}
 }

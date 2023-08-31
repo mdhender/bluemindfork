@@ -5,7 +5,7 @@
    <extension
          point="net.bluemind.core.auditlogs">
       <store
-            factory="net.bluemind.core.auditlogs.client.es.ElasticSearchAuditLogClientFactory">
+            factory="net.bluemind.core.auditlogs.client.es.ElasticSearchAuditLogFactory">
       </store>
    </extension>
 
