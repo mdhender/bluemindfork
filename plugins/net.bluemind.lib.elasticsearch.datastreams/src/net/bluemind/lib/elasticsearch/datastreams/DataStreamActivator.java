@@ -125,7 +125,6 @@ public class DataStreamActivator implements BundleActivator {
 
 	public static void initDataStreamIfNotExists(String indexName) {
 		ElasticsearchClient esClient = ESearchActivator.getClient();
-
 		indexDefinitionOf(indexName).map(indexDefinition -> ESearchActivator.indexNames(esClient).stream() //
 				.filter(indexDefinition::supportsIndex) //
 				.findFirst() //
@@ -143,10 +142,12 @@ public class DataStreamActivator implements BundleActivator {
 				logger.info("init index template '{}' with settings & schema", indexName);
 				esClient.indices()
 						.putIndexTemplate(it -> it.name(indexName).withJson(new ByteArrayInputStream(schema)));
+				logger.info("index template '{}' created, creating datastream ...", indexName);
 				esClient.indices().createDataStream(d -> d.name(dataStreamName));
 				logger.info("datastream '{}' created, waiting for green...", dataStreamName);
 				esClient.cluster().health(h -> h.index(dataStreamName).waitForStatus(HealthStatus.Green));
 			} catch (Exception e) {
+				logger.error("Cannot init '{}' datastream: {}", dataStreamName, e.getMessage());
 				throw new ElasticIndexException(indexName, e);
 			}
 		}, () -> {
@@ -155,6 +156,7 @@ public class DataStreamActivator implements BundleActivator {
 				esClient.indices().putIndexTemplate(it -> it.name(indexName));
 				esClient.indices().createDataStream(d -> d.name(dataStreamName));
 			} catch (Exception e) {
+				logger.error("Cannot init '{}' datastream: {}", dataStreamName, e.getMessage());
 				throw new ElasticIndexException(indexName, e);
 			}
 		});
