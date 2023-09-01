@@ -48,8 +48,8 @@ public class ConfigureMonitoringCommand implements ICmdLet, Runnable {
 	private static final String PARAM_DATASOURCE_URL = "${datasource_url}";
 	private static final String PARAM_DIAGRAM_URL = "${panel_url}";
 
-	private static final String PARAM_WAL_DIR = "${interval}";
-	private static final String PARAM_SCRAPE_INTERVAL = "${wal_directory}";
+	private static final String PARAM_WAL_DIR = "${wal_directory}";
+	private static final String PARAM_SCRAPE_INTERVAL = "${interval}";
 	private static final String PARAM_AGENT_URL = "${remote_url}";
 
 	private static final String PARAM_CONFIG_FILE = "${config_file}";

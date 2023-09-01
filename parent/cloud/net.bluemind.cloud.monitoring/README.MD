@@ -17,15 +17,27 @@ La création et mise à jour de la datasource et le diagram dans Grafana sont g�
 
 Le Monitoring est intégré dans le code du bm-crp. 
 
-### Configuration de l'application
+## Configuration rapide via bm-cli
+
+Avec crp + grafana-agent sur une machine mae-crp1 & bm-grafana-stack sur une machine mae-grafana, la commande suivante lancée depuis bm-crp va configurer crp & grafana-agent correctement.
+
+```
+bm-cli forest configure \
+  --grafana-datasource=http://mae-grafana.devenv.blue:9009/prometheus \
+  --grafana-diagram-url=https://mae-crp1.devenv.blue \
+  --grafana-host=mae-grafana.devenv.blue --grafana-port=3000 \
+  --grafana-user=admin --grafana-password=admin --active=true
+```
+
+## Configuration de l'application
 
 /etc/bm-crp/grafana.conf
 
     grafana { 	 	
     	 server {
     	  	host = "<grafana host/ip>",
-    	  	port = <grafana_port>
-    	  	userInfo = "<adminlogin>:<adminpassword>" 	
+    	  	port = 3000 #<grafana_port>
+    	  	userInfo = "admin:admin" 	
     	 },
 		 datasource {
 			url = "http://<mimir|prometheus host/ip>:9009/prometheus"
@@ -37,7 +49,7 @@ Le Monitoring est intégré dans le code du bm-crp.
 
 Les infos de userInfo sont utilisés pour créer un serviceAccount qui va effectuer les appels API.
 
-### Configuration de grafana-agent
+## Configuration de grafana-agent
 
 Après l'installation du grafana-agent, il faut le configurer comme service systemd :
 https://grafana.com/docs/grafana-cloud/data-configuration/agent/agent_as_service/
