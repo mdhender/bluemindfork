@@ -44,7 +44,6 @@ import net.bluemind.core.container.model.ItemDescriptor;
 import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.model.acl.Verb;
-import net.bluemind.core.container.persistence.AclStore;
 import net.bluemind.core.container.persistence.ContainerPersonalSettingsStore;
 import net.bluemind.core.container.persistence.ContainerSettingsStore;
 import net.bluemind.core.container.persistence.ContainerStore;
@@ -61,7 +60,7 @@ import net.bluemind.user.persistence.UserSubscriptionStore;
 
 public class ContainerManagement implements IInternalContainerManagement {
 
-	private AclStore aclStore;
+	private AclService aclService;
 	private SecurityContext securityContext;
 	private Container container;
 	private ContainerStore containerStore;
@@ -100,7 +99,7 @@ public class ContainerManagement implements IInternalContainerManagement {
 		containerPersonalSettingsStore = new ContainerPersonalSettingsStore(ds, context.getSecurityContext(),
 				container);
 		containerSettingsStore = new ContainerSettingsStore(ds, container);
-		aclStore = new AclStore(context, ds);
+		aclService = new AclService(context, context.getSecurityContext(), ds, container);
 		sanitizer = new Sanitizer(context);
 		validator = new Validator(context);
 
@@ -132,10 +131,9 @@ public class ContainerManagement implements IInternalContainerManagement {
 		// validate mailboxacl, public sharing is forbidden
 		aceValidator.validate(container, entries);
 
-		List<AccessControlEntry> previous = aclStore.retrieveAndStore(container, entries);
-
 		ContainerDescriptor descriptor = ContainerDescriptor.create(container.uid, container.name, container.owner,
 				container.type, container.domainUid, false);
+		List<AccessControlEntry> previous = aclService.retrieveAndStore(entries);
 
 		hooks.stream() //
 				.filter(hook -> sendNotification || !(hook instanceof AbstractEmailHook)) //
@@ -156,7 +154,7 @@ public class ContainerManagement implements IInternalContainerManagement {
 	public List<AccessControlEntry> getAccessControlList() throws ServerFault {
 		rbacManager.check(Verb.Manage.name());
 		try {
-			return aclStore.get(container);
+			return aclService.get();
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}

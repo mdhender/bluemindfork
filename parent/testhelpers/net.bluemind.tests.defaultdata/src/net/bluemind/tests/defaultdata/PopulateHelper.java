@@ -33,8 +33,8 @@ import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.model.acl.Verb;
-import net.bluemind.core.container.persistence.AclStore;
 import net.bluemind.core.container.persistence.ContainerStore;
+import net.bluemind.core.container.service.internal.AclService;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcActivator;
@@ -230,13 +230,15 @@ public class PopulateHelper {
 	}
 
 	private static void aclAdmin(String containerUid, String subject) throws Exception {
-		AclStore aclStore = new AclStore(null, JdbcActivator.getInstance().getDataSource());
 		ContainerStore cs = new ContainerStore(null, JdbcActivator.getInstance().getDataSource(),
 				SecurityContext.SYSTEM);
 		Container c = cs.get(containerUid);
+
 		if (c != null) {
+			AclService aclService = new AclService(null, SecurityContext.SYSTEM,
+					JdbcActivator.getInstance().getDataSource(), c);
 			logger.info("Adding Verb.All for {} to {}", subject, containerUid);
-			aclStore.store(c, Arrays.asList(AccessControlEntry.create(subject, Verb.All)));
+			aclService.store(Arrays.asList(AccessControlEntry.create(subject, Verb.All)));
 		}
 
 	}

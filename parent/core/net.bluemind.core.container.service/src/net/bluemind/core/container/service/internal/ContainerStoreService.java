@@ -58,7 +58,6 @@ import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemIdentifier;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.ItemVersion;
-import net.bluemind.core.container.persistence.AclStore;
 import net.bluemind.core.container.persistence.ChangelogStore;
 import net.bluemind.core.container.persistence.ChangelogStore.LogEntry;
 import net.bluemind.core.container.persistence.IItemValueStore;
@@ -83,7 +82,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	protected ItemStore itemStore;
 	protected IItemValueStore<T> itemValueStore;
 	protected ChangelogStore changelogStore;
-	private AclStore aclStore;
+	private AclService aclService;
 	private String origin;
 	protected SecurityContext securityContext;
 	protected boolean hasChangeLog = true;
@@ -136,7 +135,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 		this.itemStore = new ItemStore(pool, container, securityContext);
 		this.changelogStore = new ChangelogStore(pool, container);
 		this.itemValueStore = itemValueStore;
-		this.aclStore = new AclStore(null, pool);
+		this.aclService = new AclService(null, securityContext, pool, container);
 		this.flagsProvider = fProv;
 		this.weightSeedProvider = wsProv;
 		this.weightProvider = wProv;
@@ -604,10 +603,9 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	@Override
 	public void prepareContainerDelete() {
 		checkWritable();
-
 		doOrFail(() -> {
 			// delete acl
-			aclStore.deleteAll(container);
+			aclService.deleteAll();
 			// delete values
 			deleteValues();
 			// delete changelog

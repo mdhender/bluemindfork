@@ -56,7 +56,6 @@ import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ContainerModifiableDescriptor;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.model.acl.Verb;
-import net.bluemind.core.container.persistence.AclStore;
 import net.bluemind.core.container.persistence.ChangelogStore;
 import net.bluemind.core.container.persistence.ContainerPersonalSettingsStore;
 import net.bluemind.core.container.persistence.ContainerSettingsStore;
@@ -216,7 +215,7 @@ public class Containers implements IContainers {
 				context.getSecurityContext(), container);
 		ContainerSettingsStore settingsStore = new ContainerSettingsStore(dataSource, container);
 		ContainerSyncStore syncStore = new ContainerSyncStore(dataSource, container);
-		AclStore aclStore = new AclStore(context, dataSource);
+		AclService aclService = new AclService(context, context.getSecurityContext(), dataSource, container);
 
 		ContainerStore directoryDataStore = new ContainerStore(context, context.getDataSource(), securityContext);
 
@@ -225,7 +224,7 @@ public class Containers implements IContainers {
 			personalSettingsStore.deleteAll();
 			settingsStore.delete();
 			syncStore.suspendSync();
-			aclStore.deleteAll(container);
+			aclService.deleteAll();
 			directoryDataStore.deleteContainerLocation(container);
 			containerStore.deleteKnownIdUid(container.id, uid);
 			return null;

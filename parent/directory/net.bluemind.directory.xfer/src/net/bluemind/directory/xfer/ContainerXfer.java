@@ -50,6 +50,7 @@ import net.bluemind.core.container.persistence.ContainerSettingsStore;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.ContainerSyncStore;
 import net.bluemind.core.container.persistence.DataSourceRouter;
+import net.bluemind.core.container.service.internal.AclService;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -145,8 +146,9 @@ public class ContainerXfer {
 		if (newContainer != null) {
 			List<AccessControlEntry> acls = aclStoreOrig.get(oldContainer);
 			if (acls != null && !acls.isEmpty()) {
-				AclStore aclStoreTarget = new AclStore(dataContext, dataSourceTarget);
-				aclStoreTarget.store(newContainer, acls);
+				AclService aclServiceTarget = new AclService(dataContext, dataContext.getSecurityContext(),
+						dataSourceTarget, newContainer);
+				aclServiceTarget.store(acls);
 			}
 
 			ContainerSyncStatus ss = containerSyncStoreOrig.getSyncStatus();
@@ -202,7 +204,7 @@ public class ContainerXfer {
 		for (Container c : containers) {
 			logger.info("Try to remove container {}@{}", c, dataSource);
 			CleanupOpsAccumulator removeOps = new CleanupOpsAccumulator();
-			removeOps.accept(() -> new AclStore(context, dataSource).deleteAll(c));
+			removeOps.accept(() -> new AclService(context, context.getSecurityContext(), dataSource, c).deleteAll());
 			removeOps.accept(() -> new ContainerSyncStore(dataSource, c).delete());
 			removeOps.accept(
 					() -> new ContainerPersonalSettingsStore(dataSource, context.getSecurityContext(), c).deleteAll());

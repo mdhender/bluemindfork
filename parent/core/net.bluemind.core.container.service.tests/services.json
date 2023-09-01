@@ -4,4 +4,8 @@
 {
 	"name": "bluemind/postgres-tests",
     "bindName": "pgxfer"
-}]
+},
+{
+ 	"name":"bluemind/elasticsearch-tests"
+ 	}
+]
