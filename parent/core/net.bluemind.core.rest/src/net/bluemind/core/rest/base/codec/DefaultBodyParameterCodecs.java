@@ -90,6 +90,9 @@ public class DefaultBodyParameterCodecs {
 
 		@Override
 		public T parse(RestRequest request) {
+			if (request.maxContentLengthExceeded) {
+				throw new ServerFault("Content-Length exceeds maximum size");
+			}
 			if (request.body == null && request.bodyStream != null) {
 				throw new ServerFault("API endpoint does not support chunked encoding");
 			}

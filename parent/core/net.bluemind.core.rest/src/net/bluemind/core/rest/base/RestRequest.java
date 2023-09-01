@@ -36,6 +36,7 @@ public class RestRequest {
 	public HttpMethod method;
 	public List<String> remoteAddresses;
 	public String origin;
+	public boolean maxContentLengthExceeded = false;
 
 	public RestRequest(String origin, List<String> remoteAddresses, HttpMethod method, MultiMap headers, String path,
 			MultiMap params, Buffer body, ReadStream<Buffer> bodyStream) {

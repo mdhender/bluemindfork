@@ -18,6 +18,7 @@
  */
 package net.bluemind.core.rest.http.vertx;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
@@ -27,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.core.api.AsyncHandler;
@@ -37,6 +39,7 @@ import net.bluemind.core.rest.base.RestRequest;
 import net.bluemind.core.rest.base.RestResponse;
 import net.bluemind.core.rest.log.CallLogger;
 import net.bluemind.core.utils.JsonUtils;
+import net.bluemind.lib.vertx.utils.MmapWriteStream;
 
 public class RestHttpProxyHandler implements Handler<HttpServerRequest> {
 	static final Logger logger = LoggerFactory.getLogger(RestHttpProxyHandler.class);
@@ -61,17 +64,7 @@ public class RestHttpProxyHandler implements Handler<HttpServerRequest> {
 		request.exceptionHandler(exceptionHandler(request));
 		String te = request.headers().get(HttpHeaders.TRANSFER_ENCODING);
 		boolean chunked = "chunked".equals(te);
-		logger.debug("chunked {} : {}", chunked, te);
-		if (!chunked) {
-			String clAsString = request.headers().get(HttpHeaders.CONTENT_LENGTH);
-			try {
-				if (Long.parseLong(clAsString) > MAX_CONTENT_LENGTH) {
-					throw new IllegalArgumentException(
-							"Content-Length (" + clAsString + ") exceeds maximum size of (" + MAX_CONTENT_LENGTH + ")");
-				}
-			} catch (NumberFormatException e) {
-			}
-		}
+		logger.debug("chunked {} : {} : {}:{}", chunked, te, request.path(), request.method());
 
 		String remoteAddress = request.remoteAddress().host();
 		final RestRequest rr = RestRequest.create(remoteAddress, request.method(), request.headers(), request.path(),
@@ -86,10 +79,40 @@ public class RestHttpProxyHandler implements Handler<HttpServerRequest> {
 			rr.bodyStream = request;
 			handleBody(request, rr, wrapped);
 		} else {
-			request.bodyHandler(body -> {
-				rr.body = body;
-				handleBody(request, rr, wrapped);
+			String clAsString = request.headers().get(HttpHeaders.CONTENT_LENGTH);
+			Long contentLength = null;
+			try {
+				contentLength = Long.parseLong(clAsString);
+			} catch (NumberFormatException e) {
+			}
+			if (contentLength != null && contentLength > MAX_CONTENT_LENGTH) {
+				rr.maxContentLengthExceeded = true;
+				setMappedBody(request, rr, wrapped, contentLength);
+			} else {
+				request.bodyHandler(body -> {
+					rr.body = body;
+					handleBody(request, rr, wrapped);
+				});
+			}
+		}
+	}
+
+	private void setMappedBody(HttpServerRequest request, RestRequest rr, AsyncHandler<RestResponse> wrapped,
+			Long contentLength) {
+		try {
+			File tmp = new File(System.getProperty("java.io.tmpdir"));
+			MmapWriteStream out = new MmapWriteStream(tmp.toPath(), contentLength);
+			request.pipeTo(out, handler -> {
+				try {
+					rr.body = Buffer.buffer(out.mmap().get());
+					handleBody(request, rr, wrapped);
+				} catch (Exception e) {
+					wrapped.failure(e);
+				}
 			});
+			request.resume();
+		} catch (Exception e) {
+			wrapped.failure(e);
 		}
 	}
 
