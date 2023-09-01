@@ -47,5 +47,6 @@ Require-Bundle: org.junit,
  net.bluemind.system.api,
  net.bluemind.delivery.lmtp.common;bundle-version="5.0.0",
  net.bluemind.delivery.lmtp.filter.testhelper;bundle-version="5.0.0",
- net.bluemind.delivery.lmtp.filters
+ net.bluemind.delivery.lmtp.filters,
+ net.bluemind.icalendar.api
 Automatic-Module-Name: net.bluemind.lmtp.filter.imip.tests

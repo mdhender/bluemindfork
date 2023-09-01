@@ -156,6 +156,11 @@ public class EventRequestHandler extends AbstractLmtpHandler implements IIMIPHan
 
 		List<ItemValue<VEventSeries>> vseries = cal.getByIcsUid(imip.uid);
 
+		if (recipientIsOrganizer(domain, vseries, resolvedRecipient)) {
+			logger.info("Ignoring request targeting event UID {}. Recipient is the event organizer", imip.uid);
+			return IMIPResponse.createEmptyResponse();
+		}
+
 		attachmentHandler.detachCidAttachments(series, vseries, imip.cid, userLogin, recipient.dom.uid);
 
 		setDefaultAlarm(domain, recipientMailbox.uid, series);
@@ -169,6 +174,21 @@ public class EventRequestHandler extends AbstractLmtpHandler implements IIMIPHan
 
 		VEvent event = series.main == null ? series.occurrences.get(0) : series.main;
 		return IMIPResponse.createEventResponse(imip.uid, event, needResponse(domain, recipientMailbox, event));
+	}
+
+	private boolean recipientIsOrganizer(ItemValue<Domain> domain, List<ItemValue<VEventSeries>> vseries,
+			ItemValue<User> resolvedRecipient) {
+		if (vseries.isEmpty()) {
+			return false;
+		}
+
+		if (resolvedRecipient == null) {
+			return false; // recipient might be a resource
+		}
+
+		Organizer organizer = vseries.get(0).value.mainOccurrence().organizer;
+		return resolvedRecipient.value.emails.stream()
+				.anyMatch(email -> email.match(organizer.mailto, domain.value.aliases));
 	}
 
 	private void sanitizeOrganizer(VEventSeries series) {

@@ -139,4 +139,8 @@ public class IMIPResponse {
 
 	}
 
+	public static IMIPResponse createEmptyResponse() {
+		return new IMIPResponse();
+	}
+
 }

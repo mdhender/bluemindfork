@@ -89,6 +89,7 @@ import net.bluemind.domain.api.IDomains;
 import net.bluemind.filehosting.api.IInternalBMFileSystem;
 import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
+import net.bluemind.icalendar.api.ICalendarElement.Organizer;
 import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;
 import net.bluemind.icalendar.api.ICalendarElement.RRule;
 import net.bluemind.icalendar.api.ICalendarElement.RRule.Frequency;
@@ -226,6 +227,29 @@ public class ImipFilterVEventTests {
 		assertNotNull(res);
 		assertEquals("updated", res.value.main.summary);
 		assertEquals(2, res.value.main.attendees.size());
+	}
+
+	@Test
+	public void meeting_Requests_Targeting_Organizer_Should_Be_Rejected() throws Exception {
+		IIMIPHandler handler = new FakeEventRequestHandlerFactory().create();
+		ItemValue<VEvent> event = defaultVEvent();
+		event.value.organizer = new Organizer("user1@domain.lan");
+
+		VEventSeries asSeries = new VEventSeries();
+		asSeries.icsUid = event.uid;
+		asSeries.main = event.value;
+		user1Calendar.create(event.uid, asSeries, false);
+
+		IMIPInfos imip = imip(ITIPMethod.REQUEST, defaultExternalSenderVCard(), event.uid);
+
+		imip.iCalendarElements = Arrays.asList(event.value);
+		imip.uid = event.uid;
+		ResolvedBox recipient = EnvelopeBuilder.lookupEmail("usernodrive@domain.lan");
+		handler.handle(imip, recipient, domain, userNoDriveMailbox);
+
+		recipient = EnvelopeBuilder.lookupEmail("user1@domain.lan");
+		IMIPResponse response = handler.handle(imip, recipient, domain, user1Mailbox);
+		assertTrue(response.headerFields.isEmpty()); // not handled as imip message
 	}
 
 	@Test
