@@ -166,12 +166,6 @@ public class KerberosConfigHelper {
 			currentConf.fieldNames().forEach(domainUid -> nodeClient.writeFile(getKeytabFilename(domainUid),
 					new ByteArrayInputStream(Base64.getDecoder().decode(
 							currentConf.getJsonObject(domainUid).getString(AuthDomainProperties.KRB_KEYTAB.name())))));
-
-			// TODO check if we need to restart keycloak here
-			logger.info("Keycloak restarting on server {}...", kcServerAddr);
-			NCUtils.execNoOut(nodeClient, "systemctl restart bm-keycloak.service");
-			KeycloakHelper.waitForKeycloak();
-			logger.info("Keycloak restarted on server {}", kcServerAddr);
 		} else {
 			logger.debug("Kerberos config did not change. No need to update /etc/krb5.conf.");
 		}
