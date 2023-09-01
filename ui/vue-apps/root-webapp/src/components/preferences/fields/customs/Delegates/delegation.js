@@ -223,11 +223,11 @@ export const addDelegateToCopyImipMailboxRule = async ({ uid, address }) => {
     cachedMailboxFilter = mailboxFilter;
 };
 
-export const hasCopyImipMailboxRuleAction = async uid => {
+export const hasCopyImipMailboxRuleAction = async (...uids) => {
     const mailboxFilter = await getMailboxFilter(getUserId());
     return mailboxFilter.rules
         .find(matchCopyImipMailboxRule)
-        ?.actions.some(a => matchCopyImipActionForDelegate(a, uid));
+        ?.actions.some(a => uids.some(uid => matchCopyImipActionForDelegate(a, uid)));
 };
 
 export const removeDelegateFromCopyImipMailboxRule = async uid => {

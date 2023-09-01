@@ -26,6 +26,8 @@
     "preferences.account.delegates.edit": "Modifier une délégation",
     "preferences.account.delegates.inform": "Informer mon délégué par message",
     "preferences.account.delegates.none": "Vous n'avez nommé aucun délégué.",
+    "preferences.account.delegates.receive_imip.none": "Aucun délégué désigné pour recevoir les messages relatifs à mes réunions.",
+    "preferences.account.delegates.receive_imip.none.notice": "Je continue donc à recevoir les messages relatifs à mes réunions.",
     "preferences.account.delegates.right.addressbook.can_read": "Peut voir mes contacts",
     "preferences.account.delegates.right.addressbook.can_edit": "Peut modifier mes contacts",
     "preferences.account.delegates.right.addressbook.can_edit_and_manage_shares": "Peut modifier mes contacts et gérer mes partages",

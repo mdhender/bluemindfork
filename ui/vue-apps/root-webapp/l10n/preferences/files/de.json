@@ -27,6 +27,8 @@
     "preferences.account.delegates.delegate": "Delegierte",
     "preferences.account.delegates.inform": "Meinen Delegierten informieren",
     "preferences.account.delegates.none": "Sie haben keine Delegierten benannt.",
+    "preferences.account.delegates.receive_imip.none": "Keine Delegierten für den Empfang von Nachrichten im Zusammenhang mit meinen Besprechungen bestimmt.",
+    "preferences.account.delegates.receive_imip.none.notice": "Ich empfange immer noch Nachrichten zu meinen Besprechungen.",
     "preferences.account.delegates.right.addressbook.can_read": "Kann meine Kontakte einsehen",
     "preferences.account.delegates.right.addressbook.can_edit": "Kann meine Kontakte bearbeiten",
     "preferences.account.delegates.right.addressbook.can_edit_and_manage_shares": "Kann meine Kontakte und Freigaben bearbeiten",
