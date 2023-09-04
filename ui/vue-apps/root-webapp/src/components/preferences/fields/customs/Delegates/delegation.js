@@ -230,6 +230,15 @@ export const hasCopyImipMailboxRuleAction = async (...uids) => {
         ?.actions.some(a => uids.some(uid => matchCopyImipActionForDelegate(a, uid)));
 };
 
+export const countDelegatesHavingTheCopyImipRule = async (...uids) => {
+    const mailboxFilter = await getMailboxFilter(userId);
+    return (
+        mailboxFilter.rules
+            .find(matchCopyImipMailboxRule)
+            ?.actions.filter(a => uids.some(uid => matchCopyImipActionForDelegate(a, uid))).length || 0
+    );
+};
+
 export const removeDelegateFromCopyImipMailboxRule = async uid => {
     const mailboxFilter = await getMailboxFilter(getUserId());
     const copyImipMailboxRuleIndex = mailboxFilter.rules.findIndex(matchCopyImipMailboxRule);

@@ -22,7 +22,7 @@
             :disabled="!!delegate"
             @search="onSearch"
         >
-            <bm-label-icon class="font-weight-bold" icon="user">
+            <bm-label-icon class="bold" icon="user">
                 {{ $t("preferences.account.delegates.delegate") }}
             </bm-label-icon>
         </contact-input>

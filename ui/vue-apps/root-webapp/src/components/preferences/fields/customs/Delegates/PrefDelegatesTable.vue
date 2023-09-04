@@ -158,7 +158,7 @@ const remove = async contact => {
         >
             <i18n path="preferences.account.delegates.delete.confirm">
                 <template #user>
-                    <span class="font-weight-bold">{{ deletedDelegate }}</span>
+                    <span class="bold">{{ deletedDelegate }}</span>
                 </template>
             </i18n>
         </bm-modal>
