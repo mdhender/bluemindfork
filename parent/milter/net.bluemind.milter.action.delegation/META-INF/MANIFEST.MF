@@ -22,5 +22,6 @@ Require-Bundle: com.google.guava,
  net.bluemind.mailflow.api,
  net.bluemind.mailbox.api,
  net.bluemind.mailbox.service,
- net.bluemind.core.rest.http
+ net.bluemind.core.rest.http,
+ net.bluemind.lib.ristretto
 Export-Package: net.bluemind.milter.action.delegation

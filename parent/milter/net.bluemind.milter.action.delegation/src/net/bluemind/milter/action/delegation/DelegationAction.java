@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.apache.james.mime4j.dom.Message;
 import org.apache.james.mime4j.dom.address.Mailbox;
+import org.columba.ristretto.message.Address;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,33 +78,30 @@ public class DelegationAction implements MilterAction {
 			if (modifier.envelopSender.isPresent() && !from.getAddress().equals(modifier.envelopSender.get())) {
 				checkSameFromAndSenderDomains(modifier.getMessage(), domainItem);
 
-				String fromAddress = from.getLocalPart();
-				String sendAddress = modifier.envelopSender.get().split("@")[0];
-				Mailbox senderMailbox = new Mailbox(sendAddress, domainItem.value.defaultAlias);
-				if (!fromAddress.equalsIgnoreCase(sendAddress)) {
-					List<AccessControlEntry> acls = getAcls(fromAddress, sendAddress, domainItem);
+				String fromLocalPartAddress = from.getLocalPart();
+				String senderLocalPartAddress = modifier.envelopSender.get().split("@")[0];
+				if (!fromLocalPartAddress.equalsIgnoreCase(senderLocalPartAddress)) {
+					String fromEmailAddress = fromLocalPartAddress + "@" + domainItem.value.defaultAlias;
+					String senderEmailAddress = senderLocalPartAddress + "@" + domainItem.value.defaultAlias;
+
+					IMailboxes mailboxService = DomainAliasCache.provider().instance(IMailboxes.class, domainItem.uid);
+					ItemValue<net.bluemind.mailbox.api.Mailbox> fromMb = mailboxService.byEmail(fromEmailAddress);
+					ItemValue<net.bluemind.mailbox.api.Mailbox> senderMb = mailboxService.byEmail(senderEmailAddress);
+
+					List<AccessControlEntry> acls = mailboxService.getMailboxAccessControlList(fromMb.uid).stream()
+							.filter(a -> a.subject.equals(senderMb.uid)
+									&& (Verb.SendOnBehalf == a.verb || Verb.SendAs == a.verb))
+							.toList();
 					if (acls.isEmpty()) {
 						modifier.errorStatus = IMilterListener.Status.DELEGATION_ACL_FAIL;
 					} else if (acls.stream().anyMatch(a -> Verb.SendOnBehalf == a.verb)) {
-						modifier.addHeader("Sender", senderMailbox.getAddress(), identifier());
+						modifier.addHeader("Sender", new Address(senderMb.displayName, senderEmailAddress).toString(),
+								identifier());
 					}
 				}
 			}
 
 		}
-	}
-
-	private List<AccessControlEntry> getAcls(String fromAddress, String senderAddress, ItemValue<Domain> domainItem) {
-		String fromEmailAddress = fromAddress + "@" + domainItem.value.defaultAlias;
-		String senderEmailAddress = senderAddress + "@" + domainItem.value.defaultAlias;
-
-		IMailboxes mailboxService = DomainAliasCache.provider().instance(IMailboxes.class, domainItem.uid);
-		String fromMbUid = mailboxService.byEmail(fromEmailAddress).uid;
-		String senderMbUid = mailboxService.byEmail(senderEmailAddress).uid;
-
-		return mailboxService.getMailboxAccessControlList(fromMbUid).stream()
-				.filter(a -> a.subject.equals(senderMbUid) && (Verb.SendOnBehalf == a.verb || Verb.SendAs == a.verb))
-				.toList();
 	}
 
 	private void checkSameFromAndSenderDomains(Message message, ItemValue<Domain> domainItem) {
