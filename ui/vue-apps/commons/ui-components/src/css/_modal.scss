@@ -112,7 +112,7 @@
         }
     }
     &.modal-dialog-scrollable .modal-body {
-        @include scroller-y;
+        @include scroller-y($stable: true); // always scroll
     }
 
     &.modal-dialog-centered {
@@ -148,6 +148,7 @@
         }
 
         .modal-body {
+            @include scroller-y($stable: false); // only scroll if needed
             padding-top: $sp-5;
         }
 
