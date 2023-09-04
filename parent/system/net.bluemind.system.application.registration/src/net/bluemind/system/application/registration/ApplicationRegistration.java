@@ -53,14 +53,16 @@ public class ApplicationRegistration extends AbstractVerticle {
 	@Override
 	public void start(Promise<Void> startPromise) throws Exception {
 		vertx.eventBus().consumer(APPLICATION_REGISTRATION, event -> {
-			ApplicationInfoModel info = JsonUtils.read(((JsonObject) event.body()).encode(),
-					ApplicationInfoModel.class);
-			logger.debug("Registering server {} -> {} -> {} -> {}", info.address, info.product, info.installationId,
-					info.machineId);
+			if (store.isEnabled()) {
+				ApplicationInfoModel info = JsonUtils.read(((JsonObject) event.body()).encode(),
+						ApplicationInfoModel.class);
+				logger.debug("Registering server {} -> {} -> {} -> {}", info.address, info.product, info.installationId,
+						info.machineId);
 
-			Publisher applicationPublisher = store.getPublisher(new DefaultTopicDescriptor("bluemind_cluster",
-					"__nodes__", "system", "application-registration", info.product));
-			applicationPublisher.store(info.product, info.machineId.getBytes(), info.toJson().getBytes());
+				Publisher applicationPublisher = store.getPublisher(new DefaultTopicDescriptor("bluemind_cluster",
+						"__nodes__", "system", "application-registration", info.product));
+				applicationPublisher.store(info.product, info.machineId.getBytes(), info.toJson().getBytes());
+			}
 		});
 
 		vertx.eventBus().consumer(APPLICATION_REGISTRATION_INIT, event -> {
