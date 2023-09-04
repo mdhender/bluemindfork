@@ -39,13 +39,6 @@ var gBMIcsBandal = {
         if (!win || !win.gMessageListeners) return false;
         win.gMessageListeners.push(gBMIcsBandal);
         
-        //extend tbHideMessageHeaderPane to remove bandal on folder change
-        gBMIcsBandal.tbHideMessageHeaderPaneOriginal = win.HideMessageHeaderPane;
-        gBMIcsBandal.tbHideMessageHeaderPane = win.HideMessageHeaderPane;
-        win.HideMessageHeaderPane = function ltnHideMessageHeaderPane() {
-            gBMIcsBandal.hideBandal();
-            gBMIcsBandal.tbHideMessageHeaderPane.apply(null, arguments);
-        };
         return true;
     },
     hideBandal: function() {
@@ -717,7 +710,6 @@ var gBMIcsBandal = {
                 break;
             }
         }
-        win.HideMessageHeaderPane = gBMIcsBandal.tbHideMessageHeaderPaneOriginal;
     }
 }
 
