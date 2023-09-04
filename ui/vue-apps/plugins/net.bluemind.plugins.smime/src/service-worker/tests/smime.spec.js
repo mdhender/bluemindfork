@@ -35,19 +35,19 @@ jest.mock("../pki/", () => jest.fn);
 jest.mock("@bluemind/mime", () => {
     return {
         ...jest.requireActual("@bluemind/mime"),
-        MimeBuilder: () => ({
+        MimeBuilder: jest.fn().mockImplementation(() => ({
             build: () => "dummy structure"
-        })
+        }))
     };
 });
 
 const mockUploadPart = jest.fn(() => Promise.resolve("address"));
 jest.mock("@bluemind/backend.mail.api", () => ({
     ...jest.requireActual("@bluemind/backend.mail.api"),
-    MailboxItemsClient: () => ({
+    MailboxItemsClient: jest.fn().mockImplementation(() => ({
         fetch: () => Promise.resolve("data"),
         uploadPart: mockUploadPart
-    })
+    }))
 }));
 jest.mock("../pkcs7", () => jest.fn);
 jest.mock("../smime/cache/SMimePartCache", () => ({
@@ -255,17 +255,15 @@ describe("smime", () => {
             expect(multipartSigned.children.length).toBe(0);
             expect(mockUploadPart).toHaveBeenCalledTimes(1);
         });
-        test("raise an error if the message cannot be signed", async done => {
+        test("raise an error if the message cannot be signed", async () => {
             try {
                 pkcs7.sign = () => {
                     throw new SignError();
                 };
                 await sign(item, "folderUid");
-                done.fail();
             } catch (error) {
                 expect(error).toContain(SMIME_SIGNATURE_ERROR_PREFIX);
-                expect(error).toContain(CRYPTO_HEADERS.SIGN_FAILURE);
-                done();
+                expect(error).toContain(`${CRYPTO_HEADERS.SIGN_FAILURE}`);
             }
         });
     });

@@ -91,27 +91,15 @@ describe("pkcs7", () => {
         const { pkcs7Part: corruptedPkcs7Part, toDigest: corruptedToDigest } = extractSignedData(corruptedEml);
         const corruptedEnvelope = getSignedDataEnvelope(corruptedPkcs7Part);
 
-        test("verify a valid eml", async done => {
-            try {
-                await pkcs7.verify(validPkcs7Part, validToDigest, body);
-                done();
-            } catch (e) {
-                done.fail("failed verify a valid signed eml.");
-            }
+        test("verify a valid eml", async () => {
+            await expect(pkcs7.verify(validPkcs7Part, validToDigest, body)).resolves.toBeUndefined();
         });
 
-        test("verify invalid or corrupted eml throw an exception", async done => {
-            try {
-                await pkcs7.verify(invalidPkcs7Part, invalidToDigest, body);
-                done.fail();
-            } catch {
-                try {
-                    await pkcs7.verify(corruptedPkcs7Part, corruptedToDigest, body);
-                    done.fail();
-                } catch {
-                    done();
-                }
-            }
+        test("invalid eml throw an exception", async () => {
+            await expect(pkcs7.verify(invalidPkcs7Part, invalidToDigest, body)).rejects.toThrow();
+        });
+        test("corrupted eml throw an exception", async () => {
+            await expect(pkcs7.verify(corruptedPkcs7Part, corruptedToDigest, body)).rejects.toThrowError();
         });
 
         test("check if signature matches authenticate attributes", done => {
@@ -165,14 +153,10 @@ describe("pkcs7", () => {
         });
     });
     describe("sign", () => {
-        test("sign message returns a valid base64", async done => {
+        test("sign message returns a valid base64", async () => {
             const signed = await pkcs7.sign("blabla", mockKey, mockCertificate);
-            try {
-                atob(signed);
-                done();
-            } catch {
-                done.fail("sign return is not a valid base64");
-            }
+
+            expect(() => atob(signed)).not.toThrow();
         });
     });
 });

@@ -3,15 +3,18 @@ import FDBFactory from "fake-indexeddb/lib/FDBFactory";
 import sMimeBodyDB from "../smime/cache/SMimeBodyDB";
 
 const userId = "58a1ee1b-0c30-492c-a83f-4396f0a24730";
-fetchMock.mock("/session-infos", {
-    userId: userId
-});
 
 const body = { guid: "123", subject: "aaa" };
 
 describe("SMimeBodyDB", () => {
     beforeEach(() => {
         global.indexedDB = new FDBFactory();
+        fetchMock.mock("/session-infos", {
+            userId: userId
+        });
+    });
+    afterEach(() => {
+        fetchMock.reset();
     });
     describe("getBody and setBody", () => {
         test("getBody", async () => {

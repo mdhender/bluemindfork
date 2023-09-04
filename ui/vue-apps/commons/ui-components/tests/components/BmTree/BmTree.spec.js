@@ -42,7 +42,8 @@ describe("BmTree", () => {
             propsData: {
                 tree: exampleData,
                 idProperty: "id"
-            }
+            },
+            attachTo: document.body
         });
     });
 

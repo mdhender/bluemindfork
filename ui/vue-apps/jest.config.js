@@ -1,19 +1,28 @@
 process.env.TZ = "GMT";
 process.env.LANG = "FR";
 
+/** @type {import('jest').Config} */
 const baseConfig = {
-    verbose: true,
+    testEnvironment: "jsdom",
     moduleFileExtensions: ["ts", "js", "json", "vue"],
     modulePathIgnorePatterns: ["open/clients/js/target/", "target"],
     setupFilesAfterEnv: ["./.jest/setupFilesAfterEnv.js", "fake-indexeddb/auto"],
     transform: {
         "^.+\\.[t|j]sx?$": "babel-jest",
         ".+\\.(css|styl|less|sass|scss|png|jpg|ttf|woff|woff2|svg)$": "jest-transform-stub",
-        ".*\\.(vue)$": "vue-jest"
+        ".*\\.(vue)$": "@vue/vue2-jest"
     },
     transformIgnorePatterns: [
         "/node_modules/(?!(@bluemind/|storybook-addon-vue-info|storybook-addon-designs|workbox-.*))"
-    ]
+    ],
+    snapshotFormat: {
+        escapeString: true,
+        printBasicPrototype: true
+    },
+    globals: {
+        Uint8Array: Uint8Array,
+        ArrayBuffer: ArrayBuffer
+    }
 };
 
 const testFileMatcher = "**/*.spec.(js|ts)";

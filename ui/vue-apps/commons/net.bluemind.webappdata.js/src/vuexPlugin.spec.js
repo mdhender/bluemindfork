@@ -2,7 +2,7 @@ const mockRemoteValue = "remote_value";
 let createCalled = false,
     updateCalled = false;
 jest.mock("@bluemind/webappdata.api", () => ({
-    WebAppDataClient() {
+    WebAppDataClient: jest.fn().mockImplementation(() => {
         return {
             create() {
                 createCalled = true;
@@ -16,7 +16,7 @@ jest.mock("@bluemind/webappdata.api", () => ({
                 }
             }
         };
-    }
+    })
 }));
 import store from "@bluemind/store";
 import { defaultMutationType, getKey, privateMutationType } from "./vuexPlugin";

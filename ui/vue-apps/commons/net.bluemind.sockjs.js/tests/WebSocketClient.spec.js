@@ -181,7 +181,7 @@ describe("WebSocketClient", () => {
         // Useless test ?...
         expect(websocket.send).toHaveBeenCalled();
     });
-    test("unregister send unregister request only if there is no listener", async done => {
+    test("unregister send unregister request only if there is no listener", async () => {
         const socket = new WebSocketClient("server.local.host");
         websocket.open();
         const callback = jest.fn();
@@ -193,7 +193,6 @@ describe("WebSocketClient", () => {
         expect(websocket.send).not.toHaveBeenCalled();
         await socket.unregister("/1", anotherCallback);
         expect(websocket.send).toHaveBeenCalledWith(expect.stringContaining('{"method":"unregister","path":"/1"'));
-        done();
     });
 
     test("After reconnection all registered listener are registered again", async () => {
@@ -237,7 +236,5 @@ describe("WebSocketClient", () => {
         jest.runOnlyPendingTimers();
         expect(SockJS).toHaveBeenCalledTimes(2);
     });
-    test.skip("Failing to register to a bus do not leak the bus listener", () => {
-        expect(false).toBeTruthy();
-    });
+    test.todo("Failing to register to a bus do not leak the bus listener");
 });

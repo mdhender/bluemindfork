@@ -4,10 +4,11 @@ import { ADD_MESSAGES, SET_PART_DATA } from "~/mutations";
 import importEml from "../../actions/importEml";
 import parsed from "./postalMimeResult.json";
 
-global.fetch = jest.fn().mockReturnValue({ blob: () => ({ ...new Blob(["fakeBlob"]), arrayBuffer: jest.fn() }) });
+global.fetch = jest.fn().mockResolvedValue({
+    blob: async () => ({ ...new Blob(["fakeBlob"]), arrayBuffer: jest.fn().mockResolvedValue("") })
+});
 jest.mock("postal-mime", () => jest.fn());
 PostalMime.mockImplementation(() => ({ parse: () => parsed }));
-global.crypto = { subtle: { digest: () => ({}) } };
 
 describe("importEml action", () => {
     test("Import EML", async () => {

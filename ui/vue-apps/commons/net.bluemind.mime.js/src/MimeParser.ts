@@ -6,14 +6,10 @@ type OptionalPart = MessageBody.Part | undefined;
 
 export default class {
     protected message: PostalMime.Message | undefined;
-    private address: string;
-    private partsContent: Map<MessageBody.Part, ArrayBuffer>;
+    private partsContent: Map<MessageBody.Part, ArrayBuffer> = new Map();
     structure: MessageBody.Part | undefined;
 
-    constructor(address = "1") {
-        this.address = address;
-        this.partsContent = new Map();
-    }
+    constructor(private address = "1") {}
 
     async parse(raw: string | ArrayBuffer): Promise<this> {
         if (this.message) {

@@ -6,9 +6,11 @@ jest.mock("@bluemind/sockjs");
 
 const emit = jest.fn();
 const VueBus = {
-    Client() {
-        this.$emit = emit;
-    }
+    Client: jest.fn().mockImplementation(() => {
+        return {
+            $emit: emit
+        };
+    })
 };
 let listeners = {};
 const addEventListener = jest.fn().mockImplementation((type, listener) => {

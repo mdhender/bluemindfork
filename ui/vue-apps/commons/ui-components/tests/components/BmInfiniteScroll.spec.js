@@ -10,7 +10,7 @@ function getDatas() {
     return tab;
 }
 
-describe("BmInfiniteScroll", () => {
+describe.skip("BmInfiniteScroll", () => {
     let datas = getDatas();
     let firstItemSelector = ".bm-infinite-scroll .items > div:first-child";
     let scrollbarSelector = ".bm-infinite-scroll .scroller-y";

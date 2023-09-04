@@ -9,15 +9,14 @@ jest.mock("../smime/cache/BodyCache");
 jest.mock("../smime/decrypt", () => jest.fn());
 jest.mock("../smime/verify", () => jest.fn());
 
-fetchMock.mock("/session-infos", {
-    login: "mathilde.michau@blue-mind.net",
-    sid: "58a1ee1b-0c30-492c-a83f-4396f0a24730",
-    defaultEmail: "math@devenv.blue"
-});
-
 describe("decryptAndVerify", () => {
     let unencrypted: any, encryptedItem: any, signedItem: any;
     beforeEach(() => {
+        fetchMock.mock("/session-infos", {
+            login: "mathilde.michau@blue-mind.net",
+            sid: "58a1ee1b-0c30-492c-a83f-4396f0a24730",
+            defaultEmail: "math@devenv.blue"
+        });
         unencrypted = {
             value: {
                 body: { headers: [], structure: { address: "1", mime: "text/html" } },
@@ -45,7 +44,9 @@ describe("decryptAndVerify", () => {
         global.indexedDB = new FDBFactory();
         jest.clearAllMocks();
     });
-
+    afterEach(() => {
+        fetchMock.reset();
+    });
     describe("decrypt and verify caches", () => {
         test("call body cache methods if the item is signed and/or encrypted", async () => {
             await decryptAndVerify([encryptedItem, signedItem], "folderUid");

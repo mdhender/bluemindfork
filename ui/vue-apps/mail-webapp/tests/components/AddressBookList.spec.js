@@ -147,17 +147,16 @@ describe("Addressbooks list [RECIPIENT PICKER]", () => {
             expect(wrapper.find("[role='listitem']").element).toHaveFocus();
         });
 
-        it.skip("should select element when pressing Enter while focus is on element", async () => {
+        it("should select element when pressing Enter while focus is on element", async () => {
             const wrapper = AddressbookListSUT().withDefaultsContainers().mount();
             const RANDOM_ELEMENT = 1;
 
             wrapper.findAll("[role='listitem']").at(RANDOM_ELEMENT).trigger("focus");
-            wrapper.trigger("keydown", { key: "Down" });
+            await wrapper.trigger("keydown", { key: "Down" });
             await wrapper.trigger("keydown", { key: "Enter" });
 
             expect(wrapper.findAll("[role='listitem']").at(RANDOM_ELEMENT + 1).element).toHaveFocus();
-            await wrapper.vm.$nextTick();
-            expect(wrapper.vm.$data.selected).toBe("book:Contacts_79E5C4EB-060F-46CB-88F9-F218E7F139F7");
+            expect(wrapper.emitted().selected[0]).toContain("book:Contacts_79E5C4EB-060F-46CB-88F9-F218E7F139F7");
         });
     });
 });

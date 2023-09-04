@@ -35,6 +35,7 @@
 <script>
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import { MimeType, InlineImageHelper } from "@bluemind/email";
+
 import { BmExtension } from "@bluemind/extensions.vue";
 import { hasRemoteImages } from "@bluemind/html-utils";
 import { attachmentUtils, fileUtils, partUtils } from "@bluemind/mail";

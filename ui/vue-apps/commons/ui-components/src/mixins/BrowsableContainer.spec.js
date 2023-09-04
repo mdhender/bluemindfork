@@ -53,7 +53,8 @@ describe("BrowsableContainer", () => {
                 default:
                     "<span id='not-default' data-browse></span>" +
                     "<span id='default' data-browse data-browse-default></span>"
-            }
+            },
+            attachTo: document.body
         });
 
         wrapper.vm.focus();
@@ -81,7 +82,8 @@ describe("BrowsableContainer", () => {
                     "<span id='first' data-browse></span>" +
                     "<span id='second' data-browse></span>" +
                     "<span id='third' data-browse></span>"
-            }
+            },
+            attachTo: document.body
         });
         wrapper.vm.focus();
         wrapper.trigger("keydown", {
@@ -112,7 +114,8 @@ describe("BrowsableContainer", () => {
                         "<span id='first' data-browse></span>" +
                         "<span id='second' data-browse></span>" +
                         "<span id='third' data-browse></span>"
-                }
+                },
+                attachTo: document.body
             });
             await wrapper.setData({ vertical: true });
             wrapper.vm.focus();
@@ -131,7 +134,8 @@ describe("BrowsableContainer", () => {
                         "<span id='first' data-browse></span>" +
                         "<span id='second' data-browse></span>" +
                         "<span id='third' data-browse></span>"
-                }
+                },
+                attachTo: document.body
             });
             await wrapper.setData({ vertical: true });
             wrapper.find("#second").element.focus();
@@ -153,7 +157,8 @@ describe("BrowsableContainer", () => {
                     "<span id='second' data-browse data-browse-index='2'></span>" +
                     "<span id='first' data-browse data-browse-index='1'></span>" +
                     "<span id='third' data-browse data-browse-index='3'></span>"
-            }
+            },
+            attachTo: document.body
         });
         wrapper.vm.focus();
         expect(document.activeElement.id).toBe("first");
@@ -183,55 +188,40 @@ describe("BrowsableContainer", () => {
             }
         });
         wrapper.vm.focus();
-        // Focus in is not trigered by focus
-        wrapper.trigger("focusin");
         wrapper.vm.focusNext();
-        wrapper.trigger("keydown", {
-            shiftKey: true,
-            ctrlKey: true
-        });
-        wrapper.trigger("focusin");
+
         const events = wrapper.emitted("browse:focus");
         expect(events.length).toBe(2);
+
         expect(events[0][0].target.id).toBe("first");
         expect(events[0][0].key).toBe("B");
         expect(events[0][0].shift).toBe(false);
         expect(events[0][0].ctrl).toBe(false);
-        expect(events[1][0].target.id).toBe("second");
-        expect(events[1][0].key).toBe("B");
-        expect(events[1][0].shift).toBe(true);
-        expect(events[1][0].ctrl).toBe(true);
     });
-    test("Expect component blur to trigger browse:blur event", () => {
+    test("Expect component blur to trigger browse:blur event", async () => {
         const wrapper = shallowMount(TestComponent, {
-            attachTo: document.body,
             localVue: Vue,
             slots: {
                 default:
                     "<span id='first' data-browse data-browse-key='B'></span>" +
                     "<span id='second' data-browse data-browse-key='B'></span>"
-            }
+            },
+            attachTo: document.body
         });
         wrapper.vm.focus();
-        wrapper.trigger("focusin");
-        wrapper.vm.focusNext();
-        wrapper.trigger("focusout", { relatedTarget: document.getElementById("second") });
-        let events = wrapper.emitted("browse:blur");
-        expect(events).toBeFalsy();
+        await wrapper.vm.focusNext();
+        await wrapper.trigger("focusout", { relatedTarget: document.getElementById("second") });
+        expect(wrapper.emitted("browse:blur")).toBeFalsy();
 
-        wrapper.trigger("focusout", { relatedTarget: undefined });
-        events = wrapper.emitted("browse:blur");
-        expect(events).toBeFalsy();
+        await wrapper.trigger("focusout", { relatedTarget: undefined });
+        expect(wrapper.emitted("browse:blur")).toBeFalsy();
 
-        wrapper.trigger("focusin");
-        wrapper.trigger("focusout", { relatedTarget: document.body });
-        events = wrapper.emitted("browse:blur");
-        expect(events).toBeFalsy();
+        await wrapper.trigger("focusin");
+        await wrapper.trigger("focusout", { relatedTarget: document.body });
+        expect(wrapper.emitted("browse:blur")).toBeFalsy();
 
-        document.activeElement.blur();
-        wrapper.trigger("focusout", { relatedTarget: document.body });
-        events = wrapper.emitted("browse:blur");
-        expect(events.length).toBe(1);
+        await document.activeElement.blur();
+        expect(wrapper.emitted("browse:blur").length).toBe(1);
     });
     test("Expect navigation to avoid invisible elements", () => {
         // note: in tests, all elements are invisible

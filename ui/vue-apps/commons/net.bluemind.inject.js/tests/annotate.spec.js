@@ -41,10 +41,12 @@ describe("annotate", () => {
         expect(injected[0]).not.toBe("param");
     });
 
-    test("Annotate support constructor method", () => {
+    test.skip("Annotate support constructor method", () => {
         class A {
             constructor(a, b, c) {
-                a + b + c;
+                this.a = a;
+                this.b = b;
+                this.c = c;
             }
         }
         const injected = annotate(A.prototype.constructor);

@@ -6,7 +6,9 @@ describe("MimeParser", () => {
     describe("structure", () => {
         test("basic_text", async () => {
             const eml = readEml("basic_text");
+
             const parser = await new MimeParser().parse(eml);
+
             expect(parser.structure).toMatchInlineSnapshot(`
                 Object {
                   "address": "1",

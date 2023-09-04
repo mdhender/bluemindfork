@@ -64,68 +64,69 @@ const mockMultipleGet = jest.fn(uids => {
     }
     return [];
 });
-
-jest.mock("@bluemind/addressbook.api", () => ({
-    AddressBooksClient: () => ({
-        search: (searchQuery: VCardQuery) => {
-            if (searchQuery.query!.includes("alice@smime.example")) {
-                return {
-                    total: 1,
-                    values: [
-                        {
-                            containerUid: "addressbook_f8de2c4a.internal",
-                            value: { mail: "alice@smime.example", hasSecurityKey: true },
-                            uid: "UID_alice@smime.example"
-                        }
-                    ]
-                };
-            } else if (searchQuery.query!.includes("test@devenv.blue")) {
-                return {
-                    total: 1,
-                    values: [
-                        {
-                            containerUid: "addressbook_f8de2c4a.internal",
-                            value: { mail: "test@devenv.blue", hasSecurityKey: true },
-                            uid: "UID_test@devenv.blue"
-                        }
-                    ]
-                };
-            } else if (searchQuery.query!.includes("test@mail.com")) {
-                return {
-                    total: 2,
-                    values: [
-                        {
-                            containerUid: "addressbook_2",
-                            value: { mail: "deux@devenv.blue", hasSecurityKey: false },
-                            uid: "AAA"
-                        },
-                        {
-                            containerUid: "addressbook_f8de2c4a.internal",
-                            value: { mail: "deux@devenv.blue", hasSecurityKey: true },
-                            uid: "2DF7A15F-12FD-4864-8279-12ADC6C08BAF"
-                        }
-                    ]
-                };
-            } else if (searchQuery.query!.includes("invalid@mail.com")) {
-                return {
-                    total: 1,
-                    values: [
-                        {
-                            containerUid: "addressbook_invalid.internal",
-                            value: { mail: "invalid@devenv.blue", hasSecurityKey: true },
-                            uid: "invalid"
-                        }
-                    ]
-                };
+jest.mock("@bluemind/addressbook.api", () => {
+    return {
+        AddressBooksClient: jest.fn().mockImplementation(() => ({
+            search: (searchQuery: VCardQuery) => {
+                if (searchQuery.query!.includes("alice@smime.example")) {
+                    return {
+                        total: 1,
+                        values: [
+                            {
+                                containerUid: "addressbook_f8de2c4a.internal",
+                                value: { mail: "alice@smime.example", hasSecurityKey: true },
+                                uid: "UID_alice@smime.example"
+                            }
+                        ]
+                    };
+                } else if (searchQuery.query!.includes("test@devenv.blue")) {
+                    return {
+                        total: 1,
+                        values: [
+                            {
+                                containerUid: "addressbook_f8de2c4a.internal",
+                                value: { mail: "test@devenv.blue", hasSecurityKey: true },
+                                uid: "UID_test@devenv.blue"
+                            }
+                        ]
+                    };
+                } else if (searchQuery.query!.includes("test@mail.com")) {
+                    return {
+                        total: 2,
+                        values: [
+                            {
+                                containerUid: "addressbook_2",
+                                value: { mail: "deux@devenv.blue", hasSecurityKey: false },
+                                uid: "AAA"
+                            },
+                            {
+                                containerUid: "addressbook_f8de2c4a.internal",
+                                value: { mail: "deux@devenv.blue", hasSecurityKey: true },
+                                uid: "2DF7A15F-12FD-4864-8279-12ADC6C08BAF"
+                            }
+                        ]
+                    };
+                } else if (searchQuery.query!.includes("invalid@mail.com")) {
+                    return {
+                        total: 1,
+                        values: [
+                            {
+                                containerUid: "addressbook_invalid.internal",
+                                value: { mail: "invalid@devenv.blue", hasSecurityKey: true },
+                                uid: "invalid"
+                            }
+                        ]
+                    };
+                }
+                return { total: 0, values: [] };
             }
-            return { total: 0, values: [] };
-        }
-    }),
-    AddressBookClient: () => ({
-        multipleGet: mockMultipleGet
-    }),
-    VCardQuery: { OrderBy: { Pertinance: "Pertinance" } }
-}));
+        })),
+        AddressBookClient: jest.fn().mockImplementation(() => ({
+            multipleGet: mockMultipleGet
+        })),
+        VCardQuery: { OrderBy: { Pertinance: "Pertinance" } }
+    };
+});
 
 describe("getCertificate", () => {
     beforeEach(() => {
@@ -146,32 +147,20 @@ describe("getCertificate", () => {
         expect(certificate).toBeTruthy();
     });
 
-    test("raise an error if no certificate found", async done => {
-        try {
-            await getCertificate("unknown", SMIME_CERT_USAGE.ENCRYPT);
-            done.fail();
-        } catch (error) {
-            expect(error).toBeInstanceOf(CertificateRecipientNotFoundError);
-            done();
-        }
+    test("raise an error if no certificate found", async () => {
+        await expect(() => getCertificate("unknown", SMIME_CERT_USAGE.ENCRYPT)).rejects.toThrowError(
+            CertificateRecipientNotFoundError
+        );
     });
 
-    test("raise last error if no trusted certificate found", async done => {
-        try {
-            await getCertificate("alice@smime.example", SMIME_CERT_USAGE.ENCRYPT);
-            done.fail("no trusted certificate should have matched");
-        } catch (error) {
-            expect(error).toBeInstanceOf(UntrustedCertificateError);
-            done();
-        }
+    test("raise last error if no trusted certificate found", async () => {
+        await expect(() => getCertificate("alice@smime.example", SMIME_CERT_USAGE.ENCRYPT)).rejects.toThrowError(
+            UntrustedCertificateError
+        );
     });
-    test("raise an error if the recipient certificate is invalid", async done => {
-        try {
-            await getCertificate("invalid@mail.com", SMIME_CERT_USAGE.ENCRYPT);
-            done.fail();
-        } catch (error) {
-            expect(error).toBeInstanceOf(InvalidCertificateError);
-            done();
-        }
+    test("raise an error if the recipient certificate is invalid", async () => {
+        await expect(() => getCertificate("invalid@mail.com", SMIME_CERT_USAGE.ENCRYPT)).rejects.toThrowError(
+            InvalidCertificateError
+        );
     });
 });

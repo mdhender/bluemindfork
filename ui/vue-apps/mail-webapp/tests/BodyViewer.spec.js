@@ -3,9 +3,15 @@ import flushPromises from "flush-promises";
 import inject from "@bluemind/inject";
 
 inject.register({ provide: "UserSession", factory: () => ({ roles: "" }) });
-
+inject.register({
+    provide: "MailboxItemsPersistence",
+    factory: () => ({
+        fetch: () => new Blob()
+    })
+});
 import { createStore, createWrapper } from "./testUtils";
 import BodyViewer from "../src/components/MailViewer/BodyViewer";
+import { createLocalVue, shallowMount } from "@vue/test-utils";
 
 describe("BodyViewer.spec", () => {
     test("image/* file type is a viewer capacity", async () => {

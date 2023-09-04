@@ -15,8 +15,9 @@ describe("BmCheck", () => {
     });
 
     beforeEach(() => {
-        wrapper = mount({
-            template: `
+        wrapper = mount(
+            {
+                template: `
             <div class="key-nav-group-test">
             <p>Navigate with right and left arrows between elements</p>
             <div>
@@ -60,8 +61,10 @@ describe("BmCheck", () => {
                 </div>
             </div>
         </div>`,
-            directives: { KeyNavGroup }
-        });
+                directives: { KeyNavGroup }
+            },
+            { attachTo: document.body }
+        );
         expect(wrapper).toBeTruthy();
     });
 
@@ -74,7 +77,7 @@ describe("BmCheck", () => {
     });
 });
 
-function testNavigate(wrapper, idPrefix) {
+async function testNavigate(wrapper, idPrefix) {
     const elementA = `${idPrefix}-a`;
     const elementB = `${idPrefix}-b`;
     const elementC = `${idPrefix}-c`;
