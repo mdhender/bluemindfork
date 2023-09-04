@@ -49,6 +49,7 @@ import net.bluemind.core.task.service.LoggingTaskMonitor;
 import net.bluemind.core.task.service.internal.cq.CQTaskManager;
 import net.bluemind.core.utils.CancellableRunnable;
 import net.bluemind.core.utils.FutureThreadInfo;
+import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.lib.vertx.WorkerExecutorService;
 
 public class TasksManager implements ITasksManager {
@@ -60,15 +61,22 @@ public class TasksManager implements ITasksManager {
 	private final Cache<String, TaskManager> completedTasks = Caffeine.newBuilder()//
 			.maximumSize(512)//
 			.expireAfterWrite(10, TimeUnit.MINUTES)//
-			.removalListener((String key, TaskManager value, RemovalCause cause) -> {
+			.evictionListener((String key, TaskManager value, RemovalCause cause) -> {
 				if (value != null) {
-					cleanupTask(value);
+					VertxPlatform.getVertx().setTimer(5000, tid -> {
+						VertxPlatform.getVertx().executeBlocking(prom -> {
+							VertxPlatform.eventBus().publish("tasks.manager.cleanups.expire", key);
+							cleanupTask(value);
+							prom.complete();
+						});
+					});
 				}
 			})//
 			.build();
 	private final ConcurrentHashMap<String, TaskManager> tasks = new ConcurrentHashMap<>();
 	private final ConcurrentHashMap<String, FutureThreadInfo> futures = new ConcurrentHashMap<>();
 	private final Vertx vertx;
+
 	private final FastThreadLocal<Object> threadLocal = new FastThreadLocal<>();
 	private final ExecutorService executer = new WorkerExecutorService("bm-tasks", 15, 1, TimeUnit.DAYS,
 			() -> threadLocal.set(ROOT_TASK_MARKER));
@@ -168,11 +176,13 @@ public class TasksManager implements ITasksManager {
 								: e.getMessage();
 						logger.error("error in task {}", taskId, e);
 						loggingMonitor.end(false, msg, null);
+						completedTasks.put(taskId, task);
 						return null;
 					});
 				} catch (Exception e) {
 					logger.error("error in task {}", taskId, e);
 					loggingMonitor.end(false, e.getMessage(), null);
+					completedTasks.put(taskId, task);
 				}
 			}
 

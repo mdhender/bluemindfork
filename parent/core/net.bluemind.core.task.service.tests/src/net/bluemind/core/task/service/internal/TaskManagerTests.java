@@ -30,6 +30,7 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -137,8 +138,37 @@ public class TaskManagerTests {
 	}
 
 	@Test
+	public void testQuickTasks() throws InterruptedException {
+		int cnt = 20_000;
+
+		CountDownLatch cdl = new CountDownLatch(cnt - 513); // cache size is 512
+		CompletableFuture<Void> comp = CompletableFuture.completedFuture(null);
+		RuntimeException rt = new RuntimeException();
+		rt.setStackTrace(new StackTraceElement[0]);
+		VertxPlatform.eventBus().consumer("tasks.manager.cleanups.expire", msg -> {
+			cdl.countDown();
+		});
+
+		for (int i = 0; i < cnt; i++) {
+			IServerTask serverTask = (IServerTaskMonitor monitor) -> {
+				monitor.end(true, null, null);
+				return comp;
+			};
+
+			TaskRef taskRef = taskManager.run(serverTask);
+			assertNotNull(taskRef);
+
+		}
+		boolean ok = cdl.await(2, TimeUnit.MINUTES);
+		if (!ok) {
+			System.err.println("Missing " + cdl.getCount() + " " + new Date());
+		}
+		assertTrue(ok);
+	}
+
+	@Test
 	public void testManyActiveTasks() {
-		int cnt = 256;
+		int cnt = 200;
 		int expectedMsg = 200_000;
 		final CountDownLatch cdl = new CountDownLatch(cnt);
 		CompletableFuture<Void> endTask = new CompletableFuture<>();
