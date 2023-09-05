@@ -183,12 +183,12 @@ const getMailboxFilter = async userId => {
     return cachedMailboxFilter;
 };
 
-export const addDelegateToCopyImipMailboxRule = async ({ uid, address }) => {
+export const addDelegateToCopyImipMailboxRule = async ({ uid, address, keepCopy }) => {
     const mailboxFilter = await getMailboxFilter(getUserId());
     let copyImipMailboxRule = mailboxFilter.rules.find(matchCopyImipMailboxRule);
     const copyImipAction = {
         name: "REDIRECT",
-        keepCopy: true,
+        keepCopy,
         emails: [address],
         clientProperties: { type: "delegation", delegate: uid }
     };
@@ -221,6 +221,24 @@ export const addDelegateToCopyImipMailboxRule = async ({ uid, address }) => {
 
     await inject("MailboxesPersistence").setMailboxFilter(getUserId(), mailboxFilter);
     cachedMailboxFilter = mailboxFilter;
+};
+
+export const updateCopyImipMailboxRule = async ({ keepCopy }) => {
+    const mailboxFilter = await getMailboxFilter(userId);
+    const copyImipMailboxRule = mailboxFilter.rules.find(matchCopyImipMailboxRule);
+    copyImipMailboxRule.actions.forEach(a => {
+        if (a.clientProperties?.type === "delegation") {
+            a.keepCopy = keepCopy;
+        }
+    });
+    await inject("MailboxesPersistence").setMailboxFilter(userId, mailboxFilter);
+    cachedMailboxFilter = mailboxFilter;
+};
+
+export const hasCopyImipMailboxRuleKeepCopy = async () => {
+    const mailboxFilter = await getMailboxFilter(userId);
+    const copyImipMailboxRule = mailboxFilter.rules.find(matchCopyImipMailboxRule);
+    return copyImipMailboxRule.actions.some(a => a.clientProperties?.type === "delegation" && a.keepCopy);
 };
 
 export const hasCopyImipMailboxRuleAction = async (...uids) => {
@@ -269,8 +287,8 @@ const matchCopyImipMailboxRule = rule => {
             )
         ) &&
         rule.actions.some(
-            ({ name, emails, keepCopy, clientProperties: { type, delegate } }) =>
-                name === "REDIRECT" && emails?.length && keepCopy === true && type === "delegation" && delegate
+            ({ name, emails, clientProperties: { type, delegate } }) =>
+                name === "REDIRECT" && emails?.length && type === "delegation" && delegate
         )
     );
 };

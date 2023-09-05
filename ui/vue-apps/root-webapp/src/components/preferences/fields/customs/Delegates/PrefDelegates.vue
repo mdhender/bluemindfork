@@ -1,6 +1,14 @@
 <script setup>
 import { ref, watchEffect } from "vue";
-import { acls, countDelegatesHavingTheCopyImipRule, delegates, delegations, useDelegation } from "./delegation";
+import {
+    acls,
+    countDelegatesHavingTheCopyImipRule,
+    delegates,
+    delegations,
+    hasCopyImipMailboxRuleKeepCopy,
+    updateCopyImipMailboxRule,
+    useDelegation
+} from "./delegation";
 import { Verb } from "@bluemind/core.container.api";
 import { BmButton, BmFormGroup, BmFormRadioGroup, BmFormRadio, BmIcon, BmReadMore } from "@bluemind/ui-components";
 import PrefDelegatesModal from "./PrefDelegatesModal";
@@ -21,11 +29,15 @@ const editDelegate = userUid => {
 };
 
 const delegatesWithCopyImipRuleCount = ref();
+const onlyDelegateReceivesImip = ref();
 watchEffect(async () => {
     delegatesWithCopyImipRuleCount.value = await countDelegatesHavingTheCopyImipRule(...Object.keys(delegates.value));
+    onlyDelegateReceivesImip.value = !(await hasCopyImipMailboxRuleKeepCopy());
 });
 
-const onlyDelegateReceivesImip = ref(false);
+const updateFilter = () => {
+    updateCopyImipMailboxRule({ keepCopy: !onlyDelegateReceivesImip.value });
+};
 
 watchEffect(() => {
     if (showEditForm.value == false) {
@@ -65,6 +77,7 @@ watchEffect(() => {
                     v-model="onlyDelegateReceivesImip"
                     class="py-4"
                     :aria-describedby="ariaDescribedby"
+                    @change="updateFilter"
                 >
                     <bm-form-radio :value="true" class="ml-6">
                         {{ $t("preferences.account.delegates.receive_imip.choice.only_delegate") }}
@@ -75,6 +88,10 @@ watchEffect(() => {
                 </bm-form-radio-group>
             </bm-form-group>
         </template>
-        <pref-delegates-modal :visible.sync="showEditForm" :delegate.sync="delegate" />
+        <pref-delegates-modal
+            :visible.sync="showEditForm"
+            :delegate.sync="delegate"
+            :only-delegate-receives-imip="onlyDelegateReceivesImip"
+        />
     </div>
 </template>

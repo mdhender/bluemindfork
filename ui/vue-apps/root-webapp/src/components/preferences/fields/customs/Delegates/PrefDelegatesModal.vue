@@ -186,7 +186,8 @@ export default {
     },
     props: {
         delegate: { type: String, default: undefined },
-        visible: { type: Boolean, default: false }
+        visible: { type: Boolean, default: false },
+        onlyDelegateReceivesImip: { type: Boolean, default: false }
     },
     setup() {
         return {
@@ -321,7 +322,8 @@ export default {
                     this.copyImipToDelegate
                         ? this.addDelegateToCopyImipMailboxRule({
                               uid: this.selectedDelegate,
-                              address: this.selectedContacts[0].address
+                              address: this.selectedContacts[0].address,
+                              keepCopy: !this.onlyDelegateReceivesImip
                           })
                         : this.removeDelegateFromCopyImipMailboxRule(this.selectedDelegate)
                 );
