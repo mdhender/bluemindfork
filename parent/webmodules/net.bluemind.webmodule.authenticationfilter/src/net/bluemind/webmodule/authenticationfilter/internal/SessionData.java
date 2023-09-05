@@ -19,13 +19,11 @@
 package net.bluemind.webmodule.authenticationfilter.internal;
 
 import java.io.Serializable;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import com.google.common.base.Joiner;
 
 import io.vertx.core.json.JsonObject;
 import net.bluemind.authentication.api.LoginResponse.Status;
@@ -43,7 +41,6 @@ public class SessionData implements Serializable {
 	public String loginAtDomain;
 	public String domainUid;
 	public String rolesAsString;
-	public Set<String> roles;
 	public String userUid;
 	public final long createStamp;
 	public final String mailboxCopyGuid;
@@ -76,8 +73,7 @@ public class SessionData implements Serializable {
 	) {
 		this.authKey = authKey;
 		this.passwordStatus = passwordStatus;
-
-		this.settings = settings;
+		setSettings(settings);
 		this.privateComputer = privateComputer;
 
 		this.lastPing = System.currentTimeMillis();
@@ -123,7 +119,7 @@ public class SessionData implements Serializable {
 	}
 
 	public void setSettings(Map<String, String> settings) {
-		this.settings = settings;
+		this.settings = filterSettings(settings);
 	}
 
 	public boolean isPrivateComputer() {
@@ -146,16 +142,15 @@ public class SessionData implements Serializable {
 		return mailboxCopyGuid != null ? mailboxCopyGuid : "";
 	}
 
-	public void setRole(Set<String> roles) {
-		// for 13k sessions, we end up with 3MB of duplicate strings here
-		rolesAsString = Joiner.on(",").join(roles).intern();
-		this.roles = roles.stream().map(String::intern).collect(Collectors.toSet());
-	}
-
 	public void setRole(String rolesAsString) {
 		// for 13k sessions, we end up with 3MB of duplicate strings here
-		this.rolesAsString = rolesAsString.intern();
-		roles = Arrays.asList(rolesAsString.split(",")).stream().map(String::intern).collect(Collectors.toSet());
+		if (rolesAsString != null) {
+			this.rolesAsString = rolesAsString.intern();
+		}
+	}
+
+	public void setRole(Set<String> roles) {
+		rolesAsString = roles.stream().collect(Collectors.joining(","));
 	}
 
 	public static JsonObject toJson(SessionData sd) {
@@ -165,7 +160,7 @@ public class SessionData implements Serializable {
 		jsonObject.put("passwordStatus", sd.passwordStatus);
 
 		JsonObject settingsAsJson = new JsonObject();
-		sd.settings.forEach((k, v) -> settingsAsJson.put(k, v));
+		sd.settings.forEach(settingsAsJson::put);
 		jsonObject.put("settings", settingsAsJson);
 
 		jsonObject.put("privateComputer", sd.privateComputer);
@@ -187,6 +182,13 @@ public class SessionData implements Serializable {
 		return jsonObject;
 	}
 
+	private Map<String, String> filterSettings(Map<String, String> settings) {
+		if (settings == null) {
+			return Collections.emptyMap();
+		}
+		return Map.of("lang", settings.get("lang"), "default_app", settings.get("default_app"));
+	}
+
 	public static SessionData fromJson(JsonObject jsonObject) {
 		String authKey = jsonObject.getString("authKey");
 
@@ -194,6 +196,7 @@ public class SessionData implements Serializable {
 
 		JsonObject settingsAsJson = jsonObject.getJsonObject("settings");
 		Map<String, String> settings = new HashMap<>();
+		// Will be filtered by SessionData constructor
 		settingsAsJson.forEach(e -> settings.put(e.getKey(), (String) e.getValue()));
 
 		boolean privateComputer = jsonObject.getBoolean("privateComputer");

@@ -183,8 +183,8 @@ public class AuthProvider {
 		sd.userUid = lr.authUser.uid;
 		sd.loginAtDomain = lr.latd;
 		sd.domainUid = lr.authUser.domainUid;
+		sd.setSettings(lr.authUser.settings);
 		sd.setRole(lr.authUser.roles);
-		sd.settings = lr.authUser.settings;
 
 		// when creating a new session for a user, expire the oldest ones if he
 		// already has MAX_SESSIONS_PER_USER.
