@@ -52,7 +52,7 @@ public class TodoCancelHandler extends CancelHandler implements IIMIPHandler {
 			ItemValue<Mailbox> recipientMailbox) throws ServerFault {
 
 		if (!super.validate(imip)) {
-			return new IMIPResponse();
+			return IMIPResponse.createEmptyResponse();
 		}
 
 		try {
@@ -65,7 +65,7 @@ public class TodoCancelHandler extends CancelHandler implements IIMIPHandler {
 			} else {
 				res.forEach(todo -> todoService.delete(todo.uid));
 			}
-			return new IMIPResponse();
+			return IMIPResponse.createEmptyResponse();
 		} catch (Exception e) {
 			throw e;
 		}

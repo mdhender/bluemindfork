@@ -52,7 +52,7 @@ public class TodoReplyHandler extends ReplyHandler implements IIMIPHandler {
 		List<ICalendarElement.Attendee> atts = imipTodo.attendees;
 
 		if (!super.validate(imip, atts)) {
-			return new IMIPResponse();
+			return IMIPResponse.createEmptyResponse();
 		}
 
 		ICalendarElement.Attendee attendee = atts.get(0);

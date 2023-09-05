@@ -71,7 +71,7 @@ public class EventReplyHandler extends ReplyHandler implements IIMIPHandler {
 			List<VEvent.Attendee> atts = vevent.attendees;
 
 			if (!super.validate(imip, atts)) {
-				return new IMIPResponse();
+				return IMIPResponse.createEmptyResponse();
 			}
 
 			VEvent ref = null;
@@ -107,9 +107,10 @@ public class EventReplyHandler extends ReplyHandler implements IIMIPHandler {
 		logger.info("Updating event series {}", series.uid);
 		cal.update(series.uid, series.value, false);
 		if (imipMessageContainsASingleException(imipOccurrences)) {
-			return IMIPResponse.createRepliedToExceptionResponse(imip.uid, imipOccurrences.get(0).recurid.iso8601);
+			return IMIPResponse.createRepliedToExceptionResponse(imip.uid, imipOccurrences.get(0).recurid.iso8601,
+					calUid);
 		} else {
-			return IMIPResponse.createRepliedResponse(imip.uid);
+			return IMIPResponse.createRepliedResponse(imip.uid, calUid);
 		}
 	}
 

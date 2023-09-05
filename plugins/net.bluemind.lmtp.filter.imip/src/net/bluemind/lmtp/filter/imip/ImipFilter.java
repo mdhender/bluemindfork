@@ -71,6 +71,10 @@ public class ImipFilter extends AbstractLmtpHandler implements IMessageFilter {
 				logger.info("Not attempting IMIP processing on Spam message");
 				return null;
 			}
+
+			if (messageAlreadyHandled(header)) {
+				return null;
+			}
 		}
 
 		IIMIPParser parser = IMIPParserFactory.create();
@@ -89,6 +93,10 @@ public class ImipFilter extends AbstractLmtpHandler implements IMessageFilter {
 			return null;
 		}
 
+	}
+
+	private static boolean messageAlreadyHandled(Header header) {
+		return header.getField("X-BM-Calendar") != null;
 	}
 
 	private Message filter(LmtpEnvelope env, Message message, IMIPInfos infos) throws FilterException {

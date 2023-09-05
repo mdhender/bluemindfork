@@ -58,7 +58,7 @@ public class EventCancelHandler extends CancelHandler implements IIMIPHandler {
 			ItemValue<Mailbox> recipientMailbox) throws ServerFault {
 
 		if (!super.validate(imip)) {
-			return new IMIPResponse();
+			return IMIPResponse.createEmptyResponse();
 		}
 
 		try {
@@ -81,7 +81,7 @@ public class EventCancelHandler extends CancelHandler implements IIMIPHandler {
 			List<ItemValue<VEventSeries>> currentSeries = cal.getByIcsUid(imip.uid);
 			if (currentSeries.isEmpty()) {
 				logger.warn("BM VEvent with event uid {} not found in calendar {}", imip.uid, calUid);
-				return new IMIPResponse();
+				return IMIPResponse.createEmptyResponse();
 			}
 			if (null == series.main) {
 				List<VEventOccurrence> occurrences = series.occurrences;
@@ -124,10 +124,10 @@ public class EventCancelHandler extends CancelHandler implements IIMIPHandler {
 			}
 
 			if (imipMessageContainsASingleException(series)) {
-				return IMIPResponse.createCanceledExceptionResponse(imip.uid,
-						series.occurrences.get(0).recurid.iso8601);
+				return IMIPResponse.createCanceledExceptionResponse(imip.uid, series.occurrences.get(0).recurid.iso8601,
+						calUid);
 			} else {
-				return IMIPResponse.createCanceledResponse(imip.uid);
+				return IMIPResponse.createCanceledResponse(imip.uid, calUid);
 			}
 		} catch (Exception e) {
 			throw e;

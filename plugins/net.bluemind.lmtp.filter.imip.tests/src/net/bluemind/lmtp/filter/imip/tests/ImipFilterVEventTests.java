@@ -513,8 +513,11 @@ public class ImipFilterVEventTests {
 		for (Field f : headerFields) {
 			if (f.getName().equalsIgnoreCase("X-BM-EVENT")) {
 				checked = true;
-				assertEquals(String.format("%s; rsvp=\"true\"; calendar_uid=\"%s\"", event.uid, calendarUid),
-						f.getBody());
+				assertEquals(String.format("%s; rsvp=\"true\"", event.uid), f.getBody());
+			}
+			if (f.getName().equalsIgnoreCase("X-BM-Calendar")) {
+				checked = true;
+                assertEquals(calendarUid, f.getBody());
 			}
 		}
 		assertTrue(checked);
@@ -578,8 +581,11 @@ public class ImipFilterVEventTests {
 		for (Field f : headerFields) {
 			if (f.getName().equalsIgnoreCase("X-BM-EVENT")) {
 				checked = true;
-				assertEquals(String.format("%s; recurid=\"%s\"; rsvp=\"true\"; calendar_uid=\"%s\"", event.uid,
-						now.iso8601, calendarUid), f.getBody());
+				assertEquals(String.format("%s; recurid=\"%s\"; rsvp=\"true\"", event.uid, now.iso8601), f.getBody());
+			}
+			if (f.getName().equalsIgnoreCase("X-BM-Calendar")) {
+				checked = true;
+                assertEquals(calendarUid, f.getBody());
 			}
 		}
 		assertTrue(checked);
@@ -1151,9 +1157,9 @@ public class ImipFilterVEventTests {
 		imip.method = ITIPMethod.REPLY;
 		IIMIPHandler replyHandler = new EventReplyHandler(recipient, null);
 		IMIPResponse response = replyHandler.handle(imip, recipient, domain, user1Mailbox);
-		String calendarUid = ICalendarUids.defaultUserCalendar(user1Mailbox.uid);
 
 		assertTrue(response.headerFields.stream().anyMatch(f -> f.getName().equals("X-BM-Event-Replied")));
+		assertTrue(response.headerFields.stream().anyMatch(f -> f.getName().equals("X-BM-Calendar")));
 
 		evt = user1Calendar.getComplete(event.uid);
 		assertNotNull(evt);

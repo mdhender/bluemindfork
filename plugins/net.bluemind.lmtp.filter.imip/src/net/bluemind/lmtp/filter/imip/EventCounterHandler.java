@@ -115,7 +115,7 @@ public class EventCounterHandler extends AbstractLmtpHandler implements IIMIPHan
 			updateEventWithCounterValues(cal, currentSeries, counterEvent, commonName, email);
 		}
 
-		return IMIPResponse.createCounterResponse(imip.uid, email, counterEvent, counterProposedAttendees);
+		return IMIPResponse.createCounterResponse(imip.uid, email, counterEvent, counterProposedAttendees, calUid);
 	}
 
 	private <T extends VEvent> void updateOriginatorPartStat(Attendee originator, T currentEvent) {
