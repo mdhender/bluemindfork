@@ -26,8 +26,6 @@ import java.util.concurrent.ExecutorService;
 
 import javax.sql.DataSource;
 
-import com.google.common.util.concurrent.MoreExecutors;
-
 import net.bluemind.backend.mail.replica.api.ISyncDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.indexing.IMailIndexService;
@@ -42,8 +40,6 @@ import net.bluemind.core.rest.BmContext;
 public class SyncDbMailboxRecordsServiceFactory extends AbstractMailboxRecordServiceFactory<ISyncDbMailboxRecords> {
 	private static final IMailIndexService NOOP = new NoopMailIndexService();
 
-	private static final ExecutorService executorService = MoreExecutors.newDirectExecutorService();
-
 	public SyncDbMailboxRecordsServiceFactory() {
 		// OK
 	}
@@ -56,9 +52,8 @@ public class SyncDbMailboxRecordsServiceFactory extends AbstractMailboxRecordSer
 	@Override
 	protected ISyncDbMailboxRecords create(DataSource ds, Container cont, BmContext context, String mailboxUniqueId,
 			MailboxRecordStore recordStore, ContainerStoreService<MailboxRecord> storeService) {
-
 		return new DbMailboxRecordsService(ds, cont, context, mailboxUniqueId, recordStore, storeService,
-				RecordIndexActivator.getIndexer().orElse(NOOP), executorService);
+				RecordIndexActivator.getIndexer().orElse(NOOP));
 	}
 
 }

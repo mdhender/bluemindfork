@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
@@ -94,17 +93,15 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 	private Optional<ItemValue<MailboxFolder>> mboxFolder = Optional.empty();
 
 	private final IMailIndexService indexService;
-	private final ExecutorService executorService;
 
 	public DbMailboxRecordsService(DataSource ds, Container cont, BmContext context, String mailboxUniqueId,
-			MailboxRecordStore recordStore, ContainerStoreService<MailboxRecord> storeService, IMailIndexService index,
-			ExecutorService executorService) {
+			MailboxRecordStore recordStore, ContainerStoreService<MailboxRecord> storeService,
+			IMailIndexService index) {
 		super(ds, cont, context, mailboxUniqueId, recordStore, storeService, new ReplicasStore(ds));
 		if (ds == context.getDataSource()) {
 			throw new ServerFault("Service is invoked with directory datasource for " + cont.uid + ".");
 		}
 		this.indexService = index;
-		this.executorService = executorService;
 	}
 
 	@Override
@@ -491,19 +488,17 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 
 	private void updateIndex(List<ItemValue<MailboxRecord>> pushToIndex) {
 		if (!pushToIndex.isEmpty()) {
-			executorService.execute(() -> {
-				try {
-					long esTime = System.currentTimeMillis();
-					List<BulkOp> operations = pushToIndex.stream().flatMap(mail -> index(mail).stream()).toList();
-					indexService.doBulk(operations);
-					esTime = System.currentTimeMillis() - esTime;
-					logger.info("[{}] Es CRUD op, idx: {} in {}ms", mailboxUniqueId, pushToIndex.size(), esTime);
-				} catch (Exception e) {
-					logger.error("[{}] Es CRUD op failed", mailboxUniqueId, e);
-				} finally {
-					VertxPlatform.eventBus().publish(TOPIC_ES_INDEXING_COUNT, pushToIndex.size());
-				}
-			});
+			try {
+				long esTime = System.currentTimeMillis();
+				List<BulkOp> operations = pushToIndex.stream().flatMap(mail -> index(mail).stream()).toList();
+				indexService.doBulk(operations);
+				esTime = System.currentTimeMillis() - esTime;
+				logger.info("[{}] Es CRUD op, idx: {} in {}ms", mailboxUniqueId, pushToIndex.size(), esTime);
+			} catch (Exception e) {
+				logger.error("[{}] Es CRUD op failed", mailboxUniqueId, e);
+			} finally {
+				VertxPlatform.eventBus().publish(TOPIC_ES_INDEXING_COUNT, pushToIndex.size());
+			}
 		}
 	}
 
