@@ -1,7 +1,7 @@
 <template>
     <div class="main-app d-flex flex-column h-100">
         <bm-extension id="webapp" path="app.header" />
-        <global-events target="self" @resize="appHeight" @dragover.prevent />
+        <global-events target="self" @dragover.prevent />
         <system-alert-area v-if="systemAlerts.length > 0" :system-alerts="systemAlerts" @remove="systemAlerts = []" />
         <bm-banner v-if="showBanner" :applications="applications" :user="user" :current-application="current" />
         <preferences v-if="showPreferences" :applications="applications" />
@@ -116,8 +116,6 @@ export default {
         link.rel = "icon";
         document.getElementsByTagName("head")[0].appendChild(link);
 
-        this.appHeight();
-
         if (inject("UserSession").userId) {
             this.FETCH_ALL_SETTINGS(this).then(() => {
                 this.FETCH_IDENTITIES(this.$store.state.settings.lang);
@@ -142,13 +140,6 @@ export default {
         ...mapActions("root-app", ["FETCH_IDENTITIES", "FETCH_MY_MAILBOX_QUOTA"]),
         ...mapActions("settings", ["FETCH_ALL_SETTINGS"]),
         ...mapMutations("preferences", ["TOGGLE_PREFERENCES"]),
-        appHeight() {
-            /*
-            Fix for mobile : 100vh is too tall, it doesn't count the mobile toolbar
-            This issue must be tested on a real phone since browser device simulator does not disply the toolbar
-            */
-            document.documentElement.style.setProperty("--app-height", window.innerHeight + "px");
-        },
         goToLoginForm() {
             window.location.href = `?askedUri=${this.$router.options.base}${this.$route.fullPath}`;
         }
@@ -166,7 +157,7 @@ export default {
 @import "~@bluemind/ui-components/src/css/utils/variables";
 body {
     height: 100vh; // fallback for the following line (if not supported by browser)
-    height: var(--app-height);
+    height: 100dvh;
     overflow: hidden;
 }
 

@@ -139,7 +139,8 @@
             max-width: none !important;
             max-height: none !important;
             width: 100vw !important;
-            height: 100vh !important;
+            height: 100vh !important; // fallback for the following line (if not supported by browser)
+            height: 100dvh !important;
         }
 
         .modal-content {
