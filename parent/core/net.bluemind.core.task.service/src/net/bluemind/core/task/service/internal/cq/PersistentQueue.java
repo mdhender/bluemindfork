@@ -20,7 +20,10 @@ package net.bluemind.core.task.service.internal.cq;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -59,6 +62,12 @@ public class PersistentQueue implements AutoCloseable {
 	static {
 		AbstractReferenceCounted.disableReferenceTracing();
 		System.setProperty("chronicle.analytics.disable", "true");
+		try {
+			Files.walk(Paths.get(QUEUES_ROOT)).sorted(Comparator.reverseOrder()).map(Path::toFile)
+					.forEach(File::delete);
+		} catch (IOException ignored) {
+			// ignored
+		}
 	}
 
 	public static PersistentQueue createFor(String taskId) {
