@@ -69,7 +69,7 @@
                     {{ $t("common.application.bootstrap.error.solution2") }}
                 </div>
             </div>
-            <div v-if="canUseOtherSentFolder" class="mb-5 w-100">
+            <div v-if="canUseOtherSentFolder" class="mb-5">
                 <bm-form-checkbox v-model="identity.sentFolder" value="" :unchecked-value="SENT_FOLDER">
                     {{
                         $tc("preferences.mail.identities.use_sentbox", 0, {

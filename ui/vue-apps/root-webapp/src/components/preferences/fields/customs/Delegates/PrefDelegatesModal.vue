@@ -2,10 +2,12 @@
     <bm-modal
         ref="delegatesModal"
         dialog-class="pref-delegates-modal"
-        header-class="d-flex align-items-center py-6"
-        centered
         :visible="visible"
         :title="!delegate ? $t('preferences.account.delegates.create') : $t('preferences.account.delegates.edit')"
+        variant="advanced"
+        scrollable
+        size="md"
+        height="lg"
         @hidden="$emit('update:visible', false)"
         @show="init"
     >
@@ -41,7 +43,8 @@
             </div>
             <bm-form-select
                 v-model="calendarRight"
-                class="w-100 py-4"
+                :auto-min-width="false"
+                class="my-4"
                 :options="rights"
                 @input="containerRightsChanged = true"
             />
@@ -60,7 +63,8 @@
             </div>
             <bm-form-select
                 v-model="todoListRight"
-                class="w-100 py-4"
+                :auto-min-width="false"
+                class="my-4"
                 :options="rights"
                 @input="containerRightsChanged = true"
             />
@@ -74,7 +78,8 @@
             </div>
             <bm-form-select
                 v-model="messageRight"
-                class="w-100 py-4"
+                :auto-min-width="false"
+                class="my-4"
                 :options="rights"
                 @input="containerRightsChanged = true"
             />
@@ -88,24 +93,23 @@
             </div>
             <bm-form-select
                 v-model="contactsRight"
-                class="w-100 py-4"
+                :auto-min-width="false"
+                class="my-4"
                 :options="rights"
                 @input="containerRightsChanged = true"
             />
         </div>
         <!-- Footer -->
         <template #modal-footer>
-            <div class="d-flex flex-fill align-items-center m-0">
-                <bm-form-checkbox class="d-flex flex-fill">
-                    {{ $t("preferences.account.delegates.inform") }}
-                </bm-form-checkbox>
-                <bm-button class="mr-6" variant="text" @click="$refs.delegatesModal.hide()">
-                    {{ $t("common.cancel") }}
-                </bm-button>
-                <bm-button variant="fill-accent" :disabled="!selectedDelegate || !hasChanged" @click="save">
-                    {{ !delegate ? $t("common.create") : $t("common.edit") }}
-                </bm-button>
-            </div>
+            <bm-form-checkbox class="d-flex flex-fill">
+                {{ $t("preferences.account.delegates.inform") }}
+            </bm-form-checkbox>
+            <bm-button variant="text" @click="$refs.delegatesModal.hide()">
+                {{ $t("common.cancel") }}
+            </bm-button>
+            <bm-button variant="fill-accent" :disabled="!selectedDelegate || !hasChanged" @click="save">
+                {{ !delegate ? $t("common.create") : $t("common.edit") }}
+            </bm-button>
         </template>
     </bm-modal>
 </template>
@@ -297,18 +301,17 @@ export default {
             const promises = [];
 
             if (this.selectedDelegate !== this.delegate || this.containerRightsChanged) {
-                const delegationAc = { subject: this.selectedDelegate, verb: this.delegationRight };
-
-                const calendarAcl = rightToAcl(this.calendarRight, this.selectedDelegate).concat([delegationAc]);
+                const calendarAcl = rightToAcl(this.calendarRight, this.selectedDelegate);
                 promises.push(setCalendarAcl(calendarAcl, this.selectedDelegate));
 
-                const todoListAcl = rightToAcl(this.todoListRight, this.selectedDelegate).concat([delegationAc]);
+                const todoListAcl = rightToAcl(this.todoListRight, this.selectedDelegate);
                 promises.push(setTodoListAcl(todoListAcl, this.selectedDelegate));
 
+                const delegationAc = { subject: this.selectedDelegate, verb: this.delegationRight };
                 const mailboxAcl = rightToAcl(this.messageRight, this.selectedDelegate).concat([delegationAc]);
                 promises.push(setMailboxAcl(mailboxAcl, this.selectedDelegate));
 
-                const contactsAcl = rightToAcl(this.contactsRight, this.selectedDelegate).concat([delegationAc]);
+                const contactsAcl = rightToAcl(this.contactsRight, this.selectedDelegate);
                 promises.push(setContactsAcl(contactsAcl, this.selectedDelegate));
             }
 
@@ -335,11 +338,7 @@ export default {
 @import "@bluemind/ui-components/src/css/utils/variables";
 
 .pref-delegates-modal {
-    .modal-header {
-        background-color: $neutral-bg-lo1;
-    }
     .modal-content {
-        max-height: 80vh;
         .delete-autocomplete {
             display: none;
         }
@@ -350,9 +349,14 @@ export default {
         .app-label {
             color: $neutral-fg-hi1;
         }
-    }
-    .modal-footer {
-        box-shadow: $box-shadow-sm;
+        .modal-body {
+            padding-top: $sp-5;
+        }
+        .contact-input,
+        .bm-form-select {
+            width: base-px-to-rem(400);
+            max-width: 100%;
+        }
     }
 }
 </style>

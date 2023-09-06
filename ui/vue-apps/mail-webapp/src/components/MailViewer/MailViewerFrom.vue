@@ -10,7 +10,7 @@
             bold-dn
             enable-card
         />
-        <i18n v-if="message.sender" path="mail.content.sender_suffix" class="sender-suffix text-neutral">
+        <i18n v-if="showSender" path="mail.content.sender_suffix" class="sender-suffix text-neutral">
             <template #name>
                 <mail-contact-card-slots
                     :component="Contact"
@@ -50,6 +50,9 @@ export default {
                 address: this.message.sender.address,
                 dn: this.message.sender.dn || guessName(this.message.sender.address)
             };
+        },
+        showSender() {
+            return this.message.sender && this.message.sender.address != this.message.from.address;
         }
     }
 };

@@ -75,8 +75,16 @@ function build(body, message) {
             dn: bcc.name,
             address: bcc.address
         })) || [];
-    const sender = { kind: MessageBody.RecipientKind.Sender, dn: message.sender.name, address: message.sender.address };
-    body.recipients = [from, ...toArray, ...ccArray, ...bccArray, sender];
+    body.recipients = [from, ...toArray, ...ccArray, ...bccArray];
+    if (message.sender) {
+        body.recipients.push({
+            sender: {
+                kind: MessageBody.RecipientKind.Sender,
+                dn: message.sender.name,
+                address: message.sender.address
+            }
+        });
+    }
 
     body.date = message.date;
     body.headers = message.headers.map(({ key, value }) => {

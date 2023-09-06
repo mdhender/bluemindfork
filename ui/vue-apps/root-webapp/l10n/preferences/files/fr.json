@@ -29,7 +29,7 @@
     "preferences.account.delegates.right.author.with_description": "{author} (peut lire et créer des éléments)",
     "preferences.account.delegates.right.author": "Auteur",
     "preferences.account.delegates.right.editor.with_description": "{editor} (peut lire, créer et modifier des éléments)",
-    "preferences.account.delegates.right.editor": "Editeur",
+    "preferences.account.delegates.right.editor": "Éditeur",
     "preferences.account.delegates.right.none": "Aucun droit",
     "preferences.account.delegates.right.reviewer.with_description": "{reviewer} (peut lire des éléments)",
     "preferences.account.delegates.right.reviewer": "Réviseur",

@@ -966,8 +966,9 @@ public class IcsHook implements ICalendarHook {
 				if (!attachments.isEmpty() && !EventAttachmentHelper.hasBinaryAttachments(attachments)) {
 					data.put("attachments", attachments);
 				}
-				try (Message mail = buildMailMessage(from, from, attendeeListTo, attendeeListCc, subjectTemplate,
-						template, messagesResolverProvider.getResolver(new Locale(getLocale(settings))), data,
+
+				try (Message mail = buildMailMessage(from, attendeeListTo, attendeeListCc, subjectTemplate, template,
+						messagesResolverProvider.getResolver(new Locale(getLocale(settings))), data,
 						createBodyPart(message.itemUid, ics), settings, event, method, attachments)) {
 					ret.set(mailer.send(SendmailCredentials.asAdmin0(), from.getAddress(), from.getDomain(),
 							new MailboxList(Arrays.asList(recipient), true), mail));
@@ -994,10 +995,10 @@ public class IcsHook implements ICalendarHook {
 		return userSettingsService.get(fromDirEntry.entryUid);
 	}
 
-	private Message buildMailMessage(Mailbox from, Mailbox sender, List<Mailbox> attendeeListTo,
-			List<Mailbox> attendeeListCc, String subjectTemplate, String templateName,
-			MessagesResolver messagesResolver, Map<String, Object> data, Optional<BodyPart> ics,
-			Map<String, String> settings, VEvent vevent, Method method, List<EventAttachment> attachments) {
+	private Message buildMailMessage(Mailbox from, List<Mailbox> attendeeListTo, List<Mailbox> attendeeListCc,
+			String subjectTemplate, String templateName, MessagesResolver messagesResolver, Map<String, Object> data,
+			Optional<BodyPart> ics, Map<String, String> settings, VEvent vevent, Method method,
+			List<EventAttachment> attachments) {
 		try {
 			String subject = new CalendarMailHelper().buildSubject(subjectTemplate, settings.get("lang"),
 					messagesResolver, data);
@@ -1016,7 +1017,7 @@ public class IcsHook implements ICalendarHook {
 				data.put("tz", tz.getDisplayName(new Locale(settings.get("lang"))));
 			}
 
-			return getMessage(from, sender, attendeeListTo, attendeeListCc, subject, templateName, settings.get("lang"),
+			return getMessage(from, attendeeListTo, attendeeListCc, subject, templateName, settings.get("lang"),
 					messagesResolver, data, ics, method, attachments);
 		} catch (TemplateException e) {
 			throw new ServerFault(e);
@@ -1204,7 +1205,6 @@ public class IcsHook implements ICalendarHook {
 
 	/**
 	 * @param from
-	 * @param sender
 	 * @param attendeeListTo
 	 * @param attendeeListTo
 	 * @param subject
@@ -1220,16 +1220,15 @@ public class IcsHook implements ICalendarHook {
 	 * @throws IOException
 	 * @throws ServerFault
 	 */
-	private Message getMessage(Mailbox from, Mailbox sender, List<Mailbox> attendeeListTo, List<Mailbox> attendeeListCc,
-			String subject, String templateName, String locale, MessagesResolver messagesResolver,
-			Map<String, Object> data, Optional<BodyPart> ics, Method method, List<EventAttachment> attachments)
+	private Message getMessage(Mailbox from, List<Mailbox> attendeeListTo, List<Mailbox> attendeeListCc, String subject,
+			String templateName, String locale, MessagesResolver messagesResolver, Map<String, Object> data,
+			Optional<BodyPart> ics, Method method, List<EventAttachment> attachments)
 			throws TemplateException, IOException, ServerFault {
 
 		data.put("msg", new FreeMarkerMsg(messagesResolver));
 
 		CalendarMailBuilder mailBuilder = new CalendarMailBuilder() //
 				.from(from) //
-				.sender(sender) //
 				.to(new MailboxList(attendeeListTo, true)) //
 				.method(method) //
 				.html(new CalendarMailHelper().buildBody(templateName, locale, messagesResolver, data)) //

@@ -114,7 +114,6 @@ public class WebexResourceCalendarHook implements ICalendarHook {
 		bodyPart.setText(bodyText);
 		CalendarMail m = new CalendarMail.CalendarMailBuilder() //
 				.from(from) //
-				.sender(from) //
 				.to(new MailboxList(Arrays.asList(to), true)) //
 				.method(Method.REQUEST) //
 				.ics(Optional.of(icsPart)) //

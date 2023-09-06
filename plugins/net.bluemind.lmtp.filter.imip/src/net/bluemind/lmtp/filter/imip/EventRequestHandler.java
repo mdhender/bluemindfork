@@ -359,7 +359,6 @@ public class EventRequestHandler extends AbstractLmtpHandler implements IIMIPHan
 
 			CalendarMail m = new CalendarMail.CalendarMailBuilder() //
 					.from(from) //
-					.sender(from) //
 					.to(new MailboxList(Arrays.asList(to), true)) //
 					.method(method) //
 					.ics(Optional.of(icsPart)) //

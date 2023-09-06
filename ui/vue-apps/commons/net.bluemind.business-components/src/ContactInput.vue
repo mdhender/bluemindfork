@@ -564,7 +564,7 @@ function isVisible(element) {
     &.disabled {
         border-color: $neutral-fg-disabled !important;
         &.underline {
-            border-color: transparent;
+            border-color: transparent !important;
         }
     }
 
