@@ -45,6 +45,7 @@ import io.vertx.core.http.HttpFrame;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.http.StreamPriority;
+import io.vertx.core.net.HostAndPort;
 import net.bluemind.metrics.registry.IdFactory;
 
 final class WrappedResponse implements HttpServerResponse {
@@ -411,6 +412,11 @@ final class WrappedResponse implements HttpServerResponse {
 	@Override
 	public Future<HttpServerResponse> push(HttpMethod method, String host, String path, MultiMap headers) {
 		return impl.push(method, host, path, headers);
+	}
+
+	@Override
+	public Future<HttpServerResponse> push(HttpMethod method, HostAndPort authority, String path, MultiMap headers) {
+		return impl.push(method, authority, path, headers);
 	}
 
 	@Override

@@ -19,6 +19,7 @@ package net.bluemind.system.service.helper;
 
 import java.net.InetSocketAddress;
 import java.net.Proxy;
+import java.net.ProxySelector;
 import java.util.Map;
 import java.util.Optional;
 
@@ -127,6 +128,16 @@ public class SecurityCertificateHelper {
 		}
 
 		return new Proxy(Proxy.Type.HTTP, new InetSocketAddress(sysConfMap.get(SysConfKeys.http_proxy_hostname.name()),
+				Integer.valueOf(sysConfMap.get(SysConfKeys.http_proxy_port.name()))));
+	}
+
+	public ProxySelector getProxySelector() {
+		Map<String, String> sysConfMap = getSuProvider().instance(ISystemConfiguration.class).getValues().values;
+		String proxyEnabled = sysConfMap.get(SysConfKeys.http_proxy_enabled.name());
+		if (Strings.isNullOrEmpty(proxyEnabled) || !proxyEnabled.equals("true")) {
+			return ProxySelector.getDefault();
+		}
+		return ProxySelector.of(new InetSocketAddress(sysConfMap.get(SysConfKeys.http_proxy_hostname.name()),
 				Integer.valueOf(sysConfMap.get(SysConfKeys.http_proxy_port.name()))));
 	}
 

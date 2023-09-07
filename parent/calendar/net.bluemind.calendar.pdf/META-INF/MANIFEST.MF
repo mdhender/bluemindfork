@@ -22,10 +22,10 @@ Require-Bundle: com.lowagie.itext,
  slf4j.api,
  net.bluemind.calendar.api,
  org.apache.xml.serializer,
- org.apache.xmlgraphics.fop,
  org.apache.xmlgraphics.batik-all,
  org.w3c.dom.svg,
- org.w3c.css.sac
+ org.w3c.css.sac,
+ org.apache.xmlgraphics.fop-core;bundle-version="2.9.0"
 Export-Package: net.bluemind.calendar.pdf,
  net.bluemind.calendar.pdf.internal
 Automatic-Module-Name: net.bluemind.calendar.pdf

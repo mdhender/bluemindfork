@@ -15,6 +15,7 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.Cookie;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.net.HostAndPort;
 
 public class ResponseObject implements HttpServerResponse {
 
@@ -311,6 +312,11 @@ public class ResponseObject implements HttpServerResponse {
 	@Override
 	public Future<HttpServerResponse> push(HttpMethod method, String host, String path, MultiMap headers) {
 		return null;
+	}
+
+	@Override
+	public Future<HttpServerResponse> push(HttpMethod method, HostAndPort authority, String path, MultiMap headers) {
+		return Future.succeededFuture(null);
 	}
 
 	@Override

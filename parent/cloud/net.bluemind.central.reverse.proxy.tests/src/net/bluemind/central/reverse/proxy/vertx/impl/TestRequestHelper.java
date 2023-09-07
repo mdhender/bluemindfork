@@ -23,6 +23,7 @@ import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.http.HttpVersion;
 import io.vertx.core.http.ServerWebSocket;
 import io.vertx.core.http.StreamPriority;
+import io.vertx.core.net.HostAndPort;
 import io.vertx.core.net.NetSocket;
 import io.vertx.core.net.SocketAddress;
 
@@ -272,6 +273,11 @@ public class TestRequestHelper {
 
 			@Override
 			public String getParamsCharset() {
+				return null;
+			}
+
+			@Override
+			public HostAndPort authority() {
 				// TODO Auto-generated method stub
 				return null;
 			}

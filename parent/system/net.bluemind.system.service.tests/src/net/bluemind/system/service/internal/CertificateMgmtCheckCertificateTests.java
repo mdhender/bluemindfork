@@ -90,9 +90,9 @@ public class CertificateMgmtCheckCertificateTests {
 		privateKeyData = Files.toByteArray(new File("data/certs/privatekey"));
 		privateKeyData2 = Files.toByteArray(new File("data/certs/privatekey2"));
 
-		ecCaData = Files.toByteArray(new File("data/cert-ECC/chain1.pem"));
-		ecCertificateData = Files.toByteArray(new File("data/cert-ECC/cert1.pem"));
-		ecPrivateKeyData = Files.toByteArray(new File("data/cert-ECC/privkey1.pem"));
+		ecCaData = Files.toByteArray(new File("data/cert-ECC/ec-cacert.pem"));
+		ecCertificateData = Files.toByteArray(new File("data/cert-ECC/server.crt"));
+		ecPrivateKeyData = Files.toByteArray(new File("data/cert-ECC/server-priv.pem"));
 	}
 
 	@After

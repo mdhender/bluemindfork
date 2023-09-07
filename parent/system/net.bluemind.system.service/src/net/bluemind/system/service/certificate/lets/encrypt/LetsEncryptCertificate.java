@@ -21,7 +21,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.net.Proxy;
+import java.net.ProxySelector;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -141,8 +141,8 @@ public class LetsEncryptCertificate {
 		}
 		monitor.progress(1, "Verifications done continue...");
 
-		Proxy proxy = systemHelper.configureProxySession();
-		fetchCertificate(certifEngine.getCertData(), domainExternalUrl, proxy, monitor);
+		ProxySelector proxySelector = systemHelper.getProxySelector();
+		fetchCertificate(certifEngine.getCertData(), domainExternalUrl, proxySelector, monitor);
 
 		monitor.progress(1, "Let's Encrypt certificate generated !");
 	}
@@ -150,7 +150,9 @@ public class LetsEncryptCertificate {
 	public String getTermsOfService() {
 		try {
 			Metadata meta = createSession(letsEncryptServer).getMetadata();
-			return meta.getTermsOfService().toString();
+			return meta.getTermsOfService().orElseThrow(
+					() -> new LetsEncryptException("Error occurred trying to get Let's Encrypt Terms of service"))
+					.toString();
 		} catch (AcmeException e) {
 			throw new LetsEncryptException("Error occurred trying to get Let's Encrypt Terms of service", e);
 		}
@@ -182,10 +184,11 @@ public class LetsEncryptCertificate {
 	 * @param externalUrl domains external URL to get a common certificate for
 	 * @param proxy       proxy to use to contact lets's encrypt
 	 */
-	private void fetchCertificate(CertData certData, String externalUrl, Proxy proxy, IServerTaskMonitor monitor) {
+	private void fetchCertificate(CertData certData, String externalUrl, ProxySelector proxySelector,
+			IServerTaskMonitor monitor) {
 		Session session = createSession(letsEncryptServer);
-		if (proxy != null) {
-			session.networkSettings().setProxy(proxy);
+		if (proxySelector != null) {
+			session.networkSettings().setProxySelector(proxySelector);
 		}
 		monitor.progress(1, "Session created");
 
@@ -338,10 +341,9 @@ public class LetsEncryptCertificate {
 			return;
 		}
 
-		Http01Challenge challenge = auth.findChallenge(Http01Challenge.class);
-		if (challenge == null) {
-			throw new LetsEncryptException("Found no " + Http01Challenge.TYPE + " challenge, don't know what to do...");
-		}
+		Http01Challenge challenge = auth.findChallenge(Http01Challenge.class)
+				.orElseThrow(() -> new LetsEncryptException(
+						"Found no " + Http01Challenge.TYPE + " challenge, don't know what to do..."));
 
 		createTokenFile(challenge, domain);
 

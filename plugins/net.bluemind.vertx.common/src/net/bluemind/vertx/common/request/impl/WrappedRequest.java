@@ -45,6 +45,7 @@ import io.vertx.core.http.HttpVersion;
 import io.vertx.core.http.ServerWebSocket;
 import io.vertx.core.http.StreamPriority;
 import io.vertx.core.http.impl.HttpServerRequestInternal;
+import io.vertx.core.net.HostAndPort;
 import io.vertx.core.net.NetSocket;
 import io.vertx.core.net.SocketAddress;
 import io.vertx.core.streams.Pipe;
@@ -334,5 +335,10 @@ public class WrappedRequest extends HttpServerRequestInternal {
 	@Override
 	public String getParamsCharset() {
 		return impl.getParamsCharset();
+	}
+
+	@Override
+	public HostAndPort authority() {
+		return impl.authority();
 	}
 }

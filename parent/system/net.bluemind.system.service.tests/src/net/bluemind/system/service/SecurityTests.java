@@ -144,6 +144,7 @@ public class SecurityTests {
 				.instance(ISecurityMgmt.class);
 		String letsEncryptTos = service.getLetsEncryptTos();
 		assertNotNull(letsEncryptTos);
+		System.err.println("le TOS: " + letsEncryptTos);
 		assertTrue(letsEncryptTos.startsWith("https://letsencrypt.org"));
 		assertTrue(letsEncryptTos.endsWith(".pdf"));
 		service.approveLetsEncryptTos(domainUid);
