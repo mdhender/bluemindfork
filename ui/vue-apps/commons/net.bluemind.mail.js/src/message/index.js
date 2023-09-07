@@ -123,6 +123,7 @@ export const MessageHeader = {
     X_BM_EVENT_COUNTERED: "X-BM-Event-Countered",
     X_BM_COUNTER_ATTENDEE: "X-BM-Counter-Attendee",
     X_BM_EVENT_REPLIED: "X-BM-Event-Replied",
+    X_BM_EVENT_CANCELED: "X-BM-Event-Canceled",
     X_BM_EVENT: "X-BM-Event",
     X_BM_RESOURCEBOOKING: "X-BM-ResourceBooking",
     X_BM_REWRITE: "X-BM-Rewrite",
@@ -163,7 +164,8 @@ const XBM_EVENTS_HEADERS = [
     MessageHeader.X_BM_EVENT_REPLIED,
     MessageHeader.X_BM_RESOURCEBOOKING,
     MessageHeader.X_BM_EVENT,
-    MessageHeader.X_BM_EVENT_COUNTERED
+    MessageHeader.X_BM_EVENT_COUNTERED,
+    MessageHeader.X_BM_EVENT_CANCELED
 ];
 
 /** Extract multi-valued / whitespace separated values from given header. */

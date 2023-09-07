@@ -434,6 +434,10 @@
     "mail.viewer.invitationReply.tentativeOccurrence": "provisionally accepted an occurrence",
     "mail.viewer.invitationReply.declined": "declined",
     "mail.viewer.invitationReply.declinedOccurrence": "declined an occurrence",
+    "mail.viewer.invitation.canceled": "{name} has {status}.",
+    "mail.viewer.invitationCanceled.status": "canceled the event",
+    "mail.viewer.invitation.canceledOccurrence": "{name} has {status} of the event.",
+    "mail.viewer.invitationCanceled.statusOccurrence": "canceled an occurrence",
     "mail": {
         "actions": {
             "move_folder_to_trash": {

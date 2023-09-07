@@ -1,33 +1,36 @@
 <template>
-    <div class="event-summary">
-        <div class="calendar-illustration">
-            <bm-illustration class="d-flex d-lg-none" value="calendar" size="xxs" />
-            <bm-illustration class="d-none d-lg-flex mx-5" value="calendar" size="xs" />
-        </div>
+    <div class="event-detail">
+        <event-calendar-illustration :illustration="illustration" />
         <bm-row class="event-row-icon summary">
             <bm-icon icon="lock-fill" class="mr-2" />
-            <h3>{{ currentEvent.summary }}</h3>
+            <h3>{{ event.summary }}</h3>
         </bm-row>
         <bm-row class="event-time title"> {{ eventTimeRange.start }} - {{ eventTimeRange.end }} </bm-row>
         <bm-row class="event-row-icon occurence">
-            <bm-icon icon="calendar" class="mr-2" />
-            <span>{{ currentEvent.date }}</span>
+            <bm-icon icon="repeat" class="mr-2" />
+            <span>{{ event.date }}</span>
         </bm-row>
     </div>
 </template>
+
 <script>
+import { computed } from "vue";
 import { mapState } from "vuex";
-import { BmIcon, BmRow, BmIllustration } from "@bluemind/ui-components";
+import { BmIcon, BmRow } from "@bluemind/ui-components";
 import EventHelper from "~/store/helpers/EventHelper";
+import EventCalendarIllustration from "./EventCalendarIllustration";
 
 export default {
-    name: "EventSummary",
-    components: { BmIcon, BmRow, BmIllustration },
+    name: "EventDetail",
+    components: { BmIcon, BmRow, EventCalendarIllustration },
+    props: {
+        event: { type: Object, required: true },
+        illustration: { type: String, default: "calendar" }
+    },
     computed: {
-        ...mapState("mail", { currentEvent: state => state.consultPanel.currentEvent }),
         eventTimeRange() {
-            const dtstart = this.currentEvent.serverEvent?.value?.main?.dtstart;
-            const dtend = this.currentEvent.serverEvent?.value?.main?.dtend;
+            const dtstart = this.event.serverEvent?.value?.main?.dtstart;
+            const dtend = this.event.serverEvent?.value?.main?.dtend;
             const { startDate, endDate } = EventHelper.adaptRangeDate(dtstart, dtend);
             return {
                 start: startDate,
@@ -42,7 +45,7 @@ export default {
 @import "~@bluemind/ui-components/src/css/utils/variables";
 @import "~@bluemind/ui-components/src/css/utils/responsiveness";
 
-.event-summary {
+.event-detail {
     display: grid;
     padding: 0 $sp-5 0px $sp-5;
     @include until-lg {
@@ -55,10 +58,6 @@ export default {
             "occurrence  occurrence";
         grid-template-columns: 75px 1fr;
         grid-template-rows: $row-title-height $row-time-height auto;
-        .calendar-illustration {
-            width: 75px;
-            height: 100px;
-        }
         .event-occurence {
             padding: 0 $sp-5 0 $sp-5;
         }
@@ -71,13 +70,9 @@ export default {
         "illustration occurrence";
     grid-template-columns: 120px 1fr;
     grid-template-rows: repeat(3, auto);
-    .calendar-illustration {
+    .event-calendar-illustration {
         grid-area: illustration;
         justify-self: center;
-        @include from-lg {
-            width: 120px;
-            height: 120px;
-        }
     }
     .event-row-icon {
         display: flex;

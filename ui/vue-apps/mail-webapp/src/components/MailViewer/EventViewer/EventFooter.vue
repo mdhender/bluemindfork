@@ -1,5 +1,17 @@
+<script setup>
+import { BmButtonExpand } from "@bluemind/ui-components";
+import { computed, ref } from "vue";
+
+const props = defineProps({ event: { type: Object, required: true } });
+
+const attendees = computed(() => props.event?.attendees ?? []);
+const showFooter = computed(() => attendees.value.length);
+
+const showAttendees = ref(false);
+</script>
+
 <template>
-    <div class="event-footer">
+    <div v-if="showFooter" class="event-footer">
         <div class="attendees-header">
             <bm-button-expand :expanded="showAttendees" @click.prevent="showAttendees = !showAttendees" />
             <span class="font-weight-bold">
@@ -14,22 +26,6 @@
         </div>
     </div>
 </template>
-
-<script>
-import { BmButtonExpand } from "@bluemind/ui-components";
-export default {
-    name: "EventFooter",
-    components: { BmButtonExpand },
-    props: {
-        attendees: { type: Array, required: true }
-    },
-    data() {
-        return {
-            showAttendees: false
-        };
-    }
-};
-</script>
 
 <style lang="scss">
 @import "~@bluemind/ui-components/src/css/utils/variables";

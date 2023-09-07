@@ -434,6 +434,10 @@
     "mail.viewer.invitationReply.tentativeOccurrence": "vorläufig akzeptiert",
     "mail.viewer.invitationReply.declined": "abgelehnt",
     "mail.viewer.invitationReply.declinedOccurrence": "abgelehnt",
+    "mail.viewer.invitation.canceled": "{name} hat das {status}.",
+    "mail.viewer.invitationCanceled.status": "Ereignis abgebrochen",
+    "mail.viewer.invitation.canceledOccurrence": "{name} hat ein {status}.",
+    "mail.viewer.invitationCanceled.statusOccurrence": "Auftreten der Veranstaltung abgesagt",
     "mail": {
         "actions": {
             "move_folder_to_trash": {

@@ -119,8 +119,11 @@ export function getEventInfo(headers) {
             return true;
         }
         if (
-            MessageHeader.X_BM_EVENT.toUpperCase() === name.toUpperCase() ||
-            MessageHeader.X_BM_EVENT_REPLIED.toUpperCase() === name.toUpperCase()
+            [
+                MessageHeader.X_BM_EVENT.toUpperCase(),
+                MessageHeader.X_BM_EVENT_REPLIED.toUpperCase(),
+                MessageHeader.X_BM_EVENT_CANCELED.toUpperCase()
+            ].includes(name.toUpperCase())
         ) {
             return true;
         }
