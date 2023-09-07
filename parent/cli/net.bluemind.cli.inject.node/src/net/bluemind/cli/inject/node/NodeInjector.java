@@ -33,6 +33,7 @@ import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.inject.common.MailExchangeInjector;
 import net.bluemind.cli.inject.common.MinimalMessageProducer;
 import net.bluemind.cli.inject.common.TargetMailbox;
+import net.bluemind.cli.inject.common.TargetMailbox.Auth;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
@@ -60,10 +61,10 @@ public class NodeInjector extends MailExchangeInjector {
 		private AuthUser curUser;
 		private String fromIndex;
 
-		public NodeTargetMailbox(CliContext ctx, String email, String sid) {
-			super(email, sid);
+		public NodeTargetMailbox(CliContext ctx, TargetMailbox.Auth auth) {
+			super(auth);
 			this.ctx = ctx;
-			this.sp = ctx.api(sid);
+			this.sp = ctx.api(auth.sid());
 		}
 
 		@Override
@@ -81,7 +82,7 @@ public class NodeInjector extends MailExchangeInjector {
 						"cyrus.index");
 				return true;
 			} catch (ServerFault sf) {
-				ctx.error(sf.getMessage() + " for " + email);
+				ctx.error(sf.getMessage() + " for " + auth.email());
 				return false;
 			}
 		}
@@ -121,8 +122,7 @@ public class NodeInjector extends MailExchangeInjector {
 	private final CliContext ctx;
 
 	public NodeInjector(CliContext ctx, String domainUid) {
-		super(ctx.adminApi(), domainUid, (email, sid) -> new NodeTargetMailbox(ctx, email, sid),
-				new MinimalMessageProducer());
+		super(ctx.adminApi(), domainUid, auth -> new NodeTargetMailbox(ctx, auth), new MinimalMessageProducer());
 		this.ctx = ctx;
 	}
 

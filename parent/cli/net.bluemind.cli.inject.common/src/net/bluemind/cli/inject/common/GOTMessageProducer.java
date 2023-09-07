@@ -39,8 +39,8 @@ public class GOTMessageProducer implements IMessageProducer {
 	@Override
 	public byte[] createEml(TargetMailbox from, TargetMailbox to) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("From: ").append(from.email).append("\r\n");
-		sb.append("To: ").append(to.email).append("\r\n");
+		sb.append("From: ").append(from.auth.email()).append("\r\n");
+		sb.append("To: ").append(to.auth.email()).append("\r\n");
 		sb.append("Content-Type: text/html; charset=utf-8\r\n");
 		sb.append("Subject: Rand Message ").append(UUID.randomUUID()).append("\r\n\r\n");
 		sb.append("<html><body><p>Yeah this is   body   </p>\r\n");

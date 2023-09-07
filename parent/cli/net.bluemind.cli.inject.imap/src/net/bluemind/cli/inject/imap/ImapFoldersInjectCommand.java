@@ -17,7 +17,9 @@
   */
 package net.bluemind.cli.inject.imap;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
@@ -34,6 +36,9 @@ public class ImapFoldersInjectCommand extends AbstractMailInjectCommand {
 	@Option(names = "--folders", description = "Populate N top-lvl with N children mail folders each in the mailbox")
 	public int folders = 0;
 
+	@Option(names = "--emails", split = ",", description = "Comma separated list of emails to target (user or mailshare)")
+	public List<String> emails;
+
 	public static class Reg implements ICmdLetRegistration {
 
 		@Override
@@ -49,7 +54,8 @@ public class ImapFoldersInjectCommand extends AbstractMailInjectCommand {
 
 	@Override
 	protected MailExchangeInjector createInjector(CliContext ctx, String domUid, IMessageProducer prod) {
-		return new ImapInjector(ctx.adminApi(), domUid, prod, folders);
+		Set<String> filteredEmails = Set.copyOf(emails);
+		return new ImapInjector(ctx.adminApi(), domUid, prod, filteredEmails, folders);
 	}
 
 }

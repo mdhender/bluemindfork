@@ -21,13 +21,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -38,8 +41,10 @@ import com.google.common.util.concurrent.RateLimiter;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import net.bluemind.authentication.api.IAuthentication;
 import net.bluemind.authentication.api.LoginResponse;
+import net.bluemind.cli.inject.common.TargetMailbox.Auth;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
@@ -51,6 +56,17 @@ import net.bluemind.mailbox.api.MailboxQuota;
 
 public class MailExchangeInjector {
 
+	public static record DirEntryFilter(Set<String> filteredEmails, Set<Kind> entryKinds) {
+
+		public Predicate<DirEntry> predicate() {
+			return entry -> filteredEmails.isEmpty() || filteredEmails.contains(entry.email);
+		}
+
+		public Kind[] kinds() {
+			return entryKinds.toArray(l -> new Kind[l]);
+		}
+	}
+
 	protected static final Logger logger = LoggerFactory.getLogger(MailExchangeInjector.class);
 	private final ArrayList<TargetMailbox> userEmails;
 	private final String domain;
@@ -58,8 +74,13 @@ public class MailExchangeInjector {
 
 	public MailExchangeInjector(IServiceProvider provider, String domainUid, TargetMailboxFactory tmf,
 			IMessageProducer producer) {
+		this(provider, domainUid, tmf, producer, new DirEntryFilter(Collections.emptySet(), Set.of(Kind.USER)));
+	}
+
+	public MailExchangeInjector(IServiceProvider provider, String domainUid, TargetMailboxFactory tmf,
+			IMessageProducer producer, DirEntryFilter dirEntryFilter) {
 		IDirectory dirApi = provider.instance(IDirectory.class, domainUid);
-		ListResult<ItemValue<DirEntry>> users = dirApi.search(DirEntryQuery.filterKind(Kind.USER));
+		ListResult<ItemValue<DirEntry>> users = dirApi.search(DirEntryQuery.filterKind(dirEntryFilter.kinds()));
 		IMailboxes mboxApi = provider.instance(IMailboxes.class, domainUid);
 		this.producer = producer;
 
@@ -69,29 +90,34 @@ public class MailExchangeInjector {
 			Collections.shuffle(chunk, ThreadLocalRandom.current());
 			chunk = chunk.subList(0, 175);
 		}
-		this.userEmails = chunk.stream().map(iv -> {
-			String em = iv.value.email;
-			if (em == null) {
-				return null;
-			}
-			if (iv.value.archived) {
-				return null;
-			}
-			MailboxQuota quota = mboxApi.getMailboxQuota(iv.value.entryUid);
-			if (quota.quota != null && quota.quota > 0) {
-				logger.info("Skip user {} with quota", iv.value.entryUid);
-				return null;
-			}
-			ItemValue<Mailbox> mbox = mboxApi.getComplete(iv.value.entryUid);
-			LoginResponse lr = provider.instance(IAuthentication.class).su(mbox.value.name + "@" + domainUid);
-			return tmf.create(lr.latd, lr.authKey);
-		}).filter(Objects::nonNull).collect(Collectors.toCollection(ArrayList::new));
+		this.userEmails = chunk.stream().map(iv -> iv.value) //
+				.filter(entry -> entry.email != null && !entry.archived) //
+				.filter(entry -> {
+					MailboxQuota quota = mboxApi.getMailboxQuota(entry.entryUid);
+					return (quota.quota == null || quota.quota <= 0);
+				}) //
+				.filter(dirEntryFilter.predicate()) //
+				.map(entry -> {
+					ItemValue<Mailbox> box = mboxApi.getComplete(entry.entryUid);
+					Optional<String> writerUid = (box.value.type == Mailbox.Type.mailshare)
+							? mboxApi.getMailboxAccessControlList(entry.entryUid).stream() //
+									.filter(ace -> ace.verb.equals(Verb.Write) || ace.verb.equals(Verb.All)) //
+									.map(ace -> ace.subject).findFirst()
+							: Optional.of(entry.entryUid);
+
+					return writerUid.map(uid -> {
+						ItemValue<Mailbox> mbox = mboxApi.getComplete(uid);
+						LoginResponse lr = provider.instance(IAuthentication.class)
+								.su(mbox.value.name + "@" + domainUid);
+						return tmf.create(new TargetMailbox.Auth(lr.latd, lr.authKey, box.value));
+					}).orElse(null);
+				}).filter(Objects::nonNull).collect(Collectors.toCollection(ArrayList::new));
 
 		this.domain = domainUid;
 
 		userEmails.stream().parallel().forEach(tm -> {
 			boolean login = tm.prepare();
-			logger.info("Logged-in {} => {}", tm.email, login);
+			logger.info("Logged-in {} => {}", tm.auth.email(), login);
 		});
 
 		logger.info("Created with {} target mailbox(es)", userEmails.size());

@@ -19,5 +19,6 @@
 package net.bluemind.cli.inject.common;
 
 public interface TargetMailboxFactory {
-	TargetMailbox create(String email, String sid);
+
+	TargetMailbox create(TargetMailbox.Auth auth);
 }

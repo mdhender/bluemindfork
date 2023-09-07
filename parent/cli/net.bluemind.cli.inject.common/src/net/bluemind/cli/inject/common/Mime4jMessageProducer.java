@@ -73,8 +73,8 @@ public class Mime4jMessageProducer implements IMessageProducer {
 		MessageImpl msg = new MessageImpl();
 
 		try {
-			msg.setFrom(AddressBuilder.DEFAULT.parseMailbox(from.email));
-			msg.setTo(AddressBuilder.DEFAULT.parseMailbox(to.email));
+			msg.setFrom(AddressBuilder.DEFAULT.parseMailbox(from.auth.email()));
+			msg.setTo(AddressBuilder.DEFAULT.parseMailbox(to.auth.email()));
 		} catch (ParseException e) {
 			logger.error(e.getMessage(), e);
 		}

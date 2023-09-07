@@ -18,13 +18,17 @@
  */
 package net.bluemind.cli.inject.common;
 
-public abstract class TargetMailbox {
-	public final String email;
-	public final String sid;
+import net.bluemind.mailbox.api.Mailbox;
 
-	public TargetMailbox(String email, String sid) {
-		this.email = email;
-		this.sid = sid;
+public abstract class TargetMailbox {
+
+	public static record Auth(String email, String sid, Mailbox box) {
+	}
+
+	public TargetMailbox.Auth auth;
+
+	public TargetMailbox(TargetMailbox.Auth auth) {
+		this.auth = auth;
 	}
 
 	public abstract boolean prepare();

@@ -34,8 +34,9 @@ public class SmallRandomMessageProducer implements IMessageProducer {
 		byte[] tgt = new byte[256];
 		ThreadLocalRandom.current().nextBytes(tgt);
 
-		sb.append("From: ").append(from.email).append("\r\n");
-		sb.append("Subject: Hi ").append(to.email).append(' ').append(h.hashBytes(tgt).toString()).append("\r\n");
+		sb.append("From: ").append(from.auth.email()).append("\r\n");
+		sb.append("Subject: Hi ").append(to.auth.email()).append(' ').append(h.hashBytes(tgt).toString())
+				.append("\r\n");
 		sb.append("Content-Type: text/plain\r\n");
 		sb.append("\r\n");
 		sb.append(System.currentTimeMillis());

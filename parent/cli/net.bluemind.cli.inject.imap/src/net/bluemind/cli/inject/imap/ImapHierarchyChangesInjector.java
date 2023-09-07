@@ -29,6 +29,7 @@ import com.google.common.base.Strings;
 import net.bluemind.cli.inject.common.IMessageProducer;
 import net.bluemind.cli.inject.common.MailExchangeInjector;
 import net.bluemind.cli.inject.common.TargetMailbox;
+import net.bluemind.cli.inject.common.TargetMailbox.Auth;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.imap.ListInfo;
@@ -49,9 +50,9 @@ public class ImapHierarchyChangesInjector extends MailExchangeInjector {
 		private final List<String> target;
 		private final Beer faker;
 
-		public ImapTargetMailbox(String email, String sid, int folders) {
-			super(email, sid);
-			this.sc = new StoreClient(Topology.get().any("mail/imap").value.address(), 1143, email, sid);
+		public ImapTargetMailbox(TargetMailbox.Auth auth, int folders) {
+			super(auth);
+			this.sc = new StoreClient(Topology.get().any("mail/imap").value.address(), 1143, auth.email(), auth.sid());
 			this.lock = new Semaphore(1);
 			this.faker = new Faker().beer();
 			this.target = new ArrayList<>(folders);
@@ -106,7 +107,7 @@ public class ImapHierarchyChangesInjector extends MailExchangeInjector {
 				} else {
 					TaggedResult fullList = sc.tagged("XLIST \"\" \"*\"");
 					if (!fullList.isOk()) {
-						throw new ServerFault("listing failed for " + email);
+						throw new ServerFault("listing failed for " + auth.email());
 					}
 				}
 			} catch (Exception e) {
@@ -127,7 +128,7 @@ public class ImapHierarchyChangesInjector extends MailExchangeInjector {
 	};
 
 	public ImapHierarchyChangesInjector(IServiceProvider provider, String domainUid, int folders) {
-		super(provider, domainUid, (em, sid) -> new ImapTargetMailbox(em, sid, folders), DUMB);
+		super(provider, domainUid, auth -> new ImapTargetMailbox(auth, folders), DUMB);
 	}
 
 	public ImapHierarchyChangesInjector(IServiceProvider provider, String domainUid) {

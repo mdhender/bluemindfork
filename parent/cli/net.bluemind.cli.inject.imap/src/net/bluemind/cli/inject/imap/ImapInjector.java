@@ -21,6 +21,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -30,10 +31,13 @@ import net.bluemind.cli.inject.common.GOTMessageProducer;
 import net.bluemind.cli.inject.common.IMessageProducer;
 import net.bluemind.cli.inject.common.MailExchangeInjector;
 import net.bluemind.cli.inject.common.TargetMailbox;
+import net.bluemind.cli.inject.common.TargetMailbox.Auth;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
+import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.imap.FlagsList;
 import net.bluemind.imap.StoreClient;
+import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.server.api.Server;
 import net.bluemind.server.api.TagDescriptor;
@@ -50,10 +54,10 @@ public class ImapInjector extends MailExchangeInjector {
 		private List<String> target;
 		private int bound;
 
-		public ImapTargetMailbox(String email, String sid, int folders) {
-			super(email, sid);
-			this.sc = new StoreClient(Topology.get().any(TagDescriptor.bm_core.getTag()).value.address(), 1143, email,
-					sid);
+		public ImapTargetMailbox(TargetMailbox.Auth auth, int folders) {
+			super(auth);
+			this.sc = new StoreClient(Topology.get().any(TagDescriptor.bm_core.getTag()).value.address(), 1143,
+					auth.email(), auth.sid());
 			this.lock = new Semaphore(1);
 			this.target = new ArrayList<>(1 + folders * folders);
 			this.target.add("INBOX");
@@ -61,9 +65,9 @@ public class ImapInjector extends MailExchangeInjector {
 			this.folders = folders;
 		}
 
-		public ImapTargetMailbox(ItemValue<Server> srv, String email, String sid, int folders) {
-			super(email, sid);
-			this.sc = new StoreClient(srv.value.address(), 1143, email, sid);
+		public ImapTargetMailbox(ItemValue<Server> srv, TargetMailbox.Auth auth, int folders) {
+			super(auth);
+			this.sc = new StoreClient(srv.value.address(), 1143, auth.email(), auth.sid());
 			this.lock = new Semaphore(1);
 			this.target = new ArrayList<>(1 + folders * folders);
 			this.target.add("INBOX");
@@ -80,19 +84,27 @@ public class ImapInjector extends MailExchangeInjector {
 					int lvl1 = folders;
 					int lvl2 = folders;
 					for (int i = 0; i < lvl1; i++) {
-						String root = (Strings.padStart(Integer.toString(i), 3, '0') + " " + country.name())
+						String suffix = (Strings.padStart(Integer.toString(i), 3, '0') + " " + country.name())
 								.replace(' ', '_');
+						String root = auth.box().type == Mailbox.Type.user //
+								? suffix //
+								: "Dossiers partagés/" + auth.box().name + "/" + suffix;
 						boolean created = sc.create(root);
 						if (created) {
 							target.add(root);
 							for (int j = 0; j < lvl2; j++) {
-								String sub = (root + "/" + Strings.padStart(Integer.toString(j), 3, '0') + " "
-										+ beer.name()).replace(' ', '_');
+								String sub = root + "/"
+										+ (Strings.padStart(Integer.toString(j), 3, '0') + " " + beer.name())
+												.replace(' ', '_');
 								if (sc.create(sub)) {
 									target.add(sub);
+								} else {
+									System.out.println("Not created: " + sub);
 								}
 
 							}
+						} else {
+							System.out.println("Not created: " + root);
 						}
 					}
 					this.bound = target.size();
@@ -114,7 +126,7 @@ public class ImapInjector extends MailExchangeInjector {
 			}
 			try (InputStream in = new ByteArrayInputStream(emlContent)) {
 				int added = sc.append(target.get(ThreadLocalRandom.current().nextInt(bound)), in, new FlagsList());
-				logger.debug("Added {} to {}", added, email);
+				logger.debug("Added {} to {}", added, auth.email());
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			} finally {
@@ -123,21 +135,19 @@ public class ImapInjector extends MailExchangeInjector {
 		}
 	}
 
-	public ImapInjector(IServiceProvider provider, String domainUid, IMessageProducer prod, int folders) {
-		super(provider, domainUid, (em, sid) -> new ImapTargetMailbox(em, sid, folders), prod);
-	}
-
-	public ImapInjector(ItemValue<Server> srv, IServiceProvider provider, String domainUid, IMessageProducer prod,
+	public ImapInjector(IServiceProvider provider, String domainUid, IMessageProducer prod, Set<String> filteredEmails,
 			int folders) {
-		super(provider, domainUid, (em, sid) -> new ImapTargetMailbox(srv, em, sid, folders), prod);
-	}
-
-	public ImapInjector(IServiceProvider provider, String domainUid) {
-		this(provider, domainUid, new GOTMessageProducer(), 5);
+		super(provider, domainUid, auth -> new ImapTargetMailbox(auth, folders), prod,
+				new DirEntryFilter(filteredEmails, Set.of(Kind.USER, Kind.MAILSHARE)));
 	}
 
 	public ImapInjector(ItemValue<Server> srv, IServiceProvider provider, String domainUid) {
 		this(srv, provider, domainUid, new GOTMessageProducer(), 5);
+	}
+
+	public ImapInjector(ItemValue<Server> srv, IServiceProvider provider, String domainUid, IMessageProducer prod,
+			int folders) {
+		super(provider, domainUid, auth -> new ImapTargetMailbox(srv, auth, folders), prod);
 	}
 
 }
