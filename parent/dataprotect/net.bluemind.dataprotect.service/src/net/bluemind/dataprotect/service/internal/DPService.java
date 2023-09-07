@@ -50,7 +50,7 @@ import net.bluemind.dataprotect.persistence.GenerationWriter;
 import net.bluemind.dataprotect.persistence.RetentionPolicyStore;
 import net.bluemind.dataprotect.service.IRestoreActionProvider;
 import net.bluemind.dataprotect.service.action.RestoreActionExecutor;
-import net.bluemind.directory.api.DirEntryQuery;
+import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.server.api.Server;
@@ -146,7 +146,7 @@ public class DPService implements IDataProtect {
 		checkAccess();
 		if (!ctx.getSecurityContext().isDomainGlobal()
 				&& (!ctx.getSecurityContext().getRoles().contains(BasicRoles.ROLE_DATAPROTECT)
-						|| !ctx.getSecurityContext().getRoles().contains(BasicRoles.ROLE_MANAGE_RESTORE))) {
+						&& !ctx.getSecurityContext().getRoles().contains(BasicRoles.ROLE_MANAGE_RESTORE))) {
 			checkRestoreItemAccess(restoreDefinition.item);
 		}
 
@@ -285,18 +285,27 @@ public class DPService implements IDataProtect {
 
 		Collection<String> allowedOu = expandContextManageRestoreOrgUnitPerms(ctx);
 
-		if (!ctx.getServiceProvider().instance(IDirectory.class, ctx.getSecurityContext().getContainerUid())
-				.search(DirEntryQuery.entries(item.entryUid)).values.stream().filter(e -> e.value.orgUnitPath != null)
-				.anyMatch(e -> e.value.orgUnitPath.path().stream().anyMatch(allowedOu::contains))) {
+		DirEntry dirEntry = ctx.getServiceProvider()
+				.instance(IDirectory.class, ctx.getSecurityContext().getContainerUid()).findByEntryUid(item.entryUid);
+		if (itemIsnotInOrgUnit(dirEntry) || userHasInsufficientPermisionsForOrgUnit(allowedOu, dirEntry)) {
 			throw new ServerFault(String.format("%s@%s Doesnt have perms to restore %s from domain %s", //
 					ctx.getSecurityContext().getSubject(), ctx.getSecurityContext().getContainerUid(), //
 					item.entryUid, item.domainUid), ErrorCode.PERMISSION_DENIED);
 		}
 	}
 
+	private boolean userHasInsufficientPermisionsForOrgUnit(Collection<String> allowedOu, DirEntry dirEntry) {
+		return dirEntry.orgUnitPath.path().stream().noneMatch(allowedOu::contains);
+	}
+
+	private boolean itemIsnotInOrgUnit(DirEntry dirEntry) {
+		return dirEntry.orgUnitPath == null;
+	}
+
 	protected static Collection<String> expandContextManageRestoreOrgUnitPerms(BmContext context) {
 		return context.getSecurityContext().getRolesByOrgUnits().entrySet().stream()
-				.filter(es -> es.getValue().contains(BasicRoles.ROLE_MANAGE_RESTORE)).map(Entry::getKey)
-				.collect(Collectors.toSet());
+				.filter(es -> es.getValue().contains(BasicRoles.ROLE_MANAGE_RESTORE)
+						|| es.getValue().contains(BasicRoles.ROLE_DATAPROTECT))
+				.map(Entry::getKey).collect(Collectors.toSet());
 	}
 }
