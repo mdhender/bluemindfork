@@ -1,10 +1,9 @@
-import Vue from "vue";
 import Vuex from "vuex";
-import { mount } from "@vue/test-utils";
+import { createLocalVue, mount } from "@vue/test-utils";
 import EventDetail from "../EventDetail";
 import store from "~/store";
 
-describe("Invitation Insert Body", () => {
+describe("Event Insert Body", () => {
     it("should be a Vue component", () => {
         const wrapper = EventDetailComponent().mount();
         expect(wrapper.vm).toBeDefined();
@@ -59,7 +58,8 @@ function EventDetailComponent(currentEvent) {
             this.serverEvent.value.main.dtend.iso8601 = new Date(value).toISOString();
         }
     };
-    Vue.use(Vuex);
+    const localVue = createLocalVue();
+    localVue.use(Vuex);
     const mockStore = new Vuex.Store();
     const MailAppStore = store;
     mockStore.registerModule("mail", MailAppStore);

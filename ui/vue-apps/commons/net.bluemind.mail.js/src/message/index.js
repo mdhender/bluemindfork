@@ -157,15 +157,14 @@ export function isFlagged(message) {
 export function isImip(message) {
     return message.loading === LoadingStatus.LOADED && message.headers.some(hasXbmImipEvent);
 }
-function hasXbmImipEvent({ name }) {
-    return XBM_EVENTS_HEADERS.includes(name);
+export function hasXbmImipEvent({ name }) {
+    return XBM_EVENTS_HEADERS.includes(name.toUpperCase());
 }
 const XBM_EVENTS_HEADERS = [
-    MessageHeader.X_BM_EVENT_REPLIED,
-    MessageHeader.X_BM_RESOURCEBOOKING,
-    MessageHeader.X_BM_EVENT,
-    MessageHeader.X_BM_EVENT_COUNTERED,
-    MessageHeader.X_BM_EVENT_CANCELED
+    MessageHeader.X_BM_EVENT_REPLIED.toUpperCase(),
+    MessageHeader.X_BM_EVENT.toUpperCase(),
+    MessageHeader.X_BM_EVENT_COUNTERED.toUpperCase(),
+    MessageHeader.X_BM_EVENT_CANCELED.toUpperCase()
 ];
 
 /** Extract multi-valued / whitespace separated values from given header. */

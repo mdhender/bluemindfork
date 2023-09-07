@@ -1,3 +1,25 @@
+<script setup>
+import { computed } from "vue";
+import { BmIcon, BmRow } from "@bluemind/ui-components";
+import EventHelper from "~/store/helpers/EventHelper";
+import EventCalendarIllustration from "./EventCalendarIllustration.vue";
+
+const props = defineProps({
+    event: { type: Object, required: true },
+    illustration: { type: String, default: "calendar" }
+});
+
+const eventTimeRange = computed(() => {
+    const dtstart = props.event.serverEvent?.value?.main?.dtstart;
+    const dtend = props.event.serverEvent?.value?.main?.dtend;
+    const { startDate, endDate } = EventHelper.adaptRangeDate(dtstart, dtend);
+    return {
+        start: startDate,
+        end: endDate
+    };
+});
+</script>
+
 <template>
     <div class="event-detail">
         <event-calendar-illustration :illustration="illustration" />
@@ -12,34 +34,6 @@
         </bm-row>
     </div>
 </template>
-
-<script>
-import { computed } from "vue";
-import { mapState } from "vuex";
-import { BmIcon, BmRow } from "@bluemind/ui-components";
-import EventHelper from "~/store/helpers/EventHelper";
-import EventCalendarIllustration from "./EventCalendarIllustration";
-
-export default {
-    name: "EventDetail",
-    components: { BmIcon, BmRow, EventCalendarIllustration },
-    props: {
-        event: { type: Object, required: true },
-        illustration: { type: String, default: "calendar" }
-    },
-    computed: {
-        eventTimeRange() {
-            const dtstart = this.event.serverEvent?.value?.main?.dtstart;
-            const dtend = this.event.serverEvent?.value?.main?.dtend;
-            const { startDate, endDate } = EventHelper.adaptRangeDate(dtstart, dtend);
-            return {
-                start: startDate,
-                end: endDate
-            };
-        }
-    }
-};
-</script>
 
 <style lang="scss">
 @import "~@bluemind/ui-components/src/css/utils/variables";

@@ -1,6 +1,6 @@
 <script setup>
-import { BmButtonExpand } from "@bluemind/ui-components";
 import { computed, ref } from "vue";
+import { BmButtonExpand } from "@bluemind/ui-components";
 
 const props = defineProps({ event: { type: Object, required: true } });
 

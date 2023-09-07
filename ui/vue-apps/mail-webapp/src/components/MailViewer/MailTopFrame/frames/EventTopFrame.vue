@@ -5,11 +5,7 @@ import store from "@bluemind/store";
 import ChainOfResponsibility from "../ChainOfResponsibility";
 import { CURRENT_MAILBOX } from "~/getters";
 import { FETCH_EVENT } from "~/actions";
-import EventRequest from "../../EventViewer/EventRequest";
-import EventReplied from "../../EventViewer/EventReplied";
-import EventCanceled from "../../EventViewer/EventCanceled";
-import EventLoading from "../../EventViewer/EventLoading";
-import EventNotFound from "../../EventViewer/EventNotFound";
+import { EventRequest, EventReplied, EventCanceled, EventLoading, EventNotFound } from "../../EventViewer";
 
 const { isImip, MessageHeader } = messageUtils;
 const { LoadingStatus } = loadingStatusUtils;
@@ -23,10 +19,16 @@ watch(
     () => props.message.key,
     async function handler() {
         if (isMessageImip.value) {
-            await store.dispatch(`mail/${FETCH_EVENT}`, {
-                message: this.message,
-                mailbox: store.state.mail.CURRENT_MAILBOX
-            });
+            try {
+                await store.dispatch(`mail/${FETCH_EVENT}`, {
+                    message: props.message,
+                    mailbox: store.getters[`mail/${CURRENT_MAILBOX}`]
+                });
+            } catch (e) {
+                if (e !== "Event not found") {
+                    throw e;
+                }
+            }
         }
     },
     { immediate: true }
@@ -48,7 +50,7 @@ export default {
     <chain-of-responsibility :is-responsible="isMessageImip">
         <div class="event-wrapper">
             <event-loading v-if="event.loading === LoadingStatus.LOADING" />
-            <event-canceled v-else-if="isCanceled" :message="message" :event="event" />
+            <event-canceled v-else-if="isCanceled" :message="message" />
             <event-not-found v-else-if="event.loading === LoadingStatus.ERROR" :event="event" />
             <event-request v-else-if="isRequest" :message="message" :event="event" />
             <event-replied v-else-if="isReply" :message="message" :event="event" />
@@ -62,10 +64,5 @@ export default {
     display: grid;
     background-color: $neutral-bg-lo1;
     padding-bottom: $sp-4;
-    & > div {
-        display: flex;
-        flex-direction: column;
-        gap: $sp-4;
-    }
 }
 </style>

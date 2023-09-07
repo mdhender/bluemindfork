@@ -1,14 +1,15 @@
 <script setup>
-import EventCalendarIllustration from "./EventCalendarIllustration";
-import { BmRow } from "@bluemind/ui-components";
+import EventCalendarIllustration from "./EventCalendarIllustration.vue";
 </script>
 
 <template>
     <div class="event-not-found">
-        <div>
-            <event-calendar-illustration illustration="calendar-error" />
-            <div>Event not found</div>
-        </div>
+        <event-calendar-illustration illustration="calendar-error" />
+        <i18n path="mail.viewer.invitation.not_found.event" tag="div" class="font-weight-bold">
+            <template #status>
+                <span class="event-not-found-status">{{ $t("mail.viewer.invitation.not_found.status") }}</span>
+            </template>
+        </i18n>
     </div>
 </template>
 
@@ -17,15 +18,13 @@ import { BmRow } from "@bluemind/ui-components";
 @import "~@bluemind/ui-components/src/css/utils/responsiveness";
 
 .event-not-found {
-    > div {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        gap: $sp-6;
-        padding: 0 $sp-5 0px $sp-5;
-        @include until-lg {
-            padding: $sp-5;
-        }
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: $sp-6;
+    padding: $sp-4 $sp-5 0px $sp-5;
+    .event-not-found-status {
+        color: $danger-fg-hi1;
     }
 }
 </style>

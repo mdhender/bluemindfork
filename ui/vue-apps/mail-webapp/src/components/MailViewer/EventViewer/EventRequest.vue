@@ -5,7 +5,7 @@ import { SET_EVENT_STATUS } from "~/actions";
 import EventHeader from "./EventHeader";
 import EventDetail from "./EventDetail";
 import EventFooter from "./EventFooter";
-import { REPLY_ACTIONS } from "./currentEvent";
+import { REPLY_ACTIONS } from "./replyActions";
 
 const props = defineProps({
     message: { type: Object, required: true },
@@ -18,7 +18,7 @@ const replyActions = [
     { name: REPLY_ACTIONS.DECLINED, icon: "cross", i18n: "decline" }
 ];
 
-const setEventStatus = payload => store.dispatch(`mail/${SET_EVENT_STATUS}`, payload);
+const setEventStatus = status => store.dispatch(`mail/${SET_EVENT_STATUS}`, { message: props.message, status });
 </script>
 
 <template>
@@ -33,7 +33,7 @@ const setEventStatus = payload => store.dispatch(`mail/${SET_EVENT_STATUS}`, pay
                         :key="action.name"
                         :icon="action.icon"
                         :pressed="event.status === action.name"
-                        @click="setEventStatus({ message, status: action.name })"
+                        @click="setEventStatus(action.name)"
                     >
                         {{ $t(`mail.viewer.invitation.${action.i18n}`) }}
                     </bm-toggleable-button>
@@ -49,6 +49,10 @@ const setEventStatus = payload => store.dispatch(`mail/${SET_EVENT_STATUS}`, pay
 @import "~@bluemind/ui-components/src/css/utils/variables";
 
 .event-request {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-4;
+
     .reply-buttons {
         display: flex;
         gap: $sp-6;

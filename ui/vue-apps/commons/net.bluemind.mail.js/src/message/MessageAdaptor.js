@@ -6,7 +6,7 @@ import TreeWalker from "@bluemind/mime-tree-walker";
 import GetAttachmentPartsVisitor from "./GetAttachmentPartsVisitor";
 import GetInlinePartsVisitor from "./GetInlinePartsVisitor";
 import GetReportPartsVisitor from "./GetReportPartsVisitor";
-import { createWithMetadata, MessageHeader, MessageStatus } from "./index";
+import { createWithMetadata, hasXbmImipEvent, MessageHeader, MessageStatus } from "./index";
 import { LoadingStatus } from "../loading-status";
 
 export default {
@@ -112,26 +112,14 @@ function buildRecipientsForKind(kind, recipients) {
 }
 
 export function getEventInfo(headers) {
-    let isCounterEvent = false;
-    const icsHeader = headers.find(({ name }) => {
-        if (MessageHeader.X_BM_EVENT_COUNTERED.toUpperCase() === name.toUpperCase()) {
-            isCounterEvent = true;
-            return true;
-        }
-        if (
-            [
-                MessageHeader.X_BM_EVENT.toUpperCase(),
-                MessageHeader.X_BM_EVENT_REPLIED.toUpperCase(),
-                MessageHeader.X_BM_EVENT_CANCELED.toUpperCase()
-            ].includes(name.toUpperCase())
-        ) {
-            return true;
-        }
-    });
+    const icsHeader = headers.find(hasXbmImipEvent);
 
     if (!icsHeader) {
         return { hasICS: false };
     }
+
+    const isCounterEvent =
+        Boolean(icsHeader) && MessageHeader.X_BM_EVENT_COUNTERED.toUpperCase() === icsHeader.name.toUpperCase();
 
     let isResourceBooking = false,
         resourceUid = "";
