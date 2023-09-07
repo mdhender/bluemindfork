@@ -17,7 +17,11 @@ export default {
             },
             date: adaptDate(infos.dtstart, infos.dtend, infos.rrule),
             conference: infos.conference,
-            attendees: infos.attendees.map(attendee => ({ name: attendee.commonName, mail: attendee.mailto })),
+            attendees: infos.attendees.map(attendee => ({
+                name: attendee.commonName,
+                mail: attendee.mailto,
+                status: attendee.partStatus
+            })),
             mailboxOwner,
             status: this.findAttendee(infos.attendees, mailboxOwner)?.partStatus,
             recuridIsoDate,

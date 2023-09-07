@@ -6,11 +6,9 @@
         </div>
         <bm-row class="event-row-icon summary">
             <bm-icon icon="lock-fill" class="mr-2" />
-            <span class="font-weight-bold">{{ currentEvent.summary }} </span>
+            <h3>{{ currentEvent.summary }}</h3>
         </bm-row>
-        <bm-row class="event-time">
-            <span>{{ eventTimeRange.start }} - {{ eventTimeRange.end }}</span>
-        </bm-row>
+        <bm-row class="event-time title"> {{ eventTimeRange.start }} - {{ eventTimeRange.end }} </bm-row>
         <bm-row class="event-row-icon occurence">
             <bm-icon icon="calendar" class="mr-2" />
             <span>{{ currentEvent.date }}</span>
@@ -95,18 +93,16 @@ export default {
         grid-area: summary;
         color: $primary-fg-hi1;
         padding-top: $sp-3;
-        & > span {
+        & > h3 {
+            margin-bottom: 0;
             overflow: hidden;
             display: -webkit-box;
             -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;
         }
     }
-    .event-time {
-        grid-area: time;
-        font-size: $h2-font-size;
-        font-weight: $font-weight-light;
-        display: flex;
+    .event-time.title {
+        margin-bottom: 0;
     }
     .occurence {
         grid-area: occurrence;

@@ -112,12 +112,23 @@ function buildRecipientsForKind(kind, recipients) {
 }
 
 export function getEventInfo(headers) {
-    const icsHeader = getRequestHeader(headers) || getCounterHeader(headers);
+    let isCounterEvent = false;
+    const icsHeader = headers.find(({ name }) => {
+        if (MessageHeader.X_BM_EVENT_COUNTERED.toUpperCase() === name.toUpperCase()) {
+            isCounterEvent = true;
+            return true;
+        }
+        if (
+            MessageHeader.X_BM_EVENT.toUpperCase() === name.toUpperCase() ||
+            MessageHeader.X_BM_EVENT_REPLIED.toUpperCase() === name.toUpperCase()
+        ) {
+            return true;
+        }
+    });
 
     if (!icsHeader) {
         return { hasICS: false };
     }
-    const isCounterEvent = icsHeader.name.toUpperCase() === MessageHeader.X_BM_EVENT_COUNTERED.toUpperCase();
 
     let isResourceBooking = false,
         resourceUid = "";

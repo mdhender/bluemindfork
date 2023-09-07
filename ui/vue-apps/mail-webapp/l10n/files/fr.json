@@ -426,6 +426,14 @@
     "mail.viewer.invitation.decline": "Non",
     "mail.viewer.invitation.request": "Accepter l'invitation ?",
     "mail.viewer.invitation.tentatively": "Peut-être",
+    "mail.viewer.invitation.reply": "{name} a {status} l'invitation",
+    "mail.viewer.invitation.replyOccurrence": "{name} a {status} de l'événement",
+    "mail.viewer.invitationReply.accepted": "accepté",
+    "mail.viewer.invitationReply.acceptedOccurrence": "accepté une occurrence",
+    "mail.viewer.invitationReply.tentative": "accepté provisoirement",
+    "mail.viewer.invitationReply.tentativeOccurrence": "accepté provisoirement une occurrence",
+    "mail.viewer.invitationReply.declined": "refusé",
+    "mail.viewer.invitationReply.declinedOccurrence": "refusé une occurrence",
     "mail": {
         "actions": {
             "move_folder_to_trash": {

@@ -1,3 +1,20 @@
+<script setup>
+import { BmToggleableButton } from "@bluemind/ui-components";
+import { loadingStatusUtils } from "@bluemind/mail";
+import { REPLY_ACTIONS } from "./currentEvent";
+
+const { LoadingStatus } = loadingStatusUtils;
+
+defineProps({ currentEvent: { type: Object, required: true } });
+const emit = defineEmits(["event-replied"]);
+
+const replyActions = [
+    { name: REPLY_ACTIONS.ACCEPTED, icon: "check", i18n: "accept" },
+    { name: REPLY_ACTIONS.TENTATIVE, icon: "interrogation", i18n: "tentatively" },
+    { name: REPLY_ACTIONS.DECLINED, icon: "cross", i18n: "decline" }
+];
+</script>
+
 <template>
     <div v-if="currentEvent.loading === LoadingStatus.LOADED" class="event-reply-header">
         <span class="label pl-3">{{ $t("mail.viewer.invitation.request") }}</span>
@@ -7,43 +24,13 @@
                 :key="action.name"
                 :icon="action.icon"
                 :pressed="currentEvent.status === action.name"
-                @click="$emit('event-replied', action.name)"
+                @click="emit('event-replied', action.name)"
             >
                 {{ $t(`mail.viewer.invitation.${action.i18n}`) }}
             </bm-toggleable-button>
         </div>
     </div>
 </template>
-
-<script>
-import { BmToggleableButton } from "@bluemind/ui-components";
-import { loadingStatusUtils } from "@bluemind/mail";
-
-const { LoadingStatus } = loadingStatusUtils;
-
-const REPLY_ACTIONS = {
-    ACCEPTED: "Accepted",
-    TENTATIVE: "Tentative",
-    DECLINED: "Declined"
-};
-export default {
-    name: "EventReplyHeader",
-    components: { BmToggleableButton },
-    props: {
-        currentEvent: { type: Object, required: true }
-    },
-    data() {
-        return {
-            LoadingStatus,
-            replyActions: [
-                { name: REPLY_ACTIONS.ACCEPTED, icon: "check", i18n: "accept" },
-                { name: REPLY_ACTIONS.TENTATIVE, icon: "interrogation", i18n: "tentatively" },
-                { name: REPLY_ACTIONS.DECLINED, icon: "cross", i18n: "decline" }
-            ]
-        };
-    }
-};
-</script>
 
 <style lang="scss">
 @import "~@bluemind/ui-components/src/css/utils/responsiveness";
