@@ -94,7 +94,7 @@
 		<frontend-yarn.version>v1.22.17</frontend-yarn.version>
 
 		<gwt.version>2.10.0</gwt.version>
-		<gwt.memory>1024</gwt.memory>
+		<gwt.memory>768</gwt.memory>
 		<maven.test.failure.ignore>true</maven.test.failure.ignore>
 		<l10n.list>"en", "fr"</l10n.list>
 
