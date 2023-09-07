@@ -9,26 +9,26 @@
 		<version>5.0.0-SNAPSHOT</version>
 	</parent>
 	<modules>
-		<module>gwt-libs</module>
 		<module>3-party</module>
+		<module>Calendar</module>
+		<module>Contact</module>
+		<module>DefaultApp</module>
+		<module>Push</module>
+		<module>adminconsole-webapp</module>
+		<module>closures</module>
+		<module>gwt-libs</module>
 		<module>gwt-ui-libs</module>
-		<module>net.bluemind.ui.gwtcommon.icons</module>
+		<module>net.bluemind.gwtconsoleapp.base</module>
+		<module>net.bluemind.ui.dynresources</module>
+		<module>net.bluemind.ui.eventdeferredaction</module>
 		<module>net.bluemind.ui.gwtcommon.editor</module>
 		<module>net.bluemind.ui.gwtcommon.forms</module>
+		<module>net.bluemind.ui.gwtcommon.icons</module>
 		<module>net.bluemind.ui.resources</module>
-		<module>net.bluemind.ui.dynresources</module>
-		<module>closures</module>
-		<module>Contact</module>
-		<module>Calendar</module>
-		<module>Push</module>
-		<module>DefaultApp</module>
-		<module>webmodules</module>
-		<module>roundcube</module>
 		<module>net.bluemind.ui.webmail.application</module>
-		<module>adminconsole-webapp</module>
-		<module>net.bluemind.gwtconsoleapp.base</module>
+		<module>roundcube</module>
 		<module>settings-webapp</module>
-		<module>net.bluemind.ui.eventdeferredaction</module>
 		<module>vue-apps</module>
+		<module>webmodules</module>
 	</modules>
 </project>

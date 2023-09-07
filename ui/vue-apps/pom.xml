@@ -24,10 +24,6 @@
 	<modules>
 		<module>bm-19791-dirty-fix</module>
 		<module>bm-api-clients</module>
-		<module>mail-webapp</module>
-		<module>plugins</module>
-		<module>root-webapp</module>
-		<module>videoconferencing-saas-webapp</module>
 		<module>webmodules</module>
 	</modules>
 	<profiles>
@@ -35,6 +31,15 @@
 			<id>open-packaging</id>
 			<modules>
 				<module>packaging</module>
+			</modules>
+		</profile>
+		<profile>
+			<id>full</id>
+			<modules>
+				<module>mail-webapp</module>
+				<module>plugins</module>
+				<module>root-webapp</module>
+				<module>videoconferencing-saas-webapp</module>
 			</modules>
 		</profile>
 	</profiles>
