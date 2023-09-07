@@ -421,6 +421,11 @@
     "mail.viewer.no.name": "(Untitled)",
     "mail.viewer.no.preview": "(No preview available)",
     "mail.viewer.no.subject": "(No subject)",
+    "mail.viewer.invitation.accept": "Yes",
+    "mail.viewer.invitation.attendee": "Attendee ({count}) | Attendees ({count})",
+    "mail.viewer.invitation.decline": "No",
+    "mail.viewer.invitation.request": "Accept invitation",
+    "mail.viewer.invitation.tentatively": "Maybe",
     "mail": {
         "actions": {
             "move_folder_to_trash": {

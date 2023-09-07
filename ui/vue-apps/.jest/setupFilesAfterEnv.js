@@ -9,7 +9,10 @@ window.bmcSessionInfos = { lang: "fr", sid: "", userId: "" };
 
 global.TextDecoder = TextDecoder;
 global.TextEncoder = TextEncoder;
+<<<<<<< HEAD
 
+=======
+>>>>>>> 206766ffa0d (FEATWEBML-2602 Feat: add X-Bm-Events Insert)
 global.URL.createObjectURL = jest.fn();
 global.navigator.serviceWorker = { controller: true };
 

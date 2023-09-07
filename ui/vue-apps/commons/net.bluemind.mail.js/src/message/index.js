@@ -122,6 +122,7 @@ export const MessageHeader = {
     X_BM_DRAFT_REFRESH_DATE: "X-Bm-Draft-Refresh-Date",
     X_BM_EVENT_COUNTERED: "X-BM-Event-Countered",
     X_BM_COUNTER_ATTENDEE: "X-BM-Counter-Attendee",
+    X_BM_EVENT_REPLIED: "X-BM-Event-Replied",
     X_BM_EVENT: "X-BM-Event",
     X_BM_RESOURCEBOOKING: "X-BM-ResourceBooking",
     X_BM_REWRITE: "X-BM-Rewrite",
@@ -151,6 +152,19 @@ export function isUnread(message) {
 export function isFlagged(message) {
     return message.loading === LoadingStatus.LOADED && message.flags.includes(Flag.FLAGGED);
 }
+
+export function isImip(message) {
+    return message.loading === LoadingStatus.LOADED && message.headers.some(hasXbmImipEvent);
+}
+function hasXbmImipEvent({ name }) {
+    return XBM_EVENTS_HEADERS.includes(name);
+}
+const XBM_EVENTS_HEADERS = [
+    MessageHeader.X_BM_EVENT_REPLIED,
+    MessageHeader.X_BM_RESOURCEBOOKING,
+    MessageHeader.X_BM_EVENT,
+    MessageHeader.X_BM_EVENT_COUNTERED
+];
 
 /** Extract multi-valued / whitespace separated values from given header. */
 export function extractHeaderValues(message, headerName) {
@@ -277,6 +291,7 @@ export default {
     generateMessageIDHeader,
     isFlagged,
     isForward,
+    isImip,
     isReply,
     isUnread,
     EmlParser,

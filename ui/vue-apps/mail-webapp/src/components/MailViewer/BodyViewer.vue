@@ -18,12 +18,8 @@
                     </template>
                 </files-block>
             </slot>
-            <event-viewer v-if="message.hasICS && currentEvent" :parts="inlines" :message="message">
-                <template v-for="(_, slot) of $scopedSlots" #[slot]="scope">
-                    <slot :name="slot" v-bind="scope" />
-                </template>
-            </event-viewer>
-            <mail-inlines-block v-else :message="message" :parts="inlines">
+
+            <mail-inlines-block :message="message" :parts="inlines">
                 <template v-for="(_, slot) of $scopedSlots" #[slot]="scope">
                     <slot :name="slot" v-bind="scope" />
                 </template>
@@ -44,7 +40,6 @@ import { FETCH_PART_DATA } from "~/actions";
 import { CONVERSATION_MESSAGE_BY_KEY } from "~/getters";
 import { SET_PREVIEW_FILE_KEY, SET_PREVIEW_MESSAGE_KEY } from "~/mutations";
 
-import EventViewer from "./EventViewer";
 import FilesBlock from "../MailAttachment/FilesBlock";
 import FileToolbar from "../MailAttachment/FileToolbar";
 import FiletypeOverlay from "../MailAttachment/Overlays/FiletypeOverlay";
@@ -60,7 +55,6 @@ export default {
     name: "BodyViewer",
     components: {
         BmExtension,
-        EventViewer,
         FilesBlock,
         FileToolbar,
         FiletypeOverlay,
