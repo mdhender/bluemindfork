@@ -122,13 +122,15 @@ public final class VertxPlatform implements BundleActivator {
 		EventBus eb = vertx.eventBus();
 		eb.addOutboundInterceptor(event -> {
 			MultiMap headers = event.message().headers();
-			String endpoint = ContextualData.getOrDefault("endpoint", null);
-			String user = ContextualData.getOrDefault("user", null);
-			if (endpoint != null) {
-				headers.add("log-endpoint", endpoint);
-			}
-			if (user != null) {
-				headers.add("log-user", user);
+			if (Vertx.currentContext() != null) {
+				String endpoint = ContextualData.getOrDefault("endpoint", null);
+				String user = ContextualData.getOrDefault("user", null);
+				if (endpoint != null) {
+					headers.add("log-endpoint", endpoint);
+				}
+				if (user != null) {
+					headers.add("log-user", user);
+				}
 			}
 			event.next();
 		});
