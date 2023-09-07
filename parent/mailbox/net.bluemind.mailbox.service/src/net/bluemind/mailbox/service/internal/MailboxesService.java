@@ -533,7 +533,7 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 
 	private ReservedIds reserveDefaultFolderIds(String uid, Mailbox previous, Mailbox current) {
 		if (current.dataLocation == null || !mailboxRequiresIdsReservations(context, domainUid, previous, current)) {
-			logger.warn("IDRES {} Mailbox {} does not require ids reservations for folders.", uid, current);
+			logger.debug("IDRES {} Mailbox {} does not require ids reservations for folders.", uid, current);
 			return null;
 		}
 
