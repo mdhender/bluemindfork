@@ -27,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.netty.util.concurrent.DefaultThreadFactory;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
@@ -44,7 +45,8 @@ public final class NCUtils {
 
 	private static final Logger logger = LoggerFactory.getLogger(NCUtils.class);
 
-	private static final Executor forgottenTasks = Executors.newFixedThreadPool(1);
+	private static final Executor forgottenTasks = Executors.newFixedThreadPool(1,
+			new DefaultThreadFactory("node-task-cleanup"));
 
 	/**
 	 * Waits for a tasks to complete, returning its output.

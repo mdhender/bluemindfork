@@ -201,7 +201,8 @@ public class InstallFromBackupTask extends BlockingServerTask implements IServer
 		monitor.begin(domainStreams.size(), "Cloning domains");
 
 		int goal = domainStreams.size();
-		ExecutorService clonePool = Executors.newFixedThreadPool(goal + 1);
+		ExecutorService clonePool = Executors.newFixedThreadPool(goal + 1,
+				new DefaultThreadFactory("backup-continuous-restore"));
 
 		RecordStarvationHandler starvation = new RecordStarvationHandler(monitor, cloneConf, orphans, target,
 				cloneState);

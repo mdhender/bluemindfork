@@ -25,6 +25,7 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import io.netty.util.concurrent.DefaultThreadFactory;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.config.InstallationId;
@@ -74,7 +75,7 @@ public abstract class AbstractNodeOperation implements ICmdLet, Runnable {
 		}
 		List<ItemValue<Server>> serversList = stream.collect(Collectors.toList());
 		// create executor & completion service with workers thread
-		ExecutorService pool = Executors.newFixedThreadPool(workers);
+		ExecutorService pool = Executors.newFixedThreadPool(workers, new DefaultThreadFactory("cli-node-worker"));
 		CompletionService<Void> opsWatcher = new ExecutorCompletionService<>(pool);
 
 		for (ItemValue<Server> srv : serversList) {

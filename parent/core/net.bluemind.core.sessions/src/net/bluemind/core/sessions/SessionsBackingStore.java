@@ -23,7 +23,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -31,11 +30,13 @@ import org.slf4j.LoggerFactory;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.RemovalCause;
+import com.typesafe.config.Config;
 
 import io.vertx.core.Context;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.common.cache.persistence.CacheBackingStore;
+import net.bluemind.core.config.CoreConfig;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.lib.vertx.VertxContext;
 import net.bluemind.lib.vertx.VertxPlatform;
@@ -43,20 +44,21 @@ import net.bluemind.lib.vertx.VertxPlatform;
 public class SessionsBackingStore {
 	private static final Logger logger = LoggerFactory.getLogger(SessionsBackingStore.class);
 
-	private final String IDENTITY = UUID.randomUUID().toString();
+	private static final String IDENTITY = UUID.randomUUID().toString();
 
 	public static CacheBackingStore<SecurityContext> build() {
 		SessionsBackingStore sessionBackingStore = new SessionsBackingStore();
-
-		Caffeine<Object, Object> cache = Caffeine.newBuilder().recordStats().expireAfterAccess(20, TimeUnit.MINUTES)
+		Config coreConfig = CoreConfig.get();
+		Caffeine<Object, Object> cache = Caffeine.newBuilder().recordStats()
+				.expireAfterAccess(coreConfig.getDuration(CoreConfig.Sessions.IDLE_TIMEOUT))
 				.removalListener((key, value, removalCause) -> {
 					if (removalCause != RemovalCause.REPLACED) {
 						sessionBackingStore.notifySessionRemovalListeners((String) key, (SecurityContext) value);
 					}
 				});
 
-		return new CacheBackingStore<>(cache, "/var/cache/bm-core/sessions", sessionBackingStore::toJson,
-				sessionBackingStore::fromJson);
+		return new CacheBackingStore<>(cache, coreConfig.getString(CoreConfig.Sessions.STORAGE_PATH),
+				sessionBackingStore::toJson, sessionBackingStore::fromJson);
 	}
 
 	private JsonObject toJson(SecurityContext sc) {

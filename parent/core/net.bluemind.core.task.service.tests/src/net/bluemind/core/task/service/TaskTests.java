@@ -21,6 +21,7 @@ package net.bluemind.core.task.service;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import org.junit.After;
 import org.junit.Test;
 
 import net.bluemind.core.api.fault.ServerFault;
@@ -29,8 +30,14 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.api.ITask;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
+import net.bluemind.core.task.service.internal.TasksManager;
 
 public class TaskTests {
+
+	@After
+	public void afterTest() {
+		TasksManager.reset();
+	}
 
 	@Test
 	public void testGetStatus() throws ServerFault, InterruptedException {

@@ -33,6 +33,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.hash.Hashing;
 
+import io.netty.util.concurrent.DefaultThreadFactory;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.cli.cmd.api.CliContext;
@@ -242,7 +243,7 @@ public class MigrateCommand implements ICmdLet, Runnable {
 
 	private void doMigrateEmails(CyrusPartition partition) throws IOException {
 		ArrayBlockingQueue<Path> q = new ArrayBlockingQueue<>(workers);
-		ExecutorService pool = Executors.newFixedThreadPool(workers);
+		ExecutorService pool = Executors.newFixedThreadPool(workers, new DefaultThreadFactory("cli-sds-migrate"));
 
 		Files.walk(partition.archiveParent(), FileVisitOption.FOLLOW_LINKS).filter(p -> {
 			File asFile = p.toFile();

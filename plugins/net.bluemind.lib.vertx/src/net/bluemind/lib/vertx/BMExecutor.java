@@ -26,7 +26,10 @@ import org.slf4j.LoggerFactory;
 
 import com.netflix.spectator.api.Registry;
 import com.netflix.spectator.api.Timer;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigException;
 
+import net.bluemind.core.config.CoreConfig;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 
@@ -34,15 +37,20 @@ public class BMExecutor {
 
 	private static final Logger logger = LoggerFactory.getLogger(BMExecutor.class);
 
-	public static final long DEFAULT_TIMEOUT = 20 * 1000l; // 20s
-
-	private static final int DEFAULT_WORKER_POOL_SIZE = Math.max(Runtime.getRuntime().availableProcessors() * 2, 30);
-
 	private final WorkerExecutorService smallTimeout;
 	private final WorkerExecutorService noTimeout;
 	private final Registry reg;
 	private final IdFactory idFactory;
 	private final Timer timer;
+
+	private static int defaultPoolSize() {
+		Config coreConf = CoreConfig.get();
+		try {
+			return coreConf.getInt(CoreConfig.Pool.EXECUTOR_SIZE);
+		} catch (ConfigException.Missing e) {
+			return Math.max(Runtime.getRuntime().availableProcessors() * 2, 30);
+		}
+	}
 
 	public interface IHasPriority {
 		int priority();
@@ -63,14 +71,15 @@ public class BMExecutor {
 	}
 
 	public BMExecutor(String name) {
-		this(DEFAULT_WORKER_POOL_SIZE, name);
+		this(defaultPoolSize(), name);
 	}
 
 	public BMExecutor(int thread, String name) {
 		this.reg = MetricsRegistry.get();
 		this.idFactory = new IdFactory("executor", reg, BMExecutor.class);
 
-		this.smallTimeout = new WorkerExecutorService(name, thread, DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
+		this.smallTimeout = new WorkerExecutorService(name, thread,
+				CoreConfig.get().getDuration(CoreConfig.Pool.EXECUTOR_COMPLETION_TIMEOUT));
 		this.noTimeout = new WorkerExecutorService(name + "-notimeout", thread, 1, TimeUnit.DAYS);
 		this.timer = reg.timer(idFactory.name(name));
 	}

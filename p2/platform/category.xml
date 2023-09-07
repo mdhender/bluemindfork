@@ -165,6 +165,7 @@
    <bundle id="net.bluemind.core.commons" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.core.commons.gwt" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.core.commons.php" version="5.0.0.qualifier"/>
+   <bundle id="net.bluemind.core.config"/>
    <bundle id="net.bluemind.core.container.api" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.core.container.api.closure" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.core.container.api.gwt" version="5.0.0.qualifier"/>

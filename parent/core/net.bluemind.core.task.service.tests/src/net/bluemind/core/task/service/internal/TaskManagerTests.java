@@ -22,13 +22,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
@@ -40,6 +35,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import io.vertx.core.Vertx;
@@ -54,32 +50,23 @@ import net.bluemind.lib.vertx.VertxPlatform;
 
 public class TaskManagerTests {
 
-	private TasksManager taskManager;
+	private static TasksManager taskManager;
+
+	@BeforeClass
+	public static void beforeClass() {
+		taskManager = new TasksManager(VertxPlatform.getVertx());
+	}
 
 	@Before
-	public void before() throws IOException {
-		taskManager = new TasksManager(VertxPlatform.getVertx());
-
-		Path directory = Paths.get("/var/cache/bm-core/tasks-queues");
+	public void before() {
+		Path directory = Paths.get(System.getProperty("chronicle.queues.root", "/var/cache/bm-core/tasks-queues"));
 		directory.toFile().mkdirs();
-		Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
-			@Override
-			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-				Files.deleteIfExists(file);
-				return FileVisitResult.CONTINUE;
-			}
-
-			@Override
-			public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-				Files.deleteIfExists(dir);
-				return FileVisitResult.CONTINUE;
-			}
-		});
 	}
 
 	@After
 	public void after() {
 		System.err.println("After test.");
+		TasksManager.reset();
 	}
 
 	@Test(timeout = 60000)
@@ -182,12 +169,12 @@ public class TaskManagerTests {
 
 				private void logLoop(Vertx vx, IServerTaskMonitor monitor) {
 					vx.setTimer(10, tid -> {
-						vx.executeBlocking(prom -> {
+						vx.executeBlocking(() -> {
 							monitor.log(taskId + " is alive: Lorem ipsum dolor sit amet, "
 									+ "consectetur adipiscing elit. Donec ut porttitor neque. "
 									+ "In mattis sagittis lobortis.");
-							prom.complete();
-						}, true, ar -> {
+							return null;
+						}, true).andThen(ar -> {
 							if (ar.failed()) {
 								taskProm.completeExceptionally(ar.cause());
 							} else if (!endTask.isDone()) {

@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.util.concurrent.RateLimiter;
 
+import io.netty.util.concurrent.DefaultThreadFactory;
 import net.bluemind.authentication.api.IAuthentication;
 import net.bluemind.authentication.api.LoginResponse;
 import net.bluemind.core.api.ListResult;
@@ -101,7 +102,7 @@ public class MailExchangeInjector {
 	}
 
 	public void runCycle(RateLimiter rpm, int msg, int workers) {
-		ExecutorService pool = Executors.newFixedThreadPool(workers);
+		ExecutorService pool = Executors.newFixedThreadPool(workers, new DefaultThreadFactory("cli-inject"));
 		CompletableFuture<?>[] proms = new CompletableFuture<?>[msg];
 		AtomicLong cycle = new AtomicLong();
 		AtomicInteger promSlot = new AtomicInteger();

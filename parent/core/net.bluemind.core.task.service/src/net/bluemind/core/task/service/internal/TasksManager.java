@@ -31,7 +31,9 @@ import org.slf4j.LoggerFactory;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.RemovalCause;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.MoreExecutors;
+import com.typesafe.config.Config;
 
 import io.netty.util.concurrent.FastThreadLocal;
 import io.vertx.core.AbstractVerticle;
@@ -41,6 +43,7 @@ import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.config.CoreConfig;
 import net.bluemind.core.task.api.ITask;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.service.IServerTask;
@@ -58,29 +61,35 @@ public class TasksManager implements ITasksManager {
 	private static final Object ROOT_TASK_MARKER = new Object();
 	public static final String TASKS_MANAGER_EVENT = "tasks-manager";
 
-	private final Cache<String, TaskManager> completedTasks = Caffeine.newBuilder()//
-			.maximumSize(512)//
-			.expireAfterWrite(10, TimeUnit.MINUTES)//
-			.evictionListener((String key, TaskManager value, RemovalCause cause) -> {
-				if (value != null) {
-					VertxPlatform.getVertx().setTimer(5000, tid -> {
-						VertxPlatform.getVertx().executeBlocking(prom -> {
-							VertxPlatform.eventBus().publish("tasks.manager.cleanups.expire", key);
-							cleanupTask(value);
-							prom.complete();
-						});
-					});
-				}
-			})//
-			.build();
-	private final ConcurrentHashMap<String, TaskManager> tasks = new ConcurrentHashMap<>();
-	private final ConcurrentHashMap<String, FutureThreadInfo> futures = new ConcurrentHashMap<>();
+	private static final Cache<String, TaskManager> completedTasks;
+	private static final ConcurrentHashMap<String, TaskManager> tasks = new ConcurrentHashMap<>();
+	private static final ConcurrentHashMap<String, FutureThreadInfo> futures = new ConcurrentHashMap<>();
+	private static final FastThreadLocal<Object> threadLocal = new FastThreadLocal<>();
+	private static final ExecutorService executor;
+	private static final ExecutorService directExecutor = MoreExecutors.newDirectExecutorService();
+
 	private final Vertx vertx;
 
-	private final FastThreadLocal<Object> threadLocal = new FastThreadLocal<>();
-	private final ExecutorService executer = new WorkerExecutorService("bm-tasks", 15, 1, TimeUnit.DAYS,
-			() -> threadLocal.set(ROOT_TASK_MARKER));
-	private final ExecutorService directExecutor = MoreExecutors.newDirectExecutorService();
+	static {
+		Config coreConfig = CoreConfig.get();
+		executor = new WorkerExecutorService("bm-tasks", coreConfig.getInt(CoreConfig.Pool.TASKS_SIZE), 1,
+				TimeUnit.DAYS, () -> threadLocal.set(ROOT_TASK_MARKER));
+		completedTasks = Caffeine.newBuilder()//
+				.maximumSize(512)//
+				.expireAfterWrite(coreConfig.getDuration(CoreConfig.Pool.TASKS_COMPLETED_TIMEOUT))//
+				.evictionListener((String key, TaskManager value, RemovalCause cause) -> {
+					if (value != null) {
+						VertxPlatform.getVertx().setTimer(5000, tid -> {
+							VertxPlatform.getVertx().executeBlocking(prom -> {
+								VertxPlatform.eventBus().publish("tasks.manager.cleanups.expire", key);
+								cleanupTask(value);
+								prom.complete();
+							});
+						});
+					}
+				})//
+				.build();
+	}
 
 	public static class EventBusReceiveVerticle extends AbstractVerticle {
 		private TasksManager tasksManager;
@@ -145,7 +154,7 @@ public class TasksManager implements ITasksManager {
 		}
 
 		try {
-			ExecutorService selectedExecutor = inTaskThread() ? this.directExecutor : this.executer;
+			ExecutorService selectedExecutor = inTaskThread() ? directExecutor : executor;
 			executeTask(taskId, serverTask, loggingMonitor, task, selectedExecutor);
 		} catch (RejectedExecutionException e) {
 			cleanupTask(task);
@@ -195,7 +204,7 @@ public class TasksManager implements ITasksManager {
 		futures.put(taskId, new FutureThreadInfo(es.submit(runnable), runnable));
 	}
 
-	private void cleanupTask(TaskManager task) {
+	private static void cleanupTask(TaskManager task) {
 		boolean removed = tasks.remove(task.getId(), task);
 		if (removed) {
 			futures.remove(task.getId());
@@ -223,6 +232,17 @@ public class TasksManager implements ITasksManager {
 			futures.get(taskId).runnable.cancel();
 			futures.get(taskId).future.cancel(true);
 		}
+	}
+
+	@VisibleForTesting
+	public static void reset() {
+		tasks.forEach((taskId, v) -> {
+			futures.get(taskId).runnable.cancel();
+			futures.get(taskId).future.cancel(true);
+			cleanupTask(v);
+		});
+		tasks.clear();
+		completedTasks.invalidateAll();
 	}
 
 }

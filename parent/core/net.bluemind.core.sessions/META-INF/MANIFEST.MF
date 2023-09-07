@@ -12,7 +12,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.lib.vertx,
  net.bluemind.eclipse.common,
  com.github.ben-manes.caffeine;visibility:=reexport,
- net.bluemind.common.cache.persistence;visibility:=reexport
+ net.bluemind.common.cache.persistence;visibility:=reexport,
+ net.bluemind.core.config;bundle-version="5.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.core.sessions

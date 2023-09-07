@@ -32,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
+import io.netty.util.concurrent.DefaultThreadFactory;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.parsetools.JsonParser;
@@ -113,7 +114,7 @@ public class XferBackend implements ICmdLet, Runnable {
 				new Kind[] { Kind.USER, Kind.GROUP, Kind.MAILSHARE }, Optional.ofNullable(match));
 
 		ArrayBlockingQueue<ItemValue<DirEntry>> q = new ArrayBlockingQueue<>(workers);
-		ExecutorService pool = Executors.newFixedThreadPool(workers);
+		ExecutorService pool = Executors.newFixedThreadPool(workers, new DefaultThreadFactory("xfer"));
 
 		for (DirEntryWithDomain dirEntryWithDomain : targetFilter.getEntries()) {
 			try {

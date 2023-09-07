@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import com.google.common.base.Strings;
 
+import io.netty.util.concurrent.DefaultThreadFactory;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.CliException;
 import net.bluemind.cli.cmd.api.ICmdLet;
@@ -116,7 +117,7 @@ public abstract class SingleOrDomainOperation implements ICmdLet, Runnable {
 		preIterate(domains);
 
 		// create executor & completion service with workers thread
-		ExecutorService pool = Executors.newFixedThreadPool(workers);
+		ExecutorService pool = Executors.newFixedThreadPool(workers, new DefaultThreadFactory("cli-repair"));
 		CompletionService<OperationResult> opsWatcher = new ExecutorCompletionService<>(pool);
 
 		entriesWithDomainUid.forEach(de -> opsWatcher.submit(() -> {

@@ -40,6 +40,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import io.netty.util.concurrent.DefaultThreadFactory;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.core.api.fault.ServerFault;
@@ -128,7 +129,7 @@ public class FileHostingMigrator {
 	public void migratePath(Path rootPath, Predicate<Path> filter, Function<Path, List<String>> getUid)
 			throws IOException {
 		ArrayBlockingQueue<Path> q = new ArrayBlockingQueue<>(workers);
-		ExecutorService pool = Executors.newFixedThreadPool(workers);
+		ExecutorService pool = Executors.newFixedThreadPool(workers, new DefaultThreadFactory("cli-sds-filehosting"));
 
 		Files.walk(rootPath, FileVisitOption.FOLLOW_LINKS) //
 				.filter(filter::test) //

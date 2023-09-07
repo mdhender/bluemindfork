@@ -17,6 +17,7 @@
  */
 package net.bluemind.lib.vertx;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -33,6 +34,10 @@ public class WorkerExecutorService extends AbstractExecutorService {
 
 	public WorkerExecutorService(String name, int size, long timeout, TimeUnit unit) {
 		this(name, size, timeout, unit, null);
+	}
+
+	public WorkerExecutorService(String name, int size, Duration timeout) {
+		this(name, size, timeout.toMillis(), TimeUnit.MILLISECONDS);
 	}
 
 	public WorkerExecutorService(String name, int size, long timeout, TimeUnit unit, Runnable preRunExecution) {

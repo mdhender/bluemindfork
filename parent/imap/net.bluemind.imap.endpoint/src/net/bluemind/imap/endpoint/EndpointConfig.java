@@ -52,7 +52,7 @@ public class EndpointConfig {
 				Config parsed = ConfigFactory.parseFile(local);
 				conf = parsed.withFallback(conf);
 			} catch (ConfigException e) {
-				logger.error("Invalid IMAP config file in '/etc/bm/imap.conf', ignored: {}", e.getMessage());
+				logger.error("Invalid IMAP config file in '{}', ignored: {}", local, e.getMessage());
 			}
 		}
 		return conf;
