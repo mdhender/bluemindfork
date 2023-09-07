@@ -64,8 +64,11 @@ public class DelegationEventsConsumer implements IAclHook {
 		}
 
 		JsonObject js = new JsonObject();
-		js.put("domain", container.domainUid).put("owner", container.owner);
-		js.put("containerUid", container.uid).put("type", container.type);
+		js //
+				.put("domain", container.domainUid) //
+				.put("owner", container.owner) //
+				.put("containerUid", container.uid) //
+				.put("type", container.type);
 		logger.info("Trigger DIO refresh after ACL change on {} ({})", container.uid, container.type);
 		VertxPlatform.eventBus().publish(Topic.MAPI_DELEGATION_NOTIFICATIONS, js);
 	}
