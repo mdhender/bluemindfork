@@ -135,7 +135,13 @@ public final class MQ {
 	 * @return
 	 */
 	public static Consumer registerConsumer(String topic, OutOfProcessMessageHandler handler) {
-		return nodeImpl.registerConsumer(topic, null, handler);
+		return nodeImpl.registerConsumer(topic, null, msg -> {
+			try {
+				handler.handle(msg);
+			} catch (Exception e) {
+				logger.error("unhandled exception @{}: {}", topic, e);
+			}
+		});
 	}
 
 	/**
@@ -145,7 +151,13 @@ public final class MQ {
 	 */
 	public static Consumer registerConsumer(String topic, Predicate<JsonObject> filter,
 			OutOfProcessMessageHandler handler) {
-		return nodeImpl.registerConsumer(topic, filter, handler);
+		return nodeImpl.registerConsumer(topic, filter, msg -> {
+			try {
+				handler.handle(msg);
+			} catch (Exception e) {
+				logger.error("unhandled exception @{}: {}", topic, e);
+			}
+		});
 	}
 
 	public static Producer registerProducer(String topic) {
