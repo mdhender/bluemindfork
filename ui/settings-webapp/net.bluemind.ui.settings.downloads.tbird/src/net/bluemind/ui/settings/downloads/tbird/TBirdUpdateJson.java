@@ -40,7 +40,7 @@ public class TBirdUpdateJson implements Handler<HttpServerRequest> {
 	private Template template;
 
 	public TBirdUpdateJson() throws IOException {
-		Configuration freemarkerCfg = new Configuration();
+		Configuration freemarkerCfg = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
 		freemarkerCfg.setClassForTemplateLoading(this.getClass(), "/templates");
 		freemarkerCfg.setTagSyntax(Configuration.AUTO_DETECT_TAG_SYNTAX);
 		template = freemarkerCfg.getTemplate("updateJson.tpl");

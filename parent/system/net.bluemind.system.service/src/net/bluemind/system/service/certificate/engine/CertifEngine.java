@@ -232,7 +232,7 @@ public abstract class CertifEngine implements ICertifEngine {
 		for (Certificate aCertificate : certificates) {
 			X509Certificate certificate = (X509Certificate) aCertificate;
 
-			if (!certificate.getSubjectDN().equals(certificate.getIssuerDN())
+			if (!certificate.getSubjectX500Principal().equals(certificate.getIssuerX500Principal())
 					&& certificate.getBasicConstraints() == -1) {
 				throw new ServerFault("Certificate Authority is not one");
 			}

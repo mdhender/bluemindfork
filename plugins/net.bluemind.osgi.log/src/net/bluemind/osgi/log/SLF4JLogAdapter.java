@@ -6,7 +6,6 @@ import org.eclipse.osgi.framework.log.FrameworkLogEntry;
 import org.osgi.service.log.LogEntry;
 import org.osgi.service.log.LogListener;
 import org.osgi.service.log.LogReaderService;
-import org.osgi.service.log.LogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,23 +30,24 @@ public class SLF4JLogAdapter {
 					return;
 				ExtendedLogEntry extended = (ExtendedLogEntry) entry;
 				Object context = extended.getContext();
-				if (context instanceof FrameworkLogEntry) {
-					log(0, (FrameworkLogEntry) context);
+				if (context instanceof FrameworkLogEntry contextLogEntry) {
+					log(0, contextLogEntry);
 					return;
 
 				}
-				switch (entry.getLevel()) {
-				case LogService.LOG_ERROR:
-					logger.error("bundle {} : {}", entry.getBundle(), entry.getMessage(), entry.getException());
+				String fmt = "bundle {} : {}";
+				switch (entry.getLogLevel()) {
+				case ERROR:
+					logger.error(fmt, entry.getBundle(), entry.getMessage(), entry.getException());
 					break;
-				case LogService.LOG_INFO:
-					logger.debug("bundle {} : {}", entry.getBundle(), entry.getMessage());
+				case INFO:
+					logger.debug(fmt, entry.getBundle(), entry.getMessage());
 					break;
-				case LogService.LOG_DEBUG:
-					logger.debug("bundle {} : {}", entry.getBundle(), entry.getMessage());
+				case DEBUG:
+					logger.debug(fmt, entry.getBundle(), entry.getMessage());
 					break;
-				case LogService.LOG_WARNING:
-					logger.warn("bundle {} : {}", entry.getBundle(), entry.getMessage());
+				case WARN:
+					logger.warn(fmt, entry.getBundle(), entry.getMessage());
 					break;
 				default:
 					break;
@@ -84,17 +84,17 @@ public class SLF4JLogAdapter {
 
 			@Override
 			public void logged(LogEntry entry) {
-				switch (entry.getLevel()) {
-				case LogService.LOG_ERROR:
+				switch (entry.getLogLevel()) {
+				case ERROR:
 					logger.error("bundle {} : {}", entry.getBundle(), entry.getMessage());
 					break;
-				case LogService.LOG_INFO:
+				case INFO:
 					logger.info("bundle {} : {}", entry.getBundle(), entry.getMessage());
 					break;
-				case LogService.LOG_DEBUG:
+				case DEBUG:
 					logger.debug("bundle {} : {}", entry.getBundle(), entry.getMessage());
 					break;
-				case LogService.LOG_WARNING:
+				case WARN:
 					logger.warn("bundle {} : {}", entry.getBundle(), entry.getMessage());
 					break;
 				default:

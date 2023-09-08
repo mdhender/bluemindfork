@@ -30,6 +30,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
@@ -48,7 +50,6 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
-import org.xml.sax.helpers.XMLReaderFactory;
 
 /**
  * Utility methods to extract data from a DOM.
@@ -325,8 +326,11 @@ public final class DOMUtils {
 		return ret;
 	}
 
-	public static void saxParse(InputStream is, DefaultHandler handler) throws SAXException, IOException {
-		XMLReader reader = XMLReaderFactory.createXMLReader();
+	public static void saxParse(InputStream is, DefaultHandler handler)
+			throws SAXException, IOException, ParserConfigurationException {
+		SAXParserFactory parserFactory = SAXParserFactory.newInstance();
+		SAXParser parser = parserFactory.newSAXParser();
+		XMLReader reader = parser.getXMLReader();
 		reader.setContentHandler(handler);
 		reader.setErrorHandler(handler);
 		reader.parse(new InputSource(is));

@@ -35,7 +35,7 @@ public class SrsTimestamp {
 
 	private static final int timeSize = 2; // Encoded timestamp string length
 	// number of possible timestamps values
-	private static final int timeSlot = new Double(Math.pow(timeBaseChars.length(), timeSize)).intValue();
+	private static final int timeSlot = Double.valueOf(Math.pow(timeBaseChars.length(), timeSize)).intValue();
 
 	private static final int maxAge = 10; // SRS timestamp maximum validity in days
 

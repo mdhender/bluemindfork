@@ -139,6 +139,7 @@ public class PopulateKafkaTests {
 	private ElasticsearchClient client;
 	private PopulatedContent dumpData;
 
+	@SuppressWarnings("resource")
 	@Before
 	public void before() throws Exception {
 		// osx might have port 8021 in use

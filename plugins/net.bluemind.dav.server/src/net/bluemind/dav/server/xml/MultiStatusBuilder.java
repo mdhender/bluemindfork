@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import io.netty.handler.codec.http.HttpHeaders.Names;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.dav.server.DavActivator;
 import net.bluemind.dav.server.proto.NS;
@@ -89,7 +89,7 @@ public final class MultiStatusBuilder {
 	public void sendAs(HttpServerResponse sr, boolean dumpSent) {
 		try {
 			String dump = "";
-			sr.headers().set(Names.CONTENT_TYPE, "application/xml; charset=\"utf-8\"");
+			sr.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/xml; charset=\"utf-8\"");
 			String dom = DOMUtils.asString(root.getOwnerDocument());
 			sr.setStatusCode(207).end(dom);
 			if (dumpSent) {

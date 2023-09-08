@@ -18,12 +18,15 @@
  */
 package net.bluemind.filehosting.filesystem.service.internal;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.math.BigInteger;
 import java.security.SecureRandom;
 
 import org.junit.Test;
 
-import junit.framework.Assert;
 import net.bluemind.filehosting.api.ID;
 
 public class IDTest {
@@ -33,13 +36,13 @@ public class IDTest {
 
 		for (int i = 0; i < 10; i++) {
 			String id = ID.generate();
-			Assert.assertTrue(ID.isUUID(id));
+			assertTrue(ID.isUUID(id));
 		}
 
 		SecureRandom random = new SecureRandom();
 		for (int i = 0; i < 10; i++) {
 			String id = new BigInteger(130, random).toString(39);
-			Assert.assertFalse(ID.isUUID(id));
+			assertFalse(ID.isUUID(id));
 		}
 
 	}
@@ -50,7 +53,7 @@ public class IDTest {
 		String id = ID.generate();
 		String url = String.format("http://localhost:8090/api/filehosting/%s/_complete", id);
 
-		Assert.assertEquals(id, ID.extract(url));
+		assertEquals(id, ID.extract(url));
 
 	}
 

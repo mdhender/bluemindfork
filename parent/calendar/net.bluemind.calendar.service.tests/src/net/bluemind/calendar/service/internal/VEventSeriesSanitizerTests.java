@@ -98,7 +98,6 @@ public class VEventSeriesSanitizerTests {
 	private ServerSideServiceProvider provider;
 	private VEventSeriesSanitizer sanitizer;
 
-	@SuppressWarnings("deprecation")
 	@Before
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
@@ -390,13 +389,12 @@ public class VEventSeriesSanitizerTests {
 		return user;
 	}
 
-	@SuppressWarnings("deprecation")
 	private void createTestContainer(SecurityContext context, String type, String login, String name, String owner)
 			throws SQLException {
-		ContainerStore containerHome = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(), context);
+		ContainerStore ch = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(), context);
 		Container container = Container.create(name, type, name, owner, this.domainUid, true);
 		container = containerHome.create(container);
-		Container dom = containerHome.get(domainUid);
+		Container dom = ch.get(domainUid);
 		UserSubscriptionStore userSubscriptionStore = new UserSubscriptionStore(SecurityContext.SYSTEM,
 				JdbcTestHelper.getInstance().getDataSource(), dom);
 		userSubscriptionStore.subscribe(context.getSubject(), container);
@@ -421,7 +419,6 @@ public class VEventSeriesSanitizerTests {
 		return ItemValue.create(uid, user);
 	}
 
-	@SuppressWarnings("deprecation")
 	private VEventMessage buildEvent(final String summary, final String description, final List<Attendee> attendees) {
 		final VEventMessage veventMessage = new VEventMessage();
 

@@ -234,7 +234,7 @@ public class PasswordExpireNotificationJob implements IScheduledJob {
 		data.put("notificationInterval", notificationInterval);
 		externalUrl.ifPresent(eu -> data.put("externalUrl", eu));
 
-		Configuration cfg = new Configuration();
+		Configuration cfg = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
 		cfg.setClassForTemplateLoading(this.getClass(), "/");
 
 		StringWriter sw = new StringWriter();

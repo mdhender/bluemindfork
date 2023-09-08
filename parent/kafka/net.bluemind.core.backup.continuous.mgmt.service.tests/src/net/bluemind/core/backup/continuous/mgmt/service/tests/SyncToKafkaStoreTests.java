@@ -96,6 +96,7 @@ public class SyncToKafkaStoreTests {
 
 	private static DuplicateDeliveryDb dedup = DuplicateDeliveryDb.get();
 
+	@SuppressWarnings("resource")
 	@Before
 	public void before() throws Exception {
 		this.kafka = new ZkKafkaContainer();

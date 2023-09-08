@@ -40,11 +40,13 @@ public class IMAPResponseParser {
 		IMAPResponse r = new IMAPResponse();
 		int idx = response.indexOf(' ');
 		if (idx < 0) {
-			logger.warn("response to '" + session.getAttribute("activeCommand")
-					+ "'without space (forcing bad status): " + response);
+			if (logger.isWarnEnabled()) {
+				logger.warn("response to '{}' without space (forcing bad status): {}",
+						session.getAttribute("activeCommand"), response);
+			}
 			r.setStatus("BAD");
 			r.setPayload(response);
-			session.close(false);
+			session.closeOnFlush();
 			return r;
 		}
 

@@ -267,7 +267,7 @@ public class Attr {
 				o = ris;
 				break;
 			case atpShort:
-				o = new Short((short) ris.readU16());
+				o = Short.valueOf((short) ris.readU16());
 				break;
 			case atpDword:
 				o = Long.valueOf(ris.readU32());
@@ -299,6 +299,8 @@ public class Attr {
 				break;
 			case atpTriples:
 				o = new TRPAddress(ris);
+				break;
+			default:
 				break;
 			}
 		this.data = o;

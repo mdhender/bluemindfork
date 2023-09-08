@@ -18,6 +18,7 @@
  */
 package net.bluemind.system.importation.commons.pool;
 
+import java.time.Duration;
 import java.util.Iterator;
 import java.util.List;
 
@@ -108,7 +109,7 @@ public class LdapPoolWrapper {
 
 		try {
 			tmpPool = new LdapConnectionPool(bpcf);
-			tmpPool.setMaxWaitMillis(10000L);
+			tmpPool.setMaxWait(Duration.ofSeconds(10));
 
 			conn = tmpPool.getConnection();
 			tmpPool.releaseConnection(conn);

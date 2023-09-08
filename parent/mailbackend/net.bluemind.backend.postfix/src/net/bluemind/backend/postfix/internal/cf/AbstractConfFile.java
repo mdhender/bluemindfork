@@ -40,7 +40,7 @@ public abstract class AbstractConfFile {
 	protected AbstractConfFile(IServer service, String serverUid) throws ServerFault {
 		this.service = service;
 		this.serverUid = serverUid;
-		cfg = new Configuration();
+		cfg = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
 		cfg.setClassForTemplateLoading(getClass(), "/templates");
 	}
 

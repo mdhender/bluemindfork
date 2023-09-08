@@ -15,7 +15,7 @@ public class SystemD {
 	private static final Logger logger = LoggerFactory.getLogger(SystemD.class);
 	private static final Api INSTANCE = init();
 
-	private static final CLibrary LIBC = (CLibrary) Native.loadLibrary("c", CLibrary.class);
+	private static final CLibrary LIBC = Native.load("c", CLibrary.class);
 
 	private interface CLibrary extends Library {
 
@@ -116,7 +116,7 @@ public class SystemD {
 	private static Api init() {
 		SystemDLocation loc = figureOutLocation();
 		if (loc != null) {
-			RawApi rawApi = (RawApi) Native.loadLibrary(loc.systemdLibLocation, RawApi.class);
+			RawApi rawApi = Native.load(loc.systemdLibLocation, RawApi.class);
 			return new Api(rawApi);
 		}
 		return null;

@@ -20,12 +20,7 @@ package net.bluemind.filehosting.webdav.service;
 
 import java.io.IOException;
 import java.net.ProxySelector;
-import java.security.cert.X509Certificate;
 import java.time.Duration;
-
-import javax.net.ssl.SSLException;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocket;
 
 import org.apache.http.Consts;
 import org.apache.http.auth.AuthSchemeProvider;
@@ -42,7 +37,6 @@ import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.X509HostnameVerifier;
 import org.apache.http.impl.auth.BasicSchemeFactory;
 import org.apache.http.impl.auth.DigestSchemeFactory;
 import org.apache.http.impl.auth.KerberosSchemeFactory;
@@ -135,29 +129,8 @@ public class TrustAllSardineImpl extends SardineImpl {
 		}
 	}
 
-	private static final X509HostnameVerifier verifier = new X509HostnameVerifier() {
-
-		@Override
-		public boolean verify(String arg0, SSLSession arg1) {
-			return true;
-		}
-
-		@Override
-		public void verify(String arg0, SSLSocket arg1) throws IOException {
-		}
-
-		@Override
-		public void verify(String arg0, X509Certificate arg1) throws SSLException {
-		}
-
-		@Override
-		public void verify(String arg0, String[] arg1, String[] arg2) throws SSLException {
-		}
-
-	};
-
 	private SSLConnectionSocketFactory getSSLConnectionSocketFactory() throws Exception {
-		return new SSLConnectionSocketFactory(Trust.createSSLContext(), verifier);
+		return new SSLConnectionSocketFactory(Trust.createSSLContext(), (hostname, session) -> true);
 	}
 
 }

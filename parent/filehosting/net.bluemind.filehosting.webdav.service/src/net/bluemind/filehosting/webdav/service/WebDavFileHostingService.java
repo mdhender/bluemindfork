@@ -26,6 +26,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -115,11 +116,12 @@ public abstract class WebDavFileHostingService implements IFileHostingService {
 		} catch (MalformedURLException e) {
 			throw new ServerFault(e);
 		}
-		String uriDecoded = URLDecoder.decode(uri.getPath());
+		String uriDecoded = URLDecoder.decode(uri.getPath(), StandardCharsets.UTF_8);
 		return webdav(() -> {
 			logger.info("Listing {}", uri.toString());
 			return webdavContext.sardine.list(uri.toString()).stream().filter(dav -> {
-				return !uriDecoded.replace("/", "").equals(URLDecoder.decode(dav.getPath()).replace("/", ""));
+				return !uriDecoded.replace("/", "")
+						.equals(URLDecoder.decode(dav.getPath(), StandardCharsets.UTF_8).replace("/", ""));
 			}).map(dav -> {
 				String itemPath = path + dav.getName();
 				List<Metadata> metadata = new ArrayList<>();
@@ -134,7 +136,7 @@ public abstract class WebDavFileHostingService implements IFileHostingService {
 	@Override
 	public List<FileHostingItem> find(SecurityContext context, String query) throws ServerFault {
 		final List<FileHostingItem> matches = new ArrayList<>();
-		final String[] filenameQuery = new String[] { URLEncoder.encode(query), query };
+		final String[] filenameQuery = new String[] { URLEncoder.encode(query, StandardCharsets.UTF_8), query };
 
 		long timeout = System.currentTimeMillis() + SEARCH_TIMEOUT_MILLIS;
 		traverse(context, "", matches, filenameQuery, "/", timeout);

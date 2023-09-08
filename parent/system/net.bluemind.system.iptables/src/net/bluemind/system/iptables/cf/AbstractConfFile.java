@@ -32,7 +32,7 @@ public abstract class AbstractConfFile {
 	private Configuration cfg;
 
 	protected AbstractConfFile() throws ServerFault {
-		cfg = new Configuration();
+		cfg = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
 		cfg.setClassForTemplateLoading(getClass(), "/templates");
 	}
 

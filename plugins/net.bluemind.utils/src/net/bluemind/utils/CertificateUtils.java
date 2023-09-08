@@ -80,7 +80,7 @@ public class CertificateUtils {
 	public static String getCertCN(byte[] certFile) throws ServerFault {
 		try {
 			X509Certificate ca = getCertificate(certFile);
-			LdapName ldapDN = new LdapName(ca.getSubjectDN().getName());
+			LdapName ldapDN = new LdapName(ca.getSubjectX500Principal().getName());
 			return ldapDN.getRdn(ldapDN.size() - 1).getValue().toString();
 		} catch (InvalidNameException e) {
 			throw new ServerFault(e);

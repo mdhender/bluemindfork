@@ -214,7 +214,7 @@ public class SlapdConfig {
 	}
 
 	private ByteArrayInputStream getContentFromTemplate(String name, Map<String, Object> data) {
-		Configuration cfg = new Configuration();
+		Configuration cfg = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
 		cfg.setClassForTemplateLoading(getClass(), "/templates");
 
 		Template t = null;

@@ -160,7 +160,7 @@ public class RequestObject implements HttpServerRequest {
 
 	@Override
 	public X509Certificate[] peerCertificateChain() throws SSLPeerUnverifiedException {
-		return null;
+		return new X509Certificate[0];
 	}
 
 	@Override

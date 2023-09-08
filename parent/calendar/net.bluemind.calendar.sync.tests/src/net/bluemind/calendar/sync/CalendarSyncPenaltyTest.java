@@ -41,7 +41,7 @@ public class CalendarSyncPenaltyTest {
 
 		ContainerSyncResult ret = sync.sync(syncTokens, new NullTaskMonitor());
 
-		assertTrue(inRange(new Double(delay * 1.5).longValue(), ret.status.nextSync));
+		assertTrue(inRange(Double.valueOf(delay * 1.5).longValue(), ret.status.nextSync));
 		assertEquals(exception.getErrorInfo(), ret.status.syncStatusInfo);
 		assertEquals(ContainerSyncStatus.Status.ERROR, ret.status.syncStatus);
 	}
@@ -52,12 +52,12 @@ public class CalendarSyncPenaltyTest {
 		CalendarContainerSyncTestImpl sync = new CalendarContainerSyncTestImpl(null, null, exception);
 
 		Map<String, String> syncTokens = new HashMap<>();
-		long delay = 1000 * 60 * 60 * 24;
+		long delay = 1000L * 60 * 60 * 24;
 		syncTokens.put("current-sync-delay", "" + delay);
 
 		ContainerSyncResult ret = sync.sync(syncTokens, new NullTaskMonitor());
 		double penalty = 2 - 50d / 150;
-		long delay2 = new Double(delay * penalty).longValue();
+		long delay2 = Double.valueOf(delay * penalty).longValue();
 		assertTrue(inRange(delay2, ret.status.nextSync));
 		assertEquals(exception.getErrorInfo(), ret.status.syncStatusInfo);
 		assertEquals(ContainerSyncStatus.Status.ERROR, ret.status.syncStatus);
@@ -74,7 +74,7 @@ public class CalendarSyncPenaltyTest {
 
 		ContainerSyncResult ret = sync.sync(syncTokens, new NullTaskMonitor());
 
-		assertTrue(inRange(new Double(delay * 1.5).longValue(), ret.status.nextSync));
+		assertTrue(inRange(Double.valueOf(delay * 1.5).longValue(), ret.status.nextSync));
 		assertEquals(exception.getErrorInfo(), ret.status.syncStatusInfo);
 		assertEquals(ContainerSyncStatus.Status.ERROR, ret.status.syncStatus);
 
@@ -82,7 +82,7 @@ public class CalendarSyncPenaltyTest {
 		syncTokens.put("current-sync-delay", punishedDelay);
 		ret = sync.sync(syncTokens, new NullTaskMonitor());
 
-		assertTrue(inRange(new Double(Long.parseLong(punishedDelay) * 1.5).longValue(), ret.status.nextSync));
+		assertTrue(inRange(Double.valueOf(Long.parseLong(punishedDelay) * 1.5).longValue(), ret.status.nextSync));
 		assertEquals(exception.getErrorInfo(), ret.status.syncStatusInfo);
 		assertEquals(ContainerSyncStatus.Status.ERROR, ret.status.syncStatus);
 

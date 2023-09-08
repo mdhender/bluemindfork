@@ -27,6 +27,7 @@ import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.SafeHtmlCell;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Style.Cursor;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.shared.HandlerRegistration;
@@ -40,7 +41,6 @@ import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.RowStyles;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.google.gwt.view.client.CellPreviewEvent;
@@ -99,12 +99,8 @@ public class DirectoryCenterGrid extends DataGrid<ItemValue<DirEntry>> implement
 		bundle = GWT.create(DCGBundle.class);
 		style = bundle.getStyle();
 		style.ensureInjected();
-		keyProvider = new ProvidesKey<ItemValue<DirEntry>>() {
-			@Override
-			public Object getKey(ItemValue<DirEntry> item) {
-				return (item == null) ? null : item.uid;
-			}
-		};
+		keyProvider = item -> (item == null) ? null : item.uid;
+
 		this.getElement().getStyle().setCursor(Cursor.POINTER);
 		selectionModel = new MultiSelectionModel<ItemValue<DirEntry>>(keyProvider) {
 
@@ -161,7 +157,7 @@ public class DirectoryCenterGrid extends DataGrid<ItemValue<DirEntry>> implement
 		};
 
 		RowSelectionEventManager<ItemValue<DirEntry>> rowSelectionEventManager = RowSelectionEventManager
-				.<ItemValue<DirEntry>> createRowManager(editHandler);
+				.<ItemValue<DirEntry>>createRowManager(editHandler);
 
 		setSelectionModel(selectionModel, rowSelectionEventManager);
 
@@ -341,7 +337,7 @@ public class DirectoryCenterGrid extends DataGrid<ItemValue<DirEntry>> implement
 
 	native String atob(String encoded)
 	/*-{
-    return atob(encoded);
+	return atob(encoded);
 	}-*/;
 
 	private void loadIcon(final String rUid) {

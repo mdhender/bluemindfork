@@ -35,15 +35,14 @@ import net.bluemind.dav.server.proto.Depth;
 import net.bluemind.dav.server.proto.NS;
 import net.bluemind.dav.server.xml.DOMUtils;
 
-public class DavClient {
+public class DavClient implements AutoCloseable {
 
 	private static final Logger logger = LoggerFactory.getLogger(DavClient.class);
 
 	private static final AsyncHttpClient newClient(String login, String password) {
 		Realm realm = new Realm.Builder(login, password).setUsePreemptiveAuth(true).setScheme(AuthScheme.BASIC).build();
 		DefaultAsyncHttpClientConfig conf = new DefaultAsyncHttpClientConfig.Builder().setRealm(realm).build();
-		AsyncHttpClient client = new DefaultAsyncHttpClient(conf);
-		return client;
+		return new DefaultAsyncHttpClient(conf);
 	}
 
 	private final AsyncHttpClient client;
@@ -60,7 +59,7 @@ public class DavClient {
 		len = url.length() - (url.endsWith("/") ? 1 : 0);
 		path = new StringBuilder(256);
 		path.append(url, 0, len);
-		this.fmConfig = new Configuration();
+		this.fmConfig = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
 		fmConfig.setClassForTemplateLoading(getClass(), "/");
 	}
 
@@ -70,8 +69,7 @@ public class DavClient {
 	}
 
 	private RequestBuilder req(String method, String path) {
-		RequestBuilder rb = new RequestBuilder(method).setUrl(path(path));
-		return rb;
+		return new RequestBuilder(method).setUrl(path(path));
 	}
 
 	private Response run(Request req) {
@@ -249,12 +247,6 @@ public class DavClient {
 				e.printStackTrace();
 			}
 		}
-	}
-
-	@Override
-	protected void finalize() throws Throwable {
-		close();
-		super.finalize();
 	}
 
 }

@@ -22,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Arrays;
@@ -159,7 +160,7 @@ public class UserRefreshTokenStoreTests {
 		RefreshToken token = new RefreshToken();
 		token.systemIdentifier = systemIdentifier;
 		token.token = UUID.randomUUID().toString();
-		token.expiryTime = new Date(2040, 5, 5);
+		token.expiryTime = Date.from(LocalDate.of(1900 + 2040, 5, 5).atStartOfDay(ZoneOffset.UTC).toInstant());
 		return token;
 	}
 

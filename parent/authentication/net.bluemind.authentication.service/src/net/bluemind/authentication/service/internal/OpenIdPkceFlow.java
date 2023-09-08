@@ -19,6 +19,7 @@
 package net.bluemind.authentication.service.internal;
 
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -76,8 +77,8 @@ public class OpenIdPkceFlow extends OpenIdFlow implements IOpenIdAuthFlow {
 
 		String url = String.format(
 				"%s?response_type=code&scope=%s&client_id=%s&state=%s&redirect_uri=%s&code_challenge=%s&code_challenge_method=S256",
-				externalAuthEndPointUrl, URLEncoder.encode(scope), applicationId, state,
-				URLEncoder.encode(internalRedirectUrl), codeChallenge);
+				externalAuthEndPointUrl, URLEncoder.encode(scope, StandardCharsets.UTF_8), applicationId, state,
+				URLEncoder.encode(internalRedirectUrl, StandardCharsets.UTF_8), codeChallenge);
 
 		return AccessTokenInfo.tokenNotValid(externalAuthEndPointUrl, internalRedirectUrl, applicationId, state,
 				codeChallenge, codeChallengeMethod, responseType, url);

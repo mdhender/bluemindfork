@@ -24,7 +24,7 @@ import org.w3c.dom.CDATASection;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import io.netty.handler.codec.http.HttpHeaders.Names;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.calendar.api.VFreebusy;
 import net.bluemind.calendar.helper.ical4j.VFreebusyServiceHelper;
@@ -114,7 +114,7 @@ public final class ScheduleResponseBuilder {
 			if (DavActivator.devMode) {
 				DOMUtils.logDom(root.getOwnerDocument());
 			}
-			sr.headers().set(Names.CONTENT_TYPE, "application/xml; charset=\"utf-8\"");
+			sr.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/xml; charset=\"utf-8\"");
 			String dom = DOMUtils.asString(root.getOwnerDocument());
 			sr.setStatusCode(200).end(dom);
 			logger.info("[{}][{}Chars] schedule-response sent.\n\n\n", Thread.currentThread().getName(), dom.length());

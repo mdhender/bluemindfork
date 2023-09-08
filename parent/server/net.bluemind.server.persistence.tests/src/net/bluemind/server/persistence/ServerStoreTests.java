@@ -24,7 +24,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.io.File;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 import org.junit.After;
@@ -52,7 +52,6 @@ public class ServerStoreTests {
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 
-		
 		SecurityContext securityContext = SecurityContext.ANONYMOUS;
 
 		ContainerStore containerStore = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
@@ -60,7 +59,7 @@ public class ServerStoreTests {
 		String mcastId = "fake";
 
 		if (new File("/etc/bm/mcast.id").exists()) {
-			mcastId = Files.toString(new File("/etc/bm/mcast.id"), Charset.defaultCharset());
+			mcastId = Files.asCharSource(new File("/etc/bm/mcast.id"), StandardCharsets.UTF_8).toString();
 		}
 		String containerId = "bluemind-" + mcastId;
 		Container installation = Container.create(containerId, "installation", containerId, "me", true);

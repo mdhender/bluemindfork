@@ -23,6 +23,7 @@ import java.util.List;
 import com.google.gwt.cell.client.SafeHtmlCell;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.Column;
@@ -77,7 +78,7 @@ public class SmimeRevocationsGrid extends DataGrid<SmimeRevocation> implements I
 
 			@Override
 			public String getValue(SmimeRevocation de) {
-				return DateTimeFormat.getShortDateFormat().format(de.revocationDate);
+				return DateTimeFormat.getFormat(PredefinedFormat.DATE_SHORT).format(de.revocationDate);
 			}
 
 		};

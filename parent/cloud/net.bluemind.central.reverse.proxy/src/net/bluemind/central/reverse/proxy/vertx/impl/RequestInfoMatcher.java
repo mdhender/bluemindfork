@@ -17,7 +17,7 @@ public class RequestInfoMatcher implements AuthMatcher<HttpServerRequestContext>
 
 	public Future<Optional<Auth>> match(HttpServerRequestContext context) {
 		Future<Auth> futureAuth = Future.succeededFuture(null);
-		if (context.request().cookieMap().containsKey("BMCRP")) {
+		if (context.request().getCookie("BMCRP") != null) {
 			futureAuth = loginFromCookie(context);
 
 		} else if (getAuthorization(context) != null && getAuthorization(context).toLowerCase().startsWith("basic")) {

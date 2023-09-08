@@ -92,6 +92,7 @@ public class MailMessageBodyHookTests {
 		System.setProperty("node.local.ipaddr", "localhost,127.0.0.1," + PopulateHelper.FAKE_CYRUS_IP);
 	}
 
+	@SuppressWarnings("resource")
 	@Before
 	public void before() throws Exception {
 
