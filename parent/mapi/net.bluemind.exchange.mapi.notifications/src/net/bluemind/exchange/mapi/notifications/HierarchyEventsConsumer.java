@@ -66,12 +66,12 @@ public class HierarchyEventsConsumer extends AbstractVerticle {
 
 		EventBus eb = vertx.eventBus();
 		vertx.eventBus().consumer(ContainersFlatHierarchyBusAddresses.ALL_HIERARCHY_CHANGES,
-				(Message<JsonObject> msg) -> vertx.executeBlocking(prom -> {
+				(Message<JsonObject> msg) -> vertx.executeBlocking(() -> {
 					JsonObject flatNotification = msg.body();
 					String owner = flatNotification.getString("owner");
 
 					if (FreshOwnerListener.isFreshOwner(owner)) {
-						return;
+						return null;
 					}
 
 					long version = flatNotification.getLong("version");
@@ -81,28 +81,27 @@ public class HierarchyEventsConsumer extends AbstractVerticle {
 					forMapi.put("owner", owner).put("domain", domain).put("version", version);
 					logger.info("MAPI hierarchy notification owner: {}, version {}", owner, version);
 					eb.publish(Topic.MAPI_HIERARCHY_NOTIFICATIONS, forMapi);
-				}, false)
-
-		);
+					return null;
+				}, false));
 
 		vertx.eventBus().consumer(ContainersFlatHierarchyBusAddresses.ALL_HIERARCHY_CHANGES_OPS,
-				(Message<JsonObject> msg) -> vertx.executeBlocking(prom -> {
+				(Message<JsonObject> msg) -> vertx.executeBlocking(() -> {
 					JsonObject flatNotification = msg.body();
 					String container = flatNotification.getString("container");
 
 					if (!container.startsWith(IMailReplicaUids.MAILBOX_RECORDS_PREFIX)) {
-						return;
+						return null;
 					}
 
 					String owner = flatNotification.getString("owner");
 					if (FreshOwnerListener.isFreshOwner(owner)) {
-						return;
+						return null;
 					}
 
 					String domain = flatNotification.getString("domain");
 
 					if (owner.equals(PublicFolders.mailboxGuid(domain))) {
-						return;
+						return null;
 					}
 
 					long version = flatNotification.getLong("version");
@@ -137,7 +136,7 @@ public class HierarchyEventsConsumer extends AbstractVerticle {
 							if (replica == null) {
 								logger.warn("parentless create of {} in {}, null replica, drop MAPI notification.",
 										container, ownerBox);
-								return;
+								return null;
 							} else {
 								forMapi.put("details",
 										new JsonObject().put(op.toLowerCase(), new JsonArray().add(container)));
@@ -157,7 +156,7 @@ public class HierarchyEventsConsumer extends AbstractVerticle {
 					logger.info("MAPI hierarchy container {} ({}) notification owner: {}, version {}", container, op,
 							owner, version);
 					eb.publish(Topic.MAPI_HIERARCHY_NOTIFICATIONS, forMapi);
-
+					return null;
 				}, false));
 
 	}

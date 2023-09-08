@@ -54,7 +54,7 @@ public class DomainsHelper {
 			String domainUid = it.next();
 			Map<String, String> values = all.get(domainUid);
 			String extUrl = values.get(DomainSettingsKeys.external_url.name());
-			if (request.host().equalsIgnoreCase(extUrl)) {
+			if (request.authority().host().equalsIgnoreCase(extUrl)) {
 				return domainUid;
 			}
 		}
@@ -68,7 +68,7 @@ public class DomainsHelper {
 			if (otherUrls != null) {
 				StringTokenizer tokenizer = new StringTokenizer(otherUrls.trim(), " ");
 				while (tokenizer.hasMoreElements()) {
-					if (request.host().equalsIgnoreCase(tokenizer.nextToken())) {
+					if (request.authority().host().equalsIgnoreCase(tokenizer.nextToken())) {
 						return domainUid;
 					}
 				}
@@ -91,7 +91,7 @@ public class DomainsHelper {
 
 		// Look for host in global external_url
 		SharedMap<String, String> sysconf = MQ.sharedMap(Shared.MAP_SYSCONF);
-		if (request.host().equalsIgnoreCase(sysconf.get(SysConfKeys.external_url.name()))) {
+		if (request.authority().host().equalsIgnoreCase(sysconf.get(SysConfKeys.external_url.name()))) {
 			return "global.virt";
 		}
 
@@ -100,7 +100,7 @@ public class DomainsHelper {
 		if (otherUrls != null) {
 			StringTokenizer tokenizer = new StringTokenizer(otherUrls.trim(), " ");
 			while (tokenizer.hasMoreElements()) {
-				if (request.host().equalsIgnoreCase(tokenizer.nextToken())) {
+				if (request.authority().host().equalsIgnoreCase(tokenizer.nextToken())) {
 					return "global.virt";
 				}
 			}

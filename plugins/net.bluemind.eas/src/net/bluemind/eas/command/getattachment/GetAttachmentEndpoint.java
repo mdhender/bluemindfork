@@ -52,28 +52,23 @@ public final class GetAttachmentEndpoint implements IEasRequestEndpoint {
 		final String an = dq.optionalParams().attachmentName();
 		logger.info("GetAttachment, submit");
 
-		getAttachExecutor.<MSAttachementData>executeBlocking((prom) -> {
-			try {
-				MSAttachementData attach = backend.getContentsExporter(bs).getAttachment(bs, an);
-				prom.complete(attach);
-			} catch (Exception e) {
-				prom.fail(e);
-			}
-		}, false, (result) -> {
-			if (result.succeeded()) {
-				try {
-					MSAttachementData attach = result.result();
-					responder.sendResponseFile(attach.getContentType(), attach.getFile().source().openStream());
-					attach.getFile().dispose();
-				} catch (Exception e) {
-					logger.error(e.getMessage(), e);
-					responder.sendStatus(500);
-				}
-			} else {
-				logger.error(result.cause().getMessage(), result.cause());
-				responder.sendStatus(500);
-			}
-		});
+		getAttachExecutor.<MSAttachementData>executeBlocking(() -> //
+		backend.getContentsExporter(bs).getAttachment(bs, an), false) //
+				.andThen(result -> {
+					if (result.succeeded()) {
+						try {
+							MSAttachementData attach = result.result();
+							responder.sendResponseFile(attach.getContentType(), attach.getFile().source().openStream());
+							attach.getFile().dispose();
+						} catch (Exception e) {
+							logger.error(e.getMessage(), e);
+							responder.sendStatus(500);
+						}
+					} else {
+						logger.error(result.cause().getMessage(), result.cause());
+						responder.sendStatus(500);
+					}
+				});
 
 	}
 

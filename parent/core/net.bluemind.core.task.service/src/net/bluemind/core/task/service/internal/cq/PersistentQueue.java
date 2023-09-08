@@ -219,17 +219,19 @@ public class PersistentQueue implements AutoCloseable {
 		File toDelete = queue.file();
 		appender.close();
 		queue.close();
-		VertxPlatform.getVertx().executeBlocking(prom -> {
+		VertxPlatform.getVertx().executeBlocking(() -> {
 			try {
-				Arrays.stream(toDelete.listFiles()).forEach(File::delete);
+				File[] files = toDelete.listFiles();
+				if (files != null) {
+					Arrays.stream(files).forEach(File::delete);
+				}
 				Files.delete(toDelete.toPath());
 				logger.info("[{}] CQ deleted ({}).", tid, subId);
-			} catch (IOException e) {
-				logger.error("[{}] failed to delete queue dir", tid, e);
-			} finally {
-				prom.complete();
+			} catch (NoSuchFileException ignored) {
+				// ignored
 			}
-		}, false, ar -> {
+			return null;
+		}, false).andThen(ar -> {
 			if (ar.failed()) {
 				logger.error("CQ cleanup failed", ar.cause());
 			}

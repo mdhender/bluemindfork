@@ -187,7 +187,7 @@ public class AuthenticationFilter implements IWebFilter, NeedVertx {
 				location = domainProperties.get(AuthDomainProperties.OPENID_AUTHORISATION_ENDPOINT.name());
 				location += "?client_id=" + encode(domainProperties.get(AuthDomainProperties.OPENID_CLIENT_ID.name()));
 			}
-			location += "&redirect_uri=" + encode(REDIRECT_PROTO + request.host() + "/auth/openid");
+			location += "&redirect_uri=" + encode(REDIRECT_PROTO + request.authority().host() + "/auth/openid");
 			location += "&code_challenge=" + encode(codeChallenge);
 			location += "&state=" + encode(state);
 			location += "&code_challenge_method=S256";

@@ -771,9 +771,9 @@ public class CalendarService implements IInternalCalendar {
 
 	private void callHooks(Consumer<ICalendarHook> hookCallback) {
 		syncHooks.forEach(hookCallback::accept);
-		vertx.executeBlocking(promise -> {
+		vertx.executeBlocking(() -> {
 			asyncHooks.stream().forEach(hookCallback::accept);
-			promise.complete();
+			return null;
 		}, false);
 	}
 

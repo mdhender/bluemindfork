@@ -121,7 +121,7 @@ public class OpenIdHandler extends AbstractAuthHandler implements Handler<HttpSe
 							+ encode(domainSettings.get(AuthDomainProperties.OPENID_CLIENT_SECRET.name()));
 					params += "&code=" + encode(code);
 					params += "&code_verifier=" + encode(codeVerifier);
-					params += "&redirect_uri=" + encode("https://" + event.host() + "/auth/openid");
+					params += "&redirect_uri=" + encode("https://" + event.authority().host() + "/auth/openid");
 					params += "&scope=openid";
 
 					byte[] postData = params.getBytes(StandardCharsets.UTF_8);

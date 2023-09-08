@@ -31,7 +31,6 @@ import com.netflix.spectator.api.Timer;
 import io.netty.buffer.ByteBuf;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Context;
-import io.vertx.core.Promise;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.net.NetSocket;
 import io.vertx.core.net.SocketAddress;
@@ -99,14 +98,10 @@ public class SaslAuthdVerticle extends AbstractVerticle {
 			Creds creds = parse(buf.getByteBuf());
 			Timer timer = registry.timer(idFactory.name("validationTime"));
 			long time = registry.clock().monotonicTime();
-			vertx.executeBlocking((Promise<Boolean> p) -> {
-				try {
-					boolean valid = vp.validate(creds.login, creds.password, creds.service, creds.realm, authConfig);
-					p.complete(valid);
-				} catch (Exception e) {
-					p.fail(e);
-				}
-			}, res -> {
+			vertx.executeBlocking(() -> {
+				boolean valid = vp.validate(creds.login, creds.password, creds.service, creds.realm, authConfig);
+				return valid;
+			}).andThen(res -> {
 				long elapsed = registry.clock().monotonicTime() - time;
 				timer.record(elapsed, TimeUnit.NANOSECONDS);
 				if (res.succeeded() && res.result().booleanValue()) {

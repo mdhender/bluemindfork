@@ -78,16 +78,11 @@ public class WorkerExecutorService extends AbstractExecutorService {
 
 	@Override
 	public void execute(Runnable command) {
-		exec.executeBlocking(prom -> {
-			try {
-				preRunExecution.ifPresent(Runnable::run);
-				command.run();
-				prom.complete();
-			} catch (Exception e) {
-				prom.fail(e);
-			}
-		}, false, ar -> {
-		});
+		exec.executeBlocking(() -> {
+			preRunExecution.ifPresent(Runnable::run);
+			command.run();
+			return null;
+		}, false);
 	}
 
 }

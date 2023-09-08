@@ -34,12 +34,13 @@ public class SendMailVerticle extends AbstractVerticle {
 	public void start() {
 		final ISendmail mailer = new Sendmail();
 		vertx.eventBus().consumer(SendMailAddress.SEND,
-				(Message<LocalJsonObject<Mail>> message) -> vertx.executeBlocking(prom -> {
+				(Message<LocalJsonObject<Mail>> message) -> vertx.executeBlocking(() -> {
 					try {
 						mailer.send(message.body().getValue());
 					} catch (ServerFault e) {
 						logger.error(e.getMessage(), e);
 					}
+					return null;
 				}, false));
 	}
 }

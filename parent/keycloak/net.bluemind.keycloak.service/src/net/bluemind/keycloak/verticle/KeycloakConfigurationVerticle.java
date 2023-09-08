@@ -33,7 +33,10 @@ public class KeycloakConfigurationVerticle extends AbstractVerticle {
 
 	private void updateForDomain(Message<JsonObject> event) {
 		String domainUid = Optional.ofNullable(event.body().getString("containerUid")).orElse("global.virt");
-		vertx.executeBlocking(p -> KeycloakHelper.onDomainUpdate(domainUid));
+		vertx.executeBlocking(() -> {
+			KeycloakHelper.onDomainUpdate(domainUid);
+			return null;
+		});
 	}
 
 }

@@ -64,9 +64,9 @@ public class ItemNotificationVerticle extends AbstractVerticle {
 		MQ.init(() -> {
 
 			final Producer producer = MQ.registerProducer(Topic.MAPI_ITEM_NOTIFICATIONS);
-			eb.consumer(Topic.MAPI_ITEM_NOTIFICATIONS, (Message<JsonObject> msg) -> vertx.executeBlocking(prom -> {
+			eb.consumer(Topic.MAPI_ITEM_NOTIFICATIONS, (Message<JsonObject> msg) -> vertx.executeBlocking(() -> {
 				if (StateContext.getState() != SystemState.CORE_STATE_RUNNING) {
-					return;
+					return null;
 				}
 
 				JsonObject body = msg.body();
@@ -85,32 +85,43 @@ public class ItemNotificationVerticle extends AbstractVerticle {
 				if (logger.isDebugEnabled()) {
 					logger.debug("ItemNotification to MQ: {}", mqMsg.toJson().encode());
 				}
+				return null;
 			}, false));
 
 			final Producer hierProducer = MQ.registerProducer(Topic.MAPI_HIERARCHY_NOTIFICATIONS);
-			eb.consumer(Topic.MAPI_HIERARCHY_NOTIFICATIONS, (Message<JsonObject> msg) -> vertx.executeBlocking(prom -> {
+			eb.consumer(Topic.MAPI_HIERARCHY_NOTIFICATIONS, (Message<JsonObject> msg) -> vertx.executeBlocking(() -> {
 				JsonObject body = msg.body();
 				hierProducer.send(body);
 				if (logger.isDebugEnabled()) {
 					logger.debug("HierarchyNotification to MQ: {}", body.encode());
 				}
+				return null;
 			}, false));
 
 			final Producer dioProducer = MQ.registerProducer(Topic.MAPI_DELEGATION_NOTIFICATIONS);
-			eb.consumer(Topic.MAPI_DELEGATION_NOTIFICATIONS,
-					(Message<JsonObject> msg) -> vertx.executeBlocking(prom -> dioProducer.send(msg.body()), false));
+			eb.consumer(Topic.MAPI_DELEGATION_NOTIFICATIONS, (Message<JsonObject> msg) -> vertx.executeBlocking(() -> {
+				dioProducer.send(msg.body());
+				return null;
+			}, false));
 
 			eb.consumer(OwnerSubscriptionsBusAddresses.ALL_SUBSCRIPTION_CHANGES,
-					(Message<JsonObject> domAndOwner) -> vertx
-							.executeBlocking(prom -> dioProducer.send(domAndOwner.body()), false));
+					(Message<JsonObject> domAndOwner) -> vertx.executeBlocking(() -> {
+						dioProducer.send(domAndOwner.body());
+						return null;
+					}, false));
 
 			final Producer pfAclUpdateProducer = MQ.registerProducer(Topic.MAPI_PF_ACL_UPDATE);
-			eb.consumer(Topic.MAPI_PF_ACL_UPDATE, (Message<JsonObject> msg) -> vertx
-					.executeBlocking(prom -> pfAclUpdateProducer.send(msg.body()), false));
+			eb.consumer(Topic.MAPI_PF_ACL_UPDATE, (Message<JsonObject> msg) -> vertx.executeBlocking(() -> {
+				pfAclUpdateProducer.send(msg.body());
+				return null;
+			}, false));
 
 			final Producer daProducer = MQ.registerProducer(Topic.MAPI_DEFERRED_ACTION_NOTIFICATIONS);
 			eb.consumer(Topic.MAPI_DEFERRED_ACTION_NOTIFICATIONS,
-					(Message<JsonObject> msg) -> vertx.executeBlocking(prom -> daProducer.send(msg.body()), false));
+					(Message<JsonObject> msg) -> vertx.executeBlocking(() -> {
+						daProducer.send(msg.body());
+						return null;
+					}, false));
 		});
 
 	}

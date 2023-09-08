@@ -47,13 +47,7 @@ public final class ProtocolExecutor {
 		}
 		query.request().pause();
 
-		query.vertx().executeBlocking((Promise<BackendSession> p) -> {
-			try {
-				p.complete(SessionWrapper.wrap(query));
-			} catch (Exception e) {
-				p.fail(e);
-			}
-		}, r -> {
+		query.vertx().executeBlocking(() -> SessionWrapper.wrap(query)).andThen(r -> {
 			if (r.failed()) {
 				errorOut(query, r.cause());
 			} else {

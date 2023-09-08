@@ -19,7 +19,6 @@
 		<module>net.bluemind.core.caches.testhelper</module>
 		<module>net.bluemind.core.commons.tests</module>
 		<module>net.bluemind.core.commons</module>
-		<module>net.bluemind.core.config</module>
 		<module>net.bluemind.core.container.api</module>
 		<module>net.bluemind.core.container.hierarchy.hook.tests</module>
 		<module>net.bluemind.core.container.hierarchy.hook</module>

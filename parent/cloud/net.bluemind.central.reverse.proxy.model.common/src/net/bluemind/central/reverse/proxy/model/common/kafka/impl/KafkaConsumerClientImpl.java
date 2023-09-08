@@ -12,7 +12,6 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
@@ -71,7 +70,7 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient<K, V> 
 	}
 
 	private void consume(Promise<Void> emptyConsumptionPromise) {
-		vertx.executeBlocking(pollingPromise -> {
+		vertx.executeBlocking(() -> {
 			final ConsumerRecords<K, V> records = consumer.poll(ofSeconds(POLL_DURATION_IN_SECONDS));
 			boolean hasRecord = handle(records);
 			if (!infinite && isEmptyConsumption(hasRecord, emptyConsumptionPromise)) {
@@ -79,8 +78,8 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient<K, V> 
 			} else if (hasRecord) {
 				hadRecords = true;
 			}
-			pollingPromise.complete(hasRecord);
-		}, true, (AsyncResult<Boolean> hasRecord) -> consume(emptyConsumptionPromise));
+			return hasRecord;
+		}, true).andThen(hasRecord -> consume(emptyConsumptionPromise));
 	}
 
 	private boolean isEmptyConsumption(boolean hasRecord, Promise<Void> emptyConsumptionPromise) {

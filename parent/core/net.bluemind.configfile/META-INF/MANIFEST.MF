@@ -7,11 +7,12 @@ Require-Bundle:
  com.google.guava,
  com.typesafe.config;visibility:=reexport,
  com.github.ben-manes.caffeine,
- net.bluemind.lib.vertx,
  org.eclipse.osgi,
- slf4j.api
+ slf4j.api,
+ io.vertx.core
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: net.bluemind.configfile,
  net.bluemind.configfile.imap,
- net.bluemind.configfile.elastic
+ net.bluemind.configfile.elastic,
+ net.bluemind.configfile.core
 Automatic-Module-Name: net.bluemind.configfile

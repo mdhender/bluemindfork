@@ -204,7 +204,7 @@ public class ProxyRequestImpl implements ProxyRequest {
 	public void cancel() {
 		HttpServerResponse response = outboundRequest.response();
 		if (!response.ended() && !response.closed()) {
-			response.close();
+			outboundRequest.connection().close();
 		}
 	}
 }

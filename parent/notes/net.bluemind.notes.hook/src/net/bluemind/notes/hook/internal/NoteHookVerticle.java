@@ -38,12 +38,21 @@ public class NoteHookVerticle extends AbstractVerticle {
 		EventBus eventBus = vertx.eventBus();
 
 		for (final INoteHook hook : hooks) {
-			eventBus.consumer(NoteHookAddress.CREATED, (Message<LocalJsonObject<VNoteMessage>> message) -> vertx
-					.executeBlocking(prom -> hook.onNoteCreated(message.body().getValue()), false));
-			eventBus.consumer(NoteHookAddress.UPDATED, (Message<LocalJsonObject<VNoteMessage>> message) -> vertx
-					.executeBlocking(prom -> hook.onNoteUpdated(message.body().getValue()), false));
-			eventBus.consumer(NoteHookAddress.DELETED, (Message<LocalJsonObject<VNoteMessage>> message) -> vertx
-					.executeBlocking(prom -> hook.onNoteDeleted(message.body().getValue()), false));
+			eventBus.consumer(NoteHookAddress.CREATED,
+					(Message<LocalJsonObject<VNoteMessage>> message) -> vertx.executeBlocking(() -> {
+						hook.onNoteCreated(message.body().getValue());
+						return null;
+					}, false));
+			eventBus.consumer(NoteHookAddress.UPDATED,
+					(Message<LocalJsonObject<VNoteMessage>> message) -> vertx.executeBlocking(() -> {
+						hook.onNoteUpdated(message.body().getValue());
+						return null;
+					}, false));
+			eventBus.consumer(NoteHookAddress.DELETED,
+					(Message<LocalJsonObject<VNoteMessage>> message) -> vertx.executeBlocking(() -> {
+						hook.onNoteDeleted(message.body().getValue());
+						return null;
+					}, false));
 		}
 
 	}

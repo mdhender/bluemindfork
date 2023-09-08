@@ -23,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Promise;
 
 public class SimpleHttpServer extends AbstractVerticle {
 
@@ -46,7 +45,7 @@ public class SimpleHttpServer extends AbstractVerticle {
 				String eventLoop = Thread.currentThread().getName();
 				logger.info("Req body handler...");
 
-				vertx.executeBlocking((Promise<String> prom) -> {
+				vertx.executeBlocking(() -> {
 					String blockingCodeThread = Thread.currentThread().getName();
 					logger.info("Blocking code starts...");
 					try {
@@ -54,8 +53,8 @@ public class SimpleHttpServer extends AbstractVerticle {
 					} catch (InterruptedException e) {
 					}
 					logger.info("Blocking code finishes.");
-					prom.complete(blockingCodeThread);
-				}, false, ar -> {
+					return blockingCodeThread;
+				}, false).andThen(ar -> {
 					String value = ar.result();
 					logger.info("Got value {}", value);
 					String afterBlocking = Thread.currentThread().getName();

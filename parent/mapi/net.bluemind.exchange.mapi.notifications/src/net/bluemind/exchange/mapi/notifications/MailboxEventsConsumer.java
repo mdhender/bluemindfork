@@ -54,7 +54,7 @@ public class MailboxEventsConsumer extends AbstractVerticle {
 	@Override
 	public void start() {
 		EventBus eb = vertx.eventBus();
-		eb.consumer("mailreplica.mailbox.updated", (Message<JsonObject> msg) -> vertx.executeBlocking(prom -> {
+		eb.consumer("mailreplica.mailbox.updated", (Message<JsonObject> msg) -> vertx.executeBlocking(() -> {
 			JsonObject replicaNotif = msg.body();
 			String cont = replicaNotif.getString("container");
 			Set<Long> changed = new HashSet<>();
@@ -99,7 +99,7 @@ public class MailboxEventsConsumer extends AbstractVerticle {
 				asCreateNotif.put("operation", CrudOperation.Create.name());
 				eb.publish(Topic.MAPI_ITEM_NOTIFICATIONS, asCreateNotif);
 			}
-
+			return null;
 		}, false));
 
 	}

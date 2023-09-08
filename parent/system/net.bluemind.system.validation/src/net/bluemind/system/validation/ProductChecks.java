@@ -58,10 +58,10 @@ public class ProductChecks {
 	public static CompletableFuture<Void> asyncValidate() {
 		CompletableFuture<Void> ret = new CompletableFuture<>();
 		logger.info("Loaded {} product validators", validators.size());
-		MQ.init(() -> VertxPlatform.getVertx().executeBlocking(prom -> {
+		MQ.init(() -> VertxPlatform.getVertx().executeBlocking(() -> {
 			blockingCheck();
-			prom.complete();
-		}, res -> ret.complete(null)));
+			return null;
+		}).andThen(res -> ret.complete(null)));
 		return ret;
 
 	}

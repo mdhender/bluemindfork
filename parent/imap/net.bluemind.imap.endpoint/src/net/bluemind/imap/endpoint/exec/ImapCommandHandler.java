@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Stopwatch;
 
-import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
 import net.bluemind.imap.endpoint.ImapContext;
@@ -88,7 +87,7 @@ public class ImapCommandHandler implements Handler<RawImapCommand> {
 					prom.complete();
 				}
 			});
-		}, true, (AsyncResult<Void> ar) -> {
+		}, true).andThen(ar -> {
 			if (ar.failed()) {
 				Throwable t = ar.cause();
 				if (!(t instanceof ClosedChannelException)) {

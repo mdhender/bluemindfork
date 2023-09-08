@@ -75,7 +75,7 @@ public class CasHandler extends AbstractAuthHandler implements Handler<HttpServe
 		public static CASRequest build(HttpServerRequest request) {
 			String domainUid = DomainsHelper.getDomainUid(request);
 			if ("global.virt".equals(domainUid)) {
-				throw new ServerFault("No valid domain found for URL: " + request.host());
+				throw new ServerFault("No valid domain found for URL: " + request.authority().host());
 			}
 
 			return build(request, domainUid);
@@ -115,7 +115,7 @@ public class CasHandler extends AbstractAuthHandler implements Handler<HttpServe
 
 		private String callbackTo() {
 			try {
-				return URLEncoder.encode("https://" + request.host() + "/auth/cas", "UTF-8");
+				return URLEncoder.encode("https://" + request.authority().host() + "/auth/cas", "UTF-8");
 			} catch (UnsupportedEncodingException e) {
 				throw new InvalidUrl(e);
 			}

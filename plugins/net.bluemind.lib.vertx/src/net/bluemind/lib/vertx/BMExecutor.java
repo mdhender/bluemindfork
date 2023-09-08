@@ -29,7 +29,7 @@ import com.netflix.spectator.api.Timer;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
 
-import net.bluemind.core.config.CoreConfig;
+import net.bluemind.configfile.core.CoreConfig;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 

@@ -53,7 +53,7 @@ public class KafkaAdminClientImpl implements KafkaAdminClient {
 	@Override
 	public Future<Map<String, TopicDescription>> describeTopics(Collection<String> topicNames) {
 		Promise<Map<String, TopicDescription>> promise = Promise.promise();
-		adminClient.describeTopics(topicNames).all().whenComplete((result, t) -> {
+		adminClient.describeTopics(topicNames).allTopicNames().whenComplete((result, t) -> {
 			if (Objects.isNull(t)) {
 				promise.complete(result);
 			} else {

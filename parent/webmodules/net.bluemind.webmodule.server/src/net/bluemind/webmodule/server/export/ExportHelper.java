@@ -28,7 +28,6 @@ import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServerRequest;
@@ -49,16 +48,14 @@ public class ExportHelper {
 			String containerUid, Function<ClientSideServiceProvider, Stream> export) {
 		request.pause();
 		AtomicReference<ContainerDescriptor> containerDescriptor = new AtomicReference<>();
-		vertx.executeBlocking((Promise<ReadStream<Buffer>> prom) -> {
-			try {
-				ClientSideServiceProvider clientProvider = core(sessionId);
-				IContainers icp = clientProvider.instance(IContainers.class);
-				containerDescriptor.set(icp.get(containerUid));
-				prom.complete(VertxStream.read(export.apply(clientProvider)));
-			} catch (Exception e) {
-				prom.fail(e);
-			}
-		}, false, ar -> {
+		vertx.executeBlocking(() -> {
+			ClientSideServiceProvider clientProvider = core(sessionId);
+			IContainers icp = clientProvider.instance(IContainers.class);
+			containerDescriptor.set(icp.get(containerUid));
+			ReadStream<Buffer> stream;
+			stream = VertxStream.read(export.apply(clientProvider));
+			return stream;
+		}, false).andThen(ar -> {
 			if (ar.failed()) {
 				ExportHelper.error(request.response(), containerUid, ar.cause());
 				return;

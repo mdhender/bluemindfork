@@ -48,20 +48,20 @@ public class EasContainerChangeVerticle extends AbstractVerticle {
 		});
 
 		vertx.eventBus().consumer(CalendarHookAddress.CHANGED, (Message<JsonObject> event) -> {
-			vertx.executeBlocking(prom -> {
+			vertx.executeBlocking(() -> {
 				if (calendarProducer != null) {
 					OOPMessage msg = buildMessage(event);
 					calendarProducer.send(msg);
 					logger.info("Wake up {} devices for calendar changes", event.body().getString("loginAtDomain"));
-
 				} else {
 					logger.warn("no calendar change notification, failed to create producer");
 				}
+				return null;
 			}, false);
 		});
 
 		vertx.eventBus().consumer(AddressBookBusAddresses.CHANGED, (Message<JsonObject> event) -> {
-			vertx.executeBlocking(prom -> {
+			vertx.executeBlocking(() -> {
 				if (addressbookProducer != null) {
 					OOPMessage msg = buildMessage(event);
 					addressbookProducer.send(msg);
@@ -69,11 +69,12 @@ public class EasContainerChangeVerticle extends AbstractVerticle {
 				} else {
 					logger.warn("no contacts change notification, failed to create producer");
 				}
+				return null;
 			}, false);
 		});
 
 		vertx.eventBus().consumer(TodoListHookAddress.CHANGED, (Message<JsonObject> event) -> {
-			vertx.executeBlocking(prom -> {
+			vertx.executeBlocking(() -> {
 				if (todolistProducer != null) {
 					OOPMessage msg = buildMessage(event);
 					todolistProducer.send(msg);
@@ -81,6 +82,7 @@ public class EasContainerChangeVerticle extends AbstractVerticle {
 				} else {
 					logger.warn("no todolist change notification, failed to create producer");
 				}
+				return null;
 			}, false);
 		});
 

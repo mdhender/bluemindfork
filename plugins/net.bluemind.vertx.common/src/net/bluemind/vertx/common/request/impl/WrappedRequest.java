@@ -127,6 +127,7 @@ public class WrappedRequest extends HttpServerRequestInternal {
 		return impl.remoteAddress();
 	}
 
+	@Override
 	public X509Certificate[] peerCertificateChain() throws SSLPeerUnverifiedException {
 		return impl.peerCertificateChain();
 	}
@@ -170,7 +171,7 @@ public class WrappedRequest extends HttpServerRequestInternal {
 	}
 
 	public String host() {
-		return impl.host();
+		return impl.authority().host();
 	}
 
 	public long bytesRead() {

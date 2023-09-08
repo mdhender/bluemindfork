@@ -171,16 +171,14 @@ public class RestRootHandler implements IRestCallHandler, IRestBusHandler {
 				span.setAttribute(SemanticAttributes.HTTP_STATUS_CODE, value.statusCode);
 				rh.success(value);
 				long elapsed = metrics.registry.clock().monotonicTime() - start;
-				vertx.executeBlocking(prom -> {
+				vertx.executeBlocking(() -> {
 					metrics.countSuccess.increment();
 					metrics.registry
 							.counter(metrics.idFactory.name("callsByRPC", "status", "success", "rpc", leaf.name()))
 							.increment();
 					metrics.handlingTimer.record(elapsed, TimeUnit.NANOSECONDS);
-					prom.complete();
-				}, false, ar -> {
-
-				});
+					return null;
+				}, false);
 			}
 
 			@Override

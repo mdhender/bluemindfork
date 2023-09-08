@@ -246,6 +246,10 @@ final class WrappedResponse implements HttpServerResponse {
 		return impl.sendFile(filename);
 	}
 
+	/*
+	 * Vertx asks for request.connection().close(); intead
+	 */
+	@Deprecated
 	public void close() {
 		impl.close();
 	}
@@ -410,6 +414,7 @@ final class WrappedResponse implements HttpServerResponse {
 	}
 
 	@Override
+	@Deprecated
 	public Future<HttpServerResponse> push(HttpMethod method, String host, String path, MultiMap headers) {
 		return impl.push(method, host, path, headers);
 	}

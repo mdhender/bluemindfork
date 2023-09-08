@@ -33,7 +33,6 @@ import com.google.common.base.MoreObjects;
 import com.netflix.hollow.api.consumer.HollowConsumer;
 
 import io.vertx.core.Handler;
-import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
@@ -72,7 +71,7 @@ public class HollowDataHandler implements Handler<HttpServerRequest>, NeedVertxE
 	}
 
 	private void retrieveVersion(Target target, HttpServerResponse resp) {
-		vertx.executeBlocking(prom -> prom.complete(getVersion(target)), false, ar -> {
+		vertx.executeBlocking(() -> getVersion(target), false).andThen(ar -> {
 			if (ar.failed()) {
 				logger.error("retrieveVersion failed", ar.cause());
 				resp.setStatusCode(500).setStatusMessage("retrieveVersion " + ar.cause().getMessage());
@@ -89,14 +88,14 @@ public class HollowDataHandler implements Handler<HttpServerRequest>, NeedVertxE
 	}
 
 	private void retrieveData(Target target, HttpServerResponse resp) {
-		vertx.executeBlocking((Promise<BlobData> prom) -> {
+		vertx.executeBlocking(() -> {
 			BlobData blob = getDataBlob(target);
 			if (blob != null) {
-				prom.complete(blob);
+				return blob;
 			} else {
-				prom.fail(new NullPointerException("blob " + target + " is null"));
+				throw new NullPointerException("blob " + target + " is null");
 			}
-		}, false, ar -> {
+		}, false).andThen(ar -> {
 			if (ar.failed()) {
 				error(resp, ar.cause(), target);
 			} else {

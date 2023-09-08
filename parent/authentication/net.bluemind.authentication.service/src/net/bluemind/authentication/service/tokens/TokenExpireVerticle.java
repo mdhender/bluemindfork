@@ -48,8 +48,11 @@ public class TokenExpireVerticle extends AbstractVerticle {
 	public void start() {
 		VertxPlatform.executeBlockingPeriodic(TimeUnit.HOURS.toMillis(1), tid -> TokensStore.get().expireOldTokens());
 		TokensStore.get().expireOldTokens();
-		vertx.eventBus().localConsumer("hollow.tokens.store.expire", (Message<JsonObject> msg) -> vertx
-				.executeBlocking(prop -> msg.reply(TokensStore.get().expireOldTokens()), false));
+		vertx.eventBus().localConsumer("hollow.tokens.store.expire",
+				(Message<JsonObject> msg) -> vertx.executeBlocking(() -> {
+					msg.reply(TokensStore.get().expireOldTokens());
+					return null;
+				}, false));
 	}
 
 }

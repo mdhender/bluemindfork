@@ -41,9 +41,9 @@ import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonObject;
+import net.bluemind.configfile.core.CoreConfig;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.config.CoreConfig;
 import net.bluemind.core.task.api.ITask;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.service.IServerTask;
@@ -80,10 +80,10 @@ public class TasksManager implements ITasksManager {
 				.evictionListener((String key, TaskManager value, RemovalCause cause) -> {
 					if (value != null) {
 						VertxPlatform.getVertx().setTimer(5000, tid -> {
-							VertxPlatform.getVertx().executeBlocking(prom -> {
+							VertxPlatform.getVertx().executeBlocking(() -> {
 								VertxPlatform.eventBus().publish("tasks.manager.cleanups.expire", key);
 								cleanupTask(value);
-								prom.complete();
+								return null;
 							});
 						});
 					}

@@ -182,7 +182,7 @@ public class FormHandler implements Handler<HttpServerRequest>, NeedVertx {
 		}
 
 		resp.headers().add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(privacyCo));
-		resp.headers().add(HttpHeaders.LOCATION, req.scheme() + "://" + req.host() + "/login/native" + q);
+		resp.headers().add(HttpHeaders.LOCATION, req.scheme() + "://" + req.authority().host() + "/login/native" + q);
 		resp.setStatusCode(302);
 		resp.end();
 	}

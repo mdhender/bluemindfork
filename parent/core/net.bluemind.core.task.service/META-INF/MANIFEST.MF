@@ -17,6 +17,6 @@ Require-Bundle: net.bluemind.core.context;bundle-version="1.0.0",
  com.google.guava,
  net.bluemind.chronicle.queue;bundle-version="5.21.0",
  com.github.ben-manes.caffeine,
- net.bluemind.core.config
+ net.bluemind.configfile
 Bundle-Vendor: bluemind.net
 Automatic-Module-Name: net.bluemind.core.task.service

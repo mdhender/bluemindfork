@@ -59,17 +59,19 @@ public class PerOwnerMailboxEventProducer extends AbstractVerticle {
 	@Override
 	public void start() {
 		EventBus eb = vertx.eventBus();
-		eb.consumer(ReplicationEvents.MBOX_UPD_ADDR, (Message<JsonObject> msg) -> vertx.executeBlocking(prom -> {
+		eb.consumer(ReplicationEvents.MBOX_UPD_ADDR, (Message<JsonObject> msg) -> vertx.executeBlocking(() -> {
 			String owner = msg.body().getString("owner");
 			JsonObject ownerEvent = createMailboxEvent(msg, owner);
 			eb.publish(ADDRESS_PREFIX + owner + ADDRESS_SUFFIX, ownerEvent);
+			return null;
 		}, false));
-		eb.consumer(ReplicationEvents.HIER_UPD_ADDR, (Message<JsonObject> msg) -> vertx.executeBlocking(prom -> {
+		eb.consumer(ReplicationEvents.HIER_UPD_ADDR, (Message<JsonObject> msg) -> vertx.executeBlocking(() -> {
 			if (!msg.body().getBoolean("minor")) {
 				String owner = msg.body().getString("owner");
 				JsonObject ownerEvent = createHierarchyEvent(msg, owner);
 				eb.publish(ADDRESS_PREFIX + owner + ADDRESS_SUFFIX, ownerEvent);
 			}
+			return null;
 		}, false));
 	}
 

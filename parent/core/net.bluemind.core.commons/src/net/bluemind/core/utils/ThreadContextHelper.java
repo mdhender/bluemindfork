@@ -30,11 +30,10 @@ public final class ThreadContextHelper {
 
 	public static <T> CompletableFuture<T> inWorkerThread(CompletableFuture<T> eventLoopFuture) {
 		CompletableFuture<T> dependentsInWorkerThread = new CompletableFuture<>();
-		eventLoopFuture.thenAccept(ident -> VertxPlatform.getVertx().executeBlocking(prom -> {
+		eventLoopFuture.thenAccept(ident -> VertxPlatform.getVertx().executeBlocking(() -> {
 			dependentsInWorkerThread.complete(ident);
-			prom.complete();
-		}, false, res -> {
-		}));
+			return null;
+		}, false));
 		return dependentsInWorkerThread;
 	}
 }

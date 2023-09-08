@@ -33,27 +33,28 @@ public class ImapIdleNotificationsDispatcher extends AbstractVerticle {
 	public void start() throws Exception {
 		EventBus eb = vertx.eventBus();
 
-		eb.consumer("mailreplica.mailbox.updated", (Message<JsonObject> msg) -> vertx.executeBlocking(prom -> {
+		eb.consumer("mailreplica.mailbox.updated", (Message<JsonObject> msg) -> vertx.executeBlocking(() -> {
 			if (StateContext.getState() != SystemState.CORE_STATE_RUNNING) {
-				return;
+				return null;
 			}
 
 			JsonObject js = msg.body();
-
 			JsonObject rebuilt = new JsonObject();
 			rebuilt.put("containerUid", js.getString("container"));
 			rebuilt.put("changes", js.getJsonArray("imapChanges"));
 
 			eb.publish(Topic.IMAP_ITEM_NOTIFICATIONS, rebuilt);
+			return null;
 		}, false));
 
 		MQ.init(() -> {
 			final Producer producer = MQ.registerProducer(Topic.IMAP_ITEM_NOTIFICATIONS);
-			eb.consumer(Topic.IMAP_ITEM_NOTIFICATIONS, (Message<JsonObject> msg) -> vertx.executeBlocking(prom -> {
+			eb.consumer(Topic.IMAP_ITEM_NOTIFICATIONS, (Message<JsonObject> msg) -> vertx.executeBlocking(() -> {
 				if (StateContext.getState() != SystemState.CORE_STATE_RUNNING) {
-					return;
+					return null;
 				}
 				producer.send(msg.body());
+				return null;
 			}, false));
 
 		});

@@ -42,7 +42,7 @@ public class UpdateDashboardTargets extends AbstractVerticle {
 			vertx.eventBus().consumer(TOPOLOGY_CHANGED, event -> {
 				JsonArray jsonMetrics = ((JsonObject) event.body()).getJsonArray("metrics");
 				List<String> metrics = jsonMetrics.stream().map(Object::toString).toList();
-				vertx.executeBlocking(p -> {
+				vertx.executeBlocking(() -> {
 					try {
 						GrafanaVisualization.update(metrics);
 					} catch (GrafanaException e) {
@@ -51,7 +51,7 @@ public class UpdateDashboardTargets extends AbstractVerticle {
 						logger.error(e.getMessage());
 						Thread.currentThread().interrupt();
 					}
-					p.complete();
+					return null;
 				});
 			});
 		}

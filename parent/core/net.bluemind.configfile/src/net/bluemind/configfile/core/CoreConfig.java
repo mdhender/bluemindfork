@@ -20,7 +20,7 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.core.config;
+package net.bluemind.configfile.core;
 
 import java.io.File;
 

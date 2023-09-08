@@ -24,7 +24,7 @@ Require-Bundle: org.eclipse.core.runtime,
  micrometer-observation,
  micrometer-registry-prometheus,
  io.vertx.micrometer,
- net.bluemind.core.config
+ net.bluemind.configfile
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .

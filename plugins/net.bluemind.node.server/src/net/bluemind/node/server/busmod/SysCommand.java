@@ -58,22 +58,20 @@ public class SysCommand extends AbstractVerticle {
 	@Override
 	public void start() {
 		EventBus eb = vertx.eventBus();
-		eb.consumer("cmd.request", (Message<JsonObject> js) -> vertx.executeBlocking(prom -> {
-			Long rc = newRequest(js);
-			prom.complete(rc);
-		}, false, ar -> js.reply(ar.result())));
+		eb.consumer("cmd.request", (Message<JsonObject> js) -> vertx.executeBlocking(() -> newRequest(js), false)
+				.andThen(ar -> js.reply(ar.result())));
 
-		eb.consumer("cmd.status", (Message<JsonObject> msg) -> vertx.executeBlocking(prom -> {
+		eb.consumer("cmd.status", (Message<JsonObject> msg) -> vertx.executeBlocking(() -> {
 			reqStatus(msg);
-			prom.complete();
+			return null;
 		}, false));
-		eb.consumer("cmd.interrupt", (Message<JsonObject> msg) -> vertx.executeBlocking(prom -> {
+		eb.consumer("cmd.interrupt", (Message<JsonObject> msg) -> vertx.executeBlocking(() -> {
 			interruptMsg(msg);
-			prom.complete();
-		}, false, ar -> msg.reply(new JsonObject())));
-		eb.consumer("cmd.executions", (Message<JsonObject> msg) -> vertx.executeBlocking(prom -> {
+			return null;
+		}, false).andThen(ar -> msg.reply(new JsonObject())));
+		eb.consumer("cmd.executions", (Message<JsonObject> msg) -> vertx.executeBlocking(() -> {
 			executions(msg);
-			prom.complete();
+			return null;
 		}, false));
 		setupStaleWatcher();
 	}

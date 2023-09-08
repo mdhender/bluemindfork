@@ -36,7 +36,7 @@ import io.vertx.core.Context;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.common.cache.persistence.CacheBackingStore;
-import net.bluemind.core.config.CoreConfig;
+import net.bluemind.configfile.core.CoreConfig;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.lib.vertx.VertxContext;
 import net.bluemind.lib.vertx.VertxPlatform;
@@ -116,14 +116,10 @@ public class SessionsBackingStore {
 
 	private void notifySessionRemovalListener(ISessionDeletionListener listener, String sessionId,
 			SecurityContext securityContext, Context vertxContext) {
-		vertxContext.executeBlocking(promise -> {
-			try {
-				listener.deleted(IDENTITY, sessionId, securityContext);
-				promise.complete();
-			} catch (Exception e) {
-				promise.fail(e);
-			}
-		}, true, asyncResult -> {
+		vertxContext.executeBlocking(() -> {
+			listener.deleted(IDENTITY, sessionId, securityContext);
+			return null;
+		}, true).andThen(asyncResult -> {
 			if (!asyncResult.succeeded()) {
 				logger.error("Session deletion listener {} failed", listener.getClass().getName(), asyncResult.cause());
 			}
