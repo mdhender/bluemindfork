@@ -1,10 +1,9 @@
 import { Verb } from "@bluemind/core.container.api";
 import { inject } from "@bluemind/inject";
 import { ContainerHelper, ContainerType } from "../container";
-import { CalendarAcl } from "../Calendars/helper";
 
 export async function loadAcl(container, isMyDefaultCalendar) {
-    let domainAcl = -1,
+    let domainAcl = [],
         dirEntriesAcl = [];
 
     let aclList = await inject("ContainerManagementPersistence", container.uid).getAccessControlList();
@@ -14,11 +13,15 @@ export async function loadAcl(container, isMyDefaultCalendar) {
 
     aclList = aclList.filter(acl => filterDirEntryAcl(acl, container));
 
+    const subjects = aclList.reduce(
+        (subjects, { subject }) => (subjects.includes(subject) ? subjects : [...subjects, subject]),
+        []
+    );
+
     if (aclList.length > 0) {
-        const dirEntries = await inject("DirectoryPersistence").getMultiple(aclList.map(acl => acl.subject));
+        const dirEntries = await inject("DirectoryPersistence").getMultiple(subjects);
         dirEntriesAcl = dirEntries.map(entry => {
-            const verb = aclList.find(acl => acl.subject === entry.uid).verb;
-            const acl = ContainerHelper.use(container.type).verbToAcl(verb);
+            const acl = aclList.filter(acl => acl.subject === entry.uid);
             return { ...entry, acl };
         });
     }
@@ -31,9 +34,9 @@ export async function loadAcl(container, isMyDefaultCalendar) {
 }
 
 function loadDomainAcl(aclList, containerType) {
-    const hasDomainAcl = aclList.find(acl => acl.subject === inject("UserSession").domain);
     const helper = ContainerHelper.use(containerType);
-    return hasDomainAcl ? helper.verbToAcl(hasDomainAcl.verb) : helper.defaultDomainAcl;
+    const domainAcl = aclList.filter(acl => acl.subject === inject("UserSession").domain);
+    return domainAcl.length ? domainAcl : helper.defaultDomainAcl;
 }
 
 function filterDirEntryAcl(acl, { owner }) {
@@ -53,12 +56,12 @@ function filterDirEntryAcl(acl, { owner }) {
  * This helper allows to unify those ACL by ordering them.
  * Used in share modal UI where this complexity is hidden by proposing only one select-box to manage calendar rights.
  */
-async function handleFreebusy(domainAcl, dirEntriesAcl, { owner, type }) {
+async function handleFreebusy(domainAcl, dirEntriesAcl, { owner }) {
     let aclList = await inject("ContainerManagementPersistence", "freebusy:" + owner).getAccessControlList();
     const userSession = inject("UserSession");
     const hasDomainAcl = aclList.find(acl => acl.subject === userSession.domain);
     if (hasDomainAcl) {
-        domainAcl = adaptAclForFreebusy(domainAcl, hasDomainAcl.verb);
+        domainAcl = adaptAclForFreebusy(domainAcl, hasDomainAcl.verb, userSession.domain);
     }
 
     aclList = aclList.filter(acl => acl.subject !== userSession.domain && acl.subject !== userSession.userId);
@@ -66,7 +69,7 @@ async function handleFreebusy(domainAcl, dirEntriesAcl, { owner, type }) {
     aclList.forEach(acl => {
         const dirEntry = dirEntriesAcl.find(entry => acl.subject === entry.uid);
         if (dirEntry) {
-            dirEntry.acl = adaptAclForFreebusy(dirEntry.acl, acl.verb);
+            dirEntry.acl = adaptAclForFreebusy(dirEntry.acl, acl.verb, dirEntry.uid);
         } else {
             dirEntriesWithOnlyFreebusyAcl.push(acl);
         }
@@ -76,7 +79,7 @@ async function handleFreebusy(domainAcl, dirEntriesAcl, { owner, type }) {
             dirEntriesWithOnlyFreebusyAcl.map(acl => acl.subject)
         );
         dirEntries = dirEntries.map(entry => {
-            const acl = ContainerHelper.use(type).verbToAcl(aclList.find(acl => acl.subject === entry.uid).verb, true);
+            const acl = aclList.filter(acl => acl.subject === entry.uid);
             return { ...entry, acl };
         });
         dirEntriesAcl.push(...dirEntries);
@@ -85,12 +88,18 @@ async function handleFreebusy(domainAcl, dirEntriesAcl, { owner, type }) {
     return { domainAcl, dirEntriesAcl };
 }
 
-function adaptAclForFreebusy(calendarAcl, freebusyVerb) {
-    if (freebusyVerb === Verb.Read && calendarAcl < CalendarAcl.CAN_SEE_MY_AVAILABILITY) {
-        return CalendarAcl.CAN_SEE_MY_AVAILABILITY;
+function adaptAclForFreebusy(calendarAcl, freebusyVerb, subject) {
+    if (
+        freebusyVerb === Verb.Read &&
+        !calendarAcl.some(({ verb }) => [Verb.Invitation, Verb.Read, Verb.Write, Verb.Manage, Verb.All].includes(verb))
+    ) {
+        return [{ subject, verb: Verb.Invitation }];
     }
     if (freebusyVerb === Verb.All) {
-        return CalendarAcl.CAN_MANAGE_SHARES;
+        return [
+            { subject, verb: Verb.Write },
+            { subject, verb: Verb.Manage }
+        ];
     }
     return calendarAcl;
 }

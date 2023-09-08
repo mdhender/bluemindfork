@@ -12,12 +12,12 @@
                     {{ $t("preferences.manage_shares.all_users_in_my_organization") }}
                 </div>
                 <bm-form-select
-                    :value="domainAcl"
+                    :value="aclToOption(domainAcl)"
                     :options="shareOptions(true)"
                     :auto-min-width="false"
                     right
                     class="share-entry-col"
-                    @input="onDomainAclChange"
+                    @input="value => onDomainAclChange(domainAcl, domainUid, value)"
                 />
             </bm-row>
             <template v-for="dirEntry in dirEntriesAcl">
@@ -30,12 +30,12 @@
                         bold-dn
                     />
                     <bm-form-select
-                        :value="dirEntry.acl"
+                        :value="aclToOption(dirEntry.acl)"
                         :options="shareOptions()"
                         :auto-min-width="false"
                         right
                         class="share-entry-col"
-                        @input="value => onDirEntryAclChange(dirEntry.uid, value)"
+                        @input="value => onDirEntryAclChange(dirEntry.acl, dirEntry.uid, value)"
                     />
                 </bm-row>
             </template>
@@ -46,6 +46,7 @@
 <script>
 import { DirEntryAdaptor } from "@bluemind/contact";
 import { Contact } from "@bluemind/business-components";
+import { inject } from "@bluemind/inject";
 import { BmFormSelect, BmLabelIcon, BmRow } from "@bluemind/ui-components";
 import i18n from "@bluemind/i18n";
 import { ContainerHelper, ContainerType } from "../container";
@@ -59,7 +60,7 @@ export default {
             required: true
         },
         domainAcl: {
-            type: Number,
+            type: Array,
             required: true
         },
         dirEntriesAcl: {
@@ -70,6 +71,9 @@ export default {
             type: Boolean,
             required: true
         }
+    },
+    data() {
+        return { domainUid: inject("UserSession").domain };
     },
     computed: {
         noAclSet() {
@@ -84,15 +88,21 @@ export default {
     },
     methods: {
         dirEntryToContact: DirEntryAdaptor.toContact,
-        onDirEntryAclChange(dirEntryUid, value) {
-            this.$emit("dir-entry-acl-changed", { dirEntryUid, value });
+        onDirEntryAclChange(acl, dirEntryUid, value) {
+            this.$emit("dir-entry-acl-changed", { dirEntryUid, value: this.aclFromOption(acl, dirEntryUid, value) });
         },
-        onDomainAclChange(newValue) {
-            this.$emit("domain-acl-changed", newValue);
+        onDomainAclChange(domainAcl, domainUid, value) {
+            this.$emit("domain-acl-changed", this.aclFromOption(domainAcl, domainUid, value));
         },
         shareOptions(isPlural = false) {
             const count = isPlural ? 0 : 1;
             return ContainerHelper.use(this.container.type).getOptions(i18n, count, this.isMyDefaultCalendar);
+        },
+        aclToOption(acl) {
+            return ContainerHelper.use(this.container.type).aclToOption(acl);
+        },
+        aclFromOption(acl, uid, option) {
+            return ContainerHelper.use(this.container.type).updateAcl(acl, uid, option);
         }
     }
 };

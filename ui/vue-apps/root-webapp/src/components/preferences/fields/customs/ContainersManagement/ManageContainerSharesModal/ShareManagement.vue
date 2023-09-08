@@ -98,7 +98,7 @@ export default {
 
             // inside organization
             dirEntriesAcl: [],
-            domainAcl: -1,
+            domainAcl: [],
 
             // outside organization
             externalShares: []
@@ -115,20 +115,13 @@ export default {
             return this.container.type === ContainerType.MAILBOX;
         },
         aclReadyForServer() {
-            const dirEntries = this.dirEntriesAcl.filter(this.filterNoRightsAcl);
-            const res = dirEntries.map(entry => ({
-                subject: entry.uid,
-                verb: this.helper.aclToVerb(entry.acl)
-            }));
+            const res = this.dirEntriesAcl.flatMap(({ acl }) => acl);
             if (!this.isMyContainer) {
                 res.push({ subject: inject("UserSession").userId, verb: Verb.All });
             }
 
-            if (!this.isMailboxType && this.domainAcl !== this.helper.noRightAcl) {
-                res.push({
-                    subject: inject("UserSession").domain,
-                    verb: this.helper.aclToVerb(this.domainAcl)
-                });
+            if (!this.isMailboxType && this.domainAcl?.length) {
+                res.push(...this.domainAcl);
             }
             if (this.isCalendarType) {
                 const externalSharesAcl = this.externalShares.map(share => ({
@@ -142,16 +135,9 @@ export default {
         freebusyAclReadyForServer() {
             let res = [];
             if (this.isCalendarType) {
-                const dirEntries = this.dirEntriesAcl.filter(this.filterNoRightsAcl);
-                res = dirEntries.map(entry => ({
-                    subject: entry.uid,
-                    verb: this.helper.aclToVerb(entry.acl, true)
-                }));
-                if (this.domainAcl !== this.helper.noRightAcl) {
-                    res.push({
-                        subject: inject("UserSession").domain,
-                        verb: this.helper.aclToVerb(this.domainAcl, true)
-                    });
+                res.push(...this.dirEntriesAcl.flatMap(({ acl }) => acl));
+                if (this.domainAcl.length) {
+                    res.push(...this.domainAcl);
                 }
             }
             return res;
@@ -171,9 +157,6 @@ export default {
     },
     methods: {
         ...mapActions("alert", { SUCCESS }),
-        filterNoRightsAcl(entry) {
-            return entry.acl !== this.helper.noRightAcl;
-        },
 
         // search autocomplete
         onInputUpdate: throttle(async function () {
@@ -236,9 +219,10 @@ export default {
             } else if (!selected.isInternal) {
                 this.addExternal(selected);
             } else {
+                const dirEntry = DirEntryAdaptor.toDirEntry(selected);
                 this.dirEntriesAcl.push({
-                    ...DirEntryAdaptor.toDirEntry(selected),
-                    acl: this.helper.defaultDirEntryAcl
+                    ...dirEntry,
+                    acl: this.helper.buildDefaultDirEntryAcl(dirEntry)
                 });
                 this.saveShares();
             }

@@ -9,6 +9,8 @@ const TodoListAcl = {
     CAN_MANAGE_SHARES: 3
 };
 
+const HANDLED_VERBS = [Verb.All, Verb.Manage, Verb.Write, Verb.Read];
+
 export default {
     matchingIcon: () => "list",
     matchingFileTypeIcon: () => "file-type-ics",
@@ -17,9 +19,8 @@ export default {
         const encoded = await file.text().then(res => JSON.stringify(res));
         return inject("VTodoPersistence", containerUid).importIcs(encoded, uploadCanceller);
     },
-    defaultDirEntryAcl: TodoListAcl.CAN_READ_MY_TODO_LIST,
-    defaultDomainAcl: TodoListAcl.HAS_NO_RIGHTS,
-    noRightAcl: TodoListAcl.HAS_NO_RIGHTS,
+    buildDefaultDirEntryAcl: dirEntry => [{ subject: dirEntry.uid, verb: Verb.Read }],
+    defaultDomainAcl: [],
     getOptions: (i18n, count) => [
         {
             text: i18n.tc("preferences.manage_shares.has_no_rights", count),
@@ -38,29 +39,38 @@ export default {
             value: TodoListAcl.CAN_MANAGE_SHARES
         }
     ],
-    aclToVerb: acl => {
-        switch (acl) {
-            case TodoListAcl.CAN_READ_MY_TODO_LIST:
-                return Verb.Read;
-            case TodoListAcl.CAN_EDIT_MY_TODO_LIST:
-                return Verb.Write;
-            case TodoListAcl.CAN_MANAGE_SHARES:
-                return Verb.All;
-            default:
-                throw "impossible case : no acl equivalent";
+    aclToOption: acl => {
+        const verbs = acl.map(({ verb }) => verb);
+
+        if (verbs.includes(Verb.All) || verbs.includes(Verb.Manage)) {
+            return TodoListAcl.CAN_MANAGE_SHARES;
         }
+        if (verbs.includes(Verb.Write)) {
+            return TodoListAcl.CAN_EDIT_MY_TODO_LIST;
+        }
+        if (verbs.includes(Verb.Read)) {
+            return TodoListAcl.CAN_READ_MY_TODO_LIST;
+        }
+        return TodoListAcl.HAS_NO_RIGHTS;
     },
-    verbToAcl: verb => {
-        switch (verb) {
-            case Verb.Read:
-                return TodoListAcl.CAN_READ_MY_TODO_LIST;
-            case Verb.Write:
-                return TodoListAcl.CAN_EDIT_MY_TODO_LIST;
-            case Verb.Manage:
-            case Verb.All:
-                return TodoListAcl.CAN_MANAGE_SHARES;
-            default:
-                throw "impossible case : no acl equivalent";
+    updateAcl(acl, subject, option) {
+        if (this.aclToOption(acl) !== option) {
+            const newAcl = acl.flatMap(ac => (!HANDLED_VERBS.includes(ac.verb) ? ac : []));
+            switch (option) {
+                case TodoListAcl.CAN_READ_MY_TODO_LIST:
+                    newAcl.push({ verb: Verb.Read, subject });
+                    break;
+                case TodoListAcl.CAN_EDIT_MY_TODO_LIST:
+                    newAcl.push({ verb: Verb.Write, subject });
+                    break;
+                case TodoListAcl.CAN_MANAGE_SHARES:
+                    newAcl.push({ verb: Verb.Write, subject });
+                    newAcl.push({ verb: Verb.Manage, subject });
+                    break;
+                default:
+                    break;
+            }
+            return newAcl;
         }
     }
 };

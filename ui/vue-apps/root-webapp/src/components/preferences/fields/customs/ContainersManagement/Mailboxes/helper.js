@@ -1,56 +1,67 @@
 import { Verb } from "@bluemind/core.container.api";
 
-const MailboxAcl = {
+const MailboxSharingOptions = {
     HAS_NO_RIGHTS: 0,
     CAN_READ_MY_MAILBOX: 1,
     CAN_EDIT_MY_MAILBOX: 2,
     CAN_MANAGE_SHARES: 3
 };
 
+const HANDLED_VERBS = [Verb.All, Verb.Manage, Verb.Write, Verb.Read];
+
 export default {
     matchingIcon: () => "user-enveloppe",
-    defaultDirEntryAcl: MailboxAcl.CAN_READ_MY_MAILBOX,
-    noRightAcl: MailboxAcl.HAS_NO_RIGHTS,
+    buildDefaultDirEntryAcl: dirEntry => [{ subject: dirEntry.uid, verb: Verb.Read }],
     getOptions: i18n => [
         {
             text: i18n.tc("preferences.manage_shares.has_no_rights", 1),
-            value: MailboxAcl.HAS_NO_RIGHTS
+            value: MailboxSharingOptions.HAS_NO_RIGHTS
         },
         {
             text: i18n.t("preferences.mail.my_mailbox.can_read_my_mailbox"),
-            value: MailboxAcl.CAN_READ_MY_MAILBOX
+            value: MailboxSharingOptions.CAN_READ_MY_MAILBOX
         },
         {
             text: i18n.t("preferences.mail.my_mailbox.can_edit_my_mailbox"),
-            value: MailboxAcl.CAN_EDIT_MY_MAILBOX
+            value: MailboxSharingOptions.CAN_EDIT_MY_MAILBOX
         },
         {
             text: i18n.t("preferences.mail.my_mailbox.can_edit_my_mailbox_and_manage_shares"),
-            value: MailboxAcl.CAN_MANAGE_SHARES
+            value: MailboxSharingOptions.CAN_MANAGE_SHARES
         }
     ],
-    aclToVerb: acl => {
-        switch (acl) {
-            case MailboxAcl.CAN_READ_MY_MAILBOX:
-                return Verb.Read;
-            case MailboxAcl.CAN_EDIT_MY_MAILBOX:
-                return Verb.Write;
-            case MailboxAcl.CAN_MANAGE_SHARES:
-                return Verb.All;
-            default:
-                throw "impossible case : no acl equivalent";
+    aclToOption(acl) {
+        const verbs = acl.map(({ verb }) => verb);
+        if (verbs.includes(Verb.All) || (verbs.includes(Verb.Write) && verbs.includes(Verb.Manage))) {
+            return MailboxSharingOptions.CAN_MANAGE_SHARES;
         }
+        if (verbs.includes(Verb.Write)) {
+            return MailboxSharingOptions.CAN_EDIT_MY_MAILBOX;
+        }
+        if (verbs.includes(Verb.Read)) {
+            return MailboxSharingOptions.CAN_READ_MY_MAILBOX;
+        }
+        return MailboxSharingOptions.HAS_NO_RIGHTS;
     },
-    verbToAcl: verb => {
-        switch (verb) {
-            case Verb.Read:
-                return MailboxAcl.CAN_READ_MY_MAILBOX;
-            case Verb.Write:
-                return MailboxAcl.CAN_EDIT_MY_MAILBOX;
-            case Verb.All:
-                return MailboxAcl.CAN_MANAGE_SHARES;
-            default:
-                throw "impossible case : no acl equivalent";
+    updateAcl(acl, subject, option) {
+        if (this.aclToOption(acl) !== option) {
+            const newAcl = acl.flatMap(ac => (!HANDLED_VERBS.includes(ac.verb) ? ac : []));
+            switch (option) {
+                case MailboxSharingOptions.CAN_READ_MY_MAILBOX:
+                    newAcl.push({ verb: Verb.Read, subject });
+                    break;
+                case MailboxSharingOptions.CAN_EDIT_MY_MAILBOX:
+                    newAcl.push({ verb: Verb.Write, subject });
+                    break;
+                case MailboxSharingOptions.CAN_MANAGE_SHARES:
+                    newAcl.push({ verb: Verb.Write, subject });
+                    newAcl.push({ verb: Verb.Manage, subject });
+                    break;
+                case MailboxSharingOptions.HAS_NO_RIGHTS:
+                default:
+                    break;
+            }
+            return newAcl;
         }
     }
 };

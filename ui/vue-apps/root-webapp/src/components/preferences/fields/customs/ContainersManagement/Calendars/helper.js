@@ -11,15 +11,16 @@ export const CalendarAcl = {
     CAN_MANAGE_SHARES: 5
 };
 
+const HANDLED_VERBS = [Verb.All, Verb.Manage, Verb.Write, Verb.Read, Verb.Invitation];
+
 export default {
     matchingIcon: () => "calendar",
     matchingFileTypeIcon: () => "file-type-ics",
     allowedFileTypes: () => MimeType.TEXT_CALENDAR || MimeType.ICS || MimeType.TEXT_PLAIN,
     importFileRequest: (containerUid, file, uploadCanceller) =>
         inject("VEventPersistence", containerUid).importIcs(file, uploadCanceller),
-    defaultDirEntryAcl: CalendarAcl.CAN_INVITE_ME,
-    defaultDomainAcl: CalendarAcl.CANT_INVITE_ME,
-    noRightAcl: CalendarAcl.CANT_INVITE_ME,
+    buildDefaultDirEntryAcl: dirEntry => [{ subject: dirEntry.uid, verb: Verb.Invitation }],
+    defaultDomainAcl: [],
     getOptions: (i18n, count, isMyDefaultCalendar) => {
         const options = [
             {
@@ -54,48 +55,65 @@ export default {
         }
         return options;
     },
-    aclToVerb: (acl, isFreebusy) => {
-        if (isFreebusy) {
-            switch (acl) {
-                case CalendarAcl.CANT_INVITE_ME:
-                case CalendarAcl.CAN_INVITE_ME:
-                    throw "impossible case : no acl equivalent";
-                case CalendarAcl.CAN_SEE_MY_AVAILABILITY:
-                case CalendarAcl.CAN_SEE_MY_EVENTS:
-                case CalendarAcl.CAN_EDIT_MY_EVENTS:
-                    return Verb.Read;
-                case CalendarAcl.CAN_MANAGE_SHARES:
-                    return Verb.All;
-            }
-        }
-        switch (acl) {
-            case CalendarAcl.CANT_INVITE_ME:
-                throw "impossible case : no acl equivalent";
-            case CalendarAcl.CAN_INVITE_ME:
-            case CalendarAcl.CAN_SEE_MY_AVAILABILITY:
-                return Verb.Invitation;
-            case CalendarAcl.CAN_SEE_MY_EVENTS:
-                return Verb.Read;
-            case CalendarAcl.CAN_EDIT_MY_EVENTS:
-                return Verb.Write;
-            case CalendarAcl.CAN_MANAGE_SHARES:
-                return Verb.All;
-        }
-    },
-    verbToAcl: (verb, isFreebusy = false) => {
-        if (verb === Verb.All) {
+    aclToOption(acl, isFreebusy = false) {
+        const verbs = acl.map(({ verb }) => verb);
+
+        if (verbs.includes(Verb.All) || (verbs.includes(Verb.Write) && verbs.includes(Verb.Manage))) {
             return CalendarAcl.CAN_MANAGE_SHARES;
         }
-        if (isFreebusy && verb === Verb.Read) {
+        if (verbs.includes(Verb.Write)) {
+            return CalendarAcl.CAN_EDIT_MY_EVENTS;
+        }
+        if (verbs.includes(Verb.Read) && isFreebusy) {
             return CalendarAcl.CAN_SEE_MY_AVAILABILITY;
         }
-        switch (verb) {
-            case Verb.Invitation:
-                return CalendarAcl.CAN_INVITE_ME;
-            case Verb.Read:
-                return CalendarAcl.CAN_SEE_MY_EVENTS;
-            case Verb.Write:
-                return CalendarAcl.CAN_EDIT_MY_EVENTS;
+        if (verbs.includes(Verb.Read)) {
+            return CalendarAcl.CAN_SEE_MY_EVENTS;
+        }
+        if (verbs.includes(Verb.Invitation)) {
+            return CalendarAcl.CAN_INVITE_ME;
+        }
+        return CalendarAcl.CANT_INVITE_ME;
+    },
+    updateAcl(acl, subject, option, isFreebusy) {
+        if (this.aclToOption(acl) !== option) {
+            const newAcl = acl.flatMap(ac => (!HANDLED_VERBS.includes(ac.verb) ? ac : []));
+            if (isFreebusy) {
+                switch (option) {
+                    case CalendarAcl.CANT_INVITE_ME:
+                    case CalendarAcl.CAN_INVITE_ME:
+                        throw "impossible case : no acl equivalent";
+                    case CalendarAcl.CAN_SEE_MY_AVAILABILITY:
+                    case CalendarAcl.CAN_SEE_MY_EVENTS:
+                    case CalendarAcl.CAN_EDIT_MY_EVENTS:
+                        newAcl.push({ verb: Verb.Read, subject });
+                        break;
+                    case CalendarAcl.CAN_MANAGE_SHARES:
+                        newAcl.push({ verb: Verb.Write, subject });
+                        newAcl.push({ verb: Verb.Manage, subject });
+                        break;
+                }
+            } else {
+                switch (option) {
+                    case CalendarAcl.CANT_INVITE_ME:
+                        throw "impossible case : no acl equivalent";
+                    case CalendarAcl.CAN_INVITE_ME:
+                    case CalendarAcl.CAN_SEE_MY_AVAILABILITY:
+                        newAcl.push({ verb: Verb.Invitation, subject });
+                        break;
+                    case CalendarAcl.CAN_SEE_MY_EVENTS:
+                        newAcl.push({ verb: Verb.Read, subject });
+                        break;
+                    case CalendarAcl.CAN_EDIT_MY_EVENTS:
+                        newAcl.push({ verb: Verb.Write, subject });
+                        break;
+                    case CalendarAcl.CAN_MANAGE_SHARES:
+                        newAcl.push({ verb: Verb.Write, subject });
+                        newAcl.push({ verb: Verb.Manage, subject });
+                        break;
+                }
+            }
+            return newAcl;
         }
     }
 };
