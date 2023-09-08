@@ -42,6 +42,7 @@ import com.netflix.hollow.api.consumer.HollowConsumer.ObjectLongevityConfig;
 import com.netflix.hollow.api.consumer.HollowConsumer.ObjectLongevityDetector;
 import com.netflix.hollow.api.consumer.index.HashIndex;
 import com.netflix.hollow.api.consumer.index.UniqueKeyIndex;
+import com.netflix.hollow.api.error.SchemaNotFoundException;
 import com.netflix.hollow.tools.query.HollowFieldMatchQuery;
 
 import net.bluemind.directory.hollow.datamodel.consumer.Query.QueryType;
@@ -150,33 +151,44 @@ public class DirectoryDeserializer {
 		this.domainUid = dir.getName();
 		logger.info("Consuming from directory {} for domain {}", dir.getAbsolutePath(), domainUid);
 		this.context = HollowContext.get(dir, "directory", watchChanges);
-		this.consumer = new HollowConsumer.Builder<>()//
-				.withBlobRetriever(context.blobRetriever).withAnnouncementWatcher(context.announcementWatcher)//
-				.withObjectLongevityConfig(longevity).withObjectLongevityDetector(detector)//
-				.withGeneratedAPIClass(OfflineDirectoryAPI.class).build();
-		this.consumer.addRefreshListener(new LoggingRefreshListener(
-				dir.getName() + " ctx:" + context.toString().replace("net.bluemind.serialization.client.", "")));
+		try {
+			this.consumer = new HollowConsumer.Builder<>()//
+					.withBlobRetriever(context.blobRetriever).withAnnouncementWatcher(context.announcementWatcher)//
+					.withObjectLongevityConfig(longevity).withObjectLongevityDetector(detector)//
+					.withGeneratedAPIClass(OfflineDirectoryAPI.class).build();
+			this.consumer.addRefreshListener(new LoggingRefreshListener(
+					dir.getName() + " ctx:" + context.toString().replace("net.bluemind.serialization.client.", "")));
 
-		this.consumer.triggerRefresh();
-		logger.info("Current version: {}", consumer.getCurrentVersionId());
+			this.consumer.triggerRefresh();
+			logger.info("Current version: {}", consumer.getCurrentVersionId());
 
-		this.rootByDomainUidIndex = OfflineAddressBook.uniqueIndex(consumer);
-		this.consumer.addRefreshListener(rootByDomainUidIndex);
+			this.rootByDomainUidIndex = OfflineAddressBook.uniqueIndex(consumer);
+			this.consumer.addRefreshListener(rootByDomainUidIndex);
 
-		this.minimalIndex = UniqueKeyIndex.from(consumer, AddressBookRecord.class).usingPath("minimalid", Long.class);
-		this.consumer.addRefreshListener(minimalIndex);
-		this.distinguishedNameIndex = UniqueKeyIndex.from(consumer, AddressBookRecord.class)
-				.usingPath("distinguishedName", String.class);
-		this.consumer.addRefreshListener(distinguishedNameIndex);
-		this.uidIndex = UniqueKeyIndex.from(consumer, AddressBookRecord.class).usingPath("uid", String.class);
-		this.consumer.addRefreshListener(uidIndex);
-		this.emailIndex = HashIndex.from(consumer, AddressBookRecord.class)
-				.usingPath("emails.element.ngrams.element.value", String.class);
-		this.consumer.addRefreshListener(emailIndex);
-		this.anrIndex = HashIndex.from(consumer, AddressBookRecord.class).usingPath("anr.element.token", String.class);
-		this.consumer.addRefreshListener(anrIndex);
-		this.kindIndex = HashIndex.from(consumer, AddressBookRecord.class).usingPath("kind.value", String.class);
-		this.consumer.addRefreshListener(kindIndex);
+			this.minimalIndex = UniqueKeyIndex.from(consumer, AddressBookRecord.class).usingPath("minimalid",
+					Long.class);
+			this.consumer.addRefreshListener(minimalIndex);
+			this.distinguishedNameIndex = UniqueKeyIndex.from(consumer, AddressBookRecord.class)
+					.usingPath("distinguishedName", String.class);
+			this.consumer.addRefreshListener(distinguishedNameIndex);
+			this.uidIndex = UniqueKeyIndex.from(consumer, AddressBookRecord.class).usingPath("uid", String.class);
+			this.consumer.addRefreshListener(uidIndex);
+			this.emailIndex = HashIndex.from(consumer, AddressBookRecord.class)
+					.usingPath("emails.element.ngrams.element.value", String.class);
+			this.consumer.addRefreshListener(emailIndex);
+			this.anrIndex = HashIndex.from(consumer, AddressBookRecord.class).usingPath("anr.element.token",
+					String.class);
+			this.consumer.addRefreshListener(anrIndex);
+			this.kindIndex = HashIndex.from(consumer, AddressBookRecord.class).usingPath("kind.value", String.class);
+			this.consumer.addRefreshListener(kindIndex);
+		} catch (Exception e) {
+			context.stopWatcher();
+			if (!(e instanceof SchemaNotFoundException)) {
+				// SchemaNotFoundException is present in tests, don't want a stack for that
+				logger.error("Hollow DirectoryDeserializer error: {}", e.getMessage());
+			}
+			throw e;
+		}
 	}
 
 	public boolean isWatcherListening() {

@@ -18,12 +18,15 @@
  */
 package net.bluemind.directory.hollow.datamodel.consumer;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Semaphore;
 
 public class DirectorySearchFactory {
 
 	private static Map<String, DirectoryDeserializer> deserializers = new ConcurrentHashMap<>();
+	private static Map<String, Semaphore> deserializersLock = new HashMap<>();
 
 	private DirectorySearchFactory() {
 
@@ -49,7 +52,19 @@ public class DirectorySearchFactory {
 	}
 
 	private static DirectoryDeserializer deserializer(String domain) {
-		return deserializers.computeIfAbsent(domain, DirectoryDeserializer::new);
+		deserializersLock.computeIfAbsent(domain, dom -> new Semaphore(1));
+		return deserializers.computeIfAbsent(domain, dom -> {
+			// We just don't want to initialize two DirectoryDeserializer with threads
+			// & co if hazelcast is bombarding us early
+			deserializersLock.get(dom).acquireUninterruptibly(1);
+			try {
+				return new DirectoryDeserializer(dom);
+			} catch (Exception e) {
+				throw e;
+			} finally {
+				deserializersLock.get(dom).release();
+			}
+		});
 	}
 
 	public static Map<String, DirectoryDeserializer> getDeserializers() {
@@ -58,7 +73,7 @@ public class DirectorySearchFactory {
 
 	public static void reset() {
 		DirectorySearchFactory.deserializers.values().forEach(deserializer -> deserializer.context.stopWatcher());
-		DirectorySearchFactory.deserializers = new ConcurrentHashMap<>();
+		DirectorySearchFactory.deserializers.clear();
 	}
 
 }
