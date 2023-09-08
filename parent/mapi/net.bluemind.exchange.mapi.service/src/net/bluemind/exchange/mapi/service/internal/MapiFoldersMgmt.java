@@ -93,8 +93,8 @@ public class MapiFoldersMgmt implements IMapiFoldersMgmt {
 			logger.info("Create {} matching folder {}...", fais, mf);
 			contApi.create(mf.containerUid, fais);
 		}
-		IContainerManagement aclApi = context.provider().instance(IContainerManagement.class, mf.containerUid);
-		aclApi.setAccessControlList(Arrays.asList(AccessControlEntry.create(domain, Verb.Write)));
+		IContainerManagement aclApi = context.su().provider().instance(IContainerManagement.class, mf.containerUid);
+		aclApi.setAccessControlList(Arrays.asList(AccessControlEntry.create(domain, Verb.All)));
 		logger.info("Created container {}", mf.containerUid);
 	}
 
@@ -120,7 +120,7 @@ public class MapiFoldersMgmt implements IMapiFoldersMgmt {
 		if (existingContainer == null) {
 			setupContainer(contApi, f);
 		} else {
-			IContainerManagement aclApi = context.provider().instance(IContainerManagement.class, containerUid);
+			IContainerManagement aclApi = context.su().provider().instance(IContainerManagement.class, containerUid);
 			repairName(contApi, existingContainer, f);
 			repairAcls(aclApi);
 		}
@@ -138,8 +138,8 @@ public class MapiFoldersMgmt implements IMapiFoldersMgmt {
 
 	private void repairAcls(IContainerManagement aclApi) {
 		List<AccessControlEntry> acls = aclApi.getAccessControlList();
-		if (acls.size() != 1 || !acls.get(0).subject.equals(domain) || acls.get(0).verb != Verb.Write) {
-			aclApi.setAccessControlList(Arrays.asList(AccessControlEntry.create(domain, Verb.Write)));
+		if (acls.size() != 1 || !acls.get(0).subject.equals(domain) || acls.get(0).verb != Verb.All) {
+			aclApi.setAccessControlList(Arrays.asList(AccessControlEntry.create(domain, Verb.All)));
 		}
 	}
 
