@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -118,7 +119,8 @@ public class AbstractRuleEngineTests {
 	}
 
 	protected RuleEngine engineOn(Message message) {
-		MailboxVacationSendersCache.Factory vacationCacheFactory = MailboxVacationSendersCache.Factory.build("/tmp");
+		MailboxVacationSendersCache.Factory vacationCacheFactory = MailboxVacationSendersCache.Factory
+				.build("/tmp/" + UUID.randomUUID());
 		return engineOn(message, vacationCacheFactory);
 	}
 

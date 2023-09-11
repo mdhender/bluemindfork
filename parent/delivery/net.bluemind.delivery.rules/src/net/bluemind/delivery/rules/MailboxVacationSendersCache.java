@@ -24,7 +24,7 @@ public class MailboxVacationSendersCache {
 		private static Map<String, Factory> INSTANCES = new HashMap<>();
 
 		public static Factory build(String directory) {
-			return INSTANCES.computeIfAbsent(directory, (key) -> new Factory(key));
+			return INSTANCES.computeIfAbsent(directory, Factory::new);
 		}
 
 		private final File root;

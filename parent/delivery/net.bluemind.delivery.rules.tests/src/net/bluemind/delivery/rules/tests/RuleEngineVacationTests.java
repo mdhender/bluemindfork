@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Supplier;
 
 import org.junit.jupiter.api.Test;
 
@@ -181,47 +182,49 @@ public class RuleEngineVacationTests extends AbstractRuleEngineTests {
 	@Test
 	public void testVacationUserIsRecipient() throws ParseException {
 		Date date = formatter.parse("2022-01-01 00:00:00");
-		var builder = new MessageBuilder("Subject") //
-				.from(emailUser2) //
-				.date(date) //
-				.content(null, "Original message content");
+		Supplier<MessageBuilder> builder = () -> {
+			return new MessageBuilder("Subject") //
+					.from(emailUser2) //
+					.date(date) //
+					.content(null, "Original message content");
+		};
 
-		var message = builder.to(emailUser2).build();
+		var message = builder.get().to(emailUser2).build();
 		var result = engineOn(message).apply(asList(vacation("2021-01-01 00:00:00", "2022-01-01 00:00:01")));
 		assertThat(result.message()).isNotNull();
 		assertThat(mailer.mailSent).isFalse();
 
-		message = builder.to(emailUser1).build();
+		message = builder.get().to(emailUser1).build();
 		result = engineOn(message).apply(asList(vacation("2021-01-01 00:00:00", "2022-01-01 00:00:01")));
 		assertThat(result.message()).isNotNull();
 		assertHasReplied();
 
-		message = builder.to(emailUser2).cc(emailUser1).build();
+		message = builder.get().to(emailUser2).cc(emailUser1).build();
 		result = engineOn(message).apply(asList(vacation("2021-01-01 00:00:00", "2022-01-01 00:00:01")));
 		assertThat(result.message()).isNotNull();
 		assertHasReplied();
 
-		message = builder.to(emailUser2).bcc(emailUser1).build();
+		message = builder.get().to(emailUser2).bcc(emailUser1).build();
 		result = engineOn(message).apply(asList(vacation("2021-01-01 00:00:00", "2022-01-01 00:00:01")));
 		assertThat(result.message()).isNotNull();
 		assertHasReplied();
 
-		message = builder.to(emailUser2).header("resent-to", emailUser1).build();
+		message = builder.get().to(emailUser2).header("resent-to", emailUser1).build();
 		result = engineOn(message).apply(asList(vacation("2021-01-01 00:00:00", "2022-01-01 00:00:01")));
 		assertThat(result.message()).isNotNull();
 		assertHasReplied();
 
-		message = builder.to(emailUser2).header("resent-cc", emailUser1).build();
+		message = builder.get().to(emailUser2).header("resent-cc", emailUser1).build();
 		result = engineOn(message).apply(asList(vacation("2021-01-01 00:00:00", "2022-01-01 00:00:01")));
 		assertThat(result.message()).isNotNull();
 		assertHasReplied();
 
-		message = builder.to(emailUser2).header("resent-bcc", emailUser1).build();
+		message = builder.get().to(emailUser2).header("resent-bcc", emailUser1).build();
 		result = engineOn(message).apply(asList(vacation("2021-01-01 00:00:00", "2022-01-01 00:00:01")));
 		assertThat(result.message()).isNotNull();
 		assertHasReplied();
 
-		message = builder.to(emailUser2).header("resent-bcc", emailUser2).build();
+		message = builder.get().to(emailUser2).header("resent-bcc", emailUser2).build();
 		result = engineOn(message).apply(asList(vacation("2021-01-01 00:00:00", "2022-01-01 00:00:01")));
 		assertThat(result.message()).isNotNull();
 		assertThat(mailer.mailSent).isFalse();
