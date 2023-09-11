@@ -82,7 +82,7 @@ export default {
                 .filter(subscription => subscription.value.containerType === "mailboxacl")
                 .map(subscription => subscription.value.containerUid);
             const remoteMailboxes = (await inject("ContainersPersistence").getContainers(mailboxUids)).filter(
-                ({ verbs }) => verbs.some(verb => [Verb.Read, Verb.Write, Verb.All].includes(verb))
+                ({ verbs }) => verbs.some(verb => [Verb.Read, Verb.Write, Verb.Manage, Verb.All].includes(verb))
             );
             const dirEntries = await inject("DirectoryPersistence").getMultiple(
                 remoteMailboxes.map(({ owner }) => owner)

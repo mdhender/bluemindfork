@@ -272,7 +272,7 @@ function delegates(i18n) {
     return {
         id: "delegates",
         name: i18n.t("preferences.account.delegates"),
-        icon: "share",
+        icon: "user-hierarchy",
         visible: { name: "RoleCondition", args: [Roles.HAS_MAIL] },
         groups: [
             {

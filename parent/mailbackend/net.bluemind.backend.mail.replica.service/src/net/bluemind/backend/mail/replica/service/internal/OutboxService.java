@@ -1,9 +1,8 @@
 package net.bluemind.backend.mail.replica.service.internal;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -12,21 +11,10 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
-import org.apache.james.mime4j.MimeException;
-import org.apache.james.mime4j.dom.Header;
 import org.apache.james.mime4j.dom.Message;
-import org.apache.james.mime4j.dom.MessageServiceFactory;
-import org.apache.james.mime4j.dom.MessageWriter;
-import org.apache.james.mime4j.dom.Multipart;
-import org.apache.james.mime4j.dom.TextBody;
 import org.apache.james.mime4j.dom.address.AddressList;
 import org.apache.james.mime4j.dom.address.MailboxList;
-import org.apache.james.mime4j.field.Fields;
-import org.apache.james.mime4j.message.BasicBodyFactory;
-import org.apache.james.mime4j.message.BodyPart;
-import org.apache.james.mime4j.message.DefaultMessageBuilder;
 import org.apache.james.mime4j.message.MessageImpl;
-import org.apache.james.mime4j.message.MultipartImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -324,13 +312,54 @@ public class OutboxService implements IOutbox {
 
 	private void sendNonDeliveryReport(List<FailedRecipient> failedRecipients, SendmailCredentials creds, String sender,
 			Message relatedMsg) {
-		MessageImpl message = createNonDeliveryReportMessage(failedRecipients, relatedMsg);
+		NonDeliveryReportMessage ndrMsg = new NonDeliveryReportMessage(failedRecipients, relatedMsg);
+
+		StringBuilder recipientsErrorMsg = new StringBuilder();
+		for (int i = 0; i < failedRecipients.size(); i++) {
+			FailedRecipient failedRcpt = failedRecipients.get(i);
+			recipientsErrorMsg.append("\r\n <" + failedRcpt.recipient + ">: " + failedRcpt.message);
+		}
+
+		String content = """
+				This is the mail system
+
+				I'm sorry to have to inform you that your message "%s" could not
+				be delivered to one or more recipients. It's attached below.
+
+				For further assistance, please send mail to postmaster.
+
+				If you do so, please include this problem report. You can
+				delete your own text from the attached returned message.
+
+				The mail system
+
+				%s
+				""".formatted(relatedMsg.getSubject(), recipientsErrorMsg);
+
+		MessageImpl message = ndrMsg.createNDRMessage(content);
 		sendIt(creds, sender, message);
 	}
 
 	private void sendNonDeliveryAclReport(SendmailCredentials creds, String sender, Message relatedMsg) {
-		MessageImpl message = createNonDeliveryAclReportMessage(relatedMsg, sender,
-				creds.notAdminAndNotCurrentUser(sender) ? creds.loginAtDomain : sender);
+		NonDeliveryReportMessage ndrMsg = new NonDeliveryReportMessage(Collections.emptyList(), relatedMsg);
+
+		String to = creds.notAdminAndNotCurrentUser(sender) ? creds.loginAtDomain : sender;
+		String aclInfo = !sender.equals(to) ? """
+
+				%s has no sufficient delegation rights to send messages using %s email address.
+
+				""".formatted(sender, to) : "\r\n";
+
+		String content = """
+				This is the mail system
+
+				I'm sorry to have to inform you that your message "%s" could not
+				be delivered because of insufficient delegation rights.
+				%s
+				The mail system
+				""".formatted(relatedMsg.getSubject(), aclInfo);
+
+		MessageImpl message = ndrMsg.createNDRMessage(content);
 		sendIt(creds, sender, message);
 	}
 
@@ -344,68 +373,6 @@ public class OutboxService implements IOutbox {
 		MailboxList rcptTo = new MailboxList(rcpt, true);
 
 		mailer.send(creds, from, domainUid, rcptTo, message);
-	}
-
-	private MessageImpl createNDRMessageImpl(String content, String subject, Message relatedMsg) {
-		MessageImpl message = new MessageImpl();
-		message.setSubject(subject);
-
-		try {
-			// text/plain part
-			BodyPart bodyPart = new BodyPart();
-			TextBody textBody = new BasicBodyFactory().textBody(content, "UTF-8");
-			bodyPart.setText(textBody);
-
-			// add related message as attachment
-			BodyPart rfc822 = new BodyPart();
-			Header header = new DefaultMessageBuilder().newHeader();
-			header.setField(Fields.contentType("message/rfc822"));
-			rfc822.setHeader(header);
-			rfc822.setFilename(relatedMsg.getSubject() + ".eml");
-			MessageWriter writer = MessageServiceFactory.newInstance().newMessageWriter();
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			writer.writeMessage(relatedMsg, out);
-			rfc822.setBody(new BasicBodyFactory().binaryBody(out.toByteArray()));
-
-			Multipart mp = new MultipartImpl("report");
-			mp.addBodyPart(bodyPart);
-			mp.addBodyPart(rfc822);
-			message.setMultipart(mp);
-		} catch (IOException | MimeException e) {
-			logger.error("cant build message to warn sender..", e);
-		}
-		return message;
-	}
-
-	private MessageImpl createNonDeliveryAclReportMessage(Message relatedMsg, String to, String sender) {
-		StringBuilder content = new StringBuilder().append("This is the mail system \n")
-				.append("I'm sorry to have to inform you that your message \"").append(relatedMsg.getSubject())
-				.append("\" could not\n").append("be delivered because of insufficient delegation rights.\n");
-
-		if (!sender.equals(to)) {
-			content.append("\n" + sender + " has no sufficient delegation rights to send messages using " + to
-					+ " email address. \n");
-		}
-		content.append("The mail system\n\n");
-
-		return createNDRMessageImpl(content.toString(), "Undelivered Mail Returned to Sender", relatedMsg);
-	}
-
-	private MessageImpl createNonDeliveryReportMessage(List<FailedRecipient> failedRecipients, Message relatedMsg) {
-		StringBuilder recipientsErrorMsg = new StringBuilder();
-		for (int i = 0; i < failedRecipients.size(); i++) {
-			FailedRecipient failedRcpt = failedRecipients.get(i);
-			recipientsErrorMsg.append("\r\n <" + failedRcpt.recipient + ">: " + failedRcpt.message);
-		}
-		String content = new StringBuilder().append("This is the mail system \n")
-				.append("I'm sorry to have to inform you that your message \"").append(relatedMsg.getSubject())
-				.append("\" could not\n").append("be delivered to one or more recipients. It's attached below.\n")
-				.append("For further assistance, please send mail to postmaster.\n")
-				.append("If you do so, please include this problem report. You can\n")
-				.append("delete your own text from the attached returned message.\n").append("The mail system\n\n")
-				.append(recipientsErrorMsg).toString();
-
-		return createNDRMessageImpl(content, "Undelivered Mail Returned to Sender", relatedMsg);
 	}
 
 	private String domainDefaultAlias() {

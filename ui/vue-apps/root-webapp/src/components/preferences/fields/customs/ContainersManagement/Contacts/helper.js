@@ -21,21 +21,21 @@ export default {
     },
     buildDefaultDirEntryAcl: dirEntry => [{ subject: dirEntry.uid, verb: Verb.Read }],
     defaultDomainAcl: [],
-    getOptions: (i18n, count) => [
+    getOptions: i18n => [
         {
-            text: i18n.tc("preferences.manage_shares.has_no_rights", count),
+            text: i18n.t("preferences.has_no_rights"),
             value: AddressBookAcl.HAS_NO_RIGHTS
         },
         {
-            text: i18n.tc("preferences.contacts.can_read_my_addressbook", count),
+            text: i18n.t("preferences.contacts.can_read_my_addressbook"),
             value: AddressBookAcl.CAN_READ_MY_ADDRESSBOOK
         },
         {
-            text: i18n.tc("preferences.contacts.can_edit_my_addressbook", count),
+            text: i18n.t("preferences.contacts.can_edit_my_addressbook"),
             value: AddressBookAcl.CAN_EDIT_MY_ADDRESSBOOK
         },
         {
-            text: i18n.tc("preferences.contacts.can_edit_my_addressbook_and_manage_shares", count),
+            text: i18n.t("preferences.contacts.can_edit_my_addressbook_and_manage_shares"),
             value: AddressBookAcl.CAN_MANAGE_SHARES
         }
     ],

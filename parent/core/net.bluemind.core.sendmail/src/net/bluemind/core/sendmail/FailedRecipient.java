@@ -1,12 +1,30 @@
 package net.bluemind.core.sendmail;
 
 public class FailedRecipient {
-	public final String recipient;
-	public final String message;
+	private static final String SMTP_ERROR_STATUS = "5.0.0";
 
-	public FailedRecipient(String recipient, String message) {
+	public final String recipient;
+	public final int code;
+	public final String message;
+	public final String smtpStatus;
+
+	private FailedRecipient(int code, String recipient, String message, String smtpStatus) {
+		this.code = code;
 		this.recipient = recipient;
 		this.message = message;
+		this.smtpStatus = smtpStatus;
+	}
+
+	public static FailedRecipient create(int code, String recipient, String message) {
+		String status = message.split(" ")[0];
+		// rfc3464: status-code = DIGIT "." 1*3DIGIT "." 1*3DIGIT
+		if (status.matches("[2,4,5].\\d{1,3}.\\d{1,3}")) {
+			message = message.substring(status.length());
+		} else {
+			status = SMTP_ERROR_STATUS;
+		}
+
+		return new FailedRecipient(code, recipient, message, status);
 	}
 
 	@Override

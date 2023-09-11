@@ -30,9 +30,10 @@
             <bm-form-radio :value="Verb.SendOnBehalf">
                 {{ $t("preferences.account.delegates.edit.send_on_behalf") }}
             </bm-form-radio>
+            <!-- TODO: uncomment once implemented
             <bm-form-radio :value="Verb.SendAs">
                 {{ $t("preferences.account.delegates.edit.send_as") }}<bm-icon class="pl-4" icon="user-outline" />
-            </bm-form-radio>
+            </bm-form-radio> -->
         </bm-form-radio-group>
         <!-- Calendars -->
         <div class="pt-2 pb-4">
@@ -45,14 +46,22 @@
                 v-model="calendarRight"
                 :auto-min-width="false"
                 class="my-4"
-                :options="rights"
-                @input="containerRightsChanged = true"
+                :options="rights(Container.CALENDAR)"
+                @input="
+                    calendarRightSufficientForCopyImipOption ? undefined : (copyImipToDelegate = false);
+                    containerRightsChanged = true;
+                "
             />
-            <bm-form-checkbox v-model="copyImipToDelegate" @change="copyImipToDelegateChanged = true">
+            <bm-form-checkbox
+                v-model="copyImipToDelegate"
+                :disabled="!calendarRightSufficientForCopyImipOption"
+                @change="copyImipToDelegateChanged = true"
+            >
                 {{ $t("preferences.account.delegates.calendar.invitations") }}
                 <bm-icon class="pl-4" icon="open-envelope" />
             </bm-form-checkbox>
-            <bm-form-checkbox>{{ $t("preferences.account.delegates.calendar.private") }}</bm-form-checkbox>
+            <!--  TODO: uncomment once implemented
+            <bm-form-checkbox>{{ $t("preferences.account.delegates.calendar.private") }}</bm-form-checkbox> -->
         </div>
         <!-- TodoLists -->
         <div class="pt-2 pb-4">
@@ -65,7 +74,7 @@
                 v-model="todoListRight"
                 :auto-min-width="false"
                 class="my-4"
-                :options="rights"
+                :options="rights(Container.TODO_LIST)"
                 @input="containerRightsChanged = true"
             />
         </div>
@@ -80,7 +89,7 @@
                 v-model="messageRight"
                 :auto-min-width="false"
                 class="my-4"
-                :options="rights"
+                :options="rights(Container.MAILBOX)"
                 @input="containerRightsChanged = true"
             />
         </div>
@@ -95,15 +104,16 @@
                 v-model="contactsRight"
                 :auto-min-width="false"
                 class="my-4"
-                :options="rights"
+                :options="rights(Container.CONTACTS)"
                 @input="containerRightsChanged = true"
             />
         </div>
         <!-- Footer -->
         <template #modal-footer>
-            <bm-form-checkbox class="d-flex flex-fill">
+            <!--  TODO: uncomment once implemented
+             <bm-form-checkbox class="d-flex flex-fill">
                 {{ $t("preferences.account.delegates.inform") }}
-            </bm-form-checkbox>
+            </bm-form-checkbox> -->
             <bm-button variant="text" @click="$refs.delegatesModal.hide()">
                 {{ $t("common.cancel") }}
             </bm-button>
@@ -115,6 +125,8 @@
 </template>
 
 <script>
+import { computed } from "vue";
+import { SUCCESS } from "@bluemind/alert.store";
 import { ContactInput } from "@bluemind/business-components";
 import { DirEntryAdaptor } from "@bluemind/contact";
 import { Verb } from "@bluemind/core.container.api";
@@ -132,11 +144,12 @@ import {
     BmModal
 } from "@bluemind/ui-components";
 import BmAppIcon from "../../../../BmAppIcon";
-
+import { SAVE_ALERT } from "../../../Alerts/defaultAlerts";
 import {
     acls,
     aclToRight,
     addDelegateToCopyImipMailboxRule,
+    Container,
     delegates,
     delegations,
     fetchAcls,
@@ -156,7 +169,6 @@ const calendarApp = findAppFn("net.bluemind.webmodules.calendar");
 const todoListApp = findAppFn("net.bluemind.webmodules.todolist");
 const messageApp = findAppFn("net.bluemind.webapp.mail.js");
 const contactsApp = findAppFn("net.bluemind.webmodules.contact");
-import { computed } from "vue";
 
 export default {
     name: "PrefDelegatesModal",
@@ -196,21 +208,16 @@ export default {
             autocompleteResults: [],
             calendarApp,
             calendarRight: undefined,
-            containerRightsChanged: false,
             contactsApp,
             contactsRight: undefined,
+            Container,
+            containerRightsChanged: false,
             copyImipToDelegate: undefined,
             copyImipToDelegateChanged: false,
             delegationRight: undefined,
             initialDelegationRight: undefined,
             messageApp,
             messageRight: undefined,
-            rights: [
-                { value: Right.NONE, text: Right.NONE.text() },
-                { value: Right.REVIEWER, text: Right.REVIEWER.textWithDescription() },
-                { value: Right.AUTHOR, text: Right.AUTHOR.textWithDescription() },
-                { value: Right.EDITOR, text: Right.EDITOR.textWithDescription() }
-            ],
             selectedContacts: [],
             todoListApp,
             todoListRight: undefined,
@@ -228,6 +235,9 @@ export default {
         },
         selectedDelegate() {
             return this.selectedContacts[0]?.uid;
+        },
+        calendarRightSufficientForCopyImipOption() {
+            return this.calendarRight.level >= Right.CAN_EDIT.level;
         }
     },
     watch: {
@@ -243,22 +253,12 @@ export default {
                     this.delegations?.find(({ subject }) => subject === value)?.verb || Verb.SendOnBehalf;
                 this.delegationRight = this.initialDelegationRight;
 
-                this.calendarRight = aclToRight(
-                    this.acls.calendar.acl,
-                    value,
-                    this.delegate ? undefined : Right.AUTHOR
-                );
-                this.todoListRight = aclToRight(
-                    this.acls.todoList.acl,
-                    value,
-                    this.delegate ? undefined : Right.AUTHOR
-                );
-                this.messageRight = aclToRight(this.acls.mailbox.acl, value, this.delegate ? undefined : Right.NONE);
-                this.contactsRight = aclToRight(
-                    this.acls.addressBook.acl,
-                    value,
-                    this.delegate ? undefined : Right.NONE
-                );
+                const isNew = !this.delegate;
+
+                this.calendarRight = aclToRight(this.acls.calendar.acl, value, Right.CAN_EDIT, isNew);
+                this.todoListRight = aclToRight(this.acls.todoList.acl, value, Right.CAN_EDIT, isNew);
+                this.messageRight = aclToRight(this.acls.mailbox.acl, value, Right.HAS_NO_RIGHTS, isNew);
+                this.contactsRight = aclToRight(this.acls.addressBook.acl, value, Right.HAS_NO_RIGHTS, isNew);
 
                 this.copyImipToDelegate = await this.hasCopyImipMailboxRuleAction(value);
             },
@@ -327,8 +327,17 @@ export default {
             }
 
             await Promise.all(promises);
+            this.$store.dispatch(`alert/${SUCCESS}`, SAVE_ALERT);
             fetchAcls();
             this.$refs.delegatesModal.hide();
+        },
+        rights(container) {
+            return [
+                { value: Right.HAS_NO_RIGHTS, text: Right.HAS_NO_RIGHTS.text(container) },
+                { value: Right.CAN_READ, text: Right.CAN_READ.text(container) },
+                { value: Right.CAN_EDIT, text: Right.CAN_EDIT.text(container) },
+                { value: Right.CAN_MANAGE_SHARES, text: Right.CAN_MANAGE_SHARES.text(container) }
+            ];
         }
     }
 };
@@ -354,7 +363,7 @@ export default {
         }
         .contact-input,
         .bm-form-select {
-            width: base-px-to-rem(400);
+            width: base-px-to-rem(420);
             max-width: 100%;
         }
         .contact-input {

@@ -20,7 +20,7 @@ describe("EventHelper adapter", () => {
             recurrentTwiceAMonth
         ];
         events.forEach(e => {
-            const adapted = EventHelper.adapt(e, userUid);
+            const adapted = EventHelper.adapt(e, userUid, undefined, undefined, userUid);
             expect(adapted).toMatchSnapshot();
         });
     });

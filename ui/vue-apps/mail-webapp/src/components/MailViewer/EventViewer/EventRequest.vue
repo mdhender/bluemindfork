@@ -27,15 +27,15 @@ const user = inject("UserSession").userId;
 <template>
     <div class="event-request">
         <event-header v-if="event.isWritable">
-            <template v-if="event.mailboxOwner === user">
-                {{ $t("mail.viewer.invitation.request") }}
-            </template>
-            <template v-else>
+            <template v-if="event.mailboxOwner !== event.calendarOwner">
                 <i18n path="mail.viewer.invitation.request.delegate">
                     <template #name>
                         <span class="font-weight-bold">{{ event.attendee.commonName }}</span>
                     </template>
                 </i18n>
+            </template>
+            <template v-else>
+                {{ $t("mail.viewer.invitation.request") }}
             </template>
             <template #actions>
                 <div v-if="event.status" class="reply-buttons">

@@ -233,13 +233,7 @@ export default {
             return this.identity.mailboxUid === userId;
         },
         canUseOtherSentFolder() {
-            return (
-                this.identity.mailboxUid &&
-                !this.isMyMailbox &&
-                this.$store.state.preferences.containers.otherMailboxesContainers.some(
-                    mbox => mbox.uid === `mailbox:acls-${this.identity.mailboxUid}` && mbox.verbs.includes(Verb.Write)
-                )
-            );
+            return this.identity.mailboxUid && !this.isMyMailbox && this.identity.rights.includes(Verb.Write);
         }
     },
     methods: {
@@ -251,9 +245,9 @@ export default {
         async open(identityDescription) {
             this.modalStatus = "NOT-LOADED";
             this.show = true;
-            this.identity = createEmpty(this.DEFAULT_IDENTITY);
+            let identity = createEmpty(this.DEFAULT_IDENTITY);
             if (this.isMyMailbox) {
-                this.identity.sentFolder = DEFAULT_FOLDERS.SENT;
+                identity.sentFolder = DEFAULT_FOLDERS.SENT;
             }
             this.originalIdentity = {};
             this.emailInput = "";
@@ -264,19 +258,22 @@ export default {
             if (identityDescription) {
                 this.id = identityDescription.id;
                 try {
-                    this.identity = await inject("UserMailIdentitiesPersistence").get(identityDescription.id);
-                    if (this.identity.format === "PLAIN") {
-                        this.identity.signature = "<pre>" + this.identity.signature + "</pre>";
+                    identity = await inject("UserMailIdentitiesPersistence").get(identityDescription.id);
+                    if (identity.format === "PLAIN") {
+                        identity.signature = "<pre>" + identity.signature + "</pre>";
                     }
+                    identity.rights = await fetchRights(identity.mailboxUid);
                     this.modalStatus = "LOADED";
                 } catch {
                     this.modalStatus = "ERROR";
                 }
-                this.originalIdentity = cloneDeep(this.identity);
-                this.emailInput = this.identity.email;
+                this.originalIdentity = cloneDeep(identity);
+                this.emailInput = identity.email;
             } else {
                 this.modalStatus = "LOADED";
             }
+
+            this.identity = identity;
         },
         async remove() {
             await inject("UserMailIdentitiesPersistence").delete(this.id);
@@ -319,11 +316,12 @@ export default {
             this.show = false;
             this.SUCCESS(SAVE_ALERT);
         },
-        checkComboSelection(email) {
+        async checkComboSelection(email) {
             if (this.isExternalIdentity(this.emailInput)) {
                 this.identity.email = this.emailInput;
                 this.identity.mailboxUid = "";
                 this.identity.signature = "";
+                this.identity.rights = [];
                 this.updateSignatureEditorContent();
             } else {
                 const selectedIdentity = this.possibleIdentities.find(identity => identity.email === email);
@@ -342,9 +340,11 @@ export default {
                         this.identity.signature = matchingIdentityDesc.signature;
                         this.updateSignatureEditorContent();
                     }
+                    this.identity.rights = await fetchRights(selectedIdentity.mbox);
                 } else {
                     // if an invalid address is submitted, reset to previous value
                     this.emailInput = this.identity.email;
+                    this.identity.rights = [];
                 }
             }
         },
@@ -372,7 +372,8 @@ function createEmpty({ email, mbox }) {
         name: "",
         isDefault: false,
         sentFolder: "",
-        mailboxUid: mbox
+        mailboxUid: mbox,
+        rights: []
     };
 }
 
@@ -386,6 +387,10 @@ function toIdentityDescription(id, identity) {
         signature: identity.signature,
         mbox: identity.mailboxUid
     };
+}
+
+async function fetchRights(mailboxUid) {
+    return (await inject("ContainersPersistence").get(`mailbox:acls-${mailboxUid}`))?.verbs;
 }
 </script>
 

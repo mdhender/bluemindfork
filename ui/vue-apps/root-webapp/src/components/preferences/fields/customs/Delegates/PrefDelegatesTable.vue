@@ -9,6 +9,7 @@ import { matchPattern } from "@bluemind/string";
 import { BmFormInput, BmIcon, BmIconButton, BmModal, BmPagination, BmTable } from "@bluemind/ui-components";
 import {
     acls,
+    Container,
     getCalendarRight,
     getContactsRight,
     getMessageRight,
@@ -121,19 +122,19 @@ const remove = async contact => {
                 <contact :contact="cell.value" transparent bold enable-card />
             </template>
             <template #cell(calendarRight)="cell">
-                <div class="d-flex align-items-center">
-                    {{ cell.value.text() }}
+                <div class="d-flex align-items-center pr-5">
+                    <div class="text-truncate">{{ cell.value.shortText(Container.CALENDAR) }}</div>
                     <bm-icon v-if="cell.item.hasCopyImip" icon="open-envelope" class="ml-4" />
                 </div>
             </template>
             <template #cell(todoListRight)="cell">
-                {{ cell.value.text() }}
+                {{ cell.value.shortText(Container.TODO_LIST) }}
             </template>
             <template #cell(messageRight)="cell">
-                {{ cell.value.text() }}
+                {{ cell.value.shortText(Container.MAILBOX) }}
             </template>
             <template #cell(contactsRight)="cell">
-                {{ cell.value.text() }}
+                {{ cell.value.shortText(Container.CONTACTS) }}
             </template>
             <template #cell(edit)="cell">
                 <div>
@@ -184,7 +185,7 @@ const remove = async contact => {
         @include text-overflow;
         width: math.div(136, 900) * 100%;
         &.calendar-right-cell {
-            width: math.div(152, 900) * 100%;
+            width: math.div(170, 900) * 100%;
         }
     }
     .edit-cell {

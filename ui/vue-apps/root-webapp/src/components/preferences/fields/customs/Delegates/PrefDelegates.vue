@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from "vue";
+import { ref, watchEffect } from "vue";
 import { acls, delegations, useDelegation } from "./delegation";
 import { Verb } from "@bluemind/core.container.api";
 import { BmButton } from "@bluemind/ui-components";
@@ -20,6 +20,12 @@ const editDelegate = userUid => {
     delegate.value = userUid;
     showEditForm.value = true;
 };
+
+watchEffect(() => {
+    if (showEditForm.value == false) {
+        delegate.value = undefined;
+    }
+});
 </script>
 
 <template>

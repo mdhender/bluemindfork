@@ -21,35 +21,32 @@ export default {
         inject("VEventPersistence", containerUid).importIcs(file, uploadCanceller),
     buildDefaultDirEntryAcl: dirEntry => [{ subject: dirEntry.uid, verb: Verb.Invitation }],
     defaultDomainAcl: [],
-    getOptions: (i18n, count, isMyDefaultCalendar) => {
+    getOptions: (i18n, isMyDefaultCalendar) => {
         const options = [
             {
-                text: i18n.tc("preferences.calendar.my_calendars.cant_invite_me_to_a_meeting", count),
+                text: i18n.t("preferences.calendar.my_calendars.cant_invite_me_to_a_meeting"),
                 value: CalendarAcl.CANT_INVITE_ME
             },
             {
-                text: i18n.tc("preferences.calendar.my_calendars.can_invite_me_to_a_meeting", count),
+                text: i18n.t("preferences.calendar.my_calendars.can_invite_me_to_a_meeting"),
                 value: CalendarAcl.CAN_INVITE_ME
             },
             {
-                text: i18n.tc("preferences.calendar.my_calendars.can_invite_me_to_a_meeting_and_see_my_events", count),
+                text: i18n.t("preferences.calendar.my_calendars.can_invite_me_to_a_meeting_and_see_my_events"),
                 value: CalendarAcl.CAN_SEE_MY_EVENTS
             },
             {
-                text: i18n.tc("preferences.calendar.my_calendars.can_edit_my_events", count),
+                text: i18n.t("preferences.calendar.my_calendars.can_edit_my_events"),
                 value: CalendarAcl.CAN_EDIT_MY_EVENTS
             },
             {
-                text: i18n.tc("preferences.calendar.my_calendars.can_edit_my_events_and_manage_shares", count),
+                text: i18n.t("preferences.calendar.my_calendars.can_edit_my_events_and_manage_shares"),
                 value: CalendarAcl.CAN_MANAGE_SHARES
             }
         ];
         if (isMyDefaultCalendar) {
             options.splice(2, 0, {
-                text: i18n.tc(
-                    "preferences.calendar.my_calendars.can_invite_me_to_a_meeting_and_see_my_availability",
-                    count
-                ),
+                text: i18n.t("preferences.calendar.my_calendars.can_invite_me_to_a_meeting_and_see_my_availability"),
                 value: CalendarAcl.CAN_SEE_MY_AVAILABILITY
             });
         }
@@ -80,23 +77,24 @@ export default {
             const newAcl = acl.flatMap(ac => (!HANDLED_VERBS.includes(ac.verb) ? ac : []));
             if (isFreebusy) {
                 switch (option) {
-                    case CalendarAcl.CANT_INVITE_ME:
-                    case CalendarAcl.CAN_INVITE_ME:
-                        throw "impossible case : no acl equivalent";
                     case CalendarAcl.CAN_SEE_MY_AVAILABILITY:
                     case CalendarAcl.CAN_SEE_MY_EVENTS:
-                    case CalendarAcl.CAN_EDIT_MY_EVENTS:
                         newAcl.push({ verb: Verb.Read, subject });
+                        break;
+                    case CalendarAcl.CAN_EDIT_MY_EVENTS:
+                        newAcl.push({ verb: Verb.Write, subject });
                         break;
                     case CalendarAcl.CAN_MANAGE_SHARES:
                         newAcl.push({ verb: Verb.Write, subject });
                         newAcl.push({ verb: Verb.Manage, subject });
                         break;
+                    case CalendarAcl.CANT_INVITE_ME:
+                    case CalendarAcl.CAN_INVITE_ME:
+                    default:
+                        break;
                 }
             } else {
                 switch (option) {
-                    case CalendarAcl.CANT_INVITE_ME:
-                        throw "impossible case : no acl equivalent";
                     case CalendarAcl.CAN_INVITE_ME:
                     case CalendarAcl.CAN_SEE_MY_AVAILABILITY:
                         newAcl.push({ verb: Verb.Invitation, subject });
@@ -110,6 +108,9 @@ export default {
                     case CalendarAcl.CAN_MANAGE_SHARES:
                         newAcl.push({ verb: Verb.Write, subject });
                         newAcl.push({ verb: Verb.Manage, subject });
+                        break;
+                    case CalendarAcl.CANT_INVITE_ME:
+                    default:
                         break;
                 }
             }

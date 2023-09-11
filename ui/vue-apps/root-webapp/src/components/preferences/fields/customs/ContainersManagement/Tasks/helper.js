@@ -21,21 +21,21 @@ export default {
     },
     buildDefaultDirEntryAcl: dirEntry => [{ subject: dirEntry.uid, verb: Verb.Read }],
     defaultDomainAcl: [],
-    getOptions: (i18n, count) => [
+    getOptions: i18n => [
         {
-            text: i18n.tc("preferences.manage_shares.has_no_rights", count),
+            text: i18n.t("preferences.has_no_rights"),
             value: TodoListAcl.HAS_NO_RIGHTS
         },
         {
-            text: i18n.tc("preferences.tasks.can_read_my_todolist", count),
+            text: i18n.t("preferences.tasks.can_read_my_todolist"),
             value: TodoListAcl.CAN_READ_MY_TODO_LIST
         },
         {
-            text: i18n.tc("preferences.tasks.can_edit_my_todolist", count),
+            text: i18n.t("preferences.tasks.can_edit_my_todolist"),
             value: TodoListAcl.CAN_EDIT_MY_TODO_LIST
         },
         {
-            text: i18n.tc("preferences.tasks.can_edit_my_todolist_and_manage_shares", count),
+            text: i18n.t("preferences.tasks.can_edit_my_todolist_and_manage_shares"),
             value: TodoListAcl.CAN_MANAGE_SHARES
         }
     ],

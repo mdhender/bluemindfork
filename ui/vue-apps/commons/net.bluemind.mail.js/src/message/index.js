@@ -118,6 +118,7 @@ export const MessageHeader = {
     X_LOOP: "X-Loop",
     X_ORIGINAL_TO: "X-Original-To",
 
+    X_BM_CALENDAR: "X-BM-Calendar",
     X_BM_DRAFT_INFO: "X-Bm-Draft-Info",
     X_BM_DRAFT_REFRESH_DATE: "X-Bm-Draft-Refresh-Date",
     X_BM_EVENT_COUNTERED: "X-BM-Event-Countered",

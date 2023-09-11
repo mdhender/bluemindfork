@@ -1,5 +1,5 @@
 import { inject } from "@bluemind/inject";
-import { loadingStatusUtils } from "@bluemind/mail";
+import { loadingStatusUtils, messageUtils } from "@bluemind/mail";
 import EventHelper from "./helpers/EventHelper";
 import { FETCH_EVENT, SET_EVENT_STATUS, ACCEPT_COUNTER_EVENT, DECLINE_COUNTER_EVENT } from "~/actions";
 import {
@@ -21,20 +21,47 @@ export default {
         async [FETCH_EVENT]({ commit }, { message, mailbox }) {
             commit(SET_CURRENT_EVENT, { loading: LoadingStatus.LOADING });
             try {
+                let event;
+                let calendarUid;
+                let calendarOwner;
+                let calendarOwnerName;
+                if (message.eventInfo.isResourceBooking) {
+                    calendarUid = getCalendarUid(message.eventInfo.resourceUid, true);
+                    event = await inject("CalendarPersistence", calendarUid).getComplete(message.eventInfo.icsUid);
+                    calendarOwner = message.eventInfo.resourceUid;
+                } else {
+                    const otherCalendarUid = (messageUtils.extractHeaderValues(
+                        message,
+                        messageUtils.MessageHeader.X_BM_CALENDAR
+                    ) || [])[0];
+                    if (otherCalendarUid) {
+                        calendarUid = otherCalendarUid;
+                        const otherCalendar = await inject("CalendarsMgmtPersistence").getComplete(otherCalendarUid);
+                        if (otherCalendar) {
+                            calendarOwner = otherCalendar.owner;
+                            calendarOwnerName = otherCalendar.owner !== mailbox.owner ? otherCalendar.name : undefined;
+                        }
+                    } else {
+                        calendarOwner = mailbox.owner;
+                        calendarUid = getCalendarUid(calendarOwner);
+                    }
+                    const events = await inject("CalendarPersistence", calendarUid).getByIcsUid(
+                        message.eventInfo.icsUid
+                    );
+                    event = findEvent(events, message.eventInfo.recuridIsoDate);
+                }
                 const mailboxOwner = message.eventInfo.isResourceBooking
                     ? message.eventInfo.resourceUid
                     : mailbox.owner;
-                const calendar = getCalendarUid(mailboxOwner, message.eventInfo.isResourceBooking);
-                const isWritable = await isCalendarWritable(calendar);
-                const events = await inject("CalendarPersistence", calendar).getByIcsUid(message.eventInfo.icsUid);
-                let event = findEvent(events, message.eventInfo.recuridIsoDate);
-
+                const isWritable = await isCalendarWritable(calendarUid);
                 event = EventHelper.adapt(
                     event,
                     mailboxOwner,
                     message.from.address,
                     message.eventInfo.recuridIsoDate,
-                    calendar,
+                    calendarUid,
+                    calendarOwner,
+                    calendarOwnerName,
                     isWritable
                 );
                 commit(SET_CURRENT_EVENT, event);
@@ -48,7 +75,7 @@ export default {
             const previous = { ...state.currentEvent };
             try {
                 commit(SET_CURRENT_EVENT_STATUS, { status });
-                await inject("CalendarPersistence", previous.calendar).update(
+                await inject("CalendarPersistence", previous.calendarUid).update(
                     state.currentEvent.uid,
                     state.currentEvent.serverEvent.value,
                     true

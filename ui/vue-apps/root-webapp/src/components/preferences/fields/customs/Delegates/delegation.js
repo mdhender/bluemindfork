@@ -103,31 +103,37 @@ export const setContactsAcl = (acl, delegate) => setAclForDelegate(addressBookUi
 const DELEGATION_VERBS = [Verb.SendOnBehalf, Verb.SendAs];
 const SHARED_CONTAINERS_VERBS = [Verb.Read, Verb.Write, Verb.Manage];
 
+export const Container = {
+    CALENDAR: "calendar",
+    MAILBOX: "mailbox",
+    TODO_LIST: "todolist",
+    CONTACTS: "addressbook"
+};
+
 export const Right = {
-    NONE: { verbs: [], text: () => i18n.t("preferences.account.delegates.right.none") },
-    REVIEWER: {
+    HAS_NO_RIGHTS: {
+        verbs: [],
+        shortText: () => i18n.t("preferences.has_no_rights"),
+        text: () => i18n.t("preferences.has_no_rights"),
+        level: 0
+    },
+    CAN_READ: {
         verbs: [Verb.Read],
-        text: () => i18n.t("preferences.account.delegates.right.reviewer"),
-        textWithDescription: () =>
-            i18n.t("preferences.account.delegates.right.reviewer.with_description", {
-                reviewer: i18n.t("preferences.account.delegates.right.reviewer")
-            })
+        shortText: () => i18n.t("preferences.account.delegates.right.short.can_read"),
+        text: container => i18n.t(`preferences.account.delegates.right.${container}.can_read`),
+        level: 1
     },
-    AUTHOR: {
-        verbs: [Verb.Read, Verb.Write],
-        text: () => i18n.t("preferences.account.delegates.right.author"),
-        textWithDescription: () =>
-            i18n.t("preferences.account.delegates.right.author.with_description", {
-                author: i18n.t("preferences.account.delegates.right.author")
-            })
+    CAN_EDIT: {
+        verbs: [Verb.Write],
+        shortText: () => i18n.t("preferences.account.delegates.right.short.can_edit"),
+        text: container => i18n.t(`preferences.account.delegates.right.${container}.can_edit`),
+        level: 2
     },
-    EDITOR: {
-        verbs: [Verb.Read, Verb.Write, Verb.Manage],
-        text: () => i18n.t("preferences.account.delegates.right.editor"),
-        textWithDescription: () =>
-            i18n.t("preferences.account.delegates.right.editor.with_description", {
-                editor: i18n.t("preferences.account.delegates.right.editor")
-            })
+    CAN_MANAGE_SHARES: {
+        verbs: [Verb.Write, Verb.Manage],
+        shortText: () => i18n.t("preferences.account.delegates.right.short.can_edit_and_manage_shares"),
+        text: container => i18n.t(`preferences.account.delegates.right.${container}.can_edit_and_manage_shares`),
+        level: 3
     }
 };
 
@@ -135,9 +141,9 @@ export const rightToAcl = (right, subject) => {
     return right.verbs.map(verb => ({ verb, subject }));
 };
 
-const orderedRights = [Right.EDITOR, Right.AUTHOR, Right.REVIEWER, Right.NONE];
+const orderedRights = Object.values(Right).sort((a, b) => b.level - a.level);
 
-export const aclToRight = (acl, delegate, defaultRight) => {
+export const aclToRight = (acl, delegate, defaultRight, isNew) => {
     if (!acl || !delegate) {
         return defaultRight;
     }
@@ -149,13 +155,18 @@ export const aclToRight = (acl, delegate, defaultRight) => {
     for (const right of orderedRights) {
         const rightVerbs = right.verbs;
         if (without(rightVerbs, ...filteredAclVerbs).length === 0) {
-            return defaultRight && right === Right.NONE ? defaultRight : right;
+            return isNew ? highestRight(defaultRight, right) : right;
         }
     }
 };
 
+export const highestRight = (defaultRight, right) => {
+    const max = (defaultRight, right) => (!right || defaultRight.level > right.level ? defaultRight : right);
+    return max(defaultRight, right);
+};
+
 const getRight = (acl, delegate) => {
-    return aclToRight(acl, delegate, Right.NONE);
+    return aclToRight(acl, delegate, Right.HAS_NO_RIGHTS, false);
 };
 export const getCalendarRight = delegate => getRight(acls.value.calendar.acl, delegate);
 export const getTodoListRight = delegate => getRight(acls.value.todoList.acl, delegate);
@@ -195,9 +206,9 @@ export const addDelegateToCopyImipMailboxRule = async ({ uid, address }) => {
         conditions: [
             {
                 filter: {
-                    fields: ["headers.X-BM-Event"],
+                    fields: ["headers.X-BM-Calendar"],
                     operator: "CONTAINS",
-                    values: [`calendar_uid="${calendarUid.value}"`]
+                    values: [calendarUid.value]
                 },
                 negate: false,
                 operator: "AND",
@@ -243,7 +254,7 @@ const matchCopyImipMailboxRule = rule => {
         rule.client === "system" &&
         rule.conditions.some(({ filter: { fields, operator, values } }) =>
             fields.some(
-                f => f === "headers.X-BM-Event" && operator === "CONTAINS" && values[0]?.includes(calendarUid.value)
+                f => f === "headers.X-BM-Calendar" && operator === "CONTAINS" && values[0]?.includes(calendarUid.value)
             )
         ) &&
         rule.actions.some(

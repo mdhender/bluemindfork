@@ -14,7 +14,7 @@ export default {
     buildDefaultDirEntryAcl: dirEntry => [{ subject: dirEntry.uid, verb: Verb.Read }],
     getOptions: i18n => [
         {
-            text: i18n.tc("preferences.manage_shares.has_no_rights", 1),
+            text: i18n.t("preferences.has_no_rights"),
             value: MailboxSharingOptions.HAS_NO_RIGHTS
         },
         {

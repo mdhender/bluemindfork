@@ -94,9 +94,8 @@ export default {
         onDomainAclChange(domainAcl, domainUid, value) {
             this.$emit("domain-acl-changed", this.aclFromOption(domainAcl, domainUid, value));
         },
-        shareOptions(isPlural = false) {
-            const count = isPlural ? 0 : 1;
-            return ContainerHelper.use(this.container.type).getOptions(i18n, count, this.isMyDefaultCalendar);
+        shareOptions() {
+            return ContainerHelper.use(this.container.type).getOptions(i18n, this.isMyDefaultCalendar);
         },
         aclToOption(acl) {
             return ContainerHelper.use(this.container.type).aclToOption(acl);

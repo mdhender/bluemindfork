@@ -89,6 +89,7 @@ import { SUCCESS } from "@bluemind/alert.store";
 import { isContainerTypeUsedByApp } from "./container";
 import { SAVE_ALERT } from "../../../Alerts/defaultAlerts";
 import { matchPattern } from "@bluemind/string";
+import { Verb } from "@bluemind/core.container.api";
 
 export default {
     name: "SubscribeOtherContainersModal",
@@ -182,7 +183,10 @@ export default {
             this.loadingStatus = "LOADED";
         },
         async loadContainers() {
-            const containers = await inject("ContainersPersistence").all({ type: this.containerType });
+            const containers = await inject("ContainersPersistence").all({
+                type: this.containerType,
+                verb: [Verb.Read, Verb.Write, Verb.Manage, Verb.All]
+            });
             return containers.filter(
                 mailbox =>
                     mailbox.owner !== inject("UserSession").userId &&

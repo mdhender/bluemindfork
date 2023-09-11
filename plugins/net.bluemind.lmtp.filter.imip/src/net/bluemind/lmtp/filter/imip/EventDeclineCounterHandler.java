@@ -64,7 +64,7 @@ public class EventDeclineCounterHandler extends AbstractLmtpHandler implements I
 
 		cal.update(currentSeries.uid, currentSeries.value, false);
 
-		return IMIPResponse.createEmptyResponse();
+		return IMIPResponse.createDeclineCounterResponse(imip.uid, calUid);
 	}
 
 }

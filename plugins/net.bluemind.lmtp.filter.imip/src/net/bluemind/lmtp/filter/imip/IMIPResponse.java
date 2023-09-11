@@ -92,6 +92,18 @@ public class IMIPResponse {
 		return ret;
 	}
 
+	public static IMIPResponse createDeclineCounterResponse(String itemUid, String calendarUid) {
+		IMIPResponse ret = new IMIPResponse();
+
+		StringBuilder eventIcsUid = new StringBuilder(itemUid);
+
+		RawField rf = new RawField("X-BM-Counter-Declined", eventIcsUid.toString());
+		UnstructuredField bmExtId = UnstructuredFieldImpl.PARSER.parse(rf, DecodeMonitor.SILENT);
+		ret.headerFields = Arrays.asList(bmExtId, getImipHeader(calendarUid));
+
+		return ret;
+	}
+
 	public static IMIPResponse createEventResponse(String itemUid, ICalendarElement calElement, boolean needResponse,
 			String calendarUid) {
 		IMIPResponse ret = new IMIPResponse();

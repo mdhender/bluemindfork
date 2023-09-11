@@ -11,9 +11,9 @@ const CLASSIFICATIONS = {
     CONFIDENTIAL: "Confidential"
 };
 export default {
-    adapt(event, mailboxOwner, originator, recuridIsoDate, calendar, isWritable) {
+    adapt(event, mailboxOwner, originator, recuridIsoDate, calendarUid, calendarOwner, calendarOwnerName, isWritable) {
         const infos = this.eventInfos(event, recuridIsoDate);
-        const attendee = this.findAttendee(infos.attendees, mailboxOwner);
+        const attendee = this.findAttendee(infos.attendees, calendarOwner);
         return {
             summary: infos.summary,
             organizer: {
@@ -39,8 +39,10 @@ export default {
             loading: LoadingStatus.LOADED,
             location: infos.location,
             url: infos.url,
+            calendarUid,
+            calendarOwner,
+            calendarOwnerName,
             private: infos.classification === CLASSIFICATIONS.PRIVATE,
-            calendar,
             isWritable
         };
     },
@@ -96,7 +98,7 @@ export default {
 
     setStatus(adaptedEvent, status) {
         const infos = this.eventInfos(adaptedEvent.serverEvent, adaptedEvent.recuridIsoDate);
-        this.findAttendee(infos.attendees, adaptedEvent.mailboxOwner).partStatus = status;
+        this.findAttendee(infos.attendees, adaptedEvent.calendarOwner).partStatus = status;
     },
 
     eventInfos(event, recuridIsoDate) {
@@ -105,8 +107,8 @@ export default {
             : event.value.occurrences.find(occurrence => occurrence.recurid.iso8601 === recuridIsoDate);
     },
 
-    findAttendee(attendees, mailboxOwner) {
-        return attendees.find(a => a.dir && a.dir.split("/").pop() === mailboxOwner);
+    findAttendee(attendees, uid) {
+        return attendees.find(a => a.dir && a.dir.split("/").pop() === uid);
     }
 };
 
