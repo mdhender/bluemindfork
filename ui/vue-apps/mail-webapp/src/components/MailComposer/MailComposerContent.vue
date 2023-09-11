@@ -38,17 +38,18 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations, mapState } from "vuex";
+import debounce from "lodash.debounce";
+import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 
 import { createCid, CID_DATA_ATTRIBUTE } from "@bluemind/email";
 import { BmFileDropZone, BmIcon, BmIconButton, BmRichEditor } from "@bluemind/ui-components";
 import { draftUtils, signatureUtils } from "@bluemind/mail";
 
+import { SET_DRAFT_CONTENT } from "~/actions";
 import { SET_DRAFT_COLLAPSED_CONTENT, SET_DRAFT_EDITOR_CONTENT } from "~/mutations";
 import { ComposerActionsMixin, FileDropzoneMixin, SignatureMixin, WaitForMixin } from "~/mixins";
 import MailViewerContentLoading from "../MailViewer/MailViewerContentLoading";
 import { useComposerInit } from "~/composables/composer/ComposerInit";
-
 const { isNewMessage } = draftUtils;
 const { PERSONAL_SIGNATURE_SELECTOR } = signatureUtils;
 
@@ -98,7 +99,7 @@ export default {
             immediate: true
         },
         async "messageCompose.editorContent"() {
-            if (!this.lock && !this.loading) {
+            if (!this.loading) {
                 await this.getEditorRef();
                 this.$refs["message-content"].setContent(this.messageCompose.editorContent);
             }
@@ -109,16 +110,14 @@ export default {
     },
     methods: {
         ...mapMutations("mail", [SET_DRAFT_COLLAPSED_CONTENT, SET_DRAFT_EDITOR_CONTENT]),
+        ...mapActions("mail", { SET_DRAFT_CONTENT }),
         async updateEditorContent(newContent) {
-            try {
-                this.lock = true;
-                this.SET_DRAFT_EDITOR_CONTENT(newContent);
-                this.debouncedSave();
-                await this.$nextTick();
-            } finally {
-                this.lock = false;
-            }
+            await this.debouncedSetDraftContent(newContent, this.message);
         },
+        debouncedSetDraftContent: debounce(async function (html, draft) {
+            await this.SET_DRAFT_CONTENT({ draft, html });
+            this.debouncedSave();
+        }, 1000),
         expandContent() {
             this.SET_DRAFT_EDITOR_CONTENT(this.messageCompose.editorContent + this.messageCompose.collapsedContent);
             this.SET_DRAFT_COLLAPSED_CONTENT(null);

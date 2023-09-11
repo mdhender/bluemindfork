@@ -7,7 +7,7 @@ import { sanitizeHtml } from "@bluemind/html-utils";
 import { BmRichEditor } from "@bluemind/ui-components";
 import { attachmentUtils, draftUtils, loadingStatusUtils, messageUtils, partUtils } from "@bluemind/mail";
 
-import { FETCH_PART_DATA, FETCH_MESSAGE_IF_NOT_LOADED } from "~/actions";
+import { FETCH_PART_DATA, FETCH_MESSAGE_IF_NOT_LOADED, SET_DRAFT_CONTENT } from "~/actions";
 import { MY_DRAFTS } from "~/getters";
 import {
     ADD_ATTACHMENT,
@@ -15,15 +15,12 @@ import {
     ADD_MESSAGES,
     SET_ATTACHMENTS,
     SET_DRAFT_COLLAPSED_CONTENT,
-    SET_DRAFT_EDITOR_CONTENT,
     SET_MESSAGE_BCC,
     SET_MESSAGE_CC,
     SET_MESSAGE_HEADERS,
     SET_MESSAGE_SUBJECT,
-    SET_MESSAGE_TMP_ADDRESSES,
     SET_MESSAGE_TO,
-    SET_MESSAGES_LOADING_STATUS,
-    SET_SAVED_INLINE_IMAGES
+    SET_MESSAGES_LOADING_STATUS
 } from "~/mutations";
 import apiMessages from "~/store/api/apiMessages";
 import { ComposerFromMixin } from "~/mixins";
@@ -62,28 +59,21 @@ export default {
     },
     methods: {
         ...mapActions("alert", { ERROR }),
-        ...mapActions("mail", { $_ComposerInitMixin_FETCH_PART_DATA: FETCH_PART_DATA }),
+        ...mapActions("mail", {
+            $_ComposerInitMixin_FETCH_PART_DATA: FETCH_PART_DATA,
+            $_ComposerInitMixin_SET_DRAFT_CONTENT: SET_DRAFT_CONTENT
+        }),
         ...mapMutations("mail", {
             $_ComposerInitMixin_ADD_FILES: ADD_FILES,
             $_ComposerInitMixin_ADD_MESSAGES: ADD_MESSAGES,
-            $_ComposerInitMixin_SET_DRAFT_COLLAPSED_CONTENT: SET_DRAFT_COLLAPSED_CONTENT,
-            $_ComposerInitMixin_SET_DRAFT_EDITOR_CONTENT: SET_DRAFT_EDITOR_CONTENT,
-            $_ComposerInitMixin_SET_MESSAGE_TMP_ADDRESSES: SET_MESSAGE_TMP_ADDRESSES,
-            $_ComposerInitMixin_SET_SAVED_INLINE_IMAGES: SET_SAVED_INLINE_IMAGES
+            $_ComposerInitMixin_SET_DRAFT_COLLAPSED_CONTENT: SET_DRAFT_COLLAPSED_CONTENT
         }),
 
         // case when user clicks on a message in MY_DRAFTS folder
         async initFromRemoteMessage(message) {
             const messageWithTmpAddresses = await apiMessages.getForUpdate(message);
-            const { files, attachments } = AttachmentAdaptor.extractFiles(messageWithTmpAddresses.attachments, message);
-            this.$_ComposerInitMixin_ADD_FILES({ files });
-            this.$_ComposerInitMixin_SET_MESSAGE_TMP_ADDRESSES({
-                key: message.key,
-                attachments: attachments,
-                inlinePartsByCapabilities: messageWithTmpAddresses.inlinePartsByCapabilities
-            });
-            const parts = getPartsFromCapabilities(messageWithTmpAddresses, COMPOSER_CAPABILITIES);
 
+            const parts = getPartsFromCapabilities(messageWithTmpAddresses, COMPOSER_CAPABILITIES);
             await this.$_ComposerInitMixin_FETCH_PART_DATA({
                 messageKey: message.key,
                 folderUid: message.folderRef.uid,
@@ -106,14 +96,13 @@ export default {
                     message.folderRef.uid,
                     message.remoteRef.imapUid
                 );
-                this.$_ComposerInitMixin_SET_SAVED_INLINE_IMAGES(insertionResult.imageInlined);
                 content = insertionResult.contentsWithImageInserted[0];
                 content = sanitizeHtml(content, true);
             }
 
             const editorData = handleSeparator(content);
             this.$_ComposerInitMixin_SET_DRAFT_COLLAPSED_CONTENT(editorData.collapsed);
-            this.$_ComposerInitMixin_SET_DRAFT_EDITOR_CONTENT(editorData.content);
+            this.$_ComposerInitMixin_SET_DRAFT_CONTENT({ html: editorData.content, draft: message });
         },
 
         async initRelatedMessage(folder, action, related) {
@@ -160,10 +149,12 @@ export default {
             this.$_ComposerInitMixin_ADD_MESSAGES({ messages: [message] });
             const identity = this.getIdentityForNewMessage();
             await this.setFrom(identity, message);
-            this.$_ComposerInitMixin_SET_DRAFT_EDITOR_CONTENT(body || BmRichEditor.constants.NEW_LINE);
-
             this.$_ComposerInitMixin_SET_DRAFT_COLLAPSED_CONTENT(null);
-            this.$_ComposerInitMixin_SET_SAVED_INLINE_IMAGES([]);
+            this.$_ComposerInitMixin_SET_DRAFT_CONTENT({
+                html: body || BmRichEditor.constants.NEW_LINE,
+                draft: message
+            });
+
             return message;
         },
 
@@ -217,9 +208,8 @@ export default {
                 i18n
             );
 
-            this.$_ComposerInitMixin_SET_DRAFT_EDITOR_CONTENT(BmRichEditor.constants.NEW_LINE);
             this.$_ComposerInitMixin_SET_DRAFT_COLLAPSED_CONTENT(collapsed);
-            this.$_ComposerInitMixin_SET_SAVED_INLINE_IMAGES([]);
+            this.$_ComposerInitMixin_SET_DRAFT_CONTENT({ html: BmRichEditor.constants.NEW_LINE, draft: message });
 
             if (creationMode === MessageCreationModes.FORWARD) {
                 this.copyAttachments(previousMessage, message);
@@ -301,8 +291,7 @@ export default {
                 );
                 content = sanitizeHtml(result.contentsWithImageInserted[0], true);
             }
-            this.$_ComposerInitMixin_SET_DRAFT_EDITOR_CONTENT(content);
-            this.$_ComposerInitMixin_SET_SAVED_INLINE_IMAGES([]);
+            this.$_ComposerInitMixin_SET_DRAFT_CONTENT({ html: content, draft: message });
         },
 
         async mergeAttachments(message, related) {

@@ -93,13 +93,13 @@ function handleError(commit, draft, error, attachment, fileKey) {
     }
 }
 
-export async function removeAttachment({ commit, dispatch, state }, { messageKey, address, messageCompose }) {
+export async function removeAttachment({ commit, dispatch, state }, { messageKey, address }) {
     const draft = state[messageKey];
     if (AbortControllers.has(address)) {
         AbortControllers.get(address).abort();
     } else {
         commit(REMOVE_ATTACHMENT, { messageKey, address });
-        dispatch(DEBOUNCED_SAVE_MESSAGE, { draft, messageCompose });
+        dispatch(DEBOUNCED_SAVE_MESSAGE, { draft });
         inject("MailboxItemsPersistence", draft.folderRef.uid).removePart(address);
     }
 }

@@ -12,10 +12,9 @@ import {
     SET_MESSAGE_TO,
     SET_MESSAGE_CC,
     SET_MESSAGE_STRUCTURE,
-    SET_DRAFT_EDITOR_CONTENT,
     SET_DRAFT_COLLAPSED_CONTENT
 } from "~/mutations";
-import { FETCH_PART_DATA } from "~/actions";
+import { FETCH_PART_DATA, SET_DRAFT_CONTENT } from "~/actions";
 const { MessageCreationModes, MessageHeader } = messageUtils;
 const {
     getEditorContent,
@@ -63,7 +62,7 @@ export default async function initReplyOrForward(message, creationMode, previous
     const structure = buildMessageStructure(creationMode, previousInlines, previousAttachments);
     store.commit(`mail/${SET_MESSAGE_STRUCTURE}`, { messageKey: message.key, structure });
 
-    createEditorContent(creationMode, userPrefTextOnly, previousMessage, previousInlines);
+    createEditorContent(creationMode, userPrefTextOnly, previousMessage, previousInlines, message);
 
     return message;
 }
@@ -83,7 +82,7 @@ function buildMessageStructure(creationMode, inlines, attachments) {
         : buildReplyStructure(inlines);
 }
 
-async function createEditorContent(creationMode, userPrefTextOnly, previousMessage, inlines) {
+async function createEditorContent(creationMode, userPrefTextOnly, previousMessage, inlines, newMessage) {
     await store.dispatch(`mail/${FETCH_PART_DATA}`, {
         messageKey: previousMessage.key,
         folderUid: previousMessage.folderRef.uid,
@@ -112,6 +111,6 @@ async function createEditorContent(creationMode, userPrefTextOnly, previousMessa
         contentFromPreviousMessage = sanitizeHtml(contentFromPreviousMessage, true);
     }
     const collapsed = quotePreviousMessage(contentFromPreviousMessage, previousMessage, creationMode, userPrefTextOnly);
-    store.commit(`mail/${SET_DRAFT_EDITOR_CONTENT}`, BmRichEditor.constants.NEW_LINE);
     store.commit(`mail/${SET_DRAFT_COLLAPSED_CONTENT}`, collapsed);
+    store.dispatch(`mail/${SET_DRAFT_CONTENT}`, { html: BmRichEditor.constants.NEW_LINE, draft: newMessage });
 }

@@ -4,12 +4,13 @@ export default {
     createAlternativePart,
     createAttachmentPart,
     createAttachmentParts,
+    createCalendarRequestPart,
     createHtmlPart,
     createInlineImageParts,
+    createInlinePart,
     createMixedPart,
     createRelatedPart,
-    createTextPart,
-    createCalendarRequestPart
+    createTextPart
 };
 
 function createAttachmentParts(attachments, structure) {
@@ -57,6 +58,17 @@ function createRelatedPart(children) {
     return {
         mime: MimeType.MULTIPART_RELATED,
         children: children
+    };
+}
+
+function createInlinePart({ address, size, mime, cid }) {
+    return {
+        address,
+        mime,
+        dispositionType: "INLINE",
+        encoding: "base64",
+        contentId: cid,
+        size
     };
 }
 

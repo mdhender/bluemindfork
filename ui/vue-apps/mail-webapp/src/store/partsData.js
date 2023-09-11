@@ -3,7 +3,7 @@ import { convertBlob } from "@bluemind/blob";
 import Vue from "vue";
 
 import { FETCH_PART_DATA } from "~/actions";
-import { SET_MESSAGE_INLINE_PARTS_BY_CAPABILITIES, RESET_PARTS_DATA, SET_PART_DATA } from "~/mutations";
+import { RESET_PARTS_DATA, SET_PART_DATA } from "~/mutations";
 
 export default {
     mutations: {
@@ -16,16 +16,6 @@ export default {
         [RESET_PARTS_DATA]: state => {
             state.partsByMessageKey = {};
             state.quoteNodesByMessageKey = {};
-        },
-        // Listeners
-        [SET_MESSAGE_INLINE_PARTS_BY_CAPABILITIES]: (state, { key, inlinePartsByCapabilities }) => {
-            inlinePartsByCapabilities.forEach(({ parts }) => {
-                parts.forEach(({ address }) => {
-                    if (state.partsByMessageKey[key]) {
-                        Vue.delete(state.partsByMessageKey[key], address);
-                    }
-                });
-            });
         }
     },
 

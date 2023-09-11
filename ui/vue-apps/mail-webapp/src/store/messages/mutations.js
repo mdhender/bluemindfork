@@ -21,7 +21,6 @@ import {
     SET_MESSAGE_FROM,
     SET_MESSAGE_HEADERS,
     SET_MESSAGE_IMAP_UID,
-    SET_MESSAGE_INLINE_PARTS_BY_CAPABILITIES,
     SET_MESSAGE_INTERNAL_ID,
     SET_MESSAGE_PREVIEW,
     SET_MESSAGE_STRUCTURE,
@@ -117,9 +116,6 @@ export default {
     },
     [SET_MESSAGE_INTERNAL_ID]: (state, { key, internalId }) => {
         state[key].remoteRef.internalId = internalId;
-    },
-    [SET_MESSAGE_INLINE_PARTS_BY_CAPABILITIES]: (state, { key, inlinePartsByCapabilities }) => {
-        state[key].inlinePartsByCapabilities = inlinePartsByCapabilities;
     },
     [SET_MESSAGE_IMAP_UID]: (state, { key, imapUid }) => {
         state[key].remoteRef.imapUid = imapUid;

@@ -1,4 +1,3 @@
-import cloneDeep from "lodash.clonedeep";
 import { ERROR, REMOVE } from "@bluemind/alert.store";
 import { draftUtils, messageUtils } from "@bluemind/mail";
 import { DEBOUNCED_SAVE_MESSAGE, REQUEST_DSN, TOGGLE_DSN_REQUEST } from "~/actions";
@@ -75,10 +74,7 @@ export function useComposer(message, contentRef) {
 
     function toggleDeliveryStatus() {
         store.dispatch(`mail/${TOGGLE_DSN_REQUEST}`, message.value);
-        store.dispatch(`mail/${DEBOUNCED_SAVE_MESSAGE}`, {
-            draft: message.value,
-            messageCompose: cloneDeep(store.state.mail.messageCompose)
-        });
+        store.dispatch(`mail/${DEBOUNCED_SAVE_MESSAGE}`, { draft: message.value });
     }
 
     function toggleDispositionNotification() {
@@ -89,10 +85,7 @@ export function useComposer(message, contentRef) {
             messageUtils.setDispositionNotificationHeader(headers, message.value.from);
         }
         store.commit(`mail/${SET_MESSAGE_HEADERS}`, { messageKey: message.value.key, headers });
-        store.dispatch(`mail/${DEBOUNCED_SAVE_MESSAGE}`, {
-            draft: message.value,
-            messageCompose: cloneDeep(store.state.mail.messageCompose)
-        });
+        store.dispatch(`mail/${DEBOUNCED_SAVE_MESSAGE}`, { draft: message.value });
     }
 
     async function checkAndRepairFrom() {

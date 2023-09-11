@@ -4,16 +4,8 @@ import { sanitizeHtml } from "@bluemind/html-utils";
 import { draftUtils, messageUtils, partUtils } from "@bluemind/mail";
 import store from "@bluemind/store";
 
-import { FETCH_PART_DATA } from "~/actions";
-import {
-    SET_DRAFT_EDITOR_CONTENT,
-    SET_MESSAGE_BCC,
-    SET_MESSAGE_CC,
-    SET_MESSAGE_HEADERS,
-    SET_MESSAGE_SUBJECT,
-    SET_MESSAGE_TO,
-    SET_SAVED_INLINE_IMAGES
-} from "~/mutations";
+import { FETCH_PART_DATA, SET_DRAFT_CONTENT } from "~/actions";
+import { SET_MESSAGE_BCC, SET_MESSAGE_CC, SET_MESSAGE_HEADERS, SET_MESSAGE_SUBJECT, SET_MESSAGE_TO } from "~/mutations";
 
 const { COMPOSER_CAPABILITIES, getEditorContent } = draftUtils;
 
@@ -52,8 +44,7 @@ export function useComposerMerge() {
             );
             content = sanitizeHtml(result.contentsWithImageInserted[0], true);
         }
-        store.commit(`mail/${SET_DRAFT_EDITOR_CONTENT}`, content);
-        store.commit(`mail/${SET_SAVED_INLINE_IMAGES}`, []);
+        store.dispatch(`mail/${SET_DRAFT_CONTENT}`, { html: content, draft: message });
     }
 
     async function mergeSubject(message, related) {

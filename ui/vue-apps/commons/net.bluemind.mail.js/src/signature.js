@@ -1,3 +1,4 @@
+import { MimeType } from "@bluemind/email";
 import { MailTipTypes } from "./mailTip";
 
 export function removeSignature(content, userPrefTextOnly, signature) {
@@ -124,6 +125,33 @@ function trimSignature(signature) {
     }
 }
 
+export function removeCorporateSignatureContent(content, { corporateSignature, disclaimer }) {
+    let html = content;
+    if (corporateSignature || disclaimer) {
+        const htlmDoc = new DOMParser().parseFromString(html, MimeType.TEXT_HTML);
+        if (corporateSignature) {
+            const element = htlmDoc.querySelector(CORPORATE_SIGNATURE_SELECTOR);
+            if (element) {
+                if (corporateSignature.usePlaceholder) {
+                    element.replaceWith(CORPORATE_SIGNATURE_PLACEHOLDER);
+                    html = htlmDoc.body.innerHTML;
+                } else {
+                    element.remove();
+                    html = htlmDoc.body.innerHTML;
+                }
+            }
+        }
+        if (disclaimer) {
+            const element = htlmDoc.querySelector(DISCLAIMER_SELECTOR);
+            if (element) {
+                element.remove();
+                html = htlmDoc.body.innerHTML;
+            }
+        }
+    }
+    return html;
+}
+
 export default {
     CORPORATE_SIGNATURE_PLACEHOLDER,
     CORPORATE_SIGNATURE_SELECTOR,
@@ -132,6 +160,7 @@ export default {
     isDisclaimer,
     isSignatureLineEmpty,
     PERSONAL_SIGNATURE_SELECTOR,
+    removeCorporateSignatureContent,
     removeSignature,
     removeSignatureAttr,
     trimSignature,

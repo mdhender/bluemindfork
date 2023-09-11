@@ -1,12 +1,8 @@
 import { mapState } from "vuex";
 import { INFO, REMOVE } from "@bluemind/alert.store";
 import { draftUtils, mailTipUtils, signatureUtils } from "@bluemind/mail";
-import {
-    SET_DRAFT_EDITOR_CONTENT,
-    SET_DISCLAIMER,
-    SET_CORPORATE_SIGNATURE,
-    UNSET_CORPORATE_SIGNATURE
-} from "~/mutations";
+import { SET_DISCLAIMER, SET_CORPORATE_SIGNATURE, UNSET_CORPORATE_SIGNATURE } from "~/mutations";
+import { SET_DRAFT_CONTENT } from "~/actions";
 
 const { isNewMessage } = draftUtils;
 const {
@@ -41,6 +37,10 @@ export default {
     props: {
         isSignatureInserted: {
             type: Boolean,
+            required: true
+        },
+        message: {
+            type: Object,
             required: true
         }
     },
@@ -113,7 +113,10 @@ export default {
                     const content = wrapPersonalSignature({ html: personalSignature.html, id: personalSignature.id });
                     const triggerOnChange = !isNewMessage(this.message);
                     editorRef.insertContent(content, { triggerOnChange });
-                    this.$store.commit(`mail/${SET_DRAFT_EDITOR_CONTENT}`, editorRef.getContent());
+                    this.$store.dispatch(`mail/${SET_DRAFT_CONTENT}`, {
+                        html: editorRef.getContent(),
+                        draft: this.message
+                    });
                 }
                 this.$_SignatureMixin_onPersonalSignatureChange();
             },
@@ -138,7 +141,10 @@ export default {
                         options.tooltip = this.$t("mail.compose.corporate_signature.read_only");
                     }
                     editorRef.insertContent(wrapCorporateSignature(corpSign.html), options);
-                    this.$store.commit(`mail/${SET_DRAFT_EDITOR_CONTENT}`, editorRef.getContent());
+                    this.$store.dispatch(`mail/${SET_DRAFT_CONTENT}`, {
+                        draft: this.message,
+                        html: editorRef.getContent()
+                    });
                 }
 
                 if (corpSign && editorRef.hasContent(PERSONAL_SIGNATURE_SELECTOR(this.personalSignature.id))) {
@@ -156,7 +162,10 @@ export default {
                         editorRef.insertContent(
                             wrapPersonalSignature({ html: this.personalSignature.html, id: this.personalSignature.id })
                         );
-                        this.$store.commit(`mail/${SET_DRAFT_EDITOR_CONTENT}`, editorRef.getContent());
+                        this.$store.dispatch(`mail/${SET_DRAFT_CONTENT}`, {
+                            draft: this.message,
+                            html: editorRef.getContent()
+                        });
                     }
                 }
                 this.$_SignatureMixin_onPersonalSignatureChange();

@@ -20,5 +20,6 @@ mockedMailboxItemClient.prototype.updateById.mockReturnValue({ imapUid: 23 });
 mockedMailboxItemClient.prototype.create.mockReturnValue({ imapUid: 23, internalId: 2 });
 mockedMailboxItemClient.prototype.uploadPart.mockReturnValue("tmpAddress");
 mockedMailboxItemClient.prototype.multipleGetById.mockReturnValue([]);
+mockedMailboxItemClient.prototype.removePart.mockReturnValue();
 
 export default mockedMailboxItemClient;

@@ -5,17 +5,17 @@ import { isReadyToBeSaved, save } from "./saveHelper";
 let debounceRef;
 
 const DEBOUNCE_TIME = 3000;
-export async function debouncedSave(context, { draft, messageCompose }) {
+export async function debouncedSave(context, { draft }) {
     cancelDebounce();
     return new Promise(resolve => {
-        debounceRef = debounce(() => resolve(saveOrDebounce(context, draft, messageCompose)), DEBOUNCE_TIME);
+        debounceRef = debounce(() => resolve(saveOrDebounce(context, draft)), DEBOUNCE_TIME);
         debounceRef();
     });
 }
 
-export async function saveAsap(context, { draft, messageCompose, files }) {
-    await waitUntilReady(draft, files);
-    return save(draft, messageCompose, files);
+export async function saveAsap(context, { draft }) {
+    await waitUntilReady(draft);
+    return save(context, draft);
 }
 
 function cancelDebounce() {
@@ -24,12 +24,12 @@ function cancelDebounce() {
     }
 }
 
-function saveOrDebounce(context, draft, messageCompose) {
+function saveOrDebounce(context, draft) {
     if (context.state[draft.key]) {
         if (!isReadyToBeSaved(draft)) {
-            return debouncedSave({ draft, messageCompose });
+            return debouncedSave(context, { draft });
         }
-        return save(draft, messageCompose);
+        return save(context, draft);
     }
 }
 

@@ -22,10 +22,7 @@ export default {
         async setHeadersAndSave(message, headers) {
             this.$store.commit("mail/SET_MESSAGE_HEADERS", { messageKey: message.key, headers });
 
-            await this.$store.dispatch(`mail/DEBOUNCED_SAVE_MESSAGE`, {
-                draft: message,
-                messageCompose: this.$store.state.mail.messageCompose
-            });
+            await this.$store.dispatch(`mail/DEBOUNCED_SAVE_MESSAGE`, { draft: message });
         }
     }
 };

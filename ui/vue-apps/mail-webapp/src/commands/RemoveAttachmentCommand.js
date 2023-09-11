@@ -5,8 +5,7 @@ import { useCommand } from "@bluemind/command";
 async function removeAttachment({ address, message }) {
     await store.dispatch(`mail/${REMOVE_ATTACHMENT}`, {
         messageKey: message.key,
-        address,
-        messageCompose: store.state.mail.messageCompose
+        address
     });
 }
 

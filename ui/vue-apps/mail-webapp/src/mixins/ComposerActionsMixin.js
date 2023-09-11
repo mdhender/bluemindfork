@@ -121,10 +121,7 @@ export default {
         }),
         ...mapMutations("mail", { $_ComposerActionsMixin_ADD_MESSAGES: ADD_MESSAGES }),
         async debouncedSave() {
-            await this.$_ComposerActionsMixin_DEBOUNCED_SAVE({
-                draft: this.message,
-                messageCompose: cloneDeep(this.$_ComposerActionsMixin_messageCompose)
-            });
+            await this.$_ComposerActionsMixin_DEBOUNCED_SAVE({ draft: this.message });
         },
         async saveAsap() {
             await this.$_ComposerActionsMixin_SAVE_MESSAGE({

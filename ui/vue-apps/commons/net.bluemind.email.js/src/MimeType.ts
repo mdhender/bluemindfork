@@ -164,7 +164,7 @@ export default {
 
 /** Compare MIME type and subtype. */
 function equals(mimeType1: string, mimeType2: string) {
-    return mimeType1.toLowerCase() === mimeType2.toLowerCase();
+    return !!mimeType1 && !!mimeType2 && mimeType1.toLowerCase() === mimeType2.toLowerCase();
 }
 
 /** Compare only MIME type. */
@@ -200,21 +200,21 @@ function isCalendar(part: MessageBody.Part) {
 }
 
 function isAudio(part: MessageBody.Part) {
-    return part.mime!.startsWith(AUDIO);
+    return part?.mime?.startsWith(AUDIO);
 }
 function isImage(part: MessageBody.Part) {
-    return part.mime!.startsWith(IMAGE);
+    return part?.mime?.startsWith(IMAGE);
 }
 function isVideo(part: MessageBody.Part) {
-    return part.mime!.startsWith(VIDEO);
+    return part?.mime?.startsWith(VIDEO);
 }
 
 function isMultipart(part: MessageBody.Part) {
-    return part.mime!.startsWith(MULTIPART);
+    return part?.mime?.startsWith(MULTIPART);
 }
 
 function isPkcs7(part: MessageBody.Part) {
-    return [PKCS_7, X_PKCS_7].includes(part.mime!);
+    return !!part?.mime && [PKCS_7, X_PKCS_7].includes(part.mime);
 }
 
 function matchingIcon(mimeType: string) {

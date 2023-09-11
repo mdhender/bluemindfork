@@ -37,10 +37,14 @@ import {
     SAVE_AS_DRAFT,
     SAVE_AS_TEMPLATE,
     SAVE_MESSAGE,
-    SEND_MESSAGE
+    SEND_MESSAGE,
+    SET_MESSAGE_CONTENT,
+    UPDATE_MESSAGE_STRUCTURE
 } from "~/actions";
 
 import { Flag } from "@bluemind/email";
+import updateMessageStructure from "./updateMessageStructure";
+import setMessageContent from "./setMessageContent";
 
 const markAsUnread = ({ dispatch }, messages) => dispatch(DELETE_FLAG, { messages, flag: Flag.SEEN });
 const markAsRead = ({ dispatch }, messages) => dispatch(ADD_FLAG, { messages, flag: Flag.SEEN });
@@ -72,9 +76,11 @@ export default {
     [REMOVE_ATTACHMENT]: removeAttachment,
     [REMOVE_MESSAGES]: withAlert(removeMessages, REMOVE_MESSAGES, "RemoveMessages"),
     [REQUEST_DSN]: requestDSN,
-    [TOGGLE_DSN_REQUEST]: toggleDSNRequest,
-    [SAVE_MESSAGE]: saveAsap,
-    [SAVE_AS_TEMPLATE]: withAlert(saveAs, SAVE_AS_TEMPLATE, "SaveMessageAs"),
     [SAVE_AS_DRAFT]: withAlert(saveAs, SAVE_AS_DRAFT, "SaveMessageAs"),
-    [SEND_MESSAGE]: withAlert(send, SEND_MESSAGE, "SendMessage")
+    [SAVE_AS_TEMPLATE]: withAlert(saveAs, SAVE_AS_TEMPLATE, "SaveMessageAs"),
+    [SAVE_MESSAGE]: saveAsap,
+    [SEND_MESSAGE]: withAlert(send, SEND_MESSAGE, "SendMessage"),
+    [SET_MESSAGE_CONTENT]: setMessageContent,
+    [TOGGLE_DSN_REQUEST]: toggleDSNRequest,
+    [UPDATE_MESSAGE_STRUCTURE]: updateMessageStructure
 };

@@ -1,6 +1,7 @@
 import Vue from "vue";
 import { inject } from "@bluemind/inject";
-import { LOAD_MAX_MESSAGE_SIZE, REMOVE_ATTACHMENT } from "~/actions";
+import { signatureUtils } from "@bluemind/mail";
+import { LOAD_MAX_MESSAGE_SIZE, REMOVE_ATTACHMENT, SET_MESSAGE_CONTENT, SET_DRAFT_CONTENT } from "~/actions";
 import {
     ADD_FILE,
     RESET_COMPOSER,
@@ -16,12 +17,13 @@ import {
     SET_MAIL_TIPS,
     SET_MAX_MESSAGE_SIZE,
     SET_PERSONAL_SIGNATURE,
-    SET_SAVED_INLINE_IMAGES,
     SHOW_SENDER,
     UNSET_CORPORATE_SIGNATURE
 } from "~/mutations";
-import { IS_SENDER_SHOWN } from "~/getters";
+import { GET_DRAFT_CONTENT, IS_SENDER_SHOWN } from "~/getters";
 import templateChooser from "./templateChooser";
+const { removeCorporateSignatureContent } = signatureUtils;
+
 export default {
     mutations: {
         [RESET_COMPOSER]: state => {
@@ -52,9 +54,6 @@ export default {
         },
         [SET_DRAFT_COLLAPSED_CONTENT]: (state, collapsed) => {
             state.collapsedContent = collapsed;
-        },
-        [SET_SAVED_INLINE_IMAGES]: (state, inlineImages) => {
-            state.inlineImagesSaved = inlineImages;
         },
         [SET_MAX_MESSAGE_SIZE](state, size) {
             state.maxMessageSize = size;
@@ -105,10 +104,19 @@ export default {
             const { messageMaxSize } = await inject("MailboxesPersistence").getMailboxConfig(userId);
             // take into account the email base64 encoding : 33% more space
             commit(SET_MAX_MESSAGE_SIZE, messageMaxSize / 1.33);
+        },
+        [SET_DRAFT_CONTENT]: ({ commit, getters, dispatch }, { draft, html }) => {
+            commit(SET_DRAFT_EDITOR_CONTENT, html);
+            const content = getters[GET_DRAFT_CONTENT];
+            return dispatch(SET_MESSAGE_CONTENT, { message: draft, content });
         }
     },
 
     getters: {
+        [GET_DRAFT_CONTENT]: ({ collapsedContent, editorContent, corporateSignature, disclaimer }) => {
+            const wholeContent = collapsedContent ? editorContent + collapsedContent : editorContent;
+            return removeCorporateSignatureContent(wholeContent, { corporateSignature, disclaimer });
+        },
         [IS_SENDER_SHOWN]: state => userSettings => state.isSenderShown || userSettings.always_show_from === "true"
     },
 

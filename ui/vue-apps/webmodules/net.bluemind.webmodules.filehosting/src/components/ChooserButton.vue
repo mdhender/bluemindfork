@@ -64,7 +64,7 @@ export default {
             );
 
             const newContent = getContentWithLinks(this, this.message);
-            this.$store.commit("mail/SET_DRAFT_EDITOR_CONTENT", newContent);
+            this.$store.dispatch("mail/SET_DRAFT_CONTENT", { html: newContent, draft: this.message });
         }
     }
 };

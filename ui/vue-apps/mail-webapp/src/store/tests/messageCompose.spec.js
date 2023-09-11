@@ -4,8 +4,8 @@ import cloneDeep from "lodash.clonedeep";
 import inject from "@bluemind/inject";
 import { MockMailboxesClient } from "@bluemind/test-utils";
 import storeOptions from "../messageCompose";
-import { LOAD_MAX_MESSAGE_SIZE } from "~/actions";
-import { IS_SENDER_SHOWN } from "~/getters";
+import { LOAD_MAX_MESSAGE_SIZE, SET_DRAFT_CONTENT } from "~/actions";
+import { GET_DRAFT_CONTENT, IS_SENDER_SHOWN } from "~/getters";
 import {
     ADD_FILE,
     SET_CORPORATE_SIGNATURE,
@@ -20,7 +20,6 @@ import {
     SET_MAX_MESSAGE_SIZE,
     SHOW_SENDER
 } from "~/mutations";
-
 Vue.use(Vuex);
 
 const file1 = {
@@ -156,6 +155,20 @@ describe("messageCompose", () => {
             expect(mailboxesService.getMailboxConfig).toHaveBeenCalledWith(3);
             expect(store.state.maxMessageSize).toBe(30 / 1.33);
         });
+        test("SET_DRAFT_CONTENT", async () => {
+            storeOptions.actions["SET_MESSAGE_CONTENT"] = jest.fn();
+            const store2 = new Vuex.Store(cloneDeep(storeOptions));
+
+            const collapsed = "collapsed";
+            const content = "content";
+            store2.commit(SET_DRAFT_COLLAPSED_CONTENT, collapsed);
+            await store2.dispatch(SET_DRAFT_CONTENT, { draft: { key: "key" }, html: content });
+            expect(store2.state.editorContent).toEqual(content);
+            expect(storeOptions.actions["SET_MESSAGE_CONTENT"]).toHaveBeenCalledWith(
+                expect.anything(),
+                expect.objectContaining({ content: content + collapsed })
+            );
+        });
     });
 
     describe("getters", () => {
@@ -167,6 +180,15 @@ describe("messageCompose", () => {
             userSettings.always_show_from = "false";
             store.commit(SHOW_SENDER, true);
             expect(store.getters[IS_SENDER_SHOWN](userSettings)).toBeTruthy();
+        });
+        test("GET_DRAFT_CONTENT", () => {
+            const collapsed = "collapsed";
+            const content = "content";
+            expect(store.getters[GET_DRAFT_CONTENT]).toEqual("");
+            store.commit(SET_DRAFT_EDITOR_CONTENT, content);
+            expect(store.getters[GET_DRAFT_CONTENT]).toEqual(content);
+            store.commit(SET_DRAFT_COLLAPSED_CONTENT, collapsed);
+            expect(store.getters[GET_DRAFT_CONTENT]).toEqual(content + collapsed);
         });
     });
 });

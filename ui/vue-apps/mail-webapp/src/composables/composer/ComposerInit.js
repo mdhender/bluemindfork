@@ -4,14 +4,12 @@ import { BmRichEditor } from "@bluemind/ui-components";
 import { draftUtils, loadingStatusUtils, messageUtils, partUtils } from "@bluemind/mail";
 import store from "@bluemind/store";
 
-import { FETCH_PART_DATA, FETCH_MESSAGE_IF_NOT_LOADED } from "~/actions";
+import { FETCH_PART_DATA, FETCH_MESSAGE_IF_NOT_LOADED, SET_DRAFT_CONTENT } from "~/actions";
 import {
     ADD_MESSAGES,
     SET_DRAFT_COLLAPSED_CONTENT,
-    SET_DRAFT_EDITOR_CONTENT,
     SET_MESSAGE_STRUCTURE,
-    SET_MESSAGE_LOADING_STATUS,
-    SET_SAVED_INLINE_IMAGES
+    SET_MESSAGE_LOADING_STATUS
 } from "~/mutations";
 import apiMessages from "~/store/api/apiMessages";
 import { getIdentityForNewMessage, setFrom } from "~/composables/composer/ComposerFrom";
@@ -40,7 +38,10 @@ export function useComposerInit() {
     // case when user clicks on a message in MY_DRAFTS folder
     async function initFromRemoteMessage(message) {
         const messageWithTmpAddresses = await apiMessages.getForUpdate(message);
-
+        store.commit(`mail/${SET_MESSAGE_STRUCTURE}`, {
+            messageKey: message.key,
+            structure: messageWithTmpAddresses.structure
+        });
         const messageParts = computeParts(messageWithTmpAddresses.structure);
         const parts = getPartsFromCapabilities(messageParts, COMPOSER_CAPABILITIES);
         await store.dispatch(`mail/${FETCH_PART_DATA}`, {
@@ -65,14 +66,13 @@ export function useComposerInit() {
                 message.folderRef.uid,
                 message.remoteRef.imapUid
             );
-            store.commit(`mail/${SET_SAVED_INLINE_IMAGES}`, insertionResult.imageInlined);
             content = insertionResult.contentsWithImageInserted[0];
             content = sanitizeHtml(content, true);
         }
 
         const editorData = handleSeparator(content);
         store.commit(`mail/${SET_DRAFT_COLLAPSED_CONTENT}`, editorData.collapsed);
-        store.commit(`mail/${SET_DRAFT_EDITOR_CONTENT}`, editorData.content);
+        store.dispatch(`mail/${SET_DRAFT_CONTENT}`, { html: editorData.content, draft: message });
     }
 
     async function initRelatedMessage(folder, action, related) {
@@ -87,6 +87,7 @@ export function useComposerInit() {
             if (needsConversationRef(action)) {
                 message.conversationRef = previousMessage.conversationRef;
             }
+            message.structure = buildBasicStructure();
             store.commit(`mail/${ADD_MESSAGES}`, { messages: [message] });
             store.commit(`mail/${SET_MESSAGE_LOADING_STATUS}`, {
                 messageKey: message.key,
@@ -137,10 +138,9 @@ export function useComposerInit() {
         });
         const identity = getIdentityForNewMessage();
         await setFrom(identity, message);
-        store.commit(`mail/${SET_DRAFT_EDITOR_CONTENT}`, body || BmRichEditor.constants.NEW_LINE);
 
         store.commit(`mail/${SET_DRAFT_COLLAPSED_CONTENT}`, null);
-        store.commit(`mail/${SET_SAVED_INLINE_IMAGES}`, []);
+        store.dispatch(`mail/${SET_DRAFT_CONTENT}`, { html: body || BmRichEditor.constants.NEW_LINE, draft: message });
         return message;
     }
 

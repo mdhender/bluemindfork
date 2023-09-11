@@ -53,7 +53,7 @@ async function doDetach(files, message) {
         this.$bvModal.open(content, props);
         await Promise.all(files.map(file => store.dispatch(`mail/${ADD_FH_ATTACHMENT}`, { file, message })));
         const newContent = getContentWithLinks(this, message);
-        store.commit("mail/SET_DRAFT_EDITOR_CONTENT", newContent);
+        store.dispatch("mail/SET_DRAFT_CONTENT", { html: newContent, draft: message });
     } catch (e) {
         // eslint-disable-next-line no-console
         console.warn(e);
