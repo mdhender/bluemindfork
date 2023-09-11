@@ -357,6 +357,14 @@ export default {
             width: base-px-to-rem(400);
             max-width: 100%;
         }
+        .contact-input {
+            .bm-label-icon {
+                flex: none;
+            }
+            .contact-and-input {
+                max-width: 100%;
+            }
+        }
     }
 }
 </style>

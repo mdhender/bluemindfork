@@ -197,7 +197,7 @@ export const addDelegateToCopyImipMailboxRule = async ({ uid, address }) => {
                 filter: {
                     fields: ["headers.X-BM-Event"],
                     operator: "CONTAINS",
-                    values: [`calendar_uid=${calendarUid.value}`]
+                    values: [`calendar_uid="${calendarUid.value}"`]
                 },
                 negate: false,
                 operator: "AND",
