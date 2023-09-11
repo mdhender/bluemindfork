@@ -30,6 +30,7 @@ import org.junit.Test;
 
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.core.jdbc.JdbcTestHelper;
+import net.bluemind.delivery.lmtp.common.LmtpAddress;
 import net.bluemind.imip.parser.IMIPInfos;
 import net.bluemind.imip.parser.ITIPMethod;
 import net.bluemind.lib.vertx.VertxPlatform;
@@ -45,6 +46,7 @@ import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.todolist.api.VTodo;
 
 public class ImipFactoryTests {
+	private static LmtpAddress testSenderAddress = new LmtpAddress("doesnotexists@bluemind.loc");
 
 	@Before
 	public void before() throws Exception {
@@ -56,6 +58,7 @@ public class ImipFactoryTests {
 		PopulateHelper.addDomainAdmin("admin0", "global.virt");
 
 		PopulateHelper.createTestDomain(System.currentTimeMillis() + ".loc");
+
 	}
 
 	@After
@@ -69,7 +72,7 @@ public class ImipFactoryTests {
 		info.method = ITIPMethod.REQUEST;
 		info.iCalendarElements = Arrays.asList(new VEvent());
 
-		IIMIPHandler handler = IMIPHandlerFactory.get(info, null, null);
+		IIMIPHandler handler = IMIPHandlerFactory.get(info, null, testSenderAddress);
 
 		assertTrue(handler instanceof EventRequestHandler);
 	}
@@ -80,7 +83,7 @@ public class ImipFactoryTests {
 		info.method = ITIPMethod.CANCEL;
 		info.iCalendarElements = Arrays.asList(new VEvent());
 
-		IIMIPHandler handler = IMIPHandlerFactory.get(info, null, null);
+		IIMIPHandler handler = IMIPHandlerFactory.get(info, null, testSenderAddress);
 
 		assertTrue(handler instanceof EventCancelHandler);
 	}
@@ -91,7 +94,7 @@ public class ImipFactoryTests {
 		info.method = ITIPMethod.REPLY;
 		info.iCalendarElements = Arrays.asList(new VEvent());
 
-		IIMIPHandler handler = IMIPHandlerFactory.get(info, null, null);
+		IIMIPHandler handler = IMIPHandlerFactory.get(info, null, testSenderAddress);
 
 		assertTrue(handler instanceof EventReplyHandler);
 	}
@@ -102,7 +105,7 @@ public class ImipFactoryTests {
 		info.method = ITIPMethod.REQUEST;
 		info.iCalendarElements = Arrays.asList(new VTodo());
 
-		IIMIPHandler handler = IMIPHandlerFactory.get(info, null, null);
+		IIMIPHandler handler = IMIPHandlerFactory.get(info, null, testSenderAddress);
 
 		assertTrue(handler instanceof TodoRequestHandler);
 	}
@@ -113,7 +116,7 @@ public class ImipFactoryTests {
 		info.method = ITIPMethod.CANCEL;
 		info.iCalendarElements = Arrays.asList(new VTodo());
 
-		IIMIPHandler handler = IMIPHandlerFactory.get(info, null, null);
+		IIMIPHandler handler = IMIPHandlerFactory.get(info, null, testSenderAddress);
 
 		assertTrue(handler instanceof TodoCancelHandler);
 	}
@@ -124,7 +127,7 @@ public class ImipFactoryTests {
 		info.method = ITIPMethod.REPLY;
 		info.iCalendarElements = Arrays.asList(new VTodo());
 
-		IIMIPHandler handler = IMIPHandlerFactory.get(info, null, null);
+		IIMIPHandler handler = IMIPHandlerFactory.get(info, null, testSenderAddress);
 
 		assertTrue(handler instanceof TodoReplyHandler);
 
@@ -136,7 +139,7 @@ public class ImipFactoryTests {
 		info.method = ITIPMethod.ADD;
 		info.iCalendarElements = Arrays.asList(new VTodo());
 
-		IIMIPHandler handler = IMIPHandlerFactory.get(info, null, null);
+		IIMIPHandler handler = IMIPHandlerFactory.get(info, null, testSenderAddress);
 
 		assertNull(handler);
 	}
@@ -146,7 +149,7 @@ public class ImipFactoryTests {
 		IMIPInfos info = new IMIPInfos();
 		info.method = ITIPMethod.ADD;
 
-		IIMIPHandler handler = IMIPHandlerFactory.get(info, null, null);
+		IIMIPHandler handler = IMIPHandlerFactory.get(info, null, testSenderAddress);
 
 		assertNull(handler);
 	}
