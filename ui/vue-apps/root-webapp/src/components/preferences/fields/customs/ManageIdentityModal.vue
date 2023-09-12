@@ -196,7 +196,9 @@ export default {
 
             emailInput: "",
             canCreateExternalIdentity: false,
-            SENT_FOLDER: DEFAULT_FOLDERS.SENT
+            SENT_FOLDER: DEFAULT_FOLDERS.SENT,
+
+            showAliases: false
         };
     },
     computed: {
@@ -205,7 +207,9 @@ export default {
         ...mapGetters("root-app", ["DEFAULT_IDENTITY"]),
         ...mapGetters("settings", ["IS_COMPUTED_THEME_DARK", "EXTRA_FONT_FAMILIES"]),
         availableAddresses() {
-            return this.possibleIdentities.map(identity => identity.email);
+            return this.showAliases
+                ? this.possibleIdentities.map(({ email }) => email)
+                : this.possibleIdentities.flatMap(({ email, emailIsDefault }) => (emailIsDefault ? email : []));
         },
         hasAnyChange() {
             return JSON.stringify(this.identity) !== JSON.stringify(this.originalIdentity);
