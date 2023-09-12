@@ -112,20 +112,12 @@ function buildRecipientsForKind(kind, recipients) {
 }
 
 export function getEventInfo(headers) {
-    let isCounterEvent = false;
-    const icsHeader = headers.find(({ name }) => {
-        if (MessageHeader.X_BM_EVENT_COUNTERED.toUpperCase() === name.toUpperCase()) {
-            isCounterEvent = true;
-            return true;
-        }
-        if (MessageHeader.X_BM_EVENT.toUpperCase() === name.toUpperCase()) {
-            return true;
-        }
-    });
+    const icsHeader = getRequestHeader(headers) || getCounterHeader(headers);
 
     if (!icsHeader) {
         return { hasICS: false };
     }
+    const isCounterEvent = icsHeader.name.toUpperCase() === MessageHeader.X_BM_EVENT_COUNTERED.toUpperCase();
 
     let isResourceBooking = false,
         resourceUid = "";
@@ -148,4 +140,18 @@ export function getEventInfo(headers) {
         isCounterEvent || icsHeaderValue.includes('rsvp="true"') || icsHeaderValue.includes("rsvp='true'"); //TODO regexp
 
     return { hasICS, isCounterEvent, icsUid: uid, needsReply, recuridIsoDate, isResourceBooking, resourceUid };
+}
+
+function getCounterHeader(headers) {
+    const header = headers.find(({ name }) => name.toUpperCase() === MessageHeader.X_BM_EVENT_COUNTERED.toUpperCase());
+    if (
+        header &&
+        !headers.some(({ name }) => name.toUpperCase() === MessageHeader.X_BM_COUNTER_ATTENDEE.toUpperCase())
+    ) {
+        return header;
+    }
+}
+
+function getRequestHeader(headers) {
+    headers.find(({ name }) => name.toUpperCase() === MessageHeader.X_BM_EVENT.toUpperCase());
 }
