@@ -147,7 +147,7 @@ public class EventCounterHandler extends AbstractLmtpHandler implements IIMIPHan
 
 	private void autoAcceptAttendeeProposals(ICalendar cal, ItemValue<VEventSeries> currentSeries) {
 		currentSeries.value.counters = Collections.emptyList();
-		cal.update(currentSeries.uid, currentSeries.value, true);
+		cal.update(currentSeries.uid, currentSeries.value, false);
 	}
 
 	private void addNewAttendees(VEventOccurrence counterEvent, VEvent existingEvent) {

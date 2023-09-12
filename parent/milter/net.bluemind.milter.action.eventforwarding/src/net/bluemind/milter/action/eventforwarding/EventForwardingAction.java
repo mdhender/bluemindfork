@@ -20,6 +20,7 @@ package net.bluemind.milter.action.eventforwarding;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -54,7 +55,6 @@ import net.bluemind.imip.parser.IMIPParserConfig;
 import net.bluemind.imip.parser.IMIPParserFactory;
 import net.bluemind.imip.parser.ITIPMethod;
 import net.bluemind.mailflow.rbe.IClientContext;
-import net.bluemind.milter.IMilterListener.Status;
 import net.bluemind.milter.action.MilterAction;
 import net.bluemind.milter.action.MilterActionsFactory;
 import net.bluemind.milter.action.UpdatedMailMessage;
@@ -90,7 +90,7 @@ public class EventForwardingAction implements MilterAction {
 				.create(new IMIPParserConfig.IMIPParserConfigBuilder().failOnMissingMethod(false).create());
 		IMIPInfos imip = parser.parse(modifier.getMessage());
 
-		if (imip == null || (imip.method != null && imip.method != ITIPMethod.REQUEST)) {
+		if (imip == null || imip.method != ITIPMethod.REQUEST) {
 			return;
 		}
 
@@ -140,14 +140,14 @@ public class EventForwardingAction implements MilterAction {
 			}
 
 			if (!newAttendees.isEmpty()) {
-				createCounter(modifier, from, newAttendees, existingEvent, service, sudo.getUser().displayName,
+				sendCounter(modifier, from, newAttendees, existingEvent, service, sudo.getUser().displayName,
 						existingEventValue);
 			}
 
 		}
 	}
 
-	private void createCounter(UpdatedMailMessage modifier, String from, Set<String> newAttendees,
+	private void sendCounter(UpdatedMailMessage modifier, String from, Set<String> newAttendees,
 			VEventOccurrence existingEvent, ICalendar service, String originator,
 			ItemValue<VEventSeries> existingSeries) {
 		VEventCounter counter = new VEventCounter();
@@ -165,8 +165,8 @@ public class EventForwardingAction implements MilterAction {
 		});
 		existingSeries.value.counters = Arrays.asList(counter);
 		service.update(existingSeries.uid, existingSeries.value, true);
-		modifier.errorStatus = Status.DISCARD;
-
+		existingSeries.value.counters = Collections.emptyList();
+		service.update(existingSeries.uid, existingSeries.value, false);
 	}
 
 	private VEventOccurrence findEvent(ItemValue<VEventSeries> byIcsUid, BmDateTime recurId) {
