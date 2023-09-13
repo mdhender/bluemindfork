@@ -19,6 +19,7 @@
 package net.bluemind.mailbox.identity.api;
 
 import net.bluemind.core.api.BMApi;
+import net.bluemind.core.api.ReadOnly;
 import net.bluemind.mailbox.api.Mailbox;
 
 @BMApi(version = "3")
@@ -39,6 +40,9 @@ public class IdentityDescription {
 	 */
 	public String email;
 
+	@ReadOnly
+	public Boolean emailIsDefault;
+	
 	/**
 	 * the identity name that will be used in the from header of the mail alongside
 	 * with {@link #email}

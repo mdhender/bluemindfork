@@ -21,6 +21,7 @@ package net.bluemind.mailbox.identity.service.internal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import net.bluemind.core.api.Email;
 import net.bluemind.core.api.ParametersValidator;
@@ -157,10 +158,19 @@ public class MailboxIdentityService implements IMailboxIdentity {
 		rbacManager.check(BasicRoles.ROLE_MANAGE_MAILBOX_IDENTITIES, Verb.Read.name());
 		try {
 			final ItemValue<Mailbox> mboxItemValue = ItemValue.create(this.mboxItem, this.mboxValue);
-			return identityStore.getDescriptions(mboxItemValue);
+			List<IdentityDescription> identities = identityStore.getDescriptions(mboxItemValue);
+			populateEmailIsDefaultField(identities, mboxValue);
+			return identities;
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}
+	}
+
+	private void populateEmailIsDefaultField(List<IdentityDescription> identities, Mailbox mailbox) {
+		Optional<Email> defaultEmail = mailbox.emails.stream().filter(email -> email.isDefault).findFirst();
+		identities.stream().forEach(identity -> {
+			identity.emailIsDefault = defaultEmail.isPresent() && defaultEmail.get().address.equals(identity.email);
+		});
 	}
 
 	@Override
@@ -182,19 +192,20 @@ public class MailboxIdentityService implements IMailboxIdentity {
 					adr = adr.split("@")[0];
 				}
 				for (String alias : domain.value.aliases) {
-					addIfNotPresentAndNotInternalDomain(adr + "@" + alias, ret);
+					addIfNotPresentAndNotInternalDomain(adr + "@" + alias, ret, false);
 				}
-				addIfNotPresentAndNotInternalDomain(adr + "@" + domain.value.name, ret);
+				addIfNotPresentAndNotInternalDomain(adr + "@" + domain.value.name, ret, email.isDefault);
 
 			} else {
-				addIfNotPresentAndNotInternalDomain(email.address, ret);
+				addIfNotPresentAndNotInternalDomain(email.address, ret, email.isDefault);
 			}
 		}
 
 		return ret;
 	}
 
-	private void addIfNotPresentAndNotInternalDomain(String address, List<IdentityDescription> ret) {
+	private void addIfNotPresentAndNotInternalDomain(String address, List<IdentityDescription> ret,
+			Boolean addressIsDefault) {
 		for (IdentityDescription d : ret) {
 			if (d.email.equals(address)) {
 				return;
@@ -208,6 +219,7 @@ public class MailboxIdentityService implements IMailboxIdentity {
 		// add only if not in ret list
 		IdentityDescription id = new IdentityDescription();
 		id.email = address;
+		id.emailIsDefault = addressIsDefault;
 		id.mbox = mboxItem.uid;
 		id.name = mboxValue.name;
 		id.id = null;
