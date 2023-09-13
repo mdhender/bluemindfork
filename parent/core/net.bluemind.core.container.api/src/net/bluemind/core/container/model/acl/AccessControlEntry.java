@@ -86,4 +86,8 @@ public class AccessControlEntry {
 		return true;
 	}
 
+	public String getSubject() {
+		return subject;
+	}
+
 }

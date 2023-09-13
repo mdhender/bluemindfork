@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.james.mime4j.dom.address.Mailbox;
 import org.apache.james.mime4j.stream.RawField;
@@ -90,55 +91,60 @@ public abstract class AbstractEmailHook implements IAclHook {
 		data.put("user", fromDN);
 		data.put("videoconfdocumentation", VIDEOCONFERENCE_DOCUMENTATION_URL);
 
+		entries.stream().collect(Collectors.groupingBy(AccessControlEntry::getSubject)).entrySet().stream()
+				.forEach(e -> sendMessageForSubject(e.getKey(), sc, container, dirService, context, data, headers));
+	}
+
+	private void sendMessageForSubject(String entrySubject, SecurityContext sc, ContainerDescriptor container,
+			IDirectory dirService, BmContext context, HashMap<String, String> data, RawField[] headers) {
+
+		if (entrySubject.equals(sc.getContainerUid())) {
+			logger.debug("do not notify for public sharing");
+			return;
+		}
+
+		if (entrySubject.equals(container.owner)) {
+			logger.debug("do not notify owner {}", entrySubject);
+			return;
+		}
+
+		final DirEntry targetedUser = dirService.findByEntryUid(entrySubject);
+
+		if (targetedUser == null) {
+			logger.error("Cannot find dirEntry {}", entrySubject);
+			return;
+		}
+
 		IUserSettings settingService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IUserSettings.class, container.domainUid);
 
-		for (AccessControlEntry entry : entries) {
-			if (entry.subject.equals(sc.getContainerUid())) {
-				logger.debug("do not notify for public sharing");
-				continue;
+		if (targetedUser.email == null) {
+			if (targetedUser.kind == Kind.GROUP) {
+				IGroup g = context.provider().instance(IGroup.class, container.domainUid);
+				List<Member> members = g.getExpandedUserMembers(targetedUser.entryUid);
+				members.forEach(m -> {
+					DirEntry memberDE = dirService.findByEntryUid(m.uid);
+					if (memberDE.email != null) {
+						Map<String, String> prefs = settingService.get(memberDE.entryUid);
+						String lang = prefs.get("lang");
+						data.put("entity", I18nLabels.getInstance().translate(lang, container.name));
+						Mailbox from = buildFrom(memberDE, sc);
+						sendMessage(from, memberDE, this.getTemplateSubject(), this.getTemplateBody(), data, lang,
+								headers);
+					}
+				});
+			} else {
+				logger.info("DirEntry {} has no email", targetedUser.displayName);
 			}
-
-			if (entry.subject.equals(container.owner)) {
-				logger.debug("do not notify owner {}", entry.subject);
-				continue;
-			}
-
-			final DirEntry targetedUser = dirService.findByEntryUid(entry.subject);
-
-			if (targetedUser == null) {
-				logger.error("Cannot find dirEntry {}", entry.subject);
-				continue;
-			}
-
-			if (targetedUser.email == null) {
-				if (targetedUser.kind == Kind.GROUP) {
-					IGroup g = context.provider().instance(IGroup.class, container.domainUid);
-					List<Member> members = g.getExpandedUserMembers(targetedUser.entryUid);
-					members.forEach(m -> {
-						DirEntry memberDE = dirService.findByEntryUid(m.uid);
-						if (memberDE.email != null) {
-							Map<String, String> prefs = settingService.get(memberDE.entryUid);
-							String lang = prefs.get("lang");
-							data.put("entity", I18nLabels.getInstance().translate(lang, container.name));
-							Mailbox from = buildFrom(memberDE, sc);
-							sendMessage(from, memberDE, this.getTemplateSubject(), this.getTemplateBody(), data, lang,
-									headers);
-						}
-					});
-				} else {
-					logger.info("DirEntry {} has no email", targetedUser.displayName);
-				}
-				continue;
-			}
-
-			Mailbox from = buildFrom(targetedUser, sc);
-			Map<String, String> prefs = settingService.get(targetedUser.entryUid);
-			String lang = prefs.get("lang");
-
-			data.put("entity", I18nLabels.getInstance().translate(lang, container.name));
-			sendMessage(from, targetedUser, this.getTemplateSubject(), this.getTemplateBody(), data, lang, headers);
+			return;
 		}
+
+		Mailbox from = buildFrom(targetedUser, sc);
+		Map<String, String> prefs = settingService.get(targetedUser.entryUid);
+		String lang = prefs.get("lang");
+
+		data.put("entity", I18nLabels.getInstance().translate(lang, container.name));
+		sendMessage(from, targetedUser, this.getTemplateSubject(), this.getTemplateBody(), data, lang, headers);
 	}
 
 	private Mailbox buildFrom(DirEntry de, SecurityContext sc) {
