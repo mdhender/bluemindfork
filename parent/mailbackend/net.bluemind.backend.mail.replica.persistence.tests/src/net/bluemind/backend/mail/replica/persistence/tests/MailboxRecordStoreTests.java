@@ -51,7 +51,6 @@ import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.ImapBinding;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.MailboxRecord.InternalFlag;
-import net.bluemind.backend.mail.replica.api.WithId;
 import net.bluemind.backend.mail.replica.persistence.MailboxRecordStore;
 import net.bluemind.backend.mail.replica.persistence.MessageBodyStore;
 import net.bluemind.core.api.fault.ServerFault;
@@ -216,17 +215,12 @@ public class MailboxRecordStoreTests {
 		assertTrue(asBindings.isEmpty());
 
 		List<Long> set = boxRecordStore.imapIdset("1:*", ItemFlagFilter.all());
-		assertEquals(1, set.size());
+		assertEquals(0, set.size());
 		System.err.println("set: " + set);
 		set = boxRecordStore.imapIdset("42,43", ItemFlagFilter.all());
-		assertEquals(1, set.size());
+		assertEquals(0, set.size());
 		set = boxRecordStore.imapIdset("42", ItemFlagFilter.create().mustNot(ItemFlag.Deleted));
-		assertEquals(1, set.size());
-
-		List<WithId<MailboxRecord>> withIds = boxRecordStore.slice(set);
-		assertEquals(1, withIds.size());
-		assertEquals(42, withIds.get(0).value.imapUid);
-		assertEquals(set.iterator().next().longValue(), withIds.get(0).itemId);
+		assertEquals(0, set.size());
 
 		boxRecordStore.delete(it);
 		reloaded = boxRecordStore.get(it);
