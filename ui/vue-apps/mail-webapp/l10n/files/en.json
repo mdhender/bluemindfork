@@ -154,6 +154,7 @@
     "alert.mail.disposition_notification.info.action": "Send the reading confirmation?",
     "alert.mail.disposition_notification.info.pref": "Change my preferences",
     "alert.mail.forward_eml.fetch.error": "Failed to retrieve message in EML format. Unable to forward it.",
+    "alert.mail.forwarded_event": "This transferred event is organized by {organizer}",
     "alert.mail.mdn_sent.success": "Reading confirmation sent to {recipient}",
     "alert.mail.mdn_sent.error": "Failed to send the reading confirmation",
     "alert.mail.message.draft.attach.error": "Attachment error. Try again.",

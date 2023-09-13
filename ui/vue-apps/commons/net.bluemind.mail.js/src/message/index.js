@@ -153,6 +153,13 @@ export function isFlagged(message) {
     return message.loading === LoadingStatus.LOADED && message.flags.includes(Flag.FLAGGED);
 }
 
+export function isEventRequest(message) {
+    return (
+        message.loading === LoadingStatus.LOADED &&
+        message.headers.some(header => header.name.toUpperCase() === MessageHeader.X_BM_EVENT.toUpperCase())
+    );
+}
+
 export function isImip(message) {
     return message.loading === LoadingStatus.LOADED && message.headers.some(hasXbmImipEvent);
 }
@@ -297,6 +304,7 @@ export default {
     hasAttachment,
     isFlagged,
     isForward,
+    isEventRequest,
     isImip,
     hasXbmImipEvent,
     isReply,

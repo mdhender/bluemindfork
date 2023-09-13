@@ -39,6 +39,7 @@ export default {
     provide() {
         return { $messageViewerRoot: this };
     },
+
     computed: {
         ...mapState("mail", { folders: "folders", messages: state => state.conversations.messages }),
         ...mapGetters("root-app", ["DEFAULT_IDENTITY"]),

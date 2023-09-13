@@ -154,6 +154,7 @@
     "alert.mail.disposition_notification.info.action": "Lesebestätigung senden?",
     "alert.mail.disposition_notification.info.pref": "Meine Einstellungen ändern",
     "alert.mail.forward_eml.fetch.error": "Fehler beim Abrufen der Nachricht im EML-Format. Kann nicht weitergeleitet werden.",
+    "alert.mail.forwarded_event": "Der weitergeleitete Termin wird von {organizer} organisiert",
     "alert.mail.mdn_sent.success": "Lesebestätigung an {recipient} gesendet",
     "alert.mail.mdn_sent.error": "Senden der Lesebestätigung fehlgeschlagen",
     "alert.mail.message.draft.attach.error": "Fehler beim Anhängen. Bitte erneut versuchen.",

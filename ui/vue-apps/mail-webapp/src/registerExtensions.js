@@ -5,6 +5,7 @@ import { mailTipUtils } from "@bluemind/mail";
 import DecoratedFileItem from "./components/MailAttachment/DecoratedFileItem.vue";
 import PreviewBlockedRemoteContent from "./components/MailAttachment/Preview/Fallback/PreviewBlockedRemoteContent";
 import PreviewTooLarge from "./components/MailAttachment/Preview/Fallback/PreviewTooLarge";
+import ForwardEventAlertTrigger from "./components/MailAlerts/ForwardEventAlertTrigger";
 
 const { MailTipTypes } = mailTipUtils;
 
@@ -43,6 +44,14 @@ export default function () {
             name: "PreviewTooLarge",
             path: "file.preview",
             priority: 2
+        }
+    });
+
+    Vue.component("ForwardEventAlertTrigger", ForwardEventAlertTrigger);
+    extensions.register("webapp.mail", "net.bluemind.webapp.mail.js", {
+        component: {
+            path: "viewer.header",
+            name: "ForwardEventAlertTrigger"
         }
     });
 }
