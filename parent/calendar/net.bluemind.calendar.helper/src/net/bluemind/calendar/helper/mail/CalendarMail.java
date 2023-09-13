@@ -43,6 +43,7 @@ import net.fortuna.ical4j.model.property.Method;
 
 public class CalendarMail {
 	public final Mailbox from;
+	public final Mailbox sender;
 	public final MailboxList to;
 	public final Method method;
 	public final String subject;
@@ -51,9 +52,10 @@ public class CalendarMail {
 	public final Optional<BodyPart> ics;
 	public final Optional<List<EventAttachment>> attachments;
 
-	private CalendarMail(Mailbox from, MailboxList to, Optional<MailboxList> cc, String subject, BodyPart html,
-			Optional<BodyPart> ics, Optional<List<EventAttachment>> attachments, Method method) {
+	private CalendarMail(Mailbox from, Mailbox sender, MailboxList to, Optional<MailboxList> cc, String subject,
+			BodyPart html, Optional<BodyPart> ics, Optional<List<EventAttachment>> attachments, Method method) {
 		this.from = from;
+		this.sender = sender;
 		this.to = to;
 		this.cc = cc;
 		this.subject = subject;
@@ -70,6 +72,9 @@ public class CalendarMail {
 		m.setDate(new Date());
 		m.setSubject(subject);
 		m.setFrom(from);
+		if (!sameFromAndSender(sender, from)) {
+			m.setSender(sender);
+		}
 		m.setTo(to);
 		cc.ifPresent(m::setCc);
 
@@ -134,6 +139,10 @@ public class CalendarMail {
 		return m;
 	}
 
+	public static boolean sameFromAndSender(Mailbox sender, Mailbox from) {
+		return sender != null && from.getAddress().equalsIgnoreCase(sender.getAddress());
+	}
+
 	private MessageBuilder createBuilder() {
 		try {
 			return MessageServiceFactory.newInstance().newMessageBuilder();
@@ -144,6 +153,7 @@ public class CalendarMail {
 
 	public static class CalendarMailBuilder {
 		private Mailbox from;
+		private Mailbox sender;
 		private MailboxList to;
 		private Method method;
 		private String subject;
@@ -159,7 +169,7 @@ public class CalendarMail {
 			check(subject, "subject");
 			check(html, "html");
 
-			return new CalendarMail(from, to, Optional.ofNullable(cc), subject, html, ics,
+			return new CalendarMail(from, sender, to, Optional.ofNullable(cc), subject, html, ics,
 					Optional.ofNullable(attachments), method);
 		}
 
@@ -171,6 +181,11 @@ public class CalendarMail {
 
 		public CalendarMailBuilder from(Mailbox from) {
 			this.from = from;
+			return this;
+		}
+
+		public CalendarMailBuilder sender(Mailbox sender) {
+			this.sender = sender;
 			return this;
 		}
 

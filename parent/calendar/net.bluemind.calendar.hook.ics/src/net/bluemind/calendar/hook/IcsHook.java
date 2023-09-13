@@ -55,6 +55,7 @@ import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.auditlog.CalendarAuditor;
 import net.bluemind.calendar.helper.ical4j.VEventServiceHelper;
+import net.bluemind.calendar.helper.mail.CalendarMail;
 import net.bluemind.calendar.helper.mail.CalendarMail.CalendarMailBuilder;
 import net.bluemind.calendar.helper.mail.CalendarMailHelper;
 import net.bluemind.calendar.helper.mail.EventAttachment;
@@ -68,10 +69,12 @@ import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.auditlog.IAuditManager;
+import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -90,6 +93,8 @@ import net.bluemind.icalendar.api.ICalendarElement.CUType;
 import net.bluemind.icalendar.api.ICalendarElement.Organizer;
 import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;
 import net.bluemind.icalendar.api.ICalendarElement.Role;
+import net.bluemind.mailbox.api.IMailboxAclUids;
+import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.resource.api.IResources;
 import net.bluemind.resource.api.ResourceDescriptor;
 import net.bluemind.system.api.ISystemConfiguration;
@@ -967,8 +972,10 @@ public class IcsHook implements ICalendarHook {
 					data.put("attachments", attachments);
 				}
 
-				try (Message mail = buildMailMessage(from, attendeeListTo, attendeeListCc, subjectTemplate, template,
-						messagesResolverProvider.getResolver(new Locale(getLocale(settings))), data,
+				Mailbox sender = resolveSender(userService, message, from);
+
+				try (Message mail = buildMailMessage(from, sender, attendeeListTo, attendeeListCc, subjectTemplate,
+						template, messagesResolverProvider.getResolver(new Locale(getLocale(settings))), data,
 						createBodyPart(message.itemUid, ics), settings, event, method, attachments)) {
 					ret.set(mailer.send(SendmailCredentials.asAdmin0(), from.getAddress(), from.getDomain(),
 							new MailboxList(Arrays.asList(recipient), true), mail));
@@ -989,16 +996,45 @@ public class IcsHook implements ICalendarHook {
 		return ret.get();
 	}
 
+	private static Mailbox resolveSender(IUser userService, VEventMessage message, Mailbox from) {
+		if (!isSystemMessage(message, from)) {
+			User connectedUser = userService.get(message.securityContext.getSubject());
+			Mailbox sender = new Mailbox(connectedUser.defaultEmail().localPart(),
+					connectedUser.defaultEmail().domainPart());
+			if (!CalendarMail.sameFromAndSender(sender, from) //
+					&& !canSendAs(message.container.domainUid, from.getAddress(), message.securityContext)) {
+				return new Mailbox(connectedUser.login, connectedUser.defaultEmail().localPart(),
+						connectedUser.defaultEmail().domainPart());
+			}
+		}
+
+		return from;
+	}
+
+	private static boolean isSystemMessage(VEventMessage message, Mailbox from) {
+		return message.securityContext.isAdmin() || from.getLocalPart().contains("no-reply")
+				|| from.getLocalPart().contains("noreply");
+	}
+
+	private static boolean canSendAs(String domainUid, String fromAddress, SecurityContext ctx) {
+		ItemValue<net.bluemind.mailbox.api.Mailbox> fromMb = ServerSideServiceProvider
+				.getProvider(SecurityContext.SYSTEM).instance(IMailboxes.class, domainUid).byEmail(fromAddress);
+
+		return ServerSideServiceProvider.getProvider(ctx)
+				.instance(IContainerManagement.class, IMailboxAclUids.uidForMailbox(fromMb.uid))
+				.canAccess(Arrays.asList(Verb.SendAs.name()));
+	}
+
 	private static Map<String, String> getSenderSettings(VEventMessage message, DirEntry fromDirEntry) {
 		ServerSideServiceProvider sp = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 		IUserSettings userSettingsService = sp.instance(IUserSettings.class, message.container.domainUid);
 		return userSettingsService.get(fromDirEntry.entryUid);
 	}
 
-	private Message buildMailMessage(Mailbox from, List<Mailbox> attendeeListTo, List<Mailbox> attendeeListCc,
-			String subjectTemplate, String templateName, MessagesResolver messagesResolver, Map<String, Object> data,
-			Optional<BodyPart> ics, Map<String, String> settings, VEvent vevent, Method method,
-			List<EventAttachment> attachments) {
+	private Message buildMailMessage(Mailbox from, Mailbox sender, List<Mailbox> attendeeListTo,
+			List<Mailbox> attendeeListCc, String subjectTemplate, String templateName,
+			MessagesResolver messagesResolver, Map<String, Object> data, Optional<BodyPart> ics,
+			Map<String, String> settings, VEvent vevent, Method method, List<EventAttachment> attachments) {
 		try {
 			String subject = new CalendarMailHelper().buildSubject(subjectTemplate, settings.get("lang"),
 					messagesResolver, data);
@@ -1017,7 +1053,7 @@ public class IcsHook implements ICalendarHook {
 				data.put("tz", tz.getDisplayName(new Locale(settings.get("lang"))));
 			}
 
-			return getMessage(from, attendeeListTo, attendeeListCc, subject, templateName, settings.get("lang"),
+			return getMessage(from, sender, attendeeListTo, attendeeListCc, subject, templateName, settings.get("lang"),
 					messagesResolver, data, ics, method, attachments);
 		} catch (TemplateException e) {
 			throw new ServerFault(e);
@@ -1220,15 +1256,16 @@ public class IcsHook implements ICalendarHook {
 	 * @throws IOException
 	 * @throws ServerFault
 	 */
-	private Message getMessage(Mailbox from, List<Mailbox> attendeeListTo, List<Mailbox> attendeeListCc, String subject,
-			String templateName, String locale, MessagesResolver messagesResolver, Map<String, Object> data,
-			Optional<BodyPart> ics, Method method, List<EventAttachment> attachments)
+	private Message getMessage(Mailbox from, Mailbox sender, List<Mailbox> attendeeListTo, List<Mailbox> attendeeListCc,
+			String subject, String templateName, String locale, MessagesResolver messagesResolver,
+			Map<String, Object> data, Optional<BodyPart> ics, Method method, List<EventAttachment> attachments)
 			throws TemplateException, IOException, ServerFault {
 
 		data.put("msg", new FreeMarkerMsg(messagesResolver));
 
 		CalendarMailBuilder mailBuilder = new CalendarMailBuilder() //
 				.from(from) //
+				.sender(sender) //
 				.to(new MailboxList(attendeeListTo, true)) //
 				.method(method) //
 				.html(new CalendarMailHelper().buildBody(templateName, locale, messagesResolver, data)) //
