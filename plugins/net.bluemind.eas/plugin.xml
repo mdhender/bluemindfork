@@ -175,4 +175,10 @@
             impl="net.bluemind.eas.impl.SessionStates$CacheRegistration">
       </reg>
    </extension>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.eas.ConfFileWatcherVerticle$Factory">
+      </verticle>
+   </extension>
 </plugin>

@@ -330,7 +330,7 @@ public class WbxmlResponseBuilder implements IResponseBuilder {
 		} catch (ValidationException ve) {
 			logger.error("rid: " + requestId + ", EAS sent a non-conforming response: " + ve.getMessage(), ve);
 		}
-		if (GlobalConfig.DATA_IN_LOGS) {
+		if (GlobalConfig.logDataForUser(loginForSifting)) {
 			DOMDumper.dumpXml(logger, "rid: " + requestId + (valid ? ", " : ", INVALID") + " wbxml sent to device:\n",
 					debugDom);
 		}

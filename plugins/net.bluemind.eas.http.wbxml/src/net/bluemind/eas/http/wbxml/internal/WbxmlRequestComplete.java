@@ -34,7 +34,8 @@ public class WbxmlRequestComplete implements Handler<Void> {
 
 	@Override
 	public void handle(Void v) {
-		MDC.put("user", event.loginAtDomain().replace("@", "_at_"));
+		String userLogin = event.loginAtDomain().replace("@", "_at_");
+		MDC.put("user", userLogin);
 		consumer.markEnd();
 		if (consumer.corrupted) {
 			consumer.dispose();
@@ -46,7 +47,7 @@ public class WbxmlRequestComplete implements Handler<Void> {
 			try (InputStream in = consumer.inputStream().openBufferedStream()) {
 				Document document = WBXMLTools.toXml(in);
 				boolean valid = Validator.check(event.request(), event.protocolVersion(), document);
-				if (!valid || GlobalConfig.DATA_IN_LOGS) {
+				if (!valid || GlobalConfig.logDataForUser(userLogin)) {
 					DOMDumper.dumpXml(logger, "rid: " + Requests.tag(event.request(), "rid")
 							+ (valid ? ", " : ", INVALID") + " document from device:\n", document);
 				}
