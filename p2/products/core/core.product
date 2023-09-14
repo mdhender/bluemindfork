@@ -301,7 +301,6 @@
       <plugin id="net.bluemind.keycloak.service"/>
       <plugin id="net.bluemind.ldap.directory.client"/>
       <plugin id="net.bluemind.lib.elasticsearch"/>
-      <plugin id="net.bluemind.lib.elasticsearch.datastreams"/>
       <plugin id="net.bluemind.lib.ical4j"/>
       <plugin id="net.bluemind.lib.jackson"/>
       <plugin id="net.bluemind.lib.jutf7"/>
