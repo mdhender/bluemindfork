@@ -59,7 +59,7 @@ public class ServerStoreTests {
 		String mcastId = "fake";
 
 		if (new File("/etc/bm/mcast.id").exists()) {
-			mcastId = Files.asCharSource(new File("/etc/bm/mcast.id"), StandardCharsets.UTF_8).toString();
+			mcastId = Files.asCharSource(new File("/etc/bm/mcast.id"), StandardCharsets.UTF_8).read();
 		}
 		String containerId = "bluemind-" + mcastId;
 		Container installation = Container.create(containerId, "installation", containerId, "me", true);

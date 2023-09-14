@@ -21,12 +21,11 @@ package net.bluemind.config;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Throwables;
 import com.google.common.io.Files;
 
 public final class Token {
@@ -39,13 +38,10 @@ public final class Token {
 		File tokenFile = new File("/etc/bm/bm-core.tok");
 		if (tokenFile.exists()) {
 			try {
-				String ret = Files.toString(new File("/etc/bm/bm-core.tok"), Charset.defaultCharset()).trim()
-						.replace("\r\n", "");
-				return ret;
+				return Files.asCharSource(tokenFile, StandardCharsets.UTF_8).read().trim().replace("\r\n", "");
 			} catch (IOException e) {
-				throw Throwables.propagate(e);
+				throw new RuntimeException(e);
 			}
-
 		} else {
 			logger.debug("token file ({}) doesnt exists", tokenFile);
 			return NO_TOKEN;
