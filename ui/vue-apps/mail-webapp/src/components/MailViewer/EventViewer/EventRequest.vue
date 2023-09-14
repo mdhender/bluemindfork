@@ -40,7 +40,7 @@ const setEventStatus = status => store.dispatch(`mail/${SET_EVENT_STATUS}`, { me
                 </div>
             </template>
         </event-header>
-        <event-detail :event="event" />
+        <event-detail :event="event" :message="message" />
         <event-footer :event="event" />
     </div>
 </template>

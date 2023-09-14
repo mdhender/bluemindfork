@@ -1,28 +1,49 @@
 <script setup>
 import { computed } from "vue";
 import { BmIcon, BmRow } from "@bluemind/ui-components";
+import { messageUtils } from "@bluemind/mail";
 import EventHelper from "~/store/helpers/EventHelper";
 import EventCalendarIllustration from "./EventCalendarIllustration.vue";
 
+const { MessageHeader } = messageUtils;
+
 const props = defineProps({
     event: { type: Object, required: true },
+    message: { type: Object, required: true },
     illustration: { type: String, default: "calendar" }
 });
 
+const eventValue = computed(() => props.event.serverEvent?.value?.main);
 const eventTimeRange = computed(() => {
-    const dtstart = props.event.serverEvent?.value?.main?.dtstart;
-    const dtend = props.event.serverEvent?.value?.main?.dtend;
+    const dtstart = eventValue.value?.dtstart;
+    const dtend = eventValue.value?.dtend;
     const { startDate, endDate } = EventHelper.adaptRangeDate(dtstart, dtend);
     return {
         start: startDate,
         end: endDate
     };
 });
+
+const hasHeader = header => props.message?.headers?.some(({ name }) => name.toUpperCase() === header.toUpperCase());
+const calendarStatus = computed(() => {
+    // TODO need a specific header to detect that an event has been edited
+    // if (hasHeader(MessageHeader.X_BM_EVENT_XXX)) {
+    //     return "edited";
+    // }
+    if (hasHeader(MessageHeader.X_BM_EVENT_REPLIED)) {
+        return props.event.attendees?.find(attendee => attendee.mail === props.message.from.address)?.status ?? null;
+    }
+    return null;
+});
 </script>
 
 <template>
     <div class="event-detail">
-        <event-calendar-illustration :illustration="illustration" />
+        <event-calendar-illustration
+            :status="calendarStatus"
+            :date="eventValue?.dtstart.iso8601"
+            :is-recurring="!!eventValue?.rrule"
+        />
         <bm-row class="event-row-icon summary">
             <bm-icon icon="lock-fill" class="mr-2" />
             <h3>{{ event.summary }}</h3>

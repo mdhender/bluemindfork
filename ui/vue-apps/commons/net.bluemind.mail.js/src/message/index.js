@@ -293,6 +293,7 @@ export default {
     isFlagged,
     isForward,
     isImip,
+    hasXbmImipEvent,
     isReply,
     isUnread,
     EmlParser,

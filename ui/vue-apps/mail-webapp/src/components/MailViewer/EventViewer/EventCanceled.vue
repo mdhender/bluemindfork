@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from "vue";
-import EventCalendarIllustration from "./EventCalendarIllustration.vue";
+import { BmIllustration } from "@bluemind/ui-components";
 
 const props = defineProps({ message: { type: Object, required: true } });
 
@@ -15,7 +15,8 @@ const statusKey = computed(() =>
 
 <template>
     <div class="event-canceled">
-        <event-calendar-illustration illustration="calendar-removed" />
+        <bm-illustration class="d-flex d-lg-none flex-shrink-0" over-background value="calendar-removed" size="xxs" />
+        <bm-illustration class="d-none d-lg-flex mx-5" over-background value="calendar-removed" size="xs" />
         <i18n :path="eventKey" tag="span" class="font-weight-bold event-canceled-text">
             <template #name>{{ message.from.dn }}</template>
             <template #status>

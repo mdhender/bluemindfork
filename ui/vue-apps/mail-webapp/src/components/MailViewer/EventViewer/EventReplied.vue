@@ -45,7 +45,7 @@ const statusKey = computed(
                 </template>
             </i18n>
         </event-header>
-        <event-detail :event="event" />
+        <event-detail :event="event" :message="message" />
         <event-footer :event="event" />
     </div>
 </template>

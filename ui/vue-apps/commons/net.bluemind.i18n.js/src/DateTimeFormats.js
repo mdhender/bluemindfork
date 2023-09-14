@@ -66,6 +66,9 @@ export default function (timeformat) {
         month: {
             month: "long"
         },
+        short_month: {
+            month: "short"
+        },
         short_weekday: {
             weekday: "short"
         },

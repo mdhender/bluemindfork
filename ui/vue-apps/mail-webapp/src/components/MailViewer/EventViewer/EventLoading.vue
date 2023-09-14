@@ -3,7 +3,7 @@ import { BmSkeleton, BmSkeletonImg } from "@bluemind/ui-components";
 </script>
 
 <template>
-    <div class="event-loading">
+    <div class="event-loading ml-5">
         <bm-skeleton-img no-aspect height="100px" width="100px" class="m-5" />
         <div class="event-loading-lines">
             <bm-skeleton width="200px" />
