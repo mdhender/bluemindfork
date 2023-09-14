@@ -70,6 +70,7 @@ import net.bluemind.icalendar.api.ICalendarElement.Organizer;
 import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;
 import net.bluemind.icalendar.api.ICalendarElement.RRule;
 import net.bluemind.icalendar.api.ICalendarElement.RRule.Frequency;
+import net.bluemind.icalendar.api.ICalendarElement.RRule.WeekDay;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.server.api.Server;
@@ -197,6 +198,47 @@ public class VEventSanitizerTests {
 		sanitizer.sanitize(vevent, true);
 		assertEquals(vevent.dtstart.precision, vevent.exdate.iterator().next().precision);
 		assertEquals(Precision.Date, vevent.dtstart.precision);
+	}
+
+	@Test
+	public void testSanitizeRruleByday() throws ServerFault {
+
+		VEventSanitizer sanitizer = new VEventSanitizer(test1Context, user1DefaultCalendar);
+
+		// when the FREQ rule part is not set to MONTHLY or YEARLY.
+		VEvent vevent = new VEvent();
+		vevent.dtstart = BmDateTimeWrapper.create(date1, Precision.Date);
+		vevent.rrule = new RRule();
+		vevent.rrule.frequency = Frequency.WEEKLY;
+		vevent.rrule.byDay = Arrays.asList(new WeekDay("MO", 2));
+
+		sanitizer.sanitize(vevent, false);
+		assertEquals(0, vevent.rrule.byDay.get(0).offset);
+
+		// with the FREQ rule part set to YEARLY when the BYWEEKNO rule part is
+		// specified.
+		vevent.rrule.frequency = Frequency.YEARLY;
+		vevent.rrule.byWeekNo = Arrays.asList(1, 3);
+		vevent.rrule.byDay = Arrays.asList(new WeekDay("MO", 2));
+
+		sanitizer.sanitize(vevent, false);
+		assertEquals(0, vevent.rrule.byDay.get(0).offset);
+
+		// when the FREQ rule part is set to MONTHLY.
+		vevent.rrule.frequency = Frequency.MONTHLY;
+		vevent.rrule.byDay = Arrays.asList(new WeekDay("MO", 2));
+
+		sanitizer.sanitize(vevent, false);
+		assertEquals(2, vevent.rrule.byDay.get(0).offset);
+
+		// with the FREQ rule part NOT set to YEARLY when the BYWEEKNO rule part is
+		// specified.
+		vevent.rrule.frequency = Frequency.MONTHLY;
+		vevent.rrule.byWeekNo = Arrays.asList(1, 3);
+		vevent.rrule.byDay = Arrays.asList(new WeekDay("MO", 2));
+
+		sanitizer.sanitize(vevent, false);
+		assertEquals(2, vevent.rrule.byDay.get(0).offset);
 	}
 
 	@Test

@@ -59,6 +59,9 @@ import net.bluemind.directory.api.IDirectory;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
 import net.bluemind.icalendar.api.ICalendarElement.CUType;
 import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;
+import net.bluemind.icalendar.api.ICalendarElement.RRule;
+import net.bluemind.icalendar.api.ICalendarElement.RRule.Frequency;
+import net.bluemind.icalendar.api.ICalendarElement.RRule.WeekDay;
 import net.bluemind.icalendar.api.ICalendarElement.Role;
 import net.bluemind.icalendar.api.ICalendarElement.VAlarm;
 import net.bluemind.tag.service.TagsSanitizer;
@@ -229,6 +232,7 @@ public class VEventSanitizer {
 			vevent.rrule.byYearDay = filterNull(vevent.rrule.byYearDay);
 			vevent.rrule.byWeekNo = filterNull(vevent.rrule.byWeekNo);
 			vevent.rrule.byMonth = filterNull(vevent.rrule.byMonth);
+			vevent.rrule.byDay = sanitizeRruleByDay(vevent.rrule);
 		}
 
 		tagsSanitizer.sanitize(vevent.categories);
@@ -240,6 +244,28 @@ public class VEventSanitizer {
 		vevent.draft &= !sendNotification;
 
 		sanitizeTimezone(vevent);
+	}
+
+	/**
+	 * The BYDAY rule part MUST NOT be specified with a numeric value: <br>
+	 * <li>when the FREQ rule part is not set to MONTHLY or YEARLY</li>
+	 * <li>with the FREQ rule part set to YEARLY when the BYWEEKNO rule part is
+	 * specified.</li>
+	 */
+	private List<WeekDay> sanitizeRruleByDay(RRule rrule) {
+		if (rrule.byDay == null || rrule.byDay.isEmpty()) {
+			return rrule.byDay;
+		}
+
+		boolean notMonthlyAndNotYearly = rrule.frequency != Frequency.MONTHLY && rrule.frequency != Frequency.YEARLY;
+		boolean yearlyWithWeekNo = rrule.frequency == Frequency.YEARLY
+				&& (rrule.byWeekNo != null && !rrule.byWeekNo.isEmpty());
+
+		if (!notMonthlyAndNotYearly && !yearlyWithWeekNo) {
+			return rrule.byDay;
+		}
+
+		return rrule.byDay.stream().map(d -> new WeekDay(d.day, 0)).collect(Collectors.toList());
 	}
 
 	private void sanitizePrecision(BmDateTime dtStart, BmDateTime toAdapt) {
