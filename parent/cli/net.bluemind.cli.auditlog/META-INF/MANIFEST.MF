@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.cli.auditlog
+Bundle-SymbolicName: net.bluemind.cli.auditlog;singleton:=true
+Bundle-Version: 5.0.0.qualifier
+Require-Bundle: org.eclipse.osgi,
+ picocli,
+ net.bluemind.cli.cmd.api,
+ net.bluemind.core.auditlogs,
+ net.bluemind.core.auditlogs.client.es,
+ net.bluemind.cli.utils,
+ net.bluemind.serviceprovider.rest
+Bundle-Vendor: bluemind.net
+Automatic-Module-Name: net.bluemind.cli.auditlog
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-17

@@ -9,6 +9,7 @@
 	<artifactId>net.bluemind.cli.plugins</artifactId>
 	<packaging>pom</packaging>
 	<modules>
+		<module>net.bluemind.cli.auditlog</module>
 		<module>net.bluemind.cli.adm</module>
 		<module>net.bluemind.cli.authentication</module>
 		<module>net.bluemind.cli.auth.provider</module>

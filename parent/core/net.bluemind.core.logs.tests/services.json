@@ -2,4 +2,7 @@
  	"name":"bluemind/postgres-tests" 
  	},{
  	"name":"bluemind/elasticsearch-tests"
+},
+{
+ 	"name":"bluemind/node-tests"
 }]

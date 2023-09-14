@@ -32,6 +32,7 @@ import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import co.elastic.clients.elasticsearch._types.SortOptions;
 import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.MatchQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.RangeQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.TermQuery;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
@@ -40,7 +41,7 @@ import co.elastic.clients.json.JsonData;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.core.auditlogs.AuditLogEntry;
 import net.bluemind.core.auditlogs.IAuditLogClient;
-import net.bluemind.core.auditlogs.LogMailQuery;
+import net.bluemind.core.auditlogs.AuditLogQuery;
 import net.bluemind.core.container.model.ChangeLogEntry.Type;
 import net.bluemind.core.container.model.ItemChangeLogEntry;
 import net.bluemind.core.container.model.ItemChangelog;
@@ -100,10 +101,11 @@ public class ElasticSearchAuditLogClient implements IAuditLogClient {
 	}
 
 	@Override
-	public List<AuditLogEntry> queryAuditLog(LogMailQuery query) {
+	public List<AuditLogEntry> queryAuditLog(AuditLogQuery query) {
 		ElasticsearchClient esClient = ESearchActivator.getClient();
 		SortOptions sort = new SortOptions.Builder().field(f -> f.field("@timestamp").order(SortOrder.Asc)).build();
 		BoolQuery boolQuery = buildQuery(query);
+		logger.debug("query for auditlog: {}", boolQuery);
 		try {
 			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
 					.index(INDEX_AUDIT_LOG).sort(sort) //
@@ -148,16 +150,28 @@ public class ElasticSearchAuditLogClient implements IAuditLogClient {
 		return changelog;
 	}
 
-	private BoolQuery buildQuery(LogMailQuery query) {
+	private BoolQuery buildQuery(AuditLogQuery query) {
 		BoolQuery.Builder builder = new BoolQuery.Builder();
 		if (query.container != null) {
 			builder.must(TermQuery.of(t -> t.field("container.uid").value(query.container))._toQuery());
 		}
-		if (query.author != null) {
+		if (query.author != null && !query.author.isBlank()) {
 			builder.must(TermQuery.of(t -> t.field("content.author").value(query.author))._toQuery());
 		}
 		if (query.logtype != null) {
 			builder.must(TermQuery.of(t -> t.field("logtype").value(query.logtype))._toQuery());
+		}
+		if (query.with != null && !query.with.isBlank()) {
+			builder.must(TermQuery.of(t -> t.field("content.with").value(query.with))._toQuery());
+		}
+		if (query.description != null && !query.description.isBlank()) {
+			builder.must(MatchQuery.of(t -> t.field("content.description").query(query.description))._toQuery());
+		}
+		if (query.to != null) {
+			builder.must(RangeQuery.of(t -> t.field("@timestamp").lt(JsonData.of(query.to.getTime())))._toQuery());
+		}
+		if (query.from != null) {
+			builder.must(RangeQuery.of(t -> t.field("@timestamp").gt(JsonData.of(query.from.getTime())))._toQuery());
 		}
 		return builder.build();
 

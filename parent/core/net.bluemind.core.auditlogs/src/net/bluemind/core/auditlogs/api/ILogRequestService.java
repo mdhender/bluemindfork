@@ -26,18 +26,18 @@ import jakarta.ws.rs.Path;
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.auditlogs.AuditLogEntry;
-import net.bluemind.core.auditlogs.LogMailQuery;
+import net.bluemind.core.auditlogs.AuditLogQuery;
 
 @BMApi(version = "3")
 @Path("/logs/")
 public interface ILogRequestService {
 	/**
-	 * Query logs {@link LogMailQuery}
+	 * Query logs {@link AuditLogQuery}
 	 * 
 	 * @param query the log query
 	 * @throws ServerFault standard error object (unchecked exception)
 	 */
 	@POST
-	public List<AuditLogEntry> queryMailLog(LogMailQuery query) throws ServerFault;
+	public List<AuditLogEntry> queryAuditLog(AuditLogQuery query) throws ServerFault;
 
 }

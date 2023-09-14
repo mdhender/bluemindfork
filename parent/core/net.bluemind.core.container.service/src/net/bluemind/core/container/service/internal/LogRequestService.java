@@ -24,7 +24,7 @@ import java.util.List;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.auditlogs.AuditLogEntry;
 import net.bluemind.core.auditlogs.IAuditLogClient;
-import net.bluemind.core.auditlogs.LogMailQuery;
+import net.bluemind.core.auditlogs.AuditLogQuery;
 import net.bluemind.core.auditlogs.api.ILogRequestService;
 
 public class LogRequestService implements ILogRequestService {
@@ -36,7 +36,7 @@ public class LogRequestService implements ILogRequestService {
 	}
 
 	@Override
-	public List<AuditLogEntry> queryMailLog(LogMailQuery query) throws ServerFault {
+	public List<AuditLogEntry> queryAuditLog(AuditLogQuery query) throws ServerFault {
 		return client.queryAuditLog(query);
 	}
 

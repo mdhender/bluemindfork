@@ -24,7 +24,7 @@ import java.util.List;
 
 import net.bluemind.core.auditlogs.AuditLogEntry;
 import net.bluemind.core.auditlogs.IAuditLogClient;
-import net.bluemind.core.auditlogs.LogMailQuery;
+import net.bluemind.core.auditlogs.AuditLogQuery;
 import net.bluemind.core.container.model.ItemChangelog;
 
 public final class NoopAuditLogClient implements IAuditLogClient {
@@ -42,7 +42,7 @@ public final class NoopAuditLogClient implements IAuditLogClient {
 	}
 
 	@Override
-	public List<AuditLogEntry> queryAuditLog(LogMailQuery query) {
+	public List<AuditLogEntry> queryAuditLog(AuditLogQuery query) {
 		return Collections.emptyList();
 	}
 

@@ -23,7 +23,7 @@ import java.util.Date;
 import net.bluemind.core.api.BMApi;
 
 @BMApi(version = "3")
-public class LogMailQuery {
+public class AuditLogQuery {
 
 	public String author;
 
@@ -33,22 +33,25 @@ public class LogMailQuery {
 
 	public String container;
 
-	public Date timestamp;
+	public Date from;
+
+	public Date to;
 
 	public String key;
 
 	public String logtype;
 
-	public LogMailQuery() {
+	public AuditLogQuery() {
 
 	}
 
-	public LogMailQuery(LogMailQueryBuilder builder) {
+	public AuditLogQuery(LogMailQueryBuilder builder) {
 		author = builder.author;
 		with = builder.with;
 		description = builder.description;
 		container = builder.container;
-		timestamp = builder.timestamp;
+		from = builder.from;
+		to = builder.to;
 		key = builder.key;
 		logtype = builder.logtype;
 	}
@@ -58,7 +61,8 @@ public class LogMailQuery {
 		String with;
 		String description;
 		String container;
-		Date timestamp;
+		Date from;
+		Date to;
 		String key;
 		String logtype;
 
@@ -82,8 +86,13 @@ public class LogMailQuery {
 			return this;
 		}
 
-		public LogMailQueryBuilder timestamp(Date t) {
-			timestamp = t;
+		public LogMailQueryBuilder from(Date f) {
+			from = f;
+			return this;
+		}
+
+		public LogMailQueryBuilder to(Date t) {
+			to = t;
 			return this;
 		}
 
@@ -97,10 +106,16 @@ public class LogMailQuery {
 			return this;
 		}
 
-		public LogMailQuery build() {
-			return new LogMailQuery(this);
+		public AuditLogQuery build() {
+			return new AuditLogQuery(this);
 		}
 
+	}
+
+	@Override
+	public String toString() {
+		return "logtype: " + logtype + " ,author: " + author + ",with: " + with + " ,description: " + description
+				+ " ,key:" + key + " ,from: " + from + " ,to: " + to;
 	}
 
 }

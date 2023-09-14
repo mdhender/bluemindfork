@@ -17,17 +17,27 @@
  * END LICENSE
  */
 
-package net.bluemind.core.auditlogs;
+package net.bluemind.cli.auditlog.tests;
 
-import java.util.List;
+import org.osgi.framework.BundleActivator;
+import org.osgi.framework.BundleContext;
 
-import net.bluemind.core.container.model.ItemChangelog;
+public class Activator implements BundleActivator {
 
-public interface IAuditLogClient {
+	public static BundleContext context;
 
-	public void storeAuditLog(AuditLogEntry document);
+	static BundleContext getContext() {
+		return context;
+	}
 
-	public ItemChangelog getItemChangeLog(String containerUid, String itemUid, Long since);
+	@Override
+	public void start(BundleContext bundleContext) throws Exception {
+		context = bundleContext;
+	}
 
-	public List<AuditLogEntry> queryAuditLog(AuditLogQuery query);
+	@Override
+	public void stop(BundleContext arg0) throws Exception {
+		context = null;
+	}
+
 }

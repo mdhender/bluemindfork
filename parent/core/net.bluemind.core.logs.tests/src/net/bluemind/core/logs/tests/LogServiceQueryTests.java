@@ -61,7 +61,7 @@ import net.bluemind.core.api.date.BmDateTime.Precision;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.auditlogs.AuditLogEntry;
-import net.bluemind.core.auditlogs.LogMailQuery;
+import net.bluemind.core.auditlogs.AuditLogQuery;
 import net.bluemind.core.auditlogs.api.ILogRequestService;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemValue;
@@ -177,30 +177,30 @@ public class LogServiceQueryTests {
 	@Test
 	public void testSQueryAllEmailsFromUser1() throws InterruptedException {
 
-		LogMailQuery logQuery = new LogMailQuery();
+		AuditLogQuery logQuery = new AuditLogQuery();
 		logQuery.logtype = "mailbox_records";
 		logQuery.author = "user1@devenv.net";
 
 		ILogRequestService logRequestService = getLogQueryService(userSecurityContext1);
-		List<AuditLogEntry> list = logRequestService.queryMailLog(logQuery);
+		List<AuditLogEntry> list = logRequestService.queryAuditLog(logQuery);
 		assertEquals(2, list.size());
 	}
 
 	@Test
 	public void testSQueryAllEmailsToUser2() throws InterruptedException {
-		LogMailQuery logQuery = new LogMailQuery();
+		AuditLogQuery logQuery = new AuditLogQuery();
 		logQuery.with = "user1@devenv.net";
 		ILogRequestService logRequestService = getLogQueryService(userSecurityContext1);
-		List<AuditLogEntry> list = logRequestService.queryMailLog(logQuery);
-		assertEquals(10, list.size());
+		List<AuditLogEntry> list = logRequestService.queryAuditLog(logQuery);
+		assertEquals(3, list.size());
 	}
 
 	@Test
 	public void testSQueryAllEmailsFromUser2() throws InterruptedException {
-		LogMailQuery logQuery = new LogMailQuery();
+		AuditLogQuery logQuery = new AuditLogQuery();
 		logQuery.author = "user2@devenv.net";
 		ILogRequestService logRequestService = getLogQueryService(userSecurityContext1);
-		List<AuditLogEntry> list = logRequestService.queryMailLog(logQuery);
+		List<AuditLogEntry> list = logRequestService.queryAuditLog(logQuery);
 		assertEquals(1, list.size());
 	}
 

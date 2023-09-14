@@ -99,4 +99,10 @@
             impl="net.bluemind.core.container.service.internal.ContainerStoreService$EmptyChangesetReg">
       </reg>
    </extension>
+ <extension
+         point="net.bluemind.core.rest.apiEndpoint">
+      <endpoint
+            api="net.bluemind.core.auditlogs.api.ILogRequestService">
+      </endpoint>
+   </extension>
 </plugin>

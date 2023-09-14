@@ -93,6 +93,7 @@
    <bundle id="net.bluemind.central.reverse.proxy.model.common" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.central.reverse.proxy.stream" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.chooser.application.closure" version="5.0.0.qualifier"/>
+   <bundle id="net.bluemind.cli.auditlog" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.cli.adm" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.cli.authentication" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.cli.auth.provider" version="5.0.0.qualifier"/>
