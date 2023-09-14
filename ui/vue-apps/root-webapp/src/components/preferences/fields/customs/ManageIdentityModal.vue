@@ -8,6 +8,7 @@
         :title="isNewIdentity ? $t('preferences.mail.identities.create') : $t('preferences.mail.identities.update')"
         body-class="manage-identity-modal-body"
         @hidden="modalStatus = 'NOT-LOADED'"
+        @show="showAliases = false"
     >
         <template v-if="modalStatus === 'LOADED'">
             <div class="head-part">
@@ -61,7 +62,18 @@
                     @selected="selected => checkComboSelection(selected)"
                     @close="checkComboSelection(emailInput)"
                     @submit="checkComboSelection(emailInput)"
-                />
+                    @submitExtra="showAliases = !showAliases"
+                >
+                    <template #extra>
+                        <div class="bold show-aliases">
+                            {{
+                                showAliases
+                                    ? $t("preferences.mail.identities.aliases.hide")
+                                    : $t("preferences.mail.identities.aliases.show")
+                            }}
+                        </div>
+                    </template>
+                </bm-combo-box>
                 <bm-form-input v-else v-model="identity.email" disabled />
                 <div v-if="possibleIdentitiesStatus === 'ERROR'" class="text-warning mt-1 word-break">
                     {{ $t("preferences.mail.identities.possible_identities_error") }} <br />
@@ -459,6 +471,18 @@ async function fetchRights(mailboxUid) {
 
     .change-default {
         cursor: pointer;
+    }
+
+    .bm-form-autocomplete-input {
+        .extra-separator {
+            display: none;
+        }
+        .list-group-item .show-aliases {
+            color: $secondary-fg;
+        }
+        .list-group-item:hover .show-aliases {
+            color: $secondary-fg-hi1;
+        }
     }
 }
 </style>

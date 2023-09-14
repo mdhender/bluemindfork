@@ -224,21 +224,21 @@ export const addDelegateToCopyImipMailboxRule = async ({ uid, address, keepCopy 
 };
 
 export const updateCopyImipMailboxRule = async ({ keepCopy }) => {
-    const mailboxFilter = await getMailboxFilter(userId);
+    const mailboxFilter = await getMailboxFilter(getUserId());
     const copyImipMailboxRule = mailboxFilter.rules.find(matchCopyImipMailboxRule);
     copyImipMailboxRule.actions.forEach(a => {
         if (a.clientProperties?.type === "delegation") {
             a.keepCopy = keepCopy;
         }
     });
-    await inject("MailboxesPersistence").setMailboxFilter(userId, mailboxFilter);
+    await inject("MailboxesPersistence").setMailboxFilter(getUserId(), mailboxFilter);
     cachedMailboxFilter = mailboxFilter;
 };
 
 export const hasCopyImipMailboxRuleKeepCopy = async () => {
-    const mailboxFilter = await getMailboxFilter(userId);
+    const mailboxFilter = await getMailboxFilter(getUserId());
     const copyImipMailboxRule = mailboxFilter.rules.find(matchCopyImipMailboxRule);
-    return copyImipMailboxRule.actions.some(a => a.clientProperties?.type === "delegation" && a.keepCopy);
+    return copyImipMailboxRule?.actions.some(a => a.clientProperties?.type === "delegation" && a.keepCopy);
 };
 
 export const hasCopyImipMailboxRuleAction = async (...uids) => {
@@ -249,7 +249,7 @@ export const hasCopyImipMailboxRuleAction = async (...uids) => {
 };
 
 export const countDelegatesHavingTheCopyImipRule = async (...uids) => {
-    const mailboxFilter = await getMailboxFilter(userId);
+    const mailboxFilter = await getMailboxFilter(getUserId());
     return (
         mailboxFilter.rules
             .find(matchCopyImipMailboxRule)

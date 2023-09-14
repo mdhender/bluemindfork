@@ -42,8 +42,8 @@
                 <slot :item="item">{{ item }}</slot>
             </bm-list-group-item>
             <template v-if="$slots.extra">
-                <bm-list-group-separator class="py-0" />
-                <bm-list-group-item ref="extra" :active="selectedResult_ === 'extra'">
+                <bm-list-group-separator class="extra-separator py-0" />
+                <bm-list-group-item ref="extra" :active="selectedResult_ === 'extra'" @click="$emit('submitExtra')">
                     <slot name="extra" :close="closeSuggestions" :focus="focus" :go-up="goUp" :go-down="goDown" />
                 </bm-list-group-item>
             </template>
