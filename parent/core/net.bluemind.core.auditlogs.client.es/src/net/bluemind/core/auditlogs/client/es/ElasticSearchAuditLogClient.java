@@ -19,6 +19,7 @@
 
 package net.bluemind.core.auditlogs.client.es;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -38,13 +39,13 @@ import co.elastic.clients.elasticsearch._types.query_dsl.TermQuery;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.json.JsonData;
-import io.vertx.core.json.JsonObject;
 import net.bluemind.core.auditlogs.AuditLogEntry;
 import net.bluemind.core.auditlogs.AuditLogQuery;
 import net.bluemind.core.auditlogs.IAuditLogClient;
 import net.bluemind.core.container.model.ChangeLogEntry.Type;
 import net.bluemind.core.container.model.ItemChangeLogEntry;
 import net.bluemind.core.container.model.ItemChangelog;
+import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.lib.elasticsearch.Pit;
 import net.bluemind.lib.elasticsearch.Pit.PaginableSearchQueryBuilder;
@@ -71,9 +72,16 @@ public class ElasticSearchAuditLogClient implements IAuditLogClient {
 		if (StateContext.getState() != SystemState.CORE_STATE_RUNNING) {
 			return;
 		}
+
 		try {
-			JsonObject js = JsonObject.mapFrom(document);
-			requester.request(js);
+			ElasticsearchClient esClient = ESearchActivator.getClient();
+			if (esClient == null) {
+				return;
+			}
+			byte[] bytes = JsonUtils.asBytes(document);
+			esClient.index(i -> i.index(INDEX_AUDIT_LOG).withJson(new ByteArrayInputStream(bytes)));
+		} catch (ElasticsearchException | IOException e) {
+			logger.error("Problem wih '{}': {}", INDEX_AUDIT_LOG, e.getMessage());
 		} catch (TopologyException e) {
 			logger.warn("ElasticClient is not available: {}", e.getMessage());
 		}
