@@ -62,7 +62,7 @@ watchEffect(() => {
                         ? $t("preferences.account.delegates.receive_imip", { count: delegatesWithCopyImipRuleCount })
                         : $t("preferences.account.delegates.receive_imip.none")
                 }}
-                <bm-read-more class="ml-5" href="https://doc.bluemind.net/release/5.0/guide_de_l_utilisateur/TODO" />
+                <bm-read-more class="ml-5" href="https://doc.bluemind.net/release/5.0/category/guide-de-lutilisateur" />
             </div>
             <span v-if="delegatesWithCopyImipRuleCount == 0" class="bold">
                 {{ $t("preferences.account.delegates.receive_imip.none.notice") }}
