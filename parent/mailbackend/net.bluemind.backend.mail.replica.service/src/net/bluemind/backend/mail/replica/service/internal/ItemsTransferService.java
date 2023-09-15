@@ -189,7 +189,6 @@ public class ItemsTransferService implements IItemsTransfer {
 
 	@Override
 	public List<ItemIdentifier> move(List<Long> itemIds) {
-
 		return transferImpl(itemIds, origSlice -> {
 			MailboxItemFlag delFlag = MailboxItemFlag.System.Deleted.value();
 			List<MailboxRecord> flagged = origSlice.stream().map(wid -> {

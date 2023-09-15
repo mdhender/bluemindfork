@@ -9,7 +9,8 @@ Require-Bundle: org.eclipse.osgi,
  net.bluemind.core.auditlogs,
  net.bluemind.core.auditlogs.client.es,
  net.bluemind.cli.utils,
- net.bluemind.serviceprovider.rest
+ net.bluemind.serviceprovider.rest,
+ com.github.freva.ascii-table
 Bundle-Vendor: bluemind.net
 Automatic-Module-Name: net.bluemind.cli.auditlog
 Bundle-ActivationPolicy: lazy

@@ -319,7 +319,7 @@ public class ICalendarElement {
 	public static Attendee get(List<Attendee> source, Attendee a) {
 		for (Attendee attendee : source) {
 			if (attendee.sameDirOrMailtoAs(a)) {
-				return a;
+				return attendee;
 			}
 		}
 		return null;
@@ -646,6 +646,13 @@ public class ICalendarElement {
 			return copy;
 		}
 
+		@Override
+		public String toString() {
+			return "frequency: " + frequency + " ,count: " + count + " ,until: " + until + " ,interval: " + interval
+					+ " ,bySecond: " + bySecond + " ,byMinute: " + byMinute + " ,byHour: " + byHour + " ,byDay: "
+					+ byDay + " ,byMonthDay: " + byMonthDay + " ,byYearDay: " + byYearDay + " ,byWeekNo: " + byWeekNo
+					+ " ,byMonth: " + byMonth + " ,bySetPos: " + bySetPos;
+		}
 	}
 
 	/**

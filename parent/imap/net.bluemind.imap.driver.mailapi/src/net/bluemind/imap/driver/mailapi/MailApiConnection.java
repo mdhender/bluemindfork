@@ -749,7 +749,6 @@ public class MailApiConnection implements MailboxConnection {
 				sourceBodies.multiple(slice).forEach(targetBodies::update);
 			}
 		}
-
 		tgtRecApi.updates(toCreate);
 		String sourceSet = sourceImapUid.stream().mapToLong(Long::longValue).mapToObj(Long::toString)
 				.collect(Collectors.joining(","));

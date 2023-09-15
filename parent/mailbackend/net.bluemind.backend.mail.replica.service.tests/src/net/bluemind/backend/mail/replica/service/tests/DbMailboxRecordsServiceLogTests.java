@@ -59,6 +59,8 @@ import net.bluemind.lib.elasticsearch.ESearchActivator;
 
 public class DbMailboxRecordsServiceLogTests extends AbstractMailboxRecordsServiceTests<IDbMailboxRecords> {
 
+	private static final String AUDIT_LOG_DATASTREAM = "audit_log";
+
 	private ItemValue<MailboxRecord> createBodyAndRecord(int imapUid, Date internalDate, String eml) {
 		IDbMessageBodies mboxes = getBodies(SecurityContext.SYSTEM);
 		assertNotNull(mboxes);
@@ -82,7 +84,7 @@ public class DbMailboxRecordsServiceLogTests extends AbstractMailboxRecordsServi
 	}
 
 	@Test
-	public void createAndUpdateMailboxRecord() throws ServerFault, ElasticsearchException, IOException {
+	public void createAndUpdateMailboxRecordChangeFlags() throws ServerFault, ElasticsearchException, IOException {
 		ItemValue<MailboxRecord> mailRecord1 = createBodyAndRecord(1, adaptDate(5), "data/sort_1.eml");
 		ItemValue<MailboxRecord> mailRecord2 = createBodyAndRecord(2, adaptDate(10), "data/sort_2.eml");
 		ItemValue<MailboxRecord> mailRecord3 = createBodyAndRecord(3, adaptDate(12), "data/sort_3.eml");
@@ -109,15 +111,17 @@ public class DbMailboxRecordsServiceLogTests extends AbstractMailboxRecordsServi
 		assertTrue(sortedIds.isEmpty());
 
 		// important filter (default sort) after update a mail as important
-		mailRecord1.value.flags = Arrays.asList(MailboxItemFlag.System.Flagged.value());
-		mailRecord2.value.flags = Arrays.asList(MailboxItemFlag.System.Deleted.value());
+		mailRecord1.value.flags = Arrays.asList(MailboxItemFlag.System.Flagged.value(),
+				MailboxItemFlag.System.Answered.value());
+		mailRecord2.value.flags = Arrays.asList(MailboxItemFlag.System.Deleted.value(),
+				MailboxItemFlag.System.Seen.value());
 		records.update(mailRecord1.uid, mailRecord1.value);
 		records.update(mailRecord2.uid, mailRecord2.value);
 
-		ESearchActivator.refreshIndex("audit_log");
+		ESearchActivator.refreshIndex(AUDIT_LOG_DATASTREAM);
 
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-				.index("audit_log") //
+				.index(AUDIT_LOG_DATASTREAM) //
 				.query(q -> q.bool(b -> b
 						.must(TermQuery.of(t -> t.field("container.uid").value("mbox_records_" + mboxUniqueId))
 								._toQuery())
@@ -127,19 +131,32 @@ public class DbMailboxRecordsServiceLogTests extends AbstractMailboxRecordsServi
 		assertEquals(3L, response.hits().total().value());
 
 		response = esClient.search(s -> s //
-				.index("audit_log") //
+				.index(AUDIT_LOG_DATASTREAM) //
 				.query(q -> q.bool(b -> b
 						.must(TermQuery.of(t -> t.field("container.uid").value("mbox_records_" + mboxUniqueId))
 								._toQuery())
 						.must(TermQuery.of(t -> t.field("logtype").value("mailbox_records"))._toQuery())
 						.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
 				AuditLogEntry.class);
-		assertEquals(2L, response.hits().total().value());
+		assertEquals(1L, response.hits().total().value());
 
-		AuditLogEntry auditLogEntry = response.hits().hits().get(1).source();
+		AuditLogEntry auditLogEntry = response.hits().hits().get(0).source();
 
+		assertEquals("first subject", auditLogEntry.content.description());
+		assertEquals("Removed Flags:\n\\Flagged,\\Answered\nAdded Flags:\n\\Flagged,\\Answered\n",
+				auditLogEntry.updatemessage);
+
+		response = esClient.search(s -> s //
+				.index(AUDIT_LOG_DATASTREAM) //
+				.query(q -> q.bool(b -> b
+						.must(TermQuery.of(t -> t.field("container.uid").value("mbox_records_" + mboxUniqueId))
+								._toQuery())
+						.must(TermQuery.of(t -> t.field("logtype").value("mailbox_records"))._toQuery())
+						.must(TermQuery.of(t -> t.field("action").value(Type.Deleted.toString()))._toQuery()))),
+				AuditLogEntry.class);
+		assertEquals(1L, response.hits().total().value());
+		auditLogEntry = response.hits().hits().get(0).source();
 		assertEquals("second subject", auditLogEntry.content.description());
-		assertEquals("Flag \\Deleted has been added.", auditLogEntry.updatemessage);
 	}
 
 	protected IDbMailboxRecords getService(SecurityContext ctx) {

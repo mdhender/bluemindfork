@@ -57,6 +57,7 @@ import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.server.api.Server;
+import net.bluemind.system.state.StateContext;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public abstract class AbstractMailboxRecordsServiceTests<T> {
@@ -75,6 +76,9 @@ public abstract class AbstractMailboxRecordsServiceTests<T> {
 		System.setProperty("node.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP + "," + PopulateHelper.FAKE_CYRUS_IP_2);
 		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP + "," + PopulateHelper.FAKE_CYRUS_IP_2);
 		System.setProperty("ahcnode.fail.https.ok", "true");
+		StateContext.setState("core.stopped");
+		StateContext.setState("core.started");
+		StateContext.setState("core.started");
 	}
 
 	@BeforeClass

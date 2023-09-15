@@ -25,6 +25,9 @@ import java.util.function.BiFunction;
 
 import javax.sql.DataSource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Lists;
 
 import net.bluemind.backend.mail.api.IItemsTransfer;
@@ -49,6 +52,7 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.mailbox.api.IMailboxAclUids;
 
 public class MailConversationActionsService implements IMailConversationActions {
+	private static final Logger logger = LoggerFactory.getLogger(MailConversationActionsService.class);
 	private final RBACManager rbacManager;
 	private final BmContext context;
 	private final Container subtreeContainer;

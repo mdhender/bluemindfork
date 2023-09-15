@@ -90,9 +90,7 @@ public abstract class AuditLogService<T, U> {
 	public void logUpdate(T value, U oldValue) {
 		AuditLogEntry auditLogEntry = createAuditLogEntry(value);
 		auditLogEntry.action = Type.Updated.name();
-		if (oldValue != null) {
-			auditLogEntry.updatemessage = createUpdateMessage(value, oldValue);
-		}
+		auditLogEntry.updatemessage = createUpdateMessage(value, oldValue);
 		store(auditLogEntry);
 	}
 
@@ -154,6 +152,10 @@ public abstract class AuditLogService<T, U> {
 
 	protected String type() {
 		return type;
+	}
+
+	public void setType(String t) {
+		type = t;
 	}
 
 	protected abstract AuditLogEntry createAuditLogEntry(T value);

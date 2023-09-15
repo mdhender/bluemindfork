@@ -20,6 +20,7 @@
 package net.bluemind.core.container.service.internal;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -35,7 +36,6 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 
 public class AclService implements IAccessControlList {
-
 	private final AclStore aclStore;
 	private final AuditLogService<AccessControlEntry, AccessControlEntry> auditLog;
 	private final Container container;
@@ -43,9 +43,10 @@ public class AclService implements IAccessControlList {
 	public AclService(BmContext ctx, SecurityContext sc, DataSource pool, BaseContainerDescriptor desc) {
 		container = Container.create(desc.uid, desc.type, desc.name, desc.owner, desc.domainUid, desc.defaultContainer);
 		container.id = desc.internalId;
-		ILogMapperProvider<AccessControlEntry> mapper = new AccessControlEntryAuditLogMapper();
+		ILogMapperProvider<AccessControlEntry> mapper = new AccessControlEntryAuditLogMapper(container);
 		aclStore = new AclStore(ctx, pool);
 		auditLog = new ValueAuditLogService<>(sc, desc, mapper);
+		auditLog.setType("containeracl");
 	}
 
 	public AclService(BmContext ctx, SecurityContext sc, DataSource pool, Container cont) {
@@ -53,8 +54,10 @@ public class AclService implements IAccessControlList {
 				cont.domainUid, cont.defaultContainer);
 		desc.internalId = cont.id;
 		container = cont;
+		ILogMapperProvider<AccessControlEntry> mapper = new AccessControlEntryAuditLogMapper(container);
 		aclStore = new AclStore(ctx, pool);
-		auditLog = new ValueAuditLogService<>(sc, desc);
+		auditLog = new ValueAuditLogService<>(sc, desc, mapper);
+		auditLog.setType("containeracl");
 	}
 
 	@Override
@@ -82,14 +85,25 @@ public class AclService implements IAccessControlList {
 	public void deleteAll() throws SQLException {
 		List<AccessControlEntry> entries = aclStore.get(container);
 		if (auditLog != null) {
-			entries.forEach(e -> auditLog.logDelete(e));
+			entries.forEach(auditLog::logDelete);
 		}
 		aclStore.deleteAll(container);
 	}
 
 	@Override
 	public List<AccessControlEntry> retrieveAndStore(List<AccessControlEntry> entries) throws ServerFault {
-		return aclStore.retrieveAndStore(container, entries);
+		List<AccessControlEntry> accessControlEntries = new ArrayList<>();
+		try {
+			accessControlEntries = aclStore.retrieveAndStore(container, entries);
+			if (auditLog != null) {
+				// TODO SCL : regarder les diff : faire un update et compacter les messages
+				entries.forEach(e -> auditLog.logUpdate(e, null));
+			}
+			return accessControlEntries;
+		} catch (ServerFault e) {
+			throw ServerFault.sqlFault(e);
+
+		}
 	}
 
 }

@@ -26,6 +26,9 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.indexing.IMailIndexService;
@@ -52,6 +55,7 @@ public abstract class AbstractMailboxRecordServiceFactory<T>
 		implements ServerSideServiceProvider.IServerSideServiceFactory<T> {
 
 	private final RecordsItemFlagProvider flagsProvider;
+	private static final Logger logger = LoggerFactory.getLogger(AbstractMailboxRecordServiceFactory.class);
 
 	private final IWeightSeedProvider<MailboxRecord> recordSeedProvider;
 	private final IWeightProvider toWeight;

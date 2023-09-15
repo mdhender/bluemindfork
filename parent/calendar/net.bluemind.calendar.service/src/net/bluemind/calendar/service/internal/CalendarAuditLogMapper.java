@@ -38,9 +38,12 @@ import net.bluemind.core.auditlogs.ContentElement;
 import net.bluemind.core.auditlogs.ContentElement.ContentElementBuilder;
 import net.bluemind.core.auditlogs.ILogMapperProvider;
 import net.bluemind.icalendar.api.ICalendarElement;
+import net.bluemind.icalendar.api.ICalendarElement.Attendee;
+import net.bluemind.icalendar.api.ICalendarElement.RRule;
+import net.bluemind.icalendar.api.ICalendarElement.RRule.WeekDay;
 
 public class CalendarAuditLogMapper implements ILogMapperProvider<VEventSeries> {
-
+	private static final String CRLF = "\r\n";
 	private static final ObjectMapper objectMapper = new ObjectMapper();
 	private static final Logger logger = LoggerFactory.getLogger(CalendarAuditLogMapper.class);
 
@@ -61,13 +64,13 @@ public class CalendarAuditLogMapper implements ILogMapperProvider<VEventSeries> 
 		VEvent oldEvent = (oldValue.main != null) ? oldValue.main : oldValue.occurrences.get(0);
 		VEvent newEvent = (newValue.main != null) ? newValue.main : newValue.occurrences.get(0);
 		if (oldEvent.dtend != null && newEvent.dtend != null && !oldEvent.dtend.equals(newEvent.dtend)) {
-			sBuilder.append("event end date changed: '" + oldEvent.dtend + "' -> '" + newEvent.dtend + "'");
-			sBuilder.append(';');
+			sBuilder.append("event end date changed: '" + oldEvent.dtend.iso8601 + "' -> '" + newEvent.dtend.iso8601
+					+ "'" + CRLF);
 		}
 
 		if (oldEvent.dtstart != null && newEvent.dtstart != null && !oldEvent.dtstart.equals(newEvent.dtstart)) {
-			sBuilder.append("event start date changed: '" + oldEvent.dtstart + "' -> '" + newEvent.dtstart + "'");
-			sBuilder.append(';');
+			sBuilder.append("event start date changed: '" + oldEvent.dtstart.iso8601 + "' -> '"
+					+ newEvent.dtstart.iso8601 + "'" + CRLF);
 		}
 
 		if (oldEvent.attendees != null && newEvent.attendees != null) {
@@ -76,31 +79,46 @@ public class CalendarAuditLogMapper implements ILogMapperProvider<VEventSeries> 
 					newEvent.attendees);
 			if (!removedAttendees.isEmpty()) {
 				String removed = removedAttendees.stream().map(a -> a.mailto).collect(Collectors.joining(","));
-				sBuilder.append("removed attendees: '" + removed + "'");
-				sBuilder.append(';');
+				sBuilder.append("removed attendees: '" + removed + "'" + CRLF);
 
 			}
 			List<ICalendarElement.Attendee> addedAttendees = ICalendarElement.diff(newEvent.attendees,
 					oldEvent.attendees);
 			if (!addedAttendees.isEmpty()) {
 				String added = addedAttendees.stream().map(a -> a.mailto).collect(Collectors.joining(","));
-				sBuilder.append("added attendees: '" + added + "'");
-				sBuilder.append(';');
+				sBuilder.append("added attendees: '" + added + "'" + CRLF);
 
 			}
 
+			// Track attendees partStatus change
+			List<Attendee> sameAttendees = ICalendarElement.same(newEvent.attendees, oldEvent.attendees);
+			for (Attendee att : sameAttendees) {
+				ICalendarElement.ParticipationStatus oldPartStatus = ICalendarElement.get(oldEvent.attendees,
+						att).partStatus;
+				ICalendarElement.ParticipationStatus newPartStatus = ICalendarElement.get(newEvent.attendees,
+						att).partStatus;
+				if (oldPartStatus != newPartStatus) {
+					sBuilder.append(att.mailto + ": participation status changed from '" + oldPartStatus + "' to '"
+							+ newPartStatus + "'" + CRLF);
+				}
+			}
 		}
 
 		if (newEvent.location != null && oldEvent.location != null && !newEvent.location.equals(oldEvent.location)) {
-			sBuilder.append("event location changed: '" + oldEvent.location + "' -> '" + newEvent.location + "'");
-			sBuilder.append(';');
+			sBuilder.append(
+					"event location changed: '" + oldEvent.location + "' -> '" + newEvent.location + "'" + CRLF);
 		}
 
 		if (newEvent.description != null && oldEvent.description != null
 				&& !newEvent.description.equals(oldEvent.description)) {
-			sBuilder.append(
-					"event description changed: '" + oldEvent.description + "' -> '" + newEvent.description + "'");
+			sBuilder.append("event description changed: '" + oldEvent.description + "' -> '" + newEvent.description
+					+ "'" + CRLF);
 			sBuilder.append(';');
+		}
+
+		if (newEvent.hasRecurrence() || oldEvent.hasRecurrence()) {
+			String reccurenceMessage = createReccurenceUpdateMessage(oldEvent.rrule, newEvent.rrule);
+			sBuilder.append(reccurenceMessage);
 		}
 
 		return sBuilder.toString();
@@ -154,6 +172,114 @@ public class CalendarAuditLogMapper implements ILogMapperProvider<VEventSeries> 
 
 		}
 		return builder.build();
+	}
+
+	private String createReccurenceUpdateMessage(RRule oldRules, RRule newRules) {
+
+		if (oldRules == null && newRules == null) {
+			return "";
+		}
+
+		StringBuilder sBuilder = new StringBuilder();
+		if (oldRules == null && newRules != null) {
+			sBuilder.append("Added reccurence rules: " + newRules);
+			return sBuilder.toString();
+		}
+
+		if (oldRules != null && newRules == null) {
+			sBuilder.append("Removed reccurence rules: " + newRules);
+			return sBuilder.toString();
+		}
+
+		if (!oldRules.frequency.equals(newRules.frequency)) {
+			sBuilder.append("Changed event occurence frequency: '" + oldRules.frequency + "' -> '" + newRules.frequency
+					+ "'" + CRLF);
+		}
+
+		if (oldRules.count != null && newRules.count != null && !oldRules.count.equals(newRules.count)) {
+			sBuilder.append(
+					"Changed event occurence count: '" + oldRules.count + "' -> '" + newRules.count + "'" + CRLF);
+		}
+		if (oldRules.until != newRules.until) {
+			sBuilder.append("Changed event occurence until date: '" + oldRules.until.iso8601 + "' -> '"
+					+ newRules.until.iso8601 + "'" + CRLF);
+		}
+		if (oldRules.interval != null && newRules.interval != null && !oldRules.interval.equals(newRules.interval)) {
+			sBuilder.append("Changed event occurence interval: '" + oldRules.interval + "' -> '" + newRules.interval
+					+ "'" + CRLF);
+		}
+
+		if (oldRules.byDay == null && newRules.byDay != null) {
+			sBuilder.append("Added event occurence day: '" + newRules.byDay + "'" + CRLF);
+		}
+		if (oldRules.byDay != null && newRules.byDay == null) {
+			sBuilder.append("Removed event occurence day: '" + newRules.byDay + "'" + CRLF);
+		}
+
+		if (oldRules.byDay != null && newRules.byDay != null) {
+			List<WeekDay> differences = newRules.byDay.stream().filter(element -> !oldRules.byDay.contains(element))
+					.collect(Collectors.toList());
+			if (!differences.isEmpty()) {
+				sBuilder.append(
+						"Changed event occurence day: '" + oldRules.byDay + " -> " + newRules.byDay + "'" + CRLF);
+			}
+		}
+
+		if (oldRules.byMinute != null && newRules.byMinute != null) {
+			List<Integer> differences = newRules.byMinute.stream()
+					.filter(element -> !oldRules.byMinute.contains(element)).collect(Collectors.toList());
+			if (!differences.isEmpty()) {
+				sBuilder.append("Changed event occurence minute: '" + oldRules.byMinute + " -> " + newRules.byMinute
+						+ "'" + CRLF);
+			}
+		}
+
+		if (oldRules.byHour != null && newRules.byHour != null) {
+			List<Integer> differences = newRules.byHour.stream().filter(element -> !oldRules.byHour.contains(element))
+					.collect(Collectors.toList());
+			if (!differences.isEmpty()) {
+				sBuilder.append(
+						"Changed event occurence hours: '" + oldRules.byHour + " -> " + newRules.byHour + "'" + CRLF);
+			}
+		}
+
+		if (oldRules.byMonthDay != null && newRules.byMonthDay != null) {
+			List<Integer> differences = newRules.byMonthDay.stream()
+					.filter(element -> !oldRules.byMonthDay.contains(element)).collect(Collectors.toList());
+			if (!differences.isEmpty()) {
+				sBuilder.append("Changed event occurence month days: '" + oldRules.byMonthDay + " -> "
+						+ newRules.byMonthDay + "'" + CRLF);
+			}
+		}
+
+		if (oldRules.byYearDay != null && newRules.byYearDay != null) {
+			List<Integer> differences = newRules.byYearDay.stream()
+					.filter(element -> !oldRules.byYearDay.contains(element)).collect(Collectors.toList());
+			if (!differences.isEmpty()) {
+				sBuilder.append("Changed event occurence year days: '" + oldRules.byYearDay + " -> "
+						+ newRules.byYearDay + "'" + CRLF);
+			}
+		}
+
+		if (oldRules.byWeekNo != null && newRules.byWeekNo != null) {
+			List<Integer> differences = newRules.byWeekNo.stream()
+					.filter(element -> !oldRules.byWeekNo.contains(element)).collect(Collectors.toList());
+			if (!differences.isEmpty()) {
+				sBuilder.append("Changed event occurence week numbers: '" + oldRules.byWeekNo + " -> "
+						+ newRules.byWeekNo + "'" + CRLF);
+			}
+		}
+
+		if (oldRules.byMonth != null && newRules.byMonth != null) {
+			List<Integer> differences = newRules.byMonth.stream().filter(element -> !oldRules.byMonth.contains(element))
+					.collect(Collectors.toList());
+			if (!differences.isEmpty()) {
+				sBuilder.append(
+						"Changed event occurence month: '" + oldRules.byMonth + " -> " + newRules.byMonth + "'" + CRLF);
+			}
+		}
+		return sBuilder.toString();
+
 	}
 
 }

@@ -20,6 +20,7 @@ package net.bluemind.authentication.service;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -69,6 +70,7 @@ public class AuthenticationAuditLogTests {
 
 	private ElasticsearchClient esClient;
 	private static final String AUDIT_LOG_NAME = "audit_log";
+	private static final String TEST_API_KEY = "testApiKey";
 
 	@Before
 	public void setup() throws Exception {
@@ -205,7 +207,7 @@ public class AuthenticationAuditLogTests {
 	}
 
 	@Test
-	public void testAuditLogSu() throws Exception {
+	public void testAuditLogSu() throws ElasticsearchException, IOException {
 		initState();
 		IAuthentication authentication = getService(null);
 		LoginResponse response = authentication.login("admin0@global.virt", "admin", "junit");
@@ -239,9 +241,9 @@ public class AuthenticationAuditLogTests {
 		assertEquals("junit", auditLogEntry.securityContext.origin());
 		assertEquals("admin0@global.virt", auditLogEntry.securityContext.email());
 
-		assertTrue(auditLogEntry.container == null);
-		assertTrue(auditLogEntry.item == null);
-		assertTrue(auditLogEntry.content == null);
+		assertNull(auditLogEntry.container);
+		assertNull(auditLogEntry.item);
+		assertNull(auditLogEntry.content);
 	}
 
 	@Test
@@ -253,17 +255,17 @@ public class AuthenticationAuditLogTests {
 
 		IAPIKeys service = ServerSideServiceProvider.getProvider(ctx).instance(IAPIKeys.class);
 
-		APIKey key = service.create("testApiKey");
+		APIKey key = service.create(TEST_API_KEY);
 
 		assertNotNull(key);
 
 		IAuthentication authentication = getService(null);
-		LoginResponse response = authentication.login("admin0@global.virt", key.sid, "testApiKey");
+		LoginResponse response = authentication.login("admin0@global.virt", key.sid, TEST_API_KEY);
 		assertEquals(Status.Ok, response.status);
 
 		service.delete(key.sid);
 
-		response = authentication.login("admin0@global.virt", key.sid, "testApiKey");
+		response = authentication.login("admin0@global.virt", key.sid, TEST_API_KEY);
 		assertEquals(Status.Bad, response.status);
 
 		ESearchActivator.refreshIndex(AUDIT_LOG_NAME);
@@ -286,7 +288,7 @@ public class AuthenticationAuditLogTests {
 		AuditLogEntry auditLogEntry = esResponse.hits().hits().get(0).source();
 		assertEquals("admin0", auditLogEntry.securityContext.uid());
 		assertEquals("admin0", auditLogEntry.securityContext.displayName());
-		assertEquals("testApiKey", auditLogEntry.securityContext.origin());
+		assertEquals(TEST_API_KEY, auditLogEntry.securityContext.origin());
 		assertEquals("admin0@global.virt", auditLogEntry.securityContext.email());
 
 		assertTrue(auditLogEntry.container == null);

@@ -22,9 +22,10 @@
  */
 package net.bluemind.backend.mail.replica.service;
 
-import java.util.concurrent.ExecutorService;
-
 import javax.sql.DataSource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.bluemind.backend.mail.replica.api.ISyncDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
@@ -38,6 +39,7 @@ import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.rest.BmContext;
 
 public class SyncDbMailboxRecordsServiceFactory extends AbstractMailboxRecordServiceFactory<ISyncDbMailboxRecords> {
+	private static final Logger logger = LoggerFactory.getLogger(SyncDbMailboxRecordsServiceFactory.class);
 	private static final IMailIndexService NOOP = new NoopMailIndexService();
 
 	public SyncDbMailboxRecordsServiceFactory() {

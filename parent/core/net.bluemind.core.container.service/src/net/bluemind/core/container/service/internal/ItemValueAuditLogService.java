@@ -19,6 +19,9 @@
 
 package net.bluemind.core.container.service.internal;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.bluemind.core.auditlogs.AuditLogEntry;
 import net.bluemind.core.auditlogs.ILogMapperProvider;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
@@ -26,6 +29,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 
 public class ItemValueAuditLogService<T> extends AuditLogService<ItemValue<T>, T> {
+	private static final Logger logger = LoggerFactory.getLogger(ItemValueAuditLogService.class);
 
 	public ItemValueAuditLogService(SecurityContext sc, BaseContainerDescriptor cont, ILogMapperProvider<T> dm) {
 		super(sc, cont, dm);

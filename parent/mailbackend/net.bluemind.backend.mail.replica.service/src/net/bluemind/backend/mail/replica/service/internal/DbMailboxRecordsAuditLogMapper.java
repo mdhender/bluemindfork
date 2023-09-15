@@ -25,6 +25,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
@@ -35,7 +39,7 @@ import net.bluemind.core.auditlogs.ILogMapperProvider;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
 
 public class DbMailboxRecordsAuditLogMapper implements ILogMapperProvider<MailboxRecord> {
-
+	private static final Logger logger = LoggerFactory.getLogger(DbMailboxRecordsAuditLogMapper.class);
 	private final IMailIndexService mailIndexService;
 	private final BaseContainerDescriptor container;
 
@@ -50,7 +54,6 @@ public class DbMailboxRecordsAuditLogMapper implements ILogMapperProvider<Mailbo
 
 		Map<String, Object> messageBodyMap = mailIndexService.fetchBody(mailboxUniqueId, itemValue);
 		if (messageBodyMap != null) {
-			// Remove useless fields
 			return filterMessageBody(messageBodyMap, itemValue);
 		}
 		return null;
@@ -59,9 +62,9 @@ public class DbMailboxRecordsAuditLogMapper implements ILogMapperProvider<Mailbo
 	@Override
 	public String createUpdateMessage(MailboxRecord oldValue, MailboxRecord newValue) {
 		var tagDifference = new UpdateTagDifference(oldValue, newValue);
-		if (!tagDifference.isTagDifference) {
-			return null;
-		}
+//		if (!tagDifference.isTagDifference) {
+//			return null;
+//		}
 		return tagDifference.getUpdateMessage();
 	}
 
@@ -141,13 +144,22 @@ public class DbMailboxRecordsAuditLogMapper implements ILogMapperProvider<Mailbo
 		}
 
 		public String getUpdateMessage() {
-			if (oldFlags.contains(DELETED_TAG) && !newFlags.contains(DELETED_TAG)) {
-				return "Flag " + DELETED_TAG + " has been undeleted.";
+			List<MailboxItemFlag> removedFlags = oldFlags.stream().filter(element -> !newFlags.contains(element))
+					.collect(Collectors.toList());
+			List<MailboxItemFlag> addedFlags = newFlags.stream().filter(element -> !oldFlags.contains(element))
+					.collect(Collectors.toList());
+			StringBuilder stringBuilder = new StringBuilder();
+			if (!removedFlags.isEmpty()) {
+				stringBuilder.append("Removed Flags:\n")
+						.append(addedFlags.stream().map(MailboxItemFlag::toString).collect(Collectors.joining(",")))
+						.append("\n");
 			}
-			if (!oldFlags.contains(DELETED_TAG) && newFlags.contains(DELETED_TAG)) {
-				return "Flag " + DELETED_TAG + " has been added.";
+			if (!addedFlags.isEmpty()) {
+				stringBuilder.append("Added Flags:\n")
+						.append(addedFlags.stream().map(MailboxItemFlag::toString).collect(Collectors.joining(",")))
+						.append("\n");
 			}
-			return "";
+			return stringBuilder.toString();
 		}
 	}
 
