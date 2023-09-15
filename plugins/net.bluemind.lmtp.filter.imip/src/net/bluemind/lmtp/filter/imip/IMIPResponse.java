@@ -140,12 +140,11 @@ public class IMIPResponse {
 
 		if (!proposedAttendees.isEmpty()) {
 			ret.headerFields = new ArrayList<>(ret.headerFields);
-			proposedAttendees.forEach(attendee -> {
-				RawField attendeeHeader = new RawField("X-BM-COUNTER-ATTENDEE", attendee.mailto);
-				UnstructuredField attendeeHeaderField = UnstructuredFieldImpl.PARSER.parse(attendeeHeader,
-						DecodeMonitor.SILENT);
-				ret.headerFields.add(attendeeHeaderField);
-			});
+			String attendeeList = String.join(",", proposedAttendees.stream().map(att -> att.mailto).toList());
+			RawField attendeeHeader = new RawField("X-BM-Counter-Attendee", attendeeList);
+			UnstructuredField attendeeHeaderField = UnstructuredFieldImpl.PARSER.parse(attendeeHeader,
+					DecodeMonitor.SILENT);
+			ret.headerFields.add(attendeeHeaderField);
 		}
 
 		return ret;
