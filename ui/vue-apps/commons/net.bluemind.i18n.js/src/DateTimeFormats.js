@@ -7,6 +7,12 @@ export default function (timeformat) {
             month: "2-digit",
             year: "numeric"
         },
+        short_full_date: {
+            weekday: "short",
+            day: "2-digit",
+            month: "short",
+            year: "numeric"
+        },
         short_time: {
             hour: "2-digit",
             minute: "2-digit"

@@ -71,7 +71,7 @@ const dateStart = computed(() => (props.date ? new Date(props.date) : null));
             gap: 3px;
             left: 0;
             right: 0;
-            padding-top: 13px;
+            padding-top: 9px;
         }
         @include from-lg {
             gap: 7px;

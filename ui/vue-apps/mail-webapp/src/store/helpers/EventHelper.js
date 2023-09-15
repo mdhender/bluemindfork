@@ -95,26 +95,6 @@ export default {
 
     findAttendee(attendees, mailboxOwner) {
         return attendees.find(a => a.dir && a.dir.split("/").pop() === mailboxOwner);
-    },
-
-    adaptRangeDate(dtstart, dtend) {
-        if (!dtstart || !dtend) {
-            return { startDate: "", endDate: "" };
-        }
-
-        const startDate = new Date(dtstart.iso8601);
-        const endDate = new Date(dtend.iso8601);
-        if (DateComparator.isSameDay(startDate, endDate)) {
-            return {
-                startDate: i18n.d(startDate, "short_time"),
-                endDate: i18n.d(endDate, "short_time")
-            };
-        } else {
-            return {
-                startDate: i18n.d(startDate, "day_month") + " " + i18n.d(startDate, "short_time"),
-                endDate: i18n.d(endDate, "day_month") + " " + i18n.d(endDate, "short_time")
-            };
-        }
     }
 };
 

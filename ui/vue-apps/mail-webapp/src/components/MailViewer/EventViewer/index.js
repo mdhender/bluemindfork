@@ -3,4 +3,3 @@ export { default as EventReplied } from "./EventReplied.vue";
 export { default as EventCanceled } from "./EventCanceled.vue";
 export { default as EventLoading } from "./EventLoading.vue";
 export { default as EventNotFound } from "./EventNotFound.vue";
-export { REPLY_ACTIONS } from "./replyActions";

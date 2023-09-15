@@ -2,8 +2,8 @@
 import { computed } from "vue";
 import { BmIcon, BmRow } from "@bluemind/ui-components";
 import { messageUtils } from "@bluemind/mail";
-import EventHelper from "~/store/helpers/EventHelper";
 import EventCalendarIllustration from "./EventCalendarIllustration.vue";
+import { formatEventDates } from "./formatEventDates";
 
 const { MessageHeader } = messageUtils;
 
@@ -17,11 +17,8 @@ const eventValue = computed(() => props.event.serverEvent?.value?.main);
 const eventTimeRange = computed(() => {
     const dtstart = eventValue.value?.dtstart;
     const dtend = eventValue.value?.dtend;
-    const { startDate, endDate } = EventHelper.adaptRangeDate(dtstart, dtend);
-    return {
-        start: startDate,
-        end: endDate
-    };
+    const { startDate, endDate } = formatEventDates(dtstart, dtend);
+    return endDate ? `${startDate} - ${endDate}` : startDate;
 });
 
 const hasHeader = header => props.message?.headers?.some(({ name }) => name.toUpperCase() === header.toUpperCase());
@@ -35,21 +32,23 @@ const calendarStatus = computed(() => {
     }
     return null;
 });
+
+const isRecurring = computed(() => Boolean(eventValue.value?.rrule));
 </script>
 
 <template>
-    <div class="event-detail">
+    <div class="event-detail" :class="{ 'event-detail-recurring': isRecurring }">
         <event-calendar-illustration
             :status="calendarStatus"
             :date="eventValue?.dtstart.iso8601"
-            :is-recurring="!!eventValue?.rrule"
+            :is-recurring="isRecurring"
         />
         <bm-row class="event-row-icon summary">
             <bm-icon icon="lock-fill" class="mr-2" />
             <h3>{{ event.summary }}</h3>
         </bm-row>
-        <bm-row class="event-time title"> {{ eventTimeRange.start }} - {{ eventTimeRange.end }} </bm-row>
-        <bm-row class="event-row-icon occurence">
+        <bm-row class="event-time title"> {{ eventTimeRange }} </bm-row>
+        <bm-row v-if="isRecurring" class="event-row-icon occurence">
             <bm-icon icon="repeat" class="mr-2" />
             <span>{{ event.date }}</span>
         </bm-row>
@@ -63,14 +62,22 @@ const calendarStatus = computed(() => {
 .event-detail {
     display: grid;
     padding: 0 $sp-5 0px $sp-5;
+    align-items: center;
+
     @include until-lg {
         $row-time-height: $sp-6 + $sp-3;
         $row-title-height: $sp-7 + $sp-5;
         padding: $sp-5;
-        grid-template-areas:
-            "illustration  summary"
-            "illustration  time"
-            "occurrence  occurrence";
+        &.event-detail-recurring {
+            grid-template-areas:
+                "illustration  summary"
+                "illustration  time"
+                "occurrence  occurrence";
+            .occurence {
+                margin-left: 0;
+            }
+        }
+
         grid-template-columns: 75px 1fr;
         grid-template-rows: $row-title-height $row-time-height auto;
         .event-occurence {
@@ -81,13 +88,24 @@ const calendarStatus = computed(() => {
     column-gap: $sp-6;
     grid-template-areas:
         "illustration summary"
-        "illustration time"
-        "illustration occurrence";
+        "illustration time";
+
+    @include from-lg {
+        &.event-detail-recurring {
+            grid-template-rows: repeat(3, auto);
+            grid-template-areas:
+                "illustration summary"
+                "illustration time"
+                "illustration occurrence";
+        }
+    }
+
     grid-template-columns: 120px 1fr;
-    grid-template-rows: repeat(3, auto);
+    grid-template-rows: repeat(2, auto);
     .event-calendar-illustration {
         grid-area: illustration;
         justify-self: center;
+        align-self: center;
     }
     .event-row-icon {
         display: flex;
