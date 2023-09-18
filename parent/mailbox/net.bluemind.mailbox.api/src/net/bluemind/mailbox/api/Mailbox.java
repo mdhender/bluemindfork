@@ -69,17 +69,7 @@ public final class Mailbox {
 
 	@BMApi(version = "3")
 	public static enum Routing {
-		internal(true), external(false), none(true);
-
-		private final boolean managed;
-
-		Routing(boolean managed) {
-			this.managed = managed;
-		}
-
-		public boolean managed() {
-			return managed;
-		}
+		internal, external, none;
 	};
 
 	public String name;

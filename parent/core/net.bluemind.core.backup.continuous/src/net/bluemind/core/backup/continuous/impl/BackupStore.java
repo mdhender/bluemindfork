@@ -43,7 +43,7 @@ public class BackupStore<T> implements IBackupStore<T> {
 
 	@Override
 	public CompletableFuture<Void> store(ItemValue<T> data, ReservedIds reservedIds) {
-		RecordKey key = RecordKey.forItemValue(descriptor, data, reservedIds, false);
+		RecordKey key = RecordKey.forItemValue(descriptor, data, false);
 		byte[] serializedKey = serializer.key(key);
 		byte[] serializedItem = serializer.value(data, reservedIds);
 		String partitionKey = descriptor.partitionKey(data.uid);
@@ -58,16 +58,16 @@ public class BackupStore<T> implements IBackupStore<T> {
 
 	@Override
 	public CompletableFuture<Void> delete(ItemValue<T> data) {
-		RecordKey key = RecordKey.forItemValue(descriptor, data, null, true);
+		RecordKey key = RecordKey.forItemValue(descriptor, data, true);
 		byte[] serializedKey = serializer.key(key);
 		byte[] serializedItem = ("{\"uid\":\"" + data.uid + "\"}").getBytes();
 		String partitionKey = descriptor.partitionKey(data.uid);
 
-		RecordKey invalidateCreates = RecordKey.forItemValue(descriptor, data, null, true);
+		RecordKey invalidateCreates = RecordKey.forItemValue(descriptor, data, true);
 		invalidateCreates.operation = Operation.CREATE.name();
 		byte[] compactCreateKey = serializer.key(invalidateCreates);
 
-		RecordKey invalidateUpdates = RecordKey.forItemValue(descriptor, data, null, true);
+		RecordKey invalidateUpdates = RecordKey.forItemValue(descriptor, data, true);
 		invalidateUpdates.operation = Operation.UPDATE.name();
 		byte[] compactUpdateKey = serializer.key(invalidateUpdates);
 

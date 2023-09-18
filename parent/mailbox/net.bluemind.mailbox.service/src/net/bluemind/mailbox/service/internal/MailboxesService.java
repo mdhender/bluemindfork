@@ -571,19 +571,12 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 	private boolean mailboxRequiresIdsReservations(BmContext context, String domainUid, Mailbox previous,
 			Mailbox current) {
 		return previous == null //
-				// switch from not managed by BlueMind to something managed: it is a
-				// create from storage pov
-				|| newlyManaged(previous, current) //
 				// Ensure managed mailbox exist in storage
-				|| managedButNotCreated(context, domainUid, previous, current);
+				|| notCreated(context, domainUid, previous, current);
 	}
 
-	private boolean newlyManaged(Mailbox previous, Mailbox current) {
-		return !previous.routing.managed() && current.routing.managed();
-	}
-
-	private boolean managedButNotCreated(BmContext context, String domainUid, Mailbox previous, Mailbox current) {
-		return !previous.equals(current) && previous.name.equals(current.name) && current.routing.managed()
+	private boolean notCreated(BmContext context, String domainUid, Mailbox previous, Mailbox current) {
+		return !previous.equals(current) && previous.name.equals(current.name)
 				&& !mailboxStorage().mailboxExist(context, domainUid, ItemValue.create("", current));
 	}
 

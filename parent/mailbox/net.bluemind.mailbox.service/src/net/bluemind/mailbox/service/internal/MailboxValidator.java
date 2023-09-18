@@ -214,11 +214,6 @@ public class MailboxValidator {
 	}
 
 	private void validateDataLocation(Mailbox mailbox) throws ServerFault {
-
-		if (!mailbox.routing.managed()) {
-			return;
-		}
-
 		if (mailbox.dataLocation == null || mailbox.dataLocation.trim().isEmpty()) {
 			if (mailbox.type != Type.group) {
 				throw new ServerFault("Datalocation must be set", ErrorCode.INVALID_PARAMETER);
