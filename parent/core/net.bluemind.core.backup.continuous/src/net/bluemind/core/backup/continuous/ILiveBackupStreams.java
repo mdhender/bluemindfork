@@ -23,6 +23,8 @@ public interface ILiveBackupStreams {
 
 	List<ILiveStream> listAvailable();
 
+	List<ILiveStream> listAll();
+
 	ILiveStream orphans();
 
 	List<ILiveStream> domains();
