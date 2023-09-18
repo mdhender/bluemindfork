@@ -27,14 +27,23 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class ProgressPrinter {
 	private final long total;
 	private long start;
-	private long elements = 0L;
+	private AtomicLong elements = new AtomicLong(0);
 	private final long printEvery;
 	private final long printEverySeconds;
 	private Instant lastPrint = Instant.now();
+	private static final DecimalFormat DEC_FORMAT = new DecimalFormat("#.##");
+
+	private static final long KB = 1L * 1000;
+	private static final long MB = KB * 1000;
+	private static final long GB = MB * 1000;
+	private static final long TB = GB * 1000;
+	private static final long PB = TB * 1000;
+	private static final long EB = PB * 1000;
 
 	public ProgressPrinter(long total) {
 		this(total, 10_000L, 2);
@@ -60,11 +69,11 @@ public class ProgressPrinter {
 	}
 
 	public void add() {
-		add(1L);
+		elements.incrementAndGet();
 	}
 
 	public void add(long elements) {
-		this.elements += elements;
+		this.elements.addAndGet(elements);
 	}
 
 	private String plural(long v, String s) {
@@ -86,30 +95,64 @@ public class ProgressPrinter {
 			parts.add(plural(minutes, "minute"));
 		}
 		int seconds = duration.toSecondsPart();
-		parts.add(plural(seconds, "second"));
+		if (seconds < 0) {
+			parts.add("immediately");
+		} else {
+			parts.add(plural(seconds, "second"));
+		}
 		return String.join(", ", parts);
 	}
 
+	public static String toHumanReadableSIPrefixes(long size) {
+		if (size < 0)
+			throw new IllegalArgumentException("Invalid file size: " + size);
+		if (size >= EB)
+			return formatSize(size, EB, "E");
+		if (size >= PB)
+			return formatSize(size, PB, "P");
+		if (size >= TB)
+			return formatSize(size, TB, "T");
+		if (size >= GB)
+			return formatSize(size, GB, "G");
+		if (size >= MB)
+			return formatSize(size, MB, "M");
+		if (size >= KB)
+			return formatSize(size, KB, "K");
+		return formatSize(size, 1L, "");
+	}
+
+	private static String formatSize(long size, long divider, String unitName) {
+		return DEC_FORMAT.format((double) size / divider) + " " + unitName;
+	}
+
 	public String toString() {
-		lastPrint = Instant.now();
-		var duration = Duration.ofNanos(System.nanoTime() - start);
-		var durationSeconds = duration.toSeconds();
-		var percentage = total > 0 ? ((total - elements) / (double) total) : 100;
-		StringBuilder sb = new StringBuilder();
-		sb.append(elements).append(" / ").append(total);
-		sb.append(" (").append(new DecimalFormat("#.0#").format(percentage)).append("%)");
-		if (durationSeconds > 0) {
-			var rate = elements / durationSeconds;
-			sb.append(" in ").append(formatDuration(duration));
-			sb.append(" rate: ").append(rate).append("/s");
-			sb.append(" eta: ").append(formatDuration(Duration.ofSeconds((total - elements) / rate)));
+		try {
+			lastPrint = Instant.now();
+			var duration = Duration.ofNanos(System.nanoTime() - start);
+			var currentElements = elements.get();
+			var durationSeconds = duration.toSeconds();
+			var percentage = total > 0 ? ((currentElements / (double) total) * 100.0) : 100.0;
+			StringBuilder sb = new StringBuilder();
+			sb.append(currentElements).append(" / ").append(total);
+			sb.append(" (").append(new DecimalFormat("00.0#").format(percentage)).append("%)");
+			if (durationSeconds > 0) {
+				var rate = currentElements / durationSeconds;
+				sb.append(" in ").append(formatDuration(duration));
+				sb.append(" rate: ").append(toHumanReadableSIPrefixes(rate)).append("/s");
+				if (rate > 0) {
+					sb.append(" eta: ").append(formatDuration(Duration.ofSeconds((total - currentElements) / rate)));
+				}
+			}
+			return sb.toString();
+		} catch (Exception e) {
+			return e.getMessage();
 		}
 
-		return sb.toString();
 	}
 
 	public boolean shouldPrint() {
-		return ((elements % printEvery) == 0) || elements == total
+		var currentElements = elements.get();
+		return ((currentElements % printEvery) == 0) || currentElements == total
 				|| Duration.between(lastPrint, Instant.now()).toSeconds() >= printEverySeconds;
 	}
 }
