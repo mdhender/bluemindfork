@@ -134,7 +134,7 @@ public abstract class AbstractEmailHook implements IAclHook {
 					}
 				});
 			} else {
-				logger.info("DirEntry {} has no email", targetedUser.displayName);
+				logger.info("DirEntry {} has no email", targetedUser);
 			}
 			return;
 		}

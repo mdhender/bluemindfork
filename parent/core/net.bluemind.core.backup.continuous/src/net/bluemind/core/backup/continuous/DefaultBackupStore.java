@@ -18,6 +18,7 @@
 package net.bluemind.core.backup.continuous;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
@@ -100,6 +101,11 @@ public class DefaultBackupStore {
 	public static IBackupStoreFactory store(String baseId) {
 		StoreAndElection active = loadCached();
 		return new BackupStoreFactory(baseId, active.store, active.election);
+	}
+
+	public static IBackupStoreFactory store(String baseId, Optional<String> suffix) {
+		StoreAndElection active = loadCached();
+		return new BackupStoreFactory(baseId, active.store, active.election, suffix);
 	}
 
 	public static IBackupReader reader() {

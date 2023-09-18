@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import net.bluemind.core.api.auth.AuthDomainProperties;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.backup.continuous.DataElement;
 import net.bluemind.core.backup.continuous.restore.orphans.RestoreTopology.PromotingServer;
 import net.bluemind.core.container.model.ItemValue;
@@ -37,6 +38,7 @@ import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.TaskUtils;
+import net.bluemind.core.task.service.TaskUtils.ExtendedTaskStatus;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.core.utils.JsonUtils.ValueReader;
 import net.bluemind.domain.api.Domain;
@@ -109,7 +111,11 @@ public class RestoreDomains {
 			tweakKeycloakProps(target.instance(IDomains.class).get("global.virt"), domain);
 			domainApi.restore(domain, false);
 			TaskRef taskRef = target.instance(IKeycloakAdmin.class).initForDomain("global.virt");
-			TaskUtils.wait(target, taskRef);
+			ExtendedTaskStatus taskStatus = TaskUtils.wait(target, taskRef);
+			if (!taskStatus.state.succeed) {
+				logger.error("Unable to setup keycloak for {}: task ended in status {}", domain, taskStatus.state);
+				throw new ServerFault("Unable to setup keycloak for domain uid=" + domain.uid + " . Can't continue");
+			}
 			return;
 		}
 		ItemValue<Domain> known = domainApi.get(domain.uid);

@@ -40,6 +40,13 @@ public interface IContinuousBackupMgmt {
 	TaskRef syncWithStore(BackupSyncOptions options);
 
 	/**
+	 * Reads the stream and perform repairs if required
+	 */
+	@Path("_checkrepair")
+	@POST
+	TaskRef checkAndRepair(CheckAndRepairOptions options);
+
+	/**
 	 * Registers this instance installation id inside zookeeper (as a file
 	 * bluemind.net/forest/${forestId}/${installationId}). CRP will only considers
 	 * the kafka topics of registered installations.

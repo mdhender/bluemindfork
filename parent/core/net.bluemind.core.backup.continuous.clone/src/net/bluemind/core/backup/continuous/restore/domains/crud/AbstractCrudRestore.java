@@ -32,7 +32,17 @@ public abstract class AbstractCrudRestore<T, U, V extends IRestoreSupport<U>> im
 
 	@Override
 	public void restore(RecordKey key, String payload) {
-		V api = api(domain, key);
+		V api;
+		try {
+			api = api(domain, key);
+		} catch (ServerFault sf) {
+			if (sf.getCode().equals(ErrorCode.NOT_FOUND) && Operation.isDelete(key)) {
+				// It's safe to ignore a user not present before in the stream
+				return;
+			} else {
+				throw sf;
+			}
+		}
 		if (Operation.isDelete(key)) {
 			delete(key, payload, api);
 		} else {

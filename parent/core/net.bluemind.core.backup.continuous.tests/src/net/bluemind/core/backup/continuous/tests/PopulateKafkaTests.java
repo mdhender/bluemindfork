@@ -38,6 +38,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -239,7 +240,7 @@ public class PopulateKafkaTests {
 					IBackupStoreFactory store = DefaultBackupStore.store();
 					byte[] jsonData = ByteStreams.toByteArray(tar);
 					JsonArray js = new JsonArray(Buffer.buffer(jsonData));
-					TopicNames topicNames = new TopicNames(iid);
+					TopicNames topicNames = new TopicNames(iid, Optional.empty());
 					js.forEach(keyValue -> {
 						JsonObject key = ((JsonObject) keyValue).getJsonObject("key");
 						BaseContainerDescriptor descriptor = new BaseContainerDescriptor();

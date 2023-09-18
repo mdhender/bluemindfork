@@ -18,6 +18,8 @@
  */
 package net.bluemind.core.backup.continuous;
 
+import java.util.Map;
+
 import io.vertx.core.json.JsonObject;
 import net.bluemind.core.backup.continuous.store.ITopicStore.IResumeToken;
 
@@ -39,7 +41,13 @@ public interface IRecordStarvationStrategy {
 	ExpectedBehaviour onStarvation(JsonObject infos);
 
 	default void onRecordsReceived(@SuppressWarnings("unused") JsonObject metas) {
+	}
 
+	default void updateOffsets(Map<Integer, Long> currentOffsets) {
+	}
+
+	default boolean isTopicFinished() {
+		return false;
 	}
 
 	/**

@@ -153,11 +153,8 @@ public class UserSync extends DirEntryWithMailboxSync<User> {
 	@Override
 	protected void contentSync(ItemValue<DirEntry> ivDir, IBackupStoreFactory target, BaseContainerDescriptor cont,
 			List<ItemValue<ContainerHierarchyNode>> nodes) {
-
 		processSettings(ivDir, target, cont);
-
 		processMapiArtifacts(ivDir, target, nodes);
-
 	}
 
 	private void pushRoles(IBackupStoreFactory target, ItemValue<DirEntryAndValue<User>> fixed) {

@@ -157,8 +157,10 @@ public class DomainSync {
 					continue;
 				}
 				logger.info("Process {}", ivDir);
+
+				// This will make RecordKey to have a CREATED operation
 				ivDir.updated = ivDir.created;
-				// create this one
+
 				switch (ivDir.value.kind) {
 				case DOMAIN:
 					// ignore, created when processing orphans

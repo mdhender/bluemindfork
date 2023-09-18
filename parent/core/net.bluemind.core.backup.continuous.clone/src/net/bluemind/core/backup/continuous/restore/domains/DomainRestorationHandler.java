@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import io.vertx.core.Handler;
 import net.bluemind.core.backup.continuous.DataElement;
 import net.bluemind.core.backup.continuous.RecordKey;
+import net.bluemind.core.backup.continuous.restore.IOwnerChecker;
 import net.bluemind.core.backup.continuous.restore.ISeppukuAckListener;
 import net.bluemind.core.backup.continuous.restore.domains.crud.RestoreCalendarView;
 import net.bluemind.core.backup.continuous.restore.domains.crud.RestoreDeferredAction;
@@ -42,12 +43,14 @@ public class DomainRestorationHandler implements Handler<DataElement> {
 	private final Map<String, RestoreDomainType> restoresByType;
 	private final Set<String> skip;
 	private final RestoreState state;
+	private final IOwnerChecker ownerChecker;
 
 	public DomainRestorationHandler(IServerTaskMonitor monitor, Set<String> skip, ItemValue<Domain> domain,
-			IServiceProvider target, ISeppukuAckListener byeAck, RestoreState state) {
+			IServiceProvider target, ISeppukuAckListener byeAck, RestoreState state, IOwnerChecker ownerChecker) {
 		this.state = state;
 		this.log = new RestoreLogger(monitor);
 		this.skip = skip;
+		this.ownerChecker = ownerChecker;
 		this.restoresByType = Arrays.asList(//
 				new RestoreMailboxRecords(log, state, domain, target), //
 				new RestoreMessageBody(log, domain, target, state), //
@@ -76,7 +79,7 @@ public class DomainRestorationHandler implements Handler<DataElement> {
 				new RestoreUserMailIdentities(log, domain, target, state), //
 				new RestoreWebAppData(log, domain, target, state), //
 				new RestoreCalendarView(log, domain, target, state), // //
-                new RestoreSmimeCacert(log, domain, target, state)) // //
+				new RestoreSmimeCacert(log, domain, target, state)) // //
 				.stream().collect(Collectors.toMap(RestoreDomainType::type, Function.identity()));
 	}
 
@@ -86,13 +89,25 @@ public class DomainRestorationHandler implements Handler<DataElement> {
 
 		RestoreDomainType restore = restoresByType.get(event.key.type);
 		String payload = new String(event.payload);
+		boolean ignoreFailure = false;
+
 		if (restore != null && !skip.contains(event.key.type)) {
+			if (!ownerChecker.isKnown(event.key.owner)) {
+				log.monitor().log("[{}:{}] owner of {} is not known to CRP: ignore entry", event.part, event.offset,
+						event.key);
+				ignoreFailure = true;
+			}
+
 			try {
 				restore.restore(event.key, payload);
 			} catch (Throwable e) {
-				log.monitor().log("[{}:{}] Failure processing type {}", event.part, event.offset, event.key.type);
-				log.failure(restore.type(), event.key, payload, e);
-				throw e;
+				if (!ignoreFailure) {
+					log.monitor().log("[{}:{}] Failure processing type {}", event.part, event.offset, event.key.type);
+					log.failure(restore.type(), event.key, payload, e);
+					throw e;
+				} else {
+					log.skip(event.key.type, event.key, payload);
+				}
 			}
 		} else {
 			log.skip(event.key.type, event.key, payload);

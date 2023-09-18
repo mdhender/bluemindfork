@@ -3,6 +3,7 @@ package net.bluemind.core.backup.continuous.impl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -21,6 +22,8 @@ import net.bluemind.core.backup.continuous.RecordKey;
 import net.bluemind.core.backup.continuous.TopicDeserializer;
 import net.bluemind.core.backup.continuous.dto.VersionnedItem;
 import net.bluemind.core.backup.continuous.store.ITopicStore;
+import net.bluemind.core.backup.continuous.store.ITopicStore.DefaultTopicDescriptor;
+import net.bluemind.core.backup.continuous.store.ITopicStore.TopicDescriptor;
 import net.bluemind.core.backup.continuous.store.TopicSubscriber;
 
 public class BackupReader implements IBackupReader {
@@ -104,8 +107,13 @@ public class BackupReader implements IBackupReader {
 		logger.warn("[{} / {}] topicNames {}", instId, installationid, topicNames);
 		TopicSubscriber orphanSubscriber = topicNames.stream().filter(name -> name.endsWith("__orphans__")).findFirst()
 				.map(topicStore::getSubscriber).orElse(null);
-		List<TopicSubscriber> domainSubscribers = topicNames.stream().filter(name -> !name.endsWith("__orphans__"))
-				.map(topicStore::getSubscriber).collect(Collectors.toList());
+		List<TopicSubscriber> domainSubscribers = topicNames.stream()
+				.filter(name -> !name.endsWith("__orphans__") && !name.endsWith("__presync")) //
+				.map(topicStore::getSubscriber).toList();
+		List<TopicSubscriber> domainPresyncSubscribers = topicNames.stream() //
+				.filter(name -> name.endsWith("__presync")) //
+				.map(topicStore::getSubscriber).toList();
+
 		return new ILiveBackupStreams() {
 
 			@Override
@@ -123,6 +131,7 @@ public class BackupReader implements IBackupReader {
 				List<ILiveStream> all = new ArrayList<>();
 				List<ILiveStream> domainsList = domains();
 				all.addAll(domainsList);
+				domainsList.forEach(ls -> preSyncForDomain(ls.domainUid()).ifPresent(all::add));
 				if (orphanSubscriber != null) {
 					all.add(orphans());
 				}
@@ -131,17 +140,26 @@ public class BackupReader implements IBackupReader {
 
 			@Override
 			public ILiveStream orphans() {
-				return build(installationid, "__orphans__", orphanSubscriber);
+				return build(installationid, "__orphans__", Optional.empty(), orphanSubscriber);
 			}
 
 			@Override
 			public List<ILiveStream> domains() {
 				return domainSubscribers.stream().map(subscriber -> {
-					String tn = subscriber.topicName();
-					logger.info("{}:{}", installationid, tn);
-					int idx = tn.indexOf('-');
-					return build(tn.substring(0, idx), tn.substring(idx + 1), subscriber);
-				}).collect(Collectors.toList());
+					TopicDescriptor topic = DefaultTopicDescriptor.fromPhysicalTopic(subscriber.topicName());
+					return build(topic.installation(), topic.domainUid(), Optional.empty(), subscriber);
+				}).toList();
+			}
+
+			@Override
+			public Optional<ILiveStream> preSyncForDomain(String domainUid) {
+				return domainPresyncSubscribers.stream().filter(subscriber -> {
+					TopicDescriptor topic = DefaultTopicDescriptor.fromPhysicalTopic(subscriber.topicName());
+					return domainUid.equals(topic.domainUid());
+				}).map(subscriber -> {
+					TopicDescriptor topic = DefaultTopicDescriptor.fromPhysicalTopic(subscriber.topicName());
+					return build(topic.installation(), domainUid, Optional.of("presync"), subscriber);
+				}).findFirst();
 			}
 		};
 	}
@@ -151,9 +169,10 @@ public class BackupReader implements IBackupReader {
 		return MoreObjects.toStringHelper(BackupReader.class).add("topicStore", topicStore).toString();
 	}
 
-	private ILiveStream build(String installationid, String domainUid, TopicSubscriber subscriber) {
+	private ILiveStream build(String installationid, String domainUid, Optional<String> suffix,
+			TopicSubscriber subscriber) {
 		TopicDeserializer<RecordKey, VersionnedItem<?>> deserializer = new ItemValueDeserializer();
-		return new LiveStream(installationid, domainUid, subscriber, deserializer);
+		return new LiveStream(installationid, domainUid, suffix, subscriber, deserializer);
 	}
 
 }

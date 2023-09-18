@@ -71,7 +71,9 @@ public class DirEntryWithMailboxSync<T> {
 	protected final DomainKafkaState kafkaState;
 
 	public enum Scope {
-		Entry, Content
+		EntryOnly, // DirEntryAndValue only, without anything else
+		Entry, // DirEntryAndValue and misc stuff like filters, orgunit, ...
+		Content // stuff depending on the DirEntry
 	}
 
 	public DirEntryWithMailboxSync(BmContext ctx, BackupSyncOptions opts, IRestoreDirEntryWithMailboxSupport<T> getApi,
@@ -92,31 +94,27 @@ public class DirEntryWithMailboxSync<T> {
 		ItemValue<DirEntryAndValue<T>> entryAndValue = ItemValue.create(ivDir,
 				new DirEntryAndValue<T>(ivDir.value, value, vcardUser.value, mboxUser.value));
 		preSync(target, domainUid(), entryAndValue);
-		if (scope == Scope.Entry) {
+		if (scope == Scope.Entry || scope == Scope.EntryOnly) {
 			IBackupStore<DirEntryAndValue<T>> topicUser = target.forContainer(cont);
 			ReservedIds reserved = reserveBoxes(entryMon, mboxUser);
 			ItemValue<DirEntryAndValue<T>> fixed = remap(entryMon, entryAndValue);
 			topicUser.store(fixed, reserved);
-
-			processFilters(target, fixed, mboxUser);
-
-			administeredOrgUnits(ivDir, target);
-
-			entrySync(target, fixed);
+			if (scope != Scope.EntryOnly) {
+				processFilters(target, fixed, mboxUser);
+				administeredOrgUnits(ivDir, target);
+				entrySync(target, fixed);
+			}
 		}
 
 		if (scope == Scope.Content) {
 			IContainersFlatHierarchy hierApi = ctx.provider().instance(IContainersFlatHierarchy.class, domainUid(),
 					ivDir.uid);
 			List<ItemValue<ContainerHierarchyNode>> nodes = hierApi.list();
-
 			contentSync(ivDir, target, cont, nodes);
-
 			processContainers(entryMon, target, nodes, entryAndValue);
 		}
 
 		entryMon.end(true, "processed", "OK");
-
 		return entryAndValue;
 	}
 

@@ -28,14 +28,17 @@ import org.slf4j.event.Level;
 
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.backup.continuous.DefaultBackupStore;
+import net.bluemind.core.backup.continuous.IBackupReader;
 import net.bluemind.core.backup.continuous.ILiveBackupStreams;
 import net.bluemind.core.backup.continuous.ILiveStream;
 import net.bluemind.core.backup.continuous.api.IBackupStoreFactory;
 import net.bluemind.core.backup.continuous.mgmt.api.BackupSyncOptions;
+import net.bluemind.core.backup.continuous.mgmt.api.CheckAndRepairOptions;
 import net.bluemind.core.backup.continuous.mgmt.api.IContinuousBackupMgmt;
 import net.bluemind.core.backup.continuous.mgmt.service.forest.ZookeeperJoiner;
 import net.bluemind.core.backup.continuous.mgmt.service.impl.DomainSync;
 import net.bluemind.core.backup.continuous.mgmt.service.impl.OrphansSync;
+import net.bluemind.core.backup.continuous.mgmt.service.repair.StreamCheckAndRepair;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
@@ -100,6 +103,8 @@ public class ContinuousBackupMgmtService implements IContinuousBackupMgmt {
 
 	@Override
 	public TaskRef join(String forestId) {
+		rbacManager.check(BasicRoles.ROLE_SYSTEM_MANAGER);
+
 		logger.info("Trying to register {} as a member of forest {} in zookeeper", InstallationId.getIdentifier(),
 				forestId);
 
@@ -114,6 +119,22 @@ public class ContinuousBackupMgmtService implements IContinuousBackupMgmt {
 			}
 		});
 
+	}
+
+	@Override
+	public TaskRef checkAndRepair(CheckAndRepairOptions options) {
+		rbacManager.check(BasicRoles.ROLE_SYSTEM_MANAGER);
+		return context.provider().instance(ITasksManager.class).run(new BlockingServerTask() {
+			@Override
+			protected void run(IServerTaskMonitor monitor) throws Exception {
+				IBackupReader store = DefaultBackupStore.reader();
+				ILiveBackupStreams content = store
+						.forInstallation(InstallationId.getIdentifier().replace("bluemind-", ""));
+				StreamCheckAndRepair streamChecker = new StreamCheckAndRepair(context, monitor, options);
+				content.listAvailable()
+						.forEach(ls -> streamChecker.checkAndRepair(content.preSyncForDomain(ls.domainUid()), ls));
+			}
+		});
 	}
 
 }

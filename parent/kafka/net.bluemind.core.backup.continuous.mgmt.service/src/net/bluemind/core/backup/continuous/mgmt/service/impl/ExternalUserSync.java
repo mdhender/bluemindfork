@@ -51,15 +51,15 @@ public class ExternalUserSync {
 		ItemValue<VCard> vcardUser = domainApis.dirApi.getVCard(ivDir.uid);
 		ItemValue<DirEntryAndValue<ExternalUser>> entryAndValue = ItemValue.create(ivDir,
 				new DirEntryAndValue<ExternalUser>(ivDir.value, value, vcardUser.value, null));
-		if (scope == Scope.Entry) {
+		if (scope == Scope.Entry || scope == Scope.EntryOnly) {
 			IBackupStore<DirEntryAndValue<ExternalUser>> topicUser = target.forContainer(cont);
 			topicUser.store(entryAndValue);
-
-			storeMemberships(target, entryAndValue);
+			if (scope != Scope.EntryOnly) {
+				storeMemberships(target, entryAndValue);
+			}
 		}
 
 		entryMon.end(true, "processed", "OK");
-
 		return entryAndValue;
 	}
 
@@ -68,7 +68,6 @@ public class ExternalUserSync {
 		MembershipHook hook = new MembershipHook(target);
 		Member asMember = Member.externalUser(stored.uid);
 		for (ItemValue<Group> g : groups) {
-
 			GroupMembership gm = hook.createGroupMembership(g.value, asMember, true);
 			hook.save(domainUid(), asMember.uid, g.item(), gm);
 		}

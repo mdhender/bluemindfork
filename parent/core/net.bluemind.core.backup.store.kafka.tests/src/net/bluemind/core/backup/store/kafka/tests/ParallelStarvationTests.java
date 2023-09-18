@@ -20,6 +20,7 @@ package net.bluemind.core.backup.store.kafka.tests;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import org.junit.Test;
@@ -32,51 +33,21 @@ import net.bluemind.core.backup.store.kafka.ParallelStarvationHandler;
 public class ParallelStarvationTests {
 
 	@Test
-	public void testStarvedOneThenTheOther() throws InterruptedException {
+	public void testTopicFinished() throws InterruptedException {
 		CompletableFuture<Void> cdl = new CompletableFuture<>();
 		IRecordStarvationStrategy delegate = infos -> {
 			System.err.println("delegate called");
 			cdl.complete(null);
 			return ExpectedBehaviour.ABORT;
 		};
-		ParallelStarvationHandler psh = new ParallelStarvationHandler(delegate, 2);
-		IRecordStarvationStrategy worker0 = psh;
-		IRecordStarvationStrategy worker1 = psh;
-
-		// only worker2 starves...
-		worker1.onStarvation(new JsonObject().put("records", 42L));
-		System.err.println("sleep 500");
-		Thread.sleep(500);
-		worker1.onStarvation(new JsonObject().put("records", 42L));
-		System.err.println("sleep 1000");
-		Thread.sleep(1000);
-		assertFalse("only worker2 is starved, worker1 is unknown", cdl.isDone());
-
-		worker0.onStarvation(new JsonObject().put("records", 0L));
-		Thread.sleep(1000);
-		worker0.onStarvation(new JsonObject().put("records", 0L));
-		assertTrue("worker1 starved too, but we did not complete", cdl.isDone());
+		ParallelStarvationHandler psh = new ParallelStarvationHandler(delegate, 2, Map.of(0, 1L, 1, 1L));
+		assertFalse("1 offset per worker, 2 offsets in total, should not be finished", psh.isTopicFinished());
+		psh.updateOffsets(Map.of(0, 1L, 1, 0L));
+		assertFalse("only one offset, should not be finished", psh.isTopicFinished());
+		psh.updateOffsets(Map.of(0, 1L, 1, 1L));
+		assertTrue("two offsets, should be finished", psh.isTopicFinished());
+		assertFalse(cdl.isDone());
+		psh.onStarvation(new JsonObject().put("records", 0L));
+		assertTrue(cdl.isDone());
 	}
-
-	@Test
-	public void testStarveBothThenReceive() throws InterruptedException {
-		CompletableFuture<Void> cdl = new CompletableFuture<>();
-		IRecordStarvationStrategy delegate = infos -> {
-			System.err.println("delegate called");
-			cdl.complete(null);
-			return ExpectedBehaviour.ABORT;
-		};
-		ParallelStarvationHandler psh = new ParallelStarvationHandler(delegate, 2);
-		IRecordStarvationStrategy worker0 = psh;
-		IRecordStarvationStrategy worker1 = psh;
-
-		// only worker2 starves...
-		worker0.onStarvation(new JsonObject().put("records", 42L));
-		worker1.onStarvation(new JsonObject().put("records", 42L));
-		Thread.sleep(500);
-		worker1.onRecordsReceived(new JsonObject());
-		Thread.sleep(1000);
-		assertFalse("worker1 received data last", cdl.isDone());
-	}
-
 }

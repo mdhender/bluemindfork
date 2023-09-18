@@ -44,6 +44,7 @@ import net.bluemind.core.utils.JsonUtils.ValueReader;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.api.IInstallation;
 
 public class RestoreTopology {
@@ -63,23 +64,43 @@ public class RestoreTopology {
 		this.topologyMapping = topologyMapping;
 	}
 
+	private record ServerWithDataElement(ItemValue<Server> server, DataElement de) {
+	}
+
 	public Map<String, PromotingServer> restore(IServerTaskMonitor monitor, List<DataElement> servers) {
 		ValueReader<ItemValue<Server>> topoReader = JsonUtils.reader(new TypeReference<ItemValue<Server>>() {
 		});
 		IServer topoApi = target.instance(IServer.class, "default");
-		AtomicBoolean resetES = new AtomicBoolean();
+		AtomicBoolean shouldResetElasticsearch = new AtomicBoolean();
 		List<PromotingServer> touched = new LinkedList<>();
-		servers.forEach(srvDE -> {
-			if (!srvDE.key.valueClass.equals(Server.class.getCanonicalName())) {
-				return;
-			}
-			String asStr = new String(srvDE.payload);
-			ItemValue<Server> leader = topoReader.read(asStr);
-			ItemValue<Server> srv = topoReader.read(asStr);
+
+		/*
+		 * We can have multiple versions of servers in the stream, first, we need to get
+		 * the last server version
+		 */
+
+		Map<String, ServerWithDataElement> aggregatedServers = servers.stream()
+				.filter(de -> Server.class.getCanonicalName().equals(de.key.valueClass))
+				.map(de -> new ServerWithDataElement(topoReader.read(new String(de.payload)), de))
+				.collect(Collectors.toMap(sde -> sde.server().uid, sde -> sde, (sde1, sde2) -> sde2));
+
+		/*
+		 * We need to build a list of server ordered, core first otherwise, we endup not
+		 * pushing core IP in IptablesHook.
+		 */
+		List<ItemValue<Server>> allServersOrdered = aggregatedServers.values().stream().map(sde -> {
+			ItemValue<Server> leader = topoReader.read(new String(sde.de().payload));
+			ItemValue<Server> srv = sde.server();
+			srv.value.ip = topologyMapping.ipAddressForUid(srv.uid, srv.value.ip);
 			PromotingServer ps = new PromotingServer();
 			ps.leader = leader;
 			ps.clone = srv;
+			touched.add(ps);
+			return srv;
+		}).sorted((a, b) -> Long.compare(a.value.tags.contains(TagDescriptor.bm_core.getTag()) ? -1 : a.internalId,
+				b.value.tags.contains(TagDescriptor.bm_core.getTag()) ? -1 : b.internalId)).toList();
 
+		allServersOrdered.forEach(srv -> {
 			TaskRef srvTask;
 			srv.value.ip = topologyMapping.ipAddressForUid(srv.uid, srv.value.ip);
 			ItemValue<Server> exist = topoApi.getComplete(srv.uid);
@@ -87,8 +108,9 @@ public class RestoreTopology {
 				logger.info("UPDATE SRV {}", srv);
 				try {
 					srvTask = topoApi.update(srv.uid, srv.value);
-					if (srv.value.tags.contains("bm/es") && !exist.value.tags.contains("bm/es")) {
-						resetES.set(true);
+					if (srv.value.tags.contains(TagDescriptor.bm_es.getTag())
+							&& !exist.value.tags.contains(TagDescriptor.bm_es.getTag())) {
+						shouldResetElasticsearch.set(true);
 					}
 				} catch (ServerFault sf) {
 					srvTask = null;
@@ -97,18 +119,20 @@ public class RestoreTopology {
 			} else {
 				logger.info("CREATE SRV {}", srv);
 				srvTask = topoApi.create(srv.uid, srv.value);
-				if (srv.value.tags.contains("bm/es")) {
-					resetES.set(true);
+				if (srv.value.tags.contains(TagDescriptor.bm_es.getTag())) {
+					shouldResetElasticsearch.set(true);
 				}
 			}
-			touched.add(ps);
-			String wait = logStreamWait(srvTask);
-			monitor.log(srv.uid + ": " + wait);
+			LogStatus logStatus = logStreamWait(srvTask);
+			monitor.log(srv.uid + ": " + logStatus.log);
+			if (!logStatus.success()) {
+				throw new ServerFault("Unable to create server " + srv + " task " + srvTask.id + " failed");
+			}
 		});
-		if (resetES.get()) {
+		if (shouldResetElasticsearch.get()) {
 			monitor.log("Reset ES indexes...");
 			do {
-				Optional<ItemValue<Server>> exist = Topology.get().anyIfPresent("bm/es");
+				Optional<ItemValue<Server>> exist = Topology.get().anyIfPresent(TagDescriptor.bm_es.getTag());
 				if (exist.isPresent()) {
 					break;
 				} else {
@@ -125,18 +149,22 @@ public class RestoreTopology {
 		target.instance(IInstallation.class).resetAuditLogClient();
 
 		Map<String, PromotingServer> serverByUid = touched.stream()
-				.collect(Collectors.toMap(iv -> iv.leader.uid, iv -> iv, (iv1, iv2) -> iv2));
+				.collect(Collectors.toMap(ps -> ps.leader.uid, ps -> ps, (ps1, ps2) -> ps2));
 
 		monitor.progress(1, "Dealt with topology");
 		return serverByUid;
 	}
 
-	public String logStreamWait(TaskRef ref) {
+	private static record LogStatus(String log, boolean success) {
+	}
+
+	public LogStatus logStreamWait(TaskRef ref) {
 		if (ref == null) {
-			return "[nothing to do]";
+			return new LogStatus("[nothing to do]", true);
 		}
 		ITask taskApi = target.instance(ITask.class, ref.id + "");
-		return GenericStream.streamToString(taskApi.log());
+		String logs = GenericStream.streamToString(taskApi.log());
+		return new LogStatus(logs, taskApi.status().state.succeed);
 	}
 
 }

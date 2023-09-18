@@ -18,6 +18,7 @@
 package net.bluemind.core.backup.continuous.store;
 
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.Set;
 
 import com.google.common.base.MoreObjects;
@@ -59,22 +60,22 @@ public interface ITopicStore {
 
 		String uid();
 
+		Optional<String> suffix();
+
 		static String trimInstallationId(String installationId) {
 			return installationId;
 		}
 
-		default String fullName() {
-			return installation() + "/" + domainUid() + "/" + owner() + "/" + type() + "/" + uid();
-		}
-
 		default String physicalTopic() {
-			return installation().replace("bluemind-", "").replace("-", "") + "-" + domainUid();
+			StringBuilder b = new StringBuilder();
+			b.append(installation().replace("bluemind-", "").replace("-", "")).append("-").append(domainUid());
+			suffix().ifPresent(suffix -> b.append("__").append(suffix));
+			return b.toString();
 		}
 
 		default String partitionKey(String uid) {
 			return (!owner().equals("system")) ? owner() : uid;
 		}
-
 	}
 
 	public static final class DefaultTopicDescriptor implements TopicDescriptor {
@@ -84,13 +85,16 @@ public interface ITopicStore {
 		private String owner;
 		private String type;
 		private String uid;
+		private Optional<String> suffix;
 
-		public DefaultTopicDescriptor(String install, String dom, String own, String type, String uid) {
+		public DefaultTopicDescriptor(String install, String dom, String own, String type, String uid,
+				Optional<String> suffix) {
 			this.install = install;
 			this.domainUid = dom;
 			this.owner = own;
 			this.type = type;
 			this.uid = uid;
+			this.suffix = suffix;
 		}
 
 		/**
@@ -100,27 +104,51 @@ public interface ITopicStore {
 		 */
 		public static DefaultTopicDescriptor of(String fn) {
 			Iterator<String> it = Splitter.on('/').split(fn).iterator();
-			return new DefaultTopicDescriptor(it.next(), it.next(), it.next(), it.next(), it.next());
+			return new DefaultTopicDescriptor(it.next(), it.next(), it.next(), it.next(), it.next(), Optional.empty());
 		}
 
+		public static TopicDescriptor fromPhysicalTopic(String topicName) {
+			int iidx = topicName.indexOf('-');
+			int suffixidx = topicName.indexOf("__");
+			String installationId = topicName.substring(0, iidx);
+			String domainUid = topicName.substring(iidx + 1, suffixidx == -1 ? topicName.length() : suffixidx);
+			Optional<String> suffix;
+			if (suffixidx != -1) {
+				suffix = Optional.of(topicName.substring(suffixidx + 2));
+			} else {
+				suffix = Optional.empty();
+			}
+			return new DefaultTopicDescriptor(installationId, domainUid, null, null, null, suffix);
+		}
+
+		@Override
 		public String installation() {
 			return install;
 		}
 
+		@Override
 		public String domainUid() {
 			return domainUid;
 		}
 
+		@Override
 		public String owner() {
 			return owner;
 		}
 
+		@Override
 		public String type() {
 			return type;
 		}
 
+		@Override
 		public String uid() {
 			return uid;
+		}
+
+		@Override
+		public Optional<String> suffix() {
+			return suffix;
 		}
 
 		@Override
@@ -128,6 +156,7 @@ public interface ITopicStore {
 			return MoreObjects.toStringHelper(TopicDescriptor.class)//
 					.add("in", install)//
 					.add("d", domainUid)//
+					.add("s", suffix)//
 					.add("o", owner)//
 					.add("t", type)//
 					.add("uid", uid)//
@@ -143,6 +172,7 @@ public interface ITopicStore {
 			result = prime * result + ((install == null) ? 0 : install.hashCode());
 			result = prime * result + ((owner == null) ? 0 : owner.hashCode());
 			result = prime * result + ((type == null) ? 0 : type.hashCode());
+			result = prime * result + (suffix.isPresent() ? 0 : suffix.hashCode());
 			return result;
 		}
 
@@ -160,6 +190,12 @@ public interface ITopicStore {
 					return false;
 			} else if (!domainUid.equals(other.domainUid))
 				return false;
+			if (suffix.isPresent() && other.suffix.isPresent()) {
+				if (!suffix.get().equals(other.suffix.get()))
+					return false;
+			} else if (suffix.isPresent() != other.suffix.isPresent()) {
+				return false;
+			}
 			if (uid == null) {
 				if (other.uid != null)
 					return false;

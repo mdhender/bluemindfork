@@ -1,5 +1,7 @@
 package net.bluemind.core.backup.continuous.impl;
 
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,20 +26,22 @@ public class LiveStream implements ILiveStream {
 
 	private final String installationid;
 	private final String domainUid;
+	private final Optional<String> suffix;
 	private final TopicSubscriber subscriber;
 	private final TopicDeserializer<RecordKey, VersionnedItem<?>> deserializer;
 
-	public LiveStream(String installationid, String domainUid, TopicSubscriber subscriber,
+	public LiveStream(String installationid, String domainUid, Optional<String> suffix, TopicSubscriber subscriber,
 			TopicDeserializer<RecordKey, VersionnedItem<?>> deserializer) {
 		this.installationid = installationid;
 		this.domainUid = domainUid;
+		this.suffix = suffix;
 		this.subscriber = subscriber;
 		this.deserializer = deserializer;
 	}
 
 	@Override
 	public String fullName() {
-		return TopicNames.build(installationid, domainUid);
+		return TopicNames.build(installationid, domainUid, suffix);
 	}
 
 	@Override

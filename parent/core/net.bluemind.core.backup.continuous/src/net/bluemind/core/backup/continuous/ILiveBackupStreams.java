@@ -18,6 +18,7 @@
 package net.bluemind.core.backup.continuous;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ILiveBackupStreams {
 
@@ -29,4 +30,5 @@ public interface ILiveBackupStreams {
 
 	List<ILiveStream> domains();
 
+	Optional<ILiveStream> preSyncForDomain(String domainUid);
 }

@@ -1,8 +1,12 @@
 package net.bluemind.core.backup.store.kafka;
 
 import java.time.Duration;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -12,18 +16,22 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.LongAdder;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.stream.Collectors;
 
+import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRebalanceListener;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.MoreObjects;
+import com.google.common.util.concurrent.RateLimiter;
 import com.netflix.spectator.api.Gauge;
 import com.netflix.spectator.api.Registry;
 import com.typesafe.config.Config;
@@ -53,12 +61,14 @@ public class KafkaTopicSubscriber implements TopicSubscriber {
 
 	private final Registry reg;
 	private final IdFactory idFactory;
+	private RateLimiter lagReportRateLimiter;
 
 	public KafkaTopicSubscriber(String bootstrapServer, String topicName, Registry reg, IdFactory idFactory) {
 		this.bootstrapServer = bootstrapServer;
 		this.topicName = topicName;
 		this.reg = reg;
 		this.idFactory = idFactory;
+		this.lagReportRateLimiter = RateLimiter.create(0.5);
 	}
 
 	public String topicName() {
@@ -93,15 +103,14 @@ public class KafkaTopicSubscriber implements TopicSubscriber {
 		CompletableFuture<?>[] proms = new CompletableFuture[tok.workers];
 		String group = tok.groupId;
 
-		ParallelStarvationHandler parStrat = new ParallelStarvationHandler(strat, tok.workers);
-		ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
+		ParallelStarvationHandler parStrat = new ParallelStarvationHandler(strat, tok.workers, getEndOffsets(group));
 		int consumerId = CONS_ID_ALLOCATOR.incrementAndGet();
 		for (int i = 0; i < tok.workers; i++) {
 			final int idx = i;
 			String client = "cons-" + consumerId + "-client-" + idx;
 			proms[i] = CompletableFuture.<Long>supplyAsync(() -> {
 				logger.info("Starting {} for topic {}", client, topicName);
-				return consumeLoop(handler, lock, parStrat, group, client);
+				return consumeLoop(handler, parStrat, group, client);
 			}, pool);
 		}
 		CompletableFuture.allOf(proms).join();
@@ -110,82 +119,98 @@ public class KafkaTopicSubscriber implements TopicSubscriber {
 		return tok;
 	}
 
-	private long consumeLoop(RecordHandler handler, ReentrantReadWriteLock lock, IRecordStarvationStrategy strat,
-			String gid, String cid) {
+	private Map<Integer, Long> getEndOffsets(String group) {
+		try (KafkaConsumer<byte[], byte[]> consumer = createKafkaConsumer(group,
+				"cons-" + CONS_ID_ALLOCATOR.incrementAndGet() + "-getendoffset")) {
+			List<TopicPartition> partitions = consumer.partitionsFor(topicName).stream()
+					.map(p -> new TopicPartition(topicName, p.partition())).toList();
+			consumer.assign(partitions);
+			do {
+				consumer.poll(Duration.ofMillis(100));
+			} while (consumer.assignment().isEmpty());
+
+			return consumer.endOffsets(partitions).entrySet().stream()
+					.collect(Collectors.toMap(es -> es.getKey().partition(), Entry::getValue));
+		}
+	}
+
+	public static class SetCurrentOffsetsOnPartitionAssigned implements ConsumerRebalanceListener {
+		private Consumer<?, ?> consumer;
+		private IRecordStarvationStrategy strat;
+
+		public SetCurrentOffsetsOnPartitionAssigned(Consumer<?, ?> consumer, IRecordStarvationStrategy strat) {
+			this.consumer = consumer;
+			this.strat = strat;
+		}
+
+		@Override
+		public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
+			// Nothing to do
+		}
+
+		@Override
+		public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
+			strat.updateOffsets(consumer.committed(new HashSet<>(partitions)).entrySet().stream().collect(Collectors
+					.toMap(es -> es.getKey().partition(), es -> es.getValue() != null ? es.getValue().offset() : 0L)));
+		}
+	}
+
+	private long consumeLoop(RecordHandler handler, IRecordStarvationStrategy strat, String gid, String cid) {
 		AtomicLong processed = new AtomicLong();
-		boolean assigned = false;
 
 		try (KafkaConsumer<byte[], byte[]> consumer = createKafkaConsumer(gid, cid)) {
-			consumer.subscribe(Collections.singletonList(topicName));
+			SetCurrentOffsetsOnPartitionAssigned onPartitionReassigned = new SetCurrentOffsetsOnPartitionAssigned(
+					consumer, strat);
+
+			consumer.subscribe(Collections.singletonList(topicName), onPartitionReassigned);
 			JsonObject recJs = new JsonObject().put("topic", topicName);
 			do {
 				ConsumerRecords<byte[], byte[]> someRecords = consumer.poll(Duration.ofMillis(500));
+				strat.onRecordsReceived(recJs.put("records", someRecords.count()));
+				strat.updateOffsets(someRecords.partitions().stream()
+						.collect(Collectors.toMap(tp -> tp.partition(), consumer::position)));
 
-				if (someRecords.isEmpty()) {
+				if (lagReportRateLimiter.tryAcquire()) {
+					reportLag(gid, cid, consumer);
+				}
+
+				if (!someRecords.isEmpty()) {
+					if (logger.isDebugEnabled()) {
+						logger.debug("{}: {} record(s)", topicName, someRecords.count());
+					}
+					processRecords(handler, consumer, processed, someRecords);
+				}
+				if (someRecords.isEmpty() || strat.isTopicFinished()) {
 					if (consumer.assignment().isEmpty()) {
-						strat.onRecordsReceived(recJs);
 						continue;
-					} else {
-						if (!assigned) {
-							logger.info("[{} / {}]  got {} partition(s) assignment(s) on {}.", gid, cid,
-									consumer.assignment().size(), topicName);
-							assigned = true;
-							// this is needed for lag evaluation to work
-							Map<TopicPartition, Long> endOffsets = consumer.endOffsets(consumer.assignment());
-							endOffsets.forEach((tp, end) -> {
-								if (logger.isDebugEnabled()) {
-									logger.debug("part {} ends at offset {}", tp.partition(), end);
-								}
-							});
-							strat.onRecordsReceived(recJs);
-							continue;
-						}
 					}
 
-					if (lagValue(consumer) > 0) {
-						strat.onRecordsReceived(recJs);
-						continue;
-					}
 					ExpectedBehaviour expected = ExpectedBehaviour.RETRY;
-
-					try {
-						lock.writeLock().lock();
-						expected = strat.onStarvation(new JsonObject().put("topic", topicName).put("cid", cid)
-								.put("records", processed.get()));
-					} finally {
-						lock.writeLock().unlock();
-					}
+					JsonObject starvationInfo = new JsonObject().put("topic", topicName).put("cid", cid).put("records",
+							processed.get());
+					expected = strat.onStarvation(starvationInfo);
 					if (expected == ExpectedBehaviour.ABORT) {
 						break;
 					} else {
 						continue;
 					}
 				}
-				strat.onRecordsReceived(recJs);
-				logger.info("Fresh batch of {} record(s)", someRecords.count());
-
-				try {
-					lock.readLock().lock();
-					processRecords(handler, processed, someRecords);
-				} finally {
-					strat.onRecordsReceived(recJs);
-					lock.readLock().unlock();
-				}
-				reportLag(gid, cid, consumer);
 				consumer.commitAsync();
 			} while (true);
 			consumer.commitSync();
+			reportLag(gid, cid, consumer);
 		}
 		return processed.longValue();
 	}
 
-	private void processRecords(RecordHandler handler, AtomicLong processed,
+	private void processRecords(RecordHandler handler, KafkaConsumer<byte[], byte[]> consumer, AtomicLong processed,
 			ConsumerRecords<byte[], byte[]> someRecords) {
-
+		long lastProcessedOffset = 0L;
 		for (TopicPartition part : someRecords.partitions()) {
 			for (ConsumerRecord<byte[], byte[]> rec : someRecords.records(part)) {
 				try {
 					handler.accept(rec.key(), rec.value(), rec.partition(), rec.offset());
+					lastProcessedOffset = rec.offset();
 					processed.incrementAndGet();
 				} catch (Exception e) {
 					PoisonPillStrategy strat = KafkaStoreConfig.get().getEnum(PoisonPillStrategy.class,
@@ -193,6 +218,11 @@ public class KafkaTopicSubscriber implements TopicSubscriber {
 					logger.error("[part {} - offset {}] handler {} failed, strategy is {}", rec.partition(),
 							rec.offset(), handler, strat, e);
 					strat.apply(rec.value(), e);
+					// We failed, commit the last processed offset to avoid processing again already
+					// processed events in the batch
+					consumer.commitSync(Map.of(part, new OffsetAndMetadata(lastProcessedOffset,
+							"handler has failed to process: " + e.getMessage())));
+					throw e;
 				}
 			}
 		}
@@ -208,15 +238,8 @@ public class KafkaTopicSubscriber implements TopicSubscriber {
 			}
 			sum.add(lag);
 		}));
-		logger.info("**** GLOBAL LAG {}", sum.sum());
 		gauge.set(sum.doubleValue());
 		KafkaTopicMetrics.get().addConsumerMetric(id, KafkaTopicMetrics.LAG, sum.sum());
-	}
-
-	private long lagValue(KafkaConsumer<byte[], byte[]> consumer) {
-		LongAdder sum = new LongAdder();
-		consumer.assignment().forEach(tp -> consumer.currentLag(tp).ifPresent(sum::add));
-		return sum.sum();
 	}
 
 	@Override
@@ -242,7 +265,6 @@ public class KafkaTopicSubscriber implements TopicSubscriber {
 		cp.setProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
 		cp.setProperty(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, "1000");
 		cp.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-
 		cp.setProperty(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG,
 				Long.toString(conf.getDuration("kafka.consumer.fetchMaxWait", TimeUnit.MILLISECONDS)));
 		cp.setProperty(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG,

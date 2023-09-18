@@ -28,8 +28,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +41,7 @@ import com.google.common.annotations.VisibleForTesting;
 
 import io.netty.util.concurrent.DefaultThreadFactory;
 import net.bluemind.core.api.Regex;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.backup.continuous.DataElement;
 import net.bluemind.core.backup.continuous.IBackupReader;
 import net.bluemind.core.backup.continuous.ILiveBackupStreams;
@@ -62,7 +66,6 @@ import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.domain.api.Domain;
-import net.bluemind.sds.store.ISdsSyncStore;
 import net.bluemind.system.api.CloneConfiguration;
 import net.bluemind.system.api.SystemConf;
 
@@ -115,16 +118,8 @@ public class InstallFromBackupTask extends BlockingServerTask implements IServer
 
 		cloneContainerItemIdSeq(monitor, orphansStream, orphans, cloneState);
 
-		// exclude, at least, "<mcastid>-crd-dir-entries" created by bm-crp kafka stream
-		List<ILiveStream> domainStreams = streams.domains().stream().filter(d -> Regex.DOMAIN.validate(d.domainUid()))
-				.toList();
-		monitor.log("Filtered domain(s) lists containers {} stream(s) ({}) out of {}", domainStreams.size(),
-				domainStreams.stream().map(ILiveStream::domainUid).toList(),
-				streams.domains().stream().map(ILiveStream::domainUid).toList());
 		try {
-			ISdsSyncStore sdsStore = sdsAccess.forSysconf(orphans.sysconf);
-			monitor.log("using sds store {}", sdsStore);
-			cloneDomains(monitor.subWork(99), domainStreams, cloneState, orphans, sdsStore);
+			cloneDomains(monitor.subWork(99), streams, cloneState, orphans);
 		} catch (Exception e) {
 			logger.error("cloning error", e);
 			monitor.end(false, e.getMessage(), "FAILED");
@@ -196,10 +191,28 @@ public class InstallFromBackupTask extends BlockingServerTask implements IServer
 		orphanTrack.whenComplete((v, ex) -> orphanTrackerPool.shutdown());
 	}
 
-	private void cloneDomains(IServerTaskMonitor monitor, List<ILiveStream> domainStreams, CloneState cloneState,
-			ClonedOrphans orphans, ISdsSyncStore sdsStore) {
-		monitor.begin(domainStreams.size(), "Cloning domains");
+	private void cloneDomains(IServerTaskMonitor monitor, ILiveBackupStreams streams, CloneState cloneState,
+			ClonedOrphans orphans) {
+		// exclude, at least, "<mcastid>-crd-dir-entries" created by bm-crp kafka stream
+		List<ILiveStream> domainStreams = streams.domains().stream().filter(d -> Regex.DOMAIN.validate(d.domainUid()))
+				.toList();
+		ILiveStream crpStream = streams.domains().stream().filter(ls -> "crp-dir-entries".equals(ls.domainUid()))
+				.findFirst().orElseThrow(() -> ServerFault
+						.notFound("unable to retrieve crp-dir-entries stream for installation " + streams));
 
+		CrpEntriesReader crpReader = new CrpEntriesReader(crpStream);
+		try {
+			crpReader.continuousReader().get(10, TimeUnit.MINUTES);
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			monitor.error("Unable to read CRP entries of {} for 10 minutes: {}. Aborting", crpStream, e.getMessage());
+			return;
+		}
+
+		monitor.log("Filtered domain(s) lists containers {} stream(s) ({}) out of {}", domainStreams.size(),
+				domainStreams.stream().map(ILiveStream::domainUid).toList(),
+				streams.domains().stream().map(ILiveStream::domainUid).toList());
+
+		monitor.begin(domainStreams.size(), "Cloning domains");
 		int goal = domainStreams.size();
 		ExecutorService clonePool = Executors.newFixedThreadPool(goal + 1,
 				new DefaultThreadFactory("backup-continuous-restore"));
@@ -209,8 +222,21 @@ public class InstallFromBackupTask extends BlockingServerTask implements IServer
 
 		CompletableFuture<?>[] toWait = new CompletableFuture<?>[goal];
 		int slot = 0;
+
+		// Read CRP, get active dirEntries first (ignore dirEntries not in CRP)
+
 		for (ILiveStream domainStream : domainStreams) {
 			ItemValue<Domain> domain = orphans.domains.get(domainStream.domainUid());
+
+			if (domain == null) {
+				if (logger.isErrorEnabled()) {
+					logger.error("domain uid={} not found in orphans", domainStream.domainUid());
+				}
+				monitor.end(false,
+						"Failed to restore " + domainStream.domainUid() + ": " + "domain not found in orphans", null);
+				break;
+			}
+
 			IServerTaskMonitor domainMonitor = monitor.subWork(domain.value.defaultAlias, 1);
 			monitor.log("supplyAsync for {} on pool {}", domain.value.defaultAlias, clonePool);
 			toWait[slot++] = CompletableFuture.supplyAsync(() -> {
@@ -221,9 +247,22 @@ public class InstallFromBackupTask extends BlockingServerTask implements IServer
 
 				try (RestoreState state = new RestoreState(domain.uid, orphans.topology)) {
 					DomainRestorationHandler restoration = new DomainRestorationHandler(domainMonitor,
-							cloneConf.skippedContainerTypes, domain, target, starvation, state);
+							cloneConf.skippedContainerTypes, domain, target, starvation, state, crpReader);
 					IResumeToken prevState = cloneState.forTopic(domainStream);
 					monitor.log("prevState for " + domainStream + " => " + prevState);
+
+					// sync with __presync topic first (repair)
+					streams.preSyncForDomain(domain.uid).ifPresent(preSyncStream -> {
+						monitor.log("presync stream available for {}: launching presync first", domain.uid);
+						logger.info("presync stream available for {}: launching presync first", domain.uid);
+						if (prevState == null) {
+							preSyncStream.subscribe(restoration::handle);
+						} else {
+							monitor.log("presync available, but previous state is non null: no presync needed");
+							logger.info("presync available, but previous state is non null: no presync needed");
+						}
+					});
+
 					domainStreamIndex = domainStream.subscribe(prevState, restoration::handle, starvation); // , false
 				} catch (IOException e) {
 					logger.error("unexpected error when closing", e);

@@ -17,7 +17,10 @@
  */
 package net.bluemind.core.backup.store.kafka;
 
-import java.util.concurrent.TimeUnit;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -28,6 +31,7 @@ import com.google.common.util.concurrent.RateLimiter;
 
 import io.vertx.core.json.JsonObject;
 import net.bluemind.core.backup.continuous.IRecordStarvationStrategy;
+import net.bluemind.utils.ProgressPrinter;
 
 /**
  * Create {@link IRecordStarvationStrategy} "workers" for dealing with
@@ -55,49 +59,66 @@ public class ParallelStarvationHandler implements IRecordStarvationStrategy {
 
 	private static final Logger logger = LoggerFactory.getLogger(ParallelStarvationHandler.class);
 	private final AtomicReference<IRecordStarvationStrategy> delegate;
-	private final AtomicLong lastRec;
-	private final AtomicLong lastStarv;
-	private final RateLimiter logRateLimit;
+	private final AtomicLong receivedRecords;
+	private final Map<Integer, Long> endOffsets;
+	private final Map<Integer, Long> currentOffsets;
+	private final ProgressPrinter progressPrinter;
+	private final RateLimiter progressRateLimit;
 
-	public ParallelStarvationHandler(IRecordStarvationStrategy starved, int worker) {
+	private Long estimatedTotalRecords;
+
+	public ParallelStarvationHandler(IRecordStarvationStrategy starved, int worker, Map<Integer, Long> endOffsets) {
 		this.delegate = new AtomicReference<>(starved);
-		this.lastRec = new AtomicLong(System.nanoTime());
-		this.lastStarv = new AtomicLong();
-		this.logRateLimit = RateLimiter.create(0.25);
+		this.progressRateLimit = RateLimiter.create(1);
+		this.receivedRecords = new AtomicLong(0);
+		this.endOffsets = endOffsets;
+		this.currentOffsets = new ConcurrentHashMap<>();
+		endOffsets.entrySet().stream().forEach(es -> currentOffsets.put(es.getKey(), 0L));
+		this.estimatedTotalRecords = endOffsets.values().stream().reduce(0L, Long::sum);
+		progressPrinter = new ProgressPrinter(estimatedTotalRecords, 500_000, 1);
 		logger.info("Preparing sub with {} worker(s) and starving to {}", worker, starved);
 
 	}
 
 	@Override
 	public void onRecordsReceived(JsonObject metas) {
-		lastRec.set(System.nanoTime());
+		Long records = metas.getLong("records", 0L);
+		if (records != 0) {
+			receivedRecords.addAndGet(records);
+		}
+		if (progressRateLimit.tryAcquire() && logger.isInfoEnabled()) {
+			logger.info("progress on {}: {}", metas.getString("topic"), progressPrinter);
+		}
+	}
+
+	@Override
+	public void updateOffsets(Map<Integer, Long> currentOffsets) {
+		long previousTotalOffsets = this.currentOffsets.values().stream().reduce(0L, Long::sum);
+		currentOffsets.forEach(this.currentOffsets::put);
+		long newTotalOffsets = this.currentOffsets.values().stream().reduce(0L, Long::sum);
+		progressPrinter.add(newTotalOffsets - previousTotalOffsets);
+	}
+
+	@Override
+	public boolean isTopicFinished() {
+		List<Entry<Integer, Long>> nonEmptyPartitions = endOffsets.entrySet().stream()
+				.filter(es -> currentOffsets.get(es.getKey()) < es.getValue()).toList();
+		return nonEmptyPartitions.isEmpty();
 	}
 
 	@Override
 	public ExpectedBehaviour onStarvation(JsonObject infos) {
-		lastStarv.set(System.nanoTime());
-		long deltaNanos = lastStarv.get() - lastRec.get();
-		if (logRateLimit.tryAcquire()) {
-			logger.info("[{}] Delta between lastStarvation & lastRecord is {}ms.", infos.getString("topic"),
-					TimeUnit.NANOSECONDS.toMillis(deltaNanos));
-		}
-		if (deltaNanos > TimeUnit.SECONDS.toNanos(2)) {
-			logger.debug("Calling into parent delegate {} (delta {}ms)", delegate.get(),
-					TimeUnit.NANOSECONDS.toMillis(deltaNanos));
-			// when the delegate decides to abort, we always abort & stop calling it
-			synchronized (delegate) {
-				IRecordStarvationStrategy del = delegate.get();
-				ExpectedBehaviour result = del.onStarvation(infos);
-				if (result == ExpectedBehaviour.ABORT) {
-					if (del != ABORT_STRAT) {
-						logger.info("{} decided to abort.", delegate.get());
-					}
-					delegate.set(ABORT_STRAT);
+		if (isTopicFinished()) {
+			IRecordStarvationStrategy del = delegate.get();
+			ExpectedBehaviour result = del.onStarvation(infos);
+			if (result == ExpectedBehaviour.ABORT) {
+				if (del != ABORT_STRAT) {
+					logger.info("{} decided to abort.", del);
 				}
-				return result;
+				delegate.set(ABORT_STRAT);
 			}
-		} else {
-			return ExpectedBehaviour.RETRY;
+			return result;
 		}
+		return ExpectedBehaviour.RETRY;
 	}
 }

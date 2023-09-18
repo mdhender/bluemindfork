@@ -30,6 +30,7 @@ public class InstallationTopics {
 
 	public InstallationTopics(Set<String> topicNames, String crpTopicSuffix) {
 		installationId = topicNames.stream() //
+				.filter(topicName -> !topicName.endsWith("__presync")) //
 				.map(topicName -> {
 					String[] tokens = topicName.split("-");
 					return (tokens.length > 1) ? tokens[0] : null;

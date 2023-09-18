@@ -38,8 +38,13 @@ public class BackupStoreFactory implements IBackupStoreFactory {
 	private final Supplier<InstallationWriteLeader> election;
 
 	public BackupStoreFactory(String iid, ITopicStore topicStore, Supplier<InstallationWriteLeader> election) {
+		this(iid, topicStore, election, Optional.empty());
+	}
+
+	public BackupStoreFactory(String iid, ITopicStore topicStore, Supplier<InstallationWriteLeader> election,
+			Optional<String> suffix) {
 		this.election = election;
-		this.names = new TopicNames(iid);
+		this.names = new TopicNames(iid, suffix);
 		this.topicStore = topicStore;
 	}
 

@@ -26,18 +26,22 @@ import net.bluemind.core.container.model.BaseContainerDescriptor;
 public class TopicNames {
 
 	private String iid;
+	private Optional<String> suffix;
 
-	public TopicNames(String installationId) {
+	public TopicNames(String installationId, Optional<String> suffix) {
 		this.iid = installationId;
+		this.suffix = suffix;
 	}
 
-	public static String build(String installationId, String domainUid) {
-		return installationId + "-" + domainUid;
+	public static String build(String installationId, String domainUid, Optional<String> suffix) {
+		StringBuilder builder = new StringBuilder();
+		builder.append(installationId).append("-").append(domainUid);
+		suffix.ifPresent(sfx -> builder.append("__").append(sfx));
+		return builder.toString();
 	}
 
 	public TopicDescriptor forContainer(BaseContainerDescriptor c) {
 		return new DefaultTopicDescriptor(iid, Optional.ofNullable(c.domainUid).orElse("__orphans__"), c.owner, c.type,
-				c.uid);
+				c.uid, suffix);
 	}
-
 }
