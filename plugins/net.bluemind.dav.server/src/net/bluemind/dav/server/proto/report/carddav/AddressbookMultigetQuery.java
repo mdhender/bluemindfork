@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2022
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -18,14 +18,30 @@
  */
 package net.bluemind.dav.server.proto.report.carddav;
 
+import java.util.List;
+
 import javax.xml.namespace.QName;
 
-import net.bluemind.dav.server.proto.NS;
-import net.bluemind.dav.server.proto.QN;
+import net.bluemind.dav.server.proto.report.ReportQuery;
+import net.bluemind.dav.server.store.DavResource;
 
-public class RDReports {
+public class AddressbookMultigetQuery extends ReportQuery {
 
-	public static final QName ADDRESSBOOK_QUERY = QN.qn(NS.CARDDAV, "addressbook-query");
+	private List<QName> props;
+	private List<String> hrefs;
 
-	public static final QName ADDRESSBOOK_MULTIGET = QN.qn(NS.CARDDAV, "addressbook-multiget");
+	protected AddressbookMultigetQuery(DavResource dr, QName root, List<QName> props, List<String> hrefs) {
+		super(dr, root);
+		this.props = props;
+		this.hrefs = hrefs;
+	}
+
+	public List<QName> getProps() {
+		return props;
+	}
+
+	public List<String> getHrefs() {
+		return hrefs;
+	}
+
 }

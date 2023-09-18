@@ -25,6 +25,7 @@ import javax.xml.namespace.QName;
 import net.bluemind.dav.server.proto.report.caldav.CalendarMultigetExecutor;
 import net.bluemind.dav.server.proto.report.caldav.CalendarQueryExecutor;
 import net.bluemind.dav.server.proto.report.calendarserver.CalendarServerPrincipalSearchExecutor;
+import net.bluemind.dav.server.proto.report.carddav.AddressbookMultigetExecutor;
 import net.bluemind.dav.server.proto.report.webdav.ExpandPropertyExecutor;
 import net.bluemind.dav.server.proto.report.webdav.PrincipalPropertySearchExecutor;
 import net.bluemind.dav.server.proto.report.webdav.PrincipalSearchPropertySetExecutor;
@@ -41,6 +42,7 @@ public class ReportExecutors {
 		reg(new PrincipalSearchPropertySetExecutor());
 		reg(new SyncCollectionExecutor());
 		reg(new CalendarMultigetExecutor());
+		reg(new AddressbookMultigetExecutor());
 		reg(new CalendarQueryExecutor());
 		reg(new CalendarServerPrincipalSearchExecutor());
 	}

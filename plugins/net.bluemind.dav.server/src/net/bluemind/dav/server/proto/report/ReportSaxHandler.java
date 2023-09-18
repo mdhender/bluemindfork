@@ -32,6 +32,7 @@ import org.xml.sax.helpers.DefaultHandler;
 import net.bluemind.dav.server.proto.report.caldav.CalendarMultigetDelegate;
 import net.bluemind.dav.server.proto.report.caldav.CalendarQueryDelegate;
 import net.bluemind.dav.server.proto.report.calendarserver.CalendarServerPrincipalSearchDelegate;
+import net.bluemind.dav.server.proto.report.carddav.AddressbookMultigetDelegate;
 import net.bluemind.dav.server.proto.report.webdav.ExpandPropertyDelegate;
 import net.bluemind.dav.server.proto.report.webdav.PrincipalPropertySearchDelegate;
 import net.bluemind.dav.server.proto.report.webdav.PrincipalSearchPropertySetDelegate;
@@ -61,6 +62,7 @@ public class ReportSaxHandler extends DefaultHandler {
 		reg(new ExpandPropertyDelegate());
 		reg(new SyncCollectionDelegate());
 		reg(new CalendarMultigetDelegate());
+		reg(new AddressbookMultigetDelegate());
 		reg(new CalendarQueryDelegate());
 		reg(new CalendarServerPrincipalSearchDelegate());
 	}
