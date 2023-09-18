@@ -1,5 +1,6 @@
 package net.bluemind.core.backup.continuous.impl;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -109,9 +110,23 @@ public class BackupReader implements IBackupReader {
 
 			@Override
 			public List<ILiveStream> listAvailable() {
-				List<ILiveStream> streams = domains();
-				streams.add(orphans());
-				return streams;
+				List<ILiveStream> domainAndOrphans = new ArrayList<>();
+				domainAndOrphans.addAll(domains());
+				if (orphanSubscriber != null) {
+					domainAndOrphans.add(orphans());
+				}
+				return domainAndOrphans;
+			}
+
+			@Override
+			public List<ILiveStream> listAll() {
+				List<ILiveStream> all = new ArrayList<>();
+				List<ILiveStream> domainsList = domains();
+				all.addAll(domainsList);
+				if (orphanSubscriber != null) {
+					all.add(orphans());
+				}
+				return all;
 			}
 
 			@Override
