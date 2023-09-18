@@ -57,6 +57,10 @@ public class SentryReconfVerticle extends AbstractVerticle {
 				String environment = js.getString("environment", "BM_COMMUNITY");
 				String release = js.getString("release", "UNKNOWN_RELEASE");
 				String servername = js.getString("servername", "UNKNOWN_SERVER");
+				if (sentryDsn.isBlank() && sentryWebDsn.isBlank()) {
+					// There is nothing to configure, skip it
+					return;
+				}
 				SentryProperties sentryProps = new SentryProperties();
 				sentryProps.setDsn(sentryDsn);
 				sentryProps.setWebDsn(sentryWebDsn);
