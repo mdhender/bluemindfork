@@ -88,8 +88,8 @@ public class ServersToBackup {
 
 	public ServersToBackup(BmContext ctx, List<ItemValue<Server>> servers, List<String> skipTags) {
 		this.ctx = ctx;
-		this.servers = filteroutSkippedTags(servers);
 		this.skipTags = skipTags;
+		this.servers = filteroutSkippedTags(servers);
 	}
 
 	private List<ItemValue<Server>> filteroutSkippedTags(List<ItemValue<Server>> servers) {
