@@ -580,9 +580,18 @@ public class MailApiConnection implements MailboxConnection {
 			return new AppendStatus(WriteStatus.EXCEPTIONNALY_REJECTED, 0L, 0L);
 		}
 
-		IMailboxes mboxApi = suProv.instance(IMailboxes.class, me.domainUid);
-		MailboxQuota mbxQuota = mboxApi.getMailboxQuota(selected.mailbox.owner.uid);
-		if (mbxQuota.quota != null && mbxQuota.quota < mbxQuota.used) {
+		long avail = QuotaCache.availableSpace(selected.mailbox.owner.uid).orElseGet(() -> {
+			IMailboxes mboxApi = suProv.instance(IMailboxes.class, me.domainUid);
+			MailboxQuota mbxQuota = mboxApi.getMailboxQuota(selected.mailbox.owner.uid);
+			long ret = Long.MAX_VALUE;
+			if (mbxQuota.quota != null) {
+				ret = mbxQuota.quota.longValue() * 1024L - mbxQuota.used * 1024L;
+			}
+			QuotaCache.setAvailableSpace(selected.mailbox.owner.uid, ret);
+			return ret;
+		});
+
+		if (avail <= 0) {
 			return new AppendStatus(WriteStatus.OVERQUOTA_REJECTED, 0L, 0L);
 		}
 
@@ -613,6 +622,7 @@ public class MailApiConnection implements MailboxConnection {
 		rec.lastUpdated = rec.internalDate;
 
 		selected.recApi.create(appendTx.imapUid + ".", rec);
+		QuotaCache.consumeBytes(selected.mailbox.owner.uid, messageBody.size);
 		return new AppendStatus(WriteStatus.WRITTEN, selected.folder.value.uidValidity, appendTx.imapUid);
 	}
 

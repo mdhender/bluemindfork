@@ -26,7 +26,9 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.utils,
  net.bluemind.backend.mail.replica.indexing,
  net.bluemind.lib.elasticsearch,
- it.unimi.dsi.fastutil;bundle-version="8.5.12"
+ it.unimi.dsi.fastutil;bundle-version="8.5.12",
+ net.bluemind.core.caches.registry,
+ com.github.ben-manes.caffeine
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.imap.driver
 Export-Package: net.bluemind.imap.driver.mailapi

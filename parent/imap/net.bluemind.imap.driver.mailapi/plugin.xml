@@ -8,5 +8,11 @@
             priority="100">
       </driver>
    </extension>
+   <extension
+         point="net.bluemind.core.caches.registry.registration">
+      <reg
+            impl="net.bluemind.imap.driver.mailapi.QuotaCache$Reg">
+      </reg>
+   </extension>
 
 </plugin>
