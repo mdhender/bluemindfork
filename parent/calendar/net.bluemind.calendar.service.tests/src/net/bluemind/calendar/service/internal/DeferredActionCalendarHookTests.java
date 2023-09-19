@@ -133,7 +133,7 @@ public class DeferredActionCalendarHookTests {
 		wait.get(5, TimeUnit.SECONDS);
 
 		List<ItemValue<DeferredAction>> byActionId = service("testuser").getByActionId(EventDeferredAction.ACTION_ID,
-				LocalDate.of(2100, 0, 0).atStartOfDay(ZoneOffset.UTC).toEpochSecond());
+				LocalDate.of(2099, 12, 31).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli());
 		assertEquals(1, byActionId.size());
 
 		checkDate(defaultVEvent.main.dtstart, byActionId, 2 * 60);
@@ -155,7 +155,7 @@ public class DeferredActionCalendarHookTests {
 		wait.get(5, TimeUnit.SECONDS);
 
 		List<ItemValue<DeferredAction>> byActionId = service("testuser").getByActionId(EventDeferredAction.ACTION_ID,
-				LocalDate.of(2100, 0, 0).atStartOfDay(ZoneOffset.UTC).toEpochSecond());
+				LocalDate.of(2099, 12, 31).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli());
 		assertEquals(0, byActionId.size());
 	}
 
@@ -173,7 +173,7 @@ public class DeferredActionCalendarHookTests {
 		wait.get(5, TimeUnit.SECONDS);
 
 		List<ItemValue<DeferredAction>> byActionId = service("testuser").getByActionId(EventDeferredAction.ACTION_ID,
-				LocalDate.of(2100, 0, 0).atStartOfDay(ZoneOffset.UTC).toEpochSecond());
+				LocalDate.of(2099, 12, 31).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli());
 		assertEquals(3, byActionId.size());
 
 		checkDate(defaultVEvent.main.dtstart, byActionId, 120, 240, 10);
@@ -202,7 +202,7 @@ public class DeferredActionCalendarHookTests {
 		wait.get(5, TimeUnit.SECONDS);
 
 		List<ItemValue<DeferredAction>> byActionId = service("testuser").getByActionId(EventDeferredAction.ACTION_ID,
-				LocalDate.of(2100, 0, 0).atStartOfDay(ZoneOffset.UTC).toEpochSecond());
+				LocalDate.of(2099, 12, 31).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli());
 		assertEquals(1, byActionId.size());
 
 		BmDateTime expected = BmDateTimeHelper.time(start.plusDays(3));
@@ -228,7 +228,7 @@ public class DeferredActionCalendarHookTests {
 		wait.get(5, TimeUnit.SECONDS);
 
 		List<ItemValue<DeferredAction>> byActionId = service("testuser").getByActionId(EventDeferredAction.ACTION_ID,
-				LocalDate.of(2100, 0, 0).atStartOfDay(ZoneOffset.UTC).toEpochSecond());
+				LocalDate.of(2099, 12, 31).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli());
 
 		System.err.println(byActionId.get(0).value.executionDate);
 
@@ -258,11 +258,11 @@ public class DeferredActionCalendarHookTests {
 		wait.get(5, TimeUnit.SECONDS);
 
 		List<ItemValue<DeferredAction>> byActionId = service("testuser").getByActionId(EventDeferredAction.ACTION_ID,
-				LocalDate.of(2100, 0, 0).atStartOfDay(ZoneOffset.UTC).toEpochSecond());
+				LocalDate.of(2099, 12, 31).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli());
 		assertEquals(0, byActionId.size());
 
 		byActionId = domainService("defbm.lan").getByActionId(EventDeferredAction.ACTION_ID,
-				LocalDate.of(2100, 0, 0).atStartOfDay(ZoneOffset.UTC).toEpochSecond());
+				LocalDate.of(2099, 12, 31).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli());
 		assertEquals(3, byActionId.size());
 
 		checkDate(defaultVEvent.main.dtstart, byActionId, 120, 240, 10);
@@ -282,7 +282,7 @@ public class DeferredActionCalendarHookTests {
 		wait.get(5, TimeUnit.SECONDS);
 
 		List<ItemValue<DeferredAction>> byActionId = service("testuser").getByActionId(EventDeferredAction.ACTION_ID,
-				LocalDate.of(2100, 0, 0).atStartOfDay(ZoneOffset.UTC).toEpochSecond());
+				LocalDate.of(2099, 12, 31).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli());
 		assertEquals(2, byActionId.size());
 
 		checkDate(defaultVEvent.main.dtstart, byActionId, 120, 10);
@@ -302,7 +302,7 @@ public class DeferredActionCalendarHookTests {
 		wait.get(5, TimeUnit.SECONDS);
 
 		List<ItemValue<DeferredAction>> byActionId = service("testuser").getByActionId(EventDeferredAction.ACTION_ID,
-				LocalDate.of(2100, 0, 0).atStartOfDay(ZoneOffset.UTC).toEpochSecond());
+				LocalDate.of(2099, 12, 31).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli());
 		assertEquals(3, byActionId.size());
 
 		checkDate(defaultVEvent.main.dtstart, byActionId, 120, 240, 10);
@@ -316,7 +316,7 @@ public class DeferredActionCalendarHookTests {
 		wait.get(5, TimeUnit.SECONDS);
 
 		byActionId = service("testuser").getByActionId(EventDeferredAction.ACTION_ID,
-				LocalDate.of(2100, 0, 0).atStartOfDay(ZoneOffset.UTC).toEpochSecond());
+				LocalDate.of(2099, 12, 31).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli());
 		assertEquals(2, byActionId.size());
 
 		checkDate(defaultVEvent.main.dtstart, byActionId, 420, 11);
@@ -344,7 +344,7 @@ public class DeferredActionCalendarHookTests {
 		wait.get(5, TimeUnit.SECONDS);
 
 		List<ItemValue<DeferredAction>> byActionId = service("testuser").getByActionId(EventDeferredAction.ACTION_ID,
-				LocalDate.of(2100, 0, 0).atStartOfDay(ZoneOffset.UTC).toEpochSecond());
+				LocalDate.of(2099, 12, 31).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli());
 		assertEquals(6, byActionId.size());
 
 		wait = registerOnHook("uid2");
@@ -352,7 +352,7 @@ public class DeferredActionCalendarHookTests {
 		wait.get(5, TimeUnit.SECONDS);
 
 		byActionId = service("testuser").getByActionId(EventDeferredAction.ACTION_ID,
-				LocalDate.of(2100, 0, 0).atStartOfDay(ZoneOffset.UTC).toEpochSecond());
+				LocalDate.of(2099, 12, 31).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli());
 		assertEquals(3, byActionId.size());
 	}
 
@@ -376,7 +376,7 @@ public class DeferredActionCalendarHookTests {
 		wait.get(5, TimeUnit.SECONDS);
 
 		List<ItemValue<DeferredAction>> byActionId = service("testuser").getByActionId(EventDeferredAction.ACTION_ID,
-				LocalDate.of(2100, 0, 0).atStartOfDay(ZoneOffset.UTC).toEpochSecond());
+				LocalDate.of(2099, 12, 31).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli());
 		assertEquals(1, byActionId.size());
 
 		// expected date is today 22pm Europe/Paris
@@ -404,7 +404,7 @@ public class DeferredActionCalendarHookTests {
 		wait.get(5, TimeUnit.SECONDS);
 
 		List<ItemValue<DeferredAction>> byActionId = service("testuser").getByActionId(EventDeferredAction.ACTION_ID,
-				LocalDate.of(2100, 0, 0).atStartOfDay(ZoneOffset.UTC).toEpochSecond());
+				LocalDate.of(2099, 12, 31).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli());
 		assertEquals(1, byActionId.size());
 
 		checkDate(defaultVEvent.occurrences.get(0).dtstart, byActionId, 120);
@@ -435,7 +435,7 @@ public class DeferredActionCalendarHookTests {
 		wait.get(15, TimeUnit.SECONDS);
 
 		List<ItemValue<DeferredAction>> byActionId = service("testuser").getByActionId(EventDeferredAction.ACTION_ID,
-				LocalDate.of(2100, 0, 0).atStartOfDay(ZoneOffset.UTC).toEpochSecond());
+				LocalDate.of(2099, 12, 31).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli());
 		assertEquals(1, byActionId.size());
 	}
 
@@ -459,7 +459,7 @@ public class DeferredActionCalendarHookTests {
 		wait.get(15, TimeUnit.SECONDS);
 
 		List<ItemValue<DeferredAction>> byActionId = service("testuser").getByActionId(EventDeferredAction.ACTION_ID,
-				LocalDate.of(2100, 0, 0).atStartOfDay(ZoneOffset.UTC).toEpochSecond());
+				LocalDate.of(2099, 12, 31).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli());
 		assertEquals(1, byActionId.size());
 	}
 
@@ -489,7 +489,7 @@ public class DeferredActionCalendarHookTests {
 		wait.get(5, TimeUnit.SECONDS);
 
 		List<ItemValue<DeferredAction>> byActionId = service("testuser").getByActionId(EventDeferredAction.ACTION_ID,
-				LocalDate.of(2100, 0, 0).atStartOfDay(ZoneOffset.UTC).toEpochSecond());
+				LocalDate.of(2099, 12, 31).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli());
 		assertEquals(2, byActionId.size());
 
 		checkDate(event.main.dtstart, byActionId, 120);
