@@ -14,7 +14,9 @@ Require-Bundle: net.bluemind.core.auditlogs,
  net.bluemind.lib.elasticsearch,
  net.bluemind.core.auditlogs.schema,
  net.bluemind.system.api,
- net.bluemind.system.state
+ net.bluemind.system.state,
+ net.bluemind.chronicle.queue,
+ net.bluemind.retry.support
 Bundle-Vendor: net.bluemind
 Automatic-Module-Name: net.bluemind.core.auditlogs.client.es
 Bundle-ActivationPolicy: lazy

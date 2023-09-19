@@ -41,7 +41,7 @@ import net.openhft.chronicle.queue.impl.single.SingleChronicleQueueBuilder;
 
 public class SdsSyncQueue implements AutoCloseable {
 	private static final Supplier<String> QUEUES_ROOT = Suppliers
-			.memoize(() -> System.getProperty("bm.sdssyncqueue", "/var/cache/bm-core/sds-sync-queue"));;
+			.memoize(() -> System.getProperty("bm.sdssyncqueue", "/var/cache/bm-core/sds-sync-queue"));
 	private static final Logger logger = LoggerFactory.getLogger(SdsSyncQueue.class);
 	private static final Set<SdsSyncEvent> BODIES_EVENTS = Set.of(SdsSyncEvent.BODYADD, SdsSyncEvent.BODYDEL);
 	private final SingleChronicleQueue queue;

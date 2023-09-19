@@ -8,5 +8,11 @@
             factory="net.bluemind.core.auditlogs.client.es.ElasticSearchAuditLogFactory">
       </store>
    </extension>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.core.auditlogs.client.es.datastreams.AuditQueueFactory">
+      </verticle>
+   </extension>
 
 </plugin>
