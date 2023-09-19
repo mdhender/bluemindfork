@@ -13,12 +13,12 @@
     >
         <bm-form class="mt-4" @submit.prevent="submit">
             <bm-form-group id="label-group" :label="$t('preferences.general.tags.modal.label')" label-for="label">
-                <bm-form-input id="label" ref="label-input" v-model="label" required />
+                <bm-form-input id="label" ref="label-input" v-model="tag_.label" required />
             </bm-form-group>
             <bm-form-group id="color-group" label-for="color" :label="$t('preferences.general.tags.modal.color')">
                 <bm-form-color-picker
                     id="color"
-                    v-model="color"
+                    v-model="tag_.color"
                     type="text"
                     required
                     pick-default
@@ -43,38 +43,27 @@ export default {
         }
     },
     data() {
-        return { tagValueOnShow: {}, tagColors };
+        return { tag_: {}, tagColors };
     },
     computed: {
-        color: {
-            get() {
-                return this.tag.color;
-            },
-            set(color) {
-                this.$emit("update:tag", { ...this.tag, color });
-            }
-        },
-        label: {
-            get() {
-                return this.tag.label;
-            },
-            set(label) {
-                this.$emit("update:tag", { ...this.tag, label });
-            }
-        },
         okDisabled() {
             return (
-                !this.tag.label ||
-                this.tag.label.trim() === "" ||
-                !this.tag.color ||
-                this.tag.color === "" ||
-                (this.tag.label === this.tagValueOnShow.label && this.tag.color === this.tagValueOnShow.color)
+                !this.tag_.label?.trim() ||
+                !this.tag_.color ||
+                (this.tag_.label === this.tag.label && this.tag_.color === this.tag.color)
             );
+        }
+    },
+    watch: {
+        tag: {
+            handler(value) {
+                this.tag_ = { ...value };
+            },
+            immediate: true
         }
     },
     methods: {
         init() {
-            this.tagValueOnShow = { ...this.tag };
             this.$refs["label-input"].focus();
         },
         show() {
@@ -84,7 +73,7 @@ export default {
             this.$refs["pref-tag-modal-bm-modal"].hide();
         },
         save() {
-            this.$emit("updateTag", { id: this.tag.id, label: this.tag.label, color: this.tag.color });
+            this.$emit("update:tag", this.tag_);
         },
         submit() {
             if (!this.okDisabled) {
