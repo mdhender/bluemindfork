@@ -82,6 +82,9 @@ import net.bluemind.system.api.SystemConf;
 
 public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 	private static final Logger logger = LoggerFactory.getLogger(MailboxesService.class);
+	private static final IMailboxesStorage mailboxStorage = getMailStorage();
+	private static final List<IMailboxHook> hooks = getHooks();
+
 	private MailboxStoreService storeService;
 	private MailboxSanitizer sanitizer;
 	private MailboxValidator validator;
@@ -96,10 +99,8 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 	private RBACManager rbacManager;
 	private ItemValue<Domain> domain;
 	private Container container;
-	private static final IMailboxesStorage mailboxStorage = getMailStorage();
-	private static final List<IMailboxHook> hooks = getHooks();
-	private final MailFilterRuleVacationMapper vacationMapper = new MailFilterRuleVacationMapper();
-	private final MailFilterRuleForwardingMapper forwardingMapper = new MailFilterRuleForwardingMapper();
+	private final MailFilterRuleVacationMapper vacationMapper;
+	private final MailFilterRuleForwardingMapper forwardingMapper;
 
 	public MailboxesService(BmContext context, Container container, ItemValue<Domain> domain) {
 		this.context = context;
@@ -122,6 +123,8 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 		this.securityContext = context.getSecurityContext();
 
 		this.domainMailFilterStore = new DomainMailFilterStore(context.getDataSource(), container);
+		this.vacationMapper = new MailFilterRuleVacationMapper();
+		this.forwardingMapper = new MailFilterRuleForwardingMapper();
 
 		rbacManager = new RBACManager(context).forDomain(domainUid);
 	}

@@ -12,10 +12,15 @@ import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleFilterRange;
 import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleOperatorName;
 
 public class MailFilterRuleVacationMapper implements MailFilterRuleTypeMapper<MailFilter.Vacation> {
-	private final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-	public MailFilterRuleVacationMapper() {
+	private static class ThreadLocalDateFormat {
 
+		private static final ThreadLocal<SimpleDateFormat> FORMAT = // NOSONAR
+				ThreadLocal.withInitial(() -> new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
+
+		public static SimpleDateFormat getCurrent() {
+			return FORMAT.get();
+		}
 	}
 
 	public Optional<MailFilterRule> map(MailFilter.Vacation vacation) {
@@ -29,7 +34,7 @@ public class MailFilterRuleVacationMapper implements MailFilterRuleTypeMapper<Ma
 		rule.active = vacation.enabled;
 		rule.client = "bluemind";
 		rule.name = "";
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		SimpleDateFormat formatter = ThreadLocalDateFormat.getCurrent();
 		rule.conditions = new ArrayList<>();
 		if (vacation.start != null || vacation.end != null) {
 			String startDate = (vacation.start != null) ? formatter.format(vacation.start) : null;
@@ -72,7 +77,7 @@ public class MailFilterRuleVacationMapper implements MailFilterRuleTypeMapper<Ma
 			return null;
 		}
 		try {
-			return formatter.parse(parameter);
+			return ThreadLocalDateFormat.getCurrent().parse(parameter);
 		} catch (ParseException e) {
 			return null;
 		}
