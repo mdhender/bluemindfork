@@ -88,8 +88,14 @@ public class ServersToBackup {
 
 	public ServersToBackup(BmContext ctx, List<ItemValue<Server>> servers, List<String> skipTags) {
 		this.ctx = ctx;
-		this.servers = Collections.unmodifiableList(servers);
+		this.servers = filteroutSkippedTags(servers);
 		this.skipTags = skipTags;
+	}
+
+	private List<ItemValue<Server>> filteroutSkippedTags(List<ItemValue<Server>> servers) {
+		IServer serverApi = ctx.provider().instance(IServer.class, InstallationId.getIdentifier());
+		return servers.stream().filter(ivs -> !(serverApi.getServerAssignments(ivs.uid).stream()
+				.allMatch(assignment -> skipTags.contains(assignment.tag)))).toList();
 	}
 
 	public Set<String> getServerBackupTags(ItemValue<Server> server) {
