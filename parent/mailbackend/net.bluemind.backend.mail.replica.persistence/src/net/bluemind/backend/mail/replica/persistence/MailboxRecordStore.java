@@ -176,8 +176,7 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 	}
 
 	public List<Long> sortedIds(String query) throws SQLException {
-		return select(query, LongCreator.FIRST, Collections.emptyList(),
-				new Object[] { subtreeContainer.id, folderContainer.id });
+		return selectLong(query, new Object[] { subtreeContainer.id, folderContainer.id });
 	}
 
 	/**
@@ -336,8 +335,7 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 				+ filterSql("rec", itemFilter) + //
 				" AND (rec.system_flags::bit(32) & (" + InternalFlag.expunged.value + ")::bit(32)) = 0::bit(32) " //
 				+ " ORDER BY rec.imap_uid";
-		return select(q, LongCreator.FIRST, Collections.emptyList(),
-				new Object[] { subtreeContainer.id, folderContainer.id });
+		return selectLong(q, new Object[] { subtreeContainer.id, folderContainer.id });
 	}
 
 	public static String asSql(String idset) {

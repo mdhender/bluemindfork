@@ -77,6 +77,8 @@ public interface MailboxConnection {
 
 	void notIdle();
 
+	void close();
+
 	NamespaceInfos namespaces();
 
 	String imapAcl(SelectedFolder selected);

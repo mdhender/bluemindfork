@@ -201,4 +201,9 @@ public class MockConnection implements MailboxConnection {
 	public List<Long> uidSet(SelectedFolder sel, String set, ItemFlagFilter filter) {
 		return Collections.emptyList();
 	}
+
+	@Override
+	public void close() {
+		notIdle();
+	}
 }

@@ -38,6 +38,7 @@ import org.postgresql.util.PSQLState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import it.unimi.dsi.fastutil.longs.LongArrayList;
 import net.bluemind.core.api.fault.ServerFault;
 
 public class JdbcAbstractStore {
@@ -80,6 +81,38 @@ public class JdbcAbstractStore {
 	protected <T> List<T> select(String query, Creator<T> creator, List<EntityPopulator<T>> populators,
 			Object[] parameters) throws SQLException {
 		return select(query, null, creator, populators, parameters);
+	}
+
+	protected List<Long> selectLong(String query, Object[] parameters) throws SQLException {
+		Connection conn = getConnection();
+		List<Long> ret = new LongArrayList();
+		ResultSet rs = null;
+		PreparedStatement st = null;
+		try {
+			st = conn.prepareStatement(query);
+			setStatementParameters(parameters, conn, st);
+			logger.debug("[{}] S: {}", datasource, st);
+			long time = System.currentTimeMillis();
+			rs = retryOnDeadlock(conn, st::executeQuery);
+			long elapsedTime = System.currentTimeMillis() - time;
+			if (elapsedTime > 300) {
+				logger.warn("S: {} took {}ms", st, elapsedTime);
+			} else {
+				logger.trace("S: {} took {}ms", st, elapsedTime);
+			}
+			int count = 0;
+			while (rs.next()) {
+				long v = rs.getLong(1);
+
+				ret.add(v);
+				count++;
+				logger.debug("   Found one: {}", v);
+			}
+			logger.debug("Total found: {}", count);
+		} finally {
+			JdbcHelper.cleanup(conn, rs, st);
+		}
+		return ret;
 	}
 
 	protected <T> List<T> select(String query, Integer fetchSize, Creator<T> creator,

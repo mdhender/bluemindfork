@@ -209,6 +209,9 @@ public class ImapContext {
 	}
 
 	public void close() {
+		if (mailbox != null) {
+			mailbox.close();
+		}
 		ns.close();
 	}
 

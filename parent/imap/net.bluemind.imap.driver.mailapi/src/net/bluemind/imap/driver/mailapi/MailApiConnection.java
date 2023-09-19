@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -59,6 +58,7 @@ import io.vertx.core.Context;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.streams.WriteStream;
+import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
 import net.bluemind.authentication.api.AuthUser;
 import net.bluemind.authentication.api.IAuthentication;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
@@ -426,16 +426,6 @@ public class MailApiConnection implements MailboxConnection {
 		}
 	}
 
-	private Map<Long, Integer> itemIdToSeqNum(IDbMailboxRecords recApi) {
-		List<Long> fullList = recApi.imapIdSet("1:*", "");
-		Map<Long, Integer> ret = new HashMap<>(2 * fullList.size());
-		Iterator<Long> uidIter = fullList.iterator();
-		for (int i = 1; uidIter.hasNext(); i++) {
-			ret.put(uidIter.next(), i);
-		}
-		return ret;
-	}
-
 	@Override
 	public CompletableFuture<Void> fetch(SelectedFolder selected, ImapIdSet idset, List<MailPart> fields,
 			WriteStream<FetchedItem> output) {
@@ -576,6 +566,7 @@ public class MailApiConnection implements MailboxConnection {
 		}
 	}
 
+	@Override
 	public void close() {
 		notIdle();
 		prov.instance(IAuthentication.class).logout();
@@ -877,10 +868,20 @@ public class MailApiConnection implements MailboxConnection {
 		}
 	}
 
+	private Map<Long, Integer> itemIdToSeqNum(IDbMailboxRecords recApi) {
+		List<Long> fullList = recApi.imapIdSet("1:*", "");
+		Map<Long, Integer> ret = new Long2IntOpenHashMap(2 * fullList.size());
+		Iterator<Long> uidIter = fullList.iterator();
+		for (int i = 1; uidIter.hasNext(); i++) {
+			ret.put(uidIter.next(), i);
+		}
+		return ret;
+	}
+
 	@Override
 	public Map<Long, Integer> sequences(SelectedFolder sel) {
-		Map<Long, Integer> uidToSeq = new HashMap<>();
 		List<Long> itemIds = sel.recApi.imapIdSet("1:*", "");
+		Map<Long, Integer> uidToSeq = new Long2IntOpenHashMap(2 * itemIds.size());
 		Iterator<ImapBinding> bindings = sel.recApi.imapBindings(itemIds).iterator();
 		for (int i = 1; bindings.hasNext(); i++) {
 			uidToSeq.put(bindings.next().imapUid, i);

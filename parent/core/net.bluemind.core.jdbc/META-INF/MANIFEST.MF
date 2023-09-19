@@ -10,7 +10,8 @@ Require-Bundle: net.bluemind.pool;bundle-version="1.0.0";visibility:=reexport,
  net.bluemind.core.rest;bundle-version="1.0.0",
  net.bluemind.core.commons,
  net.bluemind.eclipse.common,
- org.postgresql.jdbc42
+ org.postgresql.jdbc42,
+ it.unimi.dsi.fastutil
 Bundle-Activator: net.bluemind.core.jdbc.JdbcActivator
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.core.jdbc,
