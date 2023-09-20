@@ -21,6 +21,7 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import net.bluemind.imap.endpoint.ImapContext;
 import net.bluemind.imap.endpoint.cmd.AnalyzedCommand;
+import net.bluemind.lib.vertx.Result;
 
 public interface CommandProcessor<T extends AnalyzedCommand> {
 
@@ -34,7 +35,7 @@ public interface CommandProcessor<T extends AnalyzedCommand> {
 		} catch (Exception e) {
 			// Uncatched exception: always respond
 			ctx.write(command.raw().tag() + " NO unknown error: " + e.getMessage() + "\r\n");
-			throw e;
+			completed.handle(Result.fail(e));
 		}
 	}
 
