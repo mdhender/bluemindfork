@@ -29,14 +29,21 @@ const editDelegate = userUid => {
 };
 
 const delegatesWithCopyImipRuleCount = ref();
-const onlyDelegateReceivesImip = ref();
+const receiveImipChoices = { ONLY_DELEGATE: 0, BOTH: 1, COPY: 2 };
+const receiveImipChoice = ref();
 watchEffect(async () => {
     delegatesWithCopyImipRuleCount.value = await countDelegatesHavingTheCopyImipRule(...Object.keys(delegates.value));
-    onlyDelegateReceivesImip.value = !(await hasCopyImipMailboxRuleKeepCopy());
+    const copy = true; // TODO next PR
+    const both = await hasCopyImipMailboxRuleKeepCopy();
+    receiveImipChoice.value = copy
+        ? receiveImipChoices.COPY
+        : both
+        ? receiveImipChoices.BOTH
+        : receiveImipChoices.ONLY_DELEGATE;
 });
 
 const updateFilter = () => {
-    updateCopyImipMailboxRule({ keepCopy: !onlyDelegateReceivesImip.value });
+    updateCopyImipMailboxRule({ keepCopy: receiveImipChoice.value === receiveImipChoices.BOTH });
 };
 
 watchEffect(() => {
@@ -74,15 +81,18 @@ watchEffect(() => {
                 class="mt-4 font-weight-bold"
             >
                 <bm-form-radio-group
-                    v-model="onlyDelegateReceivesImip"
+                    v-model="receiveImipChoice"
                     class="py-4"
                     :aria-describedby="ariaDescribedby"
                     @change="updateFilter"
                 >
-                    <bm-form-radio :value="true" class="ml-6">
+                    <bm-form-radio :value="receiveImipChoices.ONLY_DELEGATE" class="ml-6">
                         {{ $t("preferences.account.delegates.receive_imip.choice.only_delegate") }}
                     </bm-form-radio>
-                    <bm-form-radio :value="false" class="ml-6">
+                    <bm-form-radio :value="receiveImipChoices.COPY" class="ml-6">
+                        {{ $t("preferences.account.delegates.receive_imip.choice.copy") }}
+                    </bm-form-radio>
+                    <bm-form-radio :value="receiveImipChoices.BOTH" class="ml-6">
                         {{ $t("preferences.account.delegates.receive_imip.choice.both") }}
                     </bm-form-radio>
                 </bm-form-radio-group>
@@ -91,7 +101,7 @@ watchEffect(() => {
         <pref-delegates-modal
             :visible.sync="showEditForm"
             :delegate.sync="delegate"
-            :only-delegate-receives-imip="onlyDelegateReceivesImip"
+            :only-delegate-receives-imip="receiveImipChoice === receiveImipChoices.BOTH"
         />
     </div>
 </template>
