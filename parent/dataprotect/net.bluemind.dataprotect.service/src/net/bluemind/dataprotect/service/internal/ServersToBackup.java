@@ -93,6 +93,9 @@ public class ServersToBackup {
 	}
 
 	private List<ItemValue<Server>> filteroutSkippedTags(List<ItemValue<Server>> servers) {
+		if (skipTags == null || skipTags.isEmpty()) {
+			return servers;
+		}
 		IServer serverApi = ctx.provider().instance(IServer.class, InstallationId.getIdentifier());
 		return servers.stream().filter(ivs -> !(serverApi.getServerAssignments(ivs.uid).stream()
 				.allMatch(assignment -> skipTags.contains(assignment.tag)))).toList();
