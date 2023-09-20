@@ -58,4 +58,13 @@ public class KerberosComponent extends Component {
 				&& Objects.equals(keyTab, other.keyTab) && Objects.equals(serverPrincipal, other.serverPrincipal)
 				&& Objects.equals(updateProfileFirstLogin, other.updateProfileFirstLogin);
 	}
+
+	@Override
+	public String toString() {
+		return "KerberosComponent [kerberosRealm=" + kerberosRealm + ", serverPrincipal=" + serverPrincipal
+				+ ", keyTab=" + keyTab + ", debug=" + debug + ", allowPasswordAuthentication="
+				+ allowPasswordAuthentication + ", updateProfileFirstLogin=" + updateProfileFirstLogin + ", enabled="
+				+ enabled + ", providerId=" + providerId + ", providerType=" + providerType + ", id=" + id
+				+ ", parentId=" + parentId + ", name=" + name + ", cachePolicy=" + cachePolicy + "]";
+	}
 }

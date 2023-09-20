@@ -61,7 +61,9 @@ public class KeycloakDomainHookTests extends AbstractServiceTests {
 		OidcClient client = getKeycloakClientAdminService(domainUid).getOidcClient(cli);
 		assertNotNull(client);
 		assertEquals(1, client.redirectUris.size());
-		assertEquals("https://configure_external_url_in_bluemind", client.redirectUris.get(0)); // Fake redirect uri
+		assertEquals("https://configure_external_url_in_bluemind", client.redirectUris.iterator().next()); // Fake
+																											// redirect
+																											// uri
 		assertEquals("https://configure_external_url_in_bluemind", client.baseUrl); // Fake base url
 
 		String secret = getKeycloakClientAdminService(domainUid).getSecret(cli);
@@ -94,7 +96,7 @@ public class KeycloakDomainHookTests extends AbstractServiceTests {
 		String cli = IKeycloakUids.clientId(domainUid);
 		OidcClient client = getKeycloakClientAdminService(domainUid).getOidcClient(cli);
 		assertEquals(1, client.redirectUris.size());
-		assertEquals("https://" + domainExternalUrl + "/auth/openid", client.redirectUris.get(0));
+		assertEquals("https://" + domainExternalUrl + "/auth/openid", client.redirectUris.iterator().next());
 		assertEquals("https://" + domainExternalUrl, client.baseUrl);
 
 		domainExternalUrl = "updated.bm.lan";
@@ -107,7 +109,7 @@ public class KeycloakDomainHookTests extends AbstractServiceTests {
 		cli = IKeycloakUids.clientId(domainUid);
 		client = getKeycloakClientAdminService(domainUid).getOidcClient(cli);
 		assertEquals(1, client.redirectUris.size());
-		assertEquals("https://" + domainExternalUrl + "/auth/openid", client.redirectUris.get(0));
+		assertEquals("https://" + domainExternalUrl + "/auth/openid", client.redirectUris.iterator().next());
 		assertEquals("https://" + domainExternalUrl, client.baseUrl);
 
 		settings.remove(DomainSettingsKeys.external_url.name());
@@ -118,7 +120,7 @@ public class KeycloakDomainHookTests extends AbstractServiceTests {
 		cli = IKeycloakUids.clientId(domainUid);
 		client = getKeycloakClientAdminService(domainUid).getOidcClient(cli);
 		assertEquals(1, client.redirectUris.size());
-		assertEquals("https://configure_external_url_in_bluemind", client.redirectUris.get(0));
+		assertEquals("https://configure_external_url_in_bluemind", client.redirectUris.iterator().next());
 		assertEquals("https://configure_external_url_in_bluemind", client.baseUrl);
 
 	}

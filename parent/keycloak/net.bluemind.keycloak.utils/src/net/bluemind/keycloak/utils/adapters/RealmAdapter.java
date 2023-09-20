@@ -24,8 +24,8 @@ package net.bluemind.keycloak.utils.adapters;
 
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +42,7 @@ import net.bluemind.keycloak.api.Realm;
 public class RealmAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(RealmAdapter.class);
 
-	private static final List<String> supportedLocales = Arrays.asList("en", "fr", "de");
+	private static final Set<String> supportedLocales = Set.of("en", "fr", "de");
 	private static final String DEFAULT_LANG = "en";
 
 	public final Realm realm;
@@ -88,6 +88,7 @@ public class RealmAdapter {
 		return supportedLocales.contains(lang) ? lang : DEFAULT_LANG;
 	}
 
+	@SuppressWarnings("unchecked")
 	public static Realm fromJson(JsonObject json) {
 		if (json == null) {
 			return null;
@@ -104,11 +105,7 @@ public class RealmAdapter {
 		realm.loginTheme = json.getString("loginTheme");
 
 		realm.internationalizationEnabled = json.getBoolean("internationalizationEnabled");
-		JsonArray locales = json.getJsonArray("supportedLocales");
-		realm.supportedLocales = new ArrayList<>(locales.size());
-		for (int i = 0; i < locales.size(); i++) {
-			realm.supportedLocales.add(locales.getString(i));
-		}
+		realm.supportedLocales = new HashSet<>(json.getJsonArray("supportedLocales").getList());
 		realm.defaultLocale = json.getString("defaultLocale");
 
 		realm.accessCodeLifespanLogin = json.getInteger("accessCodeLifespanLogin");
@@ -132,7 +129,7 @@ public class RealmAdapter {
 		realmJson.put("loginTheme", realm.loginTheme); // provide by bm-keycloak
 
 		realmJson.put("internationalizationEnabled", realm.internationalizationEnabled);
-		realmJson.put("supportedLocales", new JsonArray(realm.supportedLocales));
+		realmJson.put("supportedLocales", new JsonArray(new ArrayList<>(realm.supportedLocales)));
 		realmJson.put("defaultLocale", realm.defaultLocale);
 
 		realmJson.put("accessCodeLifespanLogin", realm.accessCodeLifespanLogin);

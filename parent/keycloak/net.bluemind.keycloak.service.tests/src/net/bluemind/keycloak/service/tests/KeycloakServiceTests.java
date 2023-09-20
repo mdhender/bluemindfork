@@ -24,6 +24,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Test;
 
@@ -129,15 +130,16 @@ public class KeycloakServiceTests extends AbstractServiceTests {
 
 		OidcClient client = getKeycloakClientAdminService(domainUid).getOidcClient(clientId);
 		assertEquals(1, client.redirectUris.size());
-		assertEquals("https://configure_external_url_in_bluemind", client.redirectUris.get(0)); // the fake one
+		assertEquals("https://configure_external_url_in_bluemind", client.redirectUris.iterator().next()); // the fake
+																											// one
 
 		String redirectUrl = "redirect.url";
-		client.redirectUris = List.of(redirectUrl);
+		client.redirectUris = Set.of(redirectUrl);
 		getKeycloakClientAdminService(domainUid).updateClient(clientId, client);
 
 		client = getKeycloakClientAdminService(domainUid).getOidcClient(clientId);
 		assertEquals(1, client.redirectUris.size());
-		assertEquals(redirectUrl, client.redirectUris.get(0));
+		assertEquals(redirectUrl, client.redirectUris.iterator().next());
 	}
 
 	@Test

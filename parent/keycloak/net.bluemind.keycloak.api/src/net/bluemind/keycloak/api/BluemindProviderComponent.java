@@ -51,4 +51,11 @@ public class BluemindProviderComponent extends Component {
 		return Objects.equals(bmCoreToken, other.bmCoreToken) && Objects.equals(bmDomain, other.bmDomain)
 				&& Objects.equals(bmUrl, other.bmUrl);
 	}
+
+	@Override
+	public String toString() {
+		return "BluemindProviderComponent [bmDomain=" + bmDomain + ", bmUrl=" + bmUrl + ", bmCoreToken=" + bmCoreToken
+				+ ", enabled=" + enabled + ", providerId=" + providerId + ", providerType=" + providerType + ", id="
+				+ id + ", parentId=" + parentId + ", name=" + name + ", cachePolicy=" + cachePolicy + "]";
+	}
 }

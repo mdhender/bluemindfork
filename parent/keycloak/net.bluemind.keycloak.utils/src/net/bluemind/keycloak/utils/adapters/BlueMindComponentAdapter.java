@@ -27,8 +27,6 @@ import java.util.Optional;
 
 import io.vertx.core.json.JsonObject;
 import net.bluemind.config.Token;
-import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.domain.api.Domain;
 import net.bluemind.keycloak.api.BluemindProviderComponent;
 import net.bluemind.keycloak.api.Component.CachePolicy;
 import net.bluemind.keycloak.api.IKeycloakUids;
@@ -41,10 +39,11 @@ public class BlueMindComponentAdapter {
 		this.component = component;
 	}
 
-	public static BlueMindComponentAdapter build(ItemValue<Domain> domain) {
+	public static BlueMindComponentAdapter build(String domainUid) {
 		BluemindProviderComponent component = new BluemindProviderComponent();
-		component.parentId = domain.uid;
-		component.name = IKeycloakUids.bmProviderId(domain.uid);
+		component.parentId = domainUid;
+		component.id = IKeycloakUids.bmProviderId(domainUid);
+		component.name = IKeycloakUids.bmProviderId(domainUid);
 
 		component.bmUrl = "http://" + Topology.get().core().value.address() + ":8090";
 		component.bmCoreToken = Token.admin0();
@@ -97,10 +96,6 @@ public class BlueMindComponentAdapter {
 
 		if (config.getJsonArray("bmUrl") != null) {
 			component.bmUrl = config.getJsonArray("bmUrl").getString(0);
-		}
-
-		if (config.getJsonArray("bmCoreToken") != null) {
-			component.bmCoreToken = config.getJsonArray("bmCoreToken").getString(0);
 		}
 
 		if (config.getJsonArray("enabled") != null) {

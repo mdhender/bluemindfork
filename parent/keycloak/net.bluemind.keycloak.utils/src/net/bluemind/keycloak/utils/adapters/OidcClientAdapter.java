@@ -22,10 +22,11 @@
   */
 package net.bluemind.keycloak.utils.adapters;
 
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -75,6 +76,9 @@ public class OidcClientAdapter {
 		}
 	}
 
+	public final static String POST_LOGOUT_REDIRECT_URIS = "post.logout.redirect.uris";
+	public final static Set<String> MANAGED_ATTRIBUTES = Set.of(POST_LOGOUT_REDIRECT_URIS);
+
 	public final OidcClient oidcClient;
 	public final Optional<String> flowId;
 	public final Optional<ProtocolMapper> protocolMapper;
@@ -102,8 +106,8 @@ public class OidcClientAdapter {
 
 		oidcClient.directAccessGrantsEnabled = true;
 		oidcClient.redirectUris = KeycloakHelper.getDomainUrls(domainUid);
-		oidcClient.webOrigins = Arrays.asList("+");
-		oidcClient.attributes = Map.of("post.logout.redirect.uris", "*");
+		oidcClient.webOrigins = Set.of("+");
+		oidcClient.attributes = Map.of(POST_LOGOUT_REDIRECT_URIS, "*");
 		oidcClient.baseUrl = KeycloakHelper.getExternalUrl(domainUid);
 
 		return new OidcClientAdapter(oidcClient, flowId, Optional.of(ProtocolMapper.build()));
@@ -116,6 +120,7 @@ public class OidcClientAdapter {
 		}
 
 		OidcClient oidcClient = new OidcClient();
+		oidcClient.enabled = json.getBoolean("enabled");
 		oidcClient.id = json.getString("id");
 		oidcClient.clientId = json.getString("clientId");
 		oidcClient.publicClient = json.getBoolean("publicClient");
@@ -124,9 +129,13 @@ public class OidcClientAdapter {
 		oidcClient.directAccessGrantsEnabled = json.getBoolean("directAccessGrantsEnabled");
 		oidcClient.serviceAccountsEnabled = json.getBoolean("serviceAccountsEnabled");
 		oidcClient.rootUrl = json.getString("rootUrl");
-		oidcClient.redirectUris = json.getJsonArray("redirectUris").getList();
-		oidcClient.webOrigins = json.getJsonArray("webOrigins").getList();
+		oidcClient.redirectUris = new HashSet<>(json.getJsonArray("redirectUris").getList());
+		oidcClient.webOrigins = new HashSet<>(json.getJsonArray("webOrigins").getList());
 		oidcClient.baseUrl = json.getString("baseUrl");
+
+		oidcClient.attributes = new HashMap<>();
+		json.getJsonObject("attributes").stream().filter(e -> MANAGED_ATTRIBUTES.contains(e.getKey()))
+				.forEach(e -> oidcClient.attributes.put(e.getKey(), e.getValue().toString()));
 
 		Optional<String> flowId = Optional.ofNullable(json.getJsonObject("authenticationFlowBindingOverrides"))
 				.map(afbo -> afbo.getString("browser"));

@@ -17,11 +17,11 @@
   */
 package net.bluemind.keycloak.utils;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 import org.slf4j.Logger;
@@ -82,7 +82,7 @@ public class KeycloakHelper {
 
 		IKeycloakBluemindProviderAdmin keycloakBluemindProviderService = provider
 				.instance(IKeycloakBluemindProviderAdmin.class, domain.uid);
-		keycloakBluemindProviderService.create(BlueMindComponentAdapter.build(domain).component);
+		keycloakBluemindProviderService.create(BlueMindComponentAdapter.build(domain.uid).component);
 
 		String authType = domain.value.properties.get(AuthDomainProperties.AUTH_TYPE.name());
 		if (Strings.isNullOrEmpty(authType)) {
@@ -207,7 +207,7 @@ public class KeycloakHelper {
 			}
 		}
 
-		List<String> currentUrls = getDomainUrls(domainUid);
+		Set<String> currentUrls = getDomainUrls(domainUid);
 		if (!oc.redirectUris.containsAll(currentUrls) || !currentUrls.containsAll(oc.redirectUris)) {
 			oc.redirectUris = currentUrls;
 			oc.baseUrl = getExternalUrl(domainUid);
@@ -220,8 +220,8 @@ public class KeycloakHelper {
 		KerberosConfigHelper.updateKeycloakKerberosConf(domain);
 	}
 
-	public static List<String> getDomainUrls(String domainId) {
-		List<String> res = new ArrayList<>();
+	public static Set<String> getDomainUrls(String domainId) {
+		Set<String> res = new HashSet<>();
 
 		SystemConf sysconf = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(ISystemConfiguration.class).getValues();
@@ -257,7 +257,7 @@ public class KeycloakHelper {
 		return res;
 	}
 
-	private static void addOtherUrls(List<String> res, String otherUrls) {
+	private static void addOtherUrls(Set<String> res, String otherUrls) {
 		if (otherUrls != null) {
 			StringTokenizer tokenizer = new StringTokenizer(otherUrls.trim(), " ");
 			while (tokenizer.hasMoreElements()) {
