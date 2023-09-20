@@ -40,11 +40,12 @@ export default async function initReplyOrForward(message, creationMode, previous
     );
     const identity = getIdentityForReplyOrForward(previousMessage);
 
+    const identificationHeaders = handleIdentificationFields(previousMessage);
+    const draftHeader = createDraftHeader(creationMode, previousMessage);
     store.commit(`mail/${SET_MESSAGE_HEADERS}`, {
         messageKey: message.key,
-        headers: [createDraftHeader(creationMode, previousMessage)]
+        headers: [draftHeader, ...identificationHeaders]
     });
-
     const subject = computeSubject(creationMode, previousMessage);
     store.commit(`mail/${SET_MESSAGE_SUBJECT}`, { messageKey: message.key, subject: subject });
 
@@ -55,9 +56,8 @@ export default async function initReplyOrForward(message, creationMode, previous
             contact => !message.to.some(to => to.address === contact.address)
         );
         store.commit(`mail/${SET_MESSAGE_CC}`, { messageKey: message.key, cc });
-
-        handleIdentificationFields(message, previousMessage);
     }
+
     await setFrom(identity, message);
     const structure = buildMessageStructure(creationMode, previousInlines, previousAttachments);
     store.commit(`mail/${SET_MESSAGE_STRUCTURE}`, { messageKey: message.key, structure });

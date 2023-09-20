@@ -59,7 +59,8 @@ export function createEmpty(folder) {
  * Handle identification fields, as described in RFC-5322.
  * @see https://tools.ietf.org/html/rfc5322#section-3.6.4
  */
-function handleIdentificationFields(message, previousMessage) {
+function handleIdentificationFields(previousMessage) {
+    const headers = [];
     const references =
         extractHeaderValues(previousMessage, MessageHeader.REFERENCES) ||
         extractHeaderValues(previousMessage, MessageHeader.IN_REPLY_TO) ||
@@ -70,7 +71,7 @@ function handleIdentificationFields(message, previousMessage) {
             name: MessageHeader.IN_REPLY_TO,
             values: [previousMessage.messageId]
         };
-        message.headers.push(inReplyToHeader);
+        headers.push(inReplyToHeader);
         references.push(previousMessage.messageId);
     }
 
@@ -79,8 +80,9 @@ function handleIdentificationFields(message, previousMessage) {
             name: MessageHeader.REFERENCES,
             values: [references.join(" ")]
         };
-        message.headers.push(referencesHeader);
+        headers.push(referencesHeader);
     }
+    return headers;
 }
 
 export function createFromDraft(previous, folder) {
