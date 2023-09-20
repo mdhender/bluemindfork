@@ -153,5 +153,5 @@ function getCounterHeader(headers) {
 }
 
 function getRequestHeader(headers) {
-    headers.find(({ name }) => name.toUpperCase() === MessageHeader.X_BM_EVENT.toUpperCase());
+    return headers.find(({ name }) => name.toUpperCase() === MessageHeader.X_BM_EVENT.toUpperCase());
 }
