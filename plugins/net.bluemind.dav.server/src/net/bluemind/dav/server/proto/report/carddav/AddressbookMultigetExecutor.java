@@ -50,7 +50,7 @@ import net.bluemind.dav.server.xml.MultiStatusBuilder;
 
 public class AddressbookMultigetExecutor implements IReportExecutor {
 
-	private static final QName root = RDReports.ADDRESSBOOK_QUERY;
+	private static final QName root = RDReports.ADDRESSBOOK_MULTIGET;
 	private static final Logger logger = LoggerFactory.getLogger(AddressbookMultigetExecutor.class);
 
 	@Override
