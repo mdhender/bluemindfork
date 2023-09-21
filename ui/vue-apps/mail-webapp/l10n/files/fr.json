@@ -423,6 +423,9 @@
     "mail.viewer.no.preview": "(Pas d'aperçu disponible)",
     "mail.viewer.invitation.accept": "Oui",
     "mail.viewer.invitation.attendee": "Participant ({count}) | Participants ({count})",
+    "mail.viewer.invitation.resource": "Ressource ({count}) | Ressources ({count})",
+    "mail.viewer.invitation.description": "Description",
+    "mail.viewer.invitation.conference": "Rejoindre la visioconférence",
     "mail.viewer.invitation.decline": "Non",
     "mail.viewer.invitation.request": "Accepter l'invitation ?",
     "mail.viewer.invitation.tentatively": "Peut-être",
@@ -440,6 +443,13 @@
     "mail.viewer.invitation.canceled.status.occurrence": "annulé une occurrence",
     "mail.viewer.invitation.not_found.event": "Ce message fait référence à un événement qui {status}.",
     "mail.viewer.invitation.not_found.status": "n'existe pas dans votre calendrier",
+    "mail.viewer.invitation.counter.event": "{name} a {status} l'invitation et {counter}.",
+    "mail.viewer.invitation.counter.occurrence": "{name} a {status} de l'événement et {counter}.",
+    "mail.viewer.invitation.counter.status": "proposé un nouvel horaire",
+    "mail.viewer.invitation.counter.accept": "Mettre à jour la réunion",
+    "mail.viewer.invitation.counter.decline": "Refuser le nouvel horaire",
+    "mail.viewer.invitation.counter.decline_short": "Refuser",
+    "mail.viewer.invitation.counter.answered": "Vous avez répondu à la proposition de nouvel horaire.",
     "mail": {
         "actions": {
             "move_folder_to_trash": {

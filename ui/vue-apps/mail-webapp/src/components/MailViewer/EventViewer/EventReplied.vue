@@ -3,7 +3,7 @@ import { computed } from "vue";
 import EventHeader from "./EventHeader";
 import EventDetail from "./EventDetail";
 import EventFooter from "./EventFooter";
-import { REPLY_ACTIONS } from "./replyActions";
+import { STATUS_KEY_FOR_OCCURRENCE, STATUS_KEY_FOR_EVENT } from "./replyActions";
 
 const props = defineProps({
     message: { type: Object, required: true },
@@ -15,21 +15,11 @@ const fromAttendee = computed(() =>
 );
 const isOccurrence = computed(() => !!props.message.eventInfo.recuridIsoDate);
 
-const statusKeyForOccurrence = {
-    [REPLY_ACTIONS.ACCEPTED]: "mail.viewer.invitation.reply.status.occurrence.accepted",
-    [REPLY_ACTIONS.TENTATIVE]: "mail.viewer.invitation.reply.status.occurrence.tentative",
-    [REPLY_ACTIONS.DECLINED]: "mail.viewer.invitation.reply.status.occurrence.declined"
-};
-const statusKeyForEvent = {
-    [REPLY_ACTIONS.ACCEPTED]: "mail.viewer.invitation.reply.status.event.accepted",
-    [REPLY_ACTIONS.TENTATIVE]: "mail.viewer.invitation.reply.status.event.tentative",
-    [REPLY_ACTIONS.DECLINED]: "mail.viewer.invitation.reply.status.event.declined"
-};
 const eventKey = computed(() =>
     isOccurrence.value ? "mail.viewer.invitation.reply.occurrence" : "mail.viewer.invitation.reply.event"
 );
 const statusKey = computed(
-    () => (isOccurrence.value ? statusKeyForOccurrence : statusKeyForEvent)[fromAttendee.value.status]
+    () => (isOccurrence.value ? STATUS_KEY_FOR_OCCURRENCE : STATUS_KEY_FOR_EVENT)[fromAttendee.value.status]
 );
 </script>
 

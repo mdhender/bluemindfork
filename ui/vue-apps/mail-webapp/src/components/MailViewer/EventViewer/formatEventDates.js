@@ -12,7 +12,7 @@ const getFormatedDateRange = (start, end, formats) => ({
     endDate: end ? getFormatedDate(end, formats) : undefined
 });
 
-export function formatEventDates(dtstart, dtend) {
+export function formatEventDates(dtstart, dtend, otherRelativeDates = []) {
     if (!dtstart || !dtend) {
         return { startDate: "", endDate: "" };
     }
@@ -20,10 +20,12 @@ export function formatEventDates(dtstart, dtend) {
     const isWholeDay = isWholeDayEvent(dtstart, dtend);
     const startDate = new Date(dtstart.iso8601);
     const endDate = new Date(dtend.iso8601);
-    const formats = [
-        !DateComparator.isSameDay(startDate, endDate) ? "short_full_date" : undefined,
-        !isWholeDay ? "short_time" : undefined
-    ].filter(v => !!v);
+    const isNotSameDay = [dtend, ...otherRelativeDates]
+        .filter(Boolean)
+        .some(date => !DateComparator.isSameDay(startDate, new Date(date.iso8601)));
+    const formats = [isNotSameDay ? "short_full_date" : undefined, !isWholeDay ? "short_time" : undefined].filter(
+        Boolean
+    );
 
     const isOneFullDay = isWholeDay && is24Hours(startDate, endDate);
 

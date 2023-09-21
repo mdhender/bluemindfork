@@ -20,7 +20,8 @@ export default {
             attendees: infos.attendees.map(attendee => ({
                 name: attendee.commonName,
                 mail: attendee.mailto,
-                status: attendee.partStatus
+                status: attendee.partStatus,
+                cutype: attendee.cutype
             })),
             mailboxOwner,
             status: this.findAttendee(infos.attendees, mailboxOwner)?.partStatus,
@@ -310,6 +311,8 @@ function adaptCounter(event, originator, recuridIsoDate) {
             return {
                 initialDate: adaptDate(initial.dtstart, initial.dtend, initial.rrule),
                 proposedDate: adaptDate(counter.counter.dtstart, counter.counter.dtend, counter.counter.rrule),
+                dtstart: counter.counter.dtstart,
+                dtend: counter.counter.dtend,
                 originator,
                 status: counter.counter.attendees.find(a => a.mailto === originator).partStatus,
                 occurrence

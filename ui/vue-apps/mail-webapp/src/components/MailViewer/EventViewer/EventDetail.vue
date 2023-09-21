@@ -9,20 +9,34 @@ const { MessageHeader } = messageUtils;
 
 const props = defineProps({
     event: { type: Object, required: true },
-    message: { type: Object, required: true },
-    illustration: { type: String, default: "calendar" }
+    message: { type: Object, required: true }
 });
 
 const eventValue = computed(() => props.event.serverEvent?.value?.main);
 const eventTimeRange = computed(() => {
     const dtstart = eventValue.value?.dtstart;
     const dtend = eventValue.value?.dtend;
-    const { startDate, endDate } = formatEventDates(dtstart, dtend);
+    const { startDate, endDate } = formatEventDates(dtstart, dtend, [
+        props.event.counter?.dtstart,
+        props.event.counter?.dtend
+    ]);
+    return endDate ? `${startDate} - ${endDate}` : startDate;
+});
+const counterTimeRange = computed(() => {
+    const dtstart = props.event.counter?.dtstart;
+    const dtend = props.event.counter?.dtend;
+    const { startDate, endDate } = formatEventDates(dtstart, dtend, [
+        eventValue.value?.dtstart,
+        eventValue.value?.dtend
+    ]);
     return endDate ? `${startDate} - ${endDate}` : startDate;
 });
 
 const hasHeader = header => props.message?.headers?.some(({ name }) => name.toUpperCase() === header.toUpperCase());
 const calendarStatus = computed(() => {
+    if (counterTimeRange.value) {
+        return "countered";
+    }
     // TODO need a specific header to detect that an event has been edited
     // if (hasHeader(MessageHeader.X_BM_EVENT_XXX)) {
     //     return "edited";
@@ -40,14 +54,23 @@ const isRecurring = computed(() => Boolean(eventValue.value?.rrule));
     <div class="event-detail" :class="{ 'event-detail-recurring': isRecurring }">
         <event-calendar-illustration
             :status="calendarStatus"
-            :date="eventValue?.dtstart.iso8601"
+            :date="event.counter?.dtstart.iso8601 ?? eventValue?.dtstart.iso8601"
             :is-recurring="isRecurring"
         />
         <bm-row class="event-row-icon summary">
             <bm-icon icon="lock-fill" class="mr-2" />
             <h3>{{ event.summary }}</h3>
         </bm-row>
-        <bm-row class="event-time title"> {{ eventTimeRange }} </bm-row>
+        <bm-row class="event-time title">
+            <span :class="{ 'event-time-current': counterTimeRange }">
+                {{ eventTimeRange }}
+            </span>
+
+            <bm-icon v-if="counterTimeRange" icon="chevron-right" size="xs" />
+            <span v-if="counterTimeRange" class="event-time-counter">
+                {{ counterTimeRange }}
+            </span>
+        </bm-row>
         <bm-row v-if="isRecurring" class="event-row-icon occurence">
             <bm-icon icon="repeat" class="mr-2" />
             <span>{{ event.date }}</span>
@@ -131,6 +154,21 @@ const isRecurring = computed(() => Boolean(eventValue.value?.rrule));
     }
     .event-time.title {
         margin-bottom: 0;
+
+        display: flex;
+        gap: $sp-4;
+        align-items: center;
+
+        .event-time-current {
+            font-size: 13px;
+            font-weight: 400;
+            line-height: 16px;
+        }
+
+        .event-time-counter {
+            margin-left: $sp-1;
+            color: $info-fg-hi1;
+        }
     }
     .occurence {
         grid-area: occurrence;

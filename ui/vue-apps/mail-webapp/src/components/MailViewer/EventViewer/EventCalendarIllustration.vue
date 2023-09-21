@@ -14,12 +14,15 @@ const props = defineProps({
         default: null,
         validator: value =>
             !value ||
-            ["edited", REPLY_ACTIONS.ACCEPTED, REPLY_ACTIONS.TENTATIVE, REPLY_ACTIONS.DECLINED].includes(value)
+            ["edited", "countered", REPLY_ACTIONS.ACCEPTED, REPLY_ACTIONS.TENTATIVE, REPLY_ACTIONS.DECLINED].includes(
+                value
+            )
     }
 });
 
 const iconStatus = {
     edited: "pencil",
+    countered: "interrogation",
     [REPLY_ACTIONS.ACCEPTED]: "check",
     [REPLY_ACTIONS.TENTATIVE]: "interrogation",
     [REPLY_ACTIONS.DECLINED]: "cross"
@@ -39,7 +42,12 @@ const dateStart = computed(() => (props.date ? new Date(props.date) : null));
                 <div class="event-calendar-illustration-day">{{ dateStart.getDate() }}</div>
                 <div class="event-calendar-illustration-month">{{ $d(dateStart, "short_month") }}</div>
             </div>
-            <bm-icon v-if="status" :icon="iconStatus[status]" class="event-calendar-illustration-icon-status" />
+            <bm-icon
+                v-if="status"
+                :icon="iconStatus[status]"
+                class="event-calendar-illustration-icon-status"
+                :class="{ 'event-calendar-illustration-countered': status === 'countered' }"
+            />
             <bm-icon v-if="isRecurring" icon="repeat" class="event-calendar-illustration-icon-repeat" />
         </div>
     </div>
@@ -154,6 +162,10 @@ const dateStart = computed(() => (props.date ? new Date(props.date) : null));
             }
             &.fa-interrogation {
                 color: $warning-fg;
+
+                &.event-calendar-illustration-countered {
+                    color: $info-fg;
+                }
             }
             &.fa-cross {
                 color: $danger-fg;

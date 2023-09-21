@@ -5,7 +5,14 @@ import store from "@bluemind/store";
 import ChainOfResponsibility from "../ChainOfResponsibility";
 import { CURRENT_MAILBOX } from "~/getters";
 import { FETCH_EVENT } from "~/actions";
-import { EventRequest, EventReplied, EventCanceled, EventLoading, EventNotFound } from "../../EventViewer";
+import {
+    EventRequest,
+    EventReplied,
+    EventCanceled,
+    EventLoading,
+    EventNotFound,
+    EventCountered
+} from "../../EventViewer";
 
 const { isImip, MessageHeader } = messageUtils;
 const { LoadingStatus } = loadingStatusUtils;
@@ -36,6 +43,7 @@ watch(
 
 const hasHeader = header => computed(() => props.message.headers?.some(({ name }) => name === header));
 const isRequest = hasHeader(MessageHeader.X_BM_EVENT);
+const isCountered = hasHeader(MessageHeader.X_BM_EVENT_COUNTERED);
 const isReply = hasHeader(MessageHeader.X_BM_EVENT_REPLIED);
 const isCanceled = hasHeader(MessageHeader.X_BM_EVENT_CANCELED);
 </script>
@@ -53,6 +61,7 @@ export default {
             <event-canceled v-else-if="isCanceled" :message="message" />
             <event-not-found v-else-if="event.loading === LoadingStatus.ERROR" :event="event" />
             <event-request v-else-if="isRequest" :message="message" :event="event" />
+            <event-countered v-else-if="isCountered" :message="message" :event="event" />
             <event-replied v-else-if="isReply" :message="message" :event="event" />
         </div>
     </chain-of-responsibility>
@@ -64,5 +73,10 @@ export default {
     display: grid;
     background-color: $neutral-bg-lo1;
     padding-bottom: $sp-4;
+
+    > div {
+        min-width: 0;
+        min-height: 0;
+    }
 }
 </style>

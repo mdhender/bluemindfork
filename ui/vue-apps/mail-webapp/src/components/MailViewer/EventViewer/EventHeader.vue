@@ -20,6 +20,8 @@
     }
     @include from-lg {
         display: flex;
+        flex-wrap: wrap;
+        gap: $sp-4;
         align-items: center;
         padding: $sp-5 $sp-5 $sp-5 $sp-6;
         .label {
