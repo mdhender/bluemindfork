@@ -76,12 +76,18 @@ public class MailboxLookup implements IMailboxLookup {
 		}
 	}
 
-	private ResolvedBox lookupEmailShared(String recipient) {
+	private ResolvedBox lookupEmailShared(String raw) {
+		String recipient = raw;
 		Mailbox m4jBox = LenientAddressBuilder.DEFAULT.parseMailbox(recipient);
 		if (m4jBox == null) {
-			logger.warn("Cannot parse (shared) '{}'", m4jBox);
+			logger.warn("Cannot parse (shared) '{}'", raw);
 			return null;
 		}
+		int plusAddr = m4jBox.getLocalPart().indexOf('+');
+		if (plusAddr > 0) {
+			recipient = m4jBox.getLocalPart().substring(0, plusAddr) + "@" + m4jBox.getDomain();
+		}
+
 		IServiceProvider sp = prov.system();
 		IDomains domApi = sp.instance(IDomains.class);
 		ItemValue<Domain> dom = domApi.findByNameOrAliases(m4jBox.getDomain());
@@ -106,14 +112,19 @@ public class MailboxLookup implements IMailboxLookup {
 		return new ResolvedBox(entry, mailbox, dom);
 	}
 
-	private ResolvedBox lookupEmailUser(String recipient) {
+	private ResolvedBox lookupEmailUser(String raw) {
+		String recipient = raw;
 		Mailbox m4jBox = LenientAddressBuilder.DEFAULT.parseMailbox(recipient);
 		if (m4jBox == null) {
-			logger.warn("Cannot parse (user) '{}'", m4jBox);
+			logger.warn("Cannot parse (user) '{}'", raw);
 			return null;
 		}
-		IServiceProvider sp = prov.system();
+		int plusAddr = m4jBox.getLocalPart().indexOf('+');
+		if (plusAddr > 0) {
+			recipient = m4jBox.getLocalPart().substring(0, plusAddr) + "@" + m4jBox.getDomain();
+		}
 
+		IServiceProvider sp = prov.system();
 		IDomains domApi = sp.instance(IDomains.class);
 		ItemValue<Domain> dom = domApi.findByNameOrAliases(m4jBox.getDomain());
 		if (dom == null) {

@@ -126,7 +126,7 @@ public class LmtpMessageHandler implements LmtpListener {
 		}
 
 		boolean delivered = dedup.runIfUnique(freezedContent, () -> doDeliver(freezedContent));
-		if (delivered) {
+		if (delivered && from != null && !from.isBlank()) {
 			Optional.ofNullable(lookup.lookupEmail(from)) //
 					.ifPresentOrElse(box -> internalCount.increment(), externalCount::increment);
 		}
