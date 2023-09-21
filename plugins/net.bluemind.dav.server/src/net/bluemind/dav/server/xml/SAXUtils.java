@@ -35,6 +35,7 @@ public class SAXUtils {
 		XMLReader sax;
 		try {
 			SAXParserFactory parserFactory = SAXParserFactory.newInstance();
+			parserFactory.setNamespaceAware(true);
 			SAXParser parser = parserFactory.newSAXParser();
 			sax = parser.getXMLReader();
 			sax.setContentHandler(handler);
