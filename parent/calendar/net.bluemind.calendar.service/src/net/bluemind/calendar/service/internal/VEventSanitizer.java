@@ -19,6 +19,7 @@
 package net.bluemind.calendar.service.internal;
 
 import java.text.SimpleDateFormat;
+import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.Year;
@@ -233,6 +234,7 @@ public class VEventSanitizer {
 			vevent.rrule.byWeekNo = filterNull(vevent.rrule.byWeekNo);
 			vevent.rrule.byMonth = filterNull(vevent.rrule.byMonth);
 			vevent.rrule.byDay = sanitizeRruleByDay(vevent.rrule);
+			sanitizeRRuleWeeklyDtStart(vevent);
 		}
 
 		tagsSanitizer.sanitize(vevent.categories);
@@ -244,6 +246,58 @@ public class VEventSanitizer {
 		vevent.draft &= !sendNotification;
 
 		sanitizeTimezone(vevent);
+	}
+
+	private void sanitizeRRuleWeeklyDtStart(VEvent vevent) {
+		if (vevent.rrule.frequency != Frequency.WEEKLY || vevent.rrule.byDay == null || vevent.rrule.byDay.isEmpty()) {
+			return;
+		}
+
+		InternalDate dtstart = InternalDate.of(vevent.dtstart);
+		WeekDay dayOfWeek = convertToWeekDay(dtstart.getDayOfWeek());
+		if (!vevent.rrule.byDay.contains(dayOfWeek)) {
+			InternalDate dtend = InternalDate.of(vevent.dtend);
+			int distance = calculateDistance(dayOfWeek, vevent.rrule.byDay);
+			if (distance > 0) {
+				dtstart = dtstart.plusDays(distance);
+				dtend = dtend.plusDays(distance);
+			} else {
+				distance = Math.abs(distance);
+				dtstart = dtstart.minusDays(distance);
+				dtend = dtend.minusDays(distance);
+			}
+			vevent.dtstart = dtstart.toBmDateTime();
+			vevent.dtend = dtend.toBmDateTime();
+		}
+	}
+
+	private int calculateDistance(WeekDay dayOfWeek, List<WeekDay> byDay) {
+		int targetDayValue = 7;
+		for (WeekDay day : byDay) {
+			targetDayValue = Math.min(targetDayValue, day.toInt());
+		}
+		return targetDayValue - dayOfWeek.toInt();
+	}
+
+	private WeekDay convertToWeekDay(DayOfWeek dayOfWeek) {
+		switch (dayOfWeek) {
+		case MONDAY:
+			return WeekDay.MO;
+		case TUESDAY:
+			return WeekDay.TU;
+		case WEDNESDAY:
+			return WeekDay.WE;
+		case THURSDAY:
+			return WeekDay.TH;
+		case FRIDAY:
+			return WeekDay.FR;
+		case SATURDAY:
+			return WeekDay.SA;
+		case SUNDAY:
+			return WeekDay.SU;
+		default:
+			throw new IllegalArgumentException();
+		}
 	}
 
 	/**

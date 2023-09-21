@@ -557,6 +557,27 @@ public class ICalendarElement {
 				return day;
 			}
 
+			public int toInt() {
+				if (this.equals(MO)) {
+					return 1;
+				} else if (this.equals(TU)) {
+					return 2;
+				} else if (this.equals(WE)) {
+					return 3;
+				} else if (this.equals(TH)) {
+					return 4;
+				} else if (this.equals(FR)) {
+					return 5;
+				} else if (this.equals(SA)) {
+					return 6;
+				} else if (this.equals(SU)) {
+					return 7;
+				} else {
+					return -1;
+				}
+
+			}
+
 			@Override
 			public int hashCode() {
 				final int prime = 31;

@@ -613,4 +613,77 @@ public class VEventSanitizerTests {
 		assertEquals("America/La_Paz", vevent.dtstart.timezone);
 	}
 
+	@Test
+	public void testSanitizeWeeklyReccurrenceDtStartMustBeIncludedInTheOccurrence() {
+		VEventSanitizer sanitizer = new VEventSanitizer(test1Context, user1DefaultCalendar);
+		VEvent vevent = new VEvent();
+		vevent.dtstart = new BmDateTime("2023-09-18T10:15:30+02:00", "Europe/Paris", Precision.DateTime);
+		vevent.dtend = new BmDateTime("2023-09-18T10:45:30+02:00", "Europe/Paris", Precision.DateTime);
+		vevent.rrule = new RRule();
+		vevent.rrule.frequency = Frequency.WEEKLY;
+		vevent.rrule.count = 10;
+		vevent.rrule.byDay = Arrays.asList(WeekDay.WE, WeekDay.TH, WeekDay.FR);
+		vevent.summary = "event " + System.currentTimeMillis();
+
+		sanitizer.sanitize(vevent, true);
+
+		BmDateTime exceptedDtStartBm = new BmDateTime("2023-09-20T10:15:30+02:00", "Europe/Paris", Precision.DateTime);
+		ZonedDateTime exceptedDtStart = new BmDateTimeWrapper(exceptedDtStartBm).toDateTime();
+		BmDateTime exceptedDtEndBm = new BmDateTime("2023-09-20T10:45:30+02:00", "Europe/Paris", Precision.DateTime);
+		ZonedDateTime exceptedDtEnd = new BmDateTimeWrapper(exceptedDtEndBm).toDateTime();
+
+		ZonedDateTime eventDtStart = new BmDateTimeWrapper(vevent.dtstart).toDateTime();
+		ZonedDateTime eventDtEnd = new BmDateTimeWrapper(vevent.dtend).toDateTime();
+
+		assertEquals(exceptedDtStart, eventDtStart);
+		assertEquals(exceptedDtEnd, eventDtEnd);
+
+		// dtstart after first weekday of recurrence
+		vevent = new VEvent();
+		vevent.dtstart = new BmDateTime("2023-09-21T10:15:30+02:00", "Europe/Paris", Precision.DateTime);
+		vevent.dtend = new BmDateTime("2023-09-21T10:45:30+02:00", "Europe/Paris", Precision.DateTime);
+		vevent.rrule = new RRule();
+		vevent.rrule.frequency = Frequency.WEEKLY;
+		vevent.rrule.count = 10;
+		vevent.rrule.byDay = Arrays.asList(WeekDay.TU, WeekDay.FR);
+		vevent.summary = "event " + System.currentTimeMillis();
+
+		sanitizer.sanitize(vevent, true);
+
+		exceptedDtStartBm = new BmDateTime("2023-09-19T10:15:30+02:00", "Europe/Paris", Precision.DateTime);
+		exceptedDtStart = new BmDateTimeWrapper(exceptedDtStartBm).toDateTime();
+		exceptedDtEndBm = new BmDateTime("2023-09-19T10:45:30+02:00", "Europe/Paris", Precision.DateTime);
+		exceptedDtEnd = new BmDateTimeWrapper(exceptedDtEndBm).toDateTime();
+
+		eventDtStart = new BmDateTimeWrapper(vevent.dtstart).toDateTime();
+		eventDtEnd = new BmDateTimeWrapper(vevent.dtend).toDateTime();
+
+		assertEquals(exceptedDtStart, eventDtStart);
+		assertEquals(exceptedDtEnd, eventDtEnd);
+
+		// Precision.Date
+		vevent = new VEvent();
+		vevent.dtstart = new BmDateTime("2023-09-21", null, Precision.Date);
+		vevent.dtend = new BmDateTime("2023-09-22", null, Precision.Date);
+		vevent.rrule = new RRule();
+		vevent.rrule.frequency = Frequency.WEEKLY;
+		vevent.rrule.count = 10;
+		vevent.rrule.byDay = Arrays.asList(WeekDay.TU, WeekDay.FR);
+		vevent.summary = "event " + System.currentTimeMillis();
+
+		sanitizer.sanitize(vevent, true);
+
+		exceptedDtStartBm = new BmDateTime("2023-09-19", null, Precision.Date);
+		exceptedDtStart = new BmDateTimeWrapper(exceptedDtStartBm).toDateTime();
+		exceptedDtEndBm = new BmDateTime("2023-09-20", null, Precision.Date);
+		exceptedDtEnd = new BmDateTimeWrapper(exceptedDtEndBm).toDateTime();
+
+		eventDtStart = new BmDateTimeWrapper(vevent.dtstart).toDateTime();
+		eventDtEnd = new BmDateTimeWrapper(vevent.dtend).toDateTime();
+
+		assertEquals(exceptedDtStart, eventDtStart);
+		assertEquals(exceptedDtEnd, eventDtEnd);
+
+	}
+
 }
