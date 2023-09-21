@@ -187,22 +187,7 @@ export default {
     props: {
         delegate: { type: String, default: undefined },
         visible: { type: Boolean, default: false },
-        onlyDelegateReceivesImip: { type: Boolean, default: false }
-    },
-    setup() {
-        return {
-            acls,
-            addDelegateToCopyImipMailboxRule,
-            delegates,
-            delegations,
-            fetchAcls,
-            hasCopyImipMailboxRuleAction,
-            removeDelegateFromCopyImipMailboxRule,
-            setCalendarAcl,
-            setContactsAcl,
-            setMailboxAcl,
-            setTodoListAcl
-        };
+        receiveImipOption: { type: Number, required: true }
     },
     data() {
         return {
@@ -251,17 +236,17 @@ export default {
         selectedDelegate: {
             handler: async function (value) {
                 this.initialDelegationRight =
-                    this.delegations?.find(({ subject }) => subject === value)?.verb || Verb.SendOnBehalf;
+                    delegations.value?.find(({ subject }) => subject === value)?.verb || Verb.SendOnBehalf;
                 this.delegationRight = this.initialDelegationRight;
 
                 const isNew = !this.delegate;
 
-                this.calendarRight = aclToRight(this.acls.calendar.acl, value, Right.CAN_EDIT, isNew);
-                this.todoListRight = aclToRight(this.acls.todoList.acl, value, Right.CAN_EDIT, isNew);
-                this.messageRight = aclToRight(this.acls.mailbox.acl, value, Right.HAS_NO_RIGHTS, isNew);
-                this.contactsRight = aclToRight(this.acls.addressBook.acl, value, Right.HAS_NO_RIGHTS, isNew);
+                this.calendarRight = aclToRight(acls.value.calendar.acl, value, Right.CAN_EDIT, isNew);
+                this.todoListRight = aclToRight(acls.value.todoList.acl, value, Right.CAN_EDIT, isNew);
+                this.messageRight = aclToRight(acls.value.mailbox.acl, value, Right.HAS_NO_RIGHTS, isNew);
+                this.contactsRight = aclToRight(acls.value.addressBook.acl, value, Right.HAS_NO_RIGHTS, isNew);
 
-                this.copyImipToDelegate = await this.hasCopyImipMailboxRuleAction(value);
+                this.copyImipToDelegate = await hasCopyImipMailboxRuleAction(value);
             },
             immediate: true
         }
@@ -294,7 +279,7 @@ export default {
                 size: 10
             });
             const userUid = inject("UserSession").userId;
-            const excludedUsers = [userUid, ...Object.keys(this.delegates)];
+            const excludedUsers = [userUid, ...Object.keys(delegates)];
             this.autocompleteResults = dirEntries.values
                 .filter(({ uid }) => !excludedUsers.includes(uid))
                 .map(DirEntryAdaptor.toContact);
@@ -320,12 +305,12 @@ export default {
             if (this.copyImipToDelegateChanged) {
                 promises.push(
                     this.copyImipToDelegate
-                        ? this.addDelegateToCopyImipMailboxRule({
+                        ? addDelegateToCopyImipMailboxRule({
                               uid: this.selectedDelegate,
                               address: this.selectedContacts[0].address,
-                              keepCopy: !this.onlyDelegateReceivesImip
+                              receiveImipOption: this.receiveImipOption
                           })
-                        : this.removeDelegateFromCopyImipMailboxRule(this.selectedDelegate)
+                        : removeDelegateFromCopyImipMailboxRule(this.selectedDelegate)
                 );
             }
 

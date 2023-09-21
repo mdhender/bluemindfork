@@ -183,12 +183,18 @@ const getMailboxFilter = async userId => {
     return cachedMailboxFilter;
 };
 
-export const addDelegateToCopyImipMailboxRule = async ({ uid, address, keepCopy }) => {
+const setFlagsAction = {
+    name: "SET_FLAGS",
+    flags: ["X-BM-EVENT-ReadOnly"],
+    clientProperties: { type: "delegation" }
+};
+
+export const addDelegateToCopyImipMailboxRule = async ({ uid, address, receiveImipOption }) => {
     const mailboxFilter = await getMailboxFilter(getUserId());
     let copyImipMailboxRule = mailboxFilter.rules.find(matchCopyImipMailboxRule);
     const copyImipAction = {
         name: "REDIRECT",
-        keepCopy,
+        keepCopy: receiveImipOption !== receiveImipOptions.ONLY_DELEGATE,
         emails: [address],
         clientProperties: { type: "delegation", delegate: uid }
     };
@@ -219,26 +225,64 @@ export const addDelegateToCopyImipMailboxRule = async ({ uid, address, keepCopy 
         ]
     });
 
+    if (
+        receiveImipOption === receiveImipOptions.COPY &&
+        !copyImipMailboxRule.actions.some(
+            ({ name, clientProperties }) => clientProperties.type === "delegation" && name === "SET_FLAGS"
+        )
+    ) {
+        copyImipMailboxRule.actions.push(setFlagsAction);
+    }
+
     await inject("MailboxesPersistence").setMailboxFilter(getUserId(), mailboxFilter);
     cachedMailboxFilter = mailboxFilter;
 };
 
-export const updateCopyImipMailboxRule = async ({ keepCopy }) => {
+export const receiveImipOptions = { ONLY_DELEGATE: 0, BOTH: 1, COPY: 2 };
+
+export const updateReceiveImipOption = async receiveImipOption => {
     const mailboxFilter = await getMailboxFilter(getUserId());
     const copyImipMailboxRule = mailboxFilter.rules.find(matchCopyImipMailboxRule);
+    const setFlagsActionIndex = copyImipMailboxRule.actions.findIndex(
+        ({ clientProperties, name }) => clientProperties?.type === "delegation" && name === "SET_FLAGS"
+    );
+
+    // add or remove the only one SET_FLAGS action
+    if (receiveImipOptions.COPY === receiveImipOption && setFlagsActionIndex === -1) {
+        copyImipMailboxRule.actions.push(setFlagsAction);
+    } else if (receiveImipOptions.COPY !== receiveImipOption && setFlagsActionIndex !== -1) {
+        copyImipMailboxRule.actions.splice(setFlagsActionIndex, 1);
+    }
+
+    // update all REDIRECT actions
     copyImipMailboxRule.actions.forEach(a => {
-        if (a.clientProperties?.type === "delegation") {
-            a.keepCopy = keepCopy;
+        if (a.clientProperties?.type === "delegation" && a.name === "REDIRECT") {
+            a.keepCopy = receiveImipOption !== receiveImipOptions.ONLY_DELEGATE;
         }
     });
     await inject("MailboxesPersistence").setMailboxFilter(getUserId(), mailboxFilter);
     cachedMailboxFilter = mailboxFilter;
 };
 
-export const hasCopyImipMailboxRuleKeepCopy = async () => {
+export const computeReceiveImipOption = async () => {
     const mailboxFilter = await getMailboxFilter(getUserId());
     const copyImipMailboxRule = mailboxFilter.rules.find(matchCopyImipMailboxRule);
-    return copyImipMailboxRule?.actions.some(a => a.clientProperties?.type === "delegation" && a.keepCopy);
+    if (copyImipMailboxRule) {
+        let keepCopy = false;
+        // reminder: only one SET_FLAGS action but several REDIRECT actions
+        for (const action of copyImipMailboxRule.actions) {
+            if (action.clientProperties?.type === "delegation") {
+                if (action.name === "SET_FLAGS") {
+                    return receiveImipOptions.COPY;
+                }
+                if (action.name === "REDIRECT" && action.keepCopy) {
+                    keepCopy = true;
+                }
+            }
+        }
+        return keepCopy ? receiveImipOptions.BOTH : receiveImipOptions.ONLY_DELEGATE;
+    }
+    return receiveImipOptions.BOTH;
 };
 
 export const hasCopyImipMailboxRuleAction = async (...uids) => {

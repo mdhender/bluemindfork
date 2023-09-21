@@ -1,18 +1,22 @@
 <script setup>
 import { ref, watchEffect } from "vue";
+import { ERROR, SUCCESS } from "@bluemind/alert.store";
+import store from "@bluemind/store";
 import {
     acls,
     countDelegatesHavingTheCopyImipRule,
     delegates,
     delegations,
-    hasCopyImipMailboxRuleKeepCopy,
-    updateCopyImipMailboxRule,
+    receiveImipOptions,
+    computeReceiveImipOption,
+    updateReceiveImipOption,
     useDelegation
 } from "./delegation";
 import { Verb } from "@bluemind/core.container.api";
 import { BmButton, BmFormGroup, BmFormRadioGroup, BmFormRadio, BmIcon, BmReadMore } from "@bluemind/ui-components";
 import PrefDelegatesModal from "./PrefDelegatesModal";
 import PrefDelegatesTable from "./PrefDelegatesTable";
+import { SAVE_ALERT } from "../../../Alerts/defaultAlerts";
 
 useDelegation();
 const delegate = ref();
@@ -29,21 +33,19 @@ const editDelegate = userUid => {
 };
 
 const delegatesWithCopyImipRuleCount = ref();
-const receiveImipChoices = { ONLY_DELEGATE: 0, BOTH: 1, COPY: 2 };
-const receiveImipChoice = ref();
+const receiveImipOption = ref(receiveImipOptions.BOTH);
 watchEffect(async () => {
     delegatesWithCopyImipRuleCount.value = await countDelegatesHavingTheCopyImipRule(...Object.keys(delegates.value));
-    const copy = true; // TODO next PR
-    const both = await hasCopyImipMailboxRuleKeepCopy();
-    receiveImipChoice.value = copy
-        ? receiveImipChoices.COPY
-        : both
-        ? receiveImipChoices.BOTH
-        : receiveImipChoices.ONLY_DELEGATE;
+    receiveImipOption.value = await computeReceiveImipOption();
 });
 
-const updateFilter = () => {
-    updateCopyImipMailboxRule({ keepCopy: receiveImipChoice.value === receiveImipChoices.BOTH });
+const updateFilter = async () => {
+    try {
+        await updateReceiveImipOption(receiveImipOption.value);
+        store.dispatch(`alert/${SUCCESS}`, SAVE_ALERT);
+    } catch {
+        store.dispatch(`alert/${ERROR}`, SAVE_ALERT);
+    }
 };
 
 watchEffect(() => {
@@ -81,18 +83,18 @@ watchEffect(() => {
                 class="mt-4 font-weight-bold"
             >
                 <bm-form-radio-group
-                    v-model="receiveImipChoice"
+                    v-model="receiveImipOption"
                     class="py-4"
                     :aria-describedby="ariaDescribedby"
                     @change="updateFilter"
                 >
-                    <bm-form-radio :value="receiveImipChoices.ONLY_DELEGATE" class="ml-6">
+                    <bm-form-radio :value="receiveImipOptions.ONLY_DELEGATE" class="ml-6">
                         {{ $t("preferences.account.delegates.receive_imip.choice.only_delegate") }}
                     </bm-form-radio>
-                    <bm-form-radio :value="receiveImipChoices.COPY" class="ml-6">
+                    <bm-form-radio :value="receiveImipOptions.COPY" class="ml-6">
                         {{ $t("preferences.account.delegates.receive_imip.choice.copy") }}
                     </bm-form-radio>
-                    <bm-form-radio :value="receiveImipChoices.BOTH" class="ml-6">
+                    <bm-form-radio :value="receiveImipOptions.BOTH" class="ml-6">
                         {{ $t("preferences.account.delegates.receive_imip.choice.both") }}
                     </bm-form-radio>
                 </bm-form-radio-group>
@@ -101,7 +103,7 @@ watchEffect(() => {
         <pref-delegates-modal
             :visible.sync="showEditForm"
             :delegate.sync="delegate"
-            :only-delegate-receives-imip="receiveImipChoice === receiveImipChoices.BOTH"
+            :receive-imip-option="receiveImipOption"
         />
     </div>
 </template>
