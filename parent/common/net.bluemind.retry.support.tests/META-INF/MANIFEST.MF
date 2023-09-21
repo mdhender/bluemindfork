@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.retry.support.tests
+Bundle-SymbolicName: net.bluemind.retry.support.tests
+Bundle-Version: 5.0.0.qualifier
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ org.junit;bundle-version="4.13.2",
+ net.bluemind.retry.support;bundle-version="5.0.0",
+ net.bluemind.lib.vertx,
+ org.awaitility,
+ org.hamcrest;bundle-version="2.2.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Automatic-Module-Name: net.bluemind.retry.support.tests
+Bundle-ActivationPolicy: lazy

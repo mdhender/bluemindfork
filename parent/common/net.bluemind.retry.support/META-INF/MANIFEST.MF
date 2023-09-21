@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.retry.support
+Bundle-SymbolicName: net.bluemind.retry.support
+Bundle-Version: 5.0.0.qualifier
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ org.junit,
+ net.bluemind.chronicle.queue,
+ slf4j.api,
+ io.vertx.core,
+ com.google.guava,
+ net.bluemind.lib.vertx
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Automatic-Module-Name: net.bluemind.retry.support
+Bundle-ActivationPolicy: lazy
+Export-Package: net.bluemind.retry.support

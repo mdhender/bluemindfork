@@ -21,6 +21,8 @@
 		<module>net.bluemind.common.vertx.contextlogging</module>
 		<module>net.bluemind.common.vertx.msgpack</module>
 		<module>net.bluemind.common.vertx.msgpack.tests</module>
+		<module>net.bluemind.retry.support</module>
+		<module>net.bluemind.retry.support.tests</module>
 		<module>net.bluemind.serviceprovider</module>
 		<module>net.bluemind.serviceprovider.incore</module>
 		<module>net.bluemind.serviceprovider.rest</module>
