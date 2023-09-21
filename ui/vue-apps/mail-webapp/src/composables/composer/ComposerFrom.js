@@ -13,14 +13,13 @@ const { MessageHeader } = messageUtils;
 export async function setFrom(identity, message) {
     store.commit("mail/" + SET_MESSAGE_FROM, {
         messageKey: message.key,
-        from: { address: identity.email, dn: identity.displayname }
+        from: { address: identity.email, dn: identity.displayname, id: identity.id }
     });
     const fullIdentity = setIdentity(identity);
     const rawIdentity = await inject("UserMailIdentitiesPersistence").get(fullIdentity.id);
 
-    const destinationMailboxUid = await computeDestinationMailbox(rawIdentity, mailboxes);
-
     const mailboxes = store.state.mail.mailboxes;
+    const destinationMailboxUid = await computeDestinationMailbox(rawIdentity, mailboxes);
     let mailbox = mailboxes[`user.${destinationMailboxUid}`] || mailboxes[destinationMailboxUid];
     let sentFolderUid;
     if (mailbox) {

@@ -108,11 +108,16 @@ export default {
 </script>
 
 <style lang="scss">
+@import "@bluemind/ui-components/src/css/utils/responsiveness";
 @import "~@bluemind/ui-components/src/css/utils/variables";
 .mail-viewer {
     z-index: 20;
     padding-top: $sp-6;
     padding-left: $sp-6 + $sp-5;
     padding-right: $sp-6;
+    @include until-lg {
+        padding-left: $sp-4;
+        padding-right: $sp-4;
+    }
 }
 </style>

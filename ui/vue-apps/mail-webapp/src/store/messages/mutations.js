@@ -54,7 +54,9 @@ export default {
     },
     [MOVE_MESSAGES]: (state, { messages }) => messages.forEach(m => (state[m.key].folderRef = m.folderRef)),
     [SET_MESSAGE_PREVIEW]: (state, { key, preview }) => {
-        state[key].preview = preview;
+        if (state[key]) {
+            state[key].preview = preview;
+        }
     },
     [SET_MESSAGE_SIZE]: (state, { key, size }) => {
         state[key].size = size;
@@ -76,7 +78,9 @@ export default {
         }
     },
     [SET_MESSAGE_STRUCTURE]: (state, { messageKey, structure }) => {
-        state[messageKey].structure = structure;
+        if (state[messageKey]) {
+            state[messageKey].structure = structure;
+        }
     },
     [ADD_ATTACHMENT]: (state, { messageKey, attachment }) => {
         let structure = cloneDeep(state[messageKey].structure);

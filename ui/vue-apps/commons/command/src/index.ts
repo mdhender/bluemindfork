@@ -74,7 +74,12 @@ async function execute(
             }
         );
         try {
-            await executeHooks.call(this, [...beforeHooks, commandRegistry[command], ...afterHooks], payload, options);
+            return await executeHooks.call(
+                this,
+                [...beforeHooks, commandRegistry[command], ...afterHooks],
+                payload,
+                options
+            );
         } catch {
             return;
         }
@@ -83,9 +88,10 @@ async function execute(
 
 async function executeHooks(this: void, hooks: CommandFn[] = [], payload: Payload, options: Options) {
     const isPlain = isPlainObject(payload);
+    let values = null;
     for (const fn of hooks) {
         try {
-            const values = await fn.call(this, payload, options);
+            values = await fn.call(this, payload, options);
             if (isPlain) {
                 Object.assign(payload, values);
             } else if (values !== undefined) {
@@ -97,6 +103,7 @@ async function executeHooks(this: void, hooks: CommandFn[] = [], payload: Payloa
             }
         }
     }
+    return values;
 }
 
 export function useCommandRegistryProvider() {

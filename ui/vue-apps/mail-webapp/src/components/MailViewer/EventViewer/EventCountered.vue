@@ -2,11 +2,13 @@
 import { computed } from "vue";
 import store from "@bluemind/store";
 import { BmToggleableButton } from "@bluemind/ui-components";
+import { messageUtils } from "@bluemind/mail";
 import { ACCEPT_COUNTER_EVENT, DECLINE_COUNTER_EVENT } from "~/actions";
 import EventHeader from "./EventHeader";
 import EventDetail from "./EventDetail";
 import EventFooter from "./EventFooter";
 import { STATUS_KEY_FOR_OCCURRENCE, STATUS_KEY_FOR_EVENT } from "./replyActions";
+const { MessageHeader } = messageUtils;
 
 const props = defineProps({
     message: { type: Object, required: true },
@@ -27,6 +29,9 @@ const eventKey = computed(() =>
 
 const statusKey = computed(
     () => (isOccurrence.value ? STATUS_KEY_FOR_OCCURRENCE : STATUS_KEY_FOR_EVENT)[fromAttendee.value.status]
+);
+const attendeeHeader = computed(() =>
+    props.message?.headers?.find(({ name }) => name.toUpperCase() === MessageHeader.X_BM_COUNTER_ATTENDEE.toUpperCase())
 );
 </script>
 
@@ -62,6 +67,9 @@ const statusKey = computed(
             </template>
         </event-header>
 
+        <event-header v-else-if="attendeeHeader">
+            <span class="bold"> {{ $t("mail.viewer.invitation.counter.attendees") }}</span>
+        </event-header>
         <event-header v-else-if="!event.counter">
             <span class="bold"> {{ $t("mail.viewer.invitation.counter.answered") }}</span>
         </event-header>

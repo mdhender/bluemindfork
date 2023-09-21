@@ -51,6 +51,7 @@ export default {
 </script>
 
 <style lang="scss">
+@import "@bluemind/ui-components/src/css/utils/responsiveness";
 @import "~@bluemind/ui-components/src/css/utils/variables";
 @import "./variables";
 
@@ -65,6 +66,9 @@ export default {
         align-items: center;
         justify-content: space-between;
 
+        @include until-lg {
+            display: block;
+        }
         .contact {
             &:not(.no-avatar) .contact-main-part {
                 margin-left: $single-mail-avatar-main-gap !important;
@@ -76,6 +80,10 @@ export default {
         .date {
             flex: none;
             color: $neutral-fg;
+            @include until-lg {
+                display: block;
+                padding-left: $avatar-width + $single-mail-avatar-main-gap;
+            }
         }
     }
 

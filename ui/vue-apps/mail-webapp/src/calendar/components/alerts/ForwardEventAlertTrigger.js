@@ -31,7 +31,8 @@ export default {
                 name: "mail.forwarded_event",
                 uid: `MESSAGE_IMIP_FORWARDED_${this.message.key}`,
                 payload: {
-                    organizer: this.eventOrganizer?.commonName
+                    organizer: this.eventOrganizer?.commonName,
+                    sender: this.message.from.dn
                 }
             };
         }

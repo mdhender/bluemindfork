@@ -10,14 +10,16 @@ export default async function updateMessageStructure({ state, commit }, { key, s
 
 function cleanObsoleteAddresses({ state }, key, newStructure) {
     const oldMessage = state[key];
-    const currentAddresses = getAllAddresses(newStructure);
-    const oldAddresses = getAllAddresses(oldMessage.structure);
-    const service = inject("MailboxItemsPersistence", oldMessage.folderRef.uid);
-    oldAddresses.forEach(old => {
-        if (!currentAddresses.includes(old)) {
-            service.removePart(old);
-        }
-    });
+    if (oldMessage) {
+        const currentAddresses = getAllAddresses(newStructure);
+        const oldAddresses = getAllAddresses(oldMessage.structure);
+        const service = inject("MailboxItemsPersistence", oldMessage.folderRef.uid);
+        oldAddresses.forEach(old => {
+            if (!currentAddresses.includes(old)) {
+                service.removePart(old);
+            }
+        });
+    }
 }
 
 function getAllAddresses(structure) {

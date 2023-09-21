@@ -41,7 +41,7 @@
             @input="updateSubject"
             @keypress.enter.prevent
         />
-        <composer-top-frame :message="message" :attachments="computedParts.attachments" />
+        <composer-top-frame :message="message" :attachments="attachments" />
         <bm-dropzone
             v-show="showConversationDropzone"
             class="h-100 my-2"
@@ -68,7 +68,7 @@
                     class="m-4"
                     :dragged-files-count="draggedFilesCount"
                     :message="message"
-                    :attachments="computedParts.attachments"
+                    :attachments="attachments"
                     @files-count="draggedFilesCount = $event"
                     @drop-files="execAddAttachments({ files: $event, message, maxSize })"
                 />
@@ -176,7 +176,7 @@ export default {
         };
     },
     data() {
-        return { showConversationDropzone: false };
+        return { showConversationDropzone: false, computedParts: {} };
     },
     computed: {
         ...mapGetters("mail", { MY_TEMPLATES }),
@@ -188,14 +188,22 @@ export default {
                     : this.$t("mail.main.new"))
             );
         },
+        attachments() {
+            return this.computedParts?.attachments || [];
+        },
         messagepath() {
             return MessagePathParam.build("", this.message);
         },
         subject() {
             return this.message.subject?.trim() || "";
-        },
-        computedParts() {
-            return computeParts(this.message.structure);
+        }
+    },
+    watch: {
+        "message.structure": {
+            handler() {
+                this.computedParts = computeParts(this.message.structure);
+            },
+            immediate: true
         }
     },
     methods: {

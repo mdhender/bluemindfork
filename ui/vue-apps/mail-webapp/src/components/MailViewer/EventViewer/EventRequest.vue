@@ -27,7 +27,7 @@ const user = inject("UserSession").userId;
 <template>
     <div class="event-request">
         <event-header v-if="event.isWritable">
-            <template v-if="event.mailboxOwner !== event.calendarOwner">
+            <template v-if="user !== event.calendarOwner">
                 <i18n path="mail.viewer.invitation.request.delegate">
                     <template #name>
                         <span class="font-weight-bold">{{ event.attendee.commonName }}</span>

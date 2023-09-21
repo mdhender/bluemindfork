@@ -31,6 +31,7 @@ export default {
                         "calendar:" + message.eventInfo.resourceUid
                     ).getComplete(message.eventInfo.icsUid);
                     calendarOwner = message.eventInfo.resourceUid;
+                    calendarUid = getCalendarUid(calendarOwner);
                 } else {
                     const otherCalendarUid = (messageUtils.extractHeaderValues(
                         message,
@@ -53,6 +54,7 @@ export default {
                     ? message.eventInfo.resourceUid
                     : mailbox.owner;
                 const isWritable = await isCalendarWritable(calendarUid);
+
                 event = EventHelper.adapt(
                     event,
                     mailboxOwner,

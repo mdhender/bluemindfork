@@ -14,4 +14,3 @@ export { default as RemoveMessages } from "./RemoveMessages";
 export { default as RenameFolder } from "./RenameFolder";
 export { default as SaveMessageAs } from "./SaveMessageAs";
 export { default as SendMessage } from "./SendMessage";
-export { default as ForwardedEventAlert } from "./ForwardedEventAlert";

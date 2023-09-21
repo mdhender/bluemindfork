@@ -5,7 +5,9 @@ import { mailTipUtils } from "@bluemind/mail";
 import DecoratedFileItem from "./components/MailAttachment/DecoratedFileItem.vue";
 import PreviewBlockedRemoteContent from "./components/MailAttachment/Preview/Fallback/PreviewBlockedRemoteContent";
 import PreviewTooLarge from "./components/MailAttachment/Preview/Fallback/PreviewTooLarge";
-import ForwardEventAlertTrigger from "./components/MailAlerts/ForwardEventAlertTrigger";
+import ForwardEventAlertTrigger from "./calendar/components/alerts/ForwardEventAlertTrigger";
+import ForwardEventHandler from "./calendar/handlers/ForwardEventHandler";
+import ForwardedEventAlert from "./calendar/components/alerts/ForwardedEventAlert";
 
 const { MailTipTypes } = mailTipUtils;
 
@@ -46,12 +48,19 @@ export default function () {
             priority: 2
         }
     });
-
+    Vue.component("ForwardedEventAlert", ForwardedEventAlert);
     Vue.component("ForwardEventAlertTrigger", ForwardEventAlertTrigger);
     extensions.register("webapp.mail", "net.bluemind.webapp.mail.js", {
         component: {
             path: "viewer.header",
             name: "ForwardEventAlertTrigger"
+        }
+    });
+    extensions.register("webapp", "net.bluemind.webapp.mail.js", {
+        command: {
+            name: "forward",
+            fn: ForwardEventHandler,
+            after: true
         }
     });
 }

@@ -99,11 +99,7 @@ function buildRecipientsForKind(kind, recipients) {
 export function getEventInfo(headers) {
     const icsHeader = headers.find(hasXbmImipEvent);
 
-    if (
-        !icsHeader ||
-        //TODO : Remove it when forward invitation is handled
-        headers.some(({ name }) => name.toUpperCase() === MessageHeader.X_BM_COUNTER_ATTENDEE.toUpperCase())
-    ) {
+    if (!icsHeader) {
         return { hasICS: false };
     }
 

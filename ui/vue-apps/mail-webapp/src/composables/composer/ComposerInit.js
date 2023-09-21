@@ -14,8 +14,7 @@ import {
 import apiMessages from "~/store/api/apiMessages";
 import { getIdentityForNewMessage, setFrom } from "~/composables/composer/ComposerFrom";
 
-import { useAddAttachmentsCommand } from "~/commands";
-import { setForwardEventStructure } from "./forwardEvent";
+import { useAddAttachmentsCommand, useForwardCommand } from "~/commands";
 import { computed, ref } from "vue";
 import { buildBasicStructure } from "./init/initStructure";
 import initReplyOrForward from "./init/initReplyOrForward";
@@ -31,6 +30,7 @@ const { LoadingStatus } = loadingStatusUtils;
  */
 export function useComposerInit() {
     const { execAddAttachments } = useAddAttachmentsCommand();
+    const execForward = useForwardCommand();
     const { initForwardEml } = useForwardEml();
     const userPrefTextOnly = ref(false); // FIXME: https://forge.bluemind.net/jira/browse/FEATWEBML-88
     const partsByMessageKey = computed(() => store.state.mail.partsData.partsByMessageKey);
@@ -97,13 +97,12 @@ export function useComposerInit() {
 
             switch (action) {
                 case MessageCreationModes.REPLY:
-                case MessageCreationModes.REPLY_ALL:
-                case MessageCreationModes.FORWARD: {
+                case MessageCreationModes.REPLY_ALL: {
                     return initReplyOrForward(message, action, previousInfos);
                 }
-                case MessageCreationModes.FORWARD_EVENT: {
-                    const newMessage = await initReplyOrForward(message, MessageCreationModes.FORWARD, previousInfos);
-                    return setForwardEventStructure(previousInfos, newMessage);
+                case MessageCreationModes.FORWARD: {
+                    const { message: newMessage } = await execForward({ message, previousInfos });
+                    return newMessage;
                 }
                 case MessageCreationModes.EDIT_AS_NEW: {
                     return initEditAsNew(message, previousInfos);

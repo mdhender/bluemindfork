@@ -1,6 +1,6 @@
 <template>
     <chain-of-responsibility :is-responsible="hasEvent">
-        <event-detail class="event-details m-4" :event="event" />
+        <event-detail class="event-details m-4" :event="event" :message="message" />
     </chain-of-responsibility>
 </template>
 
@@ -41,14 +41,16 @@ export default {
         }
     },
     async created() {
-        const ics = await this.fetchIcsToText();
-        const event = await this.retreiveCalendarEvent(this.message, this.retreiveUid(ics));
-        this.event = EventHelper.adapt(
-            event,
-            this.message.eventInfo.resourceUid,
-            this.message.from.address,
-            this.message.eventInfo.recuridIsoDate
-        );
+        if (this.hasEvent) {
+            const ics = await this.fetchIcsToText();
+            const event = await this.retreiveCalendarEvent(this.message, this.retreiveUid(ics));
+            this.event = EventHelper.adapt(
+                event,
+                this.message.eventInfo.resourceUid,
+                this.message.from.address,
+                this.message.eventInfo.recuridIsoDate
+            );
+        }
     },
     methods: {
         async retreiveCalendarEvent(message, icsUid) {

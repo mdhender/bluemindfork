@@ -83,7 +83,7 @@ export default {
         },
         locations() {
             return (
-                this.contact?.value?.deliveryAddressing?.map(({ address }) => ({
+                this.contact?.value?.deliveryAddressing?.filter(isValidAddress).map(({ address }) => ({
                     lines: [
                         ...formatAddress({
                             postalCountry: "FR", // missing address.countryCode
@@ -112,6 +112,19 @@ export default {
         }
     }
 };
+
+function isValidAddress(address) {
+    return (
+        address.region ||
+        address.locality ||
+        address.postalCode ||
+        address.postOfficeBox ||
+        address.streetAddress ||
+        address.extentedAddress ||
+        address.countryName ||
+        address.parameters
+    );
+}
 </script>
 
 <style lang="scss">

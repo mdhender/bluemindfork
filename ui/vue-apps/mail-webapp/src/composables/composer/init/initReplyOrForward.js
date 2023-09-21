@@ -58,11 +58,10 @@ export default async function initReplyOrForward(message, creationMode, previous
         store.commit(`mail/${SET_MESSAGE_CC}`, { messageKey: message.key, cc });
     }
 
+    createEditorContent(creationMode, userPrefTextOnly, previousMessage, previousInlines, message);
     await setFrom(identity, message);
     const structure = buildMessageStructure(creationMode, previousInlines, previousAttachments);
     store.commit(`mail/${SET_MESSAGE_STRUCTURE}`, { messageKey: message.key, structure });
-
-    createEditorContent(creationMode, userPrefTextOnly, previousMessage, previousInlines, message);
 
     return message;
 }
@@ -112,5 +111,8 @@ async function createEditorContent(creationMode, userPrefTextOnly, previousMessa
     }
     const collapsed = quotePreviousMessage(contentFromPreviousMessage, previousMessage, creationMode, userPrefTextOnly);
     store.commit(`mail/${SET_DRAFT_COLLAPSED_CONTENT}`, collapsed);
-    store.dispatch(`mail/${SET_DRAFT_CONTENT}`, { html: BmRichEditor.constants.NEW_LINE, draft: newMessage });
+    store.dispatch(`mail/${SET_DRAFT_CONTENT}`, {
+        html: BmRichEditor.constants.NEW_LINE + collapsed,
+        draft: newMessage
+    });
 }

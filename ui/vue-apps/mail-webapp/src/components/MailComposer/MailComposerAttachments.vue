@@ -75,17 +75,8 @@ export default {
             uploadingFiles: ({ messageCompose }) => messageCompose.uploadingFiles
         }),
         files() {
-            const files = AttachmentAdaptor.extractFiles(this.computedParts.attachments, this.message);
+            const files = AttachmentAdaptor.extractFiles(this.attachments, this.message);
             return files.map(file => ({ ...file, ...this.uploadingFiles[file.key] }));
-        }
-    },
-    watch: {
-        "message.structure": {
-            handler(structure) {
-                this.computedParts = computeParts(structure);
-            },
-            deep: false,
-            immediate: true
         }
     },
     destroyed() {

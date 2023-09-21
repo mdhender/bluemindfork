@@ -18,22 +18,24 @@
                 @click.stop="action.execute(() => replyAll(message, conversation))"
             />
         </mail-open-in-popup-with-shift>
-        <mail-open-in-popup-with-shift v-slot="action" :href="forwardRoute(message)">
+        <forward-event-button v-if="isEventRequest" :message="message">
+            <mail-open-in-popup-with-shift v-slot="action" :href="forwardRoute(message)">
+                <bm-dropdown-item
+                    :icon="action.icon('forward')"
+                    :title="action.label($t('mail.content.forward.message'))"
+                    @click.stop="action.execute(() => forward(message))"
+                >
+                    {{ $t("mail.content.forward.message") }}
+                </bm-dropdown-item>
+            </mail-open-in-popup-with-shift>
+        </forward-event-button>
+        <mail-open-in-popup-with-shift v-else v-slot="action" :href="forwardRoute(message)">
             <bm-icon-button
                 variant="regular-accent"
                 :size="size"
                 :title="action.label($t('common.forward'))"
                 icon="forward"
                 @click.stop="action.execute(() => forward(message))"
-            />
-        </mail-open-in-popup-with-shift>
-        <mail-open-in-popup-with-shift v-if="isEventRequest" v-slot="action" :href="forwardEventRoute(message)">
-            <bm-icon-button
-                variant="regular-accent"
-                :size="size"
-                :title="action.label($t('event.forward'))"
-                icon="forward"
-                @click.stop="action.execute(() => forwardEvent(message))"
             />
         </mail-open-in-popup-with-shift>
         <mail-viewer-toolbar-other-actions
@@ -46,7 +48,7 @@
 </template>
 
 <script>
-import { BmButtonToolbar, BmIconButton } from "@bluemind/ui-components";
+import { BmButtonToolbar, BmIconButton, BmIconDropdown, BmDropdownItem } from "@bluemind/ui-components";
 import { mapState } from "vuex";
 import { ReplyAndForwardRoutesMixin } from "~/mixins";
 import MailViewerToolbarOtherActions from "./MailViewerToolbarOtherActions";
@@ -54,12 +56,15 @@ import MailOpenInPopupWithShift from "../MailOpenInPopupWithShift";
 import { messageUtils } from "@bluemind/mail";
 const { MessageHeader } = messageUtils;
 import { useComposerInit } from "~/composables/composer/ComposerInit";
+import ForwardEventButton from "../../calendar/components/ForwardEventButton";
 
 export default {
     name: "MailViewerToolbar",
     components: {
         BmButtonToolbar,
         BmIconButton,
+        ForwardEventButton,
+        BmDropdownItem,
         MailViewerToolbarOtherActions,
         MailOpenInPopupWithShift
     },
