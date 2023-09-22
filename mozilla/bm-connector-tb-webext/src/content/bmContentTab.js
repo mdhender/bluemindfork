@@ -62,7 +62,7 @@ specialTabs.bmTabType = {
         onLocationChange: function bm_onLocationChange(aWebProgress, aRequest,
           aLocationURI, aFlags) {
             gBMOverlay._logger.debug("onLocationChange:" + aLocationURI.spec + ", " + aFlags);
-            let loginPath = "/login/index.html";
+            let loginPath = "/keycloak/realms";
             try {
               // nsIURI.path deprecated in tb >= 57
               let path = aLocationURI.pathQueryRef ? aLocationURI.pathQueryRef : aLocationURI.path;
