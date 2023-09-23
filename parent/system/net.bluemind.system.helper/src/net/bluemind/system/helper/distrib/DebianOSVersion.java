@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.system.helper.distrib.list.Debian;
+import net.bluemind.system.helper.distrib.list.DebianBookworm;
 import net.bluemind.system.helper.distrib.list.DebianBullseye;
 import net.bluemind.system.helper.distrib.list.DebianBuster;
 import net.bluemind.system.helper.distrib.list.Distribution;
@@ -59,6 +60,8 @@ public class DebianOSVersion implements IOsVersionDetection {
 					distrib = new DebianBuster();
 				} else if (line.startsWith("11.")) {
 					distrib = new DebianBullseye();
+				} else if (line.startsWith("12.")) {
+					distrib = new DebianBookworm();
 				}
 			}
 		} catch (IOException e) {

@@ -5,6 +5,7 @@ UBUNTU_FOCAL="ubuntu-focal"
 UBUNTU_JAMMY="ubuntu-jammy"
 DEBIAN_BUSTER="debian-buster"
 DEBIAN_BULLSEYE="debian-bullseye"
+DEBIAN_BOOKWORM="debian-bookworm"
 
 check_redhat7() {
     if [  -e /etc/system-release ]; then
@@ -104,6 +105,14 @@ detect_os() {
     if [ -e "./jammy" ]; then
         INSTALLER_VERSION=${UBUNTU_JAMMY}
         if check_ubuntu "22.04"; then
+            OS_VERSION=${INSTALLER_VERSION}
+            source "./include/os-debian-squeeze-base"
+        fi
+    fi
+
+    if [ -e "./bookworm" ]; then
+        INSTALLER_VERSION=${DEBIAN_BOOKWORM}
+        if check_debian_bookworm; then
             OS_VERSION=${INSTALLER_VERSION}
             source "./include/os-debian-squeeze-base"
         fi

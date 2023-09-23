@@ -4,7 +4,7 @@
 
 set -e
 
-APT_DISTNAMES="focal jammy buster bullseye"  # Use space separator
+APT_DISTNAMES="focal jammy buster bullseye bookworm"  # Use space separator
 RPM_RHEL_VERSIONS="7 8"  # Use space separator
 
 
