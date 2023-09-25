@@ -1,10 +1,13 @@
 package net.bluemind.mailbox.api.rules;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleCondition;
@@ -13,15 +16,7 @@ import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleOperatorName;
 
 public class MailFilterRuleVacationMapper implements MailFilterRuleTypeMapper<MailFilter.Vacation> {
 
-	private static class ThreadLocalDateFormat {
-
-		private static final ThreadLocal<SimpleDateFormat> FORMAT = // NOSONAR
-				ThreadLocal.withInitial(() -> new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
-
-		public static SimpleDateFormat getCurrent() {
-			return FORMAT.get();
-		}
-	}
+	private Supplier<DateTimeFormatter> dtfSupplier = () -> DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
 	public Optional<MailFilterRule> map(MailFilter.Vacation vacation) {
 		if (vacation == null) {
@@ -34,11 +29,11 @@ public class MailFilterRuleVacationMapper implements MailFilterRuleTypeMapper<Ma
 		rule.active = vacation.enabled;
 		rule.client = "bluemind";
 		rule.name = "";
-		SimpleDateFormat formatter = ThreadLocalDateFormat.getCurrent();
+		DateTimeFormatter formatter = dtfSupplier.get();
 		rule.conditions = new ArrayList<>();
 		if (vacation.start != null || vacation.end != null) {
-			String startDate = (vacation.start != null) ? formatter.format(vacation.start) : null;
-			String endDate = (vacation.end != null) ? formatter.format(vacation.end) : null;
+			String startDate = (vacation.start != null) ? formatter.format(vacation.start.toInstant()) : null;
+			String endDate = (vacation.end != null) ? formatter.format(vacation.end.toInstant()) : null;
 			rule.conditions.add(MailFilterRuleCondition.between("date", startDate, endDate));
 		}
 		if (vacation.subject != null && (vacation.text != null || vacation.textHtml != null)) {
@@ -77,8 +72,12 @@ public class MailFilterRuleVacationMapper implements MailFilterRuleTypeMapper<Ma
 			return null;
 		}
 		try {
-			return ThreadLocalDateFormat.getCurrent().parse(parameter);
-		} catch (ParseException e) {
+			TemporalAccessor parsed = dtfSupplier.get().parse(parameter);
+			if (parsed == null) {
+				return null;
+			}
+			return Date.from(Instant.from(parsed));
+		} catch (DateTimeParseException e) {
 			return null;
 		}
 	}
