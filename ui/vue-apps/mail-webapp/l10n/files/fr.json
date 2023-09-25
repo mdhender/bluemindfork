@@ -428,6 +428,7 @@
     "mail.viewer.invitation.conference": "Rejoindre la visioconférence",
     "mail.viewer.invitation.decline": "Non",
     "mail.viewer.invitation.request": "Accepter l'invitation ?",
+    "mail.viewer.invitation.request.delegate": "Accepter l'invitation pour {name} ?",
     "mail.viewer.invitation.tentatively": "Peut-être",
     "mail.viewer.invitation.reply.event": "{name} a {status} l'invitation.",
     "mail.viewer.invitation.reply.event.not": "{name} {status} à l'invitation.",
@@ -456,6 +457,8 @@
     "mail.viewer.invitation.counter.declined.status": "refusée",
     "mail.viewer.invitation.counter.decline_short": "Refuser",
     "mail.viewer.invitation.counter.answered": "Vous avez répondu à la proposition de nouvel horaire.",
+    "mail.viewer.invitation.not_found.title": "Impossible d'accéder aux informations de cet événement.",
+    "mail.viewer.invitation.not_found.description": "Il a pu être supprimé, ou vous n'avez pas les droits sur le calendrier dans lequel il se trouve.",
     "mail": {
         "actions": {
             "move_folder_to_trash": {

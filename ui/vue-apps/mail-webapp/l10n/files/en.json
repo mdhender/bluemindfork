@@ -428,6 +428,7 @@
     "mail.viewer.invitation.conference": "Join the videoconference",
     "mail.viewer.invitation.decline": "No",
     "mail.viewer.invitation.request": "Accept invitation?",
+    "mail.viewer.invitation.request.delegate": "Accept invitation for {name}?",
     "mail.viewer.invitation.tentatively": "Maybe",
     "mail.viewer.invitation.reply.event": "{name} has {status} the invitation.",
     "mail.viewer.invitation.reply.event.not": "{name} has {status} the invitation.",
@@ -456,6 +457,8 @@
     "mail.viewer.invitation.counter.declined.status": "refused",
     "mail.viewer.invitation.counter.decline_short": "Decline",
     "mail.viewer.invitation.counter.answered": "You have already answered this proposal.",
+    "mail.viewer.invitation.not_found.title": "Unable to access information for this event.",
+    "mail.viewer.invitation.not_found.description": "It may have been deleted, or you do not have access to its calendar.",
     "mail": {
         "actions": {
             "move_folder_to_trash": {

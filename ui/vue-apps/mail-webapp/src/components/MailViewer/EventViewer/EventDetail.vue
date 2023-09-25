@@ -83,7 +83,7 @@ const withDetails = computed(
             </div>
         </div>
         <div v-if="withDetails" class="details d-flex flex-column">
-            <div v-if="isRecurring" class="event-row-icon">
+            <div v-if="isRecurring" class="event-row-icon occurence">
                 <bm-icon icon="repeat" />
                 <span>{{ event.date }}</span>
             </div>
@@ -134,7 +134,7 @@ const withDetails = computed(
             margin-left: 0;
         }
 
-        grid-template-columns: map-get($illustration-width, "xxs") minmax(0, 1fr);
+        grid-template-columns: map-get($illustration-widths, "xxs") minmax(0, 1fr);
     }
 
     @include from-lg {
@@ -146,7 +146,7 @@ const withDetails = computed(
         }
     }
 
-    grid-template-columns: calc(#{map-get($illustration-width, "xs")} + #{2 * $sp-5}) minmax(0, 1fr);
+    grid-template-columns: calc(#{map-get($illustration-widths, "xs")} + #{2 * $sp-5}) minmax(0, 1fr);
     .event-calendar-illustration {
         grid-area: illustration;
         justify-self: center;

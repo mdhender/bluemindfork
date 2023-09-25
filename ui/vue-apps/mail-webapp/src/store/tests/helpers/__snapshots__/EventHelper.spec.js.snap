@@ -2,21 +2,44 @@
 
 exports[`EventHelper adapter adapt events match snapshots 1`] = `
 Object {
+  "attendee": Object {
+    "commonName": "test",
+    "cutype": "Individual",
+    "delFrom": null,
+    "delTo": null,
+    "dir": "bm://webmail-test.loc/users/B2CBEEFD-147C-451A-9229-1B6C9697D202",
+    "internal": true,
+    "lang": null,
+    "mailto": "test@webmail-test.loc",
+    "member": null,
+    "partStatus": "NeedsAction",
+    "responseComment": null,
+    "role": "RequiredParticipant",
+    "rsvp": true,
+    "sentBy": null,
+    "uri": null,
+  },
   "attendees": Array [
     Object {
+      "cutype": "Individual",
       "mail": "test@webmail-test.loc",
       "name": "test",
+      "status": "NeedsAction",
     },
   ],
+  "calendar": undefined,
   "conference": undefined,
   "counter": undefined,
   "date": "vendredi 14 août 2020",
+  "isWritable": undefined,
   "loading": "LOADED",
+  "location": null,
   "mailboxOwner": "B2CBEEFD-147C-451A-9229-1B6C9697D202",
   "organizer": Object {
     "mail": "jdoe@webmail-test.loc",
     "name": "john doe",
   },
+  "private": false,
   "recuridIsoDate": undefined,
   "sanitizedDescription": undefined,
   "serverEvent": Object {
@@ -103,26 +126,50 @@ Object {
   "status": "NeedsAction",
   "summary": "all day event",
   "uid": "191319a5-07b8-40bc-80b4-aeae35951029",
+  "url": null,
 }
 `;
 
 exports[`EventHelper adapter adapt events match snapshots 2`] = `
 Object {
+  "attendee": Object {
+    "commonName": "test",
+    "cutype": "Individual",
+    "delFrom": null,
+    "delTo": null,
+    "dir": "bm://webmail-test.loc/users/B2CBEEFD-147C-451A-9229-1B6C9697D202",
+    "internal": true,
+    "lang": null,
+    "mailto": "test@webmail-test.loc",
+    "member": null,
+    "partStatus": "NeedsAction",
+    "responseComment": null,
+    "role": "RequiredParticipant",
+    "rsvp": true,
+    "sentBy": null,
+    "uri": null,
+  },
   "attendees": Array [
     Object {
+      "cutype": "Individual",
       "mail": "test@webmail-test.loc",
       "name": "test",
+      "status": "NeedsAction",
     },
   ],
+  "calendar": undefined,
   "conference": undefined,
   "counter": undefined,
   "date": "vendredi 14 août 2020 de 10:00 à 11:00",
+  "isWritable": undefined,
   "loading": "LOADED",
+  "location": null,
   "mailboxOwner": "B2CBEEFD-147C-451A-9229-1B6C9697D202",
   "organizer": Object {
     "mail": "jdoe@webmail-test.loc",
     "name": "john doe",
   },
+  "private": false,
   "recuridIsoDate": undefined,
   "sanitizedDescription": undefined,
   "serverEvent": Object {
@@ -209,26 +256,50 @@ Object {
   "status": "NeedsAction",
   "summary": "one day, one hour",
   "uid": "0f96bbc1-6c50-42ff-b030-8256df315451",
+  "url": null,
 }
 `;
 
 exports[`EventHelper adapter adapt events match snapshots 3`] = `
 Object {
+  "attendee": Object {
+    "commonName": "test",
+    "cutype": "Individual",
+    "delFrom": null,
+    "delTo": null,
+    "dir": "bm://webmail-test.loc/users/B2CBEEFD-147C-451A-9229-1B6C9697D202",
+    "internal": true,
+    "lang": null,
+    "mailto": "test@webmail-test.loc",
+    "member": null,
+    "partStatus": "NeedsAction",
+    "responseComment": null,
+    "role": "RequiredParticipant",
+    "rsvp": true,
+    "sentBy": null,
+    "uri": null,
+  },
   "attendees": Array [
     Object {
+      "cutype": "Individual",
       "mail": "test@webmail-test.loc",
       "name": "test",
+      "status": "NeedsAction",
     },
   ],
+  "calendar": undefined,
   "conference": undefined,
   "counter": undefined,
   "date": "Tous les jours, de 10:00 à 11:30, à partir du 17 août 2020",
+  "isWritable": undefined,
   "loading": "LOADED",
+  "location": null,
   "mailboxOwner": "B2CBEEFD-147C-451A-9229-1B6C9697D202",
   "organizer": Object {
     "mail": "jdoe@webmail-test.loc",
     "name": "john doe",
   },
+  "private": false,
   "recuridIsoDate": undefined,
   "sanitizedDescription": undefined,
   "serverEvent": Object {
@@ -329,26 +400,50 @@ Object {
   "status": "NeedsAction",
   "summary": "recurrent : every day with an hour",
   "uid": "69bc4819-b9b6-41ce-bc77-3b648974e953",
+  "url": null,
 }
 `;
 
 exports[`EventHelper adapter adapt events match snapshots 4`] = `
 Object {
+  "attendee": Object {
+    "commonName": "test",
+    "cutype": "Individual",
+    "delFrom": null,
+    "delTo": null,
+    "dir": "bm://webmail-test.loc/users/B2CBEEFD-147C-451A-9229-1B6C9697D202",
+    "internal": true,
+    "lang": null,
+    "mailto": "test@webmail-test.loc",
+    "member": null,
+    "partStatus": "NeedsAction",
+    "responseComment": null,
+    "role": "RequiredParticipant",
+    "rsvp": true,
+    "sentBy": null,
+    "uri": null,
+  },
   "attendees": Array [
     Object {
+      "cutype": "Individual",
       "mail": "test@webmail-test.loc",
       "name": "test",
+      "status": "NeedsAction",
     },
   ],
+  "calendar": undefined,
   "conference": undefined,
   "counter": undefined,
   "date": "Toutes les semaines,  le vendredi, de 07:00 à 08:00, à partir du 21 août 2020",
+  "isWritable": undefined,
   "loading": "LOADED",
+  "location": null,
   "mailboxOwner": "B2CBEEFD-147C-451A-9229-1B6C9697D202",
   "organizer": Object {
     "mail": "jdoe@webmail-test.loc",
     "name": "john doe",
   },
+  "private": false,
   "recuridIsoDate": undefined,
   "sanitizedDescription": undefined,
   "serverEvent": Object {
@@ -454,26 +549,50 @@ Object {
   "status": "NeedsAction",
   "summary": "once every week with hour",
   "uid": "fecf2e5a-9149-47ec-8768-6aaca6ffa62b",
+  "url": null,
 }
 `;
 
 exports[`EventHelper adapter adapt events match snapshots 5`] = `
 Object {
+  "attendee": Object {
+    "commonName": "test",
+    "cutype": "Individual",
+    "delFrom": null,
+    "delTo": null,
+    "dir": "bm://webmail-test.loc/users/B2CBEEFD-147C-451A-9229-1B6C9697D202",
+    "internal": true,
+    "lang": null,
+    "mailto": "test@webmail-test.loc",
+    "member": null,
+    "partStatus": "NeedsAction",
+    "responseComment": null,
+    "role": "RequiredParticipant",
+    "rsvp": true,
+    "sentBy": null,
+    "uri": null,
+  },
   "attendees": Array [
     Object {
+      "cutype": "Individual",
       "mail": "test@webmail-test.loc",
       "name": "test",
+      "status": "NeedsAction",
     },
   ],
+  "calendar": undefined,
   "conference": undefined,
   "counter": undefined,
   "date": "Toutes les semaines,  le mardi, à partir du 25 août 2020",
+  "isWritable": undefined,
   "loading": "LOADED",
+  "location": null,
   "mailboxOwner": "B2CBEEFD-147C-451A-9229-1B6C9697D202",
   "organizer": Object {
     "mail": "jdoe@webmail-test.loc",
     "name": "john doe",
   },
+  "private": false,
   "recuridIsoDate": undefined,
   "sanitizedDescription": undefined,
   "serverEvent": Object {
@@ -579,26 +698,50 @@ Object {
   "status": "NeedsAction",
   "summary": "once every week ALL_DAY",
   "uid": "05784243-a2d5-4973-866d-e6ba74b3d0a6",
+  "url": null,
 }
 `;
 
 exports[`EventHelper adapter adapt events match snapshots 6`] = `
 Object {
+  "attendee": Object {
+    "commonName": "test",
+    "cutype": "Individual",
+    "delFrom": null,
+    "delTo": null,
+    "dir": "bm://webmail-test.loc/users/B2CBEEFD-147C-451A-9229-1B6C9697D202",
+    "internal": true,
+    "lang": null,
+    "mailto": "test@webmail-test.loc",
+    "member": null,
+    "partStatus": "NeedsAction",
+    "responseComment": null,
+    "role": "RequiredParticipant",
+    "rsvp": true,
+    "sentBy": null,
+    "uri": null,
+  },
   "attendees": Array [
     Object {
+      "cutype": "Individual",
       "mail": "test@webmail-test.loc",
       "name": "test",
+      "status": "NeedsAction",
     },
   ],
+  "calendar": undefined,
   "conference": undefined,
   "counter": undefined,
   "date": "Le 19 tous les 2 mois, de 07:00 à 07:30, à partir de août 2020",
+  "isWritable": undefined,
   "loading": "LOADED",
+  "location": null,
   "mailboxOwner": "B2CBEEFD-147C-451A-9229-1B6C9697D202",
   "organizer": Object {
     "mail": "jdoe@webmail-test.loc",
     "name": "john doe",
   },
+  "private": false,
   "recuridIsoDate": undefined,
   "sanitizedDescription": undefined,
   "serverEvent": Object {
@@ -699,5 +842,6 @@ Object {
   "status": "NeedsAction",
   "summary": "twice a month, with an hour",
   "uid": "41a4e2e2-8eef-449c-9631-812727514880",
+  "url": null,
 }
 `;

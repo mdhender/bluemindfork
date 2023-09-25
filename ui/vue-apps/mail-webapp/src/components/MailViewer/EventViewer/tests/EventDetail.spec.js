@@ -47,7 +47,8 @@ function EventDetailComponent(currentEvent) {
             value: {
                 main: {
                     dtstart: { iso8601: new Date(2023, 0, 1, 9, 0).toISOString() },
-                    dtend: { iso8601: new Date(2023, 0, 1, 10, 0).toISOString() }
+                    dtend: { iso8601: new Date(2023, 0, 1, 10, 0).toISOString() },
+                    rrule: true
                 }
             }
         },
@@ -77,7 +78,8 @@ function EventDetailComponent(currentEvent) {
                     event: currentEvent ?? CURRENT_EVENT
                 },
                 mocks: {
-                    $store: mockStore
+                    $store: mockStore,
+                    $d: () => {}
                 }
             });
         }

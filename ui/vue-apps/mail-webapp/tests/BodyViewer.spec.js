@@ -9,9 +9,9 @@ inject.register({
         fetch: () => new Blob()
     })
 });
-import { createStore, createWrapper } from "./testUtils";
+import { createStore } from "./testUtils";
 import BodyViewer from "../src/components/MailViewer/BodyViewer";
-import { createLocalVue, shallowMount } from "@vue/test-utils";
+import { shallowMount } from "@vue/test-utils";
 
 describe("BodyViewer.spec", () => {
     test("image/* file type is a viewer capacity", async () => {
@@ -84,5 +84,9 @@ function mountComponent(inlinePartsByCapabilities) {
     const key = Object.keys(mockedStore.state.mail.conversations.conversationByKey).pop();
     message.conversationRef = { key };
     mockedStore.commit("mail/ADD_MESSAGES", { messages: [message] });
-    return createWrapper(BodyViewer, { store: mockedStore, i18n }, { message });
+    return shallowMount(BodyViewer, {
+        propsData: { message },
+        store: mockedStore,
+        i18n
+    });
 }

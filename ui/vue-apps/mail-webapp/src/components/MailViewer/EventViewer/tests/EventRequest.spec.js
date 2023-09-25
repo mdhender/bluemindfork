@@ -1,24 +1,24 @@
 import { mount } from "@vue/test-utils";
 import EventRequest from "../EventRequest.vue";
 
+import store from "@bluemind/store";
+jest.mock("@bluemind/store", () => ({
+    dispatch: jest.fn(),
+    hasModule: () => true,
+    _reset() {
+        this.dispatch = jest.fn();
+    }
+}));
+
 describe("Event request insert", () => {
     let eventRequest;
+
     beforeEach(() => {
         eventRequest = mount(EventRequest, {
             propsData: {
-                currentEvent: {
-                    loading: "LOADED",
-                    summary: "SUMMARY TEXT",
-                    date: "toutes les 2 semaines, le lundi, mardi, mercredi, jeudi et vendredi jusqu’au jeu. 11/08/22",
-                    status: "?",
-                    serverEvent: {
-                        value: {
-                            main: {
-                                dtstart: { iso8601: new Date(2023, 0, 1, 9, 0).toISOString() },
-                                dtend: { iso8601: new Date(2023, 0, 1, 10, 0).toISOString() }
-                            }
-                        }
-                    }
+                event: {
+                    isWritable: true,
+                    status: "NO STATUS YET"
                 },
                 message: {
                     eventInfo: {
@@ -27,9 +27,14 @@ describe("Event request insert", () => {
                 }
             },
             mocks: {
-                $t: path => path.split(".").pop()
+                $t: path => path.split(".").pop(),
+                $tc: path => path.split(".").pop()
             }
         });
+    });
+
+    afterEach(() => {
+        store._reset();
     });
 
     const getAcceptButton = () => eventRequest.findAll('[type="button"]').at(0);
@@ -37,7 +42,6 @@ describe("Event request insert", () => {
     const getDeclineButton = () => eventRequest.findAll('[type="button"]').at(2);
     const getDetail = () => eventRequest.find(".event-detail");
     const getFooter = () => eventRequest.find(".event-footer");
-    const getEventRepliedArg = () => eventRequest.emitted("event-replied")?.[0]?.[0];
 
     it("is a vue Instance", () => {
         expect(eventRequest.vm).toBeDefined();
@@ -53,20 +57,42 @@ describe("Event request insert", () => {
     });
     it("should emit `Accepted` when the button accepted is triggered", async () => {
         await getAcceptButton().trigger("click");
-        expect(getEventRepliedArg()).toEqual("Accepted");
+
+        expect(store.dispatch).toHaveBeenCalledTimes(1);
+        expect(store.dispatch.mock.calls[0][1]).toMatchObject({ status: "Accepted" });
     });
     it("should emit `tentative` when the button maybe is triggered", async () => {
         await getMaybeButton().trigger("click");
-        expect(getEventRepliedArg()).toEqual("Tentative");
+
+        expect(store.dispatch).toHaveBeenCalledTimes(1);
+        expect(store.dispatch.mock.calls[0][1]).toMatchObject({ status: "Tentative" });
     });
     it("should emit `decline` when the button decline is triggered", async () => {
         await getDeclineButton().trigger("click");
-        expect(getEventRepliedArg()).toEqual("Declined");
+
+        expect(store.dispatch).toHaveBeenCalledTimes(1);
+        expect(store.dispatch.mock.calls[0][1]).toMatchObject({ status: "Declined" });
     });
     it("should contain a body", () => {
         expect(getDetail()).toBeDefined();
     });
     it("should contain a footer", () => {
         expect(getFooter()).toBeDefined();
+    });
+    it("should not have reply buttons when the event is not writable", () => {
+        const eventRequestUnwritable = mount(EventRequest, {
+            propsData: {
+                event: {
+                    isWritable: false,
+                    status: "NO STATUS YET"
+                },
+                message: {}
+            },
+            mocks: {
+                $t: path => path.split(".").pop(),
+                $tc: path => path.split(".").pop()
+            }
+        });
+        expect(eventRequestUnwritable.findAll('[type="button"]').length === 0);
     });
 });

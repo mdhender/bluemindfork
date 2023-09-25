@@ -11,3 +11,4 @@ export { default as MockMailtipClient } from "./mocks/MockMailtipClient";
 export { default as MockOwnerSubscriptionsClient } from "./mocks/MockOwnerSubscriptionsClient";
 export { default as MockUserSettingsClient } from "./mocks/MockUserSettingsClient";
 export { default as MockUserIdentitiesClient } from "./mocks/MockUserIdentitiesClient";
+export { default as MockContainerManagementClient } from "./mocks/MockContainerManagementClient";

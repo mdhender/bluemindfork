@@ -11,8 +11,9 @@ const CLASSIFICATIONS = {
     CONFIDENTIAL: "Confidential"
 };
 export default {
-    adapt(event, mailboxOwner, originator, recuridIsoDate) {
+    adapt(event, mailboxOwner, originator, recuridIsoDate, calendar, isWritable) {
         const infos = this.eventInfos(event, recuridIsoDate);
+        const attendee = this.findAttendee(infos.attendees, mailboxOwner);
         return {
             summary: infos.summary,
             organizer: {
@@ -28,7 +29,8 @@ export default {
                 cutype: attendee.cutype
             })),
             mailboxOwner,
-            status: this.findAttendee(infos.attendees, mailboxOwner)?.partStatus,
+            status: attendee?.partStatus,
+            attendee,
             recuridIsoDate,
             uid: event.uid,
             serverEvent: event,
@@ -37,7 +39,9 @@ export default {
             loading: LoadingStatus.LOADED,
             location: infos.location,
             url: infos.url,
-            private: infos.classification === CLASSIFICATIONS.PRIVATE
+            private: infos.classification === CLASSIFICATIONS.PRIVATE,
+            calendar,
+            isWritable
         };
     },
 

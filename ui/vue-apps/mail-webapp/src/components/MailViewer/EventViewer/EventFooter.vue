@@ -60,7 +60,7 @@ function copyLink() {
         <event-footer-section
             :label="$tc('mail.viewer.invitation.attendee', attendees?.length, { count: attendees?.length })"
         >
-            <div v-for="(attendee, index) in attendees" :key="index" class="d-flex">
+            <div v-for="(attendee, index) in attendees" :key="index" class="event-footer-entry">
                 <mail-contact-card-slots
                     :component="Contact"
                     :contact="attendee"
@@ -116,10 +116,11 @@ function copyLink() {
     .event-footer-description {
         word-wrap: break-word;
     }
-    .organizer {
-        display: flex;
-        align-items: center;
-        color: $neutral-fg-lo1;
+
+    .event-footer-entry {
+        .organizer {
+            color: $neutral-fg-lo1;
+        }
     }
 }
 </style>

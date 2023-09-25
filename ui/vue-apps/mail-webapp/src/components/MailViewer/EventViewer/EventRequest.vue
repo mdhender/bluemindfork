@@ -1,4 +1,5 @@
 <script setup>
+import { inject } from "@bluemind/inject";
 import store from "@bluemind/store";
 import { BmToggleableButton } from "@bluemind/ui-components";
 import { SET_EVENT_STATUS } from "~/actions";
@@ -18,14 +19,24 @@ const replyActions = [
     { name: REPLY_ACTIONS.DECLINED, icon: "cross", i18n: "decline" }
 ];
 
-const setEventStatus = status => store.dispatch(`mail/${SET_EVENT_STATUS}`, { message: props.message, status });
+const setEventStatus = status => store.dispatch(`mail/${SET_EVENT_STATUS}`, { status });
+
+const user = inject("UserSession").userId;
 </script>
 
 <template>
     <div class="event-request">
-        <event-header>
-            {{ $t("mail.viewer.invitation.request") }}
-
+        <event-header v-if="event.isWritable">
+            <template v-if="event.mailboxOwner === user">
+                {{ $t("mail.viewer.invitation.request") }}
+            </template>
+            <template v-else>
+                <i18n path="mail.viewer.invitation.request.delegate">
+                    <template #name>
+                        <span class="font-weight-bold">{{ event.attendee.commonName }}</span>
+                    </template>
+                </i18n>
+            </template>
             <template #actions>
                 <div v-if="event.status" class="reply-buttons">
                     <bm-toggleable-button
@@ -65,6 +76,7 @@ const setEventStatus = status => store.dispatch(`mail/${SET_EVENT_STATUS}`, { me
     .reply-buttons {
         display: flex;
         gap: $sp-5 + $sp-3 + $sp-2;
+        min-width: 0;
 
         .bm-toggleable-button {
             min-width: 0;

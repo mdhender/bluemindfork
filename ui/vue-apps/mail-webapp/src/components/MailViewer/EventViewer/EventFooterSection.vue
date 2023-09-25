@@ -71,10 +71,7 @@ const expanded = ref(false);
             display: flex;
             align-items: baseline;
             color: $neutral-fg;
-            gap: $sp-4;
-            .caption-bold {
-                color: $neutral-fg-lo1;
-            }
+            gap: $sp-3;
         }
     }
 }

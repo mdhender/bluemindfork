@@ -36,9 +36,5 @@
     @include from-lg {
         min-height: base-px-to-rem(52);
     }
-
-    .actions {
-        min-width: 0;
-    }
 }
 </style>

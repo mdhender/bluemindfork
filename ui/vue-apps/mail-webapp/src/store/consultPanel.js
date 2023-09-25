@@ -8,6 +8,7 @@ import {
     SET_CURRENT_EVENT,
     SET_CURRENT_EVENT_STATUS
 } from "~/mutations";
+import { Verb } from "@bluemind/core.container.api";
 
 const { LoadingStatus } = loadingStatusUtils;
 
@@ -19,22 +20,23 @@ export default {
     actions: {
         async [FETCH_EVENT]({ commit }, { message, mailbox }) {
             commit(SET_CURRENT_EVENT, { loading: LoadingStatus.LOADING });
-
             try {
-                let event;
-                if (message.eventInfo.isResourceBooking) {
-                    event = await inject(
-                        "CalendarPersistence",
-                        "calendar:" + message.eventInfo.resourceUid
-                    ).getComplete(message.eventInfo.icsUid);
-                } else {
-                    const events = await inject("CalendarPersistence").getByIcsUid(message.eventInfo.icsUid);
-                    event = findEvent(events, message.eventInfo.recuridIsoDate);
-                }
                 const mailboxOwner = message.eventInfo.isResourceBooking
                     ? message.eventInfo.resourceUid
                     : mailbox.owner;
-                event = EventHelper.adapt(event, mailboxOwner, message.from.address, message.eventInfo.recuridIsoDate);
+                const calendar = getCalendarUid(mailboxOwner, message.eventInfo.isResourceBooking);
+                const isWritable = await isCalendarWritable(calendar);
+                const events = await inject("CalendarPersistence", calendar).getByIcsUid(message.eventInfo.icsUid);
+                let event = findEvent(events, message.eventInfo.recuridIsoDate);
+
+                event = EventHelper.adapt(
+                    event,
+                    mailboxOwner,
+                    message.from.address,
+                    message.eventInfo.recuridIsoDate,
+                    calendar,
+                    isWritable
+                );
                 commit(SET_CURRENT_EVENT, event);
             } catch {
                 commit(SET_CURRENT_EVENT, { loading: LoadingStatus.ERROR });
@@ -42,16 +44,17 @@ export default {
             }
         },
 
-        async [SET_EVENT_STATUS]({ state, commit }, { message, status }) {
-            const previousStatus = state.currentEvent.status;
+        async [SET_EVENT_STATUS]({ state, commit }, { status }) {
+            const previous = { ...state.currentEvent };
             try {
                 commit(SET_CURRENT_EVENT_STATUS, { status });
-                const service = message.eventInfo.isResourceBooking
-                    ? inject("CalendarPersistence", "calendar:" + message.eventInfo.resourceUid)
-                    : inject("CalendarPersistence");
-                await service.update(state.currentEvent.uid, state.currentEvent.serverEvent.value, true);
+                await inject("CalendarPersistence", previous.calendar).update(
+                    state.currentEvent.uid,
+                    state.currentEvent.serverEvent.value,
+                    true
+                );
             } catch {
-                commit(SET_CURRENT_EVENT_STATUS, { status: previousStatus });
+                commit(SET_CURRENT_EVENT_STATUS, { status: previous.status });
             }
         },
 
@@ -104,3 +107,15 @@ const findEvent = (events, recuridIsoDate) => {
             !recuridIsoDate || event.value.occurrences.some(occurrence => occurrence.recurid.iso8601 === recuridIsoDate)
     );
 };
+
+function getCalendarUid(owner, isRessource) {
+    return isRessource ? `calendar:${owner}` : `calendar:Default:${owner}`;
+}
+
+async function isCalendarWritable(calendarUid) {
+    const { userId } = inject("UserSession");
+    if (calendarUid === getCalendarUid(userId)) {
+        return [Verb.Read, Verb.Write];
+    }
+    return inject("ContainerManagementPersistence", calendarUid).canAccess([Verb.Write]);
+}

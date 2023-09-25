@@ -2,16 +2,18 @@ import Vue from "vue";
 import Vuex from "vuex";
 import cloneDeep from "lodash.clonedeep";
 import inject from "@bluemind/inject";
-import { MockCalendarClient } from "@bluemind/test-utils";
+import { MockCalendarClient, MockContainerManagementClient } from "@bluemind/test-utils";
 import storeOptions from "../consultPanel";
 import EventHelper from "../helpers/EventHelper";
 import { FETCH_EVENT, SET_EVENT_STATUS } from "~/actions";
 import { SET_CURRENT_EVENT, SET_CURRENT_EVENT_STATUS, SET_BLOCK_REMOTE_IMAGES } from "~/mutations";
 
 const calendarService = new MockCalendarClient();
+const containerMgmtService = new MockContainerManagementClient();
 inject.register({ provide: "CalendarPersistence", factory: () => calendarService });
 Vue.use(Vuex);
-
+inject.register({ provide: "UserSession", use: { userId: "userId" } });
+inject.register({ provide: "ContainerManagementPersistence", factory: () => containerMgmtService });
 describe("consultPanel node", () => {
     const userUid = "user:uid",
         icsUid = "event:uid",
@@ -41,12 +43,19 @@ describe("consultPanel node", () => {
                 mailbox: { owner: userUid }
             });
             expect(calendarService.getByIcsUid).toHaveBeenCalledWith(icsUid);
-            expect(EventHelper.adapt).toHaveBeenCalledWith("event", userUid, "ori@gina.tor", undefined);
+            expect(EventHelper.adapt).toHaveBeenCalledWith(
+                "event",
+                userUid,
+                "ori@gina.tor",
+                undefined,
+                expect.anything(),
+                true
+            );
             expect(store.state.currentEvent).toEqual("adaptedEvent");
         });
 
         test("FETCH_EVENT action with resource booking", async () => {
-            calendarService.getComplete.mockReturnValue("event");
+            calendarService.getByIcsUid.mockReturnValue(["event"]);
             EventHelper.adapt = jest.fn().mockReturnValue("adaptedEvent");
             await store.dispatch(FETCH_EVENT, {
                 message: {
@@ -55,8 +64,15 @@ describe("consultPanel node", () => {
                 },
                 mailbox: { owner: userUid }
             });
-            expect(calendarService.getComplete).toHaveBeenCalledWith("myICS");
-            expect(EventHelper.adapt).toHaveBeenCalledWith("event", "resourceUid", "ori@gina.tor", undefined);
+            expect(calendarService.getByIcsUid).toHaveBeenCalledWith("myICS");
+            expect(EventHelper.adapt).toHaveBeenCalledWith(
+                "event",
+                "resourceUid",
+                "ori@gina.tor",
+                undefined,
+                expect.anything(),
+                true
+            );
             expect(store.state.currentEvent).toEqual("adaptedEvent");
         });
 
@@ -70,7 +86,14 @@ describe("consultPanel node", () => {
                 mailbox: { owner: userUid }
             });
             expect(calendarService.getByIcsUid).toHaveBeenCalledWith(icsUid);
-            expect(EventHelper.adapt).toHaveBeenCalledWith(exceptionalEvent, userUid, "ori@gina.tor", "isoDate");
+            expect(EventHelper.adapt).toHaveBeenCalledWith(
+                exceptionalEvent,
+                userUid,
+                "ori@gina.tor",
+                "isoDate",
+                expect.anything(),
+                true
+            );
             expect(store.state.currentEvent).toEqual("adaptedEvent");
         });
 
@@ -79,11 +102,11 @@ describe("consultPanel node", () => {
                 uid: icsUid,
                 status: previousStatus,
                 serverEvent,
-                mailboxOwner: userUid
+                mailboxOwner: userUid,
+                calendar: "calendar:Default:" + userUid
             };
-            const message = { eventInfo: { isResourceBooking: false } };
 
-            await store.dispatch(SET_EVENT_STATUS, { status: newStatus, message });
+            await store.dispatch(SET_EVENT_STATUS, { status: newStatus });
             expect(calendarService.update).toHaveBeenCalledWith(icsUid, serverEvent.value, true);
             expect(store.state.currentEvent.status).toEqual(newStatus);
         });
@@ -93,11 +116,11 @@ describe("consultPanel node", () => {
                 uid: icsUid,
                 status: previousStatus,
                 serverEvent,
-                mailboxOwner: userUid
+                mailboxOwner: userUid,
+                calendar: "calendar:Default:" + userUid
             };
             calendarService.update.mockReturnValue(Promise.reject());
-            const message = { eventInfo: { isResourceBooking: false } };
-            const promise = store.dispatch(SET_EVENT_STATUS, { status: newStatus, message });
+            const promise = store.dispatch(SET_EVENT_STATUS, { status: newStatus });
             expect(store.state.currentEvent.status).toEqual(newStatus);
             expect(calendarService.update).toHaveBeenCalledWith(icsUid, serverEvent.value, true);
             await promise;

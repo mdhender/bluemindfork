@@ -114,7 +114,11 @@ function buildRecipientsForKind(kind, recipients) {
 export function getEventInfo(headers) {
     const icsHeader = headers.find(hasXbmImipEvent);
 
-    if (!icsHeader) {
+    if (
+        !icsHeader ||
+        //TODO : Remove it when forward invitation is handled
+        headers.some(({ name }) => name.toUpperCase() === MessageHeader.X_BM_COUNTER_ATTENDEE.toUpperCase())
+    ) {
         return { hasICS: false };
     }
 
@@ -142,18 +146,4 @@ export function getEventInfo(headers) {
         isCounterEvent || icsHeaderValue.includes('rsvp="true"') || icsHeaderValue.includes("rsvp='true'"); //TODO regexp
 
     return { hasICS, isCounterEvent, icsUid: uid, needsReply, recuridIsoDate, isResourceBooking, resourceUid };
-}
-
-function getCounterHeader(headers) {
-    const header = headers.find(({ name }) => name.toUpperCase() === MessageHeader.X_BM_EVENT_COUNTERED.toUpperCase());
-    if (
-        header &&
-        !headers.some(({ name }) => name.toUpperCase() === MessageHeader.X_BM_COUNTER_ATTENDEE.toUpperCase())
-    ) {
-        return header;
-    }
-}
-
-function getRequestHeader(headers) {
-    return headers.find(({ name }) => name.toUpperCase() === MessageHeader.X_BM_EVENT.toUpperCase());
 }
