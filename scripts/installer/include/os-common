@@ -42,6 +42,17 @@ check_ubuntu() {
     return 1
 }
 
+check_debian_bookworm() {
+    if [ -e "/etc/debian_version" ]; then
+        release=`cat /etc/debian_version`
+        if [[ "${release}" == *"12."* ]]; then
+            return 0
+        fi
+    fi
+    
+    return 1
+}
+
 check_debian_bullseye() {
     if [ -e "/etc/debian_version" ]; then
         release=`cat /etc/debian_version`
