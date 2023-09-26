@@ -27,7 +27,9 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
@@ -56,6 +58,16 @@ public class LoginAuditLogTests {
 	private final int PORT = 1143;
 	private String loginUid;
 	private String domainUid;
+
+	@AfterClass
+	public static void afterClass() {
+		System.clearProperty("retry.queue.no.debounce");
+	}
+
+	@BeforeClass
+	public static void beforeClass() throws Exception {
+		System.setProperty("retry.queue.no.debounce", "true");
+	}
 
 	@Before
 	public void setUp() throws Exception {

@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 import javax.sql.DataSource;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.slf4j.Logger;
@@ -114,6 +115,10 @@ public abstract class AbstractServiceTests {
 	@BeforeClass
 	public static void beforeClass() {
 		System.setProperty("ahcnode.fail.https.ok", "true");
+	}
+
+	@AfterClass
+	public static void afterClass() {
 	}
 
 	@Before

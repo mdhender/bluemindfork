@@ -37,7 +37,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
+import org.awaitility.Awaitility;
 import org.junit.Test;
 
 import io.vertx.core.eventbus.Message;
@@ -447,7 +449,10 @@ public class TodoListServiceTests extends AbstractServiceTests {
 		getService(defaultSecurityContext).delete("test1");
 		getService(defaultSecurityContext).update("test2", defaultVTodo());
 		ESearchActivator.refreshIndex("audit_log");
-
+		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+			ItemChangelog itemChangeLog = getService(defaultSecurityContext).itemChangelog("test1", 0L);
+			return 3 == itemChangeLog.entries.size();
+		});
 		ItemChangelog itemChangeLog = getService(defaultSecurityContext).itemChangelog("test1", 0L);
 		assertEquals(3, itemChangeLog.entries.size());
 		assertEquals(ChangeLogEntry.Type.Created, itemChangeLog.entries.get(0).type);
@@ -479,6 +484,10 @@ public class TodoListServiceTests extends AbstractServiceTests {
 		getService(defaultSecurityContext).update("test1", defaultVTodo());
 		getService(defaultSecurityContext).update("test1", defaultVTodo());
 		ESearchActivator.refreshIndex("audit_log");
+		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+			ItemChangelog itemChangeLog = getService(defaultSecurityContext).itemChangelog("test1", 0L);
+			return 4 == itemChangeLog.entries.size();
+		});
 		ItemChangelog itemChangeLog = getService(defaultSecurityContext).itemChangelog("test1", 0L);
 		assertEquals(4, itemChangeLog.entries.size());
 		assertEquals(ChangeLogEntry.Type.Created, itemChangeLog.entries.get(0).type);

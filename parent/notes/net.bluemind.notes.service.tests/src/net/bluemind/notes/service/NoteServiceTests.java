@@ -31,7 +31,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
+import org.awaitility.Awaitility;
 import org.junit.Test;
 
 import io.vertx.core.eventbus.Message;
@@ -486,7 +488,11 @@ public class NoteServiceTests extends AbstractServiceTests {
 		getServiceNote(defaultSecurityContext, container.uid).delete("test1");
 		getServiceNote(defaultSecurityContext, container.uid).update("test2", defaultVNote());
 		ESearchActivator.refreshIndex("audit_log");
-
+		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+			ItemChangelog itemChangeLog = getServiceNote(defaultSecurityContext, container.uid).itemChangelog("test1",
+					0L);
+			return 3 == itemChangeLog.entries.size();
+		});
 		ItemChangelog itemChangeLog = getServiceNote(defaultSecurityContext, container.uid).itemChangelog("test1", 0L);
 		assertEquals(3, itemChangeLog.entries.size());
 		assertEquals(ChangeLogEntry.Type.Created, itemChangeLog.entries.get(0).type);
@@ -509,6 +515,11 @@ public class NoteServiceTests extends AbstractServiceTests {
 		getServiceNote(defaultSecurityContext, container.uid).update("test1", defaultVNote());
 		getServiceNote(defaultSecurityContext, container.uid).update("test1", defaultVNote());
 		ESearchActivator.refreshIndex("audit_log");
+		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+			ItemChangelog itemChangeLog = getServiceNote(defaultSecurityContext, container.uid).itemChangelog("test1",
+					0L);
+			return 5 == itemChangeLog.entries.size();
+		});
 
 		ItemChangelog itemChangeLog = getServiceNote(defaultSecurityContext, container.uid).itemChangelog("test1", 0L);
 		assertEquals(5, itemChangeLog.entries.size());

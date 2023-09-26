@@ -23,7 +23,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
+import org.awaitility.Awaitility;
 import org.junit.Test;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
@@ -61,15 +63,16 @@ public class TodoListLogTests extends AbstractServiceTests {
 
 		Message<JsonObject> message = createdMessageChecker.shouldSuccess();
 		assertNotNull(message);
-
-		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-				.index("audit_log") //
-				.query(q -> q
-						.bool(b -> b.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
-								.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
-								.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
-				AuditLogEntry.class);
-		assertEquals(1L, response.hits().total().value());
+		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
+					.index("audit_log") //
+					.query(q -> q.bool(b -> b
+							.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
+							.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
+							.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
+					AuditLogEntry.class);
+			return 1L == response.hits().total().value();
+		});
 	}
 
 	@Test
@@ -85,6 +88,17 @@ public class TodoListLogTests extends AbstractServiceTests {
 		ESearchActivator.refreshIndex("audit_log");
 
 		ElasticsearchClient esClient = ESearchActivator.getClient();
+
+		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
+					.index("audit_log") //
+					.query(q -> q.bool(b -> b
+							.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
+							.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
+							.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
+					AuditLogEntry.class);
+			return 1L == response.hits().total().value();
+		});
 
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
 				.index("audit_log") //
@@ -127,6 +141,16 @@ public class TodoListLogTests extends AbstractServiceTests {
 		ESearchActivator.refreshIndex("audit_log");
 
 		ElasticsearchClient esClient = ESearchActivator.getClient();
+		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
+					.index("audit_log") //
+					.query(q -> q.bool(b -> b
+							.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
+							.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
+							.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
+					AuditLogEntry.class);
+			return 1L == response.hits().total().value();
+		});
 
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
 				.index("audit_log") //

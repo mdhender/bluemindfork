@@ -17,35 +17,22 @@
   */
 package net.bluemind.retry.support;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Suppliers;
-
-import io.netty.util.concurrent.DefaultThreadFactory;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
-import net.openhft.chronicle.core.io.AbstractReferenceCounted;
-import net.openhft.chronicle.queue.ChronicleQueue;
-import net.openhft.chronicle.queue.ExcerptAppender;
-import net.openhft.chronicle.queue.ExcerptTailer;
-import net.openhft.chronicle.queue.RollCycles;
-import net.openhft.chronicle.queue.impl.single.SingleChronicleQueueBuilder;
+import net.bluemind.retry.support.rocks.RocksQueue;
+import net.bluemind.retry.support.rocks.RocksQueue.TailRecord;
+import net.bluemind.retry.support.rocks.RocksQueue.Tailer;
 
 public class RetryQueueVerticle extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(RetryQueueVerticle.class);
-	private static final Executor POOL = Executors.newSingleThreadExecutor(new DefaultThreadFactory("retry-queue"));
 
 	private final String topic;
 	private final RetryProcessor rp;
@@ -55,21 +42,12 @@ public class RetryQueueVerticle extends AbstractVerticle {
 		void retry(JsonObject js) throws Exception; // NOSONAR
 	}
 
-	static {
-		AbstractReferenceCounted.disableReferenceTracing();
-		System.setProperty("chronicle.analytics.disable", "true");
-	}
-
-	private final Supplier<ChronicleQueue> qProv;
-	private final Supplier<ExcerptAppender> append;
-	private final Supplier<ExcerptTailer> tail;
+	private final RocksQueue persistentQueue;
 
 	protected RetryQueueVerticle(String topic, RetryProcessor rp) {
 		this.topic = topic;
 		this.rp = rp;
-		qProv = Suppliers.memoize(this::buildQueue);
-		append = Suppliers.memoize(() -> qProv.get().acquireAppender());
-		tail = Suppliers.memoize(() -> qProv.get().createTailer("retry"));
+		this.persistentQueue = new RocksQueue(topic);
 	}
 
 	public String topic() {
@@ -83,62 +61,41 @@ public class RetryQueueVerticle extends AbstractVerticle {
 	@Override
 	public void start() throws Exception {
 
-		POOL.execute(() -> {
-			qProv.get();
-			append.get();
-			tail.get();
-		});
-
 		EventBus eb = vertx.eventBus();
 		AtomicLong debounceTime = new AtomicLong();
 		eb.consumer("retry." + topic, (Message<JsonObject> msg) -> {
 			String jsStr = msg.body().encode();
-			POOL.execute(() -> {
-				ExcerptAppender writer = append.get();
-				writer.writeText(jsStr);
-				vertx.cancelTimer(debounceTime.get());
-				long freshTimer = vertx.setTimer(50, tid -> {
-					logger.debug("[{}] Resume processing...", topic);
-					POOL.execute(this::flushRetries);
-				});
-				debounceTime.set(freshTimer);
+			persistentQueue.writer().write(jsStr);
+			vertx.cancelTimer(debounceTime.get());
+			long freshTimer = vertx.setTimer(50, tid -> {
+				logger.debug("[{}] Resume processing...", topic);
+				flushRetries();
 			});
+			debounceTime.set(freshTimer);
 			msg.reply(0L);
 		});
+
+		vertx.setPeriodic(60_000, tid -> persistentQueue.compact("retry"));
 	}
 
 	private void flushRetries() {
-		ExcerptTailer reader = tail.get();
-		while (true) {
-			long idx = reader.index();
-
-			String jsStr = reader.readText();
-			if (jsStr == null) {
-				break;
-			}
-			JsonObject js = new JsonObject(jsStr);
-			try {
-				rp.retry(js);
-			} catch (Exception e) {
-				reader.moveToIndex(idx);
-				logger.error("[{}] Failed to process index {} {}", topic, idx, js, e);
-				break;
+		Tailer reader = persistentQueue.reader("retry");
+		boolean stopped = false;
+		while (!stopped) {
+			TailRecord rec = reader.next();
+			if (rec == null) {
+				stopped = true;
+			} else {
+				try {
+					rp.retry(new JsonObject(rec.payload()));
+					reader.commit();
+				} catch (Exception e) {
+					// yeah don't commit
+					logger.error("{} will be retried because of {}", rec, e.getMessage());
+					stopped = true;
+				}
 			}
 		}
-	}
-
-	private ChronicleQueue buildQueue() {
-		return SingleChronicleQueueBuilder.binary("/var/cache/bm-core/retry-" + topic)//
-				.readOnly(false)//
-				.blockSize(64L << 14)//
-				.rollCycle(RollCycles.HALF_HOURLY).storeFileListener((int cycle, File old) -> {
-					try {
-						Files.deleteIfExists(old.toPath());
-					} catch (IOException e) {
-						logger.error(e.getMessage(), e);
-					}
-				})//
-				.build();
 	}
 
 }

@@ -26,7 +26,9 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+import org.awaitility.Awaitility;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,6 +53,7 @@ import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
+import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.server.api.Server;
 import net.bluemind.system.state.StateContext;
 import net.bluemind.tests.defaultdata.PopulateHelper;
@@ -70,6 +73,8 @@ public class AclAuditLogServiceTests {
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
 		esServer.tags = Lists.newArrayList("bm/es");
 		PopulateHelper.initGlobalVirt(esServer);
+
+		VertxPlatform.spawnBlocking(20, TimeUnit.SECONDS);
 
 		String domainUid = "bm.lan";
 		PopulateHelper.addDomain(domainUid);
@@ -116,6 +121,16 @@ public class AclAuditLogServiceTests {
 		assertTrue(actual.contains(toto));
 
 		ESearchActivator.refreshIndex("audit_log");
+		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
+					.index("audit_log") //
+					.query(q -> q.bool(b -> b
+							.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
+							.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
+							.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
+					AuditLogEntry.class);
+			return response.hits().total().value() == 2;
+		});
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
 				.index("audit_log") //
 				.query(q -> q
@@ -123,7 +138,7 @@ public class AclAuditLogServiceTests {
 								.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
 								.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
 				AuditLogEntry.class);
-		assertEquals(2L, response.hits().total().value());
+
 		assertTrue(response.hits().hits().stream().anyMatch(h -> h.source().content.key().equals("test")));
 		assertTrue(response.hits().hits().stream().anyMatch(h -> h.source().content.key().equals("toto")));
 		assertTrue(response.hits().hits().stream().filter(h -> h.source().content.key().equals("toto")).findFirst()
@@ -157,16 +172,18 @@ public class AclAuditLogServiceTests {
 		assertTrue(actual.contains(toto));
 
 		ESearchActivator.refreshIndex("audit_log");
-		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-				.index("audit_log") //
-				.query(q -> q
-						.bool(b -> b.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
-								.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
-								.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
-				AuditLogEntry.class);
-		assertEquals(2L, response.hits().total().value());
+		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
+					.index("audit_log") //
+					.query(q -> q.bool(b -> b
+							.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
+							.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
+							.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
+					AuditLogEntry.class);
+			return response.hits().total().value() == 2;
+		});
 
-		response = esClient.search(s -> s //
+		var response = esClient.search(s -> s //
 				.index("audit_log") //
 				.query(q -> q
 						.bool(b -> b.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
@@ -209,6 +226,16 @@ public class AclAuditLogServiceTests {
 		assertTrue(actual.contains(toto));
 
 		ESearchActivator.refreshIndex("audit_log");
+		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
+					.index("audit_log") //
+					.query(q -> q.bool(b -> b
+							.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
+							.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
+							.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
+					AuditLogEntry.class);
+			return response.hits().total().value() == 2;
+		});
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
 				.index("audit_log") //
 				.query(q -> q
@@ -216,6 +243,7 @@ public class AclAuditLogServiceTests {
 								.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
 								.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
 				AuditLogEntry.class);
+
 		assertEquals(2L, response.hits().total().value());
 
 		AuditLogEntry firstEntry = response.hits().hits().get(0).source();

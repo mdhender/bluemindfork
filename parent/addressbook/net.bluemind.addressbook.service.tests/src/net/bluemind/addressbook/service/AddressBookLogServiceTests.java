@@ -30,7 +30,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+import org.awaitility.Awaitility;
 import org.junit.Test;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
@@ -155,6 +157,17 @@ public class AddressBookLogServiceTests extends AbstractServiceTests {
 		ElasticsearchClient esClient = ESearchActivator.getClient();
 		ESearchActivator.refreshIndex("audit_log");
 
+		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
+					.index("audit_log") //
+					.query(q -> q.bool(b -> b
+							.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
+							.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
+							.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
+					AuditLogEntry.class);
+			return 1L == response.hits().total().value();
+		});
+
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
 				.index("audit_log") //
 				.query(q -> q
@@ -163,6 +176,7 @@ public class AddressBookLogServiceTests extends AbstractServiceTests {
 								.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
 				AuditLogEntry.class);
 		assertEquals(1L, response.hits().total().value());
+
 		AuditLogEntry auditLogEntry = response.hits().hits().get(0).source();
 		assertEquals("test", auditLogEntry.securityContext.uid());
 		assertEquals("test", auditLogEntry.securityContext.displayName());
@@ -201,6 +215,17 @@ public class AddressBookLogServiceTests extends AbstractServiceTests {
 		ElasticsearchClient esClient = ESearchActivator.getClient();
 
 		ESearchActivator.refreshIndex("audit_log");
+		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
+					.index("audit_log") //
+					.query(q -> q.bool(b -> b
+							.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
+							.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
+							.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
+					AuditLogEntry.class);
+			return 1L == response.hits().total().value();
+		});
+
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
 				.index("audit_log") //
 				.query(q -> q
@@ -276,6 +301,16 @@ public class AddressBookLogServiceTests extends AbstractServiceTests {
 		ElasticsearchClient esClient = ESearchActivator.getClient();
 
 		ESearchActivator.refreshIndex("audit_log");
+		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
+					.index("audit_log") //
+					.query(q -> q.bool(b -> b
+							.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
+							.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
+							.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
+					AuditLogEntry.class);
+			return 1L == response.hits().total().value();
+		});
 
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
 				.index("audit_log") //
@@ -384,6 +419,17 @@ public class AddressBookLogServiceTests extends AbstractServiceTests {
 		assertEquals(container.uid, vgroup.organizational.member.get(0).containerUid);
 		ElasticsearchClient esClient = ESearchActivator.getClient();
 		ESearchActivator.refreshIndex("audit_log");
+
+		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
+					.index("audit_log") //
+					.query(q -> q.bool(b -> b
+							.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
+							.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
+							.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
+					AuditLogEntry.class);
+			return 3L == response.hits().total().value();
+		});
 
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
 				.index("audit_log") //

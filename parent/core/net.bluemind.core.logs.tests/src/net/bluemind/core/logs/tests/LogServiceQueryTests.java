@@ -38,7 +38,9 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import javax.sql.DataSource;
 
+import org.awaitility.Awaitility;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -93,6 +95,10 @@ public class LogServiceQueryTests {
 	private String partition;
 	private String mboxUniqueId;
 	private static final AtomicReference<Long> timerId = new AtomicReference<>();
+
+	@AfterClass
+	public static void afterClass() {
+	}
 
 	@BeforeClass
 	public static void beforeClass() throws Exception {
@@ -150,6 +156,16 @@ public class LogServiceQueryTests {
 		createBodyAndRecord(3, adaptDate(12), "data/sort_3.eml");
 		ESearchActivator.refreshIndex("audit_log");
 
+		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+			LogMailQuery logQuery = new LogMailQuery();
+			logQuery.logtype = "mailbox_records";
+			logQuery.author = "user1@devenv.net";
+
+			ILogRequestService logRequestService = getLogQueryService(userSecurityContext1);
+			List<AuditLogEntry> list = logRequestService.queryMailLog(logQuery);
+			return 2 == list.size();
+
+		});
 	}
 
 	@After

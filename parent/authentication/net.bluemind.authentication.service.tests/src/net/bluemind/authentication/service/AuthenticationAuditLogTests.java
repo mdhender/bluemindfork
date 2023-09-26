@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import org.awaitility.Awaitility;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -162,6 +163,13 @@ public class AuthenticationAuditLogTests {
 		assertEquals(Status.Bad, response.status);
 
 		ESearchActivator.refreshIndex(AUDIT_LOG_NAME);
+		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+			SearchResponse<AuditLogEntry> esResponse = esClient.search(s -> s //
+					.index(AUDIT_LOG_NAME) //
+					.query(q -> q.bool(b -> b.must(TermQuery.of(t -> t.field("logtype").value("login"))._toQuery()))),
+					AuditLogEntry.class);
+			return 4L == esResponse.hits().total().value();
+		});
 
 		SearchResponse<AuditLogEntry> esResponse = esClient.search(s -> s //
 				.index(AUDIT_LOG_NAME) //
@@ -209,7 +217,13 @@ public class AuthenticationAuditLogTests {
 		assertNotNull(response.authKey);
 
 		ESearchActivator.refreshIndex(AUDIT_LOG_NAME);
-
+		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+			SearchResponse<AuditLogEntry> esResponse = esClient.search(s -> s //
+					.index(AUDIT_LOG_NAME) //
+					.query(q -> q.bool(b -> b.must(TermQuery.of(t -> t.field("logtype").value("login"))._toQuery()))),
+					AuditLogEntry.class);
+			return 2L == esResponse.hits().total().value();
+		});
 		SearchResponse<AuditLogEntry> esResponse = esClient.search(s -> s //
 				.index(AUDIT_LOG_NAME) //
 				.query(q -> q.bool(b -> b.must(TermQuery.of(t -> t.field("logtype").value("login"))._toQuery()))),
@@ -253,7 +267,13 @@ public class AuthenticationAuditLogTests {
 		assertEquals(Status.Bad, response.status);
 
 		ESearchActivator.refreshIndex(AUDIT_LOG_NAME);
-
+		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+			SearchResponse<AuditLogEntry> esResponse = esClient.search(s -> s //
+					.index(AUDIT_LOG_NAME) //
+					.query(q -> q.bool(b -> b.must(TermQuery.of(t -> t.field("logtype").value("login"))._toQuery()))),
+					AuditLogEntry.class);
+			return 1L == esResponse.hits().total().value();
+		});
 		SearchResponse<AuditLogEntry> esResponse = esClient.search(s -> s //
 				.index(AUDIT_LOG_NAME) //
 				.query(q -> q.bool(b -> b.must(TermQuery.of(t -> t.field("logtype").value("login"))._toQuery()))),

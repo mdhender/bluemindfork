@@ -32,7 +32,9 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+import org.awaitility.Awaitility;
 import org.junit.After;
 import org.junit.Test;
 
@@ -74,6 +76,15 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 		assertNotNull(CalendarTestSyncHook.message());
 		ESearchActivator.refreshIndex("audit_log");
 
+		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
+					.index("audit_log") //
+					.query(q -> q.bool(b -> b
+							.must(TermQuery.of(t -> t.field("logtype").value(userCalendarContainer.type))._toQuery())
+							.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
+					AuditLogEntry.class);
+			return 1L == response.hits().total().value();
+		});
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
 				.index("audit_log") //
 				.query(q -> q.bool(
@@ -81,6 +92,7 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 								.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
 				AuditLogEntry.class);
 		assertEquals(1L, response.hits().total().value());
+
 		AuditLogEntry firstEntry = response.hits().hits().get(0).source();
 		assertEquals(6L, firstEntry.content.with().size());
 		assertEquals(2L, firstEntry.content.author().size());
@@ -116,6 +128,15 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 		getCalendarService(userSecurityContext, userCalendarContainer).update(uid, event, sendNotifications);
 		ESearchActivator.refreshIndex("audit_log");
 
+		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
+					.index("audit_log") //
+					.query(q -> q.bool(b -> b
+							.must(TermQuery.of(t -> t.field("logtype").value(userCalendarContainer.type))._toQuery())
+							.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
+					AuditLogEntry.class);
+			return 1L == response.hits().total().value();
+		});
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
 				.index("audit_log") //
 				.query(q -> q.bool(
@@ -123,6 +144,7 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 								.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
 				AuditLogEntry.class);
 		assertEquals(1L, response.hits().total().value());
+
 		AuditLogEntry firstEntry = response.hits().hits().get(0).source();
 		assertTrue(firstEntry.updatemessage.contains("event end date changed:"));
 
@@ -157,6 +179,15 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 		event.main.attendees = new ArrayList<>(1);
 		getCalendarService(userSecurityContext, userCalendarContainer).update(uid, event, sendNotifications);
 		ESearchActivator.refreshIndex("audit_log");
+		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
+					.index("audit_log") //
+					.query(q -> q.bool(b -> b
+							.must(TermQuery.of(t -> t.field("logtype").value(userCalendarContainer.type))._toQuery())
+							.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
+					AuditLogEntry.class);
+			return 1L == response.hits().total().value();
+		});
 
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
 				.index("audit_log") //
@@ -188,7 +219,8 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 	}
 
 	@Test
-	public void testUpdateAddedAttendee() throws ServerFault, ElasticsearchException, IOException, ParseException {
+	public void testUpdateAddedAttendee()
+			throws ServerFault, ElasticsearchException, IOException, ParseException, InterruptedException {
 
 		ElasticsearchClient esClient = ESearchActivator.getClient();
 		VEventSeries event = defaultVEvent();
@@ -202,7 +234,17 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 				VEvent.ParticipationStatus.Accepted, true, "", "", "", "nico", null, null, null, "nico@attendee.lan");
 		event.main.attendees.addAll(Arrays.asList(sylvain, nico));
 		getCalendarService(userSecurityContext, userCalendarContainer).update(uid, event, sendNotifications);
+
 		ESearchActivator.refreshIndex("audit_log");
+		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
+					.index("audit_log") //
+					.query(q -> q.bool(b -> b
+							.must(TermQuery.of(t -> t.field("logtype").value(userCalendarContainer.type))._toQuery())
+							.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
+					AuditLogEntry.class);
+			return 1L == response.hits().total().value();
+		});
 
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
 				.index("audit_log") //
@@ -247,6 +289,15 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 		event.main.location = "Marseillette";
 		getCalendarService(userSecurityContext, userCalendarContainer).update(uid, event, sendNotifications);
 		ESearchActivator.refreshIndex("audit_log");
+		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
+					.index("audit_log") //
+					.query(q -> q.bool(b -> b
+							.must(TermQuery.of(t -> t.field("logtype").value(userCalendarContainer.type))._toQuery())
+							.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
+					AuditLogEntry.class);
+			return 1L == response.hits().total().value();
+		});
 
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
 				.index("audit_log") //
@@ -305,6 +356,15 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 		assertEquals(DELETE, CalendarTestAsyncHook.action());
 		assertNotNull(CalendarTestSyncHook.message());
 		ESearchActivator.refreshIndex("audit_log");
+		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+			var response = esClient.search(s -> s //
+					.index("audit_log") //
+					.query(q -> q.bool(b -> b
+							.must(TermQuery.of(t -> t.field("logtype").value(userCalendarContainer.type))._toQuery())
+							.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
+					AuditLogEntry.class);
+			return 1L == response.hits().total().value();
+		});
 
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
 				.index("audit_log") //

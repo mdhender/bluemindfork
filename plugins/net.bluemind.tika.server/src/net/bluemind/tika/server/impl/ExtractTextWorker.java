@@ -37,6 +37,7 @@ public final class ExtractTextWorker extends AbstractVerticle {
 	public ExtractTextWorker() {
 		logger.info("Created.");
 		this.parseContext = new ParseContext();
+
 		DefaultDetector detector = new DefaultDetector();
 		this.adp = new AutoDetectParser(detector);
 	}

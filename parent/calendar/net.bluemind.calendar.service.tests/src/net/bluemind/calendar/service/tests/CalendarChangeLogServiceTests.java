@@ -20,6 +20,9 @@ package net.bluemind.calendar.service.tests;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.concurrent.TimeUnit;
+
+import org.awaitility.Awaitility;
 import org.junit.After;
 import org.junit.Test;
 
@@ -43,6 +46,14 @@ public class CalendarChangeLogServiceTests extends AbstractCalendarTests {
 				sendNotifications);
 		getCalendarService(userSecurityContext, userCalendarContainer).delete("test2", sendNotifications);
 		ESearchActivator.refreshIndex("audit_log");
+
+		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+			ItemChangelog itemChangeLog = getCalendarService(userSecurityContext, userCalendarContainer)
+					.itemChangelog("test1", 0L);
+
+			return 2 == itemChangeLog.entries.size();
+		});
+
 		ItemChangelog itemChangeLog = getCalendarService(userSecurityContext, userCalendarContainer)
 				.itemChangelog("test1", 0L);
 

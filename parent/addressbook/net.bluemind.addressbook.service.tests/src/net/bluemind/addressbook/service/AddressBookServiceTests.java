@@ -35,7 +35,9 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
+import org.awaitility.Awaitility;
 import org.junit.Test;
 
 import co.elastic.clients.elasticsearch._types.ElasticsearchException;
@@ -788,6 +790,11 @@ public class AddressBookServiceTests extends AbstractServiceTests {
 		getService(defaultSecurityContext).update("test2", defaultVCard());
 		ESearchActivator.refreshIndex("audit_log");
 
+		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+			ItemChangelog itemChangeLog = getService(defaultSecurityContext).itemChangelog("test1", 0L);
+			return 3 == itemChangeLog.entries.size();
+		});
+
 		ItemChangelog itemChangeLog = getService(defaultSecurityContext).itemChangelog("test1", 0L);
 		assertEquals(3, itemChangeLog.entries.size());
 		assertEquals(ChangeLogEntry.Type.Created, itemChangeLog.entries.get(0).type);
@@ -820,6 +827,11 @@ public class AddressBookServiceTests extends AbstractServiceTests {
 		getService(defaultSecurityContext).update("test1", defaultVCard());
 		getService(defaultSecurityContext).update("test1", defaultVCard());
 		ESearchActivator.refreshIndex("audit_log");
+
+		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+			ItemChangelog itemChangeLog = getService(defaultSecurityContext).itemChangelog("test1", 0L);
+			return 5 == itemChangeLog.entries.size();
+		});
 
 		ItemChangelog itemChangeLog = getService(defaultSecurityContext).itemChangelog("test1", 0L);
 		assertEquals(5, itemChangeLog.entries.size());

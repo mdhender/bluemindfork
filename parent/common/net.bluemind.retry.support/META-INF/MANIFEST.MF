@@ -6,12 +6,13 @@ Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  org.junit,
- net.bluemind.chronicle.queue,
  slf4j.api,
  io.vertx.core,
  com.google.guava,
- net.bluemind.lib.vertx
+ net.bluemind.lib.vertx,
+ org.rocksdb.jni
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.retry.support
 Bundle-ActivationPolicy: lazy
-Export-Package: net.bluemind.retry.support
+Export-Package: net.bluemind.retry.support,
+ net.bluemind.retry.support.rocks

@@ -28,7 +28,9 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
+import org.awaitility.Awaitility;
 import org.junit.Test;
 
 import net.bluemind.core.api.fault.ErrorCode;
@@ -408,6 +410,11 @@ public class SmimeCacertServiceTests extends AbstractServiceTests {
 		getServiceCacert(defaultSecurityContext, container.uid).update("test2", defaultSmimeCacert(CA_FILE_PATH));
 		ESearchActivator.refreshIndex("audit_log");
 
+		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+			ItemChangelog itemChangeLog = getServiceCacert(defaultSecurityContext, container.uid).itemChangelog("test1",
+					0L);
+			return 3 == itemChangeLog.entries.size();
+		});
 		ItemChangelog itemChangeLog = getServiceCacert(defaultSecurityContext, container.uid).itemChangelog("test1",
 				0L);
 		assertEquals(3, itemChangeLog.entries.size());

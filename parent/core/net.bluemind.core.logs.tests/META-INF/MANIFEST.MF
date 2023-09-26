@@ -36,7 +36,9 @@ Require-Bundle: org.junit;bundle-version="4.13.2",
  net.bluemind.mailindex.schema;bundle-version="5.0.0",
  net.bluemind.core.auditlogs,
  net.bluemind.core.auditlogs.client.es,
- net.bluemind.system.state
+ net.bluemind.system.state,
+ org.awaitility;bundle-version="4.2.0",
+ org.hamcrest;bundle-version="2.2.0"
 Bundle-Vendor: net.bluemind
 Automatic-Module-Name: net.bluemind.core.logs.tests
 Bundle-RequiredExecutionEnvironment: JavaSE-17

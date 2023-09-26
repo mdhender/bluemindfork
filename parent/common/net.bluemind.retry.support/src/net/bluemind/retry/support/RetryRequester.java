@@ -37,15 +37,15 @@ public class RetryRequester {
 	}
 
 	public void request(JsonObject js) {
-		CompletableFuture<Void> comp = new CompletableFuture<>();
-		eb.request(addr, js, delOpts, ar -> {
+		CompletableFuture<Void> block = new CompletableFuture<>();
+		CompletableFuture.runAsync(() -> eb.request(addr, js, delOpts).andThen(ar -> {
 			if (ar.failed()) {
-				comp.completeExceptionally(ar.cause());
+				block.completeExceptionally(ar.cause());
 			} else {
-				comp.complete(null);
+				block.complete(null);
 			}
-		});
-		comp.orTimeout(5, TimeUnit.SECONDS).join();
+		}));
+		block.orTimeout(10, TimeUnit.SECONDS).join();
 	}
 
 }
