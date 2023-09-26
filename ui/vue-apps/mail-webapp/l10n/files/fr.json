@@ -448,6 +448,8 @@
     "mail.viewer.invitation.counter.status": "proposé un nouvel horaire",
     "mail.viewer.invitation.counter.accept": "Mettre à jour la réunion",
     "mail.viewer.invitation.counter.decline": "Refuser le nouvel horaire",
+    "mail.viewer.invitation.counter.declined": "Votre proposition de nouvel horaire a été {status}.",
+    "mail.viewer.invitation.counter.declined.status": "refusée",
     "mail.viewer.invitation.counter.decline_short": "Refuser",
     "mail.viewer.invitation.counter.answered": "Vous avez répondu à la proposition de nouvel horaire.",
     "mail": {

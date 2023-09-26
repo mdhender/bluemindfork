@@ -448,6 +448,8 @@
     "mail.viewer.invitation.counter.status": "has suggested a new time",
     "mail.viewer.invitation.counter.accept": "Update the meeting",
     "mail.viewer.invitation.counter.decline": "Decline the new time",
+    "mail.viewer.invitation.counter.declined": "Your proposal for a new schedule has been {status}.",
+    "mail.viewer.invitation.counter.declined.status": "refused",
     "mail.viewer.invitation.counter.decline_short": "Decline",
     "mail.viewer.invitation.counter.answered": "You have already answered this proposal.",
     "mail": {

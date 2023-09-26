@@ -122,6 +122,7 @@ export const MessageHeader = {
     X_BM_DRAFT_REFRESH_DATE: "X-Bm-Draft-Refresh-Date",
     X_BM_EVENT_COUNTERED: "X-BM-Event-Countered",
     X_BM_COUNTER_ATTENDEE: "X-BM-Counter-Attendee",
+    X_BM_EVENT_DECLINECOUNTER: "X-BM-Counter-Declined",
     X_BM_EVENT_REPLIED: "X-BM-Event-Replied",
     X_BM_EVENT_CANCELED: "X-BM-Event-Canceled",
     X_BM_EVENT: "X-BM-Event",
@@ -164,6 +165,7 @@ const XBM_EVENTS_HEADERS = [
     MessageHeader.X_BM_EVENT_REPLIED.toUpperCase(),
     MessageHeader.X_BM_EVENT.toUpperCase(),
     MessageHeader.X_BM_EVENT_COUNTERED.toUpperCase(),
+    MessageHeader.X_BM_EVENT_DECLINECOUNTER.toUpperCase(),
     MessageHeader.X_BM_EVENT_CANCELED.toUpperCase()
 ];
 

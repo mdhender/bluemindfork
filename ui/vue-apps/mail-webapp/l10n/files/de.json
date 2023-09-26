@@ -448,6 +448,8 @@
     "mail.viewer.invitation.counter.status": "schlug einen neuen Zeitplan vor",
     "mail.viewer.invitation.counter.accept": "Aktualisieren Sie den Termin",
     "mail.viewer.invitation.counter.decline": "Den neuen Zeitplan ablehnen",
+    "mail.viewer.invitation.counter.declined": "Ihr Vorschlag für einen neuen Zeitplan wurde {status}.",
+    "mail.viewer.invitation.counter.declined.status": "abgelehnt",
     "mail.viewer.invitation.counter.decline_short": "Ablehnen",
     "mail.viewer.invitation.counter.answered": "Sie haben auf den Vorschlag für einen neuen Zeitplan geantwortet.",
     "mail": {
