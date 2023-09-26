@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from "vue";
-import { BmIcon, BmRow } from "@bluemind/ui-components";
+import { BmIcon, BmLabelIcon } from "@bluemind/ui-components";
 import { messageUtils } from "@bluemind/mail";
 import EventCalendarIllustration from "./EventCalendarIllustration.vue";
 import { formatEventDates } from "./formatEventDates";
@@ -48,20 +48,21 @@ const calendarStatus = computed(() => {
 });
 
 const isRecurring = computed(() => Boolean(eventValue.value?.rrule));
+const withDetails = computed(() => !!(isRecurring.value || eventValue.value?.location || eventValue.value?.url));
 </script>
 
 <template>
-    <div class="event-detail" :class="{ 'event-detail-recurring': isRecurring }">
+    <div class="event-detail" :class="{ 'with-details': withDetails }">
         <event-calendar-illustration
             :status="calendarStatus"
             :date="event.counter?.dtstart.iso8601 ?? eventValue?.dtstart.iso8601"
             :is-recurring="isRecurring"
         />
-        <bm-row class="event-row-icon summary">
-            <bm-icon icon="lock-fill" class="mr-2" />
+        <div class="event-row-icon summary">
+            <bm-icon v-if="event.private" icon="lock-fill" class="mr-2" />
             <h3>{{ event.summary }}</h3>
-        </bm-row>
-        <bm-row class="event-time title">
+        </div>
+        <div class="event-time title">
             <span :class="{ 'event-time-current': counterTimeRange }">
                 {{ eventTimeRange }}
             </span>
@@ -70,11 +71,21 @@ const isRecurring = computed(() => Boolean(eventValue.value?.rrule));
             <span v-if="counterTimeRange" class="event-time-counter">
                 {{ counterTimeRange }}
             </span>
-        </bm-row>
-        <bm-row v-if="isRecurring" class="event-row-icon occurence">
-            <bm-icon icon="repeat" class="mr-2" />
-            <span>{{ event.date }}</span>
-        </bm-row>
+        </div>
+        <div v-if="withDetails" class="details d-flex flex-column">
+            <div v-if="isRecurring" class="event-row-icon">
+                <bm-icon icon="repeat" class="mr-2" />
+                <span>{{ event.date }}</span>
+            </div>
+            <div v-if="event.location" class="event-row-icon">
+                <bm-icon icon="location" class="mr-2" />
+                <span>{{ event.location }}</span>
+            </div>
+            <div v-if="event.url" class="event-row-icon">
+                <bm-icon icon="link" class="mr-2" />
+                <span>{{ event.url }}</span>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -84,28 +95,24 @@ const isRecurring = computed(() => Boolean(eventValue.value?.rrule));
 
 .event-detail {
     display: grid;
-    padding: 0 $sp-5 0px $sp-5;
+    padding: 0 $sp-5 $sp-5 $sp-5;
     align-items: center;
 
     @include until-lg {
         $row-time-height: $sp-6 + $sp-3;
         $row-title-height: $sp-7 + $sp-5;
         padding: $sp-5;
-        &.event-detail-recurring {
+        &.with-details {
             grid-template-areas:
                 "illustration  summary"
                 "illustration  time"
-                "occurrence  occurrence";
-            .occurence {
-                margin-left: 0;
-            }
+                "details  details";
+            margin-left: 0;
+            gap: $sp-5;
         }
 
         grid-template-columns: 75px 1fr;
         grid-template-rows: $row-title-height $row-time-height auto;
-        .event-occurence {
-            padding: 0 $sp-5 0 $sp-5;
-        }
     }
     row-gap: $sp-4;
     column-gap: $sp-6;
@@ -114,12 +121,12 @@ const isRecurring = computed(() => Boolean(eventValue.value?.rrule));
         "illustration time";
 
     @include from-lg {
-        &.event-detail-recurring {
+        &.with-details {
             grid-template-rows: repeat(3, auto);
             grid-template-areas:
                 "illustration summary"
                 "illustration time"
-                "illustration occurrence";
+                "illustration details";
         }
     }
 
@@ -136,6 +143,7 @@ const isRecurring = computed(() => Boolean(eventValue.value?.rrule));
         flex-wrap: nowrap;
         gap: $sp-4;
         line-height: $line-height;
+        width: 100%;
         & > svg {
             translate: 0 $sp-2;
         }
@@ -170,9 +178,13 @@ const isRecurring = computed(() => Boolean(eventValue.value?.rrule));
             color: $info-fg-hi1;
         }
     }
-    .occurence {
-        grid-area: occurrence;
+    .details {
+        grid-area: details;
         padding-bottom: $sp-3;
+        gap: $sp-4;
+        @include until-lg {
+            margin-top: $sp-2;
+        }
     }
 }
 </style>

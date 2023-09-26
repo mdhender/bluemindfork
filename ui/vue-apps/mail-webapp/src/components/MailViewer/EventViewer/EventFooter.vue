@@ -1,21 +1,24 @@
 <script setup>
 import { computed, ref } from "vue";
+import i18n from "@bluemind/i18n";
 import store from "@bluemind/store";
-import { darkifyHtml, darkifyingBaseLvalue, BmButton, BmLabelIcon } from "@bluemind/ui-components";
+import { darkifyHtml, darkifyingBaseLvalue, BmDropdown, BmDropdownItem, BmLabelIcon } from "@bluemind/ui-components";
 import EventFooterSection from "./EventFooterSection.vue";
 
 const props = defineProps({ event: { type: Object, required: true } });
 
+const organizer = {
+    name: props.event.organizer.name,
+    text: props.event.organizer.mail,
+    detail: i18n.t("common.organizer")
+};
 const getAttendeesByCutype = cutype =>
     props.event.attendees
         ?.filter(attendee => attendee.cutype === cutype)
         .map(({ name, mail }) => ({ name, text: mail })) ?? [];
-const attendees = computed(() => getAttendeesByCutype("Individual"));
+const individuals = computed(() => getAttendeesByCutype("Individual"));
 const resources = computed(() => getAttendeesByCutype("Resource"));
-
-const showFooter = computed(() =>
-    Boolean(attendees.value.length || resources.value.length || props.event?.sanitizedDescription)
-);
+const attendees = computed(() => [organizer, ...individuals.value]);
 
 const description = computed(() => {
     if (!props.event.sanitizedDescription) {
@@ -49,14 +52,30 @@ function darkify(text) {
 function openConference() {
     window.open(props.event.conference);
 }
+function copyLink() {
+    navigator.clipboard.writeText(props.event.conference);
+}
 </script>
 
 <template>
-    <div v-if="showFooter" class="event-footer">
-        <div v-if="event.conference">
-            <bm-button variant="fill-accent" class="event-footer-conference" @click="openConference">
-                <bm-label-icon icon="video"> {{ $t("mail.viewer.invitation.conference") }} </bm-label-icon>
-            </bm-button>
+    <div class="event-footer">
+        <div>
+            <bm-dropdown
+                v-if="event.conference"
+                variant="fill-accent"
+                class="event-footer-conference"
+                text=""
+                split
+                right
+                @click="openConference"
+            >
+                <template #button-content>
+                    <bm-label-icon icon="video">
+                        {{ $t("mail.viewer.invitation.conference") }}
+                    </bm-label-icon>
+                </template>
+                <bm-dropdown-item icon="copy" @click="copyLink">{{ $t("common.copy.link") }}</bm-dropdown-item>
+            </bm-dropdown>
         </div>
 
         <event-footer-section
@@ -78,6 +97,7 @@ function openConference() {
 
 <style lang="scss">
 @import "~@bluemind/ui-components/src/css/utils/variables";
+@import "~@bluemind/ui-components/src/css/utils/responsiveness";
 
 .event-footer {
     padding: 0 $sp-5 0 $sp-2;
@@ -87,6 +107,9 @@ function openConference() {
 
     .event-footer-conference {
         margin: $sp-5 0 $sp-5 $sp-6 + $sp-3;
+        @include until-lg {
+            margin-left: $sp-4;
+        }
     }
 
     .event-footer-description {

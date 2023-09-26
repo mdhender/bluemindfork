@@ -3,9 +3,13 @@ import { DateComparator, WeekDayCodes } from "@bluemind/date";
 import { WeekDay } from "@bluemind/i18n";
 import i18n from "@bluemind/i18n";
 import { sanitizeHtml } from "@bluemind/html-utils";
-
 const { LoadingStatus } = loadingStatusUtils;
 
+const CLASSIFICATIONS = {
+    PUBLIC: "Public",
+    PRIVATE: "Private",
+    CONFIDENTIAL: "Confidential"
+};
 export default {
     adapt(event, mailboxOwner, originator, recuridIsoDate) {
         const infos = this.eventInfos(event, recuridIsoDate);
@@ -30,7 +34,10 @@ export default {
             serverEvent: event,
             sanitizedDescription: infos.description ? sanitizeHtml(infos.description, true) : undefined,
             counter: adaptCounter(event, originator, recuridIsoDate),
-            loading: LoadingStatus.LOADED
+            loading: LoadingStatus.LOADED,
+            location: infos.location,
+            url: infos.url,
+            private: infos.classification === CLASSIFICATIONS.PRIVATE
         };
     },
 

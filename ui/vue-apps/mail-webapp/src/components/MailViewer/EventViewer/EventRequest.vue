@@ -40,8 +40,10 @@ const setEventStatus = status => store.dispatch(`mail/${SET_EVENT_STATUS}`, { me
                 </div>
             </template>
         </event-header>
-        <event-detail :event="event" :message="message" />
-        <event-footer :event="event" />
+        <div>
+            <event-detail :event="event" :message="message" />
+            <event-footer :event="event" />
+        </div>
     </div>
 </template>
 
@@ -51,7 +53,6 @@ const setEventStatus = status => store.dispatch(`mail/${SET_EVENT_STATUS}`, { me
 .event-request {
     display: flex;
     flex-direction: column;
-    gap: $sp-4;
 
     .reply-buttons {
         display: flex;

@@ -22,8 +22,9 @@ const expanded = ref(false);
             <slot>
                 <div v-for="(entry, index) in entries" :key="index" class="event-footer-entry">
                     <span class="text-truncate">
-                        <span class="font-weight-bold">{{ entry.name }}</span> &lt;{{ entry.text }}&gt;</span
-                    >
+                        <span class="font-weight-bold">{{ entry.name }}</span> &lt;{{ entry.text }}&gt;
+                    </span>
+                    <span v-if="entry.detail" class="font-weight-bold">({{ entry.detail }})</span>
                 </div>
             </slot>
         </div>

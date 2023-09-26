@@ -1,6 +1,6 @@
-export const bmRichEditorLink = {
+export const bmLink = {
     prefix: "fas",
-    iconName: "rich-editor-link",
+    iconName: "link",
     icon: [
         12,
         12,

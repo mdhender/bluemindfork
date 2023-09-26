@@ -31,19 +31,19 @@ const statusKey = computed(
 </script>
 
 <template>
-    <div class="event-request">
+    <div class="event-countered">
         <event-header v-if="event.counter">
-            <i18n :path="eventKey" tag="span">
+            <i18n :path="eventKey" tag="span" class="font-weight-bold">
                 <template #name>{{ fromAttendee.name }}</template>
                 <template #status>
                     <span
                         :class="`event-countered-status-${fromAttendee.status.toLowerCase()}`"
-                        class="font-weight-bold event-countered-header"
+                        class="event-countered-header"
                         >{{ $t(statusKey) }}</span
                     >
                 </template>
                 <template #counter>
-                    <span class="font-weight-bold event-countered-status-countered">{{
+                    <span class="event-countered-status-countered">{{
                         $t("mail.viewer.invitation.counter.status")
                     }}</span>
                 </template>
@@ -63,7 +63,7 @@ const statusKey = computed(
         </event-header>
 
         <event-header v-else>
-            {{ $t("mail.viewer.invitation.counter.answered") }}
+            <span class="font-weight-bold"> {{ $t("mail.viewer.invitation.counter.answered") }}</span>
         </event-header>
 
         <event-detail :event="event" :message="message" />
@@ -74,7 +74,7 @@ const statusKey = computed(
 <style lang="scss">
 @import "~@bluemind/ui-components/src/css/utils/variables";
 
-.event-request {
+.event-countered {
     display: flex;
     flex-direction: column;
     gap: $sp-4;
