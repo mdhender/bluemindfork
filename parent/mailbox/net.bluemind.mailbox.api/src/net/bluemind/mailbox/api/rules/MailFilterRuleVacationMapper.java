@@ -1,6 +1,7 @@
 package net.bluemind.mailbox.api.rules;
 
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAccessor;
@@ -16,7 +17,8 @@ import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleOperatorName;
 
 public class MailFilterRuleVacationMapper implements MailFilterRuleTypeMapper<MailFilter.Vacation> {
 
-	private Supplier<DateTimeFormatter> dtfSupplier = () -> DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+	private Supplier<DateTimeFormatter> dtfSupplier = () -> DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+			.withZone(ZoneId.systemDefault());
 
 	public Optional<MailFilterRule> map(MailFilter.Vacation vacation) {
 		if (vacation == null) {
