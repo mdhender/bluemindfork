@@ -331,8 +331,7 @@ public class AclAuditLogServiceTests {
 		assertEquals(2, actual.size());
 		assertTrue(actual.contains(user02Acl));
 		assertTrue(actual.contains(user03Acl));
-		user02Acl.verb = Verb.Freebusy;
-		aclService.retrieveAndStore(Arrays.asList(user02Acl));
+		aclService.retrieveAndStore(Arrays.asList(AccessControlEntry.create(user02.uid, Verb.Freebusy)));
 
 		ESearchActivator.refreshIndex(AUDIT_LOG_DATASTREAM);
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
@@ -360,6 +359,15 @@ public class AclAuditLogServiceTests {
 		assertTrue(!firstEntry.content.newValue().isBlank());
 		assertTrue(firstEntry.content.is() == null);
 		assertTrue(firstEntry.content.has() == null);
+
+		response = esClient.search(s -> s //
+				.index(AUDIT_LOG_DATASTREAM) //
+				.query(q -> q.bool(b -> b
+						.must(TermQuery.of(t -> t.field("container.uid").value(user01CalendarDesc.uid))._toQuery())
+						.must(TermQuery.of(t -> t.field("logtype").value(ACL_AUDITLOG_TYPE))._toQuery())
+						.must(TermQuery.of(t -> t.field("action").value(Type.Deleted.toString()))._toQuery()))),
+				AuditLogEntry.class);
+		assertEquals(2L, response.hits().total().value());
 	}
 
 	private ItemValue<User> defaultUser(String login, String lastname, String firstname) {

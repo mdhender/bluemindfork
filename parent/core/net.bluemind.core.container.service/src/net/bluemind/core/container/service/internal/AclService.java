@@ -20,8 +20,8 @@
 package net.bluemind.core.container.service.internal;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
@@ -92,14 +92,17 @@ public class AclService implements IAccessControlList {
 
 	@Override
 	public List<AccessControlEntry> retrieveAndStore(List<AccessControlEntry> entries) throws ServerFault {
-		List<AccessControlEntry> accessControlEntries = new ArrayList<>();
 		try {
-			accessControlEntries = aclStore.retrieveAndStore(container, entries);
+			List<AccessControlEntry> oldEntries = aclStore.retrieveAndStore(container, entries);
+			List<AccessControlEntry> addedEntries = entries.stream().filter(e -> !oldEntries.contains(e))
+					.collect(Collectors.toList());
+			List<AccessControlEntry> removedEntries = oldEntries.stream().filter(e -> !entries.contains(e))
+					.collect(Collectors.toList());
 			if (auditLog != null) {
-				// TODO SCL : regarder les diff : faire un update et compacter les messages
-				entries.forEach(e -> auditLog.logUpdate(e, null));
+				addedEntries.forEach(e -> auditLog.logUpdate(e, null));
+				removedEntries.forEach(auditLog::logDelete);
 			}
-			return accessControlEntries;
+			return oldEntries;
 		} catch (ServerFault e) {
 			throw ServerFault.sqlFault(e);
 

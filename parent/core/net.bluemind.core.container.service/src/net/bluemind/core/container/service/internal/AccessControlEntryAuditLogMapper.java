@@ -78,15 +78,14 @@ public class AccessControlEntryAuditLogMapper implements ILogMapperProvider<Acce
 					container.domainUid);
 			User aclUser = userService.get(entry.subject);
 			String aclUserEntry = (aclUser != null) ? aclUser.defaultEmailAddress() : entry.subject;
-
-			sb.append("'" + aclUserEntry + "': ");
-
-			sb.append("access '" + entry.verb.name() + "'");
-			sb.append(" granted container '" + container.uid + "' ");
-
+			// 'All' was granted to sylvain on david's 'Calendrier'
+			sb.append("'" + entry.verb.name() + "' was granted to ");
+			sb.append("'" + aclUserEntry + "' on ");
 			User containerUser = userService.get(container.owner);
 			String containerUserOwner = (containerUser != null) ? containerUser.defaultEmailAddress() : container.owner;
-			sb.append("with owner '" + containerUserOwner + "'");
+			sb.append("'" + containerUserOwner + "''s ");
+			sb.append("'" + container.type + "' container");
+			sb.append("\r\n");
 			builder.with(Arrays.asList(aclUserEntry, containerUserOwner));
 			builder.author(Arrays.asList(containerUserOwner));
 		}
