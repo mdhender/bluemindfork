@@ -22,6 +22,7 @@ package net.bluemind.backend.mail.replica.service.internal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -40,6 +41,9 @@ import net.bluemind.core.container.model.BaseContainerDescriptor;
 public class DbMailboxRecordsAuditLogMapper implements ILogMapperProvider<MailboxRecord> {
 	private final IMailIndexService mailIndexService;
 	private final BaseContainerDescriptor container;
+	private static final String VOICEMAIL = "voicemail";
+	private static final String INVITATION = "invitation";
+	private static final String ATTACHMENTS = "attachments";
 
 	public DbMailboxRecordsAuditLogMapper(BaseContainerDescriptor bcd, IMailIndexService mis) {
 		mailIndexService = mis;
@@ -115,6 +119,23 @@ public class DbMailboxRecordsAuditLogMapper implements ILogMapperProvider<Mailbo
 		}
 		if (!recipientsList.isEmpty()) {
 			builder.with(recipientsList);
+		}
+
+		if (body.containsKey("has")) {
+			builder.has = new HashMap<>();
+			String hasString = body.get("has").toString();
+			if (hasString.startsWith("[")) {
+				List<String> hasList = Arrays.asList(hasString.replace("[", "").replace("]", "").split(", "));
+				if (hasList.contains(VOICEMAIL)) {
+					builder.has.put(VOICEMAIL, VOICEMAIL);
+				}
+				if (hasList.contains(INVITATION)) {
+					builder.has.put(INVITATION, INVITATION);
+				}
+				if (hasList.contains(ATTACHMENTS)) {
+					builder.has.put(ATTACHMENTS, ATTACHMENTS);
+				}
+			}
 		}
 
 		return builder.build();

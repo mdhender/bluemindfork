@@ -112,8 +112,8 @@ public abstract class AbstractAuditLogServiceTests {
 	protected ItemValue<User> user03;
 	private ElasticsearchClient esClient;
 	protected boolean sendNotifications = false;
-	private Container user01CalendarContainer;
-	private SecurityContext user01SecurityContext;
+	protected Container user01CalendarContainer;
+	protected SecurityContext user01SecurityContext;
 	private SecurityContext user02SecurityContext;
 	private SecurityContext user03SecurityContext;
 	private Container user02CalendarContainer;

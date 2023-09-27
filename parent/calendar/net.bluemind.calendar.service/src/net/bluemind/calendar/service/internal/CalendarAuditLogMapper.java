@@ -29,15 +29,14 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventSeries;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.auditlogs.AuditLogUpdateStatus;
 import net.bluemind.core.auditlogs.ContentElement;
 import net.bluemind.core.auditlogs.ContentElement.ContentElementBuilder;
 import net.bluemind.core.auditlogs.ILogMapperProvider;
+import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
 import net.bluemind.icalendar.api.ICalendarElement.RRule;
@@ -45,7 +44,6 @@ import net.bluemind.icalendar.api.ICalendarElement.RRule.WeekDay;
 
 public class CalendarAuditLogMapper implements ILogMapperProvider<VEventSeries> {
 	private static final String CRLF = "\r\n";
-	private static final ObjectMapper objectMapper = new ObjectMapper();
 	private static final Logger logger = LoggerFactory.getLogger(CalendarAuditLogMapper.class);
 
 	@Override
@@ -165,9 +163,9 @@ public class CalendarAuditLogMapper implements ILogMapperProvider<VEventSeries> 
 		}
 
 		try {
-			String source = objectMapper.writeValueAsString(value);
+			String source = JsonUtils.asString(value);
 			builder.newValue(source);
-		} catch (JsonProcessingException e) {
+		} catch (ServerFault e) {
 			logger.error(e.getMessage());
 			e.printStackTrace();
 

@@ -26,20 +26,14 @@ import net.bluemind.core.api.BMApi;
 public class AuditLogQuery {
 
 	public String author;
-
 	public String with;
-
 	public String description;
-
 	public String container;
-
 	public Date from;
-
 	public Date to;
-
 	public String key;
-
 	public String logtype;
+	public int size = 10;
 
 	public AuditLogQuery() {
 
@@ -54,6 +48,7 @@ public class AuditLogQuery {
 		to = builder.to;
 		key = builder.key;
 		logtype = builder.logtype;
+		size = builder.size;
 	}
 
 	public class LogMailQueryBuilder {
@@ -65,6 +60,7 @@ public class AuditLogQuery {
 		Date to;
 		String key;
 		String logtype;
+		int size;
 
 		public LogMailQueryBuilder author(String a) {
 			author = a;
@@ -106,6 +102,11 @@ public class AuditLogQuery {
 			return this;
 		}
 
+		public LogMailQueryBuilder size(int s) {
+			size = s;
+			return this;
+		}
+
 		public AuditLogQuery build() {
 			return new AuditLogQuery(this);
 		}
@@ -115,7 +116,7 @@ public class AuditLogQuery {
 	@Override
 	public String toString() {
 		return "logtype: " + logtype + " ,author: " + author + ",with: " + with + " ,description: " + description
-				+ " ,key:" + key + " ,from: " + from + " ,to: " + to;
+				+ " ,key:" + key + " ,from: " + from + " ,to: " + to + " ,size: " + size;
 	}
 
 }

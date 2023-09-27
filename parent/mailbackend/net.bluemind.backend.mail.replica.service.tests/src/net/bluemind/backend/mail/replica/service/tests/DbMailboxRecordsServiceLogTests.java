@@ -168,6 +168,28 @@ public class DbMailboxRecordsServiceLogTests extends AbstractMailboxRecordsServi
 		assertEquals("second subject", firstAuditLogEntry.content.description());
 	}
 
+	@Test
+	public void createMailboxRecordWithAttachmentVoicemailInvitation()
+			throws ServerFault, ElasticsearchException, IOException {
+		createBodyAndRecord(1, adaptDate(5), "data/with_voicemail.eml");
+
+		ElasticsearchClient esClient = ESearchActivator.getClient();
+		ESearchActivator.refreshIndex(AUDIT_LOG_DATASTREAM);
+
+		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
+				.index(AUDIT_LOG_DATASTREAM) //
+				.query(q -> q.bool(b -> b
+						.must(TermQuery.of(t -> t.field("container.uid").value("mbox_records_" + mboxUniqueId))
+								._toQuery())
+						.must(TermQuery.of(t -> t.field("logtype").value("mailbox_records"))._toQuery())
+						.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
+				AuditLogEntry.class);
+		assertEquals(1L, response.hits().total().value());
+
+		AuditLogEntry firstAuditLogEntry = response.hits().hits().get(0).source();
+		assertEquals(2, firstAuditLogEntry.content.has().size());
+	}
+
 	protected IDbMailboxRecords getService(SecurityContext ctx) {
 		return ServerSideServiceProvider.getProvider(ctx).instance(IDbMailboxRecords.class, mboxUniqueId);
 	}

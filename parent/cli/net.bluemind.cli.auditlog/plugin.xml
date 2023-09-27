@@ -4,7 +4,7 @@
    <extension
          point="net.bluemind.cli.cmd.api.cmdlet">
       <registration
-            impl="net.bluemind.cli.auditlog.FetchAuditLogCommand$Reg"
+            impl="net.bluemind.cli.auditlog.GetAuditLogCommand$Reg"
             priority="10">
       </registration>
    </extension>

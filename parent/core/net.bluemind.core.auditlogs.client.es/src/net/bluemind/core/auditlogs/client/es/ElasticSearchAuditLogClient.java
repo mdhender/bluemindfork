@@ -116,7 +116,7 @@ public class ElasticSearchAuditLogClient implements IAuditLogClient {
 		logger.debug("query for auditlog: {}", boolQuery);
 		try {
 			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-					.index(INDEX_AUDIT_LOG).sort(sort) //
+					.index(INDEX_AUDIT_LOG).sort(sort).size(query.size) //
 					.query(q -> q.bool(boolQuery)), AuditLogEntry.class);
 			if (!response.hits().hits().isEmpty()) {
 				return response.hits().hits().stream().map(Hit::source).toList();

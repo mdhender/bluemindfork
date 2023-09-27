@@ -22,24 +22,22 @@ package net.bluemind.core.auditlogs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.auditlogs.ContentElement.ContentElementBuilder;
+import net.bluemind.core.utils.JsonUtils;
 
 public class DefaultLogMapperProvider<T> implements ILogMapperProvider<T> {
 
-	private static final ObjectMapper objectMapper = new ObjectMapper();
 	private static final Logger logger = LoggerFactory.getLogger(DefaultLogMapperProvider.class);
 
 	public ContentElement createContentElement(T newValue) {
 
 		ContentElementBuilder builder = new ContentElement.ContentElementBuilder();
 		try {
-			String source = objectMapper.writeValueAsString(newValue);
+			String source = JsonUtils.asString(newValue);
 			builder.newValue(source);
 			return builder.build();
-		} catch (JsonProcessingException e) {
+		} catch (ServerFault e) {
 			logger.error(e.getMessage());
 			e.printStackTrace();
 			return builder.build();

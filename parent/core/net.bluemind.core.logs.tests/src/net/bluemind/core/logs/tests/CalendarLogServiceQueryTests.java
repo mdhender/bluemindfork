@@ -123,7 +123,6 @@ public class CalendarLogServiceQueryTests {
 	private VEventSeries event03;
 	private VEventSeries event04;
 	private String uid04;
-	private Organizer organizer04;
 
 	@BeforeClass
 	public static void beforeClass() throws Exception {
@@ -201,7 +200,6 @@ public class CalendarLogServiceQueryTests {
 		uid03 = "test03_" + System.nanoTime();
 		organizer03 = new VEvent.Organizer(user03.value.login + "@" + domainUid);
 		uid04 = "test04_" + System.nanoTime();
-		organizer04 = new VEvent.Organizer(user03.value.login + "@" + domainUid);
 
 		// Define attendees
 		VEvent.Attendee attendeeUser01 = VEvent.Attendee.create(VEvent.CUType.Individual, "", VEvent.Role.Chair,
@@ -248,6 +246,21 @@ public class CalendarLogServiceQueryTests {
 		assertEquals(event02.main.summary, list.get(1).content.description());
 		assertEquals(event03.main.summary, list.get(2).content.description());
 		assertEquals(event04.main.summary, list.get(3).content.description());
+	}
+
+	@Test
+	public void getLogsForCalendarTypeWith20Elements() throws InterruptedException {
+		for (int i = 0; i < 50; i++) {
+			getCalendarService(user01SecurityContext, user01CalendarContainer).create("test01_" + System.nanoTime(),
+					event01, sendNotifications);
+		}
+		AuditLogQuery logQuery = new AuditLogQuery();
+		logQuery.logtype = CALENDAR_LOGTYPE;
+		logQuery.size = 20;
+
+		ILogRequestService logRequestService = getLogQueryService(user01SecurityContext);
+		List<AuditLogEntry> list = logRequestService.queryAuditLog(logQuery);
+		assertEquals(20, list.size());
 	}
 
 	@Test

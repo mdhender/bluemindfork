@@ -43,9 +43,7 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.auditlogs.AuditLogUpdateStatus;
 import net.bluemind.core.auditlogs.ContentElement;
 import net.bluemind.core.auditlogs.ContentElement.ContentElementBuilder;
@@ -54,12 +52,12 @@ import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
 
 public class AccessControlEntryAuditLogMapper implements ILogMapperProvider<AccessControlEntry> {
 
-	private static final ObjectMapper objectMapper = new ObjectMapper();
 	private static final Logger logger = LoggerFactory.getLogger(AccessControlEntryAuditLogMapper.class);
 	private final Container container;
 
@@ -93,9 +91,9 @@ public class AccessControlEntryAuditLogMapper implements ILogMapperProvider<Acce
 
 		builder.description(sb.toString());
 		try {
-			String source = objectMapper.writeValueAsString(entry);
+			String source = JsonUtils.asString(entry);
 			builder.newValue(source);
-		} catch (JsonProcessingException e) {
+		} catch (ServerFault e) {
 			logger.error(e.getMessage());
 		}
 		return builder.build();
