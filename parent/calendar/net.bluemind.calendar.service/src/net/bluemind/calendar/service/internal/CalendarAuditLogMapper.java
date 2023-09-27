@@ -34,6 +34,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventSeries;
+import net.bluemind.core.auditlogs.AuditLogUpdateStatus;
 import net.bluemind.core.auditlogs.ContentElement;
 import net.bluemind.core.auditlogs.ContentElement.ContentElementBuilder;
 import net.bluemind.core.auditlogs.ILogMapperProvider;
@@ -52,11 +53,11 @@ public class CalendarAuditLogMapper implements ILogMapperProvider<VEventSeries> 
 		return buildContent(newValue);
 	}
 
-	public String createUpdateMessage(VEventSeries oldValue, VEventSeries newValue) {
+	public AuditLogUpdateStatus createUpdateMessage(VEventSeries oldValue, VEventSeries newValue) {
 		if (oldValue != null) {
-			return computeUpdateDifference(oldValue, newValue);
+			return new AuditLogUpdateStatus(computeUpdateDifference(oldValue, newValue));
 		}
-		return null;
+		return new AuditLogUpdateStatus();
 	}
 
 	private String computeUpdateDifference(VEventSeries oldValue, VEventSeries newValue) {

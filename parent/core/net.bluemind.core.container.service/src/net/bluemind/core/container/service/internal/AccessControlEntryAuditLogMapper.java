@@ -46,6 +46,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import net.bluemind.core.auditlogs.AuditLogUpdateStatus;
 import net.bluemind.core.auditlogs.ContentElement;
 import net.bluemind.core.auditlogs.ContentElement.ContentElementBuilder;
 import net.bluemind.core.auditlogs.ILogMapperProvider;
@@ -101,8 +102,8 @@ public class AccessControlEntryAuditLogMapper implements ILogMapperProvider<Acce
 	}
 
 	@Override
-	public String createUpdateMessage(AccessControlEntry oldValue, AccessControlEntry newValue) {
-		return null;
+	public AuditLogUpdateStatus createUpdateMessage(AccessControlEntry oldValue, AccessControlEntry newValue) {
+		return new AuditLogUpdateStatus();
 	}
 
 }

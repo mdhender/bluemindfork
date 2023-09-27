@@ -47,7 +47,7 @@ public class DefaultLogMapperProvider<T> implements ILogMapperProvider<T> {
 	}
 
 	@Override
-	public String createUpdateMessage(T oldValue, T newValue) {
-		return null;
+	public AuditLogUpdateStatus createUpdateMessage(T oldValue, T newValue) {
+		return new AuditLogUpdateStatus();
 	}
 }

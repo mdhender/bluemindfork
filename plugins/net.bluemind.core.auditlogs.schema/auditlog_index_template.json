@@ -100,6 +100,9 @@
             "updatemessage":{
                "type":"keyword"
             },
+            "messageCriticity":{	
+               "type":"keyword"
+            },
             "logtype":{
                "type":"keyword"
             }

@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.auditlogs.AuditLogEntry;
+import net.bluemind.core.auditlogs.AuditLogUpdateStatus;
 import net.bluemind.core.auditlogs.ILogMapperProvider;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
@@ -51,7 +52,7 @@ public class ItemValueAuditLogService<T> extends AuditLogService<ItemValue<T>, T
 	}
 
 	@Override
-	protected String createUpdateMessage(ItemValue<T> newValue, T oldValue) {
+	protected AuditLogUpdateStatus createUpdateStatus(ItemValue<T> newValue, T oldValue) {
 		return mapper.createUpdateMessage(oldValue, newValue.value);
 	}
 

@@ -20,6 +20,7 @@
 package net.bluemind.core.container.service.internal;
 
 import net.bluemind.core.auditlogs.AuditLogEntry;
+import net.bluemind.core.auditlogs.AuditLogUpdateStatus;
 import net.bluemind.core.auditlogs.ILogMapperProvider;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.context.SecurityContext;
@@ -45,7 +46,7 @@ public class ValueAuditLogService<T> extends AuditLogService<T, T> {
 	}
 
 	@Override
-	protected String createUpdateMessage(T newValue, T oldValue) {
+	protected AuditLogUpdateStatus createUpdateStatus(T newValue, T oldValue) {
 		return mapper.createUpdateMessage(oldValue, newValue);
 	}
 

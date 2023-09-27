@@ -20,6 +20,7 @@
 package net.bluemind.core.container.service.internal;
 
 import net.bluemind.core.auditlogs.AuditLogEntry;
+import net.bluemind.core.auditlogs.AuditLogUpdateStatus;
 import net.bluemind.core.context.SecurityContext;
 
 public class SecurityContextAuditLogService extends AuditLogService<SecurityContext, Void> {
@@ -37,8 +38,8 @@ public class SecurityContextAuditLogService extends AuditLogService<SecurityCont
 	}
 
 	@Override
-	protected String createUpdateMessage(SecurityContext newValue, Void oldValue) {
-		return null;
+	protected AuditLogUpdateStatus createUpdateStatus(SecurityContext newValue, Void oldValue) {
+		return new AuditLogUpdateStatus();
 	}
 
 }

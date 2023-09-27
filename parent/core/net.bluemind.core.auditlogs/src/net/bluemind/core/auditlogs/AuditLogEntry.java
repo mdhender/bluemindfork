@@ -24,6 +24,8 @@ import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import net.bluemind.core.auditlogs.AuditLogUpdateStatus.MessageCriticity;
+
 public class AuditLogEntry {
 
 	@JsonProperty("securitycontext")
@@ -44,6 +46,9 @@ public class AuditLogEntry {
 
 	@JsonProperty("@timestamp")
 	public Date timestamp = Date.from(Instant.now());
+
+	@JsonProperty("messageCriticity")
+	public MessageCriticity criticity;
 
 	public AuditLogEntry() {
 	}

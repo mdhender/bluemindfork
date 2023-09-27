@@ -27,19 +27,17 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.indexing.IMailIndexService;
+import net.bluemind.core.auditlogs.AuditLogUpdateStatus;
+import net.bluemind.core.auditlogs.AuditLogUpdateStatus.MessageCriticity;
 import net.bluemind.core.auditlogs.ContentElement;
 import net.bluemind.core.auditlogs.ContentElement.ContentElementBuilder;
 import net.bluemind.core.auditlogs.ILogMapperProvider;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
 
 public class DbMailboxRecordsAuditLogMapper implements ILogMapperProvider<MailboxRecord> {
-	private static final Logger logger = LoggerFactory.getLogger(DbMailboxRecordsAuditLogMapper.class);
 	private final IMailIndexService mailIndexService;
 	private final BaseContainerDescriptor container;
 
@@ -60,12 +58,28 @@ public class DbMailboxRecordsAuditLogMapper implements ILogMapperProvider<Mailbo
 	}
 
 	@Override
-	public String createUpdateMessage(MailboxRecord oldValue, MailboxRecord newValue) {
-		var tagDifference = new UpdateTagDifference(oldValue, newValue);
-//		if (!tagDifference.isTagDifference) {
-//			return null;
-//		}
-		return tagDifference.getUpdateMessage();
+	public AuditLogUpdateStatus createUpdateMessage(MailboxRecord oldValue, MailboxRecord newValue) {
+		List<MailboxItemFlag> oldFlags = oldValue.flags;
+		List<MailboxItemFlag> newFlags = newValue.flags;
+		List<MailboxItemFlag> removedFlags = oldFlags.stream().filter(element -> !newFlags.contains(element))
+				.collect(Collectors.toList());
+		List<MailboxItemFlag> addedFlags = newFlags.stream().filter(element -> !oldFlags.contains(element))
+				.collect(Collectors.toList());
+		StringBuilder stringBuilder = new StringBuilder();
+		if (!removedFlags.isEmpty()) {
+			stringBuilder.append("Removed Flags:\n")
+					.append(addedFlags.stream().map(MailboxItemFlag::toString).collect(Collectors.joining(",")))
+					.append("\n");
+		}
+		if (!addedFlags.isEmpty()) {
+			stringBuilder.append("Added Flags:\n")
+					.append(addedFlags.stream().map(MailboxItemFlag::toString).collect(Collectors.joining(",")))
+					.append("\n");
+		}
+		if (isMinorDifference(newFlags)) {
+			return new AuditLogUpdateStatus(stringBuilder.toString(), MessageCriticity.MINOR);
+		}
+		return new AuditLogUpdateStatus(stringBuilder.toString());
 	}
 
 	private ContentElement filterMessageBody(Map<String, Object> body, MailboxRecord newValue) {
@@ -123,44 +137,8 @@ public class DbMailboxRecordsAuditLogMapper implements ILogMapperProvider<Mailbo
 		return Collections.emptyList();
 	}
 
-	private class UpdateTagDifference {
-		private static final MailboxItemFlag DELETED_TAG = MailboxItemFlag.System.Deleted.value();
-		private List<MailboxItemFlag> oldFlags;
-		private List<MailboxItemFlag> newFlags;
-		public boolean isTagDifference = false;
-
-		public UpdateTagDifference(MailboxRecord oldValue, MailboxRecord newValue) {
-			oldFlags = oldValue.flags;
-			newFlags = newValue.flags;
-			isTagDifference = isTagDifference();
-		}
-
-		private boolean isTagDifference() {
-			// The Deleted flags are in old and new values -> no need for update detection
-			if (oldFlags.contains(DELETED_TAG) && newFlags.contains(DELETED_TAG)) {
-				return false;
-			}
-			return oldFlags.contains(DELETED_TAG) || newFlags.contains(DELETED_TAG);
-		}
-
-		public String getUpdateMessage() {
-			List<MailboxItemFlag> removedFlags = oldFlags.stream().filter(element -> !newFlags.contains(element))
-					.collect(Collectors.toList());
-			List<MailboxItemFlag> addedFlags = newFlags.stream().filter(element -> !oldFlags.contains(element))
-					.collect(Collectors.toList());
-			StringBuilder stringBuilder = new StringBuilder();
-			if (!removedFlags.isEmpty()) {
-				stringBuilder.append("Removed Flags:\n")
-						.append(addedFlags.stream().map(MailboxItemFlag::toString).collect(Collectors.joining(",")))
-						.append("\n");
-			}
-			if (!addedFlags.isEmpty()) {
-				stringBuilder.append("Added Flags:\n")
-						.append(addedFlags.stream().map(MailboxItemFlag::toString).collect(Collectors.joining(",")))
-						.append("\n");
-			}
-			return stringBuilder.toString();
-		}
+	private boolean isMinorDifference(List<MailboxItemFlag> newFlags) {
+		return newFlags.size() == 1 && newFlags.contains(MailboxItemFlag.System.Seen.value());
 	}
 
 }

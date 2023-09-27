@@ -47,6 +47,7 @@ import net.bluemind.backend.mail.replica.service.tests.compat.CyrusGUID;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.auditlogs.AuditLogEntry;
+import net.bluemind.core.auditlogs.AuditLogUpdateStatus.MessageCriticity;
 import net.bluemind.core.container.model.ChangeLogEntry.Type;
 import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemFlagFilter;
@@ -115,8 +116,10 @@ public class DbMailboxRecordsServiceLogTests extends AbstractMailboxRecordsServi
 				MailboxItemFlag.System.Answered.value());
 		mailRecord2.value.flags = Arrays.asList(MailboxItemFlag.System.Deleted.value(),
 				MailboxItemFlag.System.Seen.value());
+		mailRecord3.value.flags = Arrays.asList(MailboxItemFlag.System.Seen.value());
 		records.update(mailRecord1.uid, mailRecord1.value);
 		records.update(mailRecord2.uid, mailRecord2.value);
+		records.update(mailRecord3.uid, mailRecord3.value);
 
 		ESearchActivator.refreshIndex(AUDIT_LOG_DATASTREAM);
 
@@ -138,13 +141,19 @@ public class DbMailboxRecordsServiceLogTests extends AbstractMailboxRecordsServi
 						.must(TermQuery.of(t -> t.field("logtype").value("mailbox_records"))._toQuery())
 						.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
 				AuditLogEntry.class);
-		assertEquals(1L, response.hits().total().value());
+		assertEquals(2L, response.hits().total().value());
 
-		AuditLogEntry auditLogEntry = response.hits().hits().get(0).source();
+		AuditLogEntry firstAuditLogEntry = response.hits().hits().get(0).source();
+		AuditLogEntry secondAuditLogEntry = response.hits().hits().get(1).source();
 
-		assertEquals("first subject", auditLogEntry.content.description());
+		assertEquals("first subject", firstAuditLogEntry.content.description());
 		assertEquals("Removed Flags:\n\\Flagged,\\Answered\nAdded Flags:\n\\Flagged,\\Answered\n",
-				auditLogEntry.updatemessage);
+				firstAuditLogEntry.updatemessage);
+		assertEquals(MessageCriticity.MAJOR, firstAuditLogEntry.criticity);
+
+		assertEquals("third subject", secondAuditLogEntry.content.description());
+		assertEquals("Removed Flags:\n\\Seen\nAdded Flags:\n\\Seen\n", secondAuditLogEntry.updatemessage);
+		assertEquals(MessageCriticity.MINOR, secondAuditLogEntry.criticity);
 
 		response = esClient.search(s -> s //
 				.index(AUDIT_LOG_DATASTREAM) //
@@ -155,8 +164,8 @@ public class DbMailboxRecordsServiceLogTests extends AbstractMailboxRecordsServi
 						.must(TermQuery.of(t -> t.field("action").value(Type.Deleted.toString()))._toQuery()))),
 				AuditLogEntry.class);
 		assertEquals(1L, response.hits().total().value());
-		auditLogEntry = response.hits().hits().get(0).source();
-		assertEquals("second subject", auditLogEntry.content.description());
+		firstAuditLogEntry = response.hits().hits().get(0).source();
+		assertEquals("second subject", firstAuditLogEntry.content.description());
 	}
 
 	protected IDbMailboxRecords getService(SecurityContext ctx) {

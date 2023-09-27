@@ -19,10 +19,35 @@
 
 package net.bluemind.core.auditlogs;
 
-public interface ILogMapperProvider<T> {
+public class AuditLogUpdateStatus {
 
-	ContentElement createContentElement(T newValue);
+	public String updateMessage;
+	public MessageCriticity crit = MessageCriticity.MAJOR;
 
-	public AuditLogUpdateStatus createUpdateMessage(T oldValue, T newValue);
+	public enum MessageCriticity {
+		MINOR("minor"), MAJOR("major");
 
+		private String criticity;
+
+		private MessageCriticity(String c) {
+			this.criticity = c;
+		}
+
+		@Override
+		public String toString() {
+			return criticity;
+		}
+	}
+
+	public AuditLogUpdateStatus() {
+	}
+
+	public AuditLogUpdateStatus(String updateMessage) {
+		this.updateMessage = updateMessage;
+	}
+
+	public AuditLogUpdateStatus(String updateMessage, MessageCriticity crit) {
+		this.updateMessage = updateMessage;
+		this.crit = crit;
+	}
 }

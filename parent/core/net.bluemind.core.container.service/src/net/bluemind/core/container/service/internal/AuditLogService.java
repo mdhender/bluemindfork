@@ -24,6 +24,8 @@ import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.auditlogs.AuditLogEntry;
+import net.bluemind.core.auditlogs.AuditLogUpdateStatus;
+import net.bluemind.core.auditlogs.AuditLogUpdateStatus.MessageCriticity;
 import net.bluemind.core.auditlogs.ContainerElement;
 import net.bluemind.core.auditlogs.ContainerElement.ContainerElementBuilder;
 import net.bluemind.core.auditlogs.DefaultLogMapperProvider;
@@ -84,19 +86,23 @@ public abstract class AuditLogService<T, U> {
 	public void logCreate(T value) {
 		AuditLogEntry auditLogEntry = createAuditLogEntry(value);
 		auditLogEntry.action = Type.Created.name();
+		auditLogEntry.criticity = MessageCriticity.MAJOR;
 		store(auditLogEntry);
 	}
 
 	public void logUpdate(T value, U oldValue) {
 		AuditLogEntry auditLogEntry = createAuditLogEntry(value);
 		auditLogEntry.action = Type.Updated.name();
-		auditLogEntry.updatemessage = createUpdateMessage(value, oldValue);
+		AuditLogUpdateStatus updateStatus = createUpdateStatus(value, oldValue);
+		auditLogEntry.updatemessage = updateStatus.updateMessage;
+		auditLogEntry.criticity = updateStatus.crit;
 		store(auditLogEntry);
 	}
 
 	public void logDelete(T value) {
 		AuditLogEntry auditLogEntry = createAuditLogEntry(value);
 		auditLogEntry.action = Type.Deleted.name();
+		auditLogEntry.criticity = MessageCriticity.MAJOR;
 		store(auditLogEntry);
 	}
 
@@ -160,6 +166,6 @@ public abstract class AuditLogService<T, U> {
 
 	protected abstract AuditLogEntry createAuditLogEntry(T value);
 
-	protected abstract String createUpdateMessage(T newValue, U oldValue);
+	protected abstract AuditLogUpdateStatus createUpdateStatus(T newValue, U oldValue);
 
 }
