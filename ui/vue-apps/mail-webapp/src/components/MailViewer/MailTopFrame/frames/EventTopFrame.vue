@@ -82,14 +82,11 @@ export default {
 .event-wrapper {
     display: grid;
     background-color: $neutral-bg-lo1;
-    padding-bottom: $sp-4;
+    padding-bottom: $sp-5;
 
     > div {
         min-width: 0;
         min-height: 0;
-        @include from-lg {
-            gap: $sp-4;
-        }
     }
 }
 </style>

@@ -1,12 +1,11 @@
 <template>
-    <div v-if="files.length > 0" class="files-block">
-        <div class="expand-and-header">
+    <div v-if="files.length > 0" class="files-block" :class="{ 'block-expanded': isExpanded }">
+        <div class="expand-and-header" @click.prevent="toggleExpand">
             <bm-button-expand
                 :aria-label="$t('common.toggleAttachments')"
                 :title="$t('common.toggleAttachments')"
                 :expanded="isExpanded"
                 size="sm"
-                @click.prevent="toggleExpand"
             />
             <files-header :files="files" :max-size="maxSize" />
         </div>
@@ -123,6 +122,7 @@ export default {
 
 <style lang="scss">
 @use "sass:math";
+@import "~@bluemind/ui-components/src/css/utils/responsiveness";
 @import "~@bluemind/ui-components/src/css/utils/variables";
 @import "../MailViewer/variables.scss";
 
@@ -134,15 +134,37 @@ export default {
     padding-bottom: $sp-5;
     padding-left: $sp-2;
     padding-right: $inserts-padding-right;
+    @include until-lg {
+        padding-right: $sp-5;
+    }
     background-color: $neutral-bg-lo1;
 
     .expand-and-header {
         display: flex;
         gap: $sp-2;
+        @include until-lg {
+            gap: $sp-3;
+            padding-left: $sp-3;
+        }
+
+        .files-header {
+            flex: 1;
+            color: $neutral-fg;
+        }
+        &:hover .files-header {
+            color: $neutral-fg-hi1;
+            cursor: pointer;
+        }
+    }
+    &.block-expanded .expand-and-header .files-header {
+        color: $neutral-fg-hi1;
     }
 
     .files-row {
         margin-left: calc(#{$icon-btn-width-compact-sm + $sp-2} - #{math.div($grid-gutter-width, 2)});
+        @include until-lg {
+            margin-left: calc(#{$sp-5 - $sp-2} - #{math.div($grid-gutter-width, 2)});
+        }
         margin-right: math.div(-$grid-gutter-width, 2);
         row-gap: $grid-gutter-width;
     }

@@ -3,7 +3,7 @@ import { computed } from "vue";
 import EventHeader from "./EventHeader";
 import EventDetail from "./EventDetail";
 import EventFooter from "./EventFooter";
-import { STATUS_KEY_FOR_OCCURRENCE, STATUS_KEY_FOR_EVENT } from "./replyActions";
+import { STATUS_KEY_FOR_OCCURRENCE, STATUS_KEY_FOR_EVENT, REPLY_ACTIONS } from "./replyActions";
 
 const props = defineProps({
     message: { type: Object, required: true },
@@ -15,28 +15,28 @@ const fromAttendee = computed(() =>
 );
 const isOccurrence = computed(() => !!props.message.eventInfo.recuridIsoDate);
 
-const eventKey = computed(() =>
-    isOccurrence.value ? "mail.viewer.invitation.reply.occurrence" : "mail.viewer.invitation.reply.event"
-);
-const statusKey = computed(
-    () => (isOccurrence.value ? STATUS_KEY_FOR_OCCURRENCE : STATUS_KEY_FOR_EVENT)[fromAttendee.value.status]
-);
+const status = computed(() => fromAttendee.value.status);
+
+const eventKey = computed(() => {
+    const key = isOccurrence.value ? "mail.viewer.invitation.reply.occurrence" : "mail.viewer.invitation.reply.event";
+    return status.value === REPLY_ACTIONS.NEEDS_ACTION ? `${key}.not` : key;
+});
+const statusKey = computed(() => (isOccurrence.value ? STATUS_KEY_FOR_OCCURRENCE : STATUS_KEY_FOR_EVENT)[status.value]);
 </script>
 
 <template>
     <div class="event-replied">
         <event-header v-if="fromAttendee && statusKey">
-            <i18n :path="eventKey" tag="span" class="font-weight-bold event-replied-header">
+            <i18n :path="eventKey" tag="div" class="bold event-replied-header">
                 <template #name>{{ fromAttendee.name }}</template>
                 <template #status>
-                    <span :class="`event-replied-status event-replied-status-${fromAttendee.status.toLowerCase()}`">{{
-                        $t(statusKey)
-                    }}</span>
+                    <span :class="`event-replied-status event-replied-status-${status.toLowerCase()}`">
+                        {{ $t(statusKey) }}
+                    </span>
                 </template>
             </i18n>
         </event-header>
         <event-detail :event="event" :message="message" />
-        <event-footer :event="event" />
     </div>
 </template>
 
@@ -46,11 +46,13 @@ const statusKey = computed(
 .event-replied {
     display: flex;
     flex-direction: column;
-    gap: $sp-4;
 
     .event-replied-header {
         .event-replied-status-accepted {
             color: $success-fg-hi1;
+        }
+        .event-replied-status-needsaction {
+            color: $info-fg-hi1;
         }
         .event-replied-status-tentative {
             color: $warning-fg-hi1;

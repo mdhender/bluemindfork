@@ -1,53 +1,40 @@
 <script setup>
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import i18n from "@bluemind/i18n";
 import store from "@bluemind/store";
-import { darkifyHtml, darkifyingBaseLvalue, BmDropdown, BmDropdownItem, BmLabelIcon } from "@bluemind/ui-components";
+import { html2text } from "@bluemind/html-utils";
+import { BmDropdown, BmDropdownItem, BmLabelIcon } from "@bluemind/ui-components";
+import { Contact } from "@bluemind/business-components";
 import EventFooterSection from "./EventFooterSection.vue";
+import MailContactCardSlots from "../../MailContactCardSlots";
 
 const props = defineProps({ event: { type: Object, required: true } });
 
-const organizer = {
-    name: props.event.organizer.name,
-    text: props.event.organizer.mail,
-    detail: i18n.t("common.organizer")
-};
-const getAttendeesByCutype = cutype =>
-    props.event.attendees
-        ?.filter(attendee => attendee.cutype === cutype)
-        .map(({ name, mail }) => ({ name, text: mail })) ?? [];
-const individuals = computed(() => getAttendeesByCutype("Individual"));
-const resources = computed(() => getAttendeesByCutype("Resource"));
-const attendees = computed(() => [organizer, ...individuals.value]);
+const organizer = computed(() => props.event.organizer || {});
+const attendees = computed(() =>
+    [organizer.value, ...getAttendeesByCutype(props.event.attendees, "Individual")].map(attendee => ({
+        dn: attendee?.name,
+        address: attendee?.mail
+    }))
+);
+
+const resources = computed(() =>
+    getAttendeesByCutype(props.event.attendees, "Resource").map(({ name, mail }) => ({
+        name,
+        text: mail
+    }))
+);
+
+function getAttendeesByCutype(attendees = [], cutype) {
+    return attendees.filter(attendee => attendee.cutype === cutype);
+}
 
 const description = computed(() => {
     if (!props.event.sanitizedDescription) {
         return undefined;
     }
-
-    if (store.getters["settings/IS_COMPUTED_THEME_DARK"]) {
-        return darkify(props.event.sanitizedDescription);
-    }
-    return props.event.sanitizedDescription;
+    return html2text(props.event.sanitizedDescription);
 });
-
-function darkify(text) {
-    const customProperties = new Map();
-    const htmlDoc = new DOMParser().parseFromString(props.event.sanitizedDescription, "text/html");
-    darkifyHtml(htmlDoc, darkifyingBaseLvalue(), customProperties);
-
-    let cssStr = "\n.event-footer-description {\n";
-    for (const [key, value] of customProperties) {
-        cssStr += `    ${key}: ${value};\n`;
-    }
-    cssStr += "}\n";
-    const styleElement = document.createElement("style");
-    styleElement.innerHTML = cssStr;
-    const htmlBody = htmlDoc.documentElement.querySelector("body");
-    htmlBody.appendChild(styleElement);
-
-    return htmlBody.innerHTML;
-}
 
 function openConference() {
     window.open(props.event.conference);
@@ -59,16 +46,8 @@ function copyLink() {
 
 <template>
     <div class="event-footer">
-        <div>
-            <bm-dropdown
-                v-if="event.conference"
-                variant="fill-accent"
-                class="event-footer-conference"
-                text=""
-                split
-                right
-                @click="openConference"
-            >
+        <div v-if="event.conference">
+            <bm-dropdown variant="fill-accent" class="event-footer-conference" split right @click="openConference">
                 <template #button-content>
                     <bm-label-icon icon="video">
                         {{ $t("mail.viewer.invitation.conference") }}
@@ -79,10 +58,24 @@ function copyLink() {
         </div>
 
         <event-footer-section
-            v-if="attendees?.length"
-            :label="$tc('mail.viewer.invitation.attendee', attendees.length, { count: attendees.length })"
-            :entries="attendees"
-        />
+            :label="$tc('mail.viewer.invitation.attendee', attendees?.length, { count: attendees?.length })"
+        >
+            <div v-for="(attendee, index) in attendees" :key="index" class="d-flex">
+                <mail-contact-card-slots
+                    :component="Contact"
+                    :contact="attendee"
+                    no-avatar
+                    show-address
+                    transparent
+                    bold-dn
+                    enable-card
+                    class="text-truncate"
+                />
+                <div v-if="attendee.address === organizer.mail" class="organizer caption-bold">
+                    &nbsp;({{ $t("common.organizer") }})
+                </div>
+            </div>
+        </event-footer-section>
         <event-footer-section
             v-if="resources.length"
             :label="$tc('mail.viewer.invitation.resource', resources.length, { count: resources.length })"
@@ -100,10 +93,18 @@ function copyLink() {
 @import "~@bluemind/ui-components/src/css/utils/responsiveness";
 
 .event-footer {
-    padding: 0 $sp-5 0 $sp-2;
+    padding-top: $sp-5;
+    @include from-lg {
+        padding-top: $sp-4;
+        padding-left: $sp-2;
+    }
+    padding-right: $sp-5;
     display: flex;
     flex-direction: column;
-    gap: $sp-4;
+    gap: $sp-5;
+    @include from-lg {
+        gap: $sp-4;
+    }
 
     .event-footer-conference {
         margin: $sp-5 0 $sp-5 $sp-6 + $sp-3;
@@ -114,6 +115,11 @@ function copyLink() {
 
     .event-footer-description {
         word-wrap: break-word;
+    }
+    .organizer {
+        display: flex;
+        align-items: center;
+        color: $neutral-fg-lo1;
     }
 }
 </style>

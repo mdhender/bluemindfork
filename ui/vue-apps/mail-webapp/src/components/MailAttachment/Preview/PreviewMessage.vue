@@ -140,6 +140,10 @@ export default {
         display: flex;
         flex-direction: column;
         gap: $sp-4;
+
+        .files-header {
+            color: $neutral-fg-hi1;
+        }
     }
 }
 </style>

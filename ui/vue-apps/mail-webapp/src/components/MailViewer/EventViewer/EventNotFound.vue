@@ -7,7 +7,7 @@ import { BmIllustration } from "@bluemind/ui-components";
         <bm-illustration class="d-flex d-lg-none flex-shrink-0" over-background value="calendar-error" size="xxs" />
         <bm-illustration class="d-none d-lg-flex mx-5" over-background value="calendar-error" size="xs" />
 
-        <i18n path="mail.viewer.invitation.not_found.event" tag="div" class="font-weight-bold">
+        <i18n path="mail.viewer.invitation.not_found.event" tag="div" class="bold">
             <template #status>
                 <span class="event-not-found-status">{{ $t("mail.viewer.invitation.not_found.status") }}</span>
             </template>

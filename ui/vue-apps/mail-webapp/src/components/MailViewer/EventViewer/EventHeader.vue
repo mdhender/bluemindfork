@@ -1,11 +1,9 @@
 <template functional>
     <div class="event-header">
-        <div class="label pl-3">
+        <div class="label">
             <slot name="default" />
         </div>
-        <div class="actions">
-            <slot name="actions" />
-        </div>
+        <slot name="actions" />
     </div>
 </template>
 
@@ -14,30 +12,33 @@
 @import "~@bluemind/ui-components/src/css/utils/variables";
 
 .event-header {
+    padding: $sp-5;
+    @include from-lg {
+        padding-left: base-px-to-rem(26);
+    }
+
     @include until-lg {
         display: grid;
-        gap: $sp-4;
     }
     @include from-lg {
         display: flex;
         flex-wrap: wrap;
-        gap: $sp-4;
         align-items: center;
-        padding: $sp-5 $sp-5 $sp-5 $sp-6;
-        .label {
-            text-align: center;
-        }
     }
-    border-width: 1px 0 1px 0;
+
+    border-width: 1px 0;
     border-style: solid;
     border-color: $neutral-fg-lo3;
     padding: $sp-5;
     justify-content: space-between;
     background-color: $neutral-bg;
-    min-height: 50px;
+    min-height: base-px-to-rem(38);
+    @include from-lg {
+        min-height: base-px-to-rem(52);
+    }
 
-    .label {
-        line-height: $line-height-sm;
+    .actions {
+        min-width: 0;
     }
 }
 </style>

@@ -14,9 +14,14 @@ const props = defineProps({
         default: null,
         validator: value =>
             !value ||
-            ["edited", "countered", REPLY_ACTIONS.ACCEPTED, REPLY_ACTIONS.TENTATIVE, REPLY_ACTIONS.DECLINED].includes(
-                value
-            )
+            [
+                "edited",
+                "countered",
+                REPLY_ACTIONS.ACCEPTED,
+                REPLY_ACTIONS.TENTATIVE,
+                REPLY_ACTIONS.DECLINED,
+                REPLY_ACTIONS.NEEDS_ACTION
+            ].includes(value)
     }
 });
 
@@ -25,7 +30,8 @@ const iconStatus = {
     countered: "interrogation",
     [REPLY_ACTIONS.ACCEPTED]: "check",
     [REPLY_ACTIONS.TENTATIVE]: "interrogation",
-    [REPLY_ACTIONS.DECLINED]: "cross"
+    [REPLY_ACTIONS.DECLINED]: "cross",
+    [REPLY_ACTIONS.NEEDS_ACTION]: "interrogation"
 };
 
 const dateStart = computed(() => (props.date ? new Date(props.date) : null));
@@ -46,7 +52,9 @@ const dateStart = computed(() => (props.date ? new Date(props.date) : null));
                 v-if="status"
                 :icon="iconStatus[status]"
                 class="event-calendar-illustration-icon-status"
-                :class="{ 'event-calendar-illustration-countered': status === 'countered' }"
+                :class="{
+                    'event-calendar-illustration-countered': ['countered', REPLY_ACTIONS.NEEDS_ACTION].includes(status)
+                }"
             />
             <bm-icon v-if="isRecurring" icon="repeat" class="event-calendar-illustration-icon-repeat" />
         </div>

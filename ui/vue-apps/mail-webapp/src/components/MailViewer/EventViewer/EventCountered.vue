@@ -33,7 +33,7 @@ const statusKey = computed(
 <template>
     <div class="event-countered">
         <event-header v-if="event.counter">
-            <i18n :path="eventKey" tag="span" class="font-weight-bold">
+            <i18n :path="eventKey" tag="div" class="bold">
                 <template #name>{{ fromAttendee.name }}</template>
                 <template #status>
                     <span
@@ -63,7 +63,7 @@ const statusKey = computed(
         </event-header>
 
         <event-header v-else>
-            <span class="font-weight-bold"> {{ $t("mail.viewer.invitation.counter.answered") }}</span>
+            <span class="bold"> {{ $t("mail.viewer.invitation.counter.answered") }}</span>
         </event-header>
 
         <event-detail :event="event" :message="message" />
@@ -80,10 +80,14 @@ const statusKey = computed(
     gap: $sp-4;
 
     .counter-buttons {
-        flex-basis: 100%;
         display: flex;
-        gap: $sp-6;
+        gap: $sp-4 ($sp-5 + $sp-3 + $sp-2);
         flex-wrap: wrap;
+
+        .bm-toggleable-button {
+            min-width: 0;
+            flex: 0 1 auto;
+        }
 
         .b-skeleton-button {
             height: base-px-to-rem(30);

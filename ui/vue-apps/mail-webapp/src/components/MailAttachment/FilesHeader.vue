@@ -1,6 +1,6 @@
 <template>
     <div v-if="maxSize" class="files-header">
-        <bm-icon icon="paper-clip" :class="paperClipColor" />
+        <bm-icon icon="paper-clip" />
         <div class="size-info bold" :class="isTooHeavy ? 'text-danger' : ''">
             <div>
                 {{ $tc("common.attachments", files.length, { count: files.length }) }}
@@ -56,14 +56,6 @@ export default {
                 color = "warning";
             }
             return color;
-        },
-        paperClipColor() {
-            if (this.isTooHeavy) {
-                return "text-danger";
-            } else if (this.isHeavy) {
-                return "text-warning";
-            }
-            return "";
         },
         isTooHeavy() {
             return this.filesWeight > this.maxSize;

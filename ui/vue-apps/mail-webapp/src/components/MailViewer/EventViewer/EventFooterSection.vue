@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from "vue";
+import { ref } from "vue";
 import { BmButtonExpand } from "@bluemind/ui-components";
 
 const props = defineProps({
@@ -11,10 +11,10 @@ const expanded = ref(false);
 </script>
 
 <template>
-    <div class="event-footer-section">
-        <div class="event-footer-section-header">
-            <bm-button-expand :expanded="expanded" @click.prevent="expanded = !expanded" />
-            <span class="font-weight-bold">
+    <div class="event-footer-section" :class="{ 'section-expanded': expanded }">
+        <div class="event-footer-section-header" @click.prevent="expanded = !expanded">
+            <bm-button-expand :expanded="expanded" size="sm" />
+            <span class="bold">
                 {{ label }}
             </span>
         </div>
@@ -22,9 +22,8 @@ const expanded = ref(false);
             <slot>
                 <div v-for="(entry, index) in entries" :key="index" class="event-footer-entry">
                     <span class="text-truncate">
-                        <span class="font-weight-bold">{{ entry.name }}</span> &lt;{{ entry.text }}&gt;
+                        <span class="bold">{{ entry.name }}</span> &lt;{{ entry.text }}&gt;
                     </span>
-                    <span v-if="entry.detail" class="font-weight-bold">({{ entry.detail }})</span>
                 </div>
             </slot>
         </div>
@@ -32,6 +31,7 @@ const expanded = ref(false);
 </template>
 
 <style lang="scss">
+@import "~@bluemind/ui-components/src/css/utils/responsiveness";
 @import "~@bluemind/ui-components/src/css/utils/variables";
 
 .event-footer-section {
@@ -42,19 +42,39 @@ const expanded = ref(false);
     .event-footer-section-header {
         display: flex;
         align-items: center;
+        gap: $sp-2;
+        @include until-lg {
+            gap: $sp-3;
+            padding-left: $sp-3 + $sp-2;
+        }
+        cursor: pointer;
+        color: $neutral-fg;
+        &:hover {
+            color: $neutral-fg-hi1;
+        }
     }
+    &.section-expanded .event-footer-section-header {
+        color: $neutral-fg-hi1;
+    }
+
     .event-footer-section-body {
         display: flex;
         flex-direction: column;
         gap: $sp-3;
-        padding: 0 0 $sp-2 $sp-6;
+        padding-bottom: $sp-2;
+        padding-left: $sp-5;
+        @include from-lg {
+            padding-left: $icon-btn-width-compact-sm + $sp-2;
+        }
 
         .event-footer-entry {
-            margin-left: $sp-2;
             display: flex;
+            align-items: baseline;
             color: $neutral-fg;
             gap: $sp-4;
-            line-height: $line-height-sm;
+            .caption-bold {
+                color: $neutral-fg-lo1;
+            }
         }
     }
 }

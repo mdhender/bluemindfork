@@ -1,10 +1,11 @@
 <script setup>
 import { computed } from "vue";
-import { BmIcon, BmLabelIcon } from "@bluemind/ui-components";
+import { BmIcon } from "@bluemind/ui-components";
 import { messageUtils } from "@bluemind/mail";
 import EventCalendarIllustration from "./EventCalendarIllustration.vue";
 import { formatEventDates } from "./formatEventDates";
-
+import EventHelper from "~/store/helpers/EventHelper";
+import { REPLY_ACTIONS } from "./replyActions";
 const { MessageHeader } = messageUtils;
 
 const props = defineProps({
@@ -12,7 +13,9 @@ const props = defineProps({
     message: { type: Object, required: true }
 });
 
-const eventValue = computed(() => props.event.serverEvent?.value?.main);
+const eventValue = computed(
+    () => props.event.serverEvent && EventHelper.eventInfos(props.event.serverEvent, props.event.recuridIsoDate)
+);
 const eventTimeRange = computed(() => {
     const dtstart = eventValue.value?.dtstart;
     const dtend = eventValue.value?.dtend;
@@ -37,53 +40,60 @@ const calendarStatus = computed(() => {
     if (counterTimeRange.value) {
         return "countered";
     }
-    // TODO need a specific header to detect that an event has been edited
-    // if (hasHeader(MessageHeader.X_BM_EVENT_XXX)) {
-    //     return "edited";
-    // }
+
+    if (hasHeader(MessageHeader.X_BM_EVENT)) {
+        return props.event?.status && props.event?.status !== REPLY_ACTIONS.NEEDS_ACTION ? props.event?.status : null;
+    }
+
     if (hasHeader(MessageHeader.X_BM_EVENT_REPLIED)) {
-        return props.event.attendees?.find(attendee => attendee.mail === props.message.from.address)?.status ?? null;
+        return props.event?.attendees?.find(attendee => attendee.mail === props.message.from.address)?.status ?? null;
     }
     return null;
 });
-
-const isRecurring = computed(() => Boolean(eventValue.value?.rrule));
-const withDetails = computed(() => !!(isRecurring.value || eventValue.value?.location || eventValue.value?.url));
+const isReply = computed(() => hasHeader(MessageHeader.X_BM_EVENT_REPLIED));
+const isRecurring = computed(() => Boolean(props.event.serverEvent?.value?.main?.rrule));
+const withDetails = computed(
+    () =>
+        !!(isRecurring.value || eventValue.value?.location || eventValue.value?.url) &&
+        (!isReply.value || isRecurring.value)
+);
 </script>
 
 <template>
     <div class="event-detail" :class="{ 'with-details': withDetails }">
         <event-calendar-illustration
             :status="calendarStatus"
-            :date="event.counter?.dtstart.iso8601 ?? eventValue?.dtstart.iso8601"
+            :date="eventValue?.counter?.dtstart.iso8601 ?? eventValue?.dtstart.iso8601"
             :is-recurring="isRecurring"
         />
         <div class="event-row-icon summary">
-            <bm-icon v-if="event.private" icon="lock-fill" class="mr-2" />
+            <bm-icon v-if="event.private" icon="lock-fill" />
             <h3>{{ event.summary }}</h3>
         </div>
         <div class="event-time title">
-            <span :class="{ 'event-time-current': counterTimeRange }">
+            <span :class="{ 'event-time-current regular': counterTimeRange }">
                 {{ eventTimeRange }}
             </span>
 
-            <bm-icon v-if="counterTimeRange" icon="chevron-right" size="xs" />
-            <span v-if="counterTimeRange" class="event-time-counter">
-                {{ counterTimeRange }}
-            </span>
+            <div v-if="counterTimeRange" class="event-time-counter">
+                <bm-icon icon="forward" size="xs" />
+                <span>
+                    {{ counterTimeRange }}
+                </span>
+            </div>
         </div>
         <div v-if="withDetails" class="details d-flex flex-column">
             <div v-if="isRecurring" class="event-row-icon">
-                <bm-icon icon="repeat" class="mr-2" />
+                <bm-icon icon="repeat" />
                 <span>{{ event.date }}</span>
             </div>
-            <div v-if="event.location" class="event-row-icon">
-                <bm-icon icon="location" class="mr-2" />
-                <span>{{ event.location }}</span>
+            <div v-if="!isReply && event.location" class="event-row-icon">
+                <bm-icon icon="location" />
+                <span>{{ eventValue.location }}</span>
             </div>
-            <div v-if="event.url" class="event-row-icon">
-                <bm-icon icon="link" class="mr-2" />
-                <span>{{ event.url }}</span>
+            <div v-if="!isReply && event.url" class="event-row-icon">
+                <bm-icon icon="link" />
+                <a class="event-link" :href="eventValue.url" target="_blank">{{ eventValue.url }}</a>
             </div>
         </div>
     </div>
@@ -92,37 +102,43 @@ const withDetails = computed(() => !!(isRecurring.value || eventValue.value?.loc
 <style lang="scss">
 @import "~@bluemind/ui-components/src/css/utils/variables";
 @import "~@bluemind/ui-components/src/css/utils/responsiveness";
+@import "~@bluemind/ui-components/src/css/utils/text";
 
 .event-detail {
-    display: grid;
-    padding: 0 $sp-5 $sp-5 $sp-5;
-    align-items: center;
+    padding: 0 $sp-5;
 
-    @include until-lg {
-        $row-time-height: $sp-6 + $sp-3;
-        $row-title-height: $sp-7 + $sp-5;
-        padding: $sp-5;
-        &.with-details {
-            grid-template-areas:
-                "illustration  summary"
-                "illustration  time"
-                "details  details";
-            margin-left: 0;
-            gap: $sp-5;
-        }
-
-        grid-template-columns: 75px 1fr;
-        grid-template-rows: $row-title-height $row-time-height auto;
+    padding-top: $sp-5;
+    @include from-lg {
+        padding-top: $sp-4;
     }
-    row-gap: $sp-4;
+
+    display: grid;
+    align-items: center;
+    row-gap: $sp-5;
+    @include from-lg {
+        row-gap: $sp-4;
+    }
     column-gap: $sp-6;
     grid-template-areas:
         "illustration summary"
         "illustration time";
 
+    @include until-lg {
+        $row-time-height: $sp-6 + $sp-3;
+        $row-title-height: $sp-7 + $sp-5;
+        &.with-details {
+            grid-template-areas:
+                "illustration summary"
+                "illustration time"
+                "details details";
+            margin-left: 0;
+        }
+
+        grid-template-columns: map-get($illustration-width, "xxs") minmax(0, 1fr);
+    }
+
     @include from-lg {
         &.with-details {
-            grid-template-rows: repeat(3, auto);
             grid-template-areas:
                 "illustration summary"
                 "illustration time"
@@ -130,8 +146,7 @@ const withDetails = computed(() => !!(isRecurring.value || eventValue.value?.loc
         }
     }
 
-    grid-template-columns: 120px 1fr;
-    grid-template-rows: repeat(2, auto);
+    grid-template-columns: calc(#{map-get($illustration-width, "xs")} + #{2 * $sp-5}) minmax(0, 1fr);
     .event-calendar-illustration {
         grid-area: illustration;
         justify-self: center;
@@ -139,51 +154,79 @@ const withDetails = computed(() => !!(isRecurring.value || eventValue.value?.loc
     }
     .event-row-icon {
         display: flex;
-        align-items: baseline;
+        align-items: start;
         flex-wrap: nowrap;
         gap: $sp-4;
         line-height: $line-height;
         width: 100%;
-        & > svg {
-            translate: 0 $sp-2;
+    }
+    a.event-link {
+        color: $neutral-fg;
+        &:hover {
+            color: $neutral-fg-hi1;
         }
+        @include text-overflow;
     }
     .summary {
         grid-area: summary;
-        color: $primary-fg-hi1;
+        align-self: end;
+        color: $primary-fg;
         padding-top: $sp-3;
         & > h3 {
             margin-bottom: 0;
             overflow: hidden;
             display: -webkit-box;
-            -webkit-line-clamp: 3;
+            -webkit-line-clamp: 4;
             -webkit-box-orient: vertical;
         }
     }
     .event-time.title {
+        grid-area: time;
+        align-self: start;
         margin-bottom: 0;
 
+        @include until-lg {
+            margin-top: $sp-4 - $sp-5; // negative margin intentional
+        }
+
         display: flex;
-        gap: $sp-4;
-        align-items: center;
+        gap: $sp-2 $sp-3;
+        @include from-lg {
+            gap: $sp-3 $sp-4;
+        }
+        align-items: baseline;
+        flex-wrap: wrap;
 
         .event-time-current {
-            font-size: 13px;
-            font-weight: 400;
-            line-height: 16px;
+            color: $neutral-fg-lo1;
         }
 
         .event-time-counter {
-            margin-left: $sp-1;
-            color: $info-fg-hi1;
+            display: flex;
+            gap: $sp-1 + $sp-3;
+            @include from-lg {
+                gap: $sp-2 + $sp-4;
+            }
+            align-items: baseline;
+            > .bm-icon {
+                color: $neutral-fg-lo1;
+                position: relative;
+                bottom: base-px-to-rem(-1);
+            }
+            > span {
+                margin-left: $sp-1;
+                color: $info-fg-hi1;
+            }
         }
     }
     .details {
         grid-area: details;
-        padding-bottom: $sp-3;
+        @include from-lg {
+            padding-bottom: $sp-3;
+        }
         gap: $sp-4;
         @include until-lg {
-            margin-top: $sp-2;
+            gap: $sp-5;
         }
     }
 }

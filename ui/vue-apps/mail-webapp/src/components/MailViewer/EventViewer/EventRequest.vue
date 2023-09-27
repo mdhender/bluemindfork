@@ -23,7 +23,7 @@ const setEventStatus = status => store.dispatch(`mail/${SET_EVENT_STATUS}`, { me
 
 <template>
     <div class="event-request">
-        <event-header v-if="message.eventInfo.needsReply">
+        <event-header>
             {{ $t("mail.viewer.invitation.request") }}
 
             <template #actions>
@@ -48,15 +48,28 @@ const setEventStatus = status => store.dispatch(`mail/${SET_EVENT_STATUS}`, { me
 </template>
 
 <style lang="scss">
+@import "~@bluemind/ui-components/src/css/utils/typography";
 @import "~@bluemind/ui-components/src/css/utils/variables";
 
 .event-request {
     display: flex;
     flex-direction: column;
 
+    .event-header {
+        gap: $sp-4;
+        .label {
+            @include regular;
+        }
+    }
+
     .reply-buttons {
         display: flex;
-        gap: $sp-6;
+        gap: $sp-5 + $sp-3 + $sp-2;
+
+        .bm-toggleable-button {
+            min-width: 0;
+            flex: 0 1 auto;
+        }
 
         .b-skeleton-button {
             height: base-px-to-rem(30);
