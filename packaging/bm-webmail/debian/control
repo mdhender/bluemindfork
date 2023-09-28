@@ -6,6 +6,6 @@ Standards-Version: 3.9.1
 
 Package: bm-webmail
 Architecture: amd64
-Depends: bm-postgresql (= 15.4-bluemind243), bm-nginx (= 1.24.0-bluemind109), bm-php (= 5.6.40-bluemind115), tzdata, memcached, bm-plugin-core-webmail (= ${binary:Version})
+Depends: bm-postgresql (= 15.4-bluemind244), bm-nginx (= 1.24.0-bluemind109), bm-php (= 5.6.40-bluemind115), tzdata, memcached, bm-plugin-core-webmail (= ${binary:Version})
 Description: BlueMind webmail (Roundcube)
  BlueMind webmail (Roundcube: http://roundcube.net/)
