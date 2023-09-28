@@ -66,7 +66,7 @@ public class RealmAdapter {
 		realm.supportedLocales = supportedLocales;
 		realm.defaultLocale = getDomainLocale(domainUid);
 
-		realm.accessCodeLifespanLogin = Duration.ofDays(1).toSeconds();
+		realm.accessCodeLifespanLogin = Duration.ofDays(30).toSeconds();
 		realm.accessTokenLifespan = Duration.ofHours(1).toSeconds();
 
 		realm.ssoSessionIdleTimeout = Duration.ofDays(1).toSeconds();
