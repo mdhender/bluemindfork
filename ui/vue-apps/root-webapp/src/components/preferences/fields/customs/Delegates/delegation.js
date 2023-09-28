@@ -6,17 +6,17 @@ import { inject } from "@bluemind/inject";
 import store from "@bluemind/store";
 
 const getContainers = () => store.state.preferences.containers;
+const getUserId = () => inject("UserSession").userId;
 
-const userId = inject("UserSession").userId;
 const mailboxUid = computed(() => getContainers().myMailboxContainer.uid);
 const calendarUid = computed(
-    () => getContainers().myCalendars.find(({ uid }) => uid === `calendar:Default:${userId}`)?.uid
+    () => getContainers().myCalendars.find(({ uid }) => uid === `calendar:Default:${getUserId()}`)?.uid
 );
 const addressBookUid = computed(
-    () => getContainers().myAddressbooks.find(({ uid }) => uid === `book:Contacts_${userId}`)?.uid
+    () => getContainers().myAddressbooks.find(({ uid }) => uid === `book:Contacts_${getUserId()}`)?.uid
 );
 const todoListUid = computed(
-    () => getContainers().myTodoLists.find(({ uid }) => uid === `todolist:default_${userId}`)?.uid
+    () => getContainers().myTodoLists.find(({ uid }) => uid === `todolist:default_${getUserId()}`)?.uid
 );
 
 const fetchAcl = async uid => {
@@ -182,7 +182,7 @@ const getMailboxFilter = async userId => {
 };
 
 export const addDelegateToCopyImipMailboxRule = async ({ uid, address }) => {
-    const mailboxFilter = await getMailboxFilter(userId);
+    const mailboxFilter = await getMailboxFilter(getUserId());
     let copyImipMailboxRule = mailboxFilter.rules.find(matchCopyImipMailboxRule);
     const copyImipAction = {
         name: "REDIRECT",
@@ -217,19 +217,19 @@ export const addDelegateToCopyImipMailboxRule = async ({ uid, address }) => {
         ]
     });
 
-    await inject("MailboxesPersistence").setMailboxFilter(userId, mailboxFilter);
+    await inject("MailboxesPersistence").setMailboxFilter(getUserId(), mailboxFilter);
     cachedMailboxFilter = mailboxFilter;
 };
 
 export const hasCopyImipMailboxRuleAction = async uid => {
-    const mailboxFilter = await getMailboxFilter(userId);
+    const mailboxFilter = await getMailboxFilter(getUserId());
     return mailboxFilter.rules
         .find(matchCopyImipMailboxRule)
         ?.actions.some(a => matchCopyImipActionForDelegate(a, uid));
 };
 
 export const removeDelegateFromCopyImipMailboxRule = async uid => {
-    const mailboxFilter = await getMailboxFilter(userId);
+    const mailboxFilter = await getMailboxFilter(getUserId());
     const copyImipMailboxRuleIndex = mailboxFilter.rules.findIndex(matchCopyImipMailboxRule);
     if (copyImipMailboxRuleIndex > -1) {
         const copyImipMailboxRule = mailboxFilter.rules[copyImipMailboxRuleIndex];
@@ -242,7 +242,7 @@ export const removeDelegateFromCopyImipMailboxRule = async uid => {
             } else if (filteredActions.length < copyImipMailboxRule.actions.length) {
                 copyImipMailboxRule.actions = filteredActions;
             }
-            inject("MailboxesPersistence").setMailboxFilter(userId, mailboxFilter);
+            inject("MailboxesPersistence").setMailboxFilter(getUserId(), mailboxFilter);
             cachedMailboxFilter = null;
         }
     }

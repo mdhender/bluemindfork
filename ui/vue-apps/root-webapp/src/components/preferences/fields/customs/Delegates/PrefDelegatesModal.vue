@@ -277,6 +277,7 @@ export default {
         },
         init() {
             this.containerRightsChanged = false;
+            this.copyImipToDelegateChanged = false;
             if (!this.delegate) {
                 this.selectedContacts = [];
             }
@@ -327,9 +328,9 @@ export default {
             }
 
             await Promise.all(promises);
-            this.$store.dispatch(`alert/${SUCCESS}`, SAVE_ALERT);
-            fetchAcls();
             this.$refs.delegatesModal.hide();
+            await fetchAcls();
+            this.$store.dispatch(`alert/${SUCCESS}`, SAVE_ALERT);
         },
         rights(container) {
             return [

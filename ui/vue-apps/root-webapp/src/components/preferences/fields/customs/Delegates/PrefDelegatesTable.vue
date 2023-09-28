@@ -1,10 +1,13 @@
 <script setup>
 import { computed, ref, watch, watchEffect } from "vue";
+import { SUCCESS } from "@bluemind/alert.store";
+import { SAVE_ALERT } from "../../../Alerts/defaultAlerts";
 import { Contact } from "@bluemind/business-components";
 import { DirEntryAdaptor } from "@bluemind/contact";
 import { Verb } from "@bluemind/core.container.api";
 import i18nInstance from "@bluemind/i18n";
 import { inject } from "@bluemind/inject";
+import store from "@bluemind/store";
 import { matchPattern } from "@bluemind/string";
 import { BmFormInput, BmIcon, BmIconButton, BmModal, BmPagination, BmTable } from "@bluemind/ui-components";
 import {
@@ -91,8 +94,9 @@ const remove = async contact => {
     deletedDelegate.value = contact?.dn || contact?.address;
     confirmDeleteModal.value.onOk = async () => {
         await removeDelegate(contact.uid);
-        fetchAcls();
         confirmDeleteModal.value.hide();
+        await fetchAcls();
+        store.dispatch(`alert/${SUCCESS}`, SAVE_ALERT);
     };
     confirmDeleteModal.value.show();
 };

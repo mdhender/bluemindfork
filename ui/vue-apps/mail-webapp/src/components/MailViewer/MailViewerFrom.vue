@@ -52,7 +52,7 @@ export default {
             };
         },
         showSender() {
-            return this.message.sender && this.message.sender.address != this.message.from.address;
+            return this.message.sender?.address && this.message.sender.address != this.message.from.address;
         }
     }
 };

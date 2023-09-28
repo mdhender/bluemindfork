@@ -22,7 +22,7 @@
                 "error": "Failed to empty folder \"{name}\"."
             },
             "event_not_found": {
-                "warning": "This message references an event which does not exist"
+                "warning": "Unable to access this event's information. It may have been deleted, or you do not have permissions to the calendar in which it is located."
             },
             "mark_conversations_as_flagged": {
                 "loading": "Conversation is being flagged...|Conversations are being flagged...",

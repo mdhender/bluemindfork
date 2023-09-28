@@ -1,17 +1,23 @@
 import { Verb } from "@bluemind/core.container.api";
 import { MimeType } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
+import { loadCalendarUrls } from "../ManageContainerSharesModal/ExternalShareHelper";
+import { isDefault } from "../container";
 
-export const CalendarAcl = {
-    CANT_INVITE_ME: 0,
-    CAN_INVITE_ME: 1,
-    CAN_SEE_MY_AVAILABILITY: 2,
-    CAN_SEE_MY_EVENTS: 3,
-    CAN_EDIT_MY_EVENTS: 4,
-    CAN_MANAGE_SHARES: 5
+export const CalendarRight = {
+    CANT_INVITE_ME: 1,
+    CAN_INVITE_ME: 2,
+    CAN_SEE_MY_AVAILABILITY: 3,
+    CAN_SEE_MY_EVENTS: 4,
+    CAN_EDIT_MY_EVENTS: 5,
+    CAN_MANAGE_SHARES: 6
 };
 
 const HANDLED_VERBS = [Verb.All, Verb.Manage, Verb.Write, Verb.Read, Verb.Invitation];
+
+// do not lose Access Controls with other verbs than HANDLED_VERBS
+let otherAcl = [];
+let otherFreebusyAcl = [];
 
 export default {
     matchingIcon: () => "calendar",
@@ -19,102 +25,152 @@ export default {
     allowedFileTypes: () => MimeType.TEXT_CALENDAR || MimeType.ICS || MimeType.TEXT_PLAIN,
     importFileRequest: (containerUid, file, uploadCanceller) =>
         inject("VEventPersistence", containerUid).importIcs(file, uploadCanceller),
-    buildDefaultDirEntryAcl: dirEntry => [{ subject: dirEntry.uid, verb: Verb.Invitation }],
-    defaultDomainAcl: [],
-    getOptions: (i18n, isMyDefaultCalendar) => {
+    defaultUserRight: CalendarRight.CAN_EDIT_MY_EVENTS,
+    defaultDomainRight: CalendarRight.CAN_INVITE_ME,
+    maxRight: CalendarRight.CAN_MANAGE_SHARES,
+    readRight: CalendarRight.CAN_SEE_MY_EVENTS,
+    getOptions: (i18n, container) => {
         const options = [
             {
                 text: i18n.t("preferences.calendar.my_calendars.cant_invite_me_to_a_meeting"),
-                value: CalendarAcl.CANT_INVITE_ME
+                value: CalendarRight.CANT_INVITE_ME
             },
             {
                 text: i18n.t("preferences.calendar.my_calendars.can_invite_me_to_a_meeting"),
-                value: CalendarAcl.CAN_INVITE_ME
+                value: CalendarRight.CAN_INVITE_ME
             },
             {
                 text: i18n.t("preferences.calendar.my_calendars.can_invite_me_to_a_meeting_and_see_my_events"),
-                value: CalendarAcl.CAN_SEE_MY_EVENTS
+                value: CalendarRight.CAN_SEE_MY_EVENTS
             },
             {
                 text: i18n.t("preferences.calendar.my_calendars.can_edit_my_events"),
-                value: CalendarAcl.CAN_EDIT_MY_EVENTS
+                value: CalendarRight.CAN_EDIT_MY_EVENTS
             },
             {
                 text: i18n.t("preferences.calendar.my_calendars.can_edit_my_events_and_manage_shares"),
-                value: CalendarAcl.CAN_MANAGE_SHARES
+                value: CalendarRight.CAN_MANAGE_SHARES
             }
         ];
-        if (isMyDefaultCalendar) {
+        if (container.owner === inject("UserSession").userId && isDefault(container.uid)) {
             options.splice(2, 0, {
                 text: i18n.t("preferences.calendar.my_calendars.can_invite_me_to_a_meeting_and_see_my_availability"),
-                value: CalendarAcl.CAN_SEE_MY_AVAILABILITY
+                value: CalendarRight.CAN_SEE_MY_AVAILABILITY
             });
         }
         return options;
     },
-    aclToOption(acl, isFreebusy = false) {
-        const verbs = acl.map(({ verb }) => verb);
+    async loadRights(container) {
+        const allAcl = await inject("ContainerManagementPersistence", container.uid).getAccessControlList();
+        const aclReducer = (res, ac) => {
+            HANDLED_VERBS.includes(ac.verb) ? res[0].push(ac) : res[1].push(ac);
+            return res;
+        };
+        const [acl, other] = allAcl.reduce(aclReducer, [[], []]);
+        otherAcl = other;
 
-        if (verbs.includes(Verb.All) || (verbs.includes(Verb.Write) && verbs.includes(Verb.Manage))) {
-            return CalendarAcl.CAN_MANAGE_SHARES;
-        }
-        if (verbs.includes(Verb.Write)) {
-            return CalendarAcl.CAN_EDIT_MY_EVENTS;
-        }
-        if (verbs.includes(Verb.Read) && isFreebusy) {
-            return CalendarAcl.CAN_SEE_MY_AVAILABILITY;
-        }
-        if (verbs.includes(Verb.Read)) {
-            return CalendarAcl.CAN_SEE_MY_EVENTS;
-        }
-        if (verbs.includes(Verb.Invitation)) {
-            return CalendarAcl.CAN_INVITE_ME;
-        }
-        return CalendarAcl.CANT_INVITE_ME;
+        const allFreebusyAcl = await inject(
+            "ContainerManagementPersistence",
+            "freebusy:" + container.owner
+        ).getAccessControlList();
+        const [freebusyAcl, otherFreebusy] = allFreebusyAcl.reduce(aclReducer, [[], []]);
+        otherFreebusyAcl = otherFreebusy;
+
+        const { domain: domainUid, userId } = inject("UserSession");
+        const domain = aclToRight(domainUid, acl, freebusyAcl, this.defaultDomainRight);
+
+        const userUids = new Set(
+            [...acl, ...freebusyAcl].flatMap(({ subject }) =>
+                subject !== domainUid &&
+                subject !== userId &&
+                subject !== container.owner &&
+                !subject.startsWith("x-calendar-")
+                    ? subject
+                    : []
+            )
+        );
+        const users = {};
+        userUids.forEach(userUid => {
+            users[userUid] = aclToRight(userUid, acl, freebusyAcl, this.defaultUserRight);
+        });
+
+        const external = await loadCalendarUrls(container.uid);
+
+        return { users, domain, external };
     },
-    updateAcl(acl, subject, option, isFreebusy) {
-        if (this.aclToOption(acl) !== option) {
-            const newAcl = acl.flatMap(ac => (!HANDLED_VERBS.includes(ac.verb) ? ac : []));
-            if (isFreebusy) {
-                switch (option) {
-                    case CalendarAcl.CAN_SEE_MY_AVAILABILITY:
-                    case CalendarAcl.CAN_SEE_MY_EVENTS:
-                        newAcl.push({ verb: Verb.Read, subject });
-                        break;
-                    case CalendarAcl.CAN_EDIT_MY_EVENTS:
-                        newAcl.push({ verb: Verb.Write, subject });
-                        break;
-                    case CalendarAcl.CAN_MANAGE_SHARES:
-                        newAcl.push({ verb: Verb.Write, subject });
-                        newAcl.push({ verb: Verb.Manage, subject });
-                        break;
-                    case CalendarAcl.CANT_INVITE_ME:
-                    case CalendarAcl.CAN_INVITE_ME:
-                    default:
-                        break;
-                }
-            } else {
-                switch (option) {
-                    case CalendarAcl.CAN_INVITE_ME:
-                    case CalendarAcl.CAN_SEE_MY_AVAILABILITY:
-                        newAcl.push({ verb: Verb.Invitation, subject });
-                        break;
-                    case CalendarAcl.CAN_SEE_MY_EVENTS:
-                        newAcl.push({ verb: Verb.Read, subject });
-                        break;
-                    case CalendarAcl.CAN_EDIT_MY_EVENTS:
-                        newAcl.push({ verb: Verb.Write, subject });
-                        break;
-                    case CalendarAcl.CAN_MANAGE_SHARES:
-                        newAcl.push({ verb: Verb.Write, subject });
-                        newAcl.push({ verb: Verb.Manage, subject });
-                        break;
-                    case CalendarAcl.CANT_INVITE_ME:
-                    default:
-                        break;
-                }
-            }
-            return newAcl;
-        }
+    saveRights(rightBySubject, container) {
+        return Promise.all(
+            rightsToAcls(rightBySubject, container).map(({ containerUid, acl }) => {
+                inject("ContainerManagementPersistence", containerUid).setAccessControlList(acl);
+            })
+        );
     }
 };
+
+function aclToRight(subjectUid, acl, freebusyAcl, defaultRight) {
+    const extractVerbs = acl => acl.flatMap(({ subject, verb }) => (subject === subjectUid ? verb : []));
+    const verbs = extractVerbs(acl);
+    const freebusyVerbs = extractVerbs(freebusyAcl);
+    return verbsToRight(verbs, freebusyVerbs, defaultRight);
+}
+
+function verbsToRight(verbs, freebusyVerbs, defaultRight) {
+    if (verbs.includes(Verb.All) || (verbs.includes(Verb.Write) && verbs.includes(Verb.Manage))) {
+        return CalendarRight.CAN_MANAGE_SHARES;
+    }
+    if (verbs.includes(Verb.Write)) {
+        return CalendarRight.CAN_EDIT_MY_EVENTS;
+    }
+    if (
+        freebusyVerbs.includes(Verb.Read) &&
+        !verbs.some(v => [Verb.Invitation, Verb.Read, Verb.Write, Verb.Manage, Verb.All].includes(v))
+    ) {
+        return CalendarRight.CAN_SEE_MY_AVAILABILITY;
+    }
+    if (verbs.includes(Verb.Read)) {
+        return CalendarRight.CAN_SEE_MY_EVENTS;
+    }
+    if (verbs.includes(Verb.Invitation)) {
+        return CalendarRight.CAN_INVITE_ME;
+    }
+    return defaultRight;
+}
+
+function rightsToAcls(rightBySubject, container) {
+    const acl = [];
+    const freebusyAcl = [];
+
+    Object.entries(rightBySubject).forEach(([subject, right]) => {
+        switch (right) {
+            case CalendarRight.CAN_INVITE_ME:
+                acl.push({ subject, verb: Verb.Invitation });
+                break;
+            case CalendarRight.CAN_SEE_MY_AVAILABILITY:
+                acl.push({ subject, verb: Verb.Invitation });
+                freebusyAcl.push({ subject, verb: Verb.Read });
+                break;
+            case CalendarRight.CAN_SEE_MY_EVENTS:
+                acl.push({ subject, verb: Verb.Read });
+                freebusyAcl.push({ subject, verb: Verb.Read });
+                break;
+            case CalendarRight.CAN_EDIT_MY_EVENTS:
+                acl.push({ subject, verb: Verb.Write });
+                freebusyAcl.push({ subject, verb: Verb.Read });
+                break;
+            case CalendarRight.CAN_MANAGE_SHARES:
+                acl.push({ subject, verb: Verb.Write });
+                acl.push({ subject, verb: Verb.Manage });
+                freebusyAcl.push({ subject, verb: Verb.Write });
+                freebusyAcl.push({ subject, verb: Verb.Manage });
+                break;
+            case CalendarRight.CANT_INVITE_ME:
+            default:
+                break;
+        }
+    });
+
+    return [
+        { containerUid: container.uid, acl: acl.concat(otherAcl) },
+        { containerUid: "freebusy:" + container.owner, acl: freebusyAcl.concat(otherFreebusyAcl) }
+    ];
+}

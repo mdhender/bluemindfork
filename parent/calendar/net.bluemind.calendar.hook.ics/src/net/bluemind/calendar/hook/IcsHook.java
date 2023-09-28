@@ -998,13 +998,13 @@ public class IcsHook implements ICalendarHook {
 
 	private static Mailbox resolveSender(IUser userService, VEventMessage message, Mailbox from) {
 		if (!isSystemMessage(message, from)) {
-			User connectedUser = userService.get(message.securityContext.getSubject());
+			ItemValue<User> userItem = userService.getComplete(message.securityContext.getSubject());
+			User connectedUser = userItem.value;
 			Mailbox sender = new Mailbox(connectedUser.defaultEmail().localPart(),
 					connectedUser.defaultEmail().domainPart());
 			if (!CalendarMail.sameFromAndSender(sender, from) //
 					&& !canSendAs(message.container.domainUid, from.getAddress(), message.securityContext)) {
-				return new Mailbox(connectedUser.login, connectedUser.defaultEmail().localPart(),
-						connectedUser.defaultEmail().domainPart());
+				return SendmailHelper.formatAddress(userItem.displayName, connectedUser.defaultEmailAddress());
 			}
 		}
 

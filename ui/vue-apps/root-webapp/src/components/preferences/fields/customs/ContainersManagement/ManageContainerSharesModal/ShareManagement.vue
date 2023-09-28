@@ -24,13 +24,12 @@
         <internal-share-management
             class="section"
             :container="container"
-            :domain-acl="domainAcl"
-            :dir-entries-acl="dirEntriesAcl"
-            :is-my-default-calendar="isMyDefaultCalendar"
-            @dir-entry-acl-changed="onDirEntryAclChange"
-            @domain-acl-changed="onDomainAclChange"
+            :user-rights="userRights"
+            :domain-right="domainRight"
+            @user-right-changed="onUserRightChange"
+            @domain-right-changed="onDomainRightChange"
         />
-        <template v-if="isCalendarType">
+        <template v-if="externalShares">
             <hr />
             <external-share-management
                 class="section"
@@ -44,11 +43,11 @@
 </template>
 
 <script>
+import Vue from "vue";
 import { mapActions } from "vuex";
 import throttle from "lodash.throttle";
 import ExternalShareManagement from "./ExternalShareManagement";
 import InternalShareManagement from "./InternalShareManagement";
-import { loadAcl } from "./ContainerShareHelper";
 import { loadCalendarUrls, sendExternalToServer, urlToAclSubject } from "./ExternalShareHelper";
 import { ContainerHelper, ContainerType } from "../container";
 import { PublishMode } from "@bluemind/calendar.api";
@@ -74,18 +73,9 @@ export default {
         InternalShareManagement
     },
     props: {
-        container: {
-            type: Object,
-            required: true
-        },
-        isMyContainer: {
-            type: Boolean,
-            required: true
-        },
-        isMyDefaultCalendar: {
-            type: Boolean,
-            required: true
-        }
+        container: { type: Object, required: true },
+        isMyContainer: { type: Boolean, required: true },
+        isMyDefaultCalendar: { type: Boolean, required: true }
     },
     data() {
         return {
@@ -97,8 +87,8 @@ export default {
             suggestions: [],
 
             // inside organization
-            dirEntriesAcl: [],
-            domainAcl: [],
+            userRights: [],
+            domainRight: undefined,
 
             // outside organization
             externalShares: []
@@ -113,46 +103,15 @@ export default {
         },
         isMailboxType() {
             return this.container.type === ContainerType.MAILBOX;
-        },
-        aclReadyForServer() {
-            const res = this.dirEntriesAcl.flatMap(({ acl }) => acl);
-            if (!this.isMyContainer) {
-                res.push({ subject: inject("UserSession").userId, verb: Verb.All });
-            }
-
-            if (!this.isMailboxType && this.domainAcl?.length) {
-                res.push(...this.domainAcl);
-            }
-            if (this.isCalendarType) {
-                const externalSharesAcl = this.externalShares.map(share => ({
-                    subject: urlToAclSubject(share),
-                    verb: Verb.Read
-                }));
-                res.push(...externalSharesAcl);
-            }
-            return res;
-        },
-        freebusyAclReadyForServer() {
-            let res = [];
-            if (this.isCalendarType) {
-                res.push(...this.dirEntriesAcl.flatMap(({ acl }) => acl));
-                if (this.domainAcl.length) {
-                    res.push(...this.domainAcl);
-                }
-            }
-            return res;
         }
     },
     async created() {
         this.isLoading = true;
         this.searchedInput = "";
-        const acl = await loadAcl(this.container, this.isMyDefaultCalendar);
-        this.domainAcl = acl.domainAcl;
-        this.dirEntriesAcl = acl.dirEntriesAcl;
-
-        if (this.container.type === ContainerType.CALENDAR) {
-            this.externalShares = await loadCalendarUrls(this.container.uid);
-        }
+        const rights = await this.helper.loadRights(this.container);
+        this.userRights = rights.users;
+        this.domainRight = rights.domain;
+        this.externalShares = rights.external;
         this.isLoading = false;
     },
     methods: {
@@ -208,9 +167,9 @@ export default {
         },
         filterSearchResults({ uid }) {
             return (
-                !this.dirEntriesAcl.find(alreadyInList => alreadyInList.uid === uid) &&
+                !Object.keys(this.userRights).some(subject => subject === uid) &&
                 uid !== inject("UserSession").userId &&
-                !this.externalShares.find(share => share.vcard?.uid === uid)
+                !this.externalShares?.find(share => share.vcard?.uid === uid)
             );
         },
         onSelect(selected) {
@@ -219,38 +178,35 @@ export default {
             } else if (!selected.isInternal) {
                 this.addExternal(selected);
             } else {
-                const dirEntry = DirEntryAdaptor.toDirEntry(selected);
-                this.dirEntriesAcl.push({
-                    ...dirEntry,
-                    acl: this.helper.buildDefaultDirEntryAcl(dirEntry)
-                });
+                Vue.set(this.userRights, selected.uid, this.helper.defaultUserRight);
                 this.saveShares();
             }
             this.suggestions = [];
             this.searchedInput = "";
         },
-
-        // select listener
-        onDirEntryAclChange({ dirEntryUid, value }) {
-            const index = this.dirEntriesAcl.findIndex(entry => entry.uid === dirEntryUid);
-            if (index !== -1) {
-                this.dirEntriesAcl[index].acl = value;
-                this.saveShares();
-            }
+        onUserRightChange({ user, right }) {
+            this.userRights[user] = right;
+            this.saveShares();
         },
-        onDomainAclChange(value) {
-            this.domainAcl = value;
+        onDomainRightChange(right) {
+            this.domainRight = right;
             this.saveShares();
         },
         async saveShares() {
-            await inject("ContainerManagementPersistence", this.container.uid).setAccessControlList(
-                this.aclReadyForServer
-            );
-            if (this.isMyDefaultCalendar) {
-                await inject("ContainerManagementPersistence", "freebusy:" + this.container.owner).setAccessControlList(
-                    this.freebusyAclReadyForServer
-                );
+            const rights = { ...this.userRights };
+            if (this.domainRight) {
+                rights[inject("UserSession").domain] = this.domainRight;
             }
+            if (this.externalShares?.length) {
+                this.externalShares.forEach(share => {
+                    const subject = urlToAclSubject(share);
+                    rights[subject] ? undefined : (rights[subject] = this.helper.readRight);
+                });
+            }
+            if (!this.isMyContainer) {
+                rights[inject("UserSession").userId] = this.helper.maxRight;
+            }
+            this.helper.saveRights(rights, this.container);
             this.SUCCESS(SAVE_ALERT_MODAL);
         },
 

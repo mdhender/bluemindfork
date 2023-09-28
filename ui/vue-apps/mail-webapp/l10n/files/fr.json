@@ -22,7 +22,7 @@
                 "error": "Le dossier \"{name}\" n'a pas pu être vidé."
             },
             "event_not_found": {
-                "warning": "Ce message fait référence à un évènement qui n'existe pas dans votre calendrier"
+                "warning": "Impossible d'accéder aux informations de cet évènement. Il a pu être supprimé, ou vous n'avez pas les droits sur le calendrier dans lequel il se trouve."
             },
             "mark_conversations_as_flagged": {
                 "loading": "Conversation en train d'être marquée comme importante...|Conversations en train d'être marquées comme importantes...",

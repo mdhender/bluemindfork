@@ -3,39 +3,39 @@
         <bm-label-icon icon="buildings" class="h3 mb-5" :inline="false">
             {{ $t("preferences.manage_shares.inside_my_organization") }}
         </bm-label-icon>
-        <template v-if="domainAcl === -1 && dirEntriesAcl.length === 0">
-            <div class="ml-4 mt-3 font-italic">{{ noAclSet }}</div>
+        <template v-if="!domainRight && !Object.keys(userRights).length">
+            <div class="ml-4 mt-3 font-italic">{{ noShares }}</div>
         </template>
         <template v-else>
-            <bm-row v-if="!isMailboxType" class="share-entry-body">
+            <bm-row v-if="domainRight" class="share-entry-body">
                 <div class="share-entry-col share-user">
                     {{ $t("preferences.manage_shares.all_users_in_my_organization") }}
                 </div>
                 <bm-form-select
-                    :value="aclToOption(domainAcl)"
-                    :options="shareOptions(true)"
+                    :value="domainRight"
+                    :options="shareOptions()"
                     :auto-min-width="false"
                     right
                     class="share-entry-col"
-                    @input="value => onDomainAclChange(domainAcl, domainUid, value)"
+                    @input="right => $emit('domain-right-changed', right)"
                 />
             </bm-row>
-            <template v-for="dirEntry in dirEntriesAcl">
-                <bm-row :key="dirEntry.uid" class="share-entry-body">
+            <template v-for="[user, right] of Object.entries(userRights)">
+                <bm-row :key="user" class="share-entry-body">
                     <contact
-                        :contact="dirEntryToContact(dirEntry)"
+                        :contact="contacts[user]"
                         class="share-entry-col share-user"
                         transparent
                         show-address
                         bold-dn
                     />
                     <bm-form-select
-                        :value="aclToOption(dirEntry.acl)"
+                        :value="right"
                         :options="shareOptions()"
                         :auto-min-width="false"
                         right
                         class="share-entry-col"
-                        @input="value => onDirEntryAclChange(dirEntry.acl, dirEntry.uid, value)"
+                        @input="right => $emit('user-right-changed', { user, right })"
                     />
                 </bm-row>
             </template>
@@ -55,53 +55,40 @@ export default {
     name: "InternalShareManagement",
     components: { BmFormSelect, BmLabelIcon, BmRow, Contact },
     props: {
-        container: {
-            type: Object,
-            required: true
-        },
-        domainAcl: {
-            type: Array,
-            required: true
-        },
-        dirEntriesAcl: {
-            type: Array,
-            required: true
-        },
-        isMyDefaultCalendar: {
-            type: Boolean,
-            required: true
-        }
+        container: { type: Object, required: true },
+        domainRight: { type: Number, default: undefined },
+        userRights: { type: Object, required: true }
     },
     data() {
-        return { domainUid: inject("UserSession").domain };
+        return { contacts: [] };
     },
     computed: {
-        noAclSet() {
+        noShares() {
             return this.$t("preferences.manage_shares.no_acl_set", {
                 name: this.container.name,
                 type: this.$t("common.container_type_with_definite_article." + this.container.type)
             });
-        },
-        isMailboxType() {
-            return this.container.type === ContainerType.MAILBOX;
+        }
+    },
+    watch: {
+        userRights: {
+            handler: async function (value) {
+                this.contacts = value
+                    ? (await inject("DirectoryPersistence").getMultiple(Object.keys(value))).reduce(
+                          (contactByUser, dirEntry) => {
+                              contactByUser[dirEntry.uid] = DirEntryAdaptor.toContact(dirEntry);
+                              return contactByUser;
+                          },
+                          {}
+                      )
+                    : [];
+            },
+            immediate: true
         }
     },
     methods: {
-        dirEntryToContact: DirEntryAdaptor.toContact,
-        onDirEntryAclChange(acl, dirEntryUid, value) {
-            this.$emit("dir-entry-acl-changed", { dirEntryUid, value: this.aclFromOption(acl, dirEntryUid, value) });
-        },
-        onDomainAclChange(domainAcl, domainUid, value) {
-            this.$emit("domain-acl-changed", this.aclFromOption(domainAcl, domainUid, value));
-        },
         shareOptions() {
-            return ContainerHelper.use(this.container.type).getOptions(i18n, this.isMyDefaultCalendar);
-        },
-        aclToOption(acl) {
-            return ContainerHelper.use(this.container.type).aclToOption(acl);
-        },
-        aclFromOption(acl, uid, option) {
-            return ContainerHelper.use(this.container.type).updateAcl(acl, uid, option);
+            return ContainerHelper.use(this.container.type).getOptions(i18n, this.container);
         }
     }
 };

@@ -31,6 +31,7 @@ describe("consultPanel node", () => {
         };
     let store;
     beforeEach(() => {
+        jest.clearAllMocks();
         store = new Vuex.Store(cloneDeep(storeOptions));
     });
 
@@ -49,6 +50,7 @@ describe("consultPanel node", () => {
                 "ori@gina.tor",
                 undefined,
                 expect.anything(),
+                userUid,
                 true
             );
             expect(store.state.currentEvent).toEqual("adaptedEvent");
@@ -71,6 +73,7 @@ describe("consultPanel node", () => {
                 "ori@gina.tor",
                 undefined,
                 expect.anything(),
+                "resourceUid",
                 true
             );
             expect(store.state.currentEvent).toEqual("adaptedEvent");
@@ -92,6 +95,7 @@ describe("consultPanel node", () => {
                 "ori@gina.tor",
                 "isoDate",
                 expect.anything(),
+                userUid,
                 true
             );
             expect(store.state.currentEvent).toEqual("adaptedEvent");
@@ -103,7 +107,8 @@ describe("consultPanel node", () => {
                 status: previousStatus,
                 serverEvent,
                 mailboxOwner: userUid,
-                calendar: "calendar:Default:" + userUid
+                calendarUid: "calendar:Default:" + userUid,
+                calendarOwner: userUid
             };
 
             await store.dispatch(SET_EVENT_STATUS, { status: newStatus });
@@ -117,7 +122,8 @@ describe("consultPanel node", () => {
                 status: previousStatus,
                 serverEvent,
                 mailboxOwner: userUid,
-                calendar: "calendar:Default:" + userUid
+                calendarUid: "calendar:Default:" + userUid,
+                calendarOwner: userUid
             };
             calendarService.update.mockReturnValue(Promise.reject());
             const promise = store.dispatch(SET_EVENT_STATUS, { status: newStatus });
@@ -137,7 +143,8 @@ describe("consultPanel node", () => {
             store.state.currentEvent = {
                 status: previousStatus,
                 serverEvent,
-                mailboxOwner: userUid
+                mailboxOwner: userUid,
+                calendarOwner: userUid
             };
 
             storeOptions.mutations[SET_CURRENT_EVENT_STATUS](store.state, { status: newStatus });

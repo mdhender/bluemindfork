@@ -22,7 +22,7 @@
                 "error": "Ordner \"{name}\" konnte nicht geleert werden."
             },
             "event_not_found": {
-                "warning": "Diese E-Mail referenziert einen nicht mehr existierenden Termin"
+                "warning": "Es ist nicht möglich, auf die Informationen dieses Ereignisses zuzugreifen. Es könnte gelöscht worden sein oder Sie haben keine Rechte für den Kalender, in dem es sich befindet."
             },
             "mark_conversations_as_flagged": {
                 "loading": "Markiere die E-Mail Konversation {name} als wichtig...|Markiere die E-Mail Konversationen {name} als wichtig...",

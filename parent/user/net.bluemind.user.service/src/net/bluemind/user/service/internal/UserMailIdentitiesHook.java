@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -70,14 +71,9 @@ public class UserMailIdentitiesHook extends DefaultMailboxHook implements IAclHo
 			return;
 		}
 
-		Set<AccessControlEntry> p = previous.stream().filter(ace -> {
-			return ace.verb == Verb.All || ace.verb == Verb.Write;
-		}).collect(Collectors.toSet());
-
-		Set<AccessControlEntry> c = current.stream().filter(ace -> {
-			return ace.verb == Verb.All || ace.verb == Verb.Write;
-		}).collect(Collectors.toSet());
-
+		Predicate<AccessControlEntry> predicate = ace -> ace.verb == Verb.SendAs || ace.verb == Verb.SendOnBehalf;
+		Set<AccessControlEntry> p = previous.stream().filter(predicate).collect(Collectors.toSet());
+		Set<AccessControlEntry> c = current.stream().filter(predicate).collect(Collectors.toSet());
 		Set<AccessControlEntry> removed = Sets.difference(p, c);
 
 		if (removed.isEmpty()) {

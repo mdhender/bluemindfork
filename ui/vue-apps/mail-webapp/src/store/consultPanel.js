@@ -24,7 +24,6 @@ export default {
                 let event;
                 let calendarUid;
                 let calendarOwner;
-                let calendarOwnerName;
                 if (message.eventInfo.isResourceBooking) {
                     calendarUid = getCalendarUid(message.eventInfo.resourceUid, true);
                     event = await inject("CalendarPersistence", calendarUid).getComplete(message.eventInfo.icsUid);
@@ -39,17 +38,14 @@ export default {
                         const otherCalendar = await inject("CalendarsMgmtPersistence").getComplete(otherCalendarUid);
                         if (otherCalendar) {
                             calendarOwner = otherCalendar.owner;
-                            calendarOwnerName = otherCalendar.owner !== mailbox.owner ? otherCalendar.name : undefined;
                         }
                     } else {
                         calendarOwner = mailbox.owner;
                         calendarUid = getCalendarUid(calendarOwner);
                     }
-                    const events = await inject("CalendarPersistence", calendarUid).getByIcsUid(
-                        message.eventInfo.icsUid
-                    );
-                    event = findEvent(events, message.eventInfo.recuridIsoDate);
                 }
+                const events = await inject("CalendarPersistence", calendarUid).getByIcsUid(message.eventInfo.icsUid);
+                event = findEvent(events, message.eventInfo.recuridIsoDate);
                 const mailboxOwner = message.eventInfo.isResourceBooking
                     ? message.eventInfo.resourceUid
                     : mailbox.owner;
@@ -61,7 +57,6 @@ export default {
                     message.eventInfo.recuridIsoDate,
                     calendarUid,
                     calendarOwner,
-                    calendarOwnerName,
                     isWritable
                 );
                 commit(SET_CURRENT_EVENT, event);
@@ -121,11 +116,18 @@ async function updateCounterEvent({ state, commit }, updateFunction) {
     updatedEvent = EventHelper.adapt(
         updatedEvent.serverEvent,
         state.currentEvent.mailboxOwner,
-        state.currentEvent.counter.originator
+        state.currentEvent.counter.originator,
+        undefined,
+        state.currentEvent.calendarOwner,
+        state.currentEvent.calendarUid
     );
 
     commit(SET_CURRENT_EVENT, updatedEvent);
-    await inject("CalendarPersistence").update(state.currentEvent.uid, updatedEvent.serverEvent.value, true);
+    await inject("CalendarPersistence", state.currentEvent.calendarUid).update(
+        state.currentEvent.uid,
+        updatedEvent.serverEvent.value,
+        true
+    );
 }
 
 const findEvent = (events, recuridIsoDate) => {

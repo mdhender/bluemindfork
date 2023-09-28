@@ -11,7 +11,7 @@ const CLASSIFICATIONS = {
     CONFIDENTIAL: "Confidential"
 };
 export default {
-    adapt(event, mailboxOwner, originator, recuridIsoDate, calendarUid, calendarOwner, calendarOwnerName, isWritable) {
+    adapt(event, mailboxOwner, originator, recuridIsoDate, calendarUid, calendarOwner, isWritable) {
         const infos = this.eventInfos(event, recuridIsoDate);
         const attendee = this.findAttendee(infos.attendees, calendarOwner);
         return {
@@ -41,7 +41,6 @@ export default {
             url: infos.url,
             calendarUid,
             calendarOwner,
-            calendarOwnerName,
             private: infos.classification === CLASSIFICATIONS.PRIVATE,
             isWritable
         };

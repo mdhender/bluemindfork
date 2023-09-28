@@ -51,13 +51,11 @@ export function create() {
         version: null,
 
         // sender & recipients
-        from: {
-            address: "",
-            dn: ""
-        },
+        from: { address: "", dn: "" },
         to: [],
         cc: [],
         bcc: [],
+        sender: { address: "", dn: "" },
 
         // used only by reply / forward
         messageId: "",
@@ -172,7 +170,7 @@ const XBM_EVENTS_HEADERS = [
 
 /** Extract multi-valued / whitespace separated values from given header. */
 export function extractHeaderValues(message, headerName) {
-    const header = message.headers.find(h => h.name.toUpperCase() === headerName.toUpperCase());
+    const header = message.headers?.find(h => h.name.toUpperCase() === headerName.toUpperCase());
     return header && header.values && header.values.length
         ? header.values.reduce((a, b) => (a.length ? a + " " + b : b), "").split(/\s+/)
         : undefined;
