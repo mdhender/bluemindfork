@@ -116,6 +116,9 @@ public class UserSubscribeCommand implements ICmdLet, Runnable {
 	@Option(required = false, names = { "--offline-sync" }, description = "Enable subscription offline sync.")
 	public boolean offlineSync;
 
+	@Option(required = false, names = { "--no-automount" }, description = "Disable subscription automount in Outlook.")
+	public boolean noAutomount = false;
+
 	@Option(required = false, names = { "--dry" }, description = "Dry mode.")
 	public boolean dry;
 
@@ -186,7 +189,7 @@ public class UserSubscribeCommand implements ICmdLet, Runnable {
 	@Override
 	public void run() {
 		List<ContainerSubscription> containerSubscriptions = Arrays
-				.asList(ContainerSubscription.create(subscribeTo, offlineSync));
+				.asList(ContainerSubscription.create(subscribeTo, offlineSync, !noAutomount));
 
 		IUserSubscription userSubscriptionClient = ctx.adminApi().instance(IUserSubscription.class, domainUid);
 		Collection<String> uids = subscribers.getUids(log, ctx, domainUid);
@@ -195,6 +198,8 @@ public class UserSubscribeCommand implements ICmdLet, Runnable {
 			try {
 				if (!dry) {
 					userSubscriptionClient.subscribe(uid, containerSubscriptions);
+					// automount is managed by cli only
+					userSubscriptionClient.updateAutomount(uid, containerSubscriptions);
 				}
 
 				log.success(progress, uid);

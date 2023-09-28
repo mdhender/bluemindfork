@@ -72,8 +72,11 @@ public class RestoreOwnerSubscriptions extends CrudItemRestore<ContainerSubscrip
 	}
 
 	private ContainerDescriptor subscribedContainer(ContainerSubscriptionModel ownerSubscription) {
-		return ContainerDescriptor.create(state.uidAlias(ownerSubscription.containerUid), ownerSubscription.name,
-				ownerSubscription.owner, ownerSubscription.containerType, domain.uid,
+		ContainerDescriptor cd = ContainerDescriptor.create(state.uidAlias(ownerSubscription.containerUid),
+				ownerSubscription.name, ownerSubscription.owner, ownerSubscription.containerType, domain.uid,
 				ownerSubscription.defaultContainer);
+		cd.offlineSync = ownerSubscription.offlineSync;
+		cd.automount = ownerSubscription.automount;
+		return cd;
 	}
 }

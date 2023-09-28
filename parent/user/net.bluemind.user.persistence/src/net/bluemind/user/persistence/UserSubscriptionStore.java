@@ -146,10 +146,34 @@ public class UserSubscriptionStore extends JdbcAbstractStore {
 		String query = "select offline_sync from t_container_sub where container_uid = ? and user_id = ?";
 		Boolean ret = unique(query, BooleanCreator.FIRST, Collections.emptyList(),
 				new Object[] { container.uid, item.id });
-		if (ret != null) {
-			return ret;
+		return Boolean.TRUE.equals(ret);
+	}
+
+	public void updateAutomount(String subject, Container container, boolean automount) throws SQLException {
+		Item item = itemStore.get(subject);
+		if (item == null) {
+			return;
 		}
-		return false;
+
+		String updateQuery = "update t_container_sub set automount = ? where container_uid = ? and user_id = ?";
+		update(updateQuery, null, (con, statement, index, currentRow, value) -> {
+			statement.setBoolean(index++, automount);
+			statement.setString(index++, container.uid);
+			statement.setLong(index++, item.id);
+			return index;
+		});
+	}
+
+	public boolean isAutomounted(String subject, Container container) throws SQLException {
+		Item item = itemStore.get(subject);
+		if (item == null) {
+			return false;
+		}
+
+		String query = "select automount from t_container_sub where container_uid = ? and user_id = ?";
+		Boolean ret = unique(query, BooleanCreator.FIRST, Collections.emptyList(),
+				new Object[] { container.uid, item.id });
+		return Boolean.TRUE.equals(ret);
 	}
 
 }

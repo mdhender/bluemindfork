@@ -73,6 +73,11 @@ public class ContainersContinuousHook implements IContainersHook, IAclHook {
 	}
 
 	@Override
+	public void onContainerAutomountChanged(BmContext ctx, ContainerDescriptor cd, String subject) {
+		// ok
+	}
+
+	@Override
 	public void onContainerSettingsChanged(BmContext ctx, ContainerDescriptor cd) throws ServerFault {
 		IContainerManagement cmApi = ctx.su().provider().instance(IContainerManagement.class, cd.uid);
 		Map<String, String> settings = cmApi.getSettings();

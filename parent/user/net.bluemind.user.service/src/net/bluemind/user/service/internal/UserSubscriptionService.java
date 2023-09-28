@@ -30,6 +30,8 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Functions;
+
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.ContainerSubscription;
@@ -107,24 +109,8 @@ public class UserSubscriptionService implements IInternalUserSubscription {
 	@Override
 	public void subscribe(String subject, List<ContainerSubscription> subscriptions) throws ServerFault {
 		for (ContainerSubscription sub : subscriptions) {
-			Container container;
-
-			DataSource ds = DataSourceRouter.get(context, sub.containerUid);
-			ContainerStore containerStore = new ContainerStore(context, ds, context.getSecurityContext());
-
-			try {
-				container = containerStore.get(sub.containerUid);
-			} catch (SQLException e) {
-				throw ServerFault.sqlFault(e);
-			}
-
-			if (container == null) {
-				throw ServerFault.notFound("Failed to subscribe. Container not found : " + sub.containerUid);
-			}
-
-			ContainerDescriptor descriptor = ContainerDescriptor.create(container.uid, container.name, container.owner,
-					container.type, container.domainUid, container.defaultContainer);
-			descriptor.offlineSync = sub.offlineSync;
+			Container container = subscriptionToContainer(sub);
+			ContainerDescriptor descriptor = containerAndSubscriptionToDescriptor(container, sub);
 			subscribe(container, descriptor, subject, false);
 		}
 	}
@@ -141,24 +127,33 @@ public class UserSubscriptionService implements IInternalUserSubscription {
 				.check(BasicRoles.ROLE_MANAGE_USER_SUBSCRIPTIONS, BasicRoles.ROLE_SELF);
 		try {
 			if (!store.isSubscribed(subject, container)) {
-				store.subscribe(subject, container);
-				store.allowSynchronization(subject, container, descriptor.offlineSync);
-				if (!disableHook) {
-					for (IContainersHook hook : cHooks) {
-						hook.onContainerSubscriptionsChanged(context, descriptor, Arrays.asList(subject),
-								Collections.<String>emptyList());
-					}
-				}
-			} else if (store.isSyncAllowed(subject, container) != descriptor.offlineSync) {
-				store.allowSynchronization(subject, container, descriptor.offlineSync);
-				if (!disableHook) {
-					for (IContainersHook hook : cHooks) {
-						hook.onContainerOfflineSyncStatusChanged(context, descriptor, subject);
-					}
-				}
+				createSubscription(container, descriptor, subject, disableHook);
+			} else {
+				updateSubscription(container, descriptor, subject, disableHook);
 			}
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
+		}
+	}
+
+	private void createSubscription(Container container, ContainerDescriptor descriptor, String subject,
+			boolean disableHook) throws SQLException {
+		store.subscribe(subject, container);
+		store.allowSynchronization(subject, container, descriptor.offlineSync);
+		store.updateAutomount(subject, container, descriptor.automount);
+		if (!disableHook) {
+			cHooks.forEach(hook -> hook.onContainerSubscriptionsChanged(context, descriptor, Arrays.asList(subject),
+					Collections.emptyList()));
+		}
+	}
+
+	private void updateSubscription(Container container, ContainerDescriptor descriptor, String subject,
+			boolean disableHook) throws SQLException {
+		if (store.isSyncAllowed(subject, container) != descriptor.offlineSync) {
+			store.allowSynchronization(subject, container, descriptor.offlineSync);
+			if (!disableHook) {
+				cHooks.forEach(hook -> hook.onContainerOfflineSyncStatusChanged(context, descriptor, subject));
+			}
 		}
 	}
 
@@ -226,6 +221,63 @@ public class UserSubscriptionService implements IInternalUserSubscription {
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}
+	}
+
+	@Override
+	public void updateAutomount(String subject, List<ContainerSubscription> subscriptions) {
+		Map<ContainerSubscription, Container> subscriptionContainers = subscriptions.stream()
+				.collect(Collectors.toMap(Functions.identity(), subscription -> {
+					try {
+						Container container = subscriptionToContainer(subscription);
+						new RBACManager(context).forDomain(container.domainUid).forEntry(subject)
+								.check(BasicRoles.ROLE_MANAGE_USER_SUBSCRIPTIONS, BasicRoles.ROLE_SELF);
+						if (!store.isSubscribed(subject, container)) {
+							throw new ServerFault("No subscription for container " + container.uid);
+						}
+						return container;
+					} catch (SQLException e) {
+						throw ServerFault.sqlFault(e);
+					}
+				}));
+
+		subscriptionContainers.forEach((subscription, container) -> {
+			try {
+				store.updateAutomount(subject, container, subscription.automount);
+				for (IContainersHook hook : cHooks) {
+					ContainerDescriptor descriptor = containerAndSubscriptionToDescriptor(container, subscription);
+					hook.onContainerAutomountChanged(context, descriptor, subject);
+				}
+			} catch (SQLException e) {
+				throw ServerFault.sqlFault(e);
+			}
+		});
+	}
+
+	private Container subscriptionToContainer(ContainerSubscription subscription) {
+		Container container;
+
+		DataSource ds = DataSourceRouter.get(context, subscription.containerUid);
+		ContainerStore containerStore = new ContainerStore(context, ds, context.getSecurityContext());
+
+		try {
+			container = containerStore.get(subscription.containerUid);
+		} catch (SQLException e) {
+			throw ServerFault.sqlFault(e);
+		}
+
+		if (container == null) {
+			throw ServerFault.notFound("Failed to subscribe. Container not found : " + subscription.containerUid);
+		}
+
+		return container;
+	}
+
+	private ContainerDescriptor containerAndSubscriptionToDescriptor(Container container, ContainerSubscription subscription) {
+		ContainerDescriptor descriptor = ContainerDescriptor.create(container.uid, container.name, container.owner,
+				container.type, container.domainUid, container.defaultContainer);
+		descriptor.offlineSync = subscription.offlineSync;
+		descriptor.automount = subscription.automount;
+		return descriptor;
 	}
 
 }

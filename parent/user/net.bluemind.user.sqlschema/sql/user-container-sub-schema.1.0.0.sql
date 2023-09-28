@@ -3,6 +3,7 @@ CREATE TABLE t_container_sub (
 	container_type text,
 	user_id bigint references t_domain_user(item_id),
 	offline_sync boolean default true,
+	automount boolean not null default true,
 	PRIMARY KEY(container_uid, user_id)
 );
 CREATE INDEX idx_container_sub_container_uid ON t_container_sub(container_uid);

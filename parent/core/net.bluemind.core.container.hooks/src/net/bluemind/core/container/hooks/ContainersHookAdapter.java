@@ -53,6 +53,10 @@ public class ContainersHookAdapter implements IContainersHook {
 	}
 
 	@Override
+	public void onContainerAutomountChanged(BmContext ctx, ContainerDescriptor cd, String subject) {
+	}
+
+	@Override
 	public void onContainerSettingsChanged(BmContext ctx, ContainerDescriptor cd) throws ServerFault {
 	}
 

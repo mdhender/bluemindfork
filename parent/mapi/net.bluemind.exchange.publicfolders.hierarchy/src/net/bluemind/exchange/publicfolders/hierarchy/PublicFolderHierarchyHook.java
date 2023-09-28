@@ -198,6 +198,11 @@ public class PublicFolderHierarchyHook implements IContainersHook, IAclHook {
 	}
 
 	@Override
+	public void onContainerAutomountChanged(BmContext ctx, ContainerDescriptor cd, String subject) {
+		// ok
+	}
+
+	@Override
 	public void onAclChanged(BmContext ctx, ContainerDescriptor cd, List<AccessControlEntry> previous,
 			List<AccessControlEntry> current) {
 		hierarchyOp(ctx, cd, hier -> {

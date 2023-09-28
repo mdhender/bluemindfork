@@ -24,7 +24,6 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.QueryParam;
-
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.ContainerSubscription;
@@ -80,5 +79,9 @@ public interface IUserSubscription {
 	@POST
 	@Path("{subject}/_unsubscribe")
 	public void unsubscribe(@PathParam("subject") String subject, List<String> containers) throws ServerFault;
+
+	@POST
+	@Path("{subject}/_automount")
+	void updateAutomount(@PathParam("subject") String subject, List<ContainerSubscription> subscriptions);
 
 }

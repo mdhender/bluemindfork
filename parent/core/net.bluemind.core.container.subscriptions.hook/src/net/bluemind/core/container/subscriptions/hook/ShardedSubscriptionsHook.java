@@ -78,6 +78,19 @@ public class ShardedSubscriptionsHook extends ContainersHookAdapter {
 	}
 
 	@Override
+	public void onContainerAutomountChanged(BmContext ctx, ContainerDescriptor cd, String subject) {
+		IInternalOwnerSubscriptions subApi = ctx.provider().instance(IInternalOwnerSubscriptions.class, cd.domainUid,
+				subject);
+		String sub = IOwnerSubscriptionUids.subscriptionUid(cd.uid, subject);
+		ItemValue<ContainerSubscriptionModel> theSub = subApi.getComplete(sub);
+		if (theSub != null) {
+			theSub.value.automount = cd.automount;
+			subApi.update(sub, theSub.value);
+			logger.info("Updated sub {} for automount {}", sub, cd.automount);
+		}
+	}
+
+	@Override
 	public void onContainerUpdated(BmContext ctx, ContainerDescriptor prev, ContainerDescriptor cur)
 			throws ServerFault {
 		if (cur.name.equals(prev.name) && cur.defaultContainer == prev.defaultContainer) {

@@ -19,6 +19,8 @@ public interface IContainersHook {
 
 	void onContainerOfflineSyncStatusChanged(BmContext ctx, ContainerDescriptor cd, String subject);
 
+	void onContainerAutomountChanged(BmContext ctx, ContainerDescriptor cd, String subject);
+
 	void onContainerSettingsChanged(BmContext ctx, ContainerDescriptor cd) throws ServerFault;
 
 }

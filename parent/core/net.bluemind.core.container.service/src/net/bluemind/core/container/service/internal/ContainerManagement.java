@@ -303,28 +303,15 @@ public class ContainerManagement implements IInternalContainerManagement {
 
 	@Override
 	public void allowOfflineSync(String subject) throws ServerFault {
-		new RBACManager(context).forDomain(container.domainUid).forEntry(subject)
-				.check(BasicRoles.ROLE_MANAGE_USER_SUBSCRIPTIONS, BasicRoles.ROLE_SELF);
-
-		try {
-			if (!userSubscriptionStore.isSubscribed(subject, container)) {
-				throw new ServerFault("No subscription for container " + container.uid);
-			}
-			userSubscriptionStore.allowSynchronization(subject, container, true);
-
-			ContainerDescriptor descriptor = ContainerDescriptor.create(container.uid, container.name, container.owner,
-					container.type, container.domainUid, false);
-			for (IContainersHook hook : cHooks) {
-				hook.onContainerOfflineSyncStatusChanged(context, descriptor, subject);
-			}
-		} catch (SQLException e) {
-			throw ServerFault.sqlFault(e);
-		}
-
+		updateSubscriptionOfflineSync(subject, true);
 	}
 
 	@Override
 	public void disallowOfflineSync(String subject) throws ServerFault {
+		updateSubscriptionOfflineSync(subject, false);
+	}
+
+	private void updateSubscriptionOfflineSync(String subject, boolean offlineSync) {
 		new RBACManager(context).forDomain(container.domainUid).forEntry(subject)
 				.check(BasicRoles.ROLE_MANAGE_USER_SUBSCRIPTIONS, BasicRoles.ROLE_SELF);
 
@@ -332,10 +319,10 @@ public class ContainerManagement implements IInternalContainerManagement {
 			if (!userSubscriptionStore.isSubscribed(subject, container)) {
 				throw new ServerFault("No subscription for container " + container.uid);
 			}
-			userSubscriptionStore.allowSynchronization(subject, container, false);
-
+			userSubscriptionStore.allowSynchronization(subject, container, offlineSync);
 			ContainerDescriptor descriptor = ContainerDescriptor.create(container.uid, container.name, container.owner,
 					container.type, container.domainUid, false);
+			descriptor.offlineSync = offlineSync;
 			for (IContainersHook hook : cHooks) {
 				hook.onContainerOfflineSyncStatusChanged(context, descriptor, subject);
 			}

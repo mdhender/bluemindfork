@@ -34,6 +34,7 @@ public class OwnerSubscriptionColumns {
 			.col("container_type")//
 			.col("container_uid")//
 			.col("offline_sync")//
+			.col("automount")//
 			.col("owner")//
 			.col("default_container")//
 			.col("name")//
@@ -44,6 +45,7 @@ public class OwnerSubscriptionColumns {
 		value.containerType = rs.getString(index++);
 		value.containerUid = rs.getString(index++);
 		value.offlineSync = rs.getBoolean(index++);
+		value.automount = rs.getBoolean(index++);
 		value.owner = rs.getString(index++);
 		value.defaultContainer = rs.getBoolean(index++);
 		value.name = rs.getString(index++);
@@ -59,6 +61,7 @@ public class OwnerSubscriptionColumns {
 				statement.setString(index++, value.containerType);
 				statement.setString(index++, value.containerUid);
 				statement.setBoolean(index++, value.offlineSync);
+				statement.setBoolean(index++, value.automount);
 				statement.setString(index++, value.owner);
 				statement.setBoolean(index++, value.defaultContainer);
 				statement.setString(index++, value.name);

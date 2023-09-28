@@ -30,11 +30,18 @@ public class ContainerSubscription {
 	@NotNull
 	public String containerUid;
 	public boolean offlineSync;
+	public boolean automount = true;
 
 	public static ContainerSubscription create(String containerUid, boolean offlineSync) {
 		ContainerSubscription cs = new ContainerSubscription();
 		cs.containerUid = containerUid;
 		cs.offlineSync = offlineSync;
+		return cs;
+	}
+
+	public static ContainerSubscription create(String containerUid, boolean offlineSync, boolean automount) {
+		ContainerSubscription cs = create(containerUid, offlineSync);
+		cs.automount = automount;
 		return cs;
 	}
 
