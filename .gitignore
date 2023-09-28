@@ -87,3 +87,4 @@ target
 hs_*.log
 *.log
 velocity.log*
+packaging/bluemind-sbom.json
