@@ -139,7 +139,7 @@ public class DbSchemaStoreTests {
 		Thread t1 = new Thread(() -> {
 			try (Connection con = ds.getConnection(); Statement st = con.createStatement()) {
 				con.setAutoCommit(false);
-				JdbcAbstractStore.retryOnDeadlock(con, () -> {
+				JdbcAbstractStore.retryOnDeadlock(() -> {
 					st.execute("UPDATE deadlocktest set v='w1' where id=1");
 					st.execute("select pg_sleep(1)");
 					st.execute("UPDATE deadlocktest set v='w2' where id=2");
@@ -155,7 +155,7 @@ public class DbSchemaStoreTests {
 		Thread t2 = new Thread(() -> {
 			try (Connection con = ds.getConnection(); Statement st = con.createStatement()) {
 				con.setAutoCommit(false);
-				JdbcAbstractStore.retryOnDeadlock(con, () -> {
+				JdbcAbstractStore.retryOnDeadlock(() -> {
 					st.execute("UPDATE deadlocktest set v='w2' where id=2");
 					st.execute("select pg_sleep(1)");
 					st.execute("UPDATE deadlocktest set v='w1' where id=1");
@@ -173,6 +173,6 @@ public class DbSchemaStoreTests {
 		t1.join();
 		t2.join();
 
-		assertEquals(0, errors.get());
+		assertEquals(1, errors.get());
 	}
 }
