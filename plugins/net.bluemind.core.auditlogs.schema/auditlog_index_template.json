@@ -94,7 +94,13 @@
                   },
                   "author":{
                      "type":"keyword"
-                  }
+                  },
+				  "has":{
+					  "type":"keyword"
+				  },
+				  "is":{
+					  "type":"keyword"
+				  }
                }
             },
             "updatemessage":{

@@ -21,10 +21,9 @@ package net.bluemind.core.auditlogs;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-public record ContentElement(String key, String description, List<String> with, List<String> author,
-		Map<String, String> is, Map<String, String> has, String newValue) {
+public record ContentElement(String key, String description, List<String> with, List<String> author, List<String> is,
+		List<String> has, String newValue) {
 
 	public ContentElement(ContentElementBuilder builder) {
 		this(builder.key, builder.description, builder.with, builder.author, builder.is, builder.has, builder.newValue);
@@ -34,9 +33,9 @@ public record ContentElement(String key, String description, List<String> with, 
 		public String description;
 		public String key;
 		public List<String> with = new ArrayList<>();
-		public List<String> author;
-		public Map<String, String> is;
-		public Map<String, String> has;
+		public List<String> author = new ArrayList<>();
+		public List<String> is = new ArrayList<>();
+		public List<String> has = new ArrayList<>();
 		public String newValue;
 
 		public ContentElementBuilder description(String d) {
@@ -69,12 +68,12 @@ public record ContentElement(String key, String description, List<String> with, 
 			return this;
 		}
 
-		public ContentElementBuilder is(Map<String, String> i) {
+		public ContentElementBuilder is(List<String> i) {
 			is = i;
 			return this;
 		}
 
-		public ContentElementBuilder has(Map<String, String> h) {
+		public ContentElementBuilder has(List<String> h) {
 			has = h;
 			return this;
 		}

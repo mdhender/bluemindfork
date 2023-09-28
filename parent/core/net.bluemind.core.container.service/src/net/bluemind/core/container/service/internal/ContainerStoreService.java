@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -54,6 +55,7 @@ import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ContainerDescriptor;
+import net.bluemind.core.container.model.CountFastPath;
 import net.bluemind.core.container.model.IdQuery;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemChangelog;
@@ -193,6 +195,16 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	}
 
 	public Count count(ItemFlagFilter filter) {
+		Optional<CountFastPath> fastPath = filter.availableFastPath();
+		if (fastPath.isPresent()) {
+			return itemStore.fastpathCount(fastPath.get()).orElseGet(() -> {
+				try {
+					return Count.of(itemStore.count(filter));
+				} catch (SQLException e) {
+					throw ServerFault.sqlFault(e);
+				}
+			});
+		}
 		try {
 			return Count.of(itemStore.count(filter));
 		} catch (SQLException e) {
@@ -206,6 +218,10 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 		final Long since = null == from ? 0L : from;
 		return ChangelogRenderers.render(securityContext,
 				doOrFail(() -> changelogStore.itemChangelog(itemUid, since, to)));
+	}
+
+	protected void invalidateLastEmptyChangeset() {
+		lastEmptyChangeset.invalidate(containerCacheKey);
 	}
 
 	private <W> ContainerChangeset<W> cacheIfUnchanged(long from, SqlOperation<ContainerChangeset<W>> op) {
@@ -347,7 +363,6 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	private ItemVersion create(Item item, T value, ChangelogStore changelogStore, ItemStore itemStore,
 			IItemValueStore<T> itemValueStore, ReservedIds.ConsumerHandler handler) {
 		checkWritable();
-		lastEmptyChangeset.invalidate(containerCacheKey);
 
 		String uid = item.uid;
 		Long internalId = item.id;
@@ -363,11 +378,13 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 				throw new ServerFault(
 						"itemStore " + itemStore + " has **NOT** created item " + item + " can't continue");
 			}
+
+			createValue(created, value, itemValueStore);
 			if (hasChangeLog) {
 				changelogStore.itemCreated(LogEntry.create(created.version, created.uid, created.externalId,
 						securityContext.getSubject(), origin, created.id, weightSeedProvider.weightSeed(value)));
 			}
-			createValue(created, value, itemValueStore);
+			lastEmptyChangeset.invalidate(containerCacheKey);
 			if (hasChangeLog) {
 				containerChangeEventProducer.get().produceEvent();
 			}
@@ -390,8 +407,6 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 
 	@Override
 	public void attach(String uid, String displayName, T value) {
-		lastEmptyChangeset.invalidate(containerCacheKey);
-
 		doOrFail(() -> {
 
 			Item item = itemStore.getForUpdate(uid);
@@ -410,6 +425,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 				containerChangeEventProducer.get().produceEvent();
 			}
 			createValue(item, value);
+			lastEmptyChangeset.invalidate(containerCacheKey);
 			return null;
 		});
 	}
@@ -436,7 +452,6 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 
 	protected ItemVersion update(Item item, String displayName, T value, ReservedIds.ConsumerHandler handler) {
 		checkWritable();
-		lastEmptyChangeset.invalidate(containerCacheKey);
 
 		return doOrFail(() -> {
 
@@ -464,6 +479,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 
 			T oldValue = doOrFail(() -> itemValueStore.get(updated));
 			updateValue(updated, value);
+			lastEmptyChangeset.invalidate(containerCacheKey);
 			if (hasChangeLog) {
 				containerChangeEventProducer.get().produceEvent();
 			}
@@ -485,7 +501,6 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	@Override
 	public ItemVersion update(long itemId, String displayName, T value) {
 		checkWritable();
-		lastEmptyChangeset.invalidate(containerCacheKey);
 
 		return doOrFail(() -> {
 
@@ -520,6 +535,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 					logService.logUpdate(itemValue, oldValue);
 				}
 			}
+			lastEmptyChangeset.invalidate(containerCacheKey);
 
 			ItemValue<T> iv = ItemValue.create(item, value);
 			backupStream.get().store(iv);
@@ -540,7 +556,6 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	@Override
 	public ItemVersion delete(String uid) {
 		checkWritable();
-		lastEmptyChangeset.invalidate(containerCacheKey);
 
 		return doOrFail(() -> {
 			Item item = itemStore.getForUpdate(uid);
@@ -556,6 +571,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 				containerChangeEventProducer.get().produceEvent();
 			}
 			itemStore.delete(item);
+			lastEmptyChangeset.invalidate(containerCacheKey);
 			ContainerDescriptor cd = ContainerDescriptor.create(container.uid, container.name, container.owner,
 					container.type, container.domainUid, false);
 			cd.internalId = container.id;
@@ -570,7 +586,6 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	@Override
 	public ItemVersion delete(long id) {
 		checkWritable();
-		lastEmptyChangeset.invalidate(containerCacheKey);
 
 		return doOrFail(() -> {
 			Item item = itemStore.getForUpdate(id);
@@ -586,6 +601,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 				containerChangeEventProducer.get().produceEvent();
 			}
 			itemStore.delete(item);
+			lastEmptyChangeset.invalidate(containerCacheKey);
 
 			ContainerDescriptor cd = ContainerDescriptor.create(container.uid, container.name, container.owner,
 					container.type, container.domainUid, false);
@@ -598,7 +614,6 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 
 	@Override
 	public void detach(String uid) {
-		lastEmptyChangeset.invalidate(containerCacheKey);
 
 		doOrFail(() -> {
 			Item item = itemStore.getForUpdate(uid);
@@ -607,6 +622,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			}
 			item = itemStore.touch(uid);
 			deleteValue(item);
+			lastEmptyChangeset.invalidate(containerCacheKey);
 			if (hasChangeLog) {
 				changelogStore.itemUpdated(LogEntry.create(item.version, item.uid, item.externalId,
 						securityContext.getSubject(), origin, item.id, 0L));
@@ -623,7 +639,6 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	@Override
 	public void deleteAll() {
 		checkWritable();
-		lastEmptyChangeset.invalidate(containerCacheKey);
 
 		doOrFail(() -> {
 			// delete values
@@ -635,6 +650,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			}
 			// delete items
 			itemStore.deleteAll();
+			lastEmptyChangeset.invalidate(containerCacheKey);
 			return null;
 		});
 	}
@@ -642,7 +658,6 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	@Override
 	public void prepareContainerDelete() {
 		checkWritable();
-		lastEmptyChangeset.invalidate(containerCacheKey);
 
 		doOrFail(() -> {
 			// delete acl
@@ -655,6 +670,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			}
 			// delete items
 			itemStore.deleteAll();
+			lastEmptyChangeset.invalidate(containerCacheKey);
 			return null;
 		});
 	}
@@ -789,7 +805,6 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	@Override
 	public ItemVersion touch(String uid) {
 		checkWritable();
-		lastEmptyChangeset.invalidate(containerCacheKey);
 
 		return doOrFail(() -> {
 			Item item = itemStore.touch(uid);
@@ -797,6 +812,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			if (item == null) {
 				throw ServerFault.notFound("entry[" + uid + "]@" + container.uid + " not found in pool " + pool);
 			}
+			lastEmptyChangeset.invalidate(containerCacheKey);
 
 			if (hasChangeLog) {
 				T value = getValue(item);

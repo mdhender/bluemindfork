@@ -19,7 +19,6 @@
 
 package net.bluemind.core.auditlogs.client.es;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -39,14 +38,17 @@ import co.elastic.clients.elasticsearch._types.query_dsl.TermQuery;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.json.JsonData;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.auditlogs.AuditLogEntry;
 import net.bluemind.core.auditlogs.AuditLogQuery;
 import net.bluemind.core.auditlogs.IAuditLogClient;
 import net.bluemind.core.container.model.ChangeLogEntry.Type;
 import net.bluemind.core.container.model.ItemChangeLogEntry;
 import net.bluemind.core.container.model.ItemChangelog;
-import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
+import net.bluemind.lib.elasticsearch.Pit;
+import net.bluemind.lib.elasticsearch.Pit.PaginableSearchQueryBuilder;
+import net.bluemind.lib.elasticsearch.Pit.PaginationParams;
 import net.bluemind.lib.elasticsearch.exception.ElasticDocumentException;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.network.topology.TopologyException;
@@ -69,16 +71,9 @@ public class ElasticSearchAuditLogClient implements IAuditLogClient {
 		if (StateContext.getState() != SystemState.CORE_STATE_RUNNING) {
 			return;
 		}
-
 		try {
-			ElasticsearchClient esClient = ESearchActivator.getClient();
-			if (esClient == null) {
-				return;
-			}
-			byte[] bytes = JsonUtils.asBytes(document);
-			esClient.index(i -> i.index(INDEX_AUDIT_LOG).withJson(new ByteArrayInputStream(bytes)));
-		} catch (ElasticsearchException | IOException e) {
-			logger.error("Problem wih '{}': {}", INDEX_AUDIT_LOG, e.getMessage());
+			JsonObject js = JsonObject.mapFrom(document);
+			requester.request(js);
 		} catch (TopologyException e) {
 			logger.warn("ElasticClient is not available: {}", e.getMessage());
 		}
@@ -110,19 +105,20 @@ public class ElasticSearchAuditLogClient implements IAuditLogClient {
 
 	@Override
 	public List<AuditLogEntry> queryAuditLog(AuditLogQuery query) {
-		ElasticsearchClient esClient = ESearchActivator.getClient();
-		SortOptions sort = new SortOptions.Builder().field(f -> f.field("@timestamp").order(SortOrder.Asc)).build();
-		BoolQuery boolQuery = buildQuery(query);
+		SortOptions sortOptions = new SortOptions.Builder().field(f -> f.field("@timestamp").order(SortOrder.Desc))
+				.build();
+		BoolQuery boolQuery = buildEsQuery(query);
 		logger.debug("query for auditlog: {}", boolQuery);
-		try {
-			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-					.index(INDEX_AUDIT_LOG).sort(sort).size(query.size) //
-					.query(q -> q.bool(boolQuery)), AuditLogEntry.class);
-			if (!response.hits().hits().isEmpty()) {
-				return response.hits().hits().stream().map(Hit::source).toList();
-			}
-			return Collections.emptyList();
+		PaginableSearchQueryBuilder paginable = s -> s //
+				.source(so -> so.fetch(true)) //
+				.trackTotalHits(t -> t.enabled(true)) //
+				.query(q -> q.bool(boolQuery)) //
+				.sort(sortOptions);
 
+		try {
+			return (query.size > 10_000) //
+					? paginatedSearch(paginable, query) //
+					: simpleSearch(paginable, query);
 		} catch (ElasticsearchException | IOException e) {
 			e.printStackTrace();
 			logger.error("Problem wih '{}': {}", INDEX_AUDIT_LOG, e.getMessage());
@@ -158,7 +154,7 @@ public class ElasticSearchAuditLogClient implements IAuditLogClient {
 		return changelog;
 	}
 
-	private BoolQuery buildQuery(AuditLogQuery query) {
+	private BoolQuery buildEsQuery(AuditLogQuery query) {
 		BoolQuery.Builder builder = new BoolQuery.Builder();
 		if (query.container != null) {
 			builder.must(TermQuery.of(t -> t.field("container.uid").value(query.container))._toQuery());
@@ -182,7 +178,26 @@ public class ElasticSearchAuditLogClient implements IAuditLogClient {
 			builder.must(RangeQuery.of(t -> t.field("@timestamp").gt(JsonData.of(query.from.getTime())))._toQuery());
 		}
 		return builder.build();
+	}
 
+	private List<AuditLogEntry> simpleSearch(PaginableSearchQueryBuilder paginableSearch, AuditLogQuery query)
+			throws ElasticsearchException, IOException {
+		ElasticsearchClient esClient = ESearchActivator.getClient();
+
+		SearchResponse<AuditLogEntry> response = esClient.search(paginableSearch.andThen(s -> {
+			s.index(INDEX_AUDIT_LOG);
+			return (query.size > 0) ? s.size(query.size) : s;
+		}), AuditLogEntry.class);
+		return response.hits().hits().stream().map(Hit::source).toList();
+	}
+
+	private List<AuditLogEntry> paginatedSearch(PaginableSearchQueryBuilder paginableSearch, AuditLogQuery query)
+			throws ElasticsearchException, IOException {
+		ElasticsearchClient esClient = ESearchActivator.getClient();
+		SortOptions sort = new SortOptions.Builder().field(f -> f.field("@timestamp").order(SortOrder.Desc)).build();
+		try (Pit<AuditLogEntry> pit = Pit.allocate(esClient, INDEX_AUDIT_LOG, 60, AuditLogEntry.class)) {
+			return pit.allPages(paginableSearch, new PaginationParams(0, query.size, sort), Hit::source);
+		}
 	}
 
 }

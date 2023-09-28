@@ -22,7 +22,6 @@ package net.bluemind.backend.mail.replica.service.internal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -72,7 +71,7 @@ public class DbMailboxRecordsAuditLogMapper implements ILogMapperProvider<Mailbo
 		StringBuilder stringBuilder = new StringBuilder();
 		if (!removedFlags.isEmpty()) {
 			stringBuilder.append("Removed Flags:\n")
-					.append(addedFlags.stream().map(MailboxItemFlag::toString).collect(Collectors.joining(",")))
+					.append(removedFlags.stream().map(MailboxItemFlag::toString).collect(Collectors.joining(",")))
 					.append("\n");
 		}
 		if (!addedFlags.isEmpty()) {
@@ -80,7 +79,7 @@ public class DbMailboxRecordsAuditLogMapper implements ILogMapperProvider<Mailbo
 					.append(addedFlags.stream().map(MailboxItemFlag::toString).collect(Collectors.joining(",")))
 					.append("\n");
 		}
-		if (isMinorDifference(newFlags)) {
+		if (isMinorDifference(oldFlags, newFlags)) {
 			return new AuditLogUpdateStatus(stringBuilder.toString(), MessageCriticity.MINOR);
 		}
 		return new AuditLogUpdateStatus(stringBuilder.toString());
@@ -122,18 +121,18 @@ public class DbMailboxRecordsAuditLogMapper implements ILogMapperProvider<Mailbo
 		}
 
 		if (body.containsKey("has")) {
-			builder.has = new HashMap<>();
+			builder.has = new ArrayList<>();
 			String hasString = body.get("has").toString();
 			if (hasString.startsWith("[")) {
 				List<String> hasList = Arrays.asList(hasString.replace("[", "").replace("]", "").split(", "));
 				if (hasList.contains(VOICEMAIL)) {
-					builder.has.put(VOICEMAIL, VOICEMAIL);
+					builder.has.add(VOICEMAIL);
 				}
 				if (hasList.contains(INVITATION)) {
-					builder.has.put(INVITATION, INVITATION);
+					builder.has.add(INVITATION);
 				}
 				if (hasList.contains(ATTACHMENTS)) {
-					builder.has.put(ATTACHMENTS, ATTACHMENTS);
+					builder.has.add(ATTACHMENTS);
 				}
 			}
 		}
@@ -158,8 +157,14 @@ public class DbMailboxRecordsAuditLogMapper implements ILogMapperProvider<Mailbo
 		return Collections.emptyList();
 	}
 
-	private boolean isMinorDifference(List<MailboxItemFlag> newFlags) {
-		return newFlags.size() == 1 && newFlags.contains(MailboxItemFlag.System.Seen.value());
+	private boolean isMinorDifference(List<MailboxItemFlag> oldFlags, List<MailboxItemFlag> newFlags) {
+		if (newFlags.size() == 1 && newFlags.contains(MailboxItemFlag.System.Seen.value())) {
+			return true;
+		}
+		if (oldFlags.size() == 1 && oldFlags.contains(MailboxItemFlag.System.Seen.value()) && newFlags.isEmpty()) {
+			return true;
+		}
+		return false;
 	}
 
 }

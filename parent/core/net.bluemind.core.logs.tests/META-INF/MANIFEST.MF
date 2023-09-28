@@ -38,7 +38,7 @@ Require-Bundle: org.junit;bundle-version="4.13.2",
  net.bluemind.core.auditlogs.client.es,
  net.bluemind.system.state,
  org.awaitility;bundle-version="4.2.0",
- org.hamcrest;bundle-version="2.2.0"
+ org.hamcrest;bundle-version="2.2.0",
  net.bluemind.calendar.service,
  net.bluemind.user.service,
  net.bluemind.dockerclient,

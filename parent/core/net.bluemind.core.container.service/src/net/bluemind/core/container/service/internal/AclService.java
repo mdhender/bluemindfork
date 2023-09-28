@@ -21,7 +21,6 @@ package net.bluemind.core.container.service.internal;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
@@ -62,17 +61,13 @@ public class AclService implements IAccessControlList {
 
 	@Override
 	public void store(final List<AccessControlEntry> entries) throws ServerFault, SQLException {
-		if (auditLog != null) {
-			entries.forEach(e -> auditLog.logCreate(e));
-		}
+		entries.forEach(auditLog::logCreate);
 		aclStore.store(container, entries);
 	}
 
 	@Override
 	public void add(final List<AccessControlEntry> entries) throws SQLException {
-		if (auditLog != null) {
-			entries.forEach(e -> auditLog.logCreate(e));
-		}
+		entries.forEach(auditLog::logCreate);
 		aclStore.add(container, entries);
 	}
 
@@ -84,9 +79,7 @@ public class AclService implements IAccessControlList {
 	@Override
 	public void deleteAll() throws SQLException {
 		List<AccessControlEntry> entries = aclStore.get(container);
-		if (auditLog != null) {
-			entries.forEach(auditLog::logDelete);
-		}
+		entries.forEach(auditLog::logDelete);
 		aclStore.deleteAll(container);
 	}
 
@@ -94,14 +87,8 @@ public class AclService implements IAccessControlList {
 	public List<AccessControlEntry> retrieveAndStore(List<AccessControlEntry> entries) throws ServerFault {
 		try {
 			List<AccessControlEntry> oldEntries = aclStore.retrieveAndStore(container, entries);
-			List<AccessControlEntry> addedEntries = entries.stream().filter(e -> !oldEntries.contains(e))
-					.collect(Collectors.toList());
-			List<AccessControlEntry> removedEntries = oldEntries.stream().filter(e -> !entries.contains(e))
-					.collect(Collectors.toList());
-			if (auditLog != null) {
-				addedEntries.forEach(e -> auditLog.logUpdate(e, null));
-				removedEntries.forEach(auditLog::logDelete);
-			}
+			entries.stream().filter(e -> !oldEntries.contains(e)).forEach(e -> auditLog.logUpdate(e, null));
+			oldEntries.stream().filter(e -> !entries.contains(e)).forEach(auditLog::logDelete);
 			return oldEntries;
 		} catch (ServerFault e) {
 			throw ServerFault.sqlFault(e);

@@ -63,6 +63,7 @@ import net.bluemind.tag.api.TagRef;
 import net.bluemind.tag.persistence.ItemTagRef;
 
 public class NoteServiceTests extends AbstractServiceTests {
+	private final String DATASTREAM_NAME = "audit_log";
 
 	@Test
 	public void testCreate() throws ServerFault, SQLException {
@@ -487,7 +488,7 @@ public class NoteServiceTests extends AbstractServiceTests {
 		getServiceNote(defaultSecurityContext, container.uid).create("test2", defaultVNote());
 		getServiceNote(defaultSecurityContext, container.uid).delete("test1");
 		getServiceNote(defaultSecurityContext, container.uid).update("test2", defaultVNote());
-		ESearchActivator.refreshIndex("audit_log");
+		ESearchActivator.refreshIndex(DATASTREAM_NAME);
 		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
 			ItemChangelog itemChangeLog = getServiceNote(defaultSecurityContext, container.uid).itemChangelog("test1",
 					0L);
@@ -514,7 +515,7 @@ public class NoteServiceTests extends AbstractServiceTests {
 		getServiceNote(defaultSecurityContext, container.uid).update("test1", defaultVNote());
 		getServiceNote(defaultSecurityContext, container.uid).update("test1", defaultVNote());
 		getServiceNote(defaultSecurityContext, container.uid).update("test1", defaultVNote());
-		ESearchActivator.refreshIndex("audit_log");
+		ESearchActivator.refreshIndex(DATASTREAM_NAME);
 		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
 			ItemChangelog itemChangeLog = getServiceNote(defaultSecurityContext, container.uid).itemChangelog("test1",
 					0L);

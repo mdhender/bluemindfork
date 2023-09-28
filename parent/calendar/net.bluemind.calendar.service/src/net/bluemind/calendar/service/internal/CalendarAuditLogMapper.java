@@ -21,9 +21,7 @@ package net.bluemind.calendar.service.internal;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -134,12 +132,10 @@ public class CalendarAuditLogMapper implements ILogMapperProvider<VEventSeries> 
 
 		builder.description(event.summary);
 		List<String> attendees = new ArrayList<>();
-		Map<String, String> has = new HashMap<>();
+		List<String> has = new ArrayList<>();
 		if (event.attendees != null) {
 			attendees.addAll(event.attendees.stream().map(a -> a.mailto.trim()).toList());
 			attendees.addAll(event.attendees.stream().map(a -> a.commonName.trim()).toList());
-			has.put("partStatus",
-					event.attendees.stream().map(a -> a.mailto.trim() + ": " + a.partStatus).toList().toString());
 			builder.with(attendees);
 		}
 		if (event.organizer != null) {
@@ -148,12 +144,12 @@ public class CalendarAuditLogMapper implements ILogMapperProvider<VEventSeries> 
 			attendees.addAll(organizers);
 		}
 
-		Map<String, String> is = new HashMap<>();
+		List<String> is = new ArrayList<>();
 		if (event.dtstart != null) {
-			is.put("dtstart", (event.dtstart.toString()));
+			is.add("dtstart:" + (event.dtstart.toString()));
 		}
 		if (event.dtend != null) {
-			is.put("dtendt", (event.dtend.toString()));
+			is.add("dtendt:" + (event.dtend.toString()));
 		}
 		if (!is.isEmpty()) {
 			builder.is(is);

@@ -30,7 +30,9 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+import org.awaitility.Awaitility;
 import org.junit.Test;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
@@ -84,6 +86,29 @@ public class DbMailboxRecordsServiceLogTests extends AbstractMailboxRecordsServi
 		return records.getComplete(mailUid);
 	}
 
+	private ItemValue<MailboxRecord> createBodyAndRecord(int imapUid, Date internalDate, String eml,
+			List<MailboxItemFlag> flags) {
+		IDbMessageBodies mboxes = getBodies(SecurityContext.SYSTEM);
+		assertNotNull(mboxes);
+		ReadStream<Buffer> emlReadStream = openResource(eml);
+		Stream bmStream = VertxStream.stream(emlReadStream);
+		String bodyUid = CyrusGUID.randomGuid();
+		mboxes.create(bodyUid, bmStream);
+
+		IDbMailboxRecords records = getService(SecurityContext.SYSTEM);
+		assertNotNull(records);
+		MailboxRecord record = new MailboxRecord();
+		record.imapUid = imapUid;
+		record.internalDate = internalDate;
+		record.lastUpdated = record.internalDate;
+		record.messageBody = bodyUid;
+		record.flags = flags;
+		String mailUid = "uid." + imapUid;
+		records.create(mailUid, record);
+
+		return records.getComplete(mailUid);
+	}
+
 	@Test
 	public void createAndUpdateMailboxRecordChangeFlags() throws ServerFault, ElasticsearchException, IOException {
 		ItemValue<MailboxRecord> mailRecord1 = createBodyAndRecord(1, adaptDate(5), "data/sort_1.eml");
@@ -123,17 +148,19 @@ public class DbMailboxRecordsServiceLogTests extends AbstractMailboxRecordsServi
 
 		ESearchActivator.refreshIndex(AUDIT_LOG_DATASTREAM);
 
-		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-				.index(AUDIT_LOG_DATASTREAM) //
-				.query(q -> q.bool(b -> b
-						.must(TermQuery.of(t -> t.field("container.uid").value("mbox_records_" + mboxUniqueId))
-								._toQuery())
-						.must(TermQuery.of(t -> t.field("logtype").value("mailbox_records"))._toQuery())
-						.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
-				AuditLogEntry.class);
-		assertEquals(3L, response.hits().total().value());
+		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
+					.index(AUDIT_LOG_DATASTREAM) //
+					.query(q -> q.bool(b -> b
+							.must(TermQuery.of(t -> t.field("container.uid").value("mbox_records_" + mboxUniqueId))
+									._toQuery())
+							.must(TermQuery.of(t -> t.field("logtype").value("mailbox_records"))._toQuery())
+							.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
+					AuditLogEntry.class);
+			return 3L == response.hits().total().value();
+		});
 
-		response = esClient.search(s -> s //
+		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
 				.index(AUDIT_LOG_DATASTREAM) //
 				.query(q -> q.bool(b -> b
 						.must(TermQuery.of(t -> t.field("container.uid").value("mbox_records_" + mboxUniqueId))
@@ -147,12 +174,11 @@ public class DbMailboxRecordsServiceLogTests extends AbstractMailboxRecordsServi
 		AuditLogEntry secondAuditLogEntry = response.hits().hits().get(1).source();
 
 		assertEquals("first subject", firstAuditLogEntry.content.description());
-		assertEquals("Removed Flags:\n\\Flagged,\\Answered\nAdded Flags:\n\\Flagged,\\Answered\n",
-				firstAuditLogEntry.updatemessage);
+		assertEquals("Removed Flags:\n\\Draft\nAdded Flags:\n\\Flagged,\\Answered\n", firstAuditLogEntry.updatemessage);
 		assertEquals(MessageCriticity.MAJOR, firstAuditLogEntry.criticity);
 
 		assertEquals("third subject", secondAuditLogEntry.content.description());
-		assertEquals("Removed Flags:\n\\Seen\nAdded Flags:\n\\Seen\n", secondAuditLogEntry.updatemessage);
+		assertEquals("Removed Flags:\n\\Draft\nAdded Flags:\n\\Seen\n", secondAuditLogEntry.updatemessage);
 		assertEquals(MessageCriticity.MINOR, secondAuditLogEntry.criticity);
 
 		response = esClient.search(s -> s //
@@ -169,12 +195,87 @@ public class DbMailboxRecordsServiceLogTests extends AbstractMailboxRecordsServi
 	}
 
 	@Test
+	public void createAndUpdateMailboxRecordChangeFlagsReadToUnread()
+			throws ServerFault, ElasticsearchException, IOException {
+		ItemValue<MailboxRecord> mailRecord1 = createBodyAndRecord(1, adaptDate(5), "data/sort_1.eml",
+				Arrays.asList(MailboxItemFlag.System.Seen.value()));
+
+		IDbMailboxRecords records = getService(SecurityContext.SYSTEM);
+
+		ElasticsearchClient esClient = ESearchActivator.getClient();
+
+		List<Long> sortedIds = records.sortedIds(null);
+		assertNotNull(sortedIds);
+		assertEquals(1, sortedIds.size());
+		assertTrue(mailRecord1.internalId == sortedIds.get(0).longValue());
+
+		// Remove Seen flag
+		mailRecord1.value.flags = Arrays.asList();
+		records.update(mailRecord1.uid, mailRecord1.value);
+
+		ESearchActivator.refreshIndex(AUDIT_LOG_DATASTREAM);
+
+		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
+					.index(AUDIT_LOG_DATASTREAM) //
+					.query(q -> q.bool(b -> b
+							.must(TermQuery.of(t -> t.field("container.uid").value("mbox_records_" + mboxUniqueId))
+									._toQuery())
+							.must(TermQuery.of(t -> t.field("logtype").value("mailbox_records"))._toQuery())
+							.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
+					AuditLogEntry.class);
+			return 1L == response.hits().total().value();
+		});
+
+		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
+					.index(AUDIT_LOG_DATASTREAM) //
+					.query(q -> q.bool(b -> b
+							.must(TermQuery.of(t -> t.field("container.uid").value("mbox_records_" + mboxUniqueId))
+									._toQuery())
+							.must(TermQuery.of(t -> t.field("logtype").value("mailbox_records"))._toQuery())
+							.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
+					AuditLogEntry.class);
+			return 1L == response.hits().total().value();
+		});
+
+		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
+				.index(AUDIT_LOG_DATASTREAM) //
+				.query(q -> q.bool(b -> b
+						.must(TermQuery.of(t -> t.field("container.uid").value("mbox_records_" + mboxUniqueId))
+								._toQuery())
+						.must(TermQuery.of(t -> t.field("logtype").value("mailbox_records"))._toQuery())
+						.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
+				AuditLogEntry.class);
+		assertEquals(1L, response.hits().total().value());
+
+		AuditLogEntry firstAuditLogEntry = response.hits().hits().get(0).source();
+
+		assertEquals("first subject", firstAuditLogEntry.content.description());
+		System.err.println(firstAuditLogEntry.updatemessage);
+		assertEquals("Removed Flags:\n\\Seen\n", firstAuditLogEntry.updatemessage);
+		assertEquals(MessageCriticity.MINOR, firstAuditLogEntry.criticity);
+	}
+
+	@Test
 	public void createMailboxRecordWithAttachmentVoicemailInvitation()
 			throws ServerFault, ElasticsearchException, IOException {
 		createBodyAndRecord(1, adaptDate(5), "data/with_voicemail.eml");
 
 		ElasticsearchClient esClient = ESearchActivator.getClient();
 		ESearchActivator.refreshIndex(AUDIT_LOG_DATASTREAM);
+
+		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
+					.index(AUDIT_LOG_DATASTREAM) //
+					.query(q -> q.bool(b -> b
+							.must(TermQuery.of(t -> t.field("container.uid").value("mbox_records_" + mboxUniqueId))
+									._toQuery())
+							.must(TermQuery.of(t -> t.field("logtype").value("mailbox_records"))._toQuery())
+							.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
+					AuditLogEntry.class);
+			return 1L == response.hits().total().value();
+		});
 
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
 				.index(AUDIT_LOG_DATASTREAM) //
@@ -184,7 +285,6 @@ public class DbMailboxRecordsServiceLogTests extends AbstractMailboxRecordsServi
 						.must(TermQuery.of(t -> t.field("logtype").value("mailbox_records"))._toQuery())
 						.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
 				AuditLogEntry.class);
-		assertEquals(1L, response.hits().total().value());
 
 		AuditLogEntry firstAuditLogEntry = response.hits().hits().get(0).source();
 		assertEquals(2, firstAuditLogEntry.content.has().size());

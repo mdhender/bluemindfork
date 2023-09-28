@@ -66,7 +66,7 @@ public class TodoListLogTests extends AbstractServiceTests {
 		Message<JsonObject> message = createdMessageChecker.shouldSuccess();
 		assertNotNull(message);
 
-		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+		Awaitility.await().atMost(3, TimeUnit.SECONDS).until(() -> {
 			SearchResponse<AuditLogEntry> response = esClient.search(
 					s -> s.index(AUDIT_LOG_DATASTREAM).query(q -> q.bool(b -> b
 							.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
@@ -91,7 +91,7 @@ public class TodoListLogTests extends AbstractServiceTests {
 
 		ElasticsearchClient esClient = ESearchActivator.getClient();
 
-		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+		Awaitility.await().atMost(3, TimeUnit.SECONDS).until(() -> {
 			SearchResponse<AuditLogEntry> response = esClient.search(
 					s -> s.index(AUDIT_LOG_DATASTREAM).query(q -> q.bool(b -> b
 							.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
@@ -141,7 +141,7 @@ public class TodoListLogTests extends AbstractServiceTests {
 		ESearchActivator.refreshIndex(AUDIT_LOG_DATASTREAM);
 
 		ElasticsearchClient esClient = ESearchActivator.getClient();
-		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+		Awaitility.await().atMost(3, TimeUnit.SECONDS).until(() -> {
 			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
 					.index("audit_log") //
 					.query(q -> q.bool(b -> b

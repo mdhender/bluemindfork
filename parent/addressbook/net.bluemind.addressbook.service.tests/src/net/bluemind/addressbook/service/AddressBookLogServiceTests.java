@@ -196,9 +196,9 @@ public class AddressBookLogServiceTests extends AbstractServiceTests {
 		assertEquals(null, auditLogEntry.content.description());
 		assertTrue(auditLogEntry.content.with().isEmpty());
 		assertTrue(!auditLogEntry.content.newValue().isBlank());
-		assertEquals(null, auditLogEntry.content.author());
-		assertEquals(null, auditLogEntry.content.is());
-		assertEquals(null, auditLogEntry.content.has());
+		assertEquals(Collections.emptyList(), auditLogEntry.content.author());
+		assertEquals(Collections.emptyList(), auditLogEntry.content.is());
+		assertEquals(Collections.emptyList(), auditLogEntry.content.has());
 	}
 
 	@Test
@@ -263,9 +263,9 @@ public class AddressBookLogServiceTests extends AbstractServiceTests {
 		assertEquals(null, auditLogEntry.content.description());
 		assertTrue(auditLogEntry.content.with().isEmpty());
 		assertTrue(!auditLogEntry.content.newValue().isBlank());
-		assertEquals(null, auditLogEntry.content.author());
-		assertEquals(null, auditLogEntry.content.is());
-		assertEquals(null, auditLogEntry.content.has());
+		assertEquals(Collections.emptyList(), auditLogEntry.content.author());
+		assertEquals(Collections.emptyList(), auditLogEntry.content.is());
+		assertEquals(Collections.emptyList(), auditLogEntry.content.has());
 	}
 
 	@Test
@@ -307,21 +307,12 @@ public class AddressBookLogServiceTests extends AbstractServiceTests {
 					.query(q -> q.bool(b -> b
 							.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
 							.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
-							.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
+							.must(TermQuery.of(t -> t.field("action").value(Type.Deleted.toString()))._toQuery()))),
 					AuditLogEntry.class);
 			return 1L == response.hits().total().value();
 		});
 
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-				.index("audit_log") //
-				.query(q -> q
-						.bool(b -> b.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
-								.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
-								.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
-				AuditLogEntry.class);
-		assertEquals(1L, response.hits().total().value());
-
-		response = esClient.search(s -> s //
 				.index("audit_log") //
 				.query(q -> q
 						.bool(b -> b.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
@@ -337,7 +328,6 @@ public class AddressBookLogServiceTests extends AbstractServiceTests {
 								.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
 								.must(TermQuery.of(t -> t.field("action").value(Type.Deleted.toString()))._toQuery()))),
 				AuditLogEntry.class);
-		assertEquals(1L, response.hits().total().value());
 
 		AuditLogEntry auditLogEntry = response.hits().hits().get(0).source();
 		assertEquals("test", auditLogEntry.securityContext.uid());
@@ -358,9 +348,9 @@ public class AddressBookLogServiceTests extends AbstractServiceTests {
 		assertEquals(null, auditLogEntry.content.description());
 		assertTrue(auditLogEntry.content.with().isEmpty());
 		assertTrue(!auditLogEntry.content.newValue().isBlank());
-		assertEquals(null, auditLogEntry.content.author());
-		assertEquals(null, auditLogEntry.content.is());
-		assertEquals(null, auditLogEntry.content.has());
+		assertEquals(Collections.emptyList(), auditLogEntry.content.author());
+		assertEquals(Collections.emptyList(), auditLogEntry.content.is());
+		assertEquals(Collections.emptyList(), auditLogEntry.content.has());
 	}
 
 	@Test

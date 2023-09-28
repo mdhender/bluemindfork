@@ -105,10 +105,10 @@ public class AuditLogGetTests extends AbstractAuditLogServiceTests {
 			}
 		}).toList();
 		assertEquals(4, auditLogEntries.size());
-		assertEquals(event01.main.summary, auditLogEntries.get(0).content.description());
-		assertEquals(event02.main.summary, auditLogEntries.get(1).content.description());
-		assertEquals(event03.main.summary, auditLogEntries.get(2).content.description());
-		assertEquals(event04.main.summary, auditLogEntries.get(3).content.description());
+		assertEquals(event04.main.summary, auditLogEntries.get(0).content.description());
+		assertEquals(event03.main.summary, auditLogEntries.get(1).content.description());
+		assertEquals(event02.main.summary, auditLogEntries.get(2).content.description());
+		assertEquals(event01.main.summary, auditLogEntries.get(3).content.description());
 	}
 
 	@Test
@@ -163,13 +163,13 @@ public class AuditLogGetTests extends AbstractAuditLogServiceTests {
 			}
 		}).toList();
 		assertEquals(7, auditLogEntries.size());
-		assertEquals(event01.main.summary, auditLogEntries.get(0).content.description());
-		assertEquals(event02.main.summary, auditLogEntries.get(1).content.description());
-		assertEquals(event03.main.summary, auditLogEntries.get(2).content.description());
-		assertEquals(event04.main.summary, auditLogEntries.get(3).content.description());
-		assertEquals("first subject", auditLogEntries.get(4).content.description());
+		assertEquals(event04.main.summary, auditLogEntries.get(0).content.description());
+		assertEquals(event03.main.summary, auditLogEntries.get(1).content.description());
+		assertEquals(event02.main.summary, auditLogEntries.get(2).content.description());
+		assertEquals(event01.main.summary, auditLogEntries.get(3).content.description());
+		assertEquals("third subject", auditLogEntries.get(4).content.description());
 		assertEquals("second subject", auditLogEntries.get(5).content.description());
-		assertEquals("third subject", auditLogEntries.get(6).content.description());
+		assertEquals("first subject", auditLogEntries.get(6).content.description());
 	}
 
 	@Test
@@ -190,8 +190,8 @@ public class AuditLogGetTests extends AbstractAuditLogServiceTests {
 			}
 		}).toList();
 		assertEquals(2, auditLogEntries.size());
-		assertEquals(event01.main.summary, auditLogEntries.get(0).content.description());
-		assertEquals(event02.main.summary, auditLogEntries.get(1).content.description());
+		assertEquals(event02.main.summary, auditLogEntries.get(0).content.description());
+		assertEquals(event01.main.summary, auditLogEntries.get(1).content.description());
 	}
 
 	@Test
@@ -232,9 +232,9 @@ public class AuditLogGetTests extends AbstractAuditLogServiceTests {
 			}
 		}).toList();
 		assertEquals(3, auditLogEntries.size());
-		assertEquals(event01.main.summary, auditLogEntries.get(0).content.description());
+		assertEquals(event03.main.summary, auditLogEntries.get(0).content.description());
 		assertEquals(event02.main.summary, auditLogEntries.get(1).content.description());
-		assertEquals(event03.main.summary, auditLogEntries.get(2).content.description());
+		assertEquals(event01.main.summary, auditLogEntries.get(2).content.description());
 	}
 
 	@Test
@@ -271,9 +271,9 @@ public class AuditLogGetTests extends AbstractAuditLogServiceTests {
 			}
 		}).toList();
 		assertEquals(3, auditLogEntries.size());
-		assertEquals(user01.value.defaultEmailAddress(), auditLogEntries.get(0).securityContext.email());
+		assertEquals(user02.value.defaultEmailAddress(), auditLogEntries.get(0).securityContext.email());
 		assertEquals(user01.value.defaultEmailAddress(), auditLogEntries.get(1).securityContext.email());
-		assertEquals(user02.value.defaultEmailAddress(), auditLogEntries.get(2).securityContext.email());
+		assertEquals(user01.value.defaultEmailAddress(), auditLogEntries.get(2).securityContext.email());
 		assertEquals("junit", auditLogEntries.get(0).securityContext.origin());
 		assertEquals("junit", auditLogEntries.get(1).securityContext.origin());
 		assertEquals("junit", auditLogEntries.get(2).securityContext.origin());

@@ -34,6 +34,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
 
+import org.awaitility.Awaitility;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -225,6 +226,16 @@ public class CalendarLogServiceQueryTests {
 		getCalendarService(user02SecurityContext, user02CalendarContainer).create(uid02, event02, sendNotifications);
 		getCalendarService(user03SecurityContext, user03CalendarContainer).create(uid03, event03, sendNotifications);
 		getCalendarService(user03SecurityContext, user03CalendarContainer).create(uid04, event04, sendNotifications);
+
+		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+			AuditLogQuery logQuery = new AuditLogQuery();
+			logQuery.logtype = CALENDAR_LOGTYPE;
+			logQuery.author = user01.value.defaultEmailAddress();
+
+			ILogRequestService logRequestService = getLogQueryService(user01SecurityContext);
+			List<AuditLogEntry> list = logRequestService.queryAuditLog(logQuery);
+			return 1 == list.size();
+		});
 		ESearchActivator.refreshIndex("audit_log");
 	}
 
@@ -242,10 +253,10 @@ public class CalendarLogServiceQueryTests {
 		ILogRequestService logRequestService = getLogQueryService(user01SecurityContext);
 		List<AuditLogEntry> list = logRequestService.queryAuditLog(logQuery);
 		assertEquals(4, list.size());
-		assertEquals(event01.main.summary, list.get(0).content.description());
-		assertEquals(event02.main.summary, list.get(1).content.description());
-		assertEquals(event03.main.summary, list.get(2).content.description());
-		assertEquals(event04.main.summary, list.get(3).content.description());
+		assertEquals(event04.main.summary, list.get(0).content.description());
+		assertEquals(event03.main.summary, list.get(1).content.description());
+		assertEquals(event02.main.summary, list.get(2).content.description());
+		assertEquals(event01.main.summary, list.get(3).content.description());
 	}
 
 	@Test
@@ -254,13 +265,21 @@ public class CalendarLogServiceQueryTests {
 			getCalendarService(user01SecurityContext, user01CalendarContainer).create("test01_" + System.nanoTime(),
 					event01, sendNotifications);
 		}
-		AuditLogQuery logQuery = new AuditLogQuery();
-		logQuery.logtype = CALENDAR_LOGTYPE;
-		logQuery.size = 20;
+		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+			AuditLogQuery logQuery = new AuditLogQuery();
+			logQuery.logtype = CALENDAR_LOGTYPE;
+			logQuery.size = 20;
 
-		ILogRequestService logRequestService = getLogQueryService(user01SecurityContext);
-		List<AuditLogEntry> list = logRequestService.queryAuditLog(logQuery);
-		assertEquals(20, list.size());
+			ILogRequestService logRequestService = getLogQueryService(user01SecurityContext);
+			List<AuditLogEntry> list = logRequestService.queryAuditLog(logQuery);
+			return 20 == list.size();
+		});
+//		AuditLogQuery logQuery = new AuditLogQuery();
+//		logQuery.logtype = CALENDAR_LOGTYPE;
+//
+//		ILogRequestService logRequestService = getLogQueryService(user01SecurityContext);
+//		List<AuditLogEntry> list = logRequestService.queryAuditLog(logQuery);
+//		assertEquals(20, list.size());
 	}
 
 	@Test
@@ -290,8 +309,8 @@ public class CalendarLogServiceQueryTests {
 		ILogRequestService logRequestService = getLogQueryService(user01SecurityContext);
 		List<AuditLogEntry> list = logRequestService.queryAuditLog(logQuery);
 		assertEquals(2, list.size());
-		assertEquals(event01.main.summary, list.get(0).content.description());
-		assertEquals(event02.main.summary, list.get(1).content.description());
+		assertEquals(event02.main.summary, list.get(0).content.description());
+		assertEquals(event01.main.summary, list.get(1).content.description());
 	}
 
 	@Test
@@ -303,9 +322,9 @@ public class CalendarLogServiceQueryTests {
 		ILogRequestService logRequestService = getLogQueryService(user01SecurityContext);
 		List<AuditLogEntry> list = logRequestService.queryAuditLog(logQuery);
 		assertEquals(3, list.size());
-		assertEquals(event01.main.summary, list.get(0).content.description());
+		assertEquals(event03.main.summary, list.get(0).content.description());
 		assertEquals(event02.main.summary, list.get(1).content.description());
-		assertEquals(event03.main.summary, list.get(2).content.description());
+		assertEquals(event01.main.summary, list.get(2).content.description());
 	}
 
 	@Test

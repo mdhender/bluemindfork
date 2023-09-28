@@ -22,7 +22,6 @@ package net.bluemind.core.container.service.internal;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.awt.Container;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -44,12 +43,15 @@ import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import co.elastic.clients.elasticsearch._types.query_dsl.TermQuery;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import net.bluemind.addressbook.api.VCard;
+import net.bluemind.addressbook.api.VCard.Identification.Name;
 import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.auditlogs.AuditLogEntry;
 import net.bluemind.core.container.api.ContainerSubscription;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
+import net.bluemind.core.container.model.ChangeLogEntry.Type;
+import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.model.acl.Verb;
@@ -135,7 +137,6 @@ public class AclAuditLogServiceTests {
 		// Create containers
 		user01CalendarContainer = createTestContainer(user01SecurityContext, dataDataSource, ICalendarUids.TYPE,
 				"User01Calendar", ICalendarUids.TYPE + ":Default:" + user01.uid, user01.uid);
-
 		user01CalendarDesc = BaseContainerDescriptor.create(user01CalendarContainer.uid, user01CalendarContainer.name,
 				user01CalendarContainer.owner, user01CalendarContainer.type, user01CalendarContainer.domainUid,
 				user01CalendarContainer.defaultContainer);
@@ -238,15 +239,8 @@ public class AclAuditLogServiceTests {
 					AuditLogEntry.class);
 			return response.hits().total().value() == 2;
 		});
-		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-				.index(AUDIT_LOG_DATASTREAM) //
-				.query(q -> q.bool(b -> b
-						.must(TermQuery.of(t -> t.field("container.uid").value(user01CalendarDesc.uid))._toQuery())
-						.must(TermQuery.of(t -> t.field("logtype").value(ACL_AUDITLOG_TYPE))._toQuery())
-						.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
-				AuditLogEntry.class);
 
-		response = esClient.search(s -> s //
+		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
 				.index(AUDIT_LOG_DATASTREAM) //
 				.query(q -> q.bool(b -> b
 						.must(TermQuery.of(t -> t.field("container.uid").value(user01CalendarDesc.uid))._toQuery())
@@ -269,8 +263,8 @@ public class AclAuditLogServiceTests {
 
 		assertEquals(user01.uid, firstEntry.content.key());
 		assertTrue(!firstEntry.content.newValue().isBlank());
-		assertTrue(firstEntry.content.is() == null);
-		assertTrue(firstEntry.content.has() == null);
+		assertTrue(firstEntry.content.is().isEmpty());
+		assertTrue(firstEntry.content.has().isEmpty());
 
 	}
 
@@ -318,8 +312,8 @@ public class AclAuditLogServiceTests {
 
 		assertEquals(user01.uid, firstEntry.content.key());
 		assertTrue(!firstEntry.content.newValue().isBlank());
-		assertTrue(firstEntry.content.is() == null);
-		assertTrue(firstEntry.content.has() == null);
+		assertTrue(firstEntry.content.is().isEmpty());
+		assertTrue(firstEntry.content.has().isEmpty());
 	}
 
 	@Test
@@ -334,6 +328,18 @@ public class AclAuditLogServiceTests {
 		aclService.retrieveAndStore(Arrays.asList(AccessControlEntry.create(user02.uid, Verb.Freebusy)));
 
 		ESearchActivator.refreshIndex(AUDIT_LOG_DATASTREAM);
+
+		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
+					.index(AUDIT_LOG_DATASTREAM) //
+					.query(q -> q.bool(b -> b
+							.must(TermQuery.of(t -> t.field("container.uid").value(user01CalendarDesc.uid))._toQuery())
+							.must(TermQuery.of(t -> t.field("logtype").value(ACL_AUDITLOG_TYPE))._toQuery())
+							.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
+					AuditLogEntry.class);
+			return response.hits().total().value() == 2;
+		});
+
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
 				.index(AUDIT_LOG_DATASTREAM) //
 				.query(q -> q.bool(b -> b
@@ -341,7 +347,6 @@ public class AclAuditLogServiceTests {
 						.must(TermQuery.of(t -> t.field("logtype").value(ACL_AUDITLOG_TYPE))._toQuery())
 						.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
 				AuditLogEntry.class);
-		assertEquals(2L, response.hits().total().value());
 
 		AuditLogEntry firstEntry = response.hits().hits().get(0).source();
 		assertEquals(2L, firstEntry.content.with().size());
@@ -357,8 +362,8 @@ public class AclAuditLogServiceTests {
 
 		assertEquals(user02Acl.subject, firstEntry.content.key());
 		assertTrue(!firstEntry.content.newValue().isBlank());
-		assertTrue(firstEntry.content.is() == null);
-		assertTrue(firstEntry.content.has() == null);
+		assertTrue(firstEntry.content.is().isEmpty());
+		assertTrue(firstEntry.content.has().isEmpty());
 
 		response = esClient.search(s -> s //
 				.index(AUDIT_LOG_DATASTREAM) //

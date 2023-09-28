@@ -157,14 +157,13 @@ public class LogServiceQueryTests {
 		ESearchActivator.refreshIndex("audit_log");
 
 		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
-			LogMailQuery logQuery = new LogMailQuery();
+			AuditLogQuery logQuery = new AuditLogQuery();
 			logQuery.logtype = "mailbox_records";
 			logQuery.author = "user1@devenv.net";
 
 			ILogRequestService logRequestService = getLogQueryService(userSecurityContext1);
-			List<AuditLogEntry> list = logRequestService.queryMailLog(logQuery);
+			List<AuditLogEntry> list = logRequestService.queryAuditLog(logQuery);
 			return 2 == list.size();
-
 		});
 	}
 
@@ -184,6 +183,15 @@ public class LogServiceQueryTests {
 		ILogRequestService logRequestService = getLogQueryService(userSecurityContext1);
 		List<AuditLogEntry> list = logRequestService.queryAuditLog(logQuery);
 		assertEquals(2, list.size());
+	}
+
+	@Test
+	public void testSQueryLogTypeToto() throws InterruptedException {
+		AuditLogQuery logQuery = new AuditLogQuery();
+		logQuery.logtype = "toto";
+		ILogRequestService logRequestService = getLogQueryService(userSecurityContext1);
+		List<AuditLogEntry> list = logRequestService.queryAuditLog(logQuery);
+		assertEquals(0, list.size());
 	}
 
 	@Test

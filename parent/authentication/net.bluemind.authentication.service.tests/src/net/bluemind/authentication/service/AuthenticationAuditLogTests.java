@@ -142,7 +142,6 @@ public class AuthenticationAuditLogTests {
 		IAuthentication authentication = getService(null);
 
 		LoginResponse response = authentication.login("admin0@global.virt", "admin", "junit");
-
 		assertEquals(Status.Ok, response.status);
 		assertNotNull(response.authKey);
 
