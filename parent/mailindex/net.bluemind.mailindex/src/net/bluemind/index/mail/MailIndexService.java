@@ -59,7 +59,7 @@ import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.elasticsearch.core.search.HitsMetadata;
 import co.elastic.clients.elasticsearch.indices.GetAliasResponse;
-import co.elastic.clients.elasticsearch.indices.GetIndexResponse;
+import co.elastic.clients.elasticsearch.indices.GetMappingResponse;
 import co.elastic.clients.elasticsearch.indices.get_alias.IndexAliases;
 import co.elastic.clients.elasticsearch.indices.stats.IndicesStats;
 import co.elastic.clients.elasticsearch.tasks.Status;
@@ -1028,14 +1028,14 @@ public class MailIndexService implements IMailIndexService {
 
 	private List<String> filteredMailspoolIndexNames(ElasticsearchClient esClient) {
 		try {
-			GetIndexResponse response = esClient.indices().get(i -> i.index("mailspool*"));
+			GetMappingResponse response = esClient.indices().getMapping(b -> b.index("mailspool*"));
 			return filterMailspoolIndexNames(response);
 		} catch (ElasticsearchException | IOException e) {
 			return Collections.emptyList();
 		}
 	}
 
-	private List<String> filterMailspoolIndexNames(GetIndexResponse indexResponse) {
+	private List<String> filterMailspoolIndexNames(GetMappingResponse indexResponse) {
 		return indexResponse.result().entrySet().stream() //
 				.filter(e -> !e.getKey().startsWith(INDEX_PENDING))
 				.filter(e -> e.getValue().mappings().meta() == null
