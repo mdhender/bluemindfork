@@ -61,13 +61,16 @@ public class InternalContainersHierarchyMgmtService implements IInternalContaine
 		DirEntry entry = dirApi.findByEntryUid(ownerUid);
 		String loc = null;
 		if (entry != null && entry.dataLocation != null) {
+			if (!entry.kind.hasMailbox()) {
+				return;
+			}
 			loc = entry.dataLocation;
 			ds = context.getMailboxDataSource(entry.dataLocation);
 			Objects.requireNonNull(ds, "Missing datasource for " + entry.dataLocation);
 		}
 		final String resolvedLoc = loc;
 
-		if (entry != null && entry.dataLocation == null && entry.kind.hasMailbox()) {
+		if (entry != null && entry.dataLocation == null) {
 			logger.warn("Skip for now as {} has no datalocation", entry);
 			return;
 		}

@@ -78,7 +78,7 @@ public class BaseDirEntry {
 		}
 
 		public boolean hasMailbox() {
-			return true;
+			return mbox;
 		}
 	}
 
