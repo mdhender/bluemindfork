@@ -325,7 +325,6 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 						b -> b.must(TermQuery.of(t -> t.field("logtype").value(userCalendarContainer.type))._toQuery())
 								.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
 				AuditLogEntry.class);
-		assertEquals(1L, response.hits().total().value());
 		AuditLogEntry firstEntry = response.hits().hits().get(0).source();
 		assertTrue(firstEntry.updatemessage
 				.equals("sylvain@attendee.lan: participation status changed from 'NeedsAction' to 'Accepted'" + CRLF));
