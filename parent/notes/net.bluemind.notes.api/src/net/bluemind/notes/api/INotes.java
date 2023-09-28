@@ -65,10 +65,10 @@ public interface INotes {
 	public void delete(@PathParam("uid") String uid) throws ServerFault;
 
 	/**
-	 * Returns a {@link ListResult} of {@link ItemValue}s containing {@link VEvent}s
+	 * Returns a {@link ListResult} of {@link ItemValue}s containing {@link VNote}s
 	 * 
 	 * @param query {@link VNotesQuery}
-	 * @return {@link ListResult} of {@link ItemValue}s containing {@link VEvent}s
+	 * @return {@link ListResult} of {@link ItemValue}s containing {@link VNote}s
 	 * @throws ServerFault common error object
 	 */
 	@POST

@@ -51,15 +51,5 @@ public class GwtRouting {
 		}
 	};
 
-	public static final ProvidesKey<Routing> KEYPROVIDER = new ProvidesKey<Routing>() {
-
-		@Override
-		public Object getKey(Routing item) {
-			if (item == null) {
-				return null;
-			}
-
-			return item.name();
-		}
-	};
+	public static final ProvidesKey<Routing> KEYPROVIDER = (Routing item) -> item == null ? null : item.name();
 }

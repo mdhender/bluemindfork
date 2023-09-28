@@ -98,7 +98,7 @@ public class DirItemStore extends ItemStore {
 				+ " WHERE item.container_id = ? and item.uid = ANY (?) AND dir.item_id = item.id AND dir.kind = ?";
 
 		String[] array = uids.toArray(new String[0]);
-		return select(selectQuery, (rs) -> new Item(), ITEM_POPULATORS,
+		return select(selectQuery, rs -> new Item(), ITEM_POPULATORS,
 				new Object[] { container.id, array, kind.name() });
 
 	}

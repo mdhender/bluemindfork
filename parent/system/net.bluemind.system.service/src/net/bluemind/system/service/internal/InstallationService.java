@@ -44,8 +44,6 @@ import java.util.concurrent.ExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableList;
-
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.file.AsyncFile;
 import io.vertx.core.file.OpenOptions;
@@ -347,7 +345,7 @@ public class InstallationService implements IInstallation {
 		confService.updateMutableValues(values);
 
 		IDomains domains = provider.instance(IDomains.class);
-		Domain globalDomain = Domain.create("global.virt", "global.virt", "Global domain", new HashSet<String>());
+		Domain globalDomain = Domain.create("global.virt", "global.virt", "Global domain", new HashSet<>());
 		globalDomain.global = true;
 		domains.create("global.virt", globalDomain);
 
@@ -358,7 +356,7 @@ public class InstallationService implements IInstallation {
 		admin.login = "admin0";
 		admin.password = "admin";// NOSONAR
 		admin.routing = Mailbox.Routing.none;
-		admin.emails = ImmutableList.of(net.bluemind.core.api.Email.create("admin0@global.virt", true));
+		admin.emails = List.of(net.bluemind.core.api.Email.create("admin0@global.virt", true));
 		VCard card = new VCard();
 		card.identification.name = VCard.Identification.Name.create("admin0", "admin0", null, null, null, null);
 		admin.contactInfos = card;
@@ -367,7 +365,7 @@ public class InstallationService implements IInstallation {
 
 		userService.create(uid, admin);
 
-		Set<String> roles = new HashSet<String>();
+		Set<String> roles = new HashSet<>();
 		roles.add(SecurityContext.ROLE_SYSTEM);
 		roles.add(SecurityContext.ROLE_ADMIN);
 		roles.add(BasicRoles.ROLE_SELF_CHANGE_PASSWORD);
@@ -440,7 +438,7 @@ public class InstallationService implements IInstallation {
 			return schemaVersionStore.getComponentsVersion();
 		} catch (Exception e) {
 			logger.info("error retrieving database version : {}", e.getMessage(), e);
-			return ImmutableList.of();
+			return Collections.emptyList();
 		}
 	}
 
@@ -688,12 +686,12 @@ public class InstallationService implements IInstallation {
 
 	@Override
 	public String getHostReport() {
-		return HostReportProvider.getHostReportService().get().getHostReport(context);
+		return HostReportProvider.getHostReportService().orElseThrow().getHostReport(context);
 	}
 
 	@Override
 	public String sendHostReport() {
-		return HostReportProvider.getHostReportService().get().sendHostReport(context);
+		return HostReportProvider.getHostReportService().orElseThrow().sendHostReport(context);
 	}
 
 }

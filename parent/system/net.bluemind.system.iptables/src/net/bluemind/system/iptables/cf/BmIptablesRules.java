@@ -47,7 +47,7 @@ public class BmIptablesRules extends AbstractConfFile {
 	@Override
 	public void write(INodeClient nc) throws ServerFault {
 		Template mcf = openTemplate("bm-iptables");
-		Map<String, Object> data = new HashMap<String, Object>();
+		Map<String, Object> data = new HashMap<>();
 		data.put("bmHostsAddresses", bmHostsAddresses);
 
 		if (iptablesScripts == null) {

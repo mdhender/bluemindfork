@@ -42,6 +42,9 @@ import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.iptables.cf.BmIptablesRules;
 
 public class RulesUpdater {
+	private RulesUpdater() {
+	}
+
 	private static final Logger logger = LoggerFactory.getLogger(RulesUpdater.class);
 	private static final IServerTaskMonitor FAKE_MONITOR = new IServerTaskMonitor() {
 		@Override
@@ -89,7 +92,7 @@ public class RulesUpdater {
 		monitor.begin(10, "");
 
 		List<ItemValue<Server>> hosts = srvApi.allComplete();
-		HashSet<String> hostsAddresses = new HashSet<String>(hosts.size() + 1);
+		HashSet<String> hostsAddresses = new HashSet<>(hosts.size() + 1);
 		for (ItemValue<Server> host : hosts) {
 			hostsAddresses.add(host.value.address());
 		}
@@ -113,7 +116,9 @@ public class RulesUpdater {
 
 		BmIptablesRules bmIptablesRules = new BmIptablesRules(hostsAddresses);
 		for (ItemValue<Server> host : hosts) {
-			logger.info("Updating iptables script on node: " + host.value.address());
+			if (logger.isInfoEnabled()) {
+				logger.info("Updating iptables script on node: {}", host.value.address());
+			}
 			try {
 				bmIptablesRules.write(NodeActivator.get(host.value.address()));
 				progress.progress(1, "Host " + host.value.address() + " updated");

@@ -23,27 +23,14 @@ import java.util.List;
 
 public class MailboxIndexingReport {
 
-	public static class Entry {
-		public final String folder;
-		public final int messageId;
-
-		public Entry(String folder, int messageId) {
-			this.folder = folder;
-			this.messageId = messageId;
-		}
-
-		@Override
-		public String toString() {
-			return "folder: " + folder + ", message uid: " + messageId;
-		}
-
+	public static record Entry(String folder, int messageId) {
 	}
 
 	private List<Entry> entries = Collections.emptyList();
 
 	public static MailboxIndexingReport create() {
 		MailboxIndexingReport ret = new MailboxIndexingReport();
-		ret.entries = new ArrayList<Entry>();
+		ret.entries = new ArrayList<>();
 		return ret;
 	}
 

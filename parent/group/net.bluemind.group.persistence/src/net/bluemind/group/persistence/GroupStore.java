@@ -343,7 +343,7 @@ public class GroupStore extends AbstractItemValueStore<Group> {
 
 	private Set<Long> allUserIdsInGroup(Long groupItemId) throws SQLException {
 		List<Long> childs = getChildren(groupItemId);
-		childs.add(Long.valueOf(groupItemId));
+		childs.add(groupItemId);
 
 		Set<Long> members = new HashSet<>(selectLong("""
 				SELECT user_id

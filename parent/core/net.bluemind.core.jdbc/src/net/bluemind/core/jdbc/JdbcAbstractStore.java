@@ -247,7 +247,7 @@ public class JdbcAbstractStore {
 
 	@FunctionalInterface
 	public interface Creator<T> {
-		public T create(ResultSet con) throws SQLException;
+		public T create(ResultSet rs) throws SQLException;
 	}
 
 	@FunctionalInterface
