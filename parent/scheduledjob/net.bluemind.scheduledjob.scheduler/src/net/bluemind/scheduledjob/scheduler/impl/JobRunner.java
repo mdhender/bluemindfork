@@ -74,7 +74,7 @@ public class JobRunner {
 			SystemState state = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 					.instance(IInstallation.class).getSystemState();
 			if (state != SystemState.CORE_STATE_RUNNING) {
-				logger.warn("Job {} cannot be executed if core state is not running", job.id);
+				logger.debug("Job {} cannot be executed if core state is not running", job.id);
 				return;
 			}
 		} catch (ServerFault e) {
