@@ -56,9 +56,6 @@ public class StateContext {
 
 			@Override
 			public void run() {
-				if (getState() != SystemState.CORE_STATE_RUNNING) {
-					logger.info("Core state heartbeat : {}", getState().operation());
-				}
 				publishOperation(new JsonObject().put("operation", getState().operation()));
 			}
 
