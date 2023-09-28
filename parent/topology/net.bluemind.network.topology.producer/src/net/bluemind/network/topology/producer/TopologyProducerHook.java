@@ -41,6 +41,7 @@ import net.bluemind.network.topology.Topology;
 import net.bluemind.network.topology.dto.TopologyPayload;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.server.hook.DefaultServerHook;
 
 public class TopologyProducerHook extends DefaultServerHook {
@@ -82,14 +83,16 @@ public class TopologyProducerHook extends DefaultServerHook {
 		final long time = System.nanoTime();
 		IServer serversApi = sp.instance(IServer.class, InstallationId.getIdentifier());
 		List<ItemValue<Server>> allNodes = serversApi.allComplete();
-		Topology.update(allNodes);
-		producerPromise.thenAccept(prod -> {
-			JsonObject toSend = new JsonObject(JsonUtils.asString(TopologyPayload.of(allNodes)));
-			prod.send(toSend);
-			long elapsed = System.nanoTime() - time;
-			logger.info("Topology update with {} node(s) in {}ms.", allNodes.size(),
-					TimeUnit.NANOSECONDS.toMillis(elapsed));
-		});
+		if (allNodes.stream().anyMatch(ivs -> ivs.value.tags.contains(TagDescriptor.bm_core.getTag()))) {
+			Topology.update(allNodes);
+			producerPromise.thenAccept(prod -> {
+				JsonObject toSend = new JsonObject(JsonUtils.asString(TopologyPayload.of(allNodes)));
+				prod.send(toSend);
+				long elapsed = System.nanoTime() - time;
+				logger.info("Topology update with {} node(s) in {}ms.", allNodes.size(),
+						TimeUnit.NANOSECONDS.toMillis(elapsed));
+			});
+		}
 	}
 
 	@Override
