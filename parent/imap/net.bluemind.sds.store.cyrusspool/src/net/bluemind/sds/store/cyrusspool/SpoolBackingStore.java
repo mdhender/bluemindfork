@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +40,7 @@ import org.slf4j.LoggerFactory;
 import com.github.luben.zstd.RecyclingBufferPool;
 import com.github.luben.zstd.ZstdInputStream;
 import com.github.luben.zstd.ZstdOutputStream;
-import com.google.common.io.ByteStreams;
+import com.google.common.base.Stopwatch;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
@@ -99,24 +100,35 @@ public class SpoolBackingStore implements ISdsBackingStore {
 
 	@Override
 	public CompletableFuture<SdsResponse> upload(PutRequest req) {
+		var chrono = Stopwatch.createStarted();
 		String target = chooseTarget(req);
-
+		long tgtSel = ms(chrono);
+		long comp = 0L;
 		ByteBuf bb = Unpooled.buffer(2 * (int) new File(req.filename).length());
 		try (InputStream input = Files.newInputStream(Paths.get(req.filename));
 				ByteBufOutputStream bbo = new ByteBufOutputStream(bb);
 				OutputStream zst = new ZstdOutputStream(bbo, RecyclingBufferPool.INSTANCE, -3)) {
-			long copied = ByteStreams.copy(input, zst);
+			long copied = input.transferTo(zst);
 			logger.debug("Compressed {}byte(s) for {}", copied, req.guid);
+			comp = ms(chrono);
 		} catch (IOException e) {
 			return CompletableFuture.failedFuture(e);
 		}
 		try (InputStream input = new ByteBufInputStream(bb, true)) {
 			nc.writeFile(target, input);
+			long upload = ms(chrono);
+			logger.info("{} stored. Timings (select: {}ms, comp: {}ms, upload: {}ms)", req.guid, tgtSel, comp, upload);
 			return CompletableFuture.completedFuture(SdsResponse.UNTAGGED_OK);
 		} catch (IOException e) {
 			return CompletableFuture.failedFuture(e);
 		}
 
+	}
+
+	private long ms(Stopwatch s) {
+		long ret = s.elapsed(TimeUnit.MILLISECONDS);
+		s.reset().start();
+		return ret;
 	}
 
 	/*
