@@ -43,7 +43,7 @@ public final class PerUserTurboFilter extends TurboFilter {
 
 		String user = userProvider.user();
 		if (user == null || user.equals("anon")) {
-			return FilterReply.DENY;
+			return FilterReply.NEUTRAL;
 		}
 
 		if (Boolean.getBoolean(user + "." + endpoint + ".logging") && level.isGreaterOrEqual(perUserLevel)) {
