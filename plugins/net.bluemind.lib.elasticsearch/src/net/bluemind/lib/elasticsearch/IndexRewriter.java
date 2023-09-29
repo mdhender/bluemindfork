@@ -16,7 +16,10 @@ import co.elastic.clients.elasticsearch.cluster.HealthResponse;
 import co.elastic.clients.elasticsearch.core.ReindexResponse;
 import co.elastic.clients.elasticsearch.indices.GetAliasResponse;
 import co.elastic.clients.elasticsearch.indices.IndicesStatsResponse;
+import co.elastic.clients.elasticsearch.tasks.Status;
 import co.elastic.clients.transport.endpoints.BooleanResponse;
+import io.vertx.core.Vertx;
+import net.bluemind.lib.elasticsearch.exception.ElasticTaskException;
 
 public class IndexRewriter {
 	private static final Logger logger = LoggerFactory.getLogger(IndexRewriter.class);
@@ -73,16 +76,23 @@ public class IndexRewriter {
 		long docCount = statsResponse.indices().get(fromIndex).total().docs().count();
 		logger.info("Starting reindexation of {} with {} slice ({} docs)", fromIndex, numberOfShards, docCount);
 		ReindexResponse response = esClient.reindex(r -> r //
+				.waitForCompletion(false) //
 				.source(s -> s.index(fromIndex)) //
 				.dest(d -> d.index(toIndex).opType(OpType.Index)) //
 				.slices(s -> s.value(numberOfShards)) //
 				.conflicts(Conflicts.Proceed) //
 				.scroll(s -> s.time("1d")));
-		if (!response.failures().isEmpty()) {
-			logger.error("Reindexation done with {} failures:", response.failures().size());
-			response.failures().forEach(failure -> logger.error("- {}", failure));
-		} else {
-			logger.info("Reindexation done for {} into {}: {}", fromIndex, toIndex, response);
+		Status status;
+		try {
+			status = new VertxEsTaskMonitor(Vertx.vertx(), esClient).waitForCompletion(response.task());
+			if (!status.failures().isEmpty()) {
+				logger.error("Reindexation done with {} failures:", response.failures().size());
+				status.failures().forEach(failure -> logger.error("- {}", failure));
+			} else {
+				logger.info("Reindexation done for {} into {}: {}", fromIndex, toIndex, response);
+			}
+		} catch (ElasticTaskException e) {
+			logger.error("Failed while tracking task id '{}', continue", response.task(), e);
 		}
 	}
 

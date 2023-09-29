@@ -62,8 +62,10 @@ import co.elastic.clients.elasticsearch.indices.GetAliasResponse;
 import co.elastic.clients.elasticsearch.indices.GetIndexResponse;
 import co.elastic.clients.elasticsearch.indices.get_alias.IndexAliases;
 import co.elastic.clients.elasticsearch.indices.stats.IndicesStats;
+import co.elastic.clients.elasticsearch.tasks.Status;
 import co.elastic.clients.json.JsonData;
 import co.elastic.clients.util.ObjectBuilder;
+import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.api.MessageSearchResult;
@@ -97,8 +99,10 @@ import net.bluemind.lib.elasticsearch.Pit;
 import net.bluemind.lib.elasticsearch.Pit.PaginableSearchQueryBuilder;
 import net.bluemind.lib.elasticsearch.Pit.PaginationParams;
 import net.bluemind.lib.elasticsearch.Queries;
+import net.bluemind.lib.elasticsearch.VertxEsTaskMonitor;
 import net.bluemind.lib.elasticsearch.exception.ElasticDocumentException;
 import net.bluemind.lib.elasticsearch.exception.ElasticIndexException;
+import net.bluemind.lib.elasticsearch.exception.ElasticTaskException;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.ShardStats;
@@ -656,8 +660,10 @@ public class MailIndexService implements IMailIndexService {
 
 	private void moveMailspoolBox(ElasticsearchClient esClient, String mailboxUid, String fromIndex, String toIndex) {
 		try {
+			VertxEsTaskMonitor taskMonitor = new VertxEsTaskMonitor(Vertx.vertx(), esClient);
 			// msg body
 			ReindexResponse parentResponse = esClient.reindex(r -> r //
+					.waitForCompletion(false) //
 					.source(s -> s //
 							.index(fromIndex) //
 							.query(q -> q.hasChild(c -> c //
@@ -666,22 +672,25 @@ public class MailIndexService implements IMailIndexService {
 									.scoreMode(ChildScoreMode.None)))) //
 					.dest(d -> d.index(toIndex).opType(OpType.Index)) //
 					.conflicts(Conflicts.Proceed));
-			if (!parentResponse.failures().isEmpty()) {
-				logger.error("copy failure : {}", parentResponse.failures());
+			Status parentStatus = taskMonitor.waitForCompletion(parentResponse.task());
+			if (!parentStatus.failures().isEmpty()) {
+				logger.error("copy failure : {}", parentStatus.failures());
 			}
-			logger.info("bulk copy of msgBody response {}", parentResponse);
+			logger.info("bulk copy of msgBody response {}", parentStatus);
 
 			// copy msg
 			ReindexResponse childResponse = esClient.reindex(r -> r //
+					.waitForCompletion(false) //
 					.refresh(true) //
 					.source(s -> s.index(fromIndex).query(q -> q.term(t -> t.field("owner").value(mailboxUid)))) //
 					.dest(d -> d.index(toIndex).opType(OpType.Index)) //
 					.conflicts(Conflicts.Proceed));
-			if (!childResponse.failures().isEmpty()) {
-				logger.error("copy failure : {}", childResponse.failures());
+			Status childStatus = taskMonitor.waitForCompletion(childResponse.task());
+			if (!childStatus.failures().isEmpty()) {
+				logger.error("copy failure : {}", childStatus.failures());
 			}
-			logger.info("bulk copy of msg response {}", childResponse);
-		} catch (ElasticsearchException | IOException e) {
+			logger.info("bulk copy of msg response {}", childStatus);
+		} catch (ElasticsearchException | IOException | ElasticTaskException e) {
 			throw new ElasticDocumentException(fromIndex, e);
 		}
 	}

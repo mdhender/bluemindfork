@@ -38,11 +38,15 @@ import co.elastic.clients.elasticsearch._types.query_dsl.TermQuery;
 import co.elastic.clients.elasticsearch.core.ReindexResponse;
 import co.elastic.clients.elasticsearch.indices.AliasDefinition;
 import co.elastic.clients.elasticsearch.indices.get_alias.IndexAliases;
+import co.elastic.clients.elasticsearch.tasks.Status;
+import io.vertx.core.Vertx;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.CliException;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
+import net.bluemind.lib.elasticsearch.VertxEsTaskMonitor;
+import net.bluemind.lib.elasticsearch.exception.ElasticTaskException;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -93,7 +97,7 @@ public class ReindexMailIndexesCommand implements ICmdLet, Runnable {
 			String targetIndex = "mailspool_" + ++maxIndex;
 			try {
 				reindex(esClient, index, indexAliases.get(index), targetIndex, code);
-			} catch (ElasticsearchException | IOException e) {
+			} catch (ElasticsearchException | IOException | ElasticTaskException e) {
 				ctx.error("Failed to reindex index {} to {}", index, targetIndex, e);
 				return;
 			}
@@ -119,7 +123,7 @@ public class ReindexMailIndexesCommand implements ICmdLet, Runnable {
 	}
 
 	private void reindex(ElasticsearchClient esClient, String index, IndexAliases aliases, String targetIndex,
-			Optional<Script> code) throws ElasticsearchException, IOException {
+			Optional<Script> code) throws ElasticsearchException, IOException, ElasticTaskException {
 		ctx.info("Reindexing records from {} to {}", index, targetIndex);
 		ESearchActivator.initIndex(esClient, targetIndex);
 		Query bodiesQuery = TermQuery.of(t -> t.field("body_msg_link").value("body"))._toQuery();
@@ -173,10 +177,12 @@ public class ReindexMailIndexesCommand implements ICmdLet, Runnable {
 	}
 
 	private void moveAndReindex(ElasticsearchClient esClient, Optional<Script> script, String srcIndex,
-			String targetIndex, Query query, String type) throws ElasticsearchException, IOException {
+			String targetIndex, Query query, String type)
+			throws ElasticsearchException, IOException, ElasticTaskException {
 		ctx.info("Reindexing index {} to {}", srcIndex, targetIndex);
 		ReindexResponse response = esClient.reindex(r -> {
 			r //
+					.waitForCompletion(false) //
 					.source(s -> s.index(srcIndex).size(batchSize).query(query)) //
 					.dest(d -> d.index(targetIndex).opType(OpType.Index)) //
 					.slices(s -> s.value(slices)) //
@@ -185,9 +191,9 @@ public class ReindexMailIndexesCommand implements ICmdLet, Runnable {
 			script.ifPresent(r::script);
 			return r;
 		});
-
+		Status status = new VertxEsTaskMonitor(Vertx.vertx(), esClient).waitForCompletion(response.task());
 		ctx.info("Reindexing {} from index {} to {}: {}", type, srcIndex, targetIndex,
-				Matcher.quoteReplacement(response.toString()));
+				Matcher.quoteReplacement(status.toString()));
 	}
 
 	@Override

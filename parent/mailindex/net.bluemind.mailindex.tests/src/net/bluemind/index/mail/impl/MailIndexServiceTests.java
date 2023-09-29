@@ -59,13 +59,12 @@ import net.bluemind.backend.mail.api.SearchSort;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.api.utils.MailIndexQuery;
 import net.bluemind.backend.mail.replica.indexing.IDSet;
-import net.bluemind.backend.mail.replica.indexing.MailSummary;
 import net.bluemind.backend.mail.replica.indexing.IMailIndexService.BulkOp;
+import net.bluemind.backend.mail.replica.indexing.MailSummary;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.index.MailIndexActivator;
 import net.bluemind.index.mail.MailIndexService;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
-import net.bluemind.lib.elasticsearch.EsBulk;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.ShardStats;
 import net.bluemind.utils.ByteSizeUnit;
@@ -308,7 +307,7 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 			bulkOperations.addAll(bulkMessage("sent", userUid, "body1", i + 1, Collections.emptyList(), i + 1));
 		}
 		service.doBulk(bulkOperations);
-		
+
 		ESearchActivator.refreshIndex(INDEX_NAME);
 		SearchResponse<ObjectNode> resp = ESearchActivator.getClient().search(s -> s //
 				.index(userAlias).query(q -> q.matchAll(a -> a)), ObjectNode.class);
@@ -344,10 +343,11 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 			bulkOperations.addAll(bulkMessage("inbox", userUid, "body1", i, Collections.emptyList(), i));
 		}
 		for (int i = 0; i < countPerFolder; i++) {
-			bulkOperations.addAll(bulkMessage("sent", userUid, "body1", i + countPerFolder, Collections.emptyList(), i));
+			bulkOperations
+					.addAll(bulkMessage("sent", userUid, "body1", i + countPerFolder, Collections.emptyList(), i));
 		}
 		service.doBulk(bulkOperations);
-		
+
 		ESearchActivator.refreshIndex(INDEX_NAME);
 		SearchResponse<ObjectNode> resp = ESearchActivator.getClient().search(s -> s //
 				.index(userAlias).query(q -> q.matchAll(a -> a)), ObjectNode.class);
@@ -357,7 +357,6 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		ItemValue<MailboxFolder> sentFolder = ItemValue.create("sent", new MailboxFolder());
 		ItemValue<MailboxFolder> inboxFolder = ItemValue.create("inbox", new MailboxFolder());
 		IDSet emptySet = IDSet.create(new ArrayList<>());
-
 
 		MailIndexActivator.getService().deleteMailbox(userUid);
 
@@ -443,17 +442,26 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 	@Test
 	public void testMoveIndexToNewIndex() throws Exception {
 		ElasticsearchClient c = ESearchActivator.getClient();
+		MailIndexService service = (MailIndexService) MailIndexActivator.getService();
 
 		byte[] eml = Files.toByteArray(new File("data/test.eml"));
 		storeBody(bodyUid, eml);
-		storeMessage(mboxUid, userUid, bodyUid, 1, Collections.emptyList());
-		storeMessage(mboxUid, userUid, bodyUid, 2, Collections.emptyList());
+		List<BulkOp> bulkOperations = new ArrayList<>();
+		for (int i = 0; i < 10000; i++) {
+			bulkOperations.addAll(bulkMessage(mboxUid, userUid, bodyUid, i + 1, Collections.emptyList(), i + 1));
+		}
+		service.doBulk(bulkOperations);
 		ESearchActivator.refreshIndex(INDEX_NAME);
 
-		MailIndexActivator.getService().moveMailbox(userUid, "mailspool_test2");
+		service.moveMailbox(userUid, "mailspool_test2");
 		ESearchActivator.refreshIndex(INDEX_NAME);
 
 		SearchResponse<ObjectNode> resp = c.search(s -> s //
+				.index("mailspool_test2") //
+				.query(q -> q.matchAll(a -> a)), ObjectNode.class);
+		assertEquals(10000L, resp.hits().total().value());
+
+		resp = c.search(s -> s //
 				.index("mailspool_test2") //
 				.query(q -> q.queryString(qs -> qs.query("id:\"" + entryId(44) + "\""))), ObjectNode.class);
 		assertEquals(1L, resp.hits().total().value());
@@ -730,7 +738,7 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 
 	@Test
 	public void testPaginatedSearch() throws MimeIOException, IOException, InterruptedException, ExecutionException {
-		MailIndexService service = (MailIndexService)MailIndexActivator.getService();
+		MailIndexService service = (MailIndexService) MailIndexActivator.getService();
 		byte[] eml = Files.toByteArray(new File("data/test.eml"));
 		storeBody(bodyUid, eml);
 		int batchSize = 1000;
@@ -740,7 +748,7 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 			bulkOperations.addAll(bulkMessage(mboxUid, userUid, bodyUid, 1, Collections.emptyList(), i));
 		}
 		service.doBulk(bulkOperations);
-		
+
 		ESearchActivator.refreshIndex(INDEX_NAME);
 
 		SearchQuery query = new SearchQuery();
