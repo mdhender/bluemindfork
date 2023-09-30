@@ -223,6 +223,9 @@ public final class ESearchActivator implements BundleActivator {
 							.setSocketTimeout((int) clientConfig.timeout().socket().toMillis()) //
 							.setConnectionRequestTimeout((int) clientConfig.timeout().request().toMillis()))
 					.setHttpClientConfigCallback(builder -> builder //
+							.setDefaultAuthSchemeRegistry(RegistryBuilder.<AuthSchemeProvider>create().build())//
+							.setDefaultCredentialsProvider(new BasicCredentialsProvider())//
+							.disableAuthCaching()//
 							.setMaxConnTotal(clientConfig.pool().maxConnTotal()) //
 							.setMaxConnPerRoute(clientConfig.pool().maxConnPerRoute())) //
 					.build();
