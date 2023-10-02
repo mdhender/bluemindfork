@@ -44,6 +44,11 @@ public class ItemFlagFilter {
 		return create();
 	}
 
+	@Override
+	public String toString() {
+		return "f{must: " + must + ", mustNot: " + mustNot + "}";
+	}
+
 	public ItemFlagFilter must(ItemFlag... flags) {
 		for (ItemFlag f : flags) {
 			must.add(f);
