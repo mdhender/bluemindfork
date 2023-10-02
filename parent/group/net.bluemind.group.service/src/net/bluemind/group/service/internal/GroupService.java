@@ -325,25 +325,8 @@ public class GroupService implements IGroup, IInCoreGroup {
 		}
 
 		checkCanManageGroupMembers(group, members);
-
-		Set<String> currentMembers = storeService.getMembers(uid).stream().map(m -> m.uid).collect(Collectors.toSet());
-
-		List<Member> alreadyPresent = members.stream().filter(m -> currentMembers.contains(m.uid))
-				.collect(Collectors.toList());
-
-		if (!alreadyPresent.isEmpty()) {
-			logger.error("Group uid: {}: members ({}) are already in group", uid, alreadyPresent);
-			if (members.size() == alreadyPresent.size()) {
-				if (StateContext.getState() == SystemState.CORE_STATE_CLONING) {
-					logger.warn("{} member(s) are already in the group", uid);
-					return;
-				}
-				throw new ServerFault("Group uid: " + uid + " all users are already in the group.",
-						ErrorCode.INVALID_PARAMETER);
-			}
-			members.removeAll(alreadyPresent);
-		}
-
+		// ordering members will ensure we don't get deadlocks in postgresql
+		members = members.stream().sorted((a, b) -> a.uid.compareTo(b.uid)).toList();
 		storeService.addMembers(uid, members);
 
 		for (IGroupHook gh : groupsHooks) {

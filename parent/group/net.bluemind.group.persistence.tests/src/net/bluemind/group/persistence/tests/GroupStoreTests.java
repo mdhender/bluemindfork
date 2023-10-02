@@ -69,7 +69,6 @@ public class GroupStoreTests {
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 
-		
 		SecurityContext securityContext = SecurityContext.ANONYMOUS;
 
 		containerStore = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(), securityContext);
@@ -230,7 +229,7 @@ public class GroupStoreTests {
 		List<Member> members = groupStore.getMembers(item);
 		compareMembers(usersMembers, members);
 	}
-	
+
 	@Test
 	public void testAddExternalUsersMembers() throws SQLException {
 		String itemUid = UUID.randomUUID().toString();
@@ -265,7 +264,7 @@ public class GroupStoreTests {
 
 		return usersMembers;
 	}
-	
+
 	private List<MemberWithItem> getGroupMember(int count) throws SQLException {
 		List<MemberWithItem> groupsMembers = new ArrayList<MemberWithItem>(count);
 		for (int i = 0; i < count; i++) {
@@ -280,7 +279,7 @@ public class GroupStoreTests {
 
 		return groupsMembers;
 	}
-	
+
 	private List<MemberWithItem> getExternalUserMember(int count) throws SQLException {
 		List<MemberWithItem> externalUserMembers = new ArrayList<MemberWithItem>(count);
 		for (int i = 0; i < count; i++) {
@@ -301,7 +300,8 @@ public class GroupStoreTests {
 		int count = 0;
 		for (Member expectedMember : expected) {
 			for (Member memberFound : found) {
-				logger.info("Comparing : " + expectedMember.type + " " + memberFound.type + " " + expectedMember.uid + " " + memberFound.uid);
+				logger.info("Comparing : " + expectedMember.type + " " + memberFound.type + " " + expectedMember.uid
+						+ " " + memberFound.uid);
 				if (expectedMember.type == memberFound.type && memberFound.uid.equals(expectedMember.uid)) {
 					count++;
 					break;
@@ -357,7 +357,7 @@ public class GroupStoreTests {
 		for (MemberWithItem userMember : usersMembers) {
 			groupStore.addUsersMembers(item, membersToList(Arrays.asList(userMember)));
 		}
-		
+
 		List<MemberWithItem> externalUsersMembers = getExternalUserMember(2);
 		for (MemberWithItem externalUserMember : externalUsersMembers) {
 			groupStore.addExternalUsersMembers(item, membersToList(Arrays.asList(externalUserMember)));
@@ -424,7 +424,7 @@ public class GroupStoreTests {
 
 		List<MemberWithItem> usersMembers = getUserMember(2);
 		groupStore.addUsersMembers(item, membersToList(usersMembers));
-		
+
 		List<MemberWithItem> externalUsersMembers = getExternalUserMember(2);
 		groupStore.addExternalUsersMembers(item, membersToList(externalUsersMembers));
 
@@ -432,7 +432,7 @@ public class GroupStoreTests {
 		allMembers.addAll(groupsMembers);
 		allMembers.addAll(usersMembers);
 		allMembers.addAll(externalUsersMembers);
-		
+
 		List<Member> addedMembers = groupStore.getMembers(item);
 		compareMembers(allMembers, addedMembers);
 
@@ -444,7 +444,7 @@ public class GroupStoreTests {
 		groupStore.removeUsersMembers(item, Arrays.asList(usersMembers.get(0).item.id));
 		groupStore.removeGroupsMembers(item, Arrays.asList(groupsMembers.get(0).item.id));
 		groupStore.removeExternalUsersMembers(item, Arrays.asList(externalUsersMembers.get(0).item.id));
-		
+
 		addedMembers = groupStore.getMembers(item);
 		for (String remove : toRemove) {
 			for (Member addedMember : addedMembers) {
@@ -498,28 +498,18 @@ public class GroupStoreTests {
 
 		List<MemberWithItem> usersMembers = getUserMember(1);
 		groupStore.addUsersMembers(item, membersToList(usersMembers));
-
-		try {
-			groupStore.addUsersMembers(item, membersToList(usersMembers));
-			fail("Test must thrown an exception");
-		} catch (Throwable t) {
-			assertTrue(t.getMessage().contains("violate") && t.getMessage().contains("t_group_usermember_pkey"));
-		}
+		// test should not do anything
+		groupStore.addUsersMembers(item, membersToList(usersMembers));
 	}
-	
+
 	@Test
 	public void testAddExternalUserMembersAlreadyMember() throws SQLException, ServerFault {
 		Item item = initAndCreateGroup();
 
 		List<MemberWithItem> externalUserMembers = getExternalUserMember(1);
 		groupStore.addExternalUsersMembers(item, membersToList(externalUserMembers));
-
-		try {
-			groupStore.addExternalUsersMembers(item, membersToList(externalUserMembers));
-			fail("Test must thrown an exception");
-		} catch (Throwable t) {
-			assertTrue(t.getMessage().contains("violate") && t.getMessage().contains("t_group_externalusermember_pkey"));
-		}
+		// Test should not do anything
+		groupStore.addExternalUsersMembers(item, membersToList(externalUserMembers));
 	}
 
 	@Test
@@ -528,13 +518,8 @@ public class GroupStoreTests {
 
 		List<MemberWithItem> groupsMembers = getGroupMember(1);
 		groupStore.addGroupsMembers(item, membersToList(groupsMembers));
-
-		try {
-			groupStore.addGroupsMembers(item, membersToList(groupsMembers));
-			fail("Test must thrown an exception");
-		} catch (Throwable t) {
-			assertTrue(t.getMessage().contains("violate") && t.getMessage().contains("t_group_groupmember_pkey"));
-		}
+		// Test should not do anything
+		groupStore.addGroupsMembers(item, membersToList(groupsMembers));
 	}
 
 	/**
@@ -567,7 +552,7 @@ public class GroupStoreTests {
 		compareMembers(members, groupStore.getFlatUsersMembers(item1));
 		compareMembers(g2Members, groupStore.getFlatUsersMembers(item2));
 	}
-	
+
 	/**
 	 * 1. Create groups g1 and g2<br>
 	 * 2. Add an external user to g1 and g2 as member of g1<br>
@@ -590,11 +575,11 @@ public class GroupStoreTests {
 		members.add(g1Members.get(0));
 		logger.info("STEP 1");
 		groupStore.addGroupsMembers(item1, Arrays.asList(item2));
-		
+
 		logger.info("STEP 2 : " + groupStore.getFlatUsersMembers(item1).size());
 		compareMembers(members, groupStore.getFlatUsersMembers(item1));
 		logger.info("STEP 3");
-		
+
 		List<MemberWithItem> g2Members = getExternalUserMember(1);
 		groupStore.addExternalUsersMembers(item2, membersToList(g2Members));
 		members.add(g2Members.get(0));
@@ -690,7 +675,7 @@ public class GroupStoreTests {
 		g3AsMember.uid = item3.uid;
 		groupStore.addGroupsMembers(item1, Arrays.asList(item3));
 		g1UsersMembers.add(g3Members.get(0));
-		//g1UsersMembers.addAll(g3Members);
+		// g1UsersMembers.addAll(g3Members);
 
 		// Add user member to g4
 		List<MemberWithItem> g4Members = getUserMember(1);
@@ -772,7 +757,7 @@ public class GroupStoreTests {
 
 		Item userItem = domainItemStore.get(g2Members.get(0).uid);
 		List<String> userGroups = groupStore.getUserGroups(userContainer, userItem);
-		
+
 		assertEquals(2, userGroups.size());
 		int count = 0;
 		for (String userGroup : userGroups) {

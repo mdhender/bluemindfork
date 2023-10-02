@@ -3,9 +3,12 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Tests
 Bundle-SymbolicName: net.bluemind.group.persistence.tests;singleton:=true
 Bundle-Version: 5.0.0.qualifier
-Fragment-Host: net.bluemind.group.persistence
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.core.jdbc.testshelper;bundle-version="1.0.0",
  net.bluemind.core.context;bundle-version="1.0.0",
- org.junit
+ org.junit,
+ net.bluemind.group.persistence,
+ slf4j.api,
+ net.bluemind.core.container.persistence,
+ net.bluemind.group.api
 Automatic-Module-Name: net.bluemind.group.persistence.tests

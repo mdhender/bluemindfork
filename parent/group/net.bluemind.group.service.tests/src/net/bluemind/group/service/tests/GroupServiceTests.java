@@ -807,13 +807,7 @@ public class GroupServiceTests {
 		getGroupService(adminSecurityContext).add(group.uid, membersToAdd);
 		List<Member> members = getGroupService(adminSecurityContext).getMembers(group.uid);
 		assertEquals(ImmutableSet.copyOf(membersToAdd), ImmutableSet.copyOf(members));
-
-		try {
-			getGroupService(adminSecurityContext).add(group.uid, membersToAdd);
-			fail("Should have failed: all users are already in group.");
-		} catch (ServerFault e) {
-			assertEquals(ErrorCode.INVALID_PARAMETER, e.getCode());
-		}
+		getGroupService(adminSecurityContext).add(group.uid, membersToAdd);
 	}
 
 	@Test
@@ -860,14 +854,7 @@ public class GroupServiceTests {
 		List<Member> membersToAdd = getMembers(3);
 
 		getGroupService(adminSecurityContext).add(group.uid, membersToAdd);
-
-		try {
-			getGroupService(adminSecurityContext).add(group.uid, membersToAdd.subList(1, 2));
-			fail("should fail when duplicate member");
-		} catch (ServerFault e) {
-			assertEquals(ErrorCode.INVALID_PARAMETER, e.getCode());
-		}
-
+		getGroupService(adminSecurityContext).add(group.uid, membersToAdd.subList(1, 2));
 	}
 
 	@Test

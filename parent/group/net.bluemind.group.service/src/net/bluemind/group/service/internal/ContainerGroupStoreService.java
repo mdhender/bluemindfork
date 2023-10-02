@@ -36,6 +36,7 @@ import net.bluemind.core.container.persistence.ChangelogStore.LogEntry;
 import net.bluemind.core.container.persistence.ItemStore;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.directory.api.BaseDirEntry;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.service.DirEntryAndValue;
 import net.bluemind.directory.service.DirEntryHandler;
@@ -53,8 +54,8 @@ public class ContainerGroupStoreService extends DirValueStoreService<Group> {
 		@Override
 		public DirEntry asDirEntry(String domainUid, String uid, Group group) {
 			Email dEmail = group.defaultEmail();
-			return DirEntry.create(group.orgUnitUid, domainUid + "/groups/" + uid, DirEntry.Kind.GROUP, uid, group.name,
-					dEmail != null ? dEmail.address : null, group.hidden, group.system, group.archived,
+			return DirEntry.create(group.orgUnitUid, domainUid + "/groups/" + uid, BaseDirEntry.Kind.GROUP, uid,
+					group.name, dEmail != null ? dEmail.address : null, group.hidden, group.system, group.archived,
 					group.dataLocation);
 		}
 
@@ -69,7 +70,7 @@ public class ContainerGroupStoreService extends DirValueStoreService<Group> {
 
 	public ContainerGroupStoreService(BmContext context, DataSource dataSource, SecurityContext securityContext,
 			Container container, ItemValue<Domain> domain) {
-		super(context, dataSource, securityContext, domain, container, DirEntry.Kind.GROUP,
+		super(context, dataSource, securityContext, domain, container, BaseDirEntry.Kind.GROUP,
 				new GroupStore(dataSource, container), new GroupDirEntryAdapter(),
 				new GroupVCardAdapter(dataSource, securityContext, container, domain.uid), new GroupMailboxAdapter());
 		this.groupStore = new GroupStore(dataSource, container);
@@ -105,29 +106,20 @@ public class ContainerGroupStoreService extends DirValueStoreService<Group> {
 		}
 	}
 
-	public void addMembers(String uid, List<Member> members) throws ServerFault {
-		List<Member> usersMembers = new ArrayList<Member>(members.size());
-		List<Member> groupsMembers = new ArrayList<Member>(members.size());
-		List<Member> externalUserMembers = new ArrayList<Member>(members.size());
-		for (Member member : members) {
-			switch (member.type) {
-			case user:
-				usersMembers.add(member);
-				break;
-			case group:
-				groupsMembers.add(member);
-				break;
-			case external_user:
-				externalUserMembers.add(member);
-				break;
-			}
-		}
+	public List<Member> addMembers(String uid, List<Member> members) throws ServerFault {
+		List<Member> addedMembers = new ArrayList<>();
+
+		List<Member> usersMembers = members.stream().filter(m -> Member.Type.user.equals(m.type)).toList();
+		List<Member> groupsMembers = members.stream().filter(m -> Member.Type.group.equals(m.type)).toList();
+		List<Member> externalUserMembers = members.stream().filter(m -> Member.Type.external_user.equals(m.type))
+				.toList();
 
 		doOrFail(() -> {
-			Item item = itemStore.getForUpdate(uid);
+			Item item = itemStore.get(uid);
 			if (item == null) {
 				throw new ServerFault("group {}" + uid + " not found", ErrorCode.NOT_FOUND);
 			}
+			// TODO: faster alternative needed
 			DirEntryAndValue<Group> value = getItemValueStore().get(item);
 			if (value == null) {
 				throw new ServerFault("not a group {}" + item.uid, ErrorCode.NOT_FOUND);
@@ -138,44 +130,37 @@ public class ContainerGroupStoreService extends DirValueStoreService<Group> {
 						securityContext.getSubject(), securityContext.getOrigin(), item.id, 0));
 			}
 
-			groupStore.addUsersMembers(item,
-					realItemStore.getMultiple(usersMembers.stream().map(m -> m.uid).collect(Collectors.toList())));
-			groupStore.addGroupsMembers(item,
-					realItemStore.getMultiple(groupsMembers.stream().map(m -> m.uid).collect(Collectors.toList())));
-			groupStore.addExternalUsersMembers(item, realItemStore
-					.getMultiple(externalUserMembers.stream().map(m -> m.uid).collect(Collectors.toList())));
+			if (!usersMembers.isEmpty()) {
+				groupStore.addUsersMembers(item, realItemStore.getMultiple(usersMembers.stream().map(m -> m.uid)
+						.sorted(Comparable::compareTo).collect(Collectors.toList())));
+			}
+			if (!groupsMembers.isEmpty()) {
+				groupStore.addGroupsMembers(item, realItemStore.getMultiple(groupsMembers.stream().map(m -> m.uid)
+						.sorted(Comparable::compareTo).collect(Collectors.toList())));
+			}
+			if (!externalUserMembers.isEmpty()) {
+				groupStore.addExternalUsersMembers(item, realItemStore.getMultiple(externalUserMembers.stream()
+						.map(m -> m.uid).sorted(Comparable::compareTo).collect(Collectors.toList())));
+			}
 
 			vcardStore.update(item, vcardAdapter.asVCard(domain, item.uid, getItemValue(item).value.value));
 			return null;
 		});
-
+		return addedMembers;
 	}
 
 	public void removeMembers(String uid, List<Member> members) throws ServerFault {
+		List<String> usersMembersUid = members.stream().filter(m -> Member.Type.user.equals(m.type)).map(m -> m.uid)
+				.toList();
+		List<String> groupsMembersUid = members.stream().filter(m -> Member.Type.group.equals(m.type)).map(m -> m.uid)
+				.toList();
+		List<String> externalUserMembersUid = members.stream().filter(m -> Member.Type.external_user.equals(m.type))
+				.map(m -> m.uid).toList();
 
-		List<String> usersMembersUid = new ArrayList<String>(members.size());
-		List<String> groupsMembersUid = new ArrayList<String>(members.size());
-		List<String> externalUserMembersUid = new ArrayList<String>(members.size());
-		for (Member member : members) {
-			switch (member.type) {
-			case user:
-				usersMembersUid.add(member.uid);
-				break;
-			case group:
-				groupsMembersUid.add(member.uid);
-				break;
-			case external_user:
-				externalUserMembersUid.add(member.uid);
-				break;
-			}
-		}
 		doOrFail(() -> {
 			Item item = itemStore.getForUpdate(uid);
-			if (item == null) {
-				throw new ServerFault("group {}" + uid + " not found", ErrorCode.NOT_FOUND);
-			}
-			if (getItemValueStore().get(item) == null) {
-				throw new ServerFault("not a group {}" + item.uid, ErrorCode.NOT_FOUND);
+			if (item == null || getItemValueStore().get(item) == null) {
+				return null;
 			}
 			item = itemStore.touch(uid);
 			if (hasChangeLog) {
@@ -183,13 +168,18 @@ public class ContainerGroupStoreService extends DirValueStoreService<Group> {
 						securityContext.getSubject(), securityContext.getOrigin(), item.id, 0));
 			}
 
-			groupStore.removeUsersMembers(item,
-					realItemStore.getMultiple(usersMembersUid).stream().map(i -> i.id).collect(Collectors.toList()));
-			groupStore.removeGroupsMembers(item,
-					realItemStore.getMultiple(groupsMembersUid).stream().map(i -> i.id).collect(Collectors.toList()));
-			groupStore.removeExternalUsersMembers(item, realItemStore.getMultiple(externalUserMembersUid).stream()
-					.map(i -> i.id).collect(Collectors.toList()));
-
+			if (!usersMembersUid.isEmpty()) {
+				groupStore.removeUsersMembers(item, realItemStore.getMultiple(usersMembersUid).stream().map(i -> i.id)
+						.sorted(Comparable::compareTo).collect(Collectors.toList()));
+			}
+			if (!groupsMembersUid.isEmpty()) {
+				groupStore.removeGroupsMembers(item, realItemStore.getMultiple(groupsMembersUid).stream().map(i -> i.id)
+						.sorted(Comparable::compareTo).collect(Collectors.toList()));
+			}
+			if (!externalUserMembersUid.isEmpty()) {
+				groupStore.removeExternalUsersMembers(item, realItemStore.getMultiple(externalUserMembersUid).stream()
+						.map(i -> i.id).sorted(Comparable::compareTo).collect(Collectors.toList()));
+			}
 			vcardStore.update(item, vcardAdapter.asVCard(domain, item.uid, getItemValue(item).value.value));
 			return null;
 		});
@@ -231,9 +221,7 @@ public class ContainerGroupStoreService extends DirValueStoreService<Group> {
 
 	public boolean nameAlreadyUsed(String uid, Group group) throws ServerFault {
 		if (uid == null) {
-			return doOrFail(() -> {
-				return groupStore.nameAlreadyUsed(group);
-			});
+			return doOrFail(() -> groupStore.nameAlreadyUsed(group));
 		} else {
 			return doOrFail(() -> {
 				Item item = itemStore.get(uid);
@@ -247,9 +235,7 @@ public class ContainerGroupStoreService extends DirValueStoreService<Group> {
 	}
 
 	public boolean allValid(String[] uids) throws ServerFault {
-		return doOrFail(() -> {
-			return groupStore.areValid(uids);
-		});
+		return doOrFail(() -> groupStore.areValid(uids));
 	}
 
 	@Deprecated

@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
@@ -108,7 +109,7 @@ public class GroupStore extends AbstractItemValueStore<Group> {
 		logger.debug("inserted complete: {}", value);
 	}
 
-	private static final String UPDATE_GROUP = " UPDATE t_group SET (" + GroupColumns.cols.names() + ") " //
+	private static final String UPDATE_GROUP = "UPDATE t_group SET (" + GroupColumns.cols.names() + ") " //
 			+ " = (" + GroupColumns.cols.values() + ") " //
 			+ " WHERE item_id = ? and container_id = ? ";
 
@@ -168,28 +169,34 @@ public class GroupStore extends AbstractItemValueStore<Group> {
 			return;
 		}
 
-		batchInsert("INSERT INTO t_group_usermember (group_id, user_id) VALUES (?, ?)", usersMembers,
-				MemberColumns.statementValues(item));
+		batchInsert("""
+				INSERT INTO t_group_usermember (group_id, user_id)
+				VALUES (?, ?)
+				ON CONFLICT (group_id, user_id) DO NOTHING
+				""", usersMembers, MemberColumns.statementValues(item));
 
-		updateUserGroupHierarchy(item);
+		updateUserGroupHierarchy(item, usersMembers.stream().map(i -> i.id).collect(Collectors.toSet()),
+				Collections.emptySet());
 	}
 
-	public void addGroupsMembers(Item item, List<Item> groupsMembers) throws SQLException, ServerFault {
+	public void addGroupsMembers(Item groupItem, List<Item> groupsMembers) throws SQLException, ServerFault {
 		if (groupsMembers == null || groupsMembers.isEmpty()) {
 			return;
 		}
 
-		detectLoop(item, groupsMembers);
+		detectLoop(groupItem, groupsMembers);
 
-		batchInsert(//
-				"INSERT INTO t_group_groupmember (group_parent_id, group_child_id) VALUES (?, ?)" //
-				, groupsMembers, (con, statement, index, currentRow, value) -> {
-					statement.setLong(index++, item.id);
-					statement.setLong(index++, value.id);
-					return 0;
-				});
-
-		updateUserGroupHierarchy(item);
+		batchInsert("""
+				INSERT INTO t_group_groupmember (group_parent_id, group_child_id)
+				VALUES (?, ?)
+				ON CONFLICT (group_parent_id, group_child_id) DO NOTHING
+				""", groupsMembers, (con, statement, index, currentRow, value) -> {
+			statement.setLong(index++, groupItem.id);
+			statement.setLong(index++, value.id);
+			return 0;
+		});
+		Set<Long> flatUsersIds = allUserIdsInGroup(groupItem.id);
+		updateUserGroupHierarchy(groupItem, flatUsersIds, Collections.emptySet());
 	}
 
 	public void addExternalUsersMembers(Item item, List<Item> externalUsersMembers) throws SQLException {
@@ -197,10 +204,14 @@ public class GroupStore extends AbstractItemValueStore<Group> {
 			return;
 		}
 
-		batchInsert("INSERT INTO t_group_externalusermember (group_id, external_user_id) VALUES (?, ?)",
-				externalUsersMembers, MemberColumns.statementValues(item));
+		batchInsert("""
+				INSERT INTO t_group_externalusermember (group_id, external_user_id)
+				VALUES (?, ?)
+				ON CONFLICT (group_id, external_user_id) DO NOTHING
+				""", externalUsersMembers, MemberColumns.statementValues(item));
 
-		updateUserGroupHierarchy(item);
+		updateUserGroupHierarchy(item, externalUsersMembers.stream().map(i -> i.id).collect(Collectors.toSet()),
+				Collections.emptySet());
 	}
 
 	private void detectLoop(Item item, List<Item> groupsMembers) throws SQLException, ServerFault {
@@ -217,120 +228,154 @@ public class GroupStore extends AbstractItemValueStore<Group> {
 		}
 	}
 
-	public void removeUsersMembers(Item item, Collection<Long> membersUid) throws SQLException {
-		if (membersUid == null || membersUid.isEmpty()) {
+	public void removeUsersMembers(Item item, Collection<Long> membersIds) throws SQLException {
+		if (membersIds == null || membersIds.isEmpty()) {
 			return;
 		}
 
 		delete("DELETE FROM t_group_usermember WHERE group_id = ? AND user_id = ANY (?)",
-				new Object[] { item.id, membersUid.toArray(new Long[membersUid.size()]) });
+				new Object[] { item.id, membersIds.toArray(new Long[membersIds.size()]) });
 
-		updateUserGroupHierarchy(item);
+		updateUserGroupHierarchy(item, Collections.emptySet(), membersIds.stream().collect(Collectors.toSet()));
 	}
 
-	public void removeGroupsMembers(Item item, Collection<Long> membersUid) throws SQLException {
-		if (membersUid == null || membersUid.isEmpty()) {
+	public void removeGroupsMembers(Item groupItem, Collection<Long> membersIds) throws SQLException {
+		if (membersIds == null || membersIds.isEmpty()) {
 			return;
 		}
 
 		delete("DELETE FROM t_group_groupmember WHERE group_parent_id = ? AND group_child_id = ANY (?)",
-				new Object[] { item.id, membersUid.toArray(new Long[membersUid.size()]) });
+				new Object[] { groupItem.id, membersIds.toArray(new Long[membersIds.size()]) });
 
-		updateUserGroupHierarchy(item);
+		Set<Long> flatUsersIds = allUserIdsInGroup(groupItem.id);
+		updateUserGroupHierarchy(groupItem, Collections.emptySet(), flatUsersIds);
 	}
 
-	public void removeExternalUsersMembers(Item item, Collection<Long> membersUid) throws SQLException {
-		if (membersUid == null || membersUid.isEmpty()) {
+	public void removeExternalUsersMembers(Item item, Collection<Long> membersIds) throws SQLException {
+		if (membersIds == null || membersIds.isEmpty()) {
 			return;
 		}
 
 		delete("DELETE FROM t_group_externalusermember WHERE group_id = ? AND external_user_id = ANY (?)",
-				new Object[] { item.id, membersUid.toArray(new Long[membersUid.size()]) });
+				new Object[] { item.id, membersIds.toArray(new Long[membersIds.size()]) });
 
-		updateUserGroupHierarchy(item);
+		updateUserGroupHierarchy(item, Collections.emptySet(), membersIds.stream().collect(Collectors.toSet()));
 	}
 
-	private static final String SELECT_MEMBERS = //
-			"SELECT 'user', dirItem.uid FROM t_group_usermember, t_container_item dirItem " //
-					+ "WHERE group_id = ? AND dirItem.id = user_id " //
-					+ " UNION " //
-					+ "SELECT 'external_user', dirItem.uid FROM t_group_externalusermember, t_container_item dirItem " //
-					+ "WHERE group_id = ? AND dirItem.id = external_user_id " //
-					+ " UNION " //
-					+ " SELECT 'group', ci.uid FROM t_group_groupmember "//
-					+ "  INNER JOIN t_container_item ci ON ci.id = group_child_id " //
-					+ " WHERE group_parent_id = ?";
+	private static final String SELECT_MEMBERS = """
+			SELECT 'user', t_container_item.uid AS uid
+			    FROM t_group_usermember
+			    JOIN t_container_item ON t_container_item.id = user_id
+			    WHERE group_id = ?
+			UNION
+			SELECT 'external_user', t_container_item.uid AS uid
+			    FROM t_group_externalusermember
+			    JOIN t_container_item ON t_container_item.id = external_user_id
+			    WHERE group_id = ?
+			UNION
+			SELECT 'group', t_container_item.uid AS uid
+			    FROM t_group_groupmember
+			    INNER JOIN t_container_item ON t_container_item.id = group_child_id
+			    WHERE group_parent_id = ?
+			ORDER BY 1, 2
+			""";
 
 	public List<Member> getMembers(Item item) throws SQLException {
 		return select(SELECT_MEMBERS, MEMBER_CREATOR, MemberColumns.populator(),
 				new Object[] { item.id, item.id, item.id });
 	}
 
-	private void updateUserGroupHierarchy(Item item) throws SQLException {
-		logger.debug("Updating t_group_flat_members for group {}", item.id);
+	/**
+	 * Update the selected group, AND the parent groups
+	 * 
+	 * @param groupItem:      the group to update (and potential parent groups)
+	 * @param addedUserIds:   t_container_item(id) of added users
+	 * @param removedUserIds: t_container_item(id) of removed users
+	 * @throws SQLException
+	 */
+	private void updateUserGroupHierarchy(Item groupItem, Set<Long> addedUserIds, Set<Long> removedUserIds)
+			throws SQLException {
+		logger.debug("Updating t_group_flat_members for group {}", groupItem.id);
 
-		Set<Long> users = updateUserGroup(item.id);
-		cleanUserGroupHierarchy(item.id);
-		createUserGroupHierarchy(item.id, users);
+		if (!addedUserIds.isEmpty()) {
+			addFlatMembers(groupItem.id, addedUserIds);
+		}
+		if (!removedUserIds.isEmpty()) {
+			removeFlatMembers(groupItem.id, removedUserIds);
+		}
 
-		Set<Long> parents = getParents(item.id);
-		for (Long parent : parents) {
-			logger.debug("Updating t_group_flat_members for parent group id {} of group id {}", parent, item.id);
-
-			Set<Long> si = new HashSet<>();
-			si.addAll(users);
-			si.addAll(updateUserGroup(parent));
-
-			cleanUserGroupHierarchy(parent);
-			createUserGroupHierarchy(parent, si);
+		Set<Long> parentGroupIds = getParents(groupItem.id);
+		for (Long parentGroupId : parentGroupIds) {
+			logger.debug("Updating t_group_flat_members for parent group id {} of group id {}", parentGroupId,
+					groupItem.id);
+			if (!addedUserIds.isEmpty()) {
+				addFlatMembers(parentGroupId, addedUserIds);
+			}
+			if (!removedUserIds.isEmpty()) {
+				removeFlatMembers(parentGroupId, removedUserIds);
+			}
 		}
 	}
 
-	private void createUserGroupHierarchy(Long groupItemId, Set<Long> users) throws SQLException {
-		if (users.isEmpty()) {
-			return;
+	private void addFlatMembers(Long groupItemId, Set<Long> users) throws SQLException {
+		if (!users.isEmpty()) {
+			batchInsert("""
+					INSERT INTO t_group_flat_members (group_id, user_id)
+					VALUES (?, ?)
+					ON CONFLICT DO NOTHING
+					""", users, (con, statement, index, currentRow, value) -> {
+				statement.setLong(index++, groupItemId);
+				statement.setLong(index++, value);
+				return 0;
+			});
 		}
-
-		batchInsert(//
-				"INSERT INTO t_group_flat_members (group_id, user_id) VALUES (?, ?) ON CONFLICT DO NOTHING" //
-				, users, (con, statement, index, currentRow, value) -> {
-					statement.setLong(index++, groupItemId);
-					statement.setLong(index++, value);
-					return 0;
-				});
 	}
 
-	private void cleanUserGroupHierarchy(Long groupItemId) throws SQLException {
-		delete("DELETE FROM t_group_flat_members WHERE group_id = ?", new Object[] { groupItemId });
+	private void removeFlatMembers(Long groupItemId, Set<Long> removedUserId) throws SQLException {
+		if (!removedUserId.isEmpty()) {
+			delete("""
+					DELETE FROM t_group_flat_members
+					WHERE group_id = ? AND user_id = ANY(?)
+					""",
+					new Object[] { groupItemId, removedUserId.stream().toArray(s -> new Long[removedUserId.size()]) });
+		}
 	}
 
-	private Set<Long> updateUserGroup(Long groupItemId) throws SQLException {
+	private Set<Long> allUserIdsInGroup(Long groupItemId) throws SQLException {
 		List<Long> childs = getChildren(groupItemId);
 		childs.add(Long.valueOf(groupItemId));
 
-		Set<Long> members = new HashSet<>(
-				select("SELECT user_id FROM t_group_usermember WHERE group_id = ANY (?)", rs -> rs.getLong(1),
-						Collections.emptyList(), new Object[] { childs.toArray(new Long[childs.size()]) }));
+		Set<Long> members = new HashSet<>(selectLong("""
+				SELECT user_id
+				FROM t_group_usermember
+				WHERE group_id = ANY (?)
+				ORDER BY user_id
+				""", new Object[] { childs.toArray(new Long[childs.size()]) }));
 
-		members.addAll(select("SELECT external_user_id FROM t_group_externalusermember WHERE group_id = ANY (?)",
-				rs -> rs.getLong(1), Collections.emptyList(),
-				new Object[] { childs.toArray(new Long[childs.size()]) }));
+		members.addAll(selectLong("""
+				SELECT external_user_id
+				FROM t_group_externalusermember
+				WHERE group_id = ANY (?)
+				ORDER BY external_user_id
+				""", new Object[] { childs.toArray(new Long[childs.size()]) }));
 
 		return members;
 	}
 
-	private static final String SELECT_CHILDREN = "WITH RECURSIVE children(group_child_id, group_parent_id) AS (" //
-			+ " SELECT group_child_id, group_parent_id FROM t_group_groupmember WHERE group_parent_id = ? " //
-			+ " UNION ALL" //
-			+ " SELECT p.group_child_id, p.group_parent_id" //
-			+ " FROM children pr, t_group_groupmember p" //
-			+ " WHERE p.group_parent_id = pr.group_child_id" //
-			+ ") SELECT group_child_id FROM children";
-
 	private List<Long> getChildren(Long groupItemId) throws SQLException {
-
-		List<Long> childrens = select(SELECT_CHILDREN, PARENT_CREATOR, new ArrayList<EntityPopulator<Long>>(0),
-				new Object[] { groupItemId });
+		List<Long> childrens = selectLong("""
+				WITH RECURSIVE children(group_child_id, group_parent_id) AS (
+				    SELECT group_child_id, group_parent_id
+				    FROM t_group_groupmember
+				    WHERE group_parent_id = ?
+				    UNION ALL
+				    SELECT p.group_child_id, p.group_parent_id
+				    FROM children pr, t_group_groupmember p
+				    WHERE p.group_parent_id = pr.group_child_id
+				)
+				SELECT group_child_id
+				FROM children
+				""", new Object[] { groupItemId });
 
 		logger.debug("Found {} child group for group {}", childrens.size(), groupItemId);
 		return childrens;
@@ -339,24 +384,23 @@ public class GroupStore extends AbstractItemValueStore<Group> {
 	public List<String> getParents(Item item) throws SQLException {
 		Set<Long> parents = getParents(item.id);
 
-		return select("SELECT uid FROM t_container_item WHERE id = ANY(?)", UIDFOUND_CREATOR, Collections.emptyList(),
-				new Object[] { parents.toArray(new Long[0]) });
+		return select("SELECT uid FROM t_container_item WHERE id = ANY(?) ORDER BY uid", UIDFOUND_CREATOR,
+				Collections.emptyList(), new Object[] { parents.toArray(new Long[0]) });
 
 	}
 
-	private static final String SELECT_PARENTS = //
-			"WITH RECURSIVE parents(group_child_id, group_parent_id) AS (" //
-					+ " SELECT group_child_id, group_parent_id FROM t_group_groupmember WHERE group_child_id = ? "//
-					+ " UNION ALL"//
-					+ " SELECT p.group_child_id, p.group_parent_id"//
-					+ " FROM parents pr, t_group_groupmember p"//
-					+ " WHERE p.group_child_id = pr.group_parent_id"//
-					+ ") SELECT group_parent_id FROM parents";
-
 	private Set<Long> getParents(Long groupItemId) throws SQLException {
-
-		List<Long> parents = select(SELECT_PARENTS, PARENT_CREATOR, new ArrayList<EntityPopulator<Long>>(0),
-				new Object[] { groupItemId });
+		List<Long> parents = selectLong("""
+				WITH RECURSIVE parents(group_child_id, group_parent_id) AS (
+				    SELECT group_child_id, group_parent_id
+				        FROM t_group_groupmember
+				        WHERE group_child_id = ?
+				    UNION ALL
+				    SELECT p.group_child_id, p.group_parent_id
+				        FROM parents pr, t_group_groupmember p
+				        WHERE p.group_child_id = pr.group_parent_id
+				) SELECT group_parent_id FROM parents
+				""", new Object[] { groupItemId });
 
 		logger.debug("Found {} parents group for group {}", parents.size(), groupItemId);
 
@@ -364,44 +408,57 @@ public class GroupStore extends AbstractItemValueStore<Group> {
 	}
 
 	public List<Member> getFlatUsersMembers(Item item) throws SQLException {
-		return select("SELECT 'user', ui.uid FROM t_group_flat_members m " //
-				+ "INNER JOIN t_container_item ui ON ui.id = m.user_id " //
-				+ "INNER JOIN t_group_usermember um ON um.user_id = m.user_id " //
-				+ "WHERE m.group_id = ? " //
-				+ "UNION " //
-				+ "SELECT 'external_user', ui.uid FROM t_group_flat_members member " //
-				+ "INNER JOIN t_container_item ui ON ui.id = member.user_id " //
-				+ "INNER JOIN t_group_externalusermember eum ON eum.external_user_id = member.user_id " //
-				+ "WHERE member.group_id = ?", MEMBER_CREATOR, MemberColumns.populator(),
-				new Object[] { item.id, item.id });
-	}
+		return select("""
+				SELECT 'user', ui.uid
+				    FROM t_group_flat_members m
+				    INNER JOIN t_container_item ui ON ui.id = m.user_id
+				    INNER JOIN t_group_usermember um ON um.user_id = m.user_id
+				    WHERE m.group_id = ?
+				UNION
+				SELECT 'external_user', ui.uid
+				    FROM t_group_flat_members member
+				    INNER JOIN t_container_item ui ON ui.id = member.user_id
+				    INNER JOIN t_group_externalusermember eum ON eum.external_user_id = member.user_id
+				    WHERE member.group_id = ?
+				ORDER BY 1, 2
+				""", MEMBER_CREATOR, MemberColumns.populator(), new Object[] { item.id, item.id });
 
-	private static final String SELECT_USER_GROUPS = //
-			"SELECT item.uid FROM t_group g" //
-					+ " INNER JOIN t_container_item item ON g.item_id = item.id"//
-					+ " INNER JOIN t_group_flat_members member ON g.item_id = member.group_id"//
-					+ " INNER JOIN t_container_item memberitem ON member.user_id = memberitem.id"//
-					+ " WHERE member.user_id = ? AND memberitem.container_id = ?";
+	}
 
 	public List<String> getUserGroups(Container userContainer, Item item) throws SQLException {
-		return select(SELECT_USER_GROUPS, UIDFOUND_CREATOR, Collections.emptyList(),
-				new Object[] { item.id, userContainer.id });
+		return select("""
+				SELECT item.uid
+				FROM t_group g
+				INNER JOIN t_container_item item ON g.item_id = item.id
+				INNER JOIN t_group_flat_members member ON g.item_id = member.group_id
+				INNER JOIN t_container_item memberitem ON member.user_id = memberitem.id
+				WHERE member.user_id = ?
+				AND memberitem.container_id = ?
+				ORDER BY item.uid
+				""", UIDFOUND_CREATOR, Collections.emptyList(), new Object[] { item.id, userContainer.id });
 	}
 
-	private static final String SELECT_GROUP_GROUPS = //
-			"SELECT item.uid FROM t_group g" //
-					+ " INNER JOIN t_container_item item ON g.item_id = item.id"//
-					+ " INNER JOIN t_group_groupmember member ON g.item_id = member.group_parent_id"//
-					+ " INNER JOIN t_container_item memberitem ON member.group_child_id = memberitem.id"//
-					+ " WHERE member.group_child_id = ? AND memberitem.container_id = ?";
-
 	public List<String> getGroupGroups(Item item) throws SQLException {
-		return select(SELECT_GROUP_GROUPS, UIDFOUND_CREATOR, Collections.emptyList(),
-				new Object[] { item.id, container.id });
+		return select("""
+				SELECT item.uid
+				FROM t_group g
+				INNER JOIN t_container_item item ON g.item_id = item.id
+				INNER JOIN t_group_groupmember member ON g.item_id = member.group_parent_id
+				INNER JOIN t_container_item memberitem ON member.group_child_id = memberitem.id
+				WHERE member.group_child_id = ?
+				AND memberitem.container_id = ?
+				ORDER BY item.uid
+				""", UIDFOUND_CREATOR, Collections.emptyList(), new Object[] { item.id, container.id });
 	}
 
 	public boolean areValid(String[] groupsUids) throws SQLException {
-		String query = "SELECT count(*) FROM t_group g JOIN t_container_item i ON i.id = g.item_id WHERE i.container_id = ? AND i.uid = ANY(?)";
+		String query = """
+				SELECT count(*)
+				FROM t_group g
+				JOIN t_container_item i ON i.id = g.item_id
+				WHERE i.container_id = ?
+				AND i.uid = ANY(?)
+				""";
 		int count = unique(query, INTEGER_CREATOR, new ArrayList<EntityPopulator<Integer>>(0),
 				new Object[] { container.id, groupsUids });
 
@@ -412,7 +469,12 @@ public class GroupStore extends AbstractItemValueStore<Group> {
 		return nameAlreadyUsed(null, group);
 	}
 
-	private static final String NAME_ALREADY_EXISTS = "SELECT count(*) FROM t_group WHERE container_id = ? AND LOWER(name) = LOWER(?)";
+	private static final String NAME_ALREADY_EXISTS = """
+			SELECT count(*)
+			FROM t_group
+			WHERE container_id = ?
+			AND LOWER(name) = LOWER(?)
+			""";
 	private static final String NAME_ALREADY_EXISTS_WITH_ITEM = NAME_ALREADY_EXISTS + " AND item_id != ?";
 
 	public boolean nameAlreadyUsed(Long itemId, Group group) throws SQLException {
@@ -435,19 +497,26 @@ public class GroupStore extends AbstractItemValueStore<Group> {
 		return (total != 0);
 	}
 
-	public static final String SELECT_BY_NAME = //
-			"SELECT item.uid FROM t_group g, t_container_item item " + //
-					" WHERE item.id = g.item_id AND item.container_id = ? " + //
-					" AND name = ?";
+	public static final String SELECT_BY_NAME = """
+			SELECT item.uid
+			FROM t_group g, t_container_item item
+			WHERE item.id = g.item_id
+			AND item.container_id = ?
+			AND name = ?
+			ORDER BY item.uid
+			""";
 
 	public String byName(String name) throws SQLException {
 		return unique(SELECT_BY_NAME, StringCreator.FIRST, Collections.emptyList(),
 				new Object[] { container.id, name });
 	}
 
-	public static final String SELECT_ALL = //
-			"SELECT item.uid FROM t_group g, t_container_item item " + //
-					" WHERE item.id = g.item_id AND item.container_id = ?";
+	public static final String SELECT_ALL = """
+			SELECT item.uid
+			FROM t_group g, t_container_item item
+			WHERE item.id = g.item_id
+			AND item.container_id = ?
+			""";
 
 	public List<String> allUids() throws SQLException {
 		return select(SELECT_ALL, StringCreator.FIRST, Collections.emptyList(), new Object[] { container.id });
