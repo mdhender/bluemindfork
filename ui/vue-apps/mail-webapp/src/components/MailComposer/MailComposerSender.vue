@@ -4,7 +4,7 @@
             <div class="label" :class="labelClass">{{ $t("common.from") }}</div>
             <bm-form-select
                 ref="identity-chooser"
-                :value="{ email: message.from.address, displayname: message.from.dn }"
+                :value="message.from.id || 'default'"
                 :options="options"
                 :auto-min-width="false"
                 class="flex-fill"
@@ -37,8 +37,8 @@ export default {
         ...mapState("root-app", ["identities"]),
         options() {
             return this.identities.map(i => ({
-                text: i.displayname ? `${i.displayname} <${i.email}>` : i.email,
-                value: { email: i.email, displayname: i.displayname }
+                text: this.identityToSenderText(i),
+                value: i.id
             }));
         }
     },
@@ -46,12 +46,16 @@ export default {
         this.$refs["identity-chooser"].focus();
     },
     methods: {
-        changeIdentity(identity) {
-            if (identity !== undefined) {
-                this.$emit("update", identity);
-            } else {
-                this.$emit("check-and-repair");
+        changeIdentity(identityId) {
+            const identity = this.identities.find(({ id }) => id === identityId);
+            identity !== undefined ? this.$emit("update", identity) : this.$emit("check-and-repair");
+        },
+        identityToSenderText(identity) {
+            let text = identity.displayname ? `${identity.displayname} <${identity.email}>` : identity.email;
+            if (identity.name && identity.name !== identity.displayname) {
+                text += ` (${identity.name})`;
             }
+            return text;
         }
     }
 };

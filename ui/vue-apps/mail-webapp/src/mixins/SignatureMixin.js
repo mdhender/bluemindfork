@@ -113,7 +113,6 @@ export default {
                     const content = wrapPersonalSignature({ html: personalSignature.html, id: personalSignature.id });
                     const triggerOnChange = !isNewMessage(this.message);
                     editorRef.insertContent(content, { triggerOnChange });
-                    editorRef.insertContent(document.createElement("br"), { triggerOnChange });
                     this.$store.commit(`mail/${SET_DRAFT_EDITOR_CONTENT}`, editorRef.getContent());
                 }
                 this.$_SignatureMixin_onPersonalSignatureChange();
@@ -157,7 +156,6 @@ export default {
                         editorRef.insertContent(
                             wrapPersonalSignature({ html: this.personalSignature.html, id: this.personalSignature.id })
                         );
-                        editorRef.insertContent(document.createElement("br"));
                         this.$store.commit(`mail/${SET_DRAFT_EDITOR_CONTENT}`, editorRef.getContent());
                     }
                 }
@@ -192,7 +190,6 @@ export default {
                 editorRef.insertContent(
                     wrapPersonalSignature({ html: this.personalSignature.html, id: this.personalSignature.id })
                 );
-                editorRef.insertContent(document.createElement("br"));
             }
             this.$_SignatureMixin_onPersonalSignatureChange();
         },

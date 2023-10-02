@@ -23,7 +23,7 @@ export default {
         async setFrom(identity, message) {
             this.$store.commit("mail/" + SET_MESSAGE_FROM, {
                 messageKey: message.key,
-                from: { address: identity.email, dn: identity.displayname }
+                from: { address: identity.email, dn: identity.displayname, id: identity.id }
             });
             const fullIdentity = this.setIdentity(identity);
             const rawIdentity = await inject("UserMailIdentitiesPersistence").get(fullIdentity.id);
@@ -75,9 +75,8 @@ export default {
             return this.getIdentityForNewMessage();
         },
         setIdentity(identity) {
-            const fullIdentity = this.$store.state["root-app"].identities.find(
-                i => i.email === identity.email && i.displayname === identity.displayname
-            );
+            const identityId = identity.id || "default";
+            const fullIdentity = this.$store.state["root-app"].identities.find(({ id }) => id === identityId);
             this.$store.commit("mail/" + SET_PERSONAL_SIGNATURE, { html: fullIdentity.signature, id: fullIdentity.id });
             return fullIdentity;
         }
