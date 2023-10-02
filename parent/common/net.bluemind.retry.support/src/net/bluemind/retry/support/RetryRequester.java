@@ -33,7 +33,7 @@ public class RetryRequester {
 	public RetryRequester(EventBus eb, String topic) {
 		this.addr = "retry." + topic;
 		this.eb = eb;
-		this.delOpts = new DeliveryOptions().setSendTimeout(1000);
+		this.delOpts = new DeliveryOptions().setSendTimeout(10000);
 	}
 
 	public void request(JsonObject js) {
