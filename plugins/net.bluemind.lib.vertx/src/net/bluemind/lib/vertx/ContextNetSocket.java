@@ -59,7 +59,7 @@ public class ContextNetSocket implements NetSocket {
 	@Override
 	public Future<Void> write(Buffer data) {
 		Promise<Void> prom = context.promise();
-		ns.write(data).onComplete(v -> prom.complete()).onFailure(prom::fail);
+		ns.write(data).onSuccess(v -> prom.complete()).onFailure(prom::fail);
 		return prom.future();
 	}
 
