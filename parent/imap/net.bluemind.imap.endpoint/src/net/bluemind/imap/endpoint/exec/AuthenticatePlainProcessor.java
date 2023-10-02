@@ -17,8 +17,6 @@
  */
 package net.bluemind.imap.endpoint.exec;
 
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -35,6 +33,7 @@ import net.bluemind.imap.endpoint.cmd.AuthenticatePlainCommand;
 import net.bluemind.imap.endpoint.driver.Drivers;
 import net.bluemind.imap.endpoint.driver.MailboxConnection;
 import net.bluemind.imap.endpoint.driver.MailboxDriver;
+import net.bluemind.imap.endpoint.parsing.Base64Splitter;
 import net.bluemind.lib.vertx.Result;
 
 public class AuthenticatePlainProcessor extends StateConstrainedCommandProcessor<AuthenticatePlainCommand> {
@@ -52,18 +51,7 @@ public class AuthenticatePlainProcessor extends StateConstrainedCommandProcessor
 		logger.info("{} PLAIN for {}", tag, lc);
 
 		ByteBuf authBuf = Unpooled.wrappedBuffer(lc.payload());
-		int i;
-		List<String> parts = new ArrayList<>(3);
-		for (i = 0; i < authBuf.readableBytes(); i++) {
-			if (authBuf.getByte(i) == 0x00) {
-				parts.add(authBuf.readSlice(i).toString(StandardCharsets.US_ASCII));
-				authBuf.skipBytes(1);
-				i = 0;
-			}
-		}
-		if (authBuf.readableBytes() > 0) {
-			parts.add(authBuf.toString(StandardCharsets.US_ASCII));
-		}
+		List<String> parts = Base64Splitter.splitOnNull(lc.payload());
 		if (parts.size() == 3) {
 			String login = parts.get(1);
 			String pass = parts.get(2);
