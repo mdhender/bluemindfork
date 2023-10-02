@@ -1,7 +1,7 @@
 <template>
     <div class="mail-composer-sender d-flex flex-column justify-content-between">
         <div class="d-flex align-items-center flex-fill">
-            <div class="label" :class="labelClass">{{ $t("common.from") }}</div>
+            <div class="label ml-4" :class="labelClass">{{ $t("common.from") }}</div>
             <bm-form-select
                 ref="identity-chooser"
                 :value="message.from.id || 'default'"

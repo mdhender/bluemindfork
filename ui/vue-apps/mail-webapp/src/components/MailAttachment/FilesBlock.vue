@@ -130,6 +130,7 @@ export default {
     display: flex;
     flex-direction: column;
     gap: $sp-4;
+    margin-top: $sp-4;
     padding-top: $sp-4;
     padding-bottom: $sp-5;
     padding-left: $sp-2;

@@ -65,7 +65,7 @@
                     <mail-composer-attach-zone :text="$tc('mail.new.attachments.drop.zone', draggedFilesCount)" />
                 </template>
                 <mail-composer-attachments
-                    class="m-4"
+                    class="mx-4"
                     :dragged-files-count="draggedFilesCount"
                     :message="message"
                     :attachments="attachments"

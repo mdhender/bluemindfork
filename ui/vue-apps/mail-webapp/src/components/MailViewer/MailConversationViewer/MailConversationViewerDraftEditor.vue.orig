@@ -26,7 +26,8 @@
                     :max-index="maxIndex"
                     after-avatar
                 />
-                <mail-composer-recipients ref="recipients" :message="message">
+<<<<<<< HEAD
+                <mail-composer-recipients ref="recipients" class="px-4" :message="message">
                     <mail-open-in-popup-with-shift v-slot="action" :href="route" :next="consult">
                         <bm-icon-button
                             variant="compact"
@@ -38,6 +39,22 @@
                         />
                     </mail-open-in-popup-with-shift>
                 </mail-composer-recipients>
+=======
+                <div class="to-contact-input">
+                    <mail-composer-recipients ref="recipients" :message="message">
+                        <mail-open-in-popup-with-shift v-slot="action" :href="route" :next="consult">
+                            <bm-icon-button
+                                variant="compact"
+                                class="expand-button"
+                                :title="action.label($t('mail.actions.extend'))"
+                                :disabled="anyAttachmentInError"
+                                :icon="action.icon('extend')"
+                                @click="saveAsap().then(() => action.execute(() => $router.navigate(route), $event))"
+                            />
+                        </mail-open-in-popup-with-shift>
+                    </mail-composer-recipients>
+                </div>
+>>>>>>> 4a0444585e5 (UI quality)
             </div>
         </template>
         <template slot="subhead">

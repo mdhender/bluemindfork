@@ -140,6 +140,8 @@ export default {
 .mail-composer-content {
     .bm-rich-editor .roosterjs-container {
         min-height: 12rem;
+        padding-top: $sp-6;
+        padding-bottom: $sp-5;
     }
 }
 </style>

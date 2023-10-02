@@ -1,7 +1,7 @@
 <template>
     <bm-button
         v-key-nav-group:recipient-button
-        class="mail-composer-recipient-button mr-3"
+        class="mail-composer-recipient-button px-4"
         variant="text-accent"
         @click="
             $bvModal.show('recipient-picker');
