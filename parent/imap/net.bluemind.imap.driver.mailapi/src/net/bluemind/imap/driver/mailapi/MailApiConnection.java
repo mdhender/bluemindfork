@@ -135,6 +135,7 @@ public class MailApiConnection implements MailboxConnection {
 	private final IServiceProvider suProv;
 	private final String sharedRootPrefix;
 	private final String userRootPrefix;
+	private final boolean logoutOnClose;
 
 	private final FolderResolver folderResolver;
 	private static final Supplier<ElasticsearchClient> esSupplier = Suppliers.memoize(ESearchActivator::getClient);
@@ -147,7 +148,7 @@ public class MailApiConnection implements MailboxConnection {
 			"Templates");
 	private static final Set<String> SHARE_PROTECTED = Set.of("Sent", "Trash");
 
-	public MailApiConnection(IServiceProvider userProv, IServiceProvider suProv, AuthUser me,
+	public MailApiConnection(IServiceProvider userProv, IServiceProvider suProv, AuthUser me, boolean logoutOnClose,
 			SharedMap<String, String> config) {
 		this.prov = userProv;
 		this.suProv = suProv;
@@ -160,6 +161,7 @@ public class MailApiConnection implements MailboxConnection {
 		this.sharedRootPrefix = DriverConfig.get().getString(DriverConfig.SHARED_VIRTUAL_ROOT) + "/";
 		this.userRootPrefix = DriverConfig.get().getString(DriverConfig.USER_VIRTUAL_ROOT) + "/";
 		this.folderResolver = new FolderResolver(userProv, suProv, me, myMailbox);
+		this.logoutOnClose = logoutOnClose;
 	}
 
 	@Override
@@ -569,7 +571,9 @@ public class MailApiConnection implements MailboxConnection {
 	@Override
 	public void close() {
 		notIdle();
-		prov.instance(IAuthentication.class).logout();
+		if (logoutOnClose) {
+			prov.instance(IAuthentication.class).logout();
+		}
 	}
 
 	@Override
