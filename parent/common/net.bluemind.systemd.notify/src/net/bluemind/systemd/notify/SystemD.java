@@ -1,6 +1,5 @@
 package net.bluemind.systemd.notify;
 
-import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -20,22 +19,6 @@ public class SystemD {
 	private interface CLibrary extends Library {
 
 		int getpid();
-	}
-
-	public static enum SystemDLocation {
-		Centos("/usr/lib64/libsystemd.so.0"),
-
-		// 16.04, 18.04, stretch
-		OldUbuntuDebian("/lib/x86_64-linux-gnu/libsystemd.so.0"),
-
-		// /lib link to /usr/lib
-		UbuntuDebian("/usr/lib/x86_64-linux-gnu/libsystemd.so.0");
-
-		public final String systemdLibLocation;
-
-		private SystemDLocation(String lib) {
-			this.systemdLibLocation = lib;
-		}
 	}
 
 	public static class Api {
@@ -87,22 +70,9 @@ public class SystemD {
 
 	}
 
-	private static SystemDLocation figureOutLocation() {
-		for (SystemDLocation loc : SystemDLocation.values()) {
-			if (new File(loc.systemdLibLocation).exists()) {
-				logger.info("Selected location {}", loc);
-				return loc;
-			}
-		}
-		return null;
-	}
-
 	@VisibleForTesting
 	public static boolean isAvailable() {
-		if (INSTANCE == null) {
-			return false;
-		}
-		return true;
+		return INSTANCE != null;
 	}
 
 	@VisibleForTesting
@@ -114,12 +84,13 @@ public class SystemD {
 	}
 
 	private static Api init() {
-		SystemDLocation loc = figureOutLocation();
-		if (loc != null) {
-			RawApi rawApi = Native.load(loc.systemdLibLocation, RawApi.class);
+		try {
+			RawApi rawApi = Native.load("systemd", RawApi.class);
 			return new Api(rawApi);
+		} catch (UnsatisfiedLinkError le) {
+			logger.warn("systemd library not found: {}", le.getMessage());
+			return null;
 		}
-		return null;
 	}
 
 }
