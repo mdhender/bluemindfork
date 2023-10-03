@@ -70,7 +70,7 @@ public final class ExtractTextWorker extends AbstractVerticle {
 					logger.info("HASH cached stats: {}", HashCache.stats());
 				}
 				event.reply(txt);
-			} catch (Exception e) {
+			} catch (Exception | LinkageError e) {
 				event.fail(500, e.getMessage());
 			}
 		};

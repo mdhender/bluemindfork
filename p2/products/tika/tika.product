@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="tika" uid="tika" id="net.bluemind.tika.server.tika" application="net.bluemind.tika.server.tika" version="5.0.0.qualifier" useFeatures="false" includeLaunchers="true">
+<product name="tika" uid="tika" id="net.bluemind.tika.server.tika" application="net.bluemind.tika.server.tika" version="5.0.0.qualifier" useFeatures="false" includeLaunchers="true" autoIncludeRequirements="true">
 
    <configIni use="default">
    </configIni>
 
    <launcherArgs>
-      <vmArgs>-Xmx128m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -Dosgi.noShutdown=true -Djava.awt.headless=true -XX:+UseCompressedOops -XX:+UseG1GC -XX:MaxGCPauseMillis=500
+      <vmArgs>-Xmx128m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -Dnet.bluemind.property.product=bm-tika -Dosgi.noShutdown=true -Djava.awt.headless=true -XX:+UseCompressedOops -XX:+UseG1GC -XX:MaxGCPauseMillis=500
       </vmArgs>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
       </vmArgsMac>
@@ -43,7 +43,6 @@
       <plugin id="jakarta.ws.rs-api"/>
       <plugin id="jakarta.xml.bind-api"/>
       <plugin id="javax.activation"/>
-      <plugin id="javax.xml"/>
       <plugin id="jcl.over.slf4j"/>
       <plugin id="jul.to.slf4j"/>
       <plugin id="micrometer-commons"/>
@@ -51,10 +50,10 @@
       <plugin id="micrometer-observation"/>
       <plugin id="micrometer-registry-prometheus"/>
       <plugin id="net.bluemind.common.io"/>
+      <plugin id="net.bluemind.common.logback" fragment="true"/>
       <plugin id="net.bluemind.config"/>
       <plugin id="net.bluemind.core.caches.registry"/>
       <plugin id="net.bluemind.core.commons"/>
-      <plugin id="net.bluemind.common.logback" fragment="true"/>
       <plugin id="net.bluemind.eclipse.common"/>
       <plugin id="net.bluemind.hornetq.client"/>
       <plugin id="net.bluemind.lib.vertx"/>
@@ -64,7 +63,7 @@
       <plugin id="net.bluemind.sentry" fragment="true"/>
       <plugin id="net.bluemind.slf4j"/>
       <plugin id="net.bluemind.slf4j.configuration" fragment="true"/>
-      <plugin id="net.bluemind.startup.dropins" />
+      <plugin id="net.bluemind.startup.dropins"/>
       <plugin id="net.bluemind.systemd.notify"/>
       <plugin id="net.bluemind.tika"/>
       <plugin id="net.bluemind.tika.server"/>
@@ -124,12 +123,12 @@
 
    <configurations>
       <plugin id="net.bluemind.sentry.settings" autoStart="true" startLevel="4" />
+      <plugin id="net.bluemind.startup.dropins" autoStart="true" startLevel="1" />
       <plugin id="org.apache.felix.scr" autoStart="true" startLevel="3" />
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="3" />
       <plugin id="org.eclipse.equinox.event" autoStart="true" startLevel="3" />
       <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="2" />
-      <plugin id="net.bluemind.startup.dropins" autoStart="true" startLevel="1" />
       <property name="osgi.noShutdown" value="true" />
       <property name="osgi.instance.area" value="/var/lib/bm-tika/" />
       <property name="eclipse.registry.MultiLanguage" value="true" />
