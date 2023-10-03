@@ -259,21 +259,20 @@ public class FetchedItemRenderer {
 	private ByteBuf mimePattern(Supplier<MessageBody> body, MailPart f, Partial partial) {
 		String part = f.section.replace(SECTION_MIME_PATTERN, "");
 		logger.info("Fetch mime headers of {}", part);
-		return body.get().structure.parts().stream().filter(p -> p.address.equalsIgnoreCase(part)).findAny()
-				.map(p -> {
-					StringBuilder b = new StringBuilder();
-					b.append("Content-Type: " + p.mime + "\r\n");
-					// core returns a decoded version
-					b.append("Content-Transfer-Encoding: 8bit\r\n");
-					if (p.contentId != null) {
-						b.append("Content-ID: " + p.contentId + "\r\n");
-					}
-					b.append("\r\n");
-					if (partial.isValid) {
-						return partial.getByteBufSlice(Unpooled.wrappedBuffer(b.toString().getBytes()));
-					}
-					return Unpooled.wrappedBuffer(b.toString().getBytes());
-				}).orElse(DEFAULT_NIL_BYTE_BUF);
+		return body.get().structure.parts().stream().filter(p -> p.address.equalsIgnoreCase(part)).findAny().map(p -> {
+			StringBuilder b = new StringBuilder();
+			b.append("Content-Type: " + p.mime + "\r\n");
+			// core returns a decoded version
+			b.append("Content-Transfer-Encoding: 8bit\r\n");
+			if (p.contentId != null) {
+				b.append("Content-ID: " + p.contentId + "\r\n");
+			}
+			b.append("\r\n");
+			if (partial.isValid) {
+				return partial.getByteBufSlice(Unpooled.wrappedBuffer(b.toString().getBytes()));
+			}
+			return Unpooled.wrappedBuffer(b.toString().getBytes());
+		}).orElse(DEFAULT_NIL_BYTE_BUF);
 	}
 
 	private ByteBuf bodyText(IDbMailboxRecords recApi, Supplier<MessageBody> body, WithId<MailboxRecord> rec,
@@ -299,7 +298,7 @@ public class FetchedItemRenderer {
 	}
 
 	private ByteBuf getPart(ByteBuf emlBuffer, String section) {
-		try (InputStream in = new ByteBufInputStream(emlBuffer, true); Message parsed = Mime4JHelper.parse(in)) {
+		try (InputStream in = new ByteBufInputStream(emlBuffer, true); Message parsed = Mime4JHelper.parse(in, false)) {
 			SingleBody body = null;
 			if (parsed.isMultipart()) {
 				Multipart mp = (Multipart) parsed.getBody();
