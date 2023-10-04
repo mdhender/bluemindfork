@@ -33,7 +33,7 @@ class bm_search extends rcube_plugin {
   }
 
   public function startup($args) {
-    if ($this->rcmail->task == 'mail' && $this->rcmail->action == '') {
+    if ($args['task'] == 'mail' && $args['action'] == '') {
       if ($this->rcmail->get_storage()->isIndexEnabled()) { 
         $this->include_script('search.js');
         $this->include_script('bm_search.js');
