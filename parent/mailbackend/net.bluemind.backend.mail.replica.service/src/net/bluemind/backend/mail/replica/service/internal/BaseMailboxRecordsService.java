@@ -50,6 +50,7 @@ import net.bluemind.core.container.api.ICountingSupport;
 import net.bluemind.core.container.api.ISortingSupport;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerChangeset;
+import net.bluemind.core.container.model.CountFastPath;
 import net.bluemind.core.container.model.IdQuery;
 import net.bluemind.core.container.model.ItemChangelog;
 import net.bluemind.core.container.model.ItemFlagFilter;
@@ -139,7 +140,17 @@ public class BaseMailboxRecordsService implements IChangelogSupport, ICountingSu
 
 	@Override
 	public Count count(ItemFlagFilter filter) {
-		rbac.check(Verb.Read.name());
+		Optional<CountFastPath> fastPath = filter.availableFastPath();
+		if (fastPath.isPresent()) {
+			return recordStore.fastpathCount(fastPath.get()).orElseGet(() -> {
+				try {
+					return recordStore.count(filter);
+				} catch (SQLException e) {
+					throw ServerFault.sqlFault(e);
+				}
+			});
+		}
+
 		try {
 			return recordStore.count(filter);
 		} catch (SQLException e) {

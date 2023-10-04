@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -54,6 +55,7 @@ import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ContainerDescriptor;
+import net.bluemind.core.container.model.CountFastPath;
 import net.bluemind.core.container.model.IdQuery;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemChangelog;
@@ -193,6 +195,16 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	}
 
 	public Count count(ItemFlagFilter filter) {
+		Optional<CountFastPath> fastPath = filter.availableFastPath();
+		if (fastPath.isPresent()) {
+			return itemStore.fastpathCount(fastPath.get()).orElseGet(() -> {
+				try {
+					return Count.of(itemStore.count(filter));
+				} catch (SQLException e) {
+					throw ServerFault.sqlFault(e);
+				}
+			});
+		}
 		try {
 			return Count.of(itemStore.count(filter));
 		} catch (SQLException e) {

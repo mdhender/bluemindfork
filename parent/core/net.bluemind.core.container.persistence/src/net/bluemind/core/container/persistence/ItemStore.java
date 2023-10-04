@@ -29,6 +29,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -37,7 +38,10 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.api.Count;
 import net.bluemind.core.container.model.Container;
+import net.bluemind.core.container.model.CountFastPath;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemFlagFilter;
@@ -349,6 +353,16 @@ public class ItemStore extends JdbcAbstractStore {
 		return unique("SELECT count(*) FROM t_container_item WHERE container_id = ?", c -> {
 			return c.getInt(1);
 		}, Collections.emptyList(), new Object[] { container.id });
+	}
+
+	public Optional<Count> fastpathCount(CountFastPath fastPath) {
+		String query = "SELECT " + fastPath.column() + " FROM v_container_item_counter WHERE container_id = ?";
+		try {
+			Long total = unique(query, rs -> rs.getLong(1), (rs, index, v) -> index, new Object[] { container.id });
+			return Optional.ofNullable(total == null ? null : Count.of(total));
+		} catch (SQLException e) {
+			throw ServerFault.sqlFault(e);
+		}
 	}
 
 	public void delete(Item item) throws SQLException {

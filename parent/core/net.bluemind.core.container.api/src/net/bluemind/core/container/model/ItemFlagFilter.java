@@ -128,4 +128,19 @@ public class ItemFlagFilter {
 		return sb.toString();
 	}
 
+	public Optional<CountFastPath> availableFastPath() {
+		if (must.isEmpty() && !skipExpunged) {
+			if (mustNot.isEmpty()) {
+				return Optional.of(CountFastPath.TOTAL);
+			} else if (mustNot.stream().allMatch(mn -> mn.equals(ItemFlag.Deleted))) {
+				return Optional.of(CountFastPath.TOTAL_VISIBLE);
+			} else if (mustNot.stream().allMatch(mn -> mn.equals(ItemFlag.Seen) || mn.equals(ItemFlag.Deleted))) {
+				return Optional.of(CountFastPath.UNSEEN_VISIBLE);
+			} else if (mustNot.stream().allMatch(mn -> mn.equals(ItemFlag.Seen))) {
+				return Optional.of(CountFastPath.UNSEEN_TOTAL);
+			}
+		}
+		return Optional.empty();
+	}
+
 }

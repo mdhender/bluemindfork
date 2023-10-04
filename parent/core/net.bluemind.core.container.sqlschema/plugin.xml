@@ -11,6 +11,13 @@
          </compose>
       </schema>
       <schema
+            name="item-store-fastcount"
+            resource="sql/item-store-fastcount-1.0.0-SNAPSHOT.sql">
+         <compose
+               id="schema-version">
+         </compose>
+      </schema>
+      <schema
             name="container-sync-store"
             resource="sql/container-sync-1.0.0-SNAPSHOT.sql">
          <compose
