@@ -323,7 +323,7 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 		// AS-CAL 2.2.2.38
 		// Reminder: number of minutes before the calendar item's start
 		Element reminder = DOMUtils.getUniqueElement(domSource, "Reminder");
-		if (Strings.isNullOrEmpty(reminder.getNodeValue())) {
+		if (reminder != null && !Strings.isNullOrEmpty(reminder.getNodeValue())) {
 			calendar.setReminder(parseDOMInt(reminder));
 		}
 
