@@ -32,7 +32,7 @@ const statusKey = computed(
 
 <template>
     <div class="event-countered">
-        <event-header v-if="event.counter">
+        <event-header v-if="event.counter && event.isWritable">
             <i18n :path="eventKey" tag="div" class="bold">
                 <template #name>{{ fromAttendee.name }}</template>
                 <template #status>
@@ -62,7 +62,7 @@ const statusKey = computed(
             </template>
         </event-header>
 
-        <event-header v-else>
+        <event-header v-else-if="!event.counter">
             <span class="bold"> {{ $t("mail.viewer.invitation.counter.answered") }}</span>
         </event-header>
 

@@ -9,6 +9,7 @@ import {
     SET_CURRENT_EVENT_STATUS
 } from "~/mutations";
 import { Verb } from "@bluemind/core.container.api";
+import { cloneDeep } from "lodash";
 
 const { LoadingStatus } = loadingStatusUtils;
 
@@ -106,28 +107,20 @@ export default {
 };
 
 async function updateCounterEvent({ state, commit }, updateFunction) {
-    let updatedEvent = JSON.parse(JSON.stringify(state.currentEvent));
+    const event = cloneDeep(state.currentEvent);
 
-    const recuridIsoDate = state.currentEvent.counter.occurrence
-        ? state.currentEvent.counter.occurrence.recurid.iso8601
-        : undefined;
-    updateFunction(updatedEvent, state.currentEvent.counter.originator, recuridIsoDate);
-
-    updatedEvent = EventHelper.adapt(
-        updatedEvent.serverEvent,
-        state.currentEvent.mailboxOwner,
-        state.currentEvent.counter.originator,
+    const recuridIsoDate = event.counter.occurrence ? event.counter.occurrence.recurid.iso8601 : undefined;
+    updateFunction(event, event.counter.originator, recuridIsoDate);
+    const updatedEvent = EventHelper.adapt(
+        event.serverEvent,
+        event.mailboxOwner,
+        event.counter.originator,
         undefined,
-        state.currentEvent.calendarOwner,
-        state.currentEvent.calendarUid
+        event.calendarUid,
+        event.calendarOwner
     );
-
     commit(SET_CURRENT_EVENT, updatedEvent);
-    await inject("CalendarPersistence", state.currentEvent.calendarUid).update(
-        state.currentEvent.uid,
-        updatedEvent.serverEvent.value,
-        true
-    );
+    await inject("CalendarPersistence", event.calendarUid).update(event.uid, updatedEvent.serverEvent.value, true);
 }
 
 const findEvent = (events, recuridIsoDate) => {
