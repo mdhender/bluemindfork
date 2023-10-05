@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="crp" uid="crp" id="net.bluemind.central.reverse.proxy.launcher.crp" application="net.bluemind.central.reverse.proxy.launcher.crplauncher" version="5.0.0.qualifier" useFeatures="false" includeLaunchers="true" autoIncludeRequirements="true">
+<product name="crp" uid="crp" id="net.bluemind.central.reverse.proxy.launcher.crp" application="net.bluemind.central.reverse.proxy.launcher.crplauncher" version="5.0.0.qualifier" type="bundles" includeLaunchers="true" autoIncludeRequirements="true">
 
    <configIni use="default">
    </configIni>
@@ -59,13 +59,13 @@
       <plugin id="net.bluemind.central.reverse.proxy"/>
       <plugin id="net.bluemind.central.reverse.proxy.common"/>
       <plugin id="net.bluemind.central.reverse.proxy.launcher"/>
-      <plugin id="net.bluemind.lib.grafana"/>
       <plugin id="net.bluemind.central.reverse.proxy.model"/>
       <plugin id="net.bluemind.central.reverse.proxy.model.client"/>
       <plugin id="net.bluemind.central.reverse.proxy.model.common"/>
       <plugin id="net.bluemind.central.reverse.proxy.stream"/>
       <plugin id="net.bluemind.cloud.monitoring"/>
       <plugin id="net.bluemind.common.io"/>
+      <plugin id="net.bluemind.common.logback" fragment="true"/>
       <plugin id="net.bluemind.core.commons"/>
       <plugin id="net.bluemind.core.container.api"/>
       <plugin id="net.bluemind.core.context"/>
@@ -75,6 +75,7 @@
       <plugin id="net.bluemind.group.api"/>
       <plugin id="net.bluemind.kafka.client"/>
       <plugin id="net.bluemind.kafka.configuration"/>
+      <plugin id="net.bluemind.lib.grafana"/>
       <plugin id="net.bluemind.lib.jackson"/>
       <plugin id="net.bluemind.lib.vertx"/>
       <plugin id="net.bluemind.mailbox.api"/>
