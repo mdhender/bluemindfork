@@ -166,7 +166,7 @@ export function preventStyleInvading(html) {
  */
 export function getStyleRules(doc) {
     let styleRules = "";
-    const styleTags = doc.styleSheets;
+    const styleTags = getStyleSheets(doc);
     for (let tag of styleTags) {
         for (let rule of tag.cssRules) {
             if (rule.selectorText) {
@@ -176,6 +176,19 @@ export function getStyleRules(doc) {
         }
     }
     return styleRules;
+}
+
+function getStyleSheets(doc) {
+    let styleSheets = doc.styleSheets;
+    if (!styleSheets?.length) {
+        const headStyle = [...doc.head.children].find(c => c.tagName === "STYLE")?.textContent;
+        if (headStyle) {
+            const cssStyleSheet = new CSSStyleSheet();
+            cssStyleSheet.replaceSync(headStyle);
+            styleSheets = [cssStyleSheet];
+        }
+    }
+    return styleSheets;
 }
 
 /**
