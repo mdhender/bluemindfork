@@ -18,18 +18,15 @@
  */
 package net.bluemind.core.container.service.internal;
 
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.model.acl.Verb;
-import net.bluemind.core.container.persistence.AclStore;
 import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
@@ -58,12 +55,9 @@ public class ContainerPermissionResolver {
 				&& container.domainUid.equals(context.getSecurityContext().getContainerUid())) {
 			perms.add(ContainerPermission.asPerm(Verb.Read));
 		}
-		List<AccessControlEntry> acl = null;
-		try {
-			acl = new AclStore(context, DataSourceRouter.get(context, container.uid)).get(container);
-		} catch (SQLException e) {
-			throw ServerFault.sqlFault(e);
-		}
+		List<AccessControlEntry> acl = new AclService(context, context.getSecurityContext(),
+				DataSourceRouter.get(context, container.uid),
+					container).get();
 
 		for (AccessControlEntry entry : acl) {
 

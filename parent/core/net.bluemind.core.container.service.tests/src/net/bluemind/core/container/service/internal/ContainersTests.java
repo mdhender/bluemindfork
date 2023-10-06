@@ -231,9 +231,11 @@ public class ContainersTests {
 		String uid1 = "junit-" + System.nanoTime();
 		String uid2 = "junit-" + System.nanoTime();
 
-		Container container1 = containerStore.create(Container.create(uid1, "testType", "container 1", "test", true));
+		Container container1 = containerStore
+				.create(Container.create(uid1, "testType", "container 1", "test", domainUid, true));
 		aclStore.store(container1, Arrays.asList(AccessControlEntry.create(user.getSubject(), Verb.All)));
-		Container container2 = containerStore.create(Container.create(uid2, "test2Type", uid2, "test", true));
+		Container container2 = containerStore
+				.create(Container.create(uid2, "test2Type", uid2, "test", domainUid, true));
 		aclStore.store(container2, Arrays.asList(AccessControlEntry.create(user.getSubject(), Verb.All)));
 
 		ContainerQuery query = new ContainerQuery();

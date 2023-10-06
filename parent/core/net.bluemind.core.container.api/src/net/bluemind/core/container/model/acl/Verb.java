@@ -19,7 +19,10 @@
 package net.bluemind.core.container.model.acl;
 
 import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import net.bluemind.core.api.BMApi;
 
@@ -71,4 +74,25 @@ public enum Verb {
 		}
 	}
 
+
+	public static Set<Verb> expand(Verb parent) {
+		Set<Verb> expanded = new HashSet<>();
+		expanded.add(parent);
+		for(Verb verb : parent.verbs) {
+			expanded.addAll(expand(verb));
+		}
+		return expanded;
+	}
+
+	public static Set<Verb> compact(List<Verb> verbs) {
+		Predicate<Verb> hasParentInList = (verb) -> verbs.stream()
+				.anyMatch(parent -> !parent.equals(verb) && parent.can(verb));
+		Set<Verb> compacted = new HashSet<>();
+		for (Verb verb : verbs) {
+			if (!hasParentInList.test(verb)) {
+				compacted.add(verb);
+			}
+		}
+		return compacted;
+	}
 }

@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.junit.Test;
 
@@ -142,18 +143,16 @@ public class VideoConferencingServiceTests extends AbstractVideoConferencingTest
 		IContainerManagement containerMgmtService = ServerSideServiceProvider.getProvider(domainAdminCtx)
 				.instance(IContainerManagement.class, resCalendar.uid);
 		List<AccessControlEntry> calAcls = containerMgmtService.getAccessControlList();
-		assertEquals(1, calAcls.size());
-		AccessControlEntry ace = calAcls.get(0);
-		assertEquals(domainUid, ace.subject);
-		assertEquals(Verb.Invitation, ace.verb);
+
+		List<AccessControlEntry> expected = List.of(AccessControlEntry.create(domainUid, Verb.Invitation));
+		assertACLMatch(expected, calAcls);
+
 
 		containerMgmtService = ServerSideServiceProvider.getProvider(domainAdminCtx)
 				.instance(IContainerManagement.class, resContainerSettings.uid);
 		List<AccessControlEntry> settingsdAcls = containerMgmtService.getAccessControlList();
-		assertEquals(1, settingsdAcls.size());
-		ace = settingsdAcls.get(0);
-		assertEquals(domainUid, ace.subject);
-		assertEquals(Verb.Read, ace.verb);
+		expected = List.of(AccessControlEntry.create(domainUid, Verb.Read));
+		assertACLMatch(expected, settingsdAcls);
 
 	}
 
@@ -352,4 +351,18 @@ public class VideoConferencingServiceTests extends AbstractVideoConferencingTest
 		return series;
 	}
 
+	protected void assertACLMatch(List<AccessControlEntry> expected, List<AccessControlEntry> actual) {
+		Map<String, List<Verb>> expectedBySubject = expected.stream().collect(Collectors.groupingBy(
+				AccessControlEntry::getSubject, Collectors.mapping(AccessControlEntry::getVerb, Collectors.toList())));
+		Map<String, List<Verb>> actualBySubject = actual.stream().collect(Collectors.groupingBy(
+				AccessControlEntry::getSubject, Collectors.mapping(AccessControlEntry::getVerb, Collectors.toList())));
+		assertEquals(expectedBySubject.keySet().size(), actualBySubject.keySet().size());
+		for (String subject : expectedBySubject.keySet()) {
+			List<Verb> expectedVerbs = expectedBySubject.get(subject);
+			List<Verb> actualVerbs = actualBySubject.get(subject);
+			for (Verb verb : expectedVerbs) {
+				assertTrue(actualVerbs.stream().allMatch(v -> verb.can(v)));
+			}
+		}
+	}
 }

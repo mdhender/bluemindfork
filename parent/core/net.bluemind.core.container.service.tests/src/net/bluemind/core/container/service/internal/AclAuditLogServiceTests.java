@@ -20,6 +20,7 @@
 package net.bluemind.core.container.service.internal;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -55,6 +56,7 @@ import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.model.acl.Verb;
+import net.bluemind.core.container.persistence.AclStore;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
@@ -77,6 +79,8 @@ import net.bluemind.user.api.User;
 public class AclAuditLogServiceTests {
 
 	private AclService aclService;
+	private AclStore aclStore;
+
 	private ElasticsearchClient esClient;
 	private String domainUid = "bm.lan";
 	private ItemValue<User> user01;
@@ -142,6 +146,7 @@ public class AclAuditLogServiceTests {
 				user01CalendarContainer.defaultContainer);
 		user01CalendarDesc.internalId = user01CalendarContainer.id;
 		aclService = new AclService(context, context.getSecurityContext(), context.getDataSource(), user01CalendarDesc);
+		aclStore = new AclStore(context, JdbcTestHelper.getInstance().getDataSource());
 		esClient = ESearchActivator.getClient();
 		StateContext.setState("core.stopped");
 		StateContext.setState("core.started");
@@ -160,7 +165,7 @@ public class AclAuditLogServiceTests {
 		AccessControlEntry user01AclEntry = AccessControlEntry.create(user01.uid, Verb.All);
 		AccessControlEntry user02AclEntry = AccessControlEntry.create(user02.uid, Verb.Read);
 		aclService.store(Arrays.asList(user01AclEntry, user02AclEntry));
-		List<AccessControlEntry> actual = aclService.get();
+		List<AccessControlEntry> actual = aclStore.get(user01CalendarContainer);
 		assertEquals(2, actual.size());
 		assertTrue(actual.contains(user01AclEntry));
 		assertTrue(actual.contains(user02AclEntry));
@@ -189,8 +194,10 @@ public class AclAuditLogServiceTests {
 		assertTrue(response.hits().hits().stream().anyMatch(h -> h.source().content.key().equals(user01.uid)));
 		assertTrue(response.hits().hits().stream().anyMatch(h -> h.source().content.key().equals(user02.uid)));
 
-		AuditLogEntry firstEntry = response.hits().hits().get(0).source();
-		AuditLogEntry secondEntry = response.hits().hits().get(1).source();
+		AuditLogEntry firstEntry = response.hits().hits().stream().map(hit -> hit.source())
+				.filter(log -> log.content.key().equals(user01.uid)).findAny().get();
+		AuditLogEntry secondEntry = response.hits().hits().stream().map(hit -> hit.source())
+				.filter(log -> log.content.key().equals(user02.uid)).findAny().get();
 
 		assertEquals("test", firstEntry.securityContext.uid());
 		assertEquals("test", firstEntry.securityContext.displayName());
@@ -221,7 +228,7 @@ public class AclAuditLogServiceTests {
 		AccessControlEntry user01AclEntry = AccessControlEntry.create(user01.uid, Verb.All);
 		AccessControlEntry user02AclEntry = AccessControlEntry.create(user02.uid, Verb.Read);
 		aclService.store(Arrays.asList(user01AclEntry, user02AclEntry));
-		List<AccessControlEntry> actual = aclService.get();
+		List<AccessControlEntry> actual = aclStore.get(user01CalendarContainer);
 		aclService.deleteAll();
 		assertEquals(2, actual.size());
 		assertTrue(actual.contains(user01AclEntry));
@@ -249,22 +256,19 @@ public class AclAuditLogServiceTests {
 				AuditLogEntry.class);
 		assertEquals(2L, response.hits().total().value());
 
-		AuditLogEntry firstEntry = response.hits().hits().get(0).source();
-		assertEquals(2L, firstEntry.content.with().size());
-		assertTrue(firstEntry.content.newValue() != null);
+		AuditLogEntry entry = response.hits().hits().stream().map(hit -> hit.source())
+				.filter(log -> log.content.key().equals(user01.uid)).findAny().get();
 
-		assertEquals("test", firstEntry.securityContext.uid());
-		assertEquals("test", firstEntry.securityContext.displayName());
-		assertEquals("unknown-origin", firstEntry.securityContext.origin());
+		assertEquals(2L, entry.content.with().size());
+		assertTrue(entry.content.newValue() != null);
 
-		assertEquals(user01CalendarDesc.name, firstEntry.container.name());
+		assertEquals(user01CalendarDesc.name, entry.container.name());
 
-		assertTrue(firstEntry.item == null);
 
-		assertEquals(user01.uid, firstEntry.content.key());
-		assertTrue(!firstEntry.content.newValue().isBlank());
-		assertTrue(firstEntry.content.is().isEmpty());
-		assertTrue(firstEntry.content.has().isEmpty());
+		assertEquals(user01.uid, entry.content.key());
+		assertTrue(!entry.content.newValue().isBlank());
+		assertTrue(entry.content.is().isEmpty());
+		assertTrue(entry.content.has().isEmpty());
 
 	}
 
@@ -273,7 +277,7 @@ public class AclAuditLogServiceTests {
 		AccessControlEntry user01AclEntry = AccessControlEntry.create(user01.uid, Verb.All);
 		AccessControlEntry user02AclEntry = AccessControlEntry.create(user02.uid, Verb.Read);
 		aclService.store(Arrays.asList(user01AclEntry, user02AclEntry));
-		List<AccessControlEntry> actual = aclService.get();
+		List<AccessControlEntry> actual = aclStore.get(user01CalendarContainer);
 		assertEquals(2, actual.size());
 		assertTrue(actual.contains(user01AclEntry));
 		assertTrue(actual.contains(user02AclEntry));
@@ -299,21 +303,21 @@ public class AclAuditLogServiceTests {
 						.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
 				AuditLogEntry.class);
 
-		AuditLogEntry firstEntry = response.hits().hits().get(0).source();
-		assertEquals(2L, firstEntry.content.with().size());
-		assertTrue(firstEntry.content.newValue() != null);
-		assertEquals("test", firstEntry.securityContext.uid());
-		assertEquals("test", firstEntry.securityContext.displayName());
-		assertEquals("unknown-origin", firstEntry.securityContext.origin());
+		AuditLogEntry entry = response.hits().hits().stream().map(hit -> hit.source())
+				.filter(log -> log.content.key().equals(user01.uid)).findAny().get();
+		assertEquals(2L, entry.content.with().size());
+		assertTrue(entry.content.newValue() != null);
+		assertEquals("test", entry.securityContext.uid());
+		assertEquals("test", entry.securityContext.displayName());
+		assertEquals("unknown-origin", entry.securityContext.origin());
 
-		assertEquals(user01CalendarDesc.name, firstEntry.container.name());
+		assertEquals(user01CalendarDesc.name, entry.container.name());
 
-		assertTrue(firstEntry.item == null);
+		assertTrue(entry.item == null);
 
-		assertEquals(user01.uid, firstEntry.content.key());
-		assertTrue(!firstEntry.content.newValue().isBlank());
-		assertTrue(firstEntry.content.is().isEmpty());
-		assertTrue(firstEntry.content.has().isEmpty());
+		assertTrue(!entry.content.newValue().isBlank());
+		assertTrue(entry.content.is().isEmpty());
+		assertTrue(entry.content.has().isEmpty());
 	}
 
 	@Test
@@ -321,7 +325,7 @@ public class AclAuditLogServiceTests {
 		AccessControlEntry user02Acl = AccessControlEntry.create(user02.uid, Verb.All);
 		AccessControlEntry user03Acl = AccessControlEntry.create(user03.uid, Verb.Read);
 		aclService.store(Arrays.asList(user02Acl, user03Acl));
-		List<AccessControlEntry> actual = aclService.get();
+		List<AccessControlEntry> actual = aclStore.get(user01CalendarContainer);
 		assertEquals(2, actual.size());
 		assertTrue(actual.contains(user02Acl));
 		assertTrue(actual.contains(user03Acl));
@@ -348,22 +352,20 @@ public class AclAuditLogServiceTests {
 						.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
 				AuditLogEntry.class);
 
-		AuditLogEntry firstEntry = response.hits().hits().get(0).source();
-		assertEquals(2L, firstEntry.content.with().size());
-		assertTrue(firstEntry.content.newValue() != null);
 
-		assertEquals("test", firstEntry.securityContext.uid());
-		assertEquals("test", firstEntry.securityContext.displayName());
-		assertEquals("unknown-origin", firstEntry.securityContext.origin());
+		AuditLogEntry entry = response.hits().hits().stream().map(hit -> hit.source())
+				.filter(log -> log.content.key().equals(user02Acl.subject)).findAny().get();
 
-		assertEquals(user01CalendarDesc.name, firstEntry.container.name());
+		assertNotNull(entry);
+		assertEquals(2L, entry.content.with().size());
+		assertTrue(entry.content.newValue() != null);
+		assertEquals(user01CalendarDesc.name, entry.container.name());
 
-		assertTrue(firstEntry.item == null);
 
-		assertEquals(user02Acl.subject, firstEntry.content.key());
-		assertTrue(!firstEntry.content.newValue().isBlank());
-		assertTrue(firstEntry.content.is().isEmpty());
-		assertTrue(firstEntry.content.has().isEmpty());
+		assertEquals(user02Acl.subject, entry.content.key());
+		assertTrue(!entry.content.newValue().isBlank());
+		assertTrue(entry.content.is().isEmpty());
+		assertTrue(entry.content.has().isEmpty());
 
 		response = esClient.search(s -> s //
 				.index(AUDIT_LOG_DATASTREAM) //

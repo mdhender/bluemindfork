@@ -93,5 +93,4 @@ public class AccessControlEntry {
 	public String getSubject() {
 		return subject;
 	}
-
 }

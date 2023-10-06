@@ -484,21 +484,8 @@ public class MailboxesServiceTests extends AbstractMailboxServiceTests {
 		}
 
 		accessControlEntriesStored = getService(defaultSecurityContext).getMailboxAccessControlList(uid);
+		assertACLMatch(accessControlEntries, accessControlEntriesStored);
 
-		assertEquals(accessControlEntries.size(), accessControlEntriesStored.size());
-
-		for (AccessControlEntry ace : accessControlEntries) {
-			boolean found = false;
-
-			for (AccessControlEntry aces : accessControlEntriesStored) {
-				if (aces.subject.equals(ace.subject) && aces.verb == ace.verb) {
-					found = true;
-					break;
-				}
-			}
-
-			assertTrue(found);
-		}
 	}
 
 	@Test
@@ -540,20 +527,8 @@ public class MailboxesServiceTests extends AbstractMailboxServiceTests {
 
 		List<AccessControlEntry> accessControlEntriesStored = getService(userSecurityContext)
 				.getMailboxAccessControlList(uid);
-		assertEquals(accessControlEntries.size(), accessControlEntriesStored.size());
+		assertACLMatch(accessControlEntries, accessControlEntriesStored);
 
-		for (AccessControlEntry ace : accessControlEntries) {
-			boolean found = false;
-
-			for (AccessControlEntry aces : accessControlEntriesStored) {
-				if (aces.subject.equals(ace.subject) && aces.verb == ace.verb) {
-					found = true;
-					break;
-				}
-			}
-
-			assertTrue(found);
-		}
 	}
 
 	@Test

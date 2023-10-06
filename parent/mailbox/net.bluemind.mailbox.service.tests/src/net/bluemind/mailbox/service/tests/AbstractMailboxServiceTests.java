@@ -18,12 +18,17 @@
  */
 package net.bluemind.mailbox.service.tests;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
@@ -39,6 +44,8 @@ import net.bluemind.core.api.Email;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.container.model.acl.AccessControlEntry;
+import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.ItemStore;
 import net.bluemind.core.context.SecurityContext;
@@ -204,5 +211,21 @@ public abstract class AbstractMailboxServiceTests {
 		user.contactInfos.identification.name = Name.create("Doe", "John", null, null, null, null);
 		user.dataLocation = dataLocation.uid;
 		return user;
+	}
+
+	protected void assertACLMatch(List<AccessControlEntry> expected, List<AccessControlEntry> actual) {
+		Map<String, List<Verb>> expectedBySubject = expected.stream().collect(Collectors.groupingBy(
+				AccessControlEntry::getSubject, Collectors.mapping(AccessControlEntry::getVerb, Collectors.toList())));
+		Map<String, List<Verb>> actualBySubject = actual.stream().collect(Collectors.groupingBy(
+				AccessControlEntry::getSubject, Collectors.mapping(AccessControlEntry::getVerb, Collectors.toList())));
+		assertEquals(expectedBySubject.keySet().size(), actualBySubject.keySet().size());
+		for (String subject : expectedBySubject.keySet()) {
+			List<Verb> expectedVerbs = expectedBySubject.get(subject);
+			List<Verb> actualVerbs = actualBySubject.get(subject);
+			for (Verb verb : expectedVerbs) {
+				assertTrue(actualVerbs.stream().allMatch(v -> verb.can(v)));
+			}
+		}
+
 	}
 }

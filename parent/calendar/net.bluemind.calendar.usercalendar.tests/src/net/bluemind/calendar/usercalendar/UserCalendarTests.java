@@ -33,12 +33,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 
 import net.bluemind.addressbook.api.VCard;
@@ -126,11 +126,12 @@ public class UserCalendarTests {
 				.instance(IContainerManagement.class, ICalendarUids.defaultUserCalendar(user.uid))
 				.getAccessControlList();
 		assertNotNull(list);
-		assertEquals(2, list.size());
-		assertEquals(ImmutableSet.of(//
+
+		List<AccessControlEntry> expected = List.of(//
 				AccessControlEntry.create(user.uid, Verb.All), //
 				AccessControlEntry.create(domainUid, Verb.Invitation)//
-		), ImmutableSet.copyOf(list));
+		);
+		assertACLMatch(expected, list);
 
 		ICalendar cal = ServerSideServiceProvider.getProvider(defaultSecurityContext).instance(ICalendar.class,
 				ICalendarUids.defaultUserCalendar(user.uid));
@@ -169,10 +170,8 @@ public class UserCalendarTests {
 		List<AccessControlEntry> list = ServerSideServiceProvider.getProvider(defaultSecurityContext)
 				.instance(IContainerManagement.class, getViewContainerUid(user)).getAccessControlList();
 		assertNotNull(list);
-		assertEquals(1, list.size());
-		AccessControlEntry accessControlEntry = list.get(0);
-		assertEquals(user.uid, accessControlEntry.subject);
-		assertEquals(Verb.All, accessControlEntry.verb);
+		List<AccessControlEntry> expected = List.of(AccessControlEntry.create(user.uid, Verb.All));
+		assertACLMatch(expected, list);
 
 		TaskRef tr = getService(defaultSecurityContext).delete(user.uid);
 		TaskUtils.wait(ServerSideServiceProvider.getProvider(defaultSecurityContext), tr);
@@ -197,24 +196,10 @@ public class UserCalendarTests {
 		List<AccessControlEntry> list = ServerSideServiceProvider.getProvider(defaultSecurityContext)
 				.instance(IContainerManagement.class, getFreebusyContainerUid(user)).getAccessControlList();
 		assertNotNull(list);
-		assertEquals(2, list.size());
+		List<AccessControlEntry> expected = List.of(AccessControlEntry.create(user.uid, Verb.All),
+				AccessControlEntry.create(domainUid, Verb.Read));
+		assertACLMatch(expected, list);
 
-		boolean foundPub = false;
-		boolean foundMine = false;
-
-		for (AccessControlEntry ace : list) {
-			if (user.uid.equals(ace.subject)) {
-				foundMine = true;
-				assertEquals(Verb.All, ace.verb);
-			}
-			if (domainUid.equals(ace.subject)) {
-				foundPub = true;
-				assertEquals(Verb.Read, ace.verb);
-			}
-		}
-
-		assertTrue(foundPub);
-		assertTrue(foundMine);
 
 		TaskRef tr = getService(defaultSecurityContext).delete(user.uid);
 		TaskUtils.wait(ServerSideServiceProvider.getProvider(defaultSecurityContext), tr);
@@ -253,10 +238,8 @@ public class UserCalendarTests {
 		List<AccessControlEntry> list = ServerSideServiceProvider.getProvider(defaultSecurityContext)
 				.instance(IContainerManagement.class, uid).getAccessControlList();
 		assertNotNull(list);
-		assertEquals(1, list.size());
-		AccessControlEntry accessControlEntry = list.get(0);
-		assertEquals(user.uid, accessControlEntry.subject);
-		assertEquals(Verb.All, accessControlEntry.verb);
+		List<AccessControlEntry> expected = List.of(AccessControlEntry.create(user.uid, Verb.All));
+		assertACLMatch(expected, list);
 
 		service.delete(uid);
 
@@ -287,10 +270,9 @@ public class UserCalendarTests {
 				.instance(IContainerManagement.class, ICalendarUids.defaultUserCalendar(user.uid))
 				.getAccessControlList();
 		assertNotNull(list);
-		assertEquals(1, list.size());
-		AccessControlEntry accessControlEntry = list.get(0);
-		assertEquals(user.uid, accessControlEntry.subject);
-		assertEquals(Verb.All, accessControlEntry.verb);
+		List<AccessControlEntry> expected = List.of(AccessControlEntry.create(user.uid, Verb.All));
+		assertACLMatch(expected, list);
+
 	}
 
 	@Test
@@ -352,5 +334,20 @@ public class UserCalendarTests {
 		event.categories = new ArrayList<TagRef>();
 		series.main = event;
 		return series;
+	}
+
+	protected void assertACLMatch(List<AccessControlEntry> expected, List<AccessControlEntry> actual) {
+		Map<String, List<Verb>> expectedBySubject = expected.stream().collect(Collectors.groupingBy(
+				AccessControlEntry::getSubject, Collectors.mapping(AccessControlEntry::getVerb, Collectors.toList())));
+		Map<String, List<Verb>> actualBySubject = actual.stream().collect(Collectors.groupingBy(
+				AccessControlEntry::getSubject, Collectors.mapping(AccessControlEntry::getVerb, Collectors.toList())));
+		assertEquals(expectedBySubject.keySet().size(), actualBySubject.keySet().size());
+		for (String subject : expectedBySubject.keySet()) {
+			List<Verb> expectedVerbs = expectedBySubject.get(subject);
+			List<Verb> actualVerbs = actualBySubject.get(subject);
+			for (Verb verb : expectedVerbs) {
+				assertTrue(actualVerbs.stream().allMatch(v -> verb.can(v)));
+			}
+		}
 	}
 }

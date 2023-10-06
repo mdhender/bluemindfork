@@ -134,12 +134,10 @@ public class ContainerManagementTests {
 		d.name = "testUpdate";
 		List<AccessControlEntry> acl = service(testSecurityContext, containerId).getAccessControlList();
 		assertNotNull(acl);
-		assertEquals(2, acl.size());
-
-		assertEquals(//
-				ImmutableSet.of(AccessControlEntry.create(testSecurityContext.getSubject(), Verb.All),
-						AccessControlEntry.create(testGroup, Verb.Write)), //
-				ImmutableSet.of(acl.get(0), acl.get(1)));
+		assertTrue(acl.stream().anyMatch(ace -> ace.subject.equals(testGroup) && Verb.Write.equals(ace.verb)));
+		assertTrue(acl.stream()
+				.anyMatch(ace -> ace.subject.equals(testSecurityContext.getSubject()) && Verb.All.equals(ace.verb)));
+		assertTrue(acl.stream().filter(ace -> ace.subject.equals(testGroup)).allMatch(ace -> Verb.Write.can(ace.verb)));
 		// TODO : test security
 
 	}

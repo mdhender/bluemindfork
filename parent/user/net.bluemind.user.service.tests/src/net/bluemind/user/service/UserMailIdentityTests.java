@@ -25,7 +25,9 @@ import static org.junit.Assert.fail;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.junit.After;
 import org.junit.Before;
@@ -280,7 +282,8 @@ public class UserMailIdentityTests {
 		List<AccessControlEntry> accessControlList = testContext.provider()
 				.instance(IContainerManagement.class, IMailboxAclUids.uidForMailbox(mailshareUid))
 				.getAccessControlList();
-		assertEquals(1, accessControlList.size());
+		List<AccessControlEntry> expected = List.of(AccessControlEntry.create(groupUid, Verb.All));
+		assertACLMatch(expected, accessControlList);
 
 		List<IdentityDescription> resWithUserContext = service(userWithGroupSecurityContext, userUid)
 				.getAvailableIdentities();
@@ -368,5 +371,20 @@ public class UserMailIdentityTests {
 		i.mailboxUid = mboxUid;
 		i.sentFolder = "Sent";
 		return i;
+	}
+
+	protected void assertACLMatch(List<AccessControlEntry> expected, List<AccessControlEntry> actual) {
+		Map<String, List<Verb>> expectedBySubject = expected.stream().collect(Collectors.groupingBy(
+				AccessControlEntry::getSubject, Collectors.mapping(AccessControlEntry::getVerb, Collectors.toList())));
+		Map<String, List<Verb>> actualBySubject = actual.stream().collect(Collectors.groupingBy(
+				AccessControlEntry::getSubject, Collectors.mapping(AccessControlEntry::getVerb, Collectors.toList())));
+		assertEquals(expectedBySubject.keySet().size(), actualBySubject.keySet().size());
+		for (String subject : expectedBySubject.keySet()) {
+			List<Verb> expectedVerbs = expectedBySubject.get(subject);
+			List<Verb> actualVerbs = actualBySubject.get(subject);
+			for (Verb verb : expectedVerbs) {
+				assertTrue(actualVerbs.stream().allMatch(v -> verb.can(v)));
+			}
+		}
 	}
 }
