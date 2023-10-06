@@ -16,7 +16,7 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.milter.action.signature;
+package net.bluemind.milter.cache;
 
 import java.util.Map;
 import java.util.Optional;
@@ -47,13 +47,14 @@ import net.bluemind.directory.api.IDirectory;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.mailflow.rbe.IClientContext;
+import net.bluemind.milter.mq.MilterMessageForwarder;
 import net.bluemind.network.topology.Topology;
 
 public class DirectoryCache extends AbstractVerticle {
 	private static Optional<IServiceProvider> provider = Optional.empty();
 	private static Map<String, Long> changesetVersion = new ConcurrentHashMap<>();
 	private static Map<String, VCard> uidToVCard = new ConcurrentHashMap<>();
-	private static Map<String, String> emailToUid = new ConcurrentHashMap<>();
+	protected static Map<String, String> emailToUid = new ConcurrentHashMap<>();
 	private static Cache<String, String> noVCards = Caffeine.newBuilder().recordStats()
 			.expireAfterWrite(20, TimeUnit.MINUTES).build();
 
@@ -108,8 +109,7 @@ public class DirectoryCache extends AbstractVerticle {
 		});
 	}
 
-	public static Optional<VCard> getVCard(IClientContext mailflowContext, String domain, String email) {
-
+	public static Optional<VCard> getVCard(IClientContext clientContext, String domain, String email) {
 		if (noVCards.getIfPresent(email) != null) {
 			return Optional.empty();
 		}
@@ -119,36 +119,59 @@ public class DirectoryCache extends AbstractVerticle {
 		if (uid != null) {
 			card = uidToVCard.get(uid);
 		}
-
 		if (card == null) {
-			if (mailflowContext != null && domain != null) {
-				Optional<ItemValue<VCard>> resolved = resolveVCard(mailflowContext, email, domain);
-				if (!resolved.isPresent()) {
-					noVCards.put(email, email);
-					return Optional.empty();
-				} else {
-					card = resolved.get().value;
-					emailToUid.put(email, domain + "#" + resolved.get().uid);
-					uidToVCard.put(domain + "#" + resolved.get().uid, resolved.get().value);
-				}
-			} else {
-				return Optional.empty();
-			}
+			resolveCaches(clientContext, domain, email);
+			card = uidToVCard.get(uid);
 		}
-		return Optional.of(card);
+
+		return Optional.ofNullable(card);
+
 	}
 
-	private static Optional<ItemValue<VCard>> resolveVCard(IClientContext context, String sender, String domain) {
+	public static Optional<String> getUserUidByEmail(IClientContext clientContext, String domain, String email) {
+		if (noVCards.getIfPresent(email) != null) {
+			return Optional.empty();
+		}
+
+		String uid = emailToUid.get(email);
+		if (uid == null) {
+			resolveCaches(clientContext, domain, email);
+			uid = emailToUid.get(email);
+		}
+
+		if (uid != null) {
+			return Optional.ofNullable(uid.split(domain + "#")[1]);
+		}
+		return Optional.ofNullable(uid);
+	}
+
+	private static Optional<ItemValue<VCard>> resolveVCard(IClientContext clientContext, String email, String domain) {
 		try {
-			IDirectory dir = context.provider().instance(IDirectory.class, domain);
-			DirEntry result = dir.getByEmail(sender);
+			IDirectory dir = clientContext.provider().instance(IDirectory.class, domain);
+			DirEntry result = dir.getByEmail(email);
 			if (result != null) {
 				return Optional.ofNullable(dir.getVCard(result.entryUid));
 			}
 		} catch (ServerFault e) {
-			logger.warn("Cannot find vcard of {}", sender, e);
+			logger.warn("Cannot find vcard of {}", email, e);
 		}
 		return Optional.empty();
+	}
+
+	private static void resolveCaches(IClientContext clientContext, String domain, String email) {
+		String uid = emailToUid.get(email);
+		if (uid == null || uidToVCard.get(uid) == null) {
+			if (clientContext != null && domain != null) {
+				Optional<ItemValue<VCard>> resolved = resolveVCard(clientContext, email, domain);
+				if (!resolved.isPresent()) {
+					noVCards.put(email, email);
+				} else {
+					emailToUid.put(email, domain + "#" + resolved.get().uid);
+					uidToVCard.put(domain + "#" + resolved.get().uid, resolved.get().value);
+				}
+			}
+		}
+
 	}
 
 }

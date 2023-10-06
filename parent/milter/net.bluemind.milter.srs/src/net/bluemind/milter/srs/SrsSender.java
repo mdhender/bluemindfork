@@ -31,12 +31,11 @@ import com.google.common.base.Strings;
 
 import net.bluemind.config.InstallationId;
 import net.bluemind.milter.MilterHeaders;
-import net.bluemind.milter.action.DomainAliasCache;
 import net.bluemind.milter.action.MilterPreAction;
 import net.bluemind.milter.action.MilterPreActionsFactory;
 import net.bluemind.milter.action.UpdatedMailMessage;
+import net.bluemind.milter.cache.DomainAliasCache;
 import net.bluemind.milter.srs.tools.SrsHash;
-import net.bluemind.milter.srs.tools.SrsUtils;
 
 public class SrsSender implements MilterPreAction {
 	private static final Logger logger = LoggerFactory.getLogger(SrsSender.class);
@@ -110,7 +109,7 @@ public class SrsSender implements MilterPreAction {
 			return false;
 		}
 
-		if (rcptTo.stream().map(SrsUtils::getDomainFromEmail).filter(Optional::isPresent).map(Optional::get)
+		if (rcptTo.stream().map(DomainAliasCache::getDomainFromEmail).filter(Optional::isPresent).map(Optional::get)
 				.allMatch(d -> DomainAliasCache.allAliases().contains(d))) {
 			if (logger.isDebugEnabled()) {
 				logger.debug("recipients are in local domain {}", rcptTo);
@@ -145,25 +144,17 @@ public class SrsSender implements MilterPreAction {
 		}
 
 		return Optional.ofNullable(modifiedMail.properties.get("{auth_authen}"))
-				.map(authAuthens -> authAuthens.stream().map(Strings::emptyToNull).filter(Objects::nonNull)
-						.findFirst().orElse(null))
-				.map(login -> SrsUtils.getDomainFromEmail(login).map(this::getDomainAlias)
-						.orElseGet(() -> getDomainAlias(SysconfHelper.defaultDomain.get())));
+				.map(authAuthens -> authAuthens.stream().map(Strings::emptyToNull).filter(Objects::nonNull).findFirst()
+						.orElse(null))
+				.map(login -> DomainAliasCache.getDomainFromEmail(login).map(DomainAliasCache::getDomainAlias)
+						.orElseGet(() -> DomainAliasCache.getDomainAlias(SysconfHelper.defaultDomain.get())));
 	}
 
 	private Optional<String> senderSrsDomainFromHeader(UpdatedMailMessage modifiedMail) {
 		return Optional.ofNullable(modifiedMail.getMessage()).map(Message::getHeader)
 				.map(header -> header.getField(MilterHeaders.SIEVE_REDIRECT)).map(Field::getBody)
-				.map(email -> SrsUtils.getDomainFromEmail(email)
+				.map(email -> DomainAliasCache.getDomainFromEmail(email)
 						.filter(domain -> DomainAliasCache.allAliases().contains(domain)).orElse(null))
-				.map(this::getDomainAlias);
-	}
-
-	private String getDomainAlias(String domain) {
-		// return domain defaultAlias if domain is domainUid or domain is not an alias.
-		// Otherwise, return domain
-		return Optional.ofNullable(domain).map(DomainAliasCache::getDomain)
-				.filter(domainValue -> domainValue.uid.equals(domain) || !domainValue.value.aliases.contains(domain))
-				.map(domainValue -> domainValue.value.defaultAlias).orElse(domain);
+				.map(DomainAliasCache::getDomainAlias);
 	}
 }

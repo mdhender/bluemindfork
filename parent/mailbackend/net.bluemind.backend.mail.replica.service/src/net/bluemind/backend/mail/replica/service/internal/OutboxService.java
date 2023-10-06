@@ -2,7 +2,6 @@ package net.bluemind.backend.mail.replica.service.internal;
 
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -245,8 +244,12 @@ public class OutboxService implements IOutbox {
 		if (!sendmailResponse.getFailedRecipients().isEmpty()) {
 			sendNonDeliveryReport(sendmailResponse.getFailedRecipients(), creds, fromEnvelop, relatedMsg);
 		} else if (!sendmailResponse.isOk()) {
-			if (sendmailResponse.code == 503) {
-				sendNonDeliveryAclReport(creds, fromEnvelop, relatedMsg);
+			boolean aclError = sendmailResponse.code == 503;
+			if (aclError) {
+				sendmailResponse.setFailedRecipients(
+						rcptTo.stream().map(r -> FailedRecipient.create(sendmailResponse, r.getAddress()))
+								.collect(Collectors.toList()));
+				sendNonDeliveryAclReport(sendmailResponse.getFailedRecipients(), creds, fromEnvelop, relatedMsg);
 			} else {
 				throw new ServerFault(sendmailResponse.toString());
 			}
@@ -340,15 +343,15 @@ public class OutboxService implements IOutbox {
 		sendIt(creds, sender, message);
 	}
 
-	private void sendNonDeliveryAclReport(SendmailCredentials creds, String sender, Message relatedMsg) {
-		NonDeliveryReportMessage ndrMsg = new NonDeliveryReportMessage(Collections.emptyList(), relatedMsg);
+	private void sendNonDeliveryAclReport(List<FailedRecipient> failedRecipients, SendmailCredentials creds,
+			String originalFrom, Message relatedMsg) {
+		NonDeliveryReportMessage ndrMsg = new NonDeliveryReportMessage(failedRecipients, relatedMsg);
 
-		String to = creds.notAdminAndNotCurrentUser(sender) ? creds.loginAtDomain : sender;
-		String aclInfo = !sender.equals(to) ? """
+		String aclInfo = """
 
-				%s has no sufficient delegation rights to send messages using %s email address.
+				You haven't sufficient delegation rights to send messages using %s email address.
 
-				""".formatted(sender, to) : "\r\n";
+				""".formatted(originalFrom);
 
 		String content = """
 				This is the mail system
@@ -360,7 +363,7 @@ public class OutboxService implements IOutbox {
 				""".formatted(relatedMsg.getSubject(), aclInfo);
 
 		MessageImpl message = ndrMsg.createNDRMessage(content);
-		sendIt(creds, sender, message);
+		sendIt(creds, originalFrom, message);
 	}
 
 	private void sendIt(SendmailCredentials creds, String sender, MessageImpl message) {
@@ -368,10 +371,12 @@ public class OutboxService implements IOutbox {
 		String to = creds.notAdminAndNotCurrentUser(sender) ? creds.loginAtDomain : sender;
 		String toLocalPart = to.split("@")[0];
 		String toDomainPart = to.split("@")[1];
-		List<org.apache.james.mime4j.dom.address.Mailbox> rcpt = Arrays
-				.asList(new org.apache.james.mime4j.dom.address.Mailbox(toLocalPart, toDomainPart));
+		org.apache.james.mime4j.dom.address.Mailbox mbRcptTo = new org.apache.james.mime4j.dom.address.Mailbox(
+				toLocalPart, toDomainPart);
+		List<org.apache.james.mime4j.dom.address.Mailbox> rcpt = Arrays.asList(mbRcptTo);
 		MailboxList rcptTo = new MailboxList(rcpt, true);
 
+		message.setTo(SendmailHelper.formatAddress(mbRcptTo.getName(), mbRcptTo.getAddress()));
 		mailer.send(creds, from, domainUid, rcptTo, message);
 	}
 

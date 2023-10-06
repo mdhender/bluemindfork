@@ -46,6 +46,8 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
+import javax.sql.DataSource;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.james.mime4j.dom.Entity;
 import org.apache.james.mime4j.dom.Header;
@@ -68,9 +70,9 @@ import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventCounter;
 import net.bluemind.calendar.api.VEventCounter.CounterOriginator;
-import net.bluemind.calendar.helper.ical4j.VEventServiceHelper;
 import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
+import net.bluemind.calendar.helper.ical4j.VEventServiceHelper;
 import net.bluemind.calendar.hook.IcsHook;
 import net.bluemind.calendar.hook.VEventMessage;
 import net.bluemind.calendar.service.internal.VEventSanitizer;
@@ -106,6 +108,7 @@ import net.bluemind.icalendar.api.ICalendarElement.RRule.Frequency;
 import net.bluemind.icalendar.api.ICalendarElement.RRule.WeekDay;
 import net.bluemind.icalendar.api.ICalendarElement.Role;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailbox.service.internal.MailboxStoreService;
 import net.bluemind.resource.api.IResources;
@@ -134,9 +137,13 @@ public class IcsHookTests {
 	private Container userContainer;
 	private User user1;
 	private User user2;
+	private String user1Uid;
+	private String user2Uid;
 	protected MailboxStoreService mailboxStore;
 	private ContainerUserStoreService userStoreService;
-	private Container userCalendar;
+	private Container user1Calendar;
+	private Container user2Calendar;
+	protected DataSource dataDataSource;
 
 	@Before
 	public void before() throws Exception {
@@ -158,12 +165,14 @@ public class IcsHookTests {
 		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
 
 		PopulateHelper.initGlobalVirt(pipo);
+		dataDataSource = JdbcActivator.getInstance().getMailboxDataSource(pipo.ip);
 
 		ItemValue<Server> dataLocation = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IServer.class, InstallationId.getIdentifier()).getComplete(PopulateHelper.FAKE_CYRUS_IP);
 
 		containerHome = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(), SecurityContext.SYSTEM);
 		initDomain(dataLocation, pipo);
+
 	}
 
 	private void initDomain(ItemValue<Server> dataLocation, Server... servers) throws Exception {
@@ -180,35 +189,36 @@ public class IcsHookTests {
 		mailboxStore = new MailboxStoreService(JdbcTestHelper.getInstance().getDataSource(), SecurityContext.SYSTEM,
 				mboxContainer);
 
-		ItemValue<User> user1Item = createTestUSer(dataLocation, "u1");
-		user1 = user1Item.value;
-		ItemValue<User> user2Item = createTestUSer(dataLocation, "u2");
-		user2 = user2Item.value;
+		user1Uid = PopulateHelper.addUser("u1", domainUid);
+		user1 = PopulateHelper.getUser("u1", domainUid, Mailbox.Routing.internal);
+		user1Calendar = createTestContainer(dataLocation, user1.login, user1Uid);
+
+		user2Uid = PopulateHelper.addUser("u2", domainUid);
+		user2 = PopulateHelper.getUser("u2", domainUid, Mailbox.Routing.internal);
+		user2Calendar = createTestContainer(dataLocation, user2.login, user2Uid);
+
 	}
 
-	private ItemValue<User> createTestUSer(ItemValue<Server> dataLocation, String login)
+	private Container createTestContainer(ItemValue<Server> dataLocation, String login, String userUid)
 			throws ServerFault, SQLException {
-		ItemValue<User> user = defaultUser(dataLocation, login, login);
-		userStoreService.create(user.uid, login, user.value);
 		SecurityContext securityContext = new SecurityContext(login, login, new ArrayList<String>(),
 				new ArrayList<String>(), domainUid);
-		userCalendar = createTestContainer(securityContext, ICalendarUids.TYPE, user.value.login,
-				ICalendarUids.TYPE + ":Default:" + user.uid, user.uid);
-		Sessions.get().put(login, securityContext);
-		return user;
-	}
 
-	private Container createTestContainer(SecurityContext context, String type, String login, String name, String owner)
-			throws SQLException {
-		ContainerStore containerHome = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(), context);
-		Container container = Container.create(name, type, name, owner, "test.lan", true);
+		ContainerStore containerHome = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
+				securityContext);
+		Container container = Container.create(ICalendarUids.TYPE + ":Default:" + userUid, ICalendarUids.TYPE,
+				ICalendarUids.TYPE + ":Default:" + userUid, userUid, "test.lan", true);
 		container = containerHome.create(container);
 
 		Container dom = containerHome.get(domainUid);
+
 		UserSubscriptionStore userSubscriptionStore = new UserSubscriptionStore(SecurityContext.SYSTEM,
 				JdbcTestHelper.getInstance().getDataSource(), dom);
 
-		userSubscriptionStore.subscribe(context.getSubject(), container);
+		userSubscriptionStore.subscribe(securityContext.getSubject(), container);
+
+		Sessions.get().put(login, securityContext);
+
 		return container;
 	}
 
@@ -296,7 +306,7 @@ public class IcsHookTests {
 				ParticipationStatus.NeedsAction, false, "u2", "", "", "", "", "", "u2", "u2@test.lan"));
 
 		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(event.value, true);
 
 		VEventMessage veventMessage = new VEventMessage();
@@ -334,7 +344,7 @@ public class IcsHookTests {
 				ParticipationStatus.NeedsAction, false, "u2", "", "", "", "", "", "u2", "u2@test.lan"));
 
 		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(event.value, true);
 
 		VEventMessage veventMessage = new VEventMessage();
@@ -379,7 +389,7 @@ public class IcsHookTests {
 		event.value.main.attendees.add(attendee);
 
 		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(event.value, true);
 
 		VEvent updated = event.value.main.copy();
@@ -432,7 +442,7 @@ public class IcsHookTests {
 		event.value.main.attendees.add(attendee);
 
 		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(event.value, true);
 
 		VEvent updated = event.value.main.copy();
@@ -482,7 +492,7 @@ public class IcsHookTests {
 				ParticipationStatus.NeedsAction, false, "u2", "", "", "", "", "", "u2", "u2@test.lan"));
 
 		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(event.value, true);
 
 		// organizer update meeting title
@@ -510,7 +520,7 @@ public class IcsHookTests {
 		event.value.main.attendees.add(attendee);
 
 		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(event.value, true);
 
 		// organizer cancel meeting
@@ -553,7 +563,7 @@ public class IcsHookTests {
 				ParticipationStatus.NeedsAction, false, "u2", "", "", "", "", "", "u2", "u2@test.lan"));
 
 		SecurityContext securityContext = Sessions.get().getIfPresent(user2.login);
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(event.value, true);
 
 		VEvent accepted = (VEvent) event.value.main.copy();
@@ -608,7 +618,7 @@ public class IcsHookTests {
 				ParticipationStatus.NeedsAction, false, "u2", "", "", "", "", "", "u2", "u2@test.lan"));
 
 		SecurityContext securityContext = Sessions.get().getIfPresent(user2.login);
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(event.value, true);
 
 		VEvent countered = (VEvent) event.value.main.copy();
@@ -1361,7 +1371,7 @@ public class IcsHookTests {
 				ParticipationStatus.NeedsAction, false, "u4", "", "", "", "", "", "u4", "opt-u4@test.lan"));
 
 		SecurityContext securityContext = Sessions.get().getIfPresent(user2.login);
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(event.value, true);
 
 		VEventMessage veventMessage = new VEventMessage();
@@ -1421,7 +1431,7 @@ public class IcsHookTests {
 				ParticipationStatus.NeedsAction, false, "u4", "", "", "", "", "", "u4", "opt-u4@test.lan"));
 
 		SecurityContext securityContext = Sessions.get().getIfPresent(user2.login);
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(event.value, true);
 
 		VEventMessage veventMessage = new VEventMessage();
@@ -1485,7 +1495,7 @@ public class IcsHookTests {
 				ParticipationStatus.NeedsAction, false, "u4", "", "", "", "", "", "u4", "opt-u4@test.lan"));
 
 		SecurityContext securityContext = Sessions.get().getIfPresent(user2.login);
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(event.value, true);
 
 		VEventMessage veventMessage = new VEventMessage();
@@ -1543,7 +1553,7 @@ public class IcsHookTests {
 		ItemValue<VEventSeries> event = defaultVEventWithAttendeeAndSimpleRecur("invite", "u2", "u2@test.lan");
 
 		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(event.value, true);
 
 		FakeSendmail fakeSendmail = icsHookOnCreate(securityContext, user1.login, event);
@@ -1577,7 +1587,7 @@ public class IcsHookTests {
 		event.value.main.attendees = Collections.emptyList();
 
 		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(event.value, true);
 
 		FakeSendmail fakeSendmail = icsHookOnCreate(securityContext, user1.login, event);
@@ -1607,7 +1617,7 @@ public class IcsHookTests {
 		event.value.occurrences = Arrays.asList(createSimpleOccur(event.value.main));
 
 		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(event.value, true);
 
 		FakeSendmail fakeSendmail = icsHookOnCreate(securityContext, user1.login, event);
@@ -1638,7 +1648,7 @@ public class IcsHookTests {
 		event.value.occurrences.get(0).attendees = Collections.emptyList();
 
 		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(event.value, true);
 		FakeSendmail fakeSendmail = icsHookOnCreate(securityContext, user1.login, event);
 		assertTrue(fakeSendmail.mailSent);
@@ -1669,7 +1679,7 @@ public class IcsHookTests {
 		newEvent.value.main.attendees = Collections.emptyList();
 
 		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(event.value, true);
 		eventSanitizer.sanitize(newEvent.value, true);
 
@@ -1702,7 +1712,7 @@ public class IcsHookTests {
 		newEvent.value.main.exdate = ImmutableSet.of(BmDateTimeWrapper.create(
 				new BmDateTimeWrapper(newEvent.value.main.dtstart).toDateTime().plusDays(1), Precision.DateTime));
 		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(event.value, true);
 		eventSanitizer.sanitize(newEvent.value, true);
 
@@ -1736,7 +1746,7 @@ public class IcsHookTests {
 		ItemValue<VEventSeries> oldEvent = defaultVEventWithAttendeeAndSimpleRecur("invite", "u2", "u2@test.lan");
 		oldEvent.value.main.attendees = Collections.emptyList();
 		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(event.value, true);
 		eventSanitizer.sanitize(oldEvent.value, true);
 
@@ -1773,7 +1783,7 @@ public class IcsHookTests {
 		// make some "weird" changes in newEvent
 		newEvent.value.main.rrule.byDay = Collections.emptyList();
 		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(event.value, true);
 		eventSanitizer.sanitize(newEvent.value, true);
 
@@ -1815,7 +1825,7 @@ public class IcsHookTests {
 		newEvent.value.main.rrule.byDay = Arrays.asList(new ICalendarElement.RRule.WeekDay("MO"));
 
 		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(event.value, true);
 		eventSanitizer.sanitize(newEvent.value, true);
 
@@ -1855,7 +1865,7 @@ public class IcsHookTests {
 		newEvent.value.occurrences = Arrays.asList(occur);
 
 		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(event.value, true);
 		eventSanitizer.sanitize(newEvent.value, true);
 
@@ -1892,7 +1902,7 @@ public class IcsHookTests {
 		oldEvent.value.occurrences = Arrays.asList(createSimpleOccur(event.value.main));
 		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
 
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(event.value, true);
 		eventSanitizer.sanitize(oldEvent.value, true);
 
@@ -1929,7 +1939,7 @@ public class IcsHookTests {
 		event.value.occurrences = Arrays.asList(createSimpleOccur(event.value.main));
 
 		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(event.value, true);
 		eventSanitizer.sanitize(oldEvent.value, true);
 
@@ -1965,7 +1975,7 @@ public class IcsHookTests {
 		event.value.occurrences = Arrays.asList(createSimpleOccur(event.value.main));
 
 		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(event.value, true);
 		eventSanitizer.sanitize(oldEvent.value, true);
 
@@ -2002,7 +2012,7 @@ public class IcsHookTests {
 		event.value.main.attendees = Collections.emptyList();
 
 		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(event.value, true);
 		eventSanitizer.sanitize(oldEvent.value, true);
 
@@ -2030,7 +2040,7 @@ public class IcsHookTests {
 		event.value.occurrences = Arrays.asList(createSimpleOccur(event.value.main));
 
 		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(oldEvent.value, true);
 		eventSanitizer.sanitize(event.value, true);
 
@@ -2067,7 +2077,7 @@ public class IcsHookTests {
 		event.value.occurrences = Arrays.asList(createSimpleOccur(event.value.main));
 
 		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(event.value, true);
 		eventSanitizer.sanitize(oldEvent.value, true);
 
@@ -2098,7 +2108,7 @@ public class IcsHookTests {
 		ItemValue<VEventSeries> event = defaultVEventWithAttendeeAndSimpleRecur("invite", "u2", "u2@test.lan");
 
 		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(event.value, true);
 
 		FakeSendmail fakeSendmail = icsHookOnDelete(securityContext, user1.login, event);
@@ -2129,7 +2139,7 @@ public class IcsHookTests {
 		event.value.main.attendees = Collections.emptyList();
 
 		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(event.value, true);
 
 		FakeSendmail fakeSendmail = icsHookOnDelete(securityContext, user1.login, event);
@@ -2143,7 +2153,7 @@ public class IcsHookTests {
 		event.value.main.attendees = Collections.emptyList();
 
 		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(event.value, true);
 
 		FakeSendmail fakeSendmail = icsHookOnDelete(securityContext, user1.login, event);
@@ -2174,7 +2184,7 @@ public class IcsHookTests {
 		event.value.occurrences = Arrays.asList(createSimpleOccur(event.value.main));
 
 		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(event.value, true);
 
 		FakeSendmail fakeSendmail = icsHookOnDelete(securityContext, user1.login, event);
@@ -2205,7 +2215,7 @@ public class IcsHookTests {
 		event.value.occurrences = Arrays.asList(createSimpleOccur(event.value.main));
 		event.value.occurrences.get(0).attendees = Collections.emptyList();
 		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(event.value, true);
 
 		FakeSendmail fakeSendmail = icsHookOnDelete(securityContext, user1.login, event);
@@ -2240,7 +2250,7 @@ public class IcsHookTests {
 
 		newEvent.value.main.attendees.get(0).partStatus = ParticipationStatus.Accepted;
 		SecurityContext securityContext = Sessions.get().getIfPresent(user2.login);
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(oldEvent.value, true);
 		eventSanitizer.sanitize(newEvent.value, true);
 
@@ -2281,7 +2291,7 @@ public class IcsHookTests {
 
 		newEvent.value.main.attendees.get(0).partStatus = ParticipationStatus.Accepted;
 		SecurityContext securityContext = Sessions.get().getIfPresent(user2.login);
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(oldEvent.value, true);
 		eventSanitizer.sanitize(newEvent.value, true);
 
@@ -2318,7 +2328,7 @@ public class IcsHookTests {
 
 		newEvent.value.main.attendees.get(0).partStatus = ParticipationStatus.Declined;
 		SecurityContext securityContext = Sessions.get().getIfPresent(user2.login);
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(oldEvent.value, true);
 		eventSanitizer.sanitize(newEvent.value, true);
 
@@ -2356,7 +2366,7 @@ public class IcsHookTests {
 
 		newEvent.value.occurrences.get(0).attendees.get(0).partStatus = ParticipationStatus.Accepted;
 		SecurityContext securityContext = Sessions.get().getIfPresent(user2.login);
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(oldEvent.value, true);
 		eventSanitizer.sanitize(newEvent.value, true);
 
@@ -2391,7 +2401,7 @@ public class IcsHookTests {
 
 		newEvent.value.occurrences.get(0).attendees.get(0).partStatus = ParticipationStatus.Accepted;
 		SecurityContext securityContext = Sessions.get().getIfPresent(user2.login);
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(oldEvent.value, true);
 		eventSanitizer.sanitize(newEvent.value, true);
 
@@ -2428,7 +2438,7 @@ public class IcsHookTests {
 		newEvent.value.occurrences.get(0).attendees.get(0).partStatus = ParticipationStatus.Accepted;
 		newEvent.value.main.attendees.get(0).partStatus = ParticipationStatus.Accepted;
 		SecurityContext securityContext = Sessions.get().getIfPresent(user2.login);
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(oldEvent.value, true);
 		eventSanitizer.sanitize(newEvent.value, true);
 
@@ -2481,7 +2491,7 @@ public class IcsHookTests {
 		newEvent.value.occurrences = Arrays.asList(createSimpleOccur(newEvent.value.main));
 		newEvent.value.occurrences.get(0).attendees.get(0).partStatus = ParticipationStatus.Declined;
 		SecurityContext securityContext = Sessions.get().getIfPresent(user2.login);
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(newEvent.value, true);
 
 		FakeSendmail fakeSendmail = icsHookOnDelete(securityContext, user2.login, newEvent);
@@ -2515,7 +2525,7 @@ public class IcsHookTests {
 		newEvent.value.occurrences = Arrays.asList(createSimpleOccur(newEvent.value.main));
 		newEvent.value.occurrences.get(0).attendees.get(0).partStatus = ParticipationStatus.Declined;
 		SecurityContext securityContext = Sessions.get().getIfPresent(user2.login);
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(newEvent.value, true);
 
 		FakeSendmail fakeSendmail = icsHookOnDelete(securityContext, user2.login, newEvent);
@@ -2550,7 +2560,7 @@ public class IcsHookTests {
 		newEvent.value.occurrences.get(0).attendees.get(0).partStatus = ParticipationStatus.Declined;
 		newEvent.value.main.attendees.get(0).partStatus = ParticipationStatus.Declined;
 		SecurityContext securityContext = Sessions.get().getIfPresent(user2.login);
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(newEvent.value, true);
 
 		FakeSendmail fakeSendmail = icsHookOnDelete(securityContext, user2.login, newEvent);
@@ -2564,7 +2574,7 @@ public class IcsHookTests {
 		newEvent.value.main.attendees.get(0).partStatus = ParticipationStatus.Declined;
 		assertEquals(ParticipationStatus.NeedsAction, newEvent.value.occurrences.get(0).attendees.get(0).partStatus);
 		SecurityContext securityContext = Sessions.get().getIfPresent(user2.login);
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(newEvent.value, true);
 
 		FakeSendmail fakeSendmail = icsHookOnDelete(securityContext, user2.login, newEvent);
@@ -2613,7 +2623,7 @@ public class IcsHookTests {
 
 		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
 
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(oldEvent.value, true);
 		eventSanitizer.sanitize(newEvent.value, true);
 
@@ -2643,7 +2653,7 @@ public class IcsHookTests {
 				defaultVEventWithAttendeeAndSimpleRecur("occ1", "invite2", "invite2@test.lan").value.main));
 
 		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(oldEvent.value, true);
 		eventSanitizer.sanitize(newEvent.value, true);
 
@@ -2689,7 +2699,7 @@ public class IcsHookTests {
 		event.value.occurrences = Arrays.asList(occ);
 
 		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(event.value, true);
 		eventSanitizer.sanitize(oldEvent.value, true);
 
@@ -2743,7 +2753,7 @@ public class IcsHookTests {
 		newEvent.value.main.exdate = new LinkedHashSet<BmDateTime>(Arrays.asList(newEvent.value.main.dtstart));
 
 		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(oldEvent.value, true);
 		eventSanitizer.sanitize(newEvent.value, true);
 
@@ -2780,7 +2790,7 @@ public class IcsHookTests {
 
 		ItemValue<VEventSeries> old = ItemValue.create(event.uid, event.value.copy());
 		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(event.value, true);
 		eventSanitizer.sanitize(old.value, true);
 		event.value.main.sequence = 2;
@@ -2805,7 +2815,7 @@ public class IcsHookTests {
 		event.value.main.attendees = addAttendee("u3", "u3@test.lan", event.value.main.attendees);
 
 		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
-		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
 		eventSanitizer.sanitize(old.value, false);
 		eventSanitizer.sanitize(event.value, true);
 

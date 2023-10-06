@@ -16,10 +16,12 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.milter.action;
+package net.bluemind.milter.cache;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -27,6 +29,8 @@ import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Strings;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.eventbus.Message;
@@ -60,7 +64,7 @@ public class DomainAliasCache extends AbstractVerticle {
 		logger.debug("Invalidating domain <-> alias cache with {} entries", domainCache.size());
 		domainCache = provider().instance(IDomains.class).all().stream().map(DomainAliasCache::expandAliases)
 				.map(Map::entrySet).flatMap(Set::stream)
-				.collect(Collectors.toConcurrentMap(entry -> entry.getKey(), entry -> entry.getValue()));
+				.collect(Collectors.toConcurrentMap(Entry::getKey, Entry::getValue));
 		logger.info("Alias cache contains {} entries", domainCache.size());
 	}
 
@@ -72,6 +76,24 @@ public class DomainAliasCache extends AbstractVerticle {
 	private static Map<String, ItemValue<Domain>> expandAliases(ItemValue<Domain> domain) {
 		return Stream.concat(Arrays.asList(domain.uid).stream(), domain.value.aliases.stream())
 				.collect(Collectors.toMap(alias -> alias, alias -> domain, (alias1, alias2) -> alias1));
+	}
+
+	public static Optional<String> getDomainFromEmail(String email) {
+		return Optional.ofNullable(email).map(e -> e.split("@")).filter(parts -> parts.length == 2)
+				.map(parts -> parts[1]);
+	}
+
+	public static Optional<String> getLeftPartFromEmail(String email) {
+		return Optional.ofNullable(email).map(e -> e.split("@")).map(parts -> parts[0])
+				.filter(leftPart -> !Strings.isNullOrEmpty(leftPart));
+	}
+
+	public static String getDomainAlias(String domain) {
+		// return domain defaultAlias if domain is domainUid or domain is not an alias.
+		// Otherwise, return domain
+		return Optional.ofNullable(domain).map(DomainAliasCache::getDomain)
+				.filter(domainValue -> domainValue.uid.equals(domain) || !domainValue.value.aliases.contains(domain))
+				.map(domainValue -> domainValue.value.defaultAlias).orElse(domain);
 	}
 
 	@Override

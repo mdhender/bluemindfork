@@ -16,7 +16,7 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.milter.action.signature;
+package net.bluemind.milter.cache;
 
 import io.vertx.core.Verticle;
 import net.bluemind.lib.vertx.IUniqueVerticleFactory;

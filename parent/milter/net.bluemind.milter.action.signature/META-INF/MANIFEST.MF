@@ -11,7 +11,6 @@ Require-Bundle: net.bluemind.milter,
  slf4j.api,
  net.bluemind.jilter,
  net.bluemind.domain.api,
- net.bluemind.core.caches.registry,
  net.bluemind.core.commons;bundle-version="5.0.0",
  net.bluemind.core.rest.http,
  net.bluemind.config,
@@ -20,11 +19,9 @@ Require-Bundle: net.bluemind.milter,
  org.jsoup,
  net.bluemind.mailflow.api,
  net.bluemind.mailflow.rbe,
- net.bluemind.directory.api,
  net.bluemind.addressbook.api,
  net.bluemind.hornetq.client,
  net.bluemind.signature.commons;bundle-version="5.0.0",
- net.bluemind.network.topology,
- com.github.ben-manes.caffeine
+ net.bluemind.network.topology
 Export-Package: net.bluemind.milter.action.signature
 Automatic-Module-Name: net.bluemind.milter.action.signature

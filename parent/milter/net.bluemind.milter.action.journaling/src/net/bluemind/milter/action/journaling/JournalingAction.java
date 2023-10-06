@@ -33,11 +33,11 @@ import org.slf4j.LoggerFactory;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.mailflow.rbe.IClientContext;
-import net.bluemind.milter.action.DomainAliasCache;
 import net.bluemind.milter.action.MilterAction;
 import net.bluemind.milter.action.MilterActionException;
 import net.bluemind.milter.action.MilterActionsFactory;
 import net.bluemind.milter.action.UpdatedMailMessage;
+import net.bluemind.milter.cache.DomainAliasCache;
 
 public class JournalingAction implements MilterAction {
 

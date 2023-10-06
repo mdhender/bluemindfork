@@ -40,8 +40,20 @@
    <extension
          point="net.bluemind.lib.vertx.verticles">
       <verticle
-            impl="net.bluemind.milter.impl.DomainAliasCacheFactory">
+            impl="net.bluemind.milter.cache.DomainAliasCacheFactory">
       </verticle>
+   </extension>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.milter.cache.DirectoryCacheFactory">
+      </verticle>
+   </extension>
+   <extension
+         point="net.bluemind.core.caches.registry.registration">
+      <reg
+            impl="net.bluemind.milter.cache.DirectoryCache$CacheRegistration">
+      </reg>
    </extension>
    <extension
          point="net.bluemind.lib.vertx.verticles">

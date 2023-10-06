@@ -14,16 +14,4 @@
             class="net.bluemind.milter.action.signature.MilterMessageForwarder">
       </vertx-forwarder>
    </extension>
-   <extension
-         point="net.bluemind.lib.vertx.verticles">
-      <verticle
-            impl="net.bluemind.milter.action.signature.DirectoryCacheFactory">
-      </verticle>
-   </extension>
-   <extension
-         point="net.bluemind.core.caches.registry.registration">
-      <reg
-            impl="net.bluemind.milter.action.signature.DirectoryCache$CacheRegistration">
-      </reg>
-   </extension>
 </plugin>

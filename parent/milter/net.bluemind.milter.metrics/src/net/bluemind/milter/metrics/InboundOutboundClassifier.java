@@ -40,7 +40,7 @@ import net.bluemind.milter.IMilterListener;
 import net.bluemind.milter.MilterHeaders;
 import net.bluemind.milter.MilterInstanceID;
 import net.bluemind.milter.SmtpEnvelope;
-import net.bluemind.milter.action.DomainAliasCache;
+import net.bluemind.milter.cache.DomainAliasCache;
 
 public class InboundOutboundClassifier implements IMilterListener {
 

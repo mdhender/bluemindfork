@@ -16,12 +16,11 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.milter.impl;
+package net.bluemind.milter.cache;
 
 import io.vertx.core.Verticle;
 import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
-import net.bluemind.milter.action.DomainAliasCache;
 
 public class DomainAliasCacheFactory implements IVerticleFactory, IUniqueVerticleFactory {
 

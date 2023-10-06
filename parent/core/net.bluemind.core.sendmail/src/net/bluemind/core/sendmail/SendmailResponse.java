@@ -114,6 +114,10 @@ public class SendmailResponse {
 		return failedRecipients;
 	}
 
+	public void setFailedRecipients(List<FailedRecipient> failedRecipients) {
+		this.failedRecipients = failedRecipients;
+	}
+
 	public int getRequestedDSNs() {
 		return requestedDSNs;
 	}

@@ -17,5 +17,6 @@ Require-Bundle: net.bluemind.milter.action.delegation,
  net.bluemind.core.rest.http,
  net.bluemind.core.jdbc.testshelper;bundle-version="1.0.0",
  net.bluemind.tests.defaultdata,
- net.bluemind.config
+ net.bluemind.config,
+ net.bluemind.authentication.service
 Automatic-Module-Name: net.bluemind.milter.action.delegation.tests

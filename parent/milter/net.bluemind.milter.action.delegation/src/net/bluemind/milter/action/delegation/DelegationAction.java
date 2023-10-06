@@ -20,25 +20,31 @@ package net.bluemind.milter.action.delegation;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 import org.apache.james.mime4j.dom.Message;
-import org.apache.james.mime4j.dom.address.Mailbox;
 import org.columba.ristretto.message.Address;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Strings;
+
+import net.bluemind.addressbook.api.VCard;
+import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.domain.api.Domain;
-import net.bluemind.mailbox.api.IMailboxes;
+import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.mailflow.rbe.IClientContext;
 import net.bluemind.milter.IMilterListener;
-import net.bluemind.milter.action.DomainAliasCache;
 import net.bluemind.milter.action.MilterAction;
 import net.bluemind.milter.action.MilterActionException;
 import net.bluemind.milter.action.MilterActionsFactory;
 import net.bluemind.milter.action.UpdatedMailMessage;
+import net.bluemind.milter.cache.DirectoryCache;
+import net.bluemind.milter.cache.DomainAliasCache;
 
 public class DelegationAction implements MilterAction {
 	private static final Logger logger = LoggerFactory.getLogger(DelegationAction.class);
@@ -74,46 +80,71 @@ public class DelegationAction implements MilterAction {
 		}
 
 		if (!modifier.getMessage().getFrom().isEmpty()) {
-			Mailbox from = modifier.getMessage().getFrom().get(0);
-			if (modifier.envelopSender.isPresent() && !from.getAddress().equals(modifier.envelopSender.get())) {
-				checkSameFromAndSenderDomains(modifier.getMessage(), domainItem);
-
-				String fromLocalPartAddress = from.getLocalPart();
-				String senderLocalPartAddress = modifier.envelopSender.get().split("@")[0];
-				if (!fromLocalPartAddress.equalsIgnoreCase(senderLocalPartAddress)) {
-					String fromEmailAddress = fromLocalPartAddress + "@" + domainItem.value.defaultAlias;
-					String senderEmailAddress = senderLocalPartAddress + "@" + domainItem.value.defaultAlias;
-
-					IMailboxes mailboxService = DomainAliasCache.provider().instance(IMailboxes.class, domainItem.uid);
-					ItemValue<net.bluemind.mailbox.api.Mailbox> fromMb = mailboxService.byEmail(fromEmailAddress);
-					ItemValue<net.bluemind.mailbox.api.Mailbox> senderMb = mailboxService.byEmail(senderEmailAddress);
-
-					List<AccessControlEntry> acls = mailboxService.getMailboxAccessControlList(fromMb.uid).stream()
-							.filter(a -> a.subject.equals(senderMb.uid)
-									&& (Verb.SendOnBehalf == a.verb || Verb.SendAs == a.verb))
-							.toList();
-					if (acls.isEmpty()) {
-						modifier.errorStatus = IMilterListener.Status.DELEGATION_ACL_FAIL;
-					} else if (acls.stream().anyMatch(a -> Verb.SendOnBehalf == a.verb)) {
-						modifier.addHeader("Sender", new Address(senderMb.displayName, senderEmailAddress).toString(),
-								identifier());
-					}
+			String fromAddress = modifier.getMessage().getFrom().get(0).getAddress();
+			getConnectedUserEmail(modifier).ifPresent(senderAddress -> {
+				if (isNotAdmin(senderAddress) && !senderAddress.equals(fromAddress)
+						&& areSameFromAndSenderDomains(modifier.getMessage(), domainItem)) {
+					verifyAclAndApplyHeader(modifier, context, senderAddress, fromAddress);
 				}
-			}
-
+			});
 		}
 	}
 
-	private void checkSameFromAndSenderDomains(Message message, ItemValue<Domain> domainItem) {
-		if (message.getFrom().size() != 1) {
-			return;
+	private boolean isNotAdmin(String senderAddress) {
+		return !"admin0@global.virt".equals(senderAddress);
+	}
+
+	private void verifyAclAndApplyHeader(UpdatedMailMessage modifier, IClientContext context, String senderAddress,
+			String fromAddress) {
+		DirectoryCache.getUserUidByEmail(context, context.getSenderDomain().uid, senderAddress)
+				.ifPresent(senderUserUid -> DirectoryCache
+						.getUserUidByEmail(context, context.getSenderDomain().uid, fromAddress)
+						.ifPresent(fromUserUid -> {
+							if (!senderUserUid.equals(fromUserUid)) {
+								canSendAsOnBehalf(context, modifier, senderUserUid, fromUserUid,
+										context.getSenderDomain().uid, senderAddress);
+							}
+						}));
+	}
+
+	private Optional<String> getConnectedUserEmail(UpdatedMailMessage modifier) {
+		return Optional.ofNullable(modifier.properties.get("{auth_authen}")) //
+				.flatMap(authAuthens -> authAuthens.stream() //
+						.map(Strings::emptyToNull) //
+						.filter(Objects::nonNull).findFirst()) //
+				.flatMap(login -> {
+					Optional<String> resolvedLogin = DomainAliasCache.getLeftPartFromEmail(login);
+					Optional<String> resolvedDomain = DomainAliasCache.getDomainFromEmail(login);
+					return resolvedLogin.flatMap(l -> resolvedDomain.map(d -> new String[] { l, d }));
+				}).map(latd -> {
+					String alias = DomainAliasCache.getDomainAlias(latd[1]);
+					return latd[0].concat("@").concat(alias);
+				});
+	}
+
+	private void canSendAsOnBehalf(IClientContext context, UpdatedMailMessage modifier, String senderUid,
+			String fromUid, String domainUid, String senderAddress) {
+		List<AccessControlEntry> container = context.provider()
+				.instance(IContainerManagement.class, IMailboxAclUids.uidForMailbox(fromUid)).getAccessControlList();
+
+		List<Verb> filteredVerbs = container.stream()
+				.filter(v -> (v.verb.can(Verb.SendAs) || v.verb.can(Verb.SendOnBehalf)) && v.subject.equals(senderUid))
+				.map(v -> v.verb).toList();
+
+		if (filteredVerbs.isEmpty()) {
+			modifier.errorStatus = IMilterListener.Status.DELEGATION_ACL_FAIL;
+		} else {
+			if (filteredVerbs.stream().noneMatch(v -> v.can(Verb.SendAs))) {
+				Optional<VCard> vCard = DirectoryCache.getVCard(context, domainUid, senderAddress);
+				String displayname = vCard.isPresent() ? vCard.get().identification.formatedName.value
+						: DomainAliasCache.getLeftPartFromEmail(senderAddress).orElse(senderAddress);
+				modifier.addHeader("Sender", new Address(displayname, senderAddress).toString(), identifier());
+			}
 		}
-		Mailbox fromMb = message.getFrom().get(0);
-		if (!domainItem.value.aliases.contains(fromMb.getDomain())) {
-			throw new MilterActionException(
-					String.format("Domains do not match between from address '%s' and sender address '%s'",
-							fromMb.getAddress(), message.getSender().getAddress()));
-		}
+	}
+
+	private boolean areSameFromAndSenderDomains(Message message, ItemValue<Domain> domainItem) {
+		return message.getFrom().size() == 1 && domainItem.value.aliases.contains(message.getFrom().get(0).getDomain());
 	}
 
 }

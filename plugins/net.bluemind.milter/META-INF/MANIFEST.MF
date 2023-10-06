@@ -26,10 +26,16 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.common.io;bundle-version="5.0.0",
  net.bluemind.systemd.notify,
  net.bluemind.network.topology,
- io.vertx.core
+ io.vertx.core,
+ net.bluemind.core.caches.registry,
+ com.github.ben-manes.caffeine,
+ net.bluemind.directory.api,
+ net.bluemind.addressbook.api,
+ net.bluemind.user.api
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.milter,
  net.bluemind.milter.action,
- net.bluemind.milter.map
+ net.bluemind.milter.map,
+ net.bluemind.milter.cache
 Automatic-Module-Name: net.bluemind.milter

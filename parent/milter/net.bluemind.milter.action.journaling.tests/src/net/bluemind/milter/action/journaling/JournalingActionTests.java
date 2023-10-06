@@ -44,9 +44,9 @@ import net.bluemind.domain.api.Domain;
 import net.bluemind.mailflow.rbe.CoreClientContext;
 import net.bluemind.mailflow.rbe.IClientContext;
 import net.bluemind.milter.SmtpAddress;
-import net.bluemind.milter.action.DomainAliasCache;
 import net.bluemind.milter.action.MilterActionException;
 import net.bluemind.milter.action.UpdatedMailMessage;
+import net.bluemind.milter.cache.DomainAliasCache;
 import net.bluemind.mime4j.common.Mime4JHelper;
 
 public class JournalingActionTests {

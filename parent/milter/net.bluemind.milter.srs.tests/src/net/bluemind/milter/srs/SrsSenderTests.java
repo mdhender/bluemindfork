@@ -39,9 +39,9 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.milter.MilterHeaders;
-import net.bluemind.milter.action.DomainAliasCache;
 import net.bluemind.milter.action.MilterPreAction;
 import net.bluemind.milter.action.UpdatedMailMessage;
+import net.bluemind.milter.cache.DomainAliasCache;
 import net.bluemind.system.api.SysConfKeys;
 
 public class SrsSenderTests {

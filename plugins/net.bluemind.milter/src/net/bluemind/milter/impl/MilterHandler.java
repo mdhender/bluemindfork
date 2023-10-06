@@ -54,11 +54,11 @@ import net.bluemind.milter.IMilterListenerFactory;
 import net.bluemind.milter.MilterHeaders;
 import net.bluemind.milter.MilterInstanceID;
 import net.bluemind.milter.SmtpAddress;
-import net.bluemind.milter.action.DomainAliasCache;
 import net.bluemind.milter.action.MilterAction;
 import net.bluemind.milter.action.MilterActionException;
 import net.bluemind.milter.action.MilterPreAction;
 import net.bluemind.milter.action.UpdatedMailMessage;
+import net.bluemind.milter.cache.DomainAliasCache;
 import net.bluemind.mime4j.common.Mime4JHelper;
 
 public class MilterHandler implements JilterHandler {

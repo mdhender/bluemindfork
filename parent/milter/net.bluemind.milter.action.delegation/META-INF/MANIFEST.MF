@@ -6,22 +6,17 @@ Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: bluemind.net
 Automatic-Module-Name: net.bluemind.milter.action.delegation
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-Require-Bundle: com.google.guava,
+Require-Bundle: net.bluemind.milter,
  slf4j.api,
- net.bluemind.config,
- net.bluemind.milter,
- net.bluemind.core.commons,
- net.bluemind.hornetq.client,
- net.bluemind.system.api,
- org.apache.james.apache-mime4j-dom,
- org.apache.james.apache-mime4j-core,
  net.bluemind.core.container.api,
  net.bluemind.domain.api,
- org.eclipse.osgi,
+ net.bluemind.mailbox.api,
  net.bluemind.mailflow.rbe,
  net.bluemind.mailflow.api,
- net.bluemind.mailbox.api,
- net.bluemind.mailbox.service,
+ org.apache.james.apache-mime4j-dom,
  net.bluemind.core.rest.http,
- net.bluemind.lib.ristretto
+ net.bluemind.core.rest,
+ net.bluemind.lib.ristretto,
+ net.bluemind.addressbook.api
 Export-Package: net.bluemind.milter.action.delegation
+Import-Package: com.google.common.base

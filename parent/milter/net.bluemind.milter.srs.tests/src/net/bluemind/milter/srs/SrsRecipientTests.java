@@ -34,7 +34,7 @@ import net.bluemind.config.InstallationId;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.domain.api.Domain;
-import net.bluemind.milter.action.DomainAliasCache;
+import net.bluemind.milter.cache.DomainAliasCache;
 import net.bluemind.milter.map.RecipientCanonical;
 import net.bluemind.milter.srs.tools.SrsHash;
 

@@ -171,8 +171,7 @@ public class Sendmail implements ISendmail {
 						smtp.rcpt(new Address(to.getAddress()));
 					}
 				} catch (SMTPException e) {
-					failedRecipients
-							.add(FailedRecipient.create(e.getCode(), to.getAddress(), e.getMessage()));
+					failedRecipients.add(FailedRecipient.create(e, to.getAddress()));
 				}
 			}
 			sendmailResponse = new SendmailResponse(smtp.data(inStream), failedRecipients, requestedDSNs);
