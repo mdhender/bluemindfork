@@ -27,8 +27,6 @@ import net.bluemind.eas.config.global.GlobalConfig;
 
 public class DOMDumper {
 
-	private static boolean withData = GlobalConfig.DATA_IN_LOGS;
-
 	private DOMDumper() {
 
 	}
@@ -44,7 +42,7 @@ public class DOMDumper {
 		try (FastByteArrayOutputStream out = new FastByteArrayOutputStream()) {
 			Document c = DOMUtils.cloneDOM(doc);
 
-			if (!withData) {
+			if (!GlobalConfig.DATA_IN_LOGS) {
 				trim(c, "ApplicationData");
 				trim(c, "AirSyncBase:Data");
 			}
