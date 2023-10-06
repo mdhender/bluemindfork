@@ -36,6 +36,8 @@ Require-Bundle: net.bluemind.core.container.persistence;bundle-version="1.0.0",
  net.bluemind.network.topology,
  net.bluemind.core.auditlogs.client.loader,
  net.bluemind.core.auditlogs;visibility:=reexport,
- com.fasterxml.jackson.core.jackson-databind
+ com.fasterxml.jackson.core.jackson-databind,
+ com.github.ben-manes.caffeine;visibility:=reexport,
+ net.bluemind.core.caches.registry
 Automatic-Module-Name: net.bluemind.core.container.service
 Bundle-ClassPath: .

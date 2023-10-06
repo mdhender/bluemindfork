@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -35,6 +36,8 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
@@ -44,6 +47,8 @@ import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.backup.continuous.api.IBackupStore;
 import net.bluemind.core.backup.continuous.api.Providers;
+import net.bluemind.core.caches.registry.CacheRegistry;
+import net.bluemind.core.caches.registry.ICacheRegistration;
 import net.bluemind.core.container.api.Count;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.Container;
@@ -77,7 +82,8 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	}
 
 	protected static final Logger logger = LoggerFactory.getLogger(ContainerStoreService.class);
-	protected Container container;
+	protected final Container container;
+	protected final String containerCacheKey;
 	protected ItemStore itemStore;
 	protected IItemValueStore<T> itemValueStore;
 	protected ChangelogStore changelogStore;
@@ -94,6 +100,18 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	private final DataSource pool;
 
 	public final ReservedIds.ConsumerHandler doNothingOnIdsReservation = callback -> callback.accept(null);
+
+	private static final Cache<String, Long> lastEmptyChangeset = Caffeine.newBuilder()
+			.expireAfterWrite(5, TimeUnit.MINUTES).recordStats().build();
+
+	public static class EmptyChangesetReg implements ICacheRegistration {
+
+		@Override
+		public void registerCaches(CacheRegistry cr) {
+			cr.register("known.empty.changesets", lastEmptyChangeset);
+		}
+
+	}
 
 	public static interface IItemFlagsProvider<W> {
 		Collection<ItemFlag> flags(W value);
@@ -129,6 +147,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			IItemValueStore<T> itemValueStore, IItemFlagsProvider<T> fProv, IWeightSeedProvider<T> wsProv,
 			IWeightProvider wProv, ItemValueAuditLogService<T> logService) {
 		this.container = container;
+		this.containerCacheKey = container.uid + "#" + container.id;
 		this.securityContext = securityContext;
 		this.origin = securityContext.getOrigin();
 		this.itemStore = new ItemStore(pool, container, securityContext);
@@ -189,50 +208,41 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 				doOrFail(() -> changelogStore.itemChangelog(itemUid, since, to)));
 	}
 
+	private <W> ContainerChangeset<W> cacheIfUnchanged(long from, SqlOperation<ContainerChangeset<W>> op) {
+		Long maybeSameAsSince = lastEmptyChangeset.getIfPresent(containerCacheKey);
+		if (maybeSameAsSince != null && maybeSameAsSince.longValue() == from) {
+			return ContainerChangeset.empty(from);
+		}
+		ContainerChangeset<W> cs = doOrFail(op);
+		if (cs.version == from) {
+			lastEmptyChangeset.put(containerCacheKey, from);
+		}
+		return cs;
+	}
+
 	public ContainerChangeset<String> changeset(Long from, long to) {
 		assertChangeLog();
 		final long since = null == from ? 0L : from;
-		return doOrFail(() -> {
-			try {
-				return changelogStore.changeset(weightProvider, since, to);
-			} catch (SQLException e) {
-				throw ServerFault.sqlFault(e);
-			}
-		});
+		return cacheIfUnchanged(since, () -> changelogStore.changeset(weightProvider, since, to));
 	}
 
 	public ContainerChangeset<Long> changesetById(Long from, long to) {
 		assertChangeLog();
 		final long since = null == from ? 0L : from;
-		return doOrFail(() -> {
-			try {
-				return changelogStore.changesetById(weightProvider, since, to);
-			} catch (SQLException e) {
-				throw ServerFault.sqlFault(e);
-			}
-		});
+		return cacheIfUnchanged(since, () -> changelogStore.changesetById(weightProvider, since, to));
 	}
 
 	public ContainerChangeset<ItemIdentifier> fullChangesetById(Long from, long to) {
 		assertChangeLog();
 		final long since = null == from ? 0L : from;
-		return doOrFail(() -> {
-			try {
-				return changelogStore.fullChangesetById(weightProvider, since, to);
-			} catch (SQLException e) {
-				throw ServerFault.sqlFault(e);
-			}
-		});
+		return cacheIfUnchanged(since, () -> changelogStore.fullChangesetById(weightProvider, since, to));
 	}
 
 	public ContainerChangeset<ItemVersion> changesetById(long from, ItemFlagFilter filter) {
 		assertChangeLog();
 		return doOrFail(() -> {
-			try {
-				return changelogStore.changesetById(weightProvider, from, Long.MAX_VALUE, filter);
-			} catch (SQLException e) {
-				throw ServerFault.sqlFault(e);
-			}
+			// trying to cache those introduces invalidation complexity
+			return changelogStore.changesetById(weightProvider, from, Long.MAX_VALUE, filter);
 		});
 	}
 
@@ -337,6 +347,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	private ItemVersion create(Item item, T value, ChangelogStore changelogStore, ItemStore itemStore,
 			IItemValueStore<T> itemValueStore, ReservedIds.ConsumerHandler handler) {
 		checkWritable();
+		lastEmptyChangeset.invalidate(containerCacheKey);
 
 		String uid = item.uid;
 		Long internalId = item.id;
@@ -379,6 +390,8 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 
 	@Override
 	public void attach(String uid, String displayName, T value) {
+		lastEmptyChangeset.invalidate(containerCacheKey);
+
 		doOrFail(() -> {
 
 			Item item = itemStore.getForUpdate(uid);
@@ -423,6 +436,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 
 	protected ItemVersion update(Item item, String displayName, T value, ReservedIds.ConsumerHandler handler) {
 		checkWritable();
+		lastEmptyChangeset.invalidate(containerCacheKey);
 
 		return doOrFail(() -> {
 
@@ -467,6 +481,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	@Override
 	public ItemVersion update(long itemId, String displayName, T value) {
 		checkWritable();
+		lastEmptyChangeset.invalidate(containerCacheKey);
 
 		return doOrFail(() -> {
 
@@ -512,6 +527,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	@Override
 	public ItemVersion delete(String uid) {
 		checkWritable();
+		lastEmptyChangeset.invalidate(containerCacheKey);
 
 		return doOrFail(() -> {
 			Item item = itemStore.getForUpdate(uid);
@@ -541,6 +557,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	@Override
 	public ItemVersion delete(long id) {
 		checkWritable();
+		lastEmptyChangeset.invalidate(containerCacheKey);
 
 		return doOrFail(() -> {
 			Item item = itemStore.getForUpdate(id);
@@ -568,6 +585,8 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 
 	@Override
 	public void detach(String uid) {
+		lastEmptyChangeset.invalidate(containerCacheKey);
+
 		doOrFail(() -> {
 			Item item = itemStore.getForUpdate(uid);
 			if (item == null) {
@@ -591,6 +610,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	@Override
 	public void deleteAll() {
 		checkWritable();
+		lastEmptyChangeset.invalidate(containerCacheKey);
 
 		doOrFail(() -> {
 			// delete values
@@ -609,6 +629,8 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	@Override
 	public void prepareContainerDelete() {
 		checkWritable();
+		lastEmptyChangeset.invalidate(containerCacheKey);
+
 		doOrFail(() -> {
 			// delete acl
 			aclService.deleteAll();
@@ -754,6 +776,8 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	@Override
 	public ItemVersion touch(String uid) {
 		checkWritable();
+		lastEmptyChangeset.invalidate(containerCacheKey);
+
 		return doOrFail(() -> {
 			Item item = itemStore.touch(uid);
 

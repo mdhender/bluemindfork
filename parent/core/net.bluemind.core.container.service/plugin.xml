@@ -93,4 +93,10 @@
             class="net.bluemind.core.container.service.OwnerSubscriptionEventBusAccessRule">
       </access-rule>
    </extension>
+   <extension
+         point="net.bluemind.core.caches.registry.registration">
+      <reg
+            impl="net.bluemind.core.container.service.internal.ContainerStoreService$EmptyChangesetReg">
+      </reg>
+   </extension>
 </plugin>

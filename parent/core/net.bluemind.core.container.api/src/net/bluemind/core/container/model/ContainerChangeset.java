@@ -18,6 +18,7 @@
  */
 package net.bluemind.core.container.model;
 
+import java.util.Collections;
 import java.util.List;
 
 import net.bluemind.core.api.BMApi;
@@ -57,7 +58,12 @@ public class ContainerChangeset<T> {
 		return set;
 	}
 
+	@Override
 	public String toString() {
 		return "created: " + created + " updated: " + updated + " deleted: " + deleted + " version: " + version;
+	}
+
+	public static <W> ContainerChangeset<W> empty(long since) {
+		return create(Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), since);
 	}
 }
