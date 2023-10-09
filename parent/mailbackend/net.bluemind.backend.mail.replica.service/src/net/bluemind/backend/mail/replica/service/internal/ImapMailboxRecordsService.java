@@ -431,14 +431,16 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 	public Stream fetch(long imapUid, String address, String encoding, String mime, String charset, String filename) {
 		rbac.check(Verb.Read.name());
 
+		ReadStream<Buffer> stream = null;
 		if (!isImapAddress(address)) {
-			return tmpPartFetch(address);
+			stream = tmpPartFetch(address);
+		} else {
+			stream = imapFetch(imapUid, address);
 		}
-		ReadStream<Buffer> partContent = imapFetch(imapUid, address);
-		return VertxStream.stream(partContent, mime, charset, filename);
+		return VertxStream.stream(stream, mime, charset, filename);
 	}
 
-	private Stream tmpPartFetch(String address) {
+	private ReadStream<Buffer> tmpPartFetch(String address) {
 		File tmpPart = partFile(address);
 		if (!tmpPart.exists()) {
 			throw new ServerFault("Trying to fetch tmp part " + address + " which doesnt exist");
@@ -446,12 +448,13 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		// temporary parts are already decoded because getForUpdate already did it
 		AsyncFile openBlocking = VertxPlatform.getVertx().fileSystem().openBlocking(tmpPart.getAbsolutePath(),
 				new OpenOptions());
-		return VertxStream.stream(openBlocking, v -> {
+		openBlocking.endHandler(v -> {
 			try {
 				openBlocking.close();
 			} catch (IllegalStateException e) {
 			}
 		});
+		return openBlocking;
 	}
 
 	private ReadStream<Buffer> imapFetch(long imapUid, String address) {
