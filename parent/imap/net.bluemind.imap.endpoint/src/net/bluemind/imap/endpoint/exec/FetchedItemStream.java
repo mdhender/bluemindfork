@@ -41,15 +41,22 @@ public class FetchedItemStream implements WriteStream<FetchedItem> {
 
 	private final NetSocket socket;
 	private final MessageProducer<Buffer> sender;
-	private List<MailPart> spec;
+	private final List<MailPart> spec;
+	private final String why;
 	private int writeCnt = 0;
 
 	private volatile boolean ended;
 
-	public FetchedItemStream(ImapContext ctx, List<MailPart> fetchSpec) {
+	public FetchedItemStream(ImapContext ctx, String why, List<MailPart> fetchSpec) {
 		this.socket = ctx.socket();
 		this.sender = ctx.sender();
 		this.spec = fetchSpec;
+		this.why = why;
+	}
+
+	@Override
+	public String toString() {
+		return "fetchStream{%s}".formatted(why);
 	}
 
 	@Override
@@ -109,7 +116,6 @@ public class FetchedItemStream implements WriteStream<FetchedItem> {
 			}
 		}
 		b.appendString(")\r\n");
-		// System.err.println("b: " + b.toString(StandardCharsets.US_ASCII));
 		return b;
 	}
 

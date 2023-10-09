@@ -55,6 +55,7 @@ public class DovecotImaptestRunner extends GenericContainer<DovecotImaptestRunne
 		withCommand(cmd);
 		this.consumer = new ImapTestOutputConsumer();
 		withLogConsumer(consumer);
+		System.err.println("start with duration " + duration);
 		setStartupCheckStrategy(new OneShotStartupCheckStrategy().withTimeout(duration));
 	}
 

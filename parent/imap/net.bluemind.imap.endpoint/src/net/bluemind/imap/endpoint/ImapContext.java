@@ -141,8 +141,8 @@ public class ImapContext {
 	 * @see {@link #writePromise(String)}
 	 * @param resp the imap response to write
 	 */
-	public void write(String resp) {
-		write(Buffer.buffer(resp));
+	public Future<Void> write(String resp) {
+		return write(Buffer.buffer(resp));
 	}
 
 	public void clientCommand(RawImapCommand event) {
@@ -217,6 +217,14 @@ public class ImapContext {
 
 	public void mailbox(MailboxConnection connection) {
 		this.mailbox = connection;
+		nexus().addSequenceChangeListener(connection, (origTag, folderUid, v) -> {
+			var cur = selected();
+			if (cur != null && cur.folder.uid.equals(folderUid)) {
+				logger.info("[{}] Content change for {} originated at tag {} to content version {}", logConnectionId,
+						cur, origTag, v);
+				cur.notifiedContentVersion.updateAndGet(curval -> Math.max(curval, v));
+			}
+		});
 	}
 
 	public MailboxConnection mailbox() {
@@ -261,6 +269,10 @@ public class ImapContext {
 
 	public String idlingTag() {
 		return idlingTag;
+	}
+
+	public String logConnectionId() {
+		return logConnectionId;
 	}
 
 	@Override

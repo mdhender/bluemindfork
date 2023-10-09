@@ -19,6 +19,9 @@ package net.bluemind.imap.endpoint.exec;
 
 import java.util.Collections;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.netty.buffer.Unpooled;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
@@ -26,10 +29,14 @@ import net.bluemind.imap.endpoint.ImapContext;
 import net.bluemind.imap.endpoint.cmd.RawImapCommand;
 import net.bluemind.imap.endpoint.cmd.UidFetchCommand;
 import net.bluemind.imap.endpoint.cmd.UidStoreCommand;
+import net.bluemind.imap.endpoint.locks.IFlagsCheckpoint;
+import net.bluemind.imap.endpoint.locks.ISequenceReader;
 import net.bluemind.imap.endpoint.parsing.Part;
-import net.bluemind.lib.vertx.Result;
 
-public class UidStoreProcessor extends SelectedStateCommandProcessor<UidStoreCommand> {
+public class UidStoreProcessor extends SelectedStateCommandProcessor<UidStoreCommand>
+		implements ISequenceReader, IFlagsCheckpoint {
+
+	private static final Logger logger = LoggerFactory.getLogger(UidStoreProcessor.class);
 
 	@Override
 	public Class<UidStoreCommand> handledType() {
@@ -40,8 +47,9 @@ public class UidStoreProcessor extends SelectedStateCommandProcessor<UidStoreCom
 	protected void checkedOperation(UidStoreCommand command, ImapContext ctx, Handler<AsyncResult<Void>> completed) {
 		ctx.mailbox().updateFlags(ctx.selected(), command.idset(), command.mode(), command.flags());
 		if (command.silent()) {
-			ctx.write(command.raw().tag() + " OK Completed\r\n");
-			completed.handle(Result.success());
+			StringBuilder resp = new StringBuilder();
+			checkpointFlags(logger, command.raw().tag() + " uid store", ctx, resp);
+			ctx.write(resp.toString() + command.raw().tag() + " OK Completed\r\n").onComplete(completed);
 		} else {
 			String asFetch = command.raw().tag() + " UID FETCH " + command.idset().serializedSet + " (FLAGS)";
 			RawImapCommand raw = new RawImapCommand(

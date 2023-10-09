@@ -43,6 +43,7 @@ import net.bluemind.backend.mail.replica.api.ImapBinding;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.MailboxRecord.InternalFlag;
 import net.bluemind.backend.mail.replica.api.MailboxRecordItemUri;
+import net.bluemind.backend.mail.replica.api.RawImapBinding;
 import net.bluemind.backend.mail.replica.api.WithId;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.Count;
@@ -342,13 +343,14 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 		return fsql;
 	}
 
-	public List<Long> imapIdset(String set, ItemFlagFilter itemFilter) throws SQLException {
-		String q = "select rec.item_id from t_mailbox_record rec WHERE rec.subtree_id = ? AND rec.container_id = ? AND "
+	public List<RawImapBinding> imapIdset(String set, ItemFlagFilter itemFilter) throws SQLException {
+		String q = "select rec.imap_uid, rec.item_id from t_mailbox_record rec WHERE rec.subtree_id = ? AND rec.container_id = ? AND "
 				+ asSql(set) //
 				+ filterSql("rec", itemFilter) + //
 				" AND (rec.system_flags::bit(32) & (" + InternalFlag.expunged.value + ")::bit(32)) = 0::bit(32) " //
 				+ " ORDER BY rec.imap_uid";
-		return selectLong(q, new Object[] { subtreeContainer.id, folderContainer.id });
+		return select(q, rs -> RawImapBinding.of(rs.getLong(1), rs.getLong(2)), Collections.emptyList(),
+				new Object[] { subtreeContainer.id, folderContainer.id });
 	}
 
 	public static String asSql(String idset) {

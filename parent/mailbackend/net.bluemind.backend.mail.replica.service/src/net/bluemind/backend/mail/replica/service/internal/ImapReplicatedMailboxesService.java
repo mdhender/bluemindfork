@@ -246,7 +246,7 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 
 	private void flag(ItemValue<MailboxFolder> folder, MailboxItemFlag.System flag) {
 		IDbMailboxRecords writeDelegate = context.provider().instance(IDbMailboxRecords.class, folder.uid);
-		List<Long> allIds = writeDelegate.imapIdSet("1:*", "");
+		List<Long> allIds = writeDelegate.imapIdSet("1:*", "").stream().map(r -> r.itemId).toList();
 		for (List<Long> slice : Lists.partition(allIds, 500)) {
 			List<WithId<MailboxRecord>> recSlice = writeDelegate.slice(slice);
 			List<MailboxRecord> updates = recSlice.stream().map(wid -> {

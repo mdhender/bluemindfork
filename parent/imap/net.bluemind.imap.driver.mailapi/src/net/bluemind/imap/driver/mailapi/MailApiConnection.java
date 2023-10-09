@@ -18,10 +18,12 @@
  */
 package net.bluemind.imap.driver.mailapi;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -40,6 +42,8 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.base.CharMatcher;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Suppliers;
@@ -58,7 +62,7 @@ import io.vertx.core.Context;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.streams.WriteStream;
-import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
 import net.bluemind.authentication.api.AuthUser;
 import net.bluemind.authentication.api.IAuthentication;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
@@ -72,13 +76,14 @@ import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.ISyncDbMailboxRecords;
-import net.bluemind.backend.mail.replica.api.ImapBinding;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.MailboxRecord.InternalFlag;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.backend.mail.replica.api.MailboxReplica.Acl;
+import net.bluemind.backend.mail.replica.api.RawImapBinding;
 import net.bluemind.backend.mail.replica.api.WithId;
 import net.bluemind.backend.mail.replica.indexing.IDSet;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IOwnerSubscriptions;
 import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemFlagFilter;
@@ -96,8 +101,6 @@ import net.bluemind.imap.endpoint.driver.AppendStatus;
 import net.bluemind.imap.endpoint.driver.AppendStatus.WriteStatus;
 import net.bluemind.imap.endpoint.driver.CopyResult;
 import net.bluemind.imap.endpoint.driver.FetchedItem;
-import net.bluemind.imap.endpoint.driver.IdleToken;
-import net.bluemind.imap.endpoint.driver.IdleToken.FetchToken;
 import net.bluemind.imap.endpoint.driver.ImapIdSet;
 import net.bluemind.imap.endpoint.driver.ImapIdSet.IdKind;
 import net.bluemind.imap.endpoint.driver.ImapMailbox;
@@ -107,6 +110,7 @@ import net.bluemind.imap.endpoint.driver.MailboxConnection;
 import net.bluemind.imap.endpoint.driver.NamespaceInfos;
 import net.bluemind.imap.endpoint.driver.QuotaRoot;
 import net.bluemind.imap.endpoint.driver.SelectedFolder;
+import net.bluemind.imap.endpoint.driver.SelectedMessage;
 import net.bluemind.imap.endpoint.driver.UpdateMode;
 import net.bluemind.imap.endpoint.parsing.MailboxGlob;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
@@ -179,7 +183,6 @@ public class MailApiConnection implements MailboxConnection {
 		return MoreObjects.toStringHelper(MailApiConnection.class).add("id", me.value.defaultEmailAddress()).toString();
 	}
 
-	private static final ItemFlagFilter IMAP_VISIBLE = ItemFlagFilter.create().skipExpunged();
 	private static final ItemFlagFilter UNSEEN = ItemFlagFilter.create().mustNot(ItemFlag.Seen).skipExpunged();
 
 	@Override
@@ -206,11 +209,25 @@ public class MailApiConnection implements MailboxConnection {
 		}
 
 		IDbMailboxRecords recApi = prov.instance(ISyncDbMailboxRecords.class, existing.uid);
-		long exist = recApi.count(IMAP_VISIBLE).total;
 		long unseen = recApi.count(UNSEEN).total;
 		List<String> labels = recApi.labels();
 		CyrusPartition part = CyrusPartition.forServerAndDomain(resolved.owner.value.dataLocation, me.domainUid);
-		return new SelectedFolder(resolved, existing, recApi, part.name, exist, unseen, labels);
+		long contentVersion = recApi.getVersion();
+		SelectedMessage[] seqs = sequences(recApi);
+		long exist = seqs.length;
+		return new SelectedFolder(resolved, existing, recApi, part.name, exist, unseen, labels, contentVersion, seqs);
+	}
+
+	@Override
+	public SelectedFolder refreshed(SelectedFolder f) {
+		// unseen could be inconsistent as LMTP deliveries do not lock
+		long unseen = f.recApi.count(UNSEEN).total;
+		List<String> labels = f.recApi.labels();
+		long contentVersion = f.recApi.getVersion();
+		SelectedMessage[] seqs = sequences(f.recApi);
+		long exist = seqs.length;
+		return new SelectedFolder(f.mailbox, f.folder, f.recApi, f.partition, exist, unseen, labels, contentVersion,
+				seqs);
 	}
 
 	private IDbReplicatedMailboxes resolvedFolderApi(ItemValue<Mailbox> owner) {
@@ -409,37 +426,52 @@ public class MailApiConnection implements MailboxConnection {
 		return ln;
 	}
 
-	private List<Long> resolveIdSet(IDbMailboxRecords recApi, ImapIdSet set) {
+	/**
+	 * Convert sequences to itemId if needed using the sequences cached by the
+	 * selected folder
+	 * 
+	 * @param sf
+	 * @param set
+	 * @return list of internal id
+	 */
+	private List<Long> resolveIdSet(SelectedFolder sf, ImapIdSet set) {
 		if (set.setStyle == IdKind.UID || set.serializedSet.equals("1:*")) {
-			return recApi.imapIdSet(set.serializedSet, "");
+			IDSet parsedSet = IDSet.parse(set.serializedSet);
+			return sf.internalIds(sm -> parsedSet.contains(sm.imapUid()));
 		} else {
-			List<Long> fullList = recApi.imapIdSet("1:*", "");
-			int total = fullList.size();
+			int total = sf.sequences.length;
 			ListIterator<Long> iterator = IDSet.parse(set.serializedSet).iterateUid();
-			List<Long> ret = new ArrayList<>(total);
+			List<Long> ret = new LongArrayList(total);
 			while (iterator.hasNext()) {
 				int seq = iterator.next().intValue();
 				int position = seq - 1;
 				if (position >= 0 && position < total) {
-					ret.add(fullList.get(position));
+					ret.add(sf.sequences[position].internalId());
 				}
 			}
+			logger.debug("seqs {} resolves to itemId {}", set.serializedSet, ret);
 			return ret;
 		}
 	}
 
+	private static final List<String> SYSTEM_FLAGS = Arrays.stream(MailboxItemFlag.System.values())
+			.map(s -> s.value().flag).toList();
+
 	@Override
 	public CompletableFuture<Void> fetch(SelectedFolder selected, ImapIdSet idset, List<MailPart> fields,
 			WriteStream<FetchedItem> output) {
-		IDbMailboxRecords recApi = prov.instance(IDbMailboxRecords.class, selected.folder.uid);
+		IDbMailboxRecords recApi = selected.recApi;
 		IDbMessageBodies bodyApi = prov.instance(IDbMessageBodies.class, selected.partition);
 		IMailboxItems itemsApi = prov.instance(IMailboxItems.class, selected.folder.uid);
 		Iterator<List<Long>> slice = Lists
-				.partition(resolveIdSet(recApi, idset), DriverConfig.get().getInt("driver.records-mget")).iterator();
+				.partition(resolveIdSet(selected, idset), DriverConfig.get().getInt("driver.records-mget")).iterator();
 		CompletableFuture<Void> ret = new CompletableFuture<>();
+		Set<String> knownLabels = new HashSet<>(selected.labels);
+		knownLabels.addAll(SYSTEM_FLAGS);
+		FetchedItemRenderer renderer = new FetchedItemRenderer(bodyApi, recApi, itemsApi, fields, knownLabels);
+
+		Map<Long, Integer> seqIndex = selected.internalIdToSeqNum();
 		Context fetchContext = VertxContext.getOrCreateDuplicatedContext();
-		FetchedItemRenderer renderer = new FetchedItemRenderer(bodyApi, recApi, itemsApi, fields);
-		Map<Long, Integer> seqIndex = itemIdToSeqNum(recApi);
 		fetchContext.runOnContext(
 				v -> pushNext(fetchContext, seqIndex, renderer, slice, Collections.emptyIterator(), ret, output));
 		return ret;
@@ -448,7 +480,7 @@ public class MailApiConnection implements MailboxConnection {
 	private void pushNext(Context fetchContext, Map<Long, Integer> seqIndex, FetchedItemRenderer renderer,
 			Iterator<List<Long>> idSliceIterator, Iterator<WithId<MailboxRecord>> recsIterator,
 			CompletableFuture<Void> ret, WriteStream<FetchedItem> output) {
-		while (recsIterator.hasNext()) {
+		while (recsIterator.hasNext() && !ret.isCompletedExceptionally()) {
 			WithId<MailboxRecord> rec = recsIterator.next();
 			if (rec.value.internalFlags.contains(InternalFlag.expunged)) {
 				continue;
@@ -464,7 +496,11 @@ public class MailApiConnection implements MailboxConnection {
 			}
 			fi.seq = seqIndex.get(rec.itemId);
 			fi.properties = renderer.renderFields(rec);
-			output.write(fi);
+			output.write(fi, ack -> {
+				if (ack.failed()) {
+					ret.completeExceptionally(ack.cause());
+				}
+			});
 			if (output.writeQueueFull()) {
 				output.drainHandler(v -> fetchContext.runOnContext(
 						w -> pushNext(fetchContext, seqIndex, renderer, idSliceIterator, recsIterator, ret, output)));
@@ -475,6 +511,7 @@ public class MailApiConnection implements MailboxConnection {
 		if (idSliceIterator.hasNext()) {
 			List<Long> slice = idSliceIterator.next();
 			List<WithId<MailboxRecord>> records = renderer.recApi().slice(slice);
+
 			fetchContext.runOnContext(
 					v -> pushNext(fetchContext, seqIndex, renderer, idSliceIterator, records.iterator(), ret, output));
 		} else {
@@ -509,7 +546,7 @@ public class MailApiConnection implements MailboxConnection {
 	}
 
 	@Override
-	public void idleMonitor(SelectedFolder selected, WriteStream<IdleToken> out) {
+	public void idleMonitor(SelectedFolder selected, java.util.function.Consumer<SelectedMessage[]> changeListener) {
 		notIdle();
 		if (selected == null) {
 			// the fucking RFC allows in authenticated state
@@ -517,9 +554,9 @@ public class MailApiConnection implements MailboxConnection {
 			notIdle();
 		} else {
 			logger.info("idle monitoring on {}", selected.folder);
-			IDbMailboxRecords recApi = prov.instance(IDbMailboxRecords.class, selected.folder.uid);
 			String watchedUid = IMailReplicaUids.mboxRecords(selected.folder.uid);
 			Context idleContext = VertxContext.getOrCreateDuplicatedContext();
+			// we only notify on sequence visible at the start of the idling phase
 			synchronized (myMailbox) {
 				this.activeCons = MQ.registerConsumer(Topic.IMAP_ITEM_NOTIFICATIONS,
 						msg -> idleContext.runOnContext(v -> {
@@ -527,27 +564,13 @@ public class MailApiConnection implements MailboxConnection {
 							String contUid = jsMsg.getString("containerUid");
 
 							if (watchedUid.equals(contUid)) {
-								logger.info("Stuff happenned on watched folder for {} -> {}", out, msg);
-								Map<Long, Integer> iidToSeq = itemIdToSeqNum(recApi);
-								out.write(new IdleToken.CountToken("EXISTS", iidToSeq.size()));
-								List<FetchToken> changes = jsMsg.getJsonArray("changes").stream()
+								SelectedMessage[] changed = jsMsg.getJsonArray("changes").stream()
 										.map(JsonObject.class::cast).map(js -> js.mapTo(ImapChange.class))
-										.map(ic -> ic.fetch(iidToSeq)).filter(Objects::nonNull).toList();
-								Iterator<FetchToken> iter = changes.iterator();
-								iteratorToStream(iter, out);
+										.map(ic -> new SelectedMessage(ic.imap, ic.iid))
+										.toArray(SelectedMessage[]::new);
+								changeListener.accept(changed);
 							}
 						}));
-			}
-		}
-	}
-
-	private void iteratorToStream(Iterator<FetchToken> iter, WriteStream<IdleToken> out) {
-		while (iter.hasNext()) {
-			FetchToken ft = iter.next();
-			out.write(ft);
-			if (out.writeQueueFull()) {
-				out.drainHandler(v -> iteratorToStream(iter, out));
-				break;
 			}
 		}
 	}
@@ -556,32 +579,33 @@ public class MailApiConnection implements MailboxConnection {
 		public long imap;
 		public Set<String> flags;
 		public long iid;
-
-		public IdleToken.FetchToken fetch(Map<Long, Integer> iidToSeq) {
-			Integer maybeNullSeq = iidToSeq.get(iid);
-			if (maybeNullSeq == null) {
-				logger.warn("seqindex unknown for {} using {}", iid, iidToSeq);
-				return null;
-			}
-
-			return new FetchToken(maybeNullSeq, imap, flags);
-		}
 	}
 
 	@Override
 	public void close() {
 		notIdle();
 		if (logoutOnClose) {
-			prov.instance(IAuthentication.class).logout();
+			try {
+				prov.instance(IAuthentication.class).logout();
+			} catch (ServerFault sf) {
+				// might be already closed by LogoutProcessor
+			}
 		}
 	}
 
+	/**
+	 * This one exists to please imaptest, once a body is delivered, the append time
+	 * (specified or not) should be remembered. We forget those dates after some
+	 * time as this seems a specification corner case for me.
+	 */
+	private static final Cache<String, Date> firstDeliveryDate = Caffeine.newBuilder()
+			.expireAfterWrite(Duration.ofMinutes(10)).build();
+
 	@Override
-	public AppendStatus append(String folder, List<String> flags, Date deliveryDate, ByteBuf buffer) {
-		SelectedFolder selected = select(folder);
+	public AppendStatus append(SelectedFolder selected, List<String> flags, Date deliveryDate, ByteBuf buffer) {
 
 		if (selected == null) {
-			return new AppendStatus(WriteStatus.EXCEPTIONNALY_REJECTED, 0L, 0L);
+			return new AppendStatus(WriteStatus.EXCEPTIONNALY_REJECTED, 0L, 0L, null);
 		}
 
 		long avail = QuotaCache.availableSpace(selected.mailbox.owner.uid).orElseGet(() -> {
@@ -596,7 +620,7 @@ public class MailApiConnection implements MailboxConnection {
 		});
 
 		if (avail <= 0) {
-			return new AppendStatus(WriteStatus.OVERQUOTA_REJECTED, 0L, 0L);
+			return new AppendStatus(WriteStatus.OVERQUOTA_REJECTED, 0L, 0L, null);
 		}
 
 		AppendTx appendTx = selected.mailbox.foldersApi.prepareAppend(selected.folder.internalId, 1);
@@ -608,7 +632,7 @@ public class MailApiConnection implements MailboxConnection {
 
 		IConversationReference conversationReferenceApi = prov.instance(IConversationReference.class, me.domainUid,
 				me.uid);
-		Date bodyDeliveryDate = deliveryDate == null ? new Date(appendTx.internalStamp) : deliveryDate;
+		Date bodyDeliveryDate = bestDeliveryDate(bodyGuid, appendTx.imapUid, deliveryDate, appendTx);
 		bodiesApi.createWithDeliveryDate(bodyGuid, bodyDeliveryDate, VertxStream.stream(Buffer.buffer(buffer)));
 		MessageBody messageBody = bodiesApi.getComplete(bodyGuid);
 		Set<String> references = (messageBody.references != null) ? Sets.newHashSet(messageBody.references)
@@ -627,7 +651,23 @@ public class MailApiConnection implements MailboxConnection {
 
 		selected.recApi.create(appendTx.imapUid + ".", rec);
 		QuotaCache.consumeBytes(selected.mailbox.owner.uid, messageBody.size);
-		return new AppendStatus(WriteStatus.WRITTEN, selected.folder.value.uidValidity, appendTx.imapUid);
+		return new AppendStatus(WriteStatus.WRITTEN, selected.folder.value.uidValidity, appendTx.imapUid, bodyGuid);
+	}
+
+	private Date bestDeliveryDate(String bodyGuid, long imapUid, Date setByAppend, AppendTx appendTx) {
+		Date bodyDeliveryDate = setByAppend;
+		Date first = firstDeliveryDate.getIfPresent(bodyGuid);
+		if (first != null && setByAppend != null) {
+			logger.warn("Maintaining delivery date from cache for {} (append {} vs cached {})", imapUid, setByAppend,
+					first);
+			return first;
+		}
+		if (setByAppend == null) {
+			bodyDeliveryDate = firstDeliveryDate.get(bodyGuid, guid -> new Date(appendTx.internalStamp));
+		} else {
+			firstDeliveryDate.put(bodyGuid, setByAppend);
+		}
+		return bodyDeliveryDate;
 	}
 
 	private List<MailboxItemFlag> flags(List<String> flags) {
@@ -662,31 +702,39 @@ public class MailApiConnection implements MailboxConnection {
 	}
 
 	@Override
-	public void updateFlags(SelectedFolder selected, ImapIdSet idset, UpdateMode mode, List<String> flags) {
-		IDbMailboxRecords recApi = prov.instance(ISyncDbMailboxRecords.class, selected.folder.uid);
-		List<Long> toUpdate = resolveIdSet(recApi, idset);
-		updateFlags(selected, toUpdate, mode, flags);
+	public long updateFlags(SelectedFolder selected, ImapIdSet idset, UpdateMode mode, List<String> flags) {
+		List<Long> toUpdate = resolveIdSet(selected, idset);
+		return updateFlags(selected, toUpdate, mode, flags);
 	}
 
-	private void updateFlags(SelectedFolder selected, List<Long> toUpdate, UpdateMode mode, List<String> flags) {
+	private long updateFlags(SelectedFolder selected, List<Long> itemIdsToUpdate, UpdateMode mode, List<String> flags) {
 		IDbMailboxRecords recApi = prov.instance(ISyncDbMailboxRecords.class, selected.folder.uid);
-		for (List<Long> slice : Lists.partition(toUpdate, DriverConfig.get().getInt("driver.records-mget"))) {
+		long lastVersion = selected.contentVersion;
+		List<MailboxItemFlag> commandFlags = flags(flags);
+		List<InternalFlag> internalFlags = internalFlags(flags);
+		if (internalFlags.contains(InternalFlag.expunged)) {
+			commandFlags.add(MailboxItemFlag.System.Deleted.value());
+		}
+		for (List<Long> slice : Lists.partition(itemIdsToUpdate, DriverConfig.get().getInt("driver.records-mget"))) {
 			List<MailboxRecord> recs = recApi.slice(slice).stream().map(iv -> iv.value).collect(Collectors.toList()); // NOSONAR
 			for (MailboxRecord item : recs) {
-				List<MailboxItemFlag> commandFlags = flags(flags);
-				List<InternalFlag> internalFlags = internalFlags(flags);
-				if (internalFlags.contains(InternalFlag.expunged)) {
-					commandFlags.add(MailboxItemFlag.System.Deleted.value());
-				}
 				updateRecFlags(item, mode, commandFlags, internalFlags);
 			}
 			logger.info("[{} / {}] Update slice of {} record(s)", this, selected, recs.size());
-			recApi.updates(recs);
+			lastVersion = recApi.updates(recs).version;
 		}
+		return lastVersion;
 	}
 
 	private void updateRecFlags(MailboxRecord rec, UpdateMode mode, List<MailboxItemFlag> list,
 			List<InternalFlag> internalList) {
+		if (rec.internalFlags.contains(InternalFlag.expunged)) {
+			// a connection with ghosted/expunged messages in its sequence cache could
+			// replace flags and un-expunge messages, which is not an imap-accessible
+			// operation
+			logger.warn("Skip flags update on {} which is already expunged", rec);
+			return;
+		}
 		if (mode == UpdateMode.Replace) {
 			rec.flags = list;
 			rec.internalFlags = internalList;
@@ -707,13 +755,18 @@ public class MailApiConnection implements MailboxConnection {
 	}
 
 	@Override
-	public CopyResult copyTo(SelectedFolder source, String folder, String idset) {
+	public CopyResult copyTo(SelectedFolder source, String folder, ImapIdSet idset) {
 		SelectedFolder target = select(folder);
 		if (target == null) {
 			throw new EndpointRuntimeException("Folder '" + folder + "' is missing.");
 		}
 		IDbMailboxRecords srcRecApi = source.recApi;
-		List<Long> matchingRecords = srcRecApi.imapIdSet(idset, "");
+		List<Long> matchingRecords = resolveIdSet(source, idset);
+		logger.info("[{}] Copying {} imap uids to {}", this, matchingRecords.size(), target);
+
+		if (matchingRecords.isEmpty()) {
+			return new CopyResult("", 0, 0, target.folder.value.uidValidity);
+		}
 
 		IDbMailboxRecords tgtRecApi = target.recApi;
 
@@ -752,6 +805,7 @@ public class MailApiConnection implements MailboxConnection {
 		tgtRecApi.updates(toCreate);
 		String sourceSet = sourceImapUid.stream().mapToLong(Long::longValue).mapToObj(Long::toString)
 				.collect(Collectors.joining(","));
+		logger.info("[{}] sourceSet: {} from {}", this, sourceSet, sourceImapUid);
 		return new CopyResult(sourceSet, start, end, target.folder.value.uidValidity);
 	}
 
@@ -881,31 +935,22 @@ public class MailApiConnection implements MailboxConnection {
 		}
 	}
 
-	private Map<Long, Integer> itemIdToSeqNum(IDbMailboxRecords recApi) {
-		List<Long> fullList = recApi.imapIdSet("1:*", "");
-		Map<Long, Integer> ret = new Long2IntOpenHashMap(2 * fullList.size());
-		Iterator<Long> uidIter = fullList.iterator();
-		for (int i = 1; uidIter.hasNext(); i++) {
-			ret.put(uidIter.next(), i);
-		}
-		return ret;
+	private SelectedMessage[] sequences(IDbMailboxRecords recApi) {
+		return recApi.imapIdSet("1:*", "").stream().map(r -> new SelectedMessage(r.imapUid, r.itemId))
+				.toArray(SelectedMessage[]::new);
 	}
 
 	@Override
-	public Map<Long, Integer> sequences(SelectedFolder sel) {
-		List<Long> itemIds = sel.recApi.imapIdSet("1:*", "");
-		Map<Long, Integer> uidToSeq = new Long2IntOpenHashMap(2 * itemIds.size());
-		Iterator<ImapBinding> bindings = sel.recApi.imapBindings(itemIds).iterator();
-		for (int i = 1; bindings.hasNext(); i++) {
-			uidToSeq.put(bindings.next().imapUid, i);
+	public List<Long> uidSet(SelectedFolder sel, ImapIdSet set, ItemFlagFilter filter, boolean onlyCheckpointed) {
+		if (set.setStyle == IdKind.SEQ_NUM) {
+			throw new UnsupportedOperationException("calling uidSet with a set of sequences is not supported");
 		}
-		return uidToSeq;
-	}
-
-	@Override
-	public List<Long> uidSet(SelectedFolder sel, String set, ItemFlagFilter filter) {
-		List<Long> itemIds = sel.recApi.imapIdSet(set, ItemFlagFilter.toQueryString(filter));
-		return sel.recApi.imapBindings(itemIds).stream().map(ib -> ib.imapUid).toList();
+		List<RawImapBinding> itemIds = sel.recApi.imapIdSet(set.serializedSet, ItemFlagFilter.toQueryString(filter));
+		Map<Long, Integer> indexedMessages = sel.imapUidToSeqNum();
+		return itemIds.stream()//
+				.map(ib -> ib.imapUid)//
+				.filter(imapUid -> !onlyCheckpointed || indexedMessages.containsKey(imapUid))//
+				.toList();
 	}
 
 }

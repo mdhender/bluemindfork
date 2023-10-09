@@ -27,9 +27,11 @@ import org.slf4j.LoggerFactory;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import net.bluemind.imap.endpoint.ImapContext;
+import net.bluemind.imap.endpoint.cmd.AnalyzedCommand;
 import net.bluemind.imap.endpoint.cmd.StatusCommand;
 import net.bluemind.imap.endpoint.driver.MailboxConnection;
 import net.bluemind.imap.endpoint.driver.SelectedFolder;
+import net.bluemind.imap.endpoint.locks.ISequenceReader;
 import net.bluemind.lib.jutf7.UTF7Converter;
 import net.bluemind.lib.vertx.Result;
 
@@ -51,7 +53,7 @@ import net.bluemind.lib.vertx.Result;
  * 
  *
  */
-public class StatusProcessor extends AuthenticatedCommandProcessor<StatusCommand> {
+public class StatusProcessor extends AuthenticatedCommandProcessor<StatusCommand> implements ISequenceReader {
 
 	private static final Logger logger = LoggerFactory.getLogger(StatusProcessor.class);
 
@@ -72,8 +74,7 @@ public class StatusProcessor extends AuthenticatedCommandProcessor<StatusCommand
 		resp.append(")\r\n");
 		resp.append(sc.raw().tag() + " OK Completed\r\n");
 
-		ctx.write(resp.toString());
-		completed.handle(Result.success());
+		ctx.write(resp.toString()).onComplete(completed);
 	}
 
 	private List<String> folderProperties(StatusCommand sc, SelectedFolder selected) {
@@ -111,6 +112,11 @@ public class StatusProcessor extends AuthenticatedCommandProcessor<StatusCommand
 	@Override
 	public Class<StatusCommand> handledType() {
 		return StatusCommand.class;
+	}
+
+	@Override
+	public SelectedFolder readFolder(AnalyzedCommand cmd, ImapContext ctx) {
+		return ctx.mailbox().select(((StatusCommand) cmd).folder());
 	}
 
 }

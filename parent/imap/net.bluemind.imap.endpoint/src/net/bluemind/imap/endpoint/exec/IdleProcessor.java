@@ -17,83 +17,109 @@
  */
 package net.bluemind.imap.endpoint.exec;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.AsyncResult;
-import io.vertx.core.Future;
 import io.vertx.core.Handler;
-import io.vertx.core.streams.WriteStream;
+import io.vertx.core.Promise;
 import net.bluemind.imap.endpoint.ImapContext;
 import net.bluemind.imap.endpoint.SessionState;
 import net.bluemind.imap.endpoint.cmd.IdleCommand;
-import net.bluemind.imap.endpoint.driver.IdleToken;
+import net.bluemind.imap.endpoint.driver.ImapIdSet;
+import net.bluemind.imap.endpoint.driver.MailPart;
+import net.bluemind.imap.endpoint.driver.MailPartBuilder;
+import net.bluemind.imap.endpoint.driver.MailboxConnection;
+import net.bluemind.imap.endpoint.driver.SelectedFolder;
+import net.bluemind.imap.endpoint.driver.SelectedMessage;
+import net.bluemind.imap.endpoint.locks.ISequenceCheckpoint;
+import net.bluemind.imap.endpoint.locks.MailboxSequenceLocks;
+import net.bluemind.imap.endpoint.locks.MailboxSequenceLocks.MailboxSeqLock;
+import net.bluemind.imap.endpoint.locks.MailboxSequenceLocks.OpCompletionListener;
 import net.bluemind.lib.vertx.Result;
 
 public class IdleProcessor extends AuthenticatedCommandProcessor<IdleCommand> {
 
 	private static final Logger logger = LoggerFactory.getLogger(IdleProcessor.class);
 
+	private final ISequenceCheckpoint idleCheckpointer = new ISequenceCheckpoint() {
+	};
+	private final List<MailPart> parts = List.of(MailPartBuilder.named("FLAGS"), MailPartBuilder.named("UID"));
+
 	@Override
 	public void checkedOperation(IdleCommand command, ImapContext ctx, Handler<AsyncResult<Void>> completed) {
 		ctx.idlingTag(command.raw().tag());
 		ctx.state(SessionState.IDLING);
-
-		IdleWriteStream output = new IdleWriteStream(ctx);
+		MailboxConnection mailbox = ctx.mailbox();
 		try {
-			ctx.mailbox().idleMonitor(ctx.selected(), output);
 			logger.info("Monitoring {}", ctx.selected());
 			ctx.write("+ idling\r\n");
-			completed.handle(Result.success());
+			onChange(command, ctx, mailbox, new SelectedMessage[0]).whenComplete((v, ex) -> {
+				if (ex != null) {
+					ctx.write(command.raw().tag() + " NO unknown error: " + ex.getMessage() + "\r\n");
+					completed.handle(Result.fail(ex));
+				} else {
+					mailbox.idleMonitor(ctx.selected(),
+							(SelectedMessage[] changed) -> onChange(command, ctx, mailbox, changed));
+					completed.handle(Result.success());
+				}
+			});
 		} catch (Exception e) {
 			ctx.write(command.raw().tag() + " NO unknown error: " + e.getMessage() + "\r\n");
 			completed.handle(Result.fail(e));
 		}
 	}
 
-	private static class IdleWriteStream implements WriteStream<IdleToken> {
+	private CompletableFuture<Void> onChange(IdleCommand command, ImapContext ctx, MailboxConnection mailbox,
+			SelectedMessage[] changed) {
+		MailboxSeqLock lockSupport = MailboxSequenceLocks.forMailbox(ctx.selected());
+		return lockSupport.withReadLock(ctx.vertxContext, IdleProcessor.this)
+				.thenCompose(lockedOp -> lockedCheckpoint(command, ctx, mailbox, changed, lockedOp));
+	}
 
-		private ImapContext ctx;
+	@SuppressWarnings("deprecation")
+	private CompletableFuture<Void> lockedCheckpoint(IdleCommand command, ImapContext ctx, MailboxConnection mailbox,
+			SelectedMessage[] changed, OpCompletionListener lockedOp) {
+		CompletableFuture<Void> cpComplete = new CompletableFuture<>();
+		ctx.vertxContext.executeBlocking((Promise<Void> prom) -> idleCheckpoint(command, ctx, mailbox, changed, prom),
+				true, ar -> {
+					if (ar.failed()) {
+						logger.error("{} idle error", command.raw().tag(), ar.cause());
+					}
+					ctx.vertxContext.runOnContext(v -> {
+						lockedOp.complete();
+						cpComplete.complete(null);
+					});
+				});
+		return cpComplete;
+	}
 
-		public IdleWriteStream(ImapContext ctx) {
-			this.ctx = ctx;
+	private void idleCheckpoint(IdleCommand command, ImapContext ctx, MailboxConnection mailbox,
+			SelectedMessage[] changed, Promise<Void> prom) {
+		StringBuilder sb = new StringBuilder();
+		idleCheckpointer.checkpointSequences(logger, "idle", sb, ctx);
+		SelectedFolder live = ctx.selected();
+		ctx.write(sb.toString());
+		logger.info("idle checkpoint for {}", live);
+		if (changed.length > 0) {
+			FetchedItemStream fetchStream = new FetchedItemStream(ctx, command.raw().tag() + " idle", parts);
+			ImapIdSet changeSet = ImapIdSet.uids(
+					Arrays.stream(changed).map(sm -> Long.toString(sm.imapUid())).collect(Collectors.joining(",")));
+			mailbox.fetch(live, changeSet, parts, fetchStream).whenComplete((done, ex) -> {
+				if (ex != null) {
+					prom.fail(ex);
+				} else {
+					prom.complete();
+				}
+			});
+		} else {
+			prom.complete();
 		}
-
-		@Override
-		public WriteStream<IdleToken> exceptionHandler(Handler<Throwable> handler) {
-			return this;
-		}
-
-		@Override
-		public Future<Void> write(IdleToken data) {
-			return ctx.write(data.toBuffer());
-		}
-
-		@Override
-		public void write(IdleToken data, Handler<AsyncResult<Void>> handler) {
-			ctx.write(data.toBuffer(), handler);
-		}
-
-		@Override
-		public void end(Handler<AsyncResult<Void>> handler) {
-			handler.handle(Result.success());
-		}
-
-		@Override
-		public WriteStream<IdleToken> setWriteQueueMaxSize(int maxSize) {
-			return this;
-		}
-
-		@Override
-		public boolean writeQueueFull() {
-			return ctx.socket().writeQueueFull();
-		}
-
-		@Override
-		public WriteStream<IdleToken> drainHandler(Handler<Void> handler) {
-			return this;
-		}
-
 	}
 
 	@Override

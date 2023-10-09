@@ -26,7 +26,6 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.core.container.api.ContainerHierarchyNode;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
@@ -83,8 +82,8 @@ public class ContainersHierarchyNodeStore extends AbstractItemValueStore<Contain
 		String select = "SELECT ci.id " //
 				+ "FROM t_container_hierarchy h " //
 				+ "JOIN t_container_item ci ON h.item_id = ci.id " //
-				+ "WHERE h.container_type = '" + IMailReplicaUids.MAILBOX_RECORDS //
-				+ "' AND ci.flags::bit(32) & (" //
+				+ "WHERE h.container_type = 'mailbox_records' " //
+				+ "AND ci.flags::bit(32) & (" //
 				+ ItemFlag.Deleted.value + ")::bit(32) = (" + ItemFlag.Deleted.value + ")::bit(32) " //
 				+ "AND ci.updated < (now() - interval '" + days + " days')";
 		List<Long> selected = select(select, rs -> rs.getLong(1), (rs, index, val) -> index);

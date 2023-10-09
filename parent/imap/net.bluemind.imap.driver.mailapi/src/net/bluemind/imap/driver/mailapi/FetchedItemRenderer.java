@@ -88,16 +88,19 @@ public class FetchedItemRenderer {
 	private final List<MailPart> fields;
 	private final IDbMessageBodies bodyApi;
 	private final IMailboxItems itemsApi;
+
+	private Set<String> knownLabels;
 	private static final Set<String> DEFAULT_HEADERS = Sets.newHashSet("From", "To", "Cc", "Subject", "Message-ID",
 			"Date", "Content-Type", "X-Bm-Event", "X-Bm-Todo", "X-BM-ResourceBooking", "X-BM-Event-Countered",
 			"X-BM-Event-Canceled", "X-BM-Event-Replied", "X-BM-FOLDERSHARING", "X-ASTERISK-CALLERID");
 
 	public FetchedItemRenderer(IDbMessageBodies bodyApi, IDbMailboxRecords recApi, IMailboxItems itemsApi,
-			List<MailPart> fields) {
+			List<MailPart> fields, Set<String> knownLabels) {
 		this.recApi = recApi;
 		this.fields = fields;
 		this.bodyApi = bodyApi;
 		this.itemsApi = itemsApi;
+		this.knownLabels = knownLabels;
 	}
 
 	public IDbMailboxRecords recApi() {
@@ -112,16 +115,16 @@ public class FetchedItemRenderer {
 			String upField = f.name.toUpperCase();
 			switch (upField) {
 			case "FLAGS":
-				String flags = rec.value.flags.stream().map(mif -> mif.flag).collect(Collectors.toSet()).stream()
-						.collect(Collectors.joining(" ", "(", ")"));
+				String flags = rec.value.flags.stream().map(mif -> mif.flag).filter(flag -> knownLabels.contains(flag))
+						.collect(Collectors.toSet()).stream().collect(Collectors.joining(" ", "(", ")"));
 				ret.put(f.toString(), Unpooled.wrappedBuffer(flags.getBytes()));
 				break;
 			case "UID":
 				// uid is auto-added by UidFetchProcessor
 				break;
 			case "INTERNALDATE":
-				ret.put(f.toString(), Unpooled
-						.wrappedBuffer(("\"" + DateUtil.toImapDateTime(rec.value.internalDate) + "\"").getBytes()));
+				String dateForImap = DateUtil.toImapDateTime(rec.value.internalDate);
+				ret.put(f.toString(), Unpooled.wrappedBuffer(("\"" + dateForImap + "\"").getBytes()));
 				break;
 			case "BODYSTRUCTURE":
 				BodyStructureRenderer bsr = new BodyStructureRenderer();

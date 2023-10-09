@@ -18,58 +18,23 @@
  */
 package net.bluemind.imap.endpoint.exec;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Verify;
-
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
-import net.bluemind.core.container.model.ItemFlag;
-import net.bluemind.core.container.model.ItemFlagFilter;
-import net.bluemind.imap.endpoint.ImapContext;
 import net.bluemind.imap.endpoint.cmd.ExpungeCommand;
 import net.bluemind.imap.endpoint.driver.ImapIdSet;
-import net.bluemind.imap.endpoint.driver.MailboxConnection;
-import net.bluemind.imap.endpoint.driver.SelectedFolder;
-import net.bluemind.imap.endpoint.driver.UpdateMode;
-import net.bluemind.lib.vertx.Result;
 
-public class ExpungeProcessor extends SelectedStateCommandProcessor<ExpungeCommand> {
-
-	private static final Logger logger = LoggerFactory.getLogger(ExpungeProcessor.class);
+public class ExpungeProcessor extends AbstractExpungeProcessor<ExpungeCommand> {
 
 	@Override
 	public Class<ExpungeCommand> handledType() {
 		return ExpungeCommand.class;
 	}
 
-	@Override
-	protected void checkedOperation(ExpungeCommand command, ImapContext ctx, Handler<AsyncResult<Void>> completed) {
-		MailboxConnection mailbox = ctx.mailbox();
-		SelectedFolder folder = ctx.selected();
-		Map<Long, Integer> uidToSequence = mailbox.sequences(folder);
-		List<Long> uids = mailbox.uidSet(folder, "1:*", ItemFlagFilter.create().must(ItemFlag.Deleted));
-		logger.info("{} imap visible message(s), {} to expunge", uidToSequence.size(), uids.size());
-		Verify.verifyNotNull(uids);
+	public ExpungeProcessor() {
+		super(true);
+	}
 
-		StringBuilder resps = new StringBuilder();
-		if (!uids.isEmpty()) {
-			ImapIdSet asSet = ImapIdSet.uids(uids.stream().map(Object::toString).collect(Collectors.joining(",")));
-			mailbox.updateFlags(folder, asSet, UpdateMode.Add, Collections.singletonList("\\Expunged"));
-			// imaptest does not yell if we don't tell it what was expunge
-			uids.stream().map(uidToSequence::get).filter(Objects::nonNull).sorted(Collections.reverseOrder())
-					.forEachOrdered(seq -> resps.append("* " + seq + " EXPUNGE\r\n"));
-		}
-		ctx.write(resps.toString() + command.raw().tag() + " OK Completed\r\n");
-		completed.handle(Result.success());
-		logger.debug("{} expunged.", folder);
+	@Override
+	protected ImapIdSet fromSet(ExpungeCommand command) {
+		return ImapIdSet.uids("1:*");
 	}
 
 }

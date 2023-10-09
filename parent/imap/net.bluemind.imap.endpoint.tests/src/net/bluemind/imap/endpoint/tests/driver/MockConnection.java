@@ -20,9 +20,9 @@ package net.bluemind.imap.endpoint.tests.driver;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -36,7 +36,6 @@ import net.bluemind.imap.endpoint.driver.AppendStatus;
 import net.bluemind.imap.endpoint.driver.AppendStatus.WriteStatus;
 import net.bluemind.imap.endpoint.driver.CopyResult;
 import net.bluemind.imap.endpoint.driver.FetchedItem;
-import net.bluemind.imap.endpoint.driver.IdleToken;
 import net.bluemind.imap.endpoint.driver.ImapIdSet;
 import net.bluemind.imap.endpoint.driver.ListNode;
 import net.bluemind.imap.endpoint.driver.MailPart;
@@ -44,6 +43,7 @@ import net.bluemind.imap.endpoint.driver.MailboxConnection;
 import net.bluemind.imap.endpoint.driver.NamespaceInfos;
 import net.bluemind.imap.endpoint.driver.QuotaRoot;
 import net.bluemind.imap.endpoint.driver.SelectedFolder;
+import net.bluemind.imap.endpoint.driver.SelectedMessage;
 import net.bluemind.imap.endpoint.driver.UpdateMode;
 
 public class MockConnection implements MailboxConnection {
@@ -114,7 +114,8 @@ public class MockConnection implements MailboxConnection {
 	}
 
 	@Override
-	public void idleMonitor(SelectedFolder selected, WriteStream<IdleToken> ctx) {
+	public void idleMonitor(SelectedFolder selected, Consumer<SelectedMessage[]> changesConsumer) {
+
 	}
 
 	@Override
@@ -122,13 +123,14 @@ public class MockConnection implements MailboxConnection {
 	}
 
 	@Override
-	public AppendStatus append(String folder, List<String> flags, Date deliveryDate, ByteBuf buffer) {
-		return new AppendStatus(WriteStatus.WRITTEN, 42L, 42L);
+	public AppendStatus append(SelectedFolder folder, List<String> flags, Date deliveryDate, ByteBuf buffer) {
+		return new AppendStatus(WriteStatus.WRITTEN, 42L, 42L, "deadbeef");
 	}
 
 	@Override
-	public void updateFlags(SelectedFolder sf, ImapIdSet idset, UpdateMode mode, List<String> flags) {
+	public long updateFlags(SelectedFolder sf, ImapIdSet idset, UpdateMode mode, List<String> flags) {
 		logger.info("[{}] Should update flags of {}", sf.folder.displayName, idset);
+		return sf.contentVersion;
 	}
 
 	@Override
@@ -137,8 +139,8 @@ public class MockConnection implements MailboxConnection {
 	}
 
 	@Override
-	public CopyResult copyTo(SelectedFolder source, String folder, String idset) {
-		return new CopyResult(idset, 42L, 42L, 123456);
+	public CopyResult copyTo(SelectedFolder source, String folder, ImapIdSet idset) {
+		return new CopyResult(idset.serializedSet, 42L, 42L, 123456);
 	}
 
 	@Override
@@ -193,12 +195,7 @@ public class MockConnection implements MailboxConnection {
 	}
 
 	@Override
-	public Map<Long, Integer> sequences(SelectedFolder sel) {
-		return Collections.emptyMap();
-	}
-
-	@Override
-	public List<Long> uidSet(SelectedFolder sel, String set, ItemFlagFilter filter) {
+	public List<Long> uidSet(SelectedFolder sel, ImapIdSet set, ItemFlagFilter filter, boolean onlyCheckpoint) {
 		return Collections.emptyList();
 	}
 

@@ -25,7 +25,6 @@ import io.vertx.core.Handler;
 import net.bluemind.imap.endpoint.ImapContext;
 import net.bluemind.imap.endpoint.SessionState;
 import net.bluemind.imap.endpoint.cmd.CloseCommand;
-import net.bluemind.lib.vertx.Result;
 
 public class CloseProcessor extends AuthenticatedCommandProcessor<CloseCommand> {
 
@@ -41,8 +40,7 @@ public class CloseProcessor extends AuthenticatedCommandProcessor<CloseCommand> 
 			ctx.selected(null);
 		}
 		sb.append(command.raw().tag()).append(" OK Completed\r\n");
-		ctx.write(sb.toString());
-		completed.handle(Result.success());
+		ctx.write(sb.toString()).onComplete(completed);
 	}
 
 	@Override

@@ -558,20 +558,6 @@ BEGIN
 END;
 $$;
 
--- Auto-removal of flags with no occurences
-CREATE OR REPLACE FUNCTION fct_mailbox_folder_flags_remove() RETURNS TRIGGER
-LANGUAGE plpgsql
-AS $$
-BEGIN
-    DELETE FROM t_mailbox_folder_flags WHERE container_id = NEW.container_id AND flag = NEW.flag;
-    RETURN NEW;
-END;
-$$;
-CREATE TRIGGER trigger_mailbox_folder_flags_zero AFTER UPDATE ON t_mailbox_folder_flags
-    FOR EACH ROW
-    WHEN (NEW.occurrence <= 0)
-    EXECUTE PROCEDURE fct_mailbox_folder_flags_remove();
-
 -- a non removed record was added
 CREATE TRIGGER
     trigger_mailbox_record_flag_inserted AFTER INSERT ON t_mailbox_record

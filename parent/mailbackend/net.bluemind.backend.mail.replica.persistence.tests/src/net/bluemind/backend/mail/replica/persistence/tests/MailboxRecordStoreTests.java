@@ -51,6 +51,7 @@ import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.ImapBinding;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.MailboxRecord.InternalFlag;
+import net.bluemind.backend.mail.replica.api.RawImapBinding;
 import net.bluemind.backend.mail.replica.persistence.MailboxRecordStore;
 import net.bluemind.backend.mail.replica.persistence.MessageBodyStore;
 import net.bluemind.core.api.fault.ServerFault;
@@ -214,7 +215,7 @@ public class MailboxRecordStoreTests {
 		assertNotNull(asBindings);
 		assertTrue(asBindings.isEmpty());
 
-		List<Long> set = boxRecordStore.imapIdset("1:*", ItemFlagFilter.all());
+		List<RawImapBinding> set = boxRecordStore.imapIdset("1:*", ItemFlagFilter.all());
 		assertEquals(0, set.size());
 		System.err.println("set: " + set);
 		set = boxRecordStore.imapIdset("42,43", ItemFlagFilter.all());
@@ -306,11 +307,11 @@ public class MailboxRecordStoreTests {
 		assertEquals("labels should have $Junk once only", boxRecordStore.labels().size(), 1);
 		assertEquals("labels should have $Junk once only", boxRecordStore.labels().get(0), "$Junk");
 
-		// expunge every record: label should be removed
+		// expunge every record: label should remain as its permanent
 		rec2 = boxRecordStore.get(mailboxRecordItems.get(1));
 		rec2.internalFlags = EnumSet.of(InternalFlag.expunged);
 		boxRecordStore.update(mailboxRecordItems.get(1), rec2);
-		assertTrue("labels should be empty", boxRecordStore.labels().isEmpty());
+		assertFalse("labels should not be empty", boxRecordStore.labels().isEmpty());
 	}
 
 	private MailboxRecord simpleRecord() {

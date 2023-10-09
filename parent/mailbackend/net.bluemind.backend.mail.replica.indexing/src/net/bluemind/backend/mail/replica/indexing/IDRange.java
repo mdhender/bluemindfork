@@ -27,6 +27,17 @@ public class IDRange implements Iterable<Long> {
 		return to;
 	}
 
+	public boolean contains(long l) {
+		if (from < 0 && to < 0) { // *:*
+			return true;
+		} else if (from > 0 && to > 0) { // 12:42
+			return l >= from && l <= to;
+		} else if (from > 0 && to < 0) { // 12:*
+			return l >= from;
+		}
+		throw new UnsupportedOperationException("don't know how to match in " + toString());
+	}
+
 	public String toString() {
 		if (isUnique()) {
 			return "" + from;

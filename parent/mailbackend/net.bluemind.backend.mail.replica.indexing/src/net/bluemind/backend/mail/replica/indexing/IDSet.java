@@ -106,6 +106,15 @@ public class IDSet implements Iterable<IDRange> {
 		return new IDSetIterator();
 	}
 
+	public boolean contains(long l) {
+		for (IDRange r : ranges) {
+			if (r.contains(l)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	private static final int SEQUENCE_STATE = 0;
 	private static final int RANGE_STATE = 1;
 

@@ -34,8 +34,8 @@ public interface CommandProcessor<T extends AnalyzedCommand> {
 			operation(casted, ctx, completed);
 		} catch (Exception e) {
 			// Uncatched exception: always respond
-			ctx.write(command.raw().tag() + " NO unknown error: " + e.getMessage() + "\r\n");
-			completed.handle(Result.fail(e));
+			ctx.write(command.raw().tag() + " NO unknown error: " + e.getMessage() + "\r\n")
+					.onComplete(writeAr -> completed.handle(Result.fail(e)));
 		}
 	}
 

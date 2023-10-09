@@ -30,4 +30,8 @@ public class MailPartBuilder {
 		return new MailPart(name, section, options, partial);
 	}
 
+	public static MailPart named(String n) {
+		return new MailPart(n, null, null, null);
+	}
+
 }

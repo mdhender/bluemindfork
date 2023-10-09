@@ -77,11 +77,11 @@ public interface IDbMailboxRecords extends IChangelogSupport, IDataShardSupport,
 
 	@POST
 	@Path("_imapUidSet")
-	List<Long> imapIdSet(String set, @QueryParam("filter") String filter);
+	List<RawImapBinding> imapIdSet(String set, @QueryParam("filter") String filter);
 
 	/**
 	 * Quick alternative to {@link IDbMailboxRecords#multipleGetById(List)}, this
-	 * one with not load ItemValue stuff. Body is not loaded.
+	 * one will not load ItemValue stuff. Body is not loaded.
 	 * 
 	 * @param ids
 	 * @return

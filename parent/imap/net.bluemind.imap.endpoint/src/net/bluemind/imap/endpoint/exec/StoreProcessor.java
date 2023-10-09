@@ -19,6 +19,9 @@ package net.bluemind.imap.endpoint.exec;
 
 import java.util.Collections;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.netty.buffer.Unpooled;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
@@ -26,10 +29,23 @@ import net.bluemind.imap.endpoint.ImapContext;
 import net.bluemind.imap.endpoint.cmd.FetchCommand;
 import net.bluemind.imap.endpoint.cmd.RawImapCommand;
 import net.bluemind.imap.endpoint.cmd.StoreCommand;
+import net.bluemind.imap.endpoint.locks.IFlagsCheckpoint;
+import net.bluemind.imap.endpoint.locks.ISequenceReader;
 import net.bluemind.imap.endpoint.parsing.Part;
-import net.bluemind.lib.vertx.Result;
 
-public class StoreProcessor extends SelectedStateCommandProcessor<StoreCommand> {
+/**
+ * <pre>
+ * . store 4 +flags permaCrap
+ * * FLAGS (\Answered \Flagged \Draft \Deleted \Seen permaCrap)
+ * * OK [PERMANENTFLAGS (\Answered \Flagged \Draft \Deleted \Seen permaCrap \*)] Ok
+ * * 4 FETCH (FLAGS (permaCrap))
+ * . OK Completed
+ * </pre>
+ */
+public class StoreProcessor extends SelectedStateCommandProcessor<StoreCommand>
+		implements ISequenceReader, IFlagsCheckpoint {
+
+	private static final Logger logger = LoggerFactory.getLogger(StoreProcessor.class);
 
 	@Override
 	public Class<StoreCommand> handledType() {
@@ -38,10 +54,13 @@ public class StoreProcessor extends SelectedStateCommandProcessor<StoreCommand> 
 
 	@Override
 	protected void checkedOperation(StoreCommand command, ImapContext ctx, Handler<AsyncResult<Void>> completed) {
-		ctx.mailbox().updateFlags(ctx.selected(), command.idset(), command.mode(), command.flags());
+		long newVersion = ctx.mailbox().updateFlags(ctx.selected(), command.idset(), command.mode(), command.flags());
+		ctx.nexus().dispatchSequencesChanged(ctx.mailbox(), command.raw().tag(), ctx.selected().folder.uid, newVersion);
+
 		if (command.silent()) {
-			ctx.write(command.raw().tag() + " OK Completed\r\n");
-			completed.handle(Result.success());
+			StringBuilder resp = new StringBuilder();
+			checkpointFlags(logger, command.raw().tag() + " store", ctx, resp);
+			ctx.write(resp.toString() + command.raw().tag() + " OK Completed\r\n").onComplete(completed);
 		} else {
 			String asFetch = command.raw().tag() + " FETCH " + command.idset().serializedSet + " (FLAGS)";
 			RawImapCommand raw = new RawImapCommand(

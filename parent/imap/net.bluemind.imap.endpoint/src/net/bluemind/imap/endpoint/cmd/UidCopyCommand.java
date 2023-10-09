@@ -21,13 +21,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.bluemind.imap.endpoint.EndpointRuntimeException;
+import net.bluemind.imap.endpoint.driver.ImapIdSet;
 import net.bluemind.lib.jutf7.UTF7Converter;
 
 public class UidCopyCommand extends AnalyzedCommand {
 
 	private static final Pattern fetchTemplate = Pattern.compile("uid copy ([^\\s]+) (.*)$", Pattern.CASE_INSENSITIVE);
 	private final String folder;
-	private final String idset;
+	private final ImapIdSet idset;
 
 	public UidCopyCommand(RawImapCommand raw) {
 		super(raw);
@@ -35,7 +36,7 @@ public class UidCopyCommand extends AnalyzedCommand {
 		Matcher m = fetchTemplate.matcher(fetch);
 
 		if (m.find()) {
-			idset = m.group(1);
+			idset = ImapIdSet.uids(m.group(1));
 			folder = UTF7Converter.decode(m.group(2).replace("\"", ""));
 		} else {
 			throw new EndpointRuntimeException("Cannot analyze copy cmd " + fetch);
@@ -46,7 +47,7 @@ public class UidCopyCommand extends AnalyzedCommand {
 		return folder;
 	}
 
-	public String idset() {
+	public ImapIdSet idset() {
 		return idset;
 	}
 

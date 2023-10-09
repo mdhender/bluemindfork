@@ -40,7 +40,7 @@ public class FullPlanTests extends MailApiTestsBase {
 	@Test
 	public void testFullPlan() {
 		DovecotImaptestRunner docker = ImaptestPlanBuilder.create()//
-				.duration(Duration.ofSeconds(10))//
+				.duration(Duration.ofSeconds(120))//
 				.logout(1)//
 				.clients(10)//
 				.user(userUid + "@" + domUid, userUid).build();

@@ -21,14 +21,10 @@ package net.bluemind.imap.endpoint.cmd;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.bluemind.imap.endpoint.EndpointRuntimeException;
 
 public class UidExpungeCommand extends AnalyzedCommand {
 
-	private static final Logger logger = LoggerFactory.getLogger(UidExpungeCommand.class);
 	private static final Pattern quotedString = Pattern.compile("uid expunge (.*)$", Pattern.CASE_INSENSITIVE);
 	private String idset;
 
@@ -43,7 +39,6 @@ public class UidExpungeCommand extends AnalyzedCommand {
 		Matcher match = quotedString.matcher(flat.fullCmd);
 		if (match.find()) {
 			this.idset = match.group(1);
-			logger.info("q: {}", idset);
 		} else {
 			throw new EndpointRuntimeException("unknown uid expunge format '" + flat.fullCmd + "'");
 		}

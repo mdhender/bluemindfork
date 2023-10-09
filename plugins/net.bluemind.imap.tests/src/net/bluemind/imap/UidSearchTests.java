@@ -1381,11 +1381,10 @@ public class UidSearchTests {
 	}
 
 	void setupBoxContentWithDates(int dateMinus700Days, int dateMinus20Days, int dateMinus15Days, int dateMinus10Days) {
-		IMAPByteSource ibs = getUtf8Rfc822Message();
 
 		try (StoreClient sc = newStore(false)) {
 			IntStream.range(0, dateMinus700Days).forEach((i) -> {
-				try {
+				try (IMAPByteSource ibs = getUtf8Rfc822Message()) {
 					sc.append("INBOX", ibs.source().openStream(), new FlagsList(),
 							Date.from(Instant.now().minus(700, ChronoUnit.DAYS)));
 				} catch (IOException e) {
@@ -1393,7 +1392,7 @@ public class UidSearchTests {
 				}
 			});
 			IntStream.range(0, dateMinus20Days).forEach((i) -> {
-				try {
+				try (IMAPByteSource ibs = getUtf8Rfc822Message()) {
 					sc.append("INBOX", ibs.source().openStream(), FlagsList.of(Arrays.asList(Flag.SEEN.toString())),
 							Date.from(Instant.now().minus(20, ChronoUnit.DAYS)));
 				} catch (IOException e) {
@@ -1401,7 +1400,7 @@ public class UidSearchTests {
 				}
 			});
 			IntStream.range(0, dateMinus15Days).forEach((i) -> {
-				try {
+				try (IMAPByteSource ibs = getUtf8Rfc822Message()) {
 					sc.append("INBOX", ibs.source().openStream(), FlagsList.of(Arrays.asList(Flag.ANSWERED.toString())),
 							Date.from(Instant.now().minus(15, ChronoUnit.DAYS)));
 				} catch (IOException e) {
@@ -1409,7 +1408,7 @@ public class UidSearchTests {
 				}
 			});
 			IntStream.range(0, dateMinus10Days).forEach((i) -> {
-				try {
+				try (IMAPByteSource ibs = getUtf8Rfc822Message()) {
 					sc.append("INBOX", ibs.source().openStream(), FlagsList.of(Arrays.asList(Flag.DRAFT.toString())),
 							Date.from(Instant.now().minus(10, ChronoUnit.DAYS)));
 				} catch (IOException e) {
@@ -1417,7 +1416,6 @@ public class UidSearchTests {
 				}
 			});
 		}
-		ibs.close();
 	}
 
 	void setupBoxContentWithSizes(int messageSize1, int messageSize10000) {

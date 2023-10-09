@@ -28,7 +28,6 @@ import net.bluemind.imap.endpoint.ImapContext;
 import net.bluemind.imap.endpoint.cmd.RenameCommand;
 import net.bluemind.imap.endpoint.driver.MailboxConnection;
 import net.bluemind.imap.endpoint.driver.SelectedFolder;
-import net.bluemind.lib.vertx.Result;
 
 public class RenameProcessor extends AuthenticatedCommandProcessor<RenameCommand> {
 	@Override
@@ -51,16 +50,15 @@ public class RenameProcessor extends AuthenticatedCommandProcessor<RenameCommand
 		}
 
 		if (!error.isBlank()) {
-			ctx.write(renameCommand.raw().tag() + " NO rename failure: " + error + "\r\n");
+			ctx.write(renameCommand.raw().tag() + " NO rename failure: " + error + "\r\n").onComplete(completed);
 		} else {
 			String newName = con.rename(renameCommand.srcFolder(), renameCommand.dstFolder());
 			if (newName != null) {
-				ctx.write(renameCommand.raw().tag() + " OK rename completed\r\n");
+				ctx.write(renameCommand.raw().tag() + " OK rename completed\r\n").onComplete(completed);
 			} else {
-				ctx.write(renameCommand.raw().tag() + " NO rename failed\r\n");
+				ctx.write(renameCommand.raw().tag() + " NO rename failed\r\n").onComplete(completed);
 			}
 		}
-		completed.handle(Result.success());
 	}
 
 }

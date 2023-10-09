@@ -27,6 +27,7 @@ import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.imap.endpoint.driver.ImapMailbox;
 import net.bluemind.imap.endpoint.driver.SelectedFolder;
+import net.bluemind.imap.endpoint.driver.SelectedMessage;
 import net.bluemind.mailbox.api.Mailbox;
 
 public class MockModel {
@@ -61,7 +62,8 @@ public class MockModel {
 		ImapMailbox imapBox = new ImapMailbox();
 		imapBox.owner = mbItem;
 
-		SelectedFolder sf = new SelectedFolder(imapBox, item, null, "part_bidon", 3, 1, List.of("NotJunk"));
+		SelectedFolder sf = new SelectedFolder(imapBox, item, null, "part_bidon", 3, 1, List.of("NotJunk"), 42L,
+				new SelectedMessage[0]);
 		folders.put(uid.toString(), sf);
 	}
 

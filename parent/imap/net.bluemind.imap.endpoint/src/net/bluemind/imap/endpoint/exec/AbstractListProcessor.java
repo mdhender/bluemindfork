@@ -30,7 +30,6 @@ import net.bluemind.imap.endpoint.cmd.AbstractListCommand;
 import net.bluemind.imap.endpoint.driver.ListNode;
 import net.bluemind.imap.endpoint.driver.MailboxConnection;
 import net.bluemind.lib.jutf7.UTF7Converter;
-import net.bluemind.lib.vertx.Result;
 
 /**
  * 
@@ -85,9 +84,7 @@ public abstract class AbstractListProcessor<T extends AbstractListCommand> exten
 		}
 		sb.append(sc.raw().tag() + " OK Completed\r\n");
 
-		ctx.write(sb.toString());
-
-		completed.handle(Result.success());
+		ctx.write(sb.toString()).onComplete(completed);
 	}
 
 	private void render(List<ListNode> folders, StringBuilder sb) {

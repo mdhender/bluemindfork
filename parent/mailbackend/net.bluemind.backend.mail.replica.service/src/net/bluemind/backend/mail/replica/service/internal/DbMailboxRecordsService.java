@@ -54,6 +54,7 @@ import net.bluemind.backend.mail.replica.api.ImapBinding;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.MailboxRecord.InternalFlag;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
+import net.bluemind.backend.mail.replica.api.RawImapBinding;
 import net.bluemind.backend.mail.replica.api.Weight;
 import net.bluemind.backend.mail.replica.api.WithId;
 import net.bluemind.backend.mail.replica.indexing.IDSet;
@@ -624,7 +625,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 	}
 
 	@Override
-	public List<Long> imapIdSet(String set, String filter) {
+	public List<RawImapBinding> imapIdSet(String set, String filter) {
 		boolean validSet = CharMatcher.inRange('0', '9').or(CharMatcher.anyOf(":,*")).matchesAllOf(set);
 		if (!validSet) {
 			throw new ServerFault("invalid idset '" + set + "'", ErrorCode.INVALID_PARAMETER);

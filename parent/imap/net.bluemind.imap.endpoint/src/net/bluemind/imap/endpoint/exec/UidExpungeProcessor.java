@@ -18,38 +18,26 @@
  */
 package net.bluemind.imap.endpoint.exec;
 
-import java.util.Collections;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
-import net.bluemind.imap.endpoint.ImapContext;
 import net.bluemind.imap.endpoint.cmd.UidExpungeCommand;
 import net.bluemind.imap.endpoint.driver.ImapIdSet;
-import net.bluemind.imap.endpoint.driver.UpdateMode;
-import net.bluemind.lib.vertx.Result;
+import net.bluemind.imap.endpoint.locks.ISequenceCheckpoint;
+import net.bluemind.imap.endpoint.locks.ISequenceWriter;
 
-public class UidExpungeProcessor extends SelectedStateCommandProcessor<UidExpungeCommand> {
-
-	private static final Logger logger = LoggerFactory.getLogger(UidExpungeProcessor.class);
+public class UidExpungeProcessor extends AbstractExpungeProcessor<UidExpungeCommand>
+		implements ISequenceWriter, ISequenceCheckpoint {
 
 	@Override
 	public Class<UidExpungeCommand> handledType() {
 		return UidExpungeCommand.class;
 	}
 
-	@Override
-	protected void checkedOperation(UidExpungeCommand command, ImapContext ctx, Handler<AsyncResult<Void>> completed) {
-		ctx.mailbox().updateFlags(ctx.selected(), ImapIdSet.uids(command.idset()), UpdateMode.Add,
-				Collections.singletonList("\\Expunged"));
-		ctx.write(command.raw().tag() + " OK Completed\r\n");
-		completed.handle(Result.success());
-		if (logger.isDebugEnabled()) {
-			logger.debug("Expunged {} in {}", command.idset(), ctx.selected());
-		}
+	public UidExpungeProcessor() {
+		super(false);
+	}
 
+	@Override
+	protected ImapIdSet fromSet(UidExpungeCommand command) {
+		return ImapIdSet.uids(command.idset());
 	}
 
 }

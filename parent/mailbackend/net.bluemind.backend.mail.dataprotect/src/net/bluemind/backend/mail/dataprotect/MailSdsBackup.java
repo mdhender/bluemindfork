@@ -256,8 +256,8 @@ public class MailSdsBackup {
 
 	private void generateSdsFolderContent(ItemValue<MailboxFolder> folder, JsonGenerator generator,
 			ISdsSyncStore productionStore, IDbMailboxRecords recordsApi) {
-		Lists.partition(recordsApi.imapIdSet("1:*", ""), 1000).stream().map(recordsApi::slice)
-				.flatMap(Collection::stream).forEach(irecord -> {
+		Lists.partition(recordsApi.imapIdSet("1:*", "").stream().map(r -> r.itemId).toList(), 1000).stream()
+				.map(recordsApi::slice).flatMap(Collection::stream).forEach(irecord -> {
 					String guid = irecord.value.messageBody;
 					Date date = irecord.value.internalDate;
 					// This is just a safety against broken databases, not encountered in real life

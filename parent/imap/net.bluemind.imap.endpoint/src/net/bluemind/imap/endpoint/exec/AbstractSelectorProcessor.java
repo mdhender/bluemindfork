@@ -32,12 +32,13 @@ import io.vertx.core.Handler;
 import net.bluemind.imap.endpoint.ImapContext;
 import net.bluemind.imap.endpoint.SessionState;
 import net.bluemind.imap.endpoint.cmd.AbstractFolderNameCommand;
+import net.bluemind.imap.endpoint.cmd.AnalyzedCommand;
 import net.bluemind.imap.endpoint.driver.MailboxConnection;
 import net.bluemind.imap.endpoint.driver.SelectedFolder;
-import net.bluemind.lib.vertx.Result;
+import net.bluemind.imap.endpoint.locks.ISequenceReader;
 
 public abstract class AbstractSelectorProcessor<T extends AbstractFolderNameCommand>
-		extends AuthenticatedCommandProcessor<T> {
+		extends AuthenticatedCommandProcessor<T> implements ISequenceReader {
 	private static final Logger logger = LoggerFactory.getLogger(AbstractSelectorProcessor.class);
 
 	protected boolean isAlwaysReadOnly() {
@@ -71,13 +72,11 @@ public abstract class AbstractSelectorProcessor<T extends AbstractFolderNameComm
 
 		ctx.state(SessionState.SELECTED);
 		ctx.selected(selected);
-		ctx.write(resp.toString());
+		ctx.write(resp.toString()).onComplete(completed);
 		time = System.currentTimeMillis() - time;
 		if (logger.isInfoEnabled()) {
 			logger.info("Selected in {}ms {} => {} ", time, sc.folder(), selected.folder);
 		}
-
-		completed.handle(Result.success());
 	}
 
 	private String extraLabels(SelectedFolder selected) {
@@ -89,6 +88,11 @@ public abstract class AbstractSelectorProcessor<T extends AbstractFolderNameComm
 		}
 	}
 
+	@Override
+	public SelectedFolder readFolder(AnalyzedCommand cmd, ImapContext ctx) {
+		return ctx.mailbox().select(((AbstractFolderNameCommand) cmd).folder());
+	}
+
 	private void missingFolder(T sc, ImapContext ctx, Handler<AsyncResult<Void>> completed) {
 
 		if (ctx.state() == SessionState.SELECTED) {
@@ -96,8 +100,6 @@ public abstract class AbstractSelectorProcessor<T extends AbstractFolderNameComm
 			ctx.selected(null);
 			ctx.write("* OK [CLOSED] Ok\r\n");
 		}
-		ctx.write(sc.raw().tag() + " NO Mailbox does not exist\r\n");
-
-		completed.handle(Result.success());
+		ctx.write(sc.raw().tag() + " NO Mailbox does not exist\r\n").onComplete(completed);
 	}
 }

@@ -22,8 +22,8 @@ import org.slf4j.LoggerFactory;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
-import io.vertx.core.buffer.Buffer;
 import net.bluemind.imap.endpoint.ImapContext;
+import net.bluemind.imap.endpoint.StopProcessingException;
 import net.bluemind.imap.endpoint.cmd.LogoutCommand;
 import net.bluemind.lib.vertx.Result;
 
@@ -33,17 +33,15 @@ public class LogoutProcessor implements CommandProcessor<LogoutCommand> {
 
 	@Override
 	public void operation(LogoutCommand command, ImapContext ctx, Handler<AsyncResult<Void>> completed) {
-		// We do this here, because Vert.x does something strange, by closing the
-		// NetSocket, before sending the buffer if we do it using a writePromise()
-		// through the eventBus. So we do it manually instead here
-		ctx.socket().write(Buffer.buffer("* BYE\r\n" + command.raw().tag() + " OK Completed\r\n"), ar -> {
+		ctx.write("* BYE\r\n" + command.raw().tag() + " OK Completed\r\n").onComplete(writeAr -> {
 			logger.info("{} Logged-out", ctx);
-			if (ar.succeeded()) {
-				completed.handle(Result.success());
-			} else {
-				completed.handle(Result.fail(ar.cause()));
-			}
 			ctx.close();
+			if (writeAr.succeeded()) {
+				// imaptest might have commands pipelined after logout
+				completed.handle(Result.fail(new StopProcessingException("explicit logout " + command.raw().tag())));
+			} else {
+				completed.handle(Result.fail(writeAr.cause()));
+			}
 		});
 	}
 

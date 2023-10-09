@@ -183,7 +183,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 	@Override
 	public void expunge() {
 		IDbMailboxRecords writer = writeDelegate.get();
-		List<Long> toExpunge = writer.imapIdSet("1:*", "+deleted");
+		List<Long> toExpunge = writer.imapIdSet("1:*", "+deleted").stream().map(r -> r.itemId).toList();
 		for (List<Long> slice : Lists.partition(toExpunge, 1024)) {
 			List<MailboxRecord> recs = writer.slice(slice).stream().map(iv -> iv.value).collect(Collectors.toList());// NOSONAR
 			for (MailboxRecord item : recs) {

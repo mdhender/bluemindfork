@@ -52,10 +52,12 @@ public class ImapRequestParser {
 	public ImapRequestParser(Handler<RawImapCommand> parsedCmdHandler) {
 		this.cmdHandler = parsedCmdHandler;
 		parts = new ArrayDeque<>();
+		if (logger.isDebugEnabled()) {
+			logger.debug("parser created with handler {}", parsedCmdHandler);
+		}
 	}
 
 	public void parse(Part p) {
-		logger.debug("Got {}", p);
 		Part current = p;
 
 		// merge literals as single part

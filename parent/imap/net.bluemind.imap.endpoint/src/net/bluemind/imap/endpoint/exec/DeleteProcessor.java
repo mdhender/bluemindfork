@@ -27,7 +27,6 @@ import io.vertx.core.Handler;
 import net.bluemind.imap.endpoint.ImapContext;
 import net.bluemind.imap.endpoint.cmd.DeleteCommand;
 import net.bluemind.imap.endpoint.driver.MailboxConnection;
-import net.bluemind.lib.vertx.Result;
 
 public class DeleteProcessor extends AuthenticatedCommandProcessor<DeleteCommand> {
 	@Override
@@ -41,11 +40,10 @@ public class DeleteProcessor extends AuthenticatedCommandProcessor<DeleteCommand
 		MailboxConnection con = ctx.mailbox();
 		boolean success = con.delete(deleteCommand.folder());
 		if (success) {
-			ctx.write(deleteCommand.raw().tag() + " OK delete completed\r\n");
+			ctx.write(deleteCommand.raw().tag() + " OK delete completed\r\n").onComplete(completed);
 		} else {
-			ctx.write(deleteCommand.raw().tag() + " NO delete failed\r\n");
+			ctx.write(deleteCommand.raw().tag() + " NO delete failed\r\n").onComplete(completed);
 		}
-		completed.handle(Result.success());
 	}
 
 }

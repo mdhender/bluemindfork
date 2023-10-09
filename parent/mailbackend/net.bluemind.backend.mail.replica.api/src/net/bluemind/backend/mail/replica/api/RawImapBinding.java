@@ -25,12 +25,20 @@ package net.bluemind.backend.mail.replica.api;
 import net.bluemind.core.api.BMApi;
 
 @BMApi(version = "3")
-public class ImapBinding extends RawImapBinding {
+public class RawImapBinding {
 
-	public String bodyGuid;
+	public long itemId;
+	public long imapUid;
 
 	@Override
 	public String toString() {
-		return "ImapBinding{id: " + itemId + ", uid: " + imapUid + ", body: " + bodyGuid + "}";
+		return "RawBinding{id: " + itemId + ", uid: " + imapUid + "}";
+	}
+
+	public static RawImapBinding of(long imapUid, long internalId) {
+		RawImapBinding raw = new RawImapBinding();
+		raw.imapUid = imapUid;
+		raw.itemId = internalId;
+		return raw;
 	}
 }

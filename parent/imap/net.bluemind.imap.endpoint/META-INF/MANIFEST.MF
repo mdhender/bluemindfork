@@ -19,12 +19,14 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.lib.jutf7,
  net.bluemind.metrics.registry,
  com.typesafe.config;visibility:=reexport,
- com.github.ben-manes.caffeine
+ com.github.ben-manes.caffeine,
+ it.unimi.dsi.fastutil
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.imap.endpoint
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.imap.endpoint,
  net.bluemind.imap.endpoint.cmd,
  net.bluemind.imap.endpoint.driver,
+ net.bluemind.imap.endpoint.locks,
  net.bluemind.imap.endpoint.parsing,
  net.bluemind.imap.endpoint.ratelimiter

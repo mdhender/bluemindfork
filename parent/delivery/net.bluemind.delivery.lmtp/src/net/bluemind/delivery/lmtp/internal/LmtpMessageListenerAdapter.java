@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.subethamail.smtp.MessageContext;
 import org.subethamail.smtp.MessageHandler;
@@ -28,12 +29,15 @@ import org.subethamail.smtp.MessageHandlerFactory;
 import org.subethamail.smtp.RejectException;
 
 import net.bluemind.delivery.lmtp.MmapRewindStream;
+import net.bluemind.hornetq.client.MQ;
+import net.bluemind.hornetq.client.MQ.SharedMap;
+import net.bluemind.hornetq.client.Shared;
 import net.bluemind.system.api.SysConfKeys;
-import net.bluemind.system.sysconf.helper.LocalSysconfCache;
 
 public class LmtpMessageListenerAdapter implements MessageHandlerFactory {
 
 	private final LmtpListener delegate;
+	private final SharedMap<String, String> sysconfMap;
 	private static final int DEFAULT_MESSAGE_SIZE_LIMIT = 10 * 1024 * 1024; // 10485760L
 
 	/**
@@ -42,6 +46,7 @@ public class LmtpMessageListenerAdapter implements MessageHandlerFactory {
 	 * @param listener {@link LmtpListener}
 	 */
 	public LmtpMessageListenerAdapter(LmtpListener listener) {
+		this.sysconfMap = MQ.sharedMap(Shared.MAP_SYSCONF);
 		this.delegate = listener;
 	}
 
@@ -101,10 +106,13 @@ public class LmtpMessageListenerAdapter implements MessageHandlerFactory {
 			lmtpData(data);
 		}
 
+		private int maxMsgSize() {
+			return Optional.ofNullable(sysconfMap.get(SysConfKeys.message_size_limit.name())).map(Integer::parseInt)
+					.orElse(DEFAULT_MESSAGE_SIZE_LIMIT);
+		}
+
 		public List<RecipientDeliveryStatus> lmtpData(InputStream data) throws IOException {
-			Integer messageMaxSize = LocalSysconfCache.get().integerValue(SysConfKeys.message_size_limit.name());
-			MmapRewindStream stream = new MmapRewindStream(data,
-					messageMaxSize == null ? DEFAULT_MESSAGE_SIZE_LIMIT : messageMaxSize);
+			MmapRewindStream stream = new MmapRewindStream(data, maxMsgSize());
 
 			List<RecipientDeliveryStatus> result = new ArrayList<>(deliveries.size());
 			for (Delivery delivery : deliveries) {

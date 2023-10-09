@@ -18,6 +18,8 @@
 package net.bluemind.imap.endpoint.exec;
 
 import java.nio.channels.ClosedChannelException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -28,9 +30,16 @@ import com.google.common.base.Stopwatch;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
 import net.bluemind.imap.endpoint.ImapContext;
+import net.bluemind.imap.endpoint.StopProcessingException;
 import net.bluemind.imap.endpoint.cmd.AnalyzedCommand;
 import net.bluemind.imap.endpoint.cmd.RawCommandAnalyzer;
 import net.bluemind.imap.endpoint.cmd.RawImapCommand;
+import net.bluemind.imap.endpoint.driver.SelectedFolder;
+import net.bluemind.imap.endpoint.locks.ISequenceReader;
+import net.bluemind.imap.endpoint.locks.ISequenceWriter;
+import net.bluemind.imap.endpoint.locks.MailboxSequenceLocks;
+import net.bluemind.imap.endpoint.locks.MailboxSequenceLocks.MailboxSeqLock;
+import net.bluemind.imap.endpoint.locks.MailboxSequenceLocks.OpCompletionListener;
 
 public class ImapCommandHandler implements Handler<RawImapCommand> {
 
@@ -38,10 +47,12 @@ public class ImapCommandHandler implements Handler<RawImapCommand> {
 
 	private final RawCommandAnalyzer anal;
 	private final ImapContext ctx;
+	private CompletableFuture<?> parentOp;
 
 	public ImapCommandHandler(ImapContext ctx) {
 		this.ctx = ctx;
 		this.anal = new RawCommandAnalyzer();
+		this.parentOp = null;
 	}
 
 	@Override
@@ -75,27 +86,82 @@ public class ImapCommandHandler implements Handler<RawImapCommand> {
 	}
 
 	private void processCommand(CommandProcessor<?> proc, AnalyzedCommand analyzedCmd) {
-		Stopwatch chrono = Stopwatch.createStarted();
+		// we chain the promises to ensure correct execution ordering with async
+		// processors (eg. Fetch). Completion is done on vertx context so "isDone" can't
+		// change while testing it here.
+		if (parentOp == null || parentOp.isDone()) {
+			parentOp = blockingCall(proc, analyzedCmd);
+		} else {
+			parentOp = parentOp.thenCompose(v -> blockingCall(proc, analyzedCmd));
+		}
+	}
+
+	private CompletableFuture<Void> blockingCall(CommandProcessor<?> proc, AnalyzedCommand analyzedCmd) {
+		String lockReason = proc.toString() + "{" + analyzedCmd.raw().tag() + "}";
+		return grabRequiredLock(proc, analyzedCmd, lockReason)
+				.thenCompose(opListener -> blockingCallLocked(opListener, proc, analyzedCmd))
+				.thenAccept(OpCompletionListener::complete);
+	}
+
+	@SuppressWarnings("deprecation")
+	private CompletableFuture<OpCompletionListener> blockingCallLocked(OpCompletionListener op,
+			CommandProcessor<?> proc, AnalyzedCommand analyzedCmd) {
+		// we need the deprecated form of execute blocking as processors invoke blocking
+		// API calls but will complete in an asynchronous way
+		CompletableFuture<OpCompletionListener> comp = new CompletableFuture<>();
+
 		ctx.vertxContext.executeBlocking((Promise<Void> prom) -> {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Processing {}", analyzedCmd);
-			}
-			proc.process(analyzedCmd, ctx, ar -> {
-				if (ar.failed()) {
-					prom.fail(ar.cause());
+			Stopwatch chrono = Stopwatch.createStarted();
+			proc.process(analyzedCmd, ctx, over -> {
+				if (over.failed()) {
+					prom.fail(over.cause());
 				} else {
 					prom.complete();
+					long ms = chrono.elapsed(TimeUnit.MILLISECONDS);
+					logger.info("[{}] {} {} execution took {}ms.", ctx, analyzedCmd.raw().tag(), proc, ms);
 				}
 			});
-		}, true).andThen(ar -> {
+		}, true, ar -> {
 			if (ar.failed()) {
 				Throwable t = ar.cause();
+				if (t instanceof CompletionException ce) {
+					t = ce.getCause();
+				}
+				if (t instanceof StopProcessingException stop) {
+					ctx.vertxContext.runOnContext(v -> {
+						// unlock & stop processing further commands
+						op.complete();
+						logger.info("Abort processing after {}", stop.getMessage());
+						comp.completeExceptionally(stop);
+
+					});
+					return;
+				}
 				if (!(t instanceof ClosedChannelException)) {
-					logger.error("Command {} processing failed", analyzedCmd, t);
+					logger.error("Command {} - {} processing failed", analyzedCmd.raw().tag(), proc, t);
 				}
 			}
-			long ms = chrono.elapsed(TimeUnit.MILLISECONDS);
-			logger.info("[{}] {} execution took {}ms.", ctx, proc, ms);
+			ctx.vertxContext.runOnContext(v -> comp.complete(op));
+		});
+		return comp;
+	}
+
+	private CompletableFuture<OpCompletionListener> grabRequiredLock(CommandProcessor<?> proc, AnalyzedCommand cmd,
+			Object reason) {
+		if (proc instanceof ISequenceWriter writer) {
+			// copy command writes something in folder B but reads from A. We would need 2
+			// locks...
+			SelectedFolder written = writer.modifiedFolder(cmd, ctx);
+			MailboxSeqLock locks = MailboxSequenceLocks.forMailbox(written);
+			return locks.withWriteLock(ctx.vertxContext, reason);
+		}
+		if (proc instanceof ISequenceReader reader) {
+			SelectedFolder read = reader.readFolder(cmd, ctx);
+			MailboxSeqLock locks = MailboxSequenceLocks.forMailbox(read);
+			return locks.withReadLock(ctx.vertxContext, reason);
+		}
+
+		return CompletableFuture.completedFuture(() -> {
 		});
 	}
 

@@ -17,17 +17,25 @@
  */
 package net.bluemind.imap.endpoint.exec;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
-import io.vertx.core.buffer.Buffer;
 import net.bluemind.imap.endpoint.ImapContext;
 import net.bluemind.imap.endpoint.cmd.NoopCommand;
+import net.bluemind.imap.endpoint.locks.ISequenceCheckpoint;
+import net.bluemind.imap.endpoint.locks.ISequenceReader;
 
-public class NoopProcessor implements CommandProcessor<NoopCommand> {
+public class NoopProcessor implements CommandProcessor<NoopCommand>, ISequenceReader, ISequenceCheckpoint {
+
+	private static final Logger logger = LoggerFactory.getLogger(NoopProcessor.class);
 
 	@Override
 	public void operation(NoopCommand command, ImapContext ctx, Handler<AsyncResult<Void>> completed) {
-		ctx.write(Buffer.buffer(command.raw().tag() + " OK Completed\r\n"), completed);
+		StringBuilder resps = new StringBuilder();
+		checkpointSequences(logger, command.raw().tag() + " noop", resps, ctx);
+		ctx.write(resps.toString() + command.raw().tag() + " OK Completed\r\n").onComplete(completed);
 	}
 
 	@Override

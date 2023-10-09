@@ -20,13 +20,19 @@ package net.bluemind.imap.endpoint.driver;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
 import io.netty.buffer.ByteBuf;
 import io.vertx.core.streams.WriteStream;
 import net.bluemind.core.container.model.ItemFlagFilter;
 
+/**
+ * 
+ */
+/**
+ * 
+ */
 public interface MailboxConnection {
 
 	String login();
@@ -35,6 +41,10 @@ public interface MailboxConnection {
 	 * Folders operations
 	 */
 	SelectedFolder select(String fName);
+
+	default SelectedFolder refreshed(SelectedFolder saved) {
+		return saved;
+	}
 
 	String create(String fName);
 
@@ -56,24 +66,41 @@ public interface MailboxConnection {
 
 	QuotaRoot quota(SelectedFolder selected);
 
-	AppendStatus append(String folder, List<String> flags, Date deliveryDate, ByteBuf buffer);
+	AppendStatus append(SelectedFolder target, List<String> flags, Date deliveryDate, ByteBuf buffer);
 
-	void updateFlags(SelectedFolder sf, ImapIdSet idset, UpdateMode mode, List<String> flags);
+	/**
+	 * @param sf
+	 * @param idset
+	 * @param mode
+	 * @param flags
+	 * @return a new content version for the selected folder
+	 */
+	long updateFlags(SelectedFolder sf, ImapIdSet idset, UpdateMode mode, List<String> flags);
 
 	int maxLiteralSize();
 
-	CopyResult copyTo(SelectedFolder source, String folder, String idset);
+	CopyResult copyTo(SelectedFolder source, String folder, ImapIdSet idset);
 
 	List<Long> uids(SelectedFolder sel, String query);
 
-	Map<Long, Integer> sequences(SelectedFolder sel);
-
-	List<Long> uidSet(SelectedFolder sel, String set, ItemFlagFilter filter);
+	/**
+	 * Filter over item flags the given set. If onlyCheckpointed is set, only the
+	 * sequences visible to the folder will be eligible.
+	 * 
+	 * Returns a list of imap uids suitable for updating flags.
+	 * 
+	 * @param sel
+	 * @param set
+	 * @param filter
+	 * @param onlyCheckpointed
+	 * @return
+	 */
+	List<Long> uidSet(SelectedFolder sel, ImapIdSet set, ItemFlagFilter filter, boolean onlyCheckpointed);
 
 	/*
 	 * Imap system stuff
 	 */
-	void idleMonitor(SelectedFolder selected, WriteStream<IdleToken> ctx);
+	void idleMonitor(SelectedFolder selected, Consumer<SelectedMessage[]> changesConsumer);
 
 	void notIdle();
 
