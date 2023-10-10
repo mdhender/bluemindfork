@@ -5,15 +5,10 @@ self.addEventListener("install", function (event) {
 });
 
 self.addEventListener("fetch", function (event) {
-    event.respondWith(serve(event.request));
-});
-
-async function serve(request) {
-    if (/\/api\/mailboxes\/.*\/_unread$/.test(request.url)) {
-        return fromUnreadCache(request);
+    if (/\/api\/mailboxes\/.*\/_unread$/.test(event.request.url)) {
+        event.respondWith(fromUnreadCache(event.request));
     }
-    return fetch(request);
-}
+});
 
 async function fromUnreadCache(request) {
     const cache = await caches.open("bm-api-legacy");
