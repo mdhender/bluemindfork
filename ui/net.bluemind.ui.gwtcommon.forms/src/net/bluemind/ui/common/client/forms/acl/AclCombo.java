@@ -52,9 +52,6 @@ public class AclCombo extends Composite {
 			combo.addItem(constants.aclAccess(), "access");
 			items.put("access", items.size());
 
-			combo.addItem(constants.aclSendOnBehalf(), "send-on-behalf");
-			items.put("read", items.size());
-
 			combo.addItem(constants.aclRead(), "read");
 			items.put("read", items.size());
 
@@ -67,10 +64,6 @@ public class AclCombo extends Composite {
 			if (values.containsKey("access")) {
 				combo.addItem(values.get("access"), "access");
 				items.put("access", items.size());
-			}
-			if (values.containsKey("send-on-behalf")) {
-				combo.addItem(values.get("send-on-behalf"), "send-on-behalf");
-				items.put("send-on-behalf", items.size());
 			}
 			if (values.containsKey("read")) {
 				combo.addItem(values.get("read"), "read");

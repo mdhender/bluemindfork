@@ -188,7 +188,8 @@ public class BookManagement extends CommonForm implements ICommonEditor {
 																					resetForm();
 																					form.getElement()
 																							.dispatchEvent(Document
-																									.get().createHtmlEvent(
+																									.get()
+																									.createHtmlEvent(
 																											"refresh-container",
 																											true,
 																											true));

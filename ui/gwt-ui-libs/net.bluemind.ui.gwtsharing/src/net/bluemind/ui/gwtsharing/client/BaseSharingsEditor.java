@@ -135,9 +135,6 @@ public class BaseSharingsEditor extends CompositeGwtWidgetElement {
 						verbs.put("admin", constants.aclBookAdmin());
 					}
 				} else if ("mailboxacl".equals(type)) {
-					if (!value.ownerDirEntryPath.startsWith(value.domainUid + "/groups/")) {
-						verbs.put("send-on-behalf", constants.aclMailSendOnBehalf());
-					}
 					verbs.put("read", constants.aclMailRead());
 					if (!value.readOnly) {
 						verbs.put("write", constants.aclMailWrite());
@@ -203,7 +200,6 @@ public class BaseSharingsEditor extends CompositeGwtWidgetElement {
 			verbs.put("write", constants.aclBookWrite());
 			verbs.put("admin", constants.aclBookAdmin());
 		} else if ("mailboxacl".equals(type)) {
-			verbs.put("send-on-behalf", constants.aclMailSendOnBehalf());
 			verbs.put("read", constants.aclMailRead());
 			verbs.put("write", constants.aclMailWrite());
 			verbs.put("admin", constants.aclMailAdmin());

@@ -54,7 +54,6 @@ public class MailboxSharingEditor extends BaseSharingEditor implements IMailboxS
 		Map<String, String> verbs = new HashMap<>();
 		AclConstants constants = GWT.create(AclConstants.class);
 
-		verbs.put("send-on-behalf", constants.aclMailSendOnBehalf());
 		verbs.put("read", constants.aclMailRead());
 		verbs.put("write", constants.aclMailWrite());
 		verbs.put("admin", constants.aclMailAdmin());

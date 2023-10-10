@@ -45,8 +45,6 @@ public interface AclConstants extends Messages {
 
 	String aclAccess();
 
-	String aclSendOnBehalf();
-
 	String aclRead();
 
 	String aclWrite();
@@ -104,8 +102,6 @@ public interface AclConstants extends Messages {
 	String aclFreebusyRead();
 
 	String aclFreebusyAdmin();
-
-	String aclMailSendOnBehalf();
 
 	String aclMailRead();
 

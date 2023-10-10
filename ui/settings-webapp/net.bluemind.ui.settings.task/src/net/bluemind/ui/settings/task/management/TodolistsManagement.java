@@ -138,10 +138,8 @@ public class TodolistsManagement extends CommonForm implements ICommonEditor {
 
 		final String uid = GUID.get();
 		// FIXME addressbookMgmt should autosubscribe owner if owner is user
-		tdMgmt.create(
-				uid, ContainerDescriptor.create(uid, label.getText(), Ajax.TOKEN.getSubject(),
-						ITodoUids.TYPE, Ajax.TOKEN.getContainerUid(), false),
-				new DefaultAsyncHandler<Void>() {
+		tdMgmt.create(uid, ContainerDescriptor.create(uid, label.getText(), Ajax.TOKEN.getSubject(), ITodoUids.TYPE,
+				Ajax.TOKEN.getContainerUid(), false), new DefaultAsyncHandler<Void>() {
 
 					@Override
 					public void success(Void value) {

@@ -70,20 +70,20 @@ public abstract class BaseSharingModelHandler implements IGwtModelHandler {
 	}
 
 	private native void error(String message) /*-{
-												window.console.error(message);
-												}-*/;
+		window.console.error(message);
+	}-*/;
 
 	private native void warn(String message) /*-{
-												window.console.warn(message);
-												}-*/;
+		window.console.warn(message);
+	}-*/;
 
 	private native void info(String message) /*-{
-												window.console.info(message);
-												}-*/;
+		window.console.info(message);
+	}-*/;
 
 	private native void log(String message) /*-{
-											window.console.log(message);
-											}-*/;
+		window.console.log(message);
+	}-*/;
 
 	@Override
 	public void save(JavaScriptObject model, final AsyncHandler<Void> handler) {
