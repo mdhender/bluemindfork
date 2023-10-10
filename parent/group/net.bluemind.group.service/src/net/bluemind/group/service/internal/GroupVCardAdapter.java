@@ -69,26 +69,25 @@ public class GroupVCardAdapter extends AbstractVCardAdapter<Group> {
 		vcard.explanatory.note = group.description;
 
 		IDirectory dir = context.provider().instance(IDirectory.class, domain.uid);
-		List<Member> members = getMembers(uid);
-		if (!group.hiddenMembers && members.size() < 512) {
+		if (!group.hiddenMembers) {
+			List<Member> members = getMembers(uid);
+			if (members.size() < 512) {
+				vcard.organizational.member = new ArrayList<>(members.size());
+				for (Member member : members) {
+					DirEntry entry = dir.findByEntryUid(member.uid);
 
-			vcard.organizational.member = new ArrayList<>(members.size());
-			for (Member member : members) {
-				DirEntry entry = dir.findByEntryUid(member.uid);
-
-				if (entry != null && !entry.archived) {
-					vcard.organizational.member.add(VCard.Organizational.Member.create("addressbook_" + domain.uid,
-							member.uid, entry.displayName, entry.email));
-				} else if (entry != null && entry.archived) {
-					logger.debug("entry {} is archive, not in group vcard", entry.path);
-				} else {
-					logger.warn("did not found member {} for group {}@{}", member.uid, uid, domain.uid);
+					if (entry != null && !entry.archived) {
+						vcard.organizational.member.add(VCard.Organizational.Member.create("addressbook_" + domain.uid,
+								member.uid, entry.displayName, entry.email));
+					} else if (entry != null && entry.archived) {
+						logger.debug("entry {} is archive, not in group vcard", entry.path);
+					} else {
+						logger.warn("did not found member {} for group {}@{}", member.uid, uid, domain.uid);
+					}
 				}
 			}
 		}
-
 		vcard.communications.emails = getEmails(domain, group.emails);
-
 		return vcard;
 	}
 
