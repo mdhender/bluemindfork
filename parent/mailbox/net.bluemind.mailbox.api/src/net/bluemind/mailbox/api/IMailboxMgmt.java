@@ -36,7 +36,7 @@ import net.bluemind.server.api.Server;
 public interface IMailboxMgmt {
 
 	/**
-	 * consolidate a single mailbox index
+	 * consolidate a single mailbox alias
 	 * 
 	 * @param mailboxUid
 	 * @return
@@ -47,7 +47,7 @@ public interface IMailboxMgmt {
 	public TaskRef consolidateMailbox(@PathParam("mailboxUid") String mailboxUid) throws ServerFault;
 
 	/**
-	 * reset a single mailbox index
+	 * reset a single mailbox alias
 	 * 
 	 * @param mailboxUid
 	 * @return
@@ -56,6 +56,17 @@ public interface IMailboxMgmt {
 	@POST
 	@Path("{mailboxUid}/_reset")
 	public TaskRef resetMailbox(@PathParam("mailboxUid") String mailboxUid) throws ServerFault;
+
+	/**
+	 * respawn a single mailbox alias into a new shard
+	 * 
+	 * @param mailboxUid
+	 * @return
+	 * @throws ServerFault
+	 */
+	@POST
+	@Path("{mailboxUid}/_respawn")
+	public TaskRef respawnMailbox(@PathParam("mailboxUid") String mailboxUid) throws ServerFault;
 
 	/**
 	 * reindex all domain mailboxes

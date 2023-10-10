@@ -67,7 +67,7 @@ public class MailboxMgmt implements IMailboxMgmt {
 	}
 
 	@Override
-	public TaskRef consolidateMailbox(final String mailboxUid) throws ServerFault {
+	public TaskRef consolidateMailbox(String mailboxUid) throws ServerFault {
 		rbacManager.forEntry(mailboxUid).check(BasicRoles.ROLE_MANAGE_MAILBOX);
 
 		return context.provider().instance(ITasksManager.class).run(new BlockingServerTask() {
@@ -83,7 +83,7 @@ public class MailboxMgmt implements IMailboxMgmt {
 	}
 
 	@Override
-	public TaskRef resetMailbox(final String mailboxUid) throws ServerFault {
+	public TaskRef resetMailbox(String mailboxUid) throws ServerFault {
 		rbacManager.forEntry(mailboxUid).check(BasicRoles.ROLE_MANAGE_MAILBOX);
 
 		return context.provider().instance(ITasksManager.class).run(new BlockingServerTask() {
@@ -95,6 +95,24 @@ public class MailboxMgmt implements IMailboxMgmt {
 				monitor.end(true, "", "" + deletedRecords);
 			}
 		});
+	}
+
+	@Override
+	public TaskRef respawnMailbox(String mailboxUid) throws ServerFault {
+		rbacManager.forEntry(mailboxUid).check(BasicRoles.ROLE_MANAGE_MAILBOX);
+
+		return context.provider().instance(ITasksManager.class).run(new BlockingServerTask() {
+
+			@Override
+			public void run(IServerTaskMonitor monitor) throws Exception {
+				RecordIndexActivator.getIndexer().ifPresentOrElse(indexer -> {
+					indexer.deleteMailbox(mailboxUid);
+					BoxIndexing mailboxIndexer = new BoxIndexing(domainUid);
+					mailboxIndexer.resync(getMailboxItem(mailboxUid), monitor);
+				}, () -> new ServerFault("RecordIndexActivator is missing, consider restarting core"));
+			}
+		});
+
 	}
 
 	private ItemValue<Mailbox> getMailboxItem(String mailboxUid) throws ServerFault {

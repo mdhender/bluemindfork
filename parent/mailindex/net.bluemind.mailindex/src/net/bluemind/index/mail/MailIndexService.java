@@ -666,11 +666,13 @@ public class MailIndexService implements IMailIndexService {
 					.waitForCompletion(false) //
 					.source(s -> s //
 							.index(fromIndex) //
+							.size(1000) //
 							.query(q -> q.hasChild(c -> c //
 									.type(CHILD_TYPE) //
 									.query(f -> f.term(t -> t.field("owner").value(mailboxUid))) //
 									.scoreMode(ChildScoreMode.None)))) //
 					.dest(d -> d.index(toIndex).opType(OpType.Index)) //
+					.scroll(s -> s.time("1d")) //
 					.conflicts(Conflicts.Proceed));
 			Status parentStatus = taskMonitor.waitForCompletion(parentResponse.task());
 			if (!parentStatus.failures().isEmpty()) {
@@ -682,8 +684,11 @@ public class MailIndexService implements IMailIndexService {
 			ReindexResponse childResponse = esClient.reindex(r -> r //
 					.waitForCompletion(false) //
 					.refresh(true) //
-					.source(s -> s.index(fromIndex).query(q -> q.term(t -> t.field("owner").value(mailboxUid)))) //
+					.source(s -> s.index(fromIndex) //
+							.size(1000) //
+							.query(q -> q.term(t -> t.field("owner").value(mailboxUid)))) //
 					.dest(d -> d.index(toIndex).opType(OpType.Index)) //
+					.scroll(s -> s.time("1d")) //
 					.conflicts(Conflicts.Proceed));
 			Status childStatus = taskMonitor.waitForCompletion(childResponse.task());
 			if (!childStatus.failures().isEmpty()) {
