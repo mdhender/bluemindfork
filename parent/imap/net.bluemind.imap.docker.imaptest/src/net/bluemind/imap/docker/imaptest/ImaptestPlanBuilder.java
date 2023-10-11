@@ -49,7 +49,7 @@ public class ImaptestPlanBuilder {
 
 	public DovecotImaptestRunner build() {
 		String cmd = buildCommand();
-		return new DovecotImaptestRunner(cmd);
+		return new DovecotImaptestRunner(cmd, Duration.ofSeconds(duration.toSeconds() + 10));
 	}
 
 	public String buildCommand() {

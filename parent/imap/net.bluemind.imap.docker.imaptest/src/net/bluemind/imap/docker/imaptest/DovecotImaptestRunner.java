@@ -18,6 +18,7 @@
  */
 package net.bluemind.imap.docker.imaptest;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
@@ -48,13 +49,13 @@ public class DovecotImaptestRunner extends GenericContainer<DovecotImaptestRunne
 
 	private final ImapTestOutputConsumer consumer;
 
-	DovecotImaptestRunner(String cmd) {
+	DovecotImaptestRunner(String cmd, Duration duration) {
 		super("docker.bluemind.net/bluemind/imaptest:5.0.4859");
 
 		withCommand(cmd);
 		this.consumer = new ImapTestOutputConsumer();
 		withLogConsumer(consumer);
-		setStartupCheckStrategy(new OneShotStartupCheckStrategy());
+		setStartupCheckStrategy(new OneShotStartupCheckStrategy().withTimeout(duration));
 	}
 
 	@Override
