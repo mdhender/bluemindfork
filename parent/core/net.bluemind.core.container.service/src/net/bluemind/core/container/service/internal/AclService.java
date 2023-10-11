@@ -60,31 +60,47 @@ public class AclService implements IAccessControlList {
 	}
 
 	@Override
-	public void store(final List<AccessControlEntry> entries) throws ServerFault, SQLException {
-		entries.forEach(auditLog::logCreate);
-		aclStore.store(container, entries);
+	public void store(final List<AccessControlEntry> entries) {
+		try {
+			entries.forEach(auditLog::logCreate);
+			aclStore.store(container, entries);
+		} catch (SQLException e) {
+			throw ServerFault.sqlFault(e);
+		}
 	}
 
 	@Override
-	public void add(final List<AccessControlEntry> entries) throws SQLException {
-		entries.forEach(auditLog::logCreate);
-		aclStore.add(container, entries);
+	public void add(final List<AccessControlEntry> entries) {
+		try {
+			entries.forEach(auditLog::logCreate);
+			aclStore.add(container, entries);
+		} catch (SQLException e) {
+			throw ServerFault.sqlFault(e);
+		}
 	}
 
 	@Override
-	public List<AccessControlEntry> get() throws SQLException {
-		return aclStore.get(container);
+	public List<AccessControlEntry> get() {
+		try {
+			return aclStore.get(container);
+		} catch (SQLException e) {
+			throw ServerFault.sqlFault(e);
+		}
 	}
 
 	@Override
-	public void deleteAll() throws SQLException {
-		List<AccessControlEntry> entries = aclStore.get(container);
-		entries.forEach(auditLog::logDelete);
-		aclStore.deleteAll(container);
+	public void deleteAll() {
+		try {
+			List<AccessControlEntry> entries = aclStore.get(container);
+			entries.forEach(auditLog::logDelete);
+			aclStore.deleteAll(container);
+		} catch (SQLException e) {
+			throw ServerFault.sqlFault(e);
+		}
 	}
 
 	@Override
-	public List<AccessControlEntry> retrieveAndStore(List<AccessControlEntry> entries) throws ServerFault {
+	public List<AccessControlEntry> retrieveAndStore(List<AccessControlEntry> entries) {
 		try {
 			List<AccessControlEntry> oldEntries = aclStore.retrieveAndStore(container, entries);
 			entries.stream().filter(e -> !oldEntries.contains(e)).forEach(e -> auditLog.logUpdate(e, null));

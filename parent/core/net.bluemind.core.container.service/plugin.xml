@@ -105,4 +105,10 @@
             api="net.bluemind.core.auditlogs.api.ILogRequestService">
       </endpoint>
    </extension>
+   <extension
+         point="net.bluemind.core.sanitizerfactory">
+      <sanitizerfactory
+            implementation="net.bluemind.core.container.service.acl.ContainerAclSanitizer$ContainerAclSanitizerFactory">
+      </sanitizerfactory>
+   </extension>
 </plugin>

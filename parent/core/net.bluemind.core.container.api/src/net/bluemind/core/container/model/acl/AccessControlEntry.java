@@ -86,6 +86,10 @@ public class AccessControlEntry {
 		return true;
 	}
 
+	public Verb getVerb() {
+		return verb;
+	}
+
 	public String getSubject() {
 		return subject;
 	}

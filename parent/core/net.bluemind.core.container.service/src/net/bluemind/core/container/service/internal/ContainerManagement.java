@@ -21,9 +21,12 @@ package net.bluemind.core.container.service.internal;
 import static net.bluemind.core.container.service.internal.ReadOnlyMode.checkWritable;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
@@ -49,6 +52,7 @@ import net.bluemind.core.container.persistence.ContainerSettingsStore;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.container.persistence.ItemStore;
+import net.bluemind.core.container.service.acl.ContainerAcl;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.sanitizer.Sanitizer;
@@ -133,8 +137,19 @@ public class ContainerManagement implements IInternalContainerManagement {
 
 		ContainerDescriptor descriptor = ContainerDescriptor.create(container.uid, container.name, container.owner,
 				container.type, container.domainUid, false);
-		List<AccessControlEntry> previous = aclService.retrieveAndStore(entries);
 
+		List<AccessControlEntry> previous = aclService.get();
+		ContainerAcl currentContainerAcl = new ContainerAcl(new HashSet<>(entries));
+		sanitizer.update(new ContainerAcl(previous.stream().collect(Collectors.toSet())), currentContainerAcl);
+		entries = new ArrayList<>(currentContainerAcl.acl());
+		aclService.store(entries);
+		hookAfterUpdate(entries, sendNotification, descriptor, previous);
+
+		eventProducer().changed(container.type, container.uid);
+	}
+
+	private void hookAfterUpdate(List<AccessControlEntry> entries, boolean sendNotification,
+			ContainerDescriptor descriptor, List<AccessControlEntry> previous) {
 		hooks.stream() //
 				.filter(hook -> sendNotification || !(hook instanceof AbstractEmailHook)) //
 				.forEach(hook -> {
@@ -142,22 +157,16 @@ public class ContainerManagement implements IInternalContainerManagement {
 						hook.onAclChanged(context, descriptor, Collections.unmodifiableList(previous),
 								Collections.unmodifiableList(entries));
 					} catch (Exception e) {
-						logger.error("error executing hook on setACL (container {}@{})", container.uid,
+						logger.error("error executing hook on setACL after update (container {}@{})", container.uid,
 								container.domainUid, e);
 					}
 				});
-
-		eventProducer().changed(container.type, container.uid);
 	}
 
 	@Override
 	public List<AccessControlEntry> getAccessControlList() throws ServerFault {
 		rbacManager.check(Verb.Manage.name());
-		try {
-			return aclService.get();
-		} catch (SQLException e) {
-			throw ServerFault.sqlFault(e);
-		}
+		return aclService.get();
 	}
 
 	@Override

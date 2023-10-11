@@ -19,20 +19,18 @@
 
 package net.bluemind.core.container.api.internal;
 
-import java.sql.SQLException;
 import java.util.List;
 
-import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 
 public interface IAccessControlList {
-	public void store(final List<AccessControlEntry> entries) throws SQLException, ServerFault;
+	public void store(final List<AccessControlEntry> entries);
 
-	public void add(final List<AccessControlEntry> entries) throws SQLException;
+	public void add(final List<AccessControlEntry> entries);
 
-	public List<AccessControlEntry> get() throws SQLException;
+	public List<AccessControlEntry> get();
 
-	public void deleteAll() throws SQLException;
+	public void deleteAll();
 
-	public List<AccessControlEntry> retrieveAndStore(List<AccessControlEntry> entries) throws ServerFault;
+	public List<AccessControlEntry> retrieveAndStore(List<AccessControlEntry> entries);
 }

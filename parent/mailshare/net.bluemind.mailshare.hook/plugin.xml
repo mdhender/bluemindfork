@@ -3,4 +3,11 @@
 <plugin>
    <extension-point id="net.bluemind.mailshare.hook.mailsharehook" name="mailsharehook" schema="schema/net.bluemind.mailshare.hook.mailsharehook.exsd"/>
 
+   <extension
+         point="net.bluemind.core.container.hooks.aclhook">
+      <acl_hook
+            impl="net.bluemind.mailshare.hook.MailshareAclHook">
+      </acl_hook>
+   </extension>
+   
 </plugin>
