@@ -2,16 +2,22 @@
     <div class="contact" :class="{ 'no-avatar': noAvatar }">
         <a
             :id="uniqueId"
-            class="btn btn-link"
-            role="button"
-            :class="{ 'avatar-on-left': !noAvatar && !expandable, invalid, 'text-truncate': textTruncate }"
+            :role="enableCard ? 'button' : 'none'"
+            :class="{
+                btn: enableCard,
+                'btn-link': enableCard,
+                'no-hover': !enableCard,
+                'avatar-on-left': !noAvatar && !expandable,
+                invalid,
+                'text-truncate': textTruncate
+            }"
             tabindex="0"
             @click="showContactCard = !showContactCard"
             @keypress.enter="showContactCard = !showContactCard"
             @keydown.tab.exact="showContactCard ? focusPopover() : undefined"
             @keydown.tab.shift="showContactCard ? (showContactCard = false) : undefined"
         >
-            <div v-if="transparent || noText" class="transparent-contact" :title="tooltip">
+            <div v-if="transparent || noText" class="transparent-contact h-100" :title="tooltip">
                 <template v-if="!noAvatar">
                     <bm-avatar
                         :size="avatarSize"
@@ -263,6 +269,9 @@ $avatar-text-gap: $sp-4;
 
     a.btn {
         text-decoration: none;
+    }
+    a.no-hover:hover {
+        color: inherit !important;
     }
 }
 </style>

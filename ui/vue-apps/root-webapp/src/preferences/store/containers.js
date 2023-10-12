@@ -6,6 +6,7 @@ import {
 } from "../../components/preferences/fields/customs/ContainersManagement/container";
 import { Verb } from "@bluemind/core.container.api";
 import { inject } from "@bluemind/inject";
+import Vue from "vue";
 
 const state = {
     myCalendars: [],
@@ -15,7 +16,8 @@ const state = {
     myAddressbooks: [],
     otherAddressbooks: [], // includes addressbooks I subscribe to and those I manage (excluding mine)
     myTodoLists: [],
-    otherTodoLists: []
+    otherTodoLists: [],
+    acls: {}
 };
 
 const actions = {
@@ -39,6 +41,14 @@ const actions = {
         );
         const subscriptions = containers.map(containerToSubscription);
         commit("ADD_SUBSCRIPTIONS", subscriptions);
+    },
+    async FETCH_ACL({ commit }, containerUid) {
+        const acl = await inject("ContainerManagementPersistence", containerUid).getAccessControlList();
+        commit("SET_ACL", { containerUid, acl });
+        return acl;
+    },
+    async FETCH_ACL_IF_NOT_LOADED({ state, dispatch }, containerUid) {
+        return state.acls[containerUid] || (await dispatch("FETCH_ACL", containerUid));
     }
 };
 
@@ -172,6 +182,11 @@ const mutations = {
         if (index !== -1) {
             state.otherTodoLists.splice(index, 1, todoList);
         }
+    },
+
+    //acl
+    SET_ACL: (state, { containerUid, acl }) => {
+        Vue.set(state.acls, containerUid, acl);
     }
 };
 

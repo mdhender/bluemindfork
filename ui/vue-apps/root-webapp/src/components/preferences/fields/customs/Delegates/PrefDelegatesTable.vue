@@ -10,19 +10,20 @@ import { inject } from "@bluemind/inject";
 import store from "@bluemind/store";
 import { matchPattern } from "@bluemind/string";
 import { BmFormInput, BmIcon, BmIconButton, BmModal, BmPagination, BmTable } from "@bluemind/ui-components";
-import {
-    acls,
+import { useDelegation } from "./delegation";
+
+const {
     Container,
+    delegates,
+    delegationTypes,
+    fetchAcls,
     getCalendarRight,
     getContactsRight,
     getMessageRight,
     getTodoListRight,
-    delegates,
-    fetchAcls,
     hasCopyImipMailboxRuleAction,
-    removeDelegate,
-    Right
-} from "./delegation";
+    removeDelegate
+} = useDelegation();
 
 const perPage = ref(5);
 const currentPage = ref(1);
@@ -36,26 +37,18 @@ const fields = computed(() => {
         class: "contact-cell",
         sortable: true
     });
-    if (acls.value.calendar.acl) {
-        fields.push({
-            key: "calendarRight",
-            label: i18nInstance.t("common.application.calendar"),
-            class: "right-cell calendar-right-cell"
-        });
-    }
-    if (acls.value.todoList.acl) {
-        fields.push({ key: "todoListRight", label: i18nInstance.t("common.application.tasks"), class: "right-cell" });
-    }
-    if (acls.value.mailbox.acl) {
-        fields.push({ key: "messageRight", label: i18nInstance.t("common.application.webmail"), class: "right-cell" });
-    }
-    if (acls.value.addressBook.acl) {
-        fields.push({
-            key: "contactsRight",
-            label: i18nInstance.t("common.application.contacts"),
-            class: "right-cell"
-        });
-    }
+    fields.push({
+        key: "calendarRight",
+        label: i18nInstance.t("common.application.calendar"),
+        class: "right-cell calendar-right-cell"
+    });
+    fields.push({ key: "todoListRight", label: i18nInstance.t("common.application.tasks"), class: "right-cell" });
+    fields.push({ key: "messageRight", label: i18nInstance.t("common.application.webmail"), class: "right-cell" });
+    fields.push({
+        key: "contactsRight",
+        label: i18nInstance.t("common.application.contacts"),
+        class: "right-cell"
+    });
     fields.push({ key: "edit", label: "", class: "edit-cell" });
     return fields;
 });
@@ -82,7 +75,8 @@ watchEffect(async () => {
         todoListRight: getTodoListRight(uid),
         messageRight: getMessageRight(uid),
         contactsRight: getContactsRight(uid),
-        hasCopyImip: await hasCopyImipMailboxRuleAction(uid)
+        hasCopyImip: hasCopyImipMailboxRuleAction(uid),
+        isSendAs: delegationTypes.value[uid] === Verb.SendAs
     }));
 
     items.value = await Promise.all(promises);
@@ -123,7 +117,10 @@ const remove = async contact => {
             sort-by="contact"
         >
             <template #cell(contact)="cell">
-                <contact :contact="cell.value" transparent bold enable-card />
+                <div class="d-flex align-items-center">
+                    <contact :contact="cell.value" transparent bold enable-card />
+                    <bm-icon v-if="cell.item.isSendAs" icon="user-outline" class="ml-4" />
+                </div>
             </template>
             <template #cell(calendarRight)="cell">
                 <div class="d-flex align-items-center pr-5">
@@ -132,13 +129,13 @@ const remove = async contact => {
                 </div>
             </template>
             <template #cell(todoListRight)="cell">
-                {{ cell.value.shortText(Container.TODO_LIST) }}
+                {{ cell.value.shortText() }}
             </template>
             <template #cell(messageRight)="cell">
-                {{ cell.value.shortText(Container.MAILBOX) }}
+                {{ cell.value.shortText() }}
             </template>
             <template #cell(contactsRight)="cell">
-                {{ cell.value.shortText(Container.CONTACTS) }}
+                {{ cell.value.shortText() }}
             </template>
             <template #cell(edit)="cell">
                 <div>
@@ -179,7 +176,6 @@ const remove = async contact => {
         overflow: hidden;
     }
     td.contact-cell {
-        padding-top: base-px-to-rem(8) !important;
         > .contact {
             max-width: 100%;
         }

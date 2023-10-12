@@ -2,23 +2,21 @@
 import { ref, watchEffect } from "vue";
 import { ERROR, SUCCESS } from "@bluemind/alert.store";
 import store from "@bluemind/store";
-import {
-    acls,
-    countDelegatesHavingTheCopyImipRule,
-    delegates,
-    delegations,
-    receiveImipOptions,
-    computeReceiveImipOption,
-    updateReceiveImipOption,
-    useDelegation
-} from "./delegation";
+import { useDelegation } from "./delegation";
 import { Verb } from "@bluemind/core.container.api";
 import { BmButton, BmFormGroup, BmFormRadioGroup, BmFormRadio, BmIcon, BmReadMore } from "@bluemind/ui-components";
 import PrefDelegatesModal from "./PrefDelegatesModal";
 import PrefDelegatesTable from "./PrefDelegatesTable";
 import { SAVE_ALERT } from "../../../Alerts/defaultAlerts";
 
-useDelegation();
+const {
+    countDelegatesHavingTheCopyImipRule,
+    delegates,
+    receiveImipOptions,
+    computeReceiveImipOption,
+    updateReceiveImipOption
+} = useDelegation();
+
 const delegate = ref();
 const showEditForm = ref(false);
 
@@ -58,12 +56,12 @@ watchEffect(() => {
 <template>
     <div class="pref-delegates">
         <p>{{ $t("preferences.account.delegates.description") }}</p>
-        <p v-if="!delegations.length">{{ $t("preferences.account.delegates.none") }}</p>
+        <p v-if="!Object.keys(delegates).length">{{ $t("preferences.account.delegates.none") }}</p>
         <pref-delegates-table v-else @edit="editDelegate" />
         <bm-button icon="plus" variant="outline" size="lg" class="mb-5" @click="createDelegate">
             {{ $t("preferences.account.delegates.create") }}
         </bm-button>
-        <template v-if="delegations.length">
+        <template v-if="Object.keys(delegates).length">
             <div class="d-flex align-items-center pt-4">
                 <bm-icon icon="open-envelope" class="mr-4" />
                 {{

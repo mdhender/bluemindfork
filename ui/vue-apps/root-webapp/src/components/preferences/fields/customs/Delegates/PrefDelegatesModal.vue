@@ -26,15 +26,33 @@
                 {{ $t("preferences.account.delegates.delegate") }}
             </bm-label-icon>
         </contact-input>
-        <bm-form-radio-group v-model="delegationRight" class="py-4">
+        <bm-form-radio-group v-model="delegationRight" class="py-4" :disabled="!selectedDelegate">
             <bm-form-radio :value="Verb.SendOnBehalf">
                 {{ $t("preferences.account.delegates.edit.send_on_behalf") }}
             </bm-form-radio>
-            <!-- TODO: uncomment once implemented
             <bm-form-radio :value="Verb.SendAs">
                 {{ $t("preferences.account.delegates.edit.send_as") }}<bm-icon class="pl-4" icon="user-outline" />
-            </bm-form-radio> -->
+            </bm-form-radio>
         </bm-form-radio-group>
+        <div class="delegation-notice">
+            <div class="delegation-notice-label">
+                {{ $t("preferences.account.delegates.edit.notice.label") }}
+            </div>
+            <div class="d-flex align-items-center my-4">
+                <contact :contact="userAsContact" transparent bold-dn />
+                <span v-if="delegationRight === Verb.SendOnBehalf" class="ml-3">
+                    <i18n path="preferences.account.delegates.edit.notice.send_by">
+                        <template #delegate>
+                            <span class="font-weight-bold">{{
+                                selectedDelegate
+                                    ? selectedContacts[0].dn
+                                    : $t("preferences.account.delegates.edit.notice.send_by.placeholder")
+                            }}</span>
+                        </template>
+                    </i18n>
+                </span>
+            </div>
+        </div>
         <!-- Calendars -->
         <div class="pt-2 pb-4">
             <div class="d-flex align-items-center">
@@ -44,6 +62,7 @@
             </div>
             <bm-form-select
                 v-model="calendarRight"
+                :disabled="!selectedDelegate"
                 :auto-min-width="false"
                 class="my-4"
                 :options="rights(Container.CALENDAR)"
@@ -54,7 +73,7 @@
             />
             <bm-form-checkbox
                 v-model="copyImipToDelegate"
-                :disabled="!calendarRightSufficientForCopyImipOption"
+                :disabled="!selectedDelegate || !calendarRightSufficientForCopyImipOption"
                 @change="copyImipToDelegateChanged = true"
             >
                 {{ $t("preferences.account.delegates.calendar.invitations") }}
@@ -72,6 +91,7 @@
             </div>
             <bm-form-select
                 v-model="todoListRight"
+                :disabled="!selectedDelegate"
                 :auto-min-width="false"
                 class="my-4"
                 :options="rights(Container.TODO_LIST)"
@@ -87,6 +107,7 @@
             </div>
             <bm-form-select
                 v-model="messageRight"
+                :disabled="!selectedDelegate"
                 :auto-min-width="false"
                 class="my-4"
                 :options="rights(Container.MAILBOX)"
@@ -102,6 +123,7 @@
             </div>
             <bm-form-select
                 v-model="contactsRight"
+                :disabled="!selectedDelegate"
                 :auto-min-width="false"
                 class="my-4"
                 :options="rights(Container.CONTACTS)"
@@ -133,6 +155,7 @@ import { Verb } from "@bluemind/core.container.api";
 import { BaseDirEntry } from "@bluemind/directory.api";
 import { mapExtensions } from "@bluemind/extensions";
 import { inject } from "@bluemind/inject";
+import BmRoles from "@bluemind/roles";
 import {
     BmButton,
     BmFormCheckbox,
@@ -143,25 +166,10 @@ import {
     BmLabelIcon,
     BmModal
 } from "@bluemind/ui-components";
+import { Contact } from "@bluemind/business-components";
 import BmAppIcon from "../../../../BmAppIcon";
 import { SAVE_ALERT } from "../../../Alerts/defaultAlerts";
-import {
-    acls,
-    aclToRight,
-    addDelegateToCopyImipMailboxRule,
-    Container,
-    delegates,
-    delegations,
-    fetchAcls,
-    hasCopyImipMailboxRuleAction,
-    removeDelegateFromCopyImipMailboxRule,
-    Right,
-    rightToAcl,
-    setCalendarAcl,
-    setContactsAcl,
-    setMailboxAcl,
-    setTodoListAcl
-} from "./delegation";
+import { useDelegation } from "./delegation";
 
 const apps = mapExtensions("net.bluemind.webapp", ["application"]).application;
 const findAppFn = bundle => apps?.find(({ $bundle }) => $bundle === bundle);
@@ -182,12 +190,55 @@ export default {
         BmIcon,
         BmLabelIcon,
         BmModal,
+        Contact,
         ContactInput
     },
     props: {
         delegate: { type: String, default: undefined },
         visible: { type: Boolean, default: false },
         receiveImipOption: { type: Number, required: true }
+    },
+    setup() {
+        const {
+            aclToRight,
+            addDelegateToCopyImipMailboxRule,
+            Container,
+            delegates,
+            delegationTypes,
+            fetchAcls,
+            getCalendarAcl,
+            getContactsAcl,
+            getMailboxAcl,
+            getTodoListAcl,
+            hasCopyImipMailboxRuleAction,
+            removeDelegateFromCopyImipMailboxRule,
+            Right,
+            rightToAcl,
+            setCalendarAcl,
+            setContactsAcl,
+            setMailboxAcl,
+            setTodoListAcl
+        } = useDelegation();
+        return {
+            aclToRight,
+            addDelegateToCopyImipMailboxRule,
+            Container,
+            delegates,
+            delegationTypes,
+            fetchAcls,
+            getCalendarAcl,
+            getContactsAcl,
+            getMailboxAcl,
+            getTodoListAcl,
+            hasCopyImipMailboxRuleAction,
+            removeDelegateFromCopyImipMailboxRule,
+            Right,
+            rightToAcl,
+            setCalendarAcl,
+            setContactsAcl,
+            setMailboxAcl,
+            setTodoListAcl
+        };
     },
     data() {
         return {
@@ -196,7 +247,6 @@ export default {
             calendarRight: undefined,
             contactsApp,
             contactsRight: undefined,
-            Container,
             containerRightsChanged: false,
             copyImipToDelegate: undefined,
             copyImipToDelegateChanged: false,
@@ -223,7 +273,16 @@ export default {
             return this.selectedContacts[0]?.uid;
         },
         calendarRightSufficientForCopyImipOption() {
-            return this.calendarRight.level >= Right.CAN_EDIT.level;
+            return (
+                inject("UserSession").roles.includes(BmRoles.SELF_CHANGE_MAILBOX_FILTER) &&
+                this.calendarRight.level >= this.Right.CAN_EDIT.level
+            );
+        },
+        userAsContact() {
+            return {
+                dn: this.$store.state.preferences.containers.myMailboxContainer.ownerDisplayname,
+                address: inject("UserSession").defaultEmail
+            };
         }
     },
     watch: {
@@ -235,18 +294,17 @@ export default {
         },
         selectedDelegate: {
             handler: async function (value) {
-                this.initialDelegationRight =
-                    delegations.value?.find(({ subject }) => subject === value)?.verb || Verb.SendOnBehalf;
+                this.initialDelegationRight = this.delegationTypes[this.delegate] || Verb.SendOnBehalf;
                 this.delegationRight = this.initialDelegationRight;
 
                 const isNew = !this.delegate;
 
-                this.calendarRight = aclToRight(acls.value.calendar.acl, value, Right.CAN_EDIT, isNew);
-                this.todoListRight = aclToRight(acls.value.todoList.acl, value, Right.CAN_EDIT, isNew);
-                this.messageRight = aclToRight(acls.value.mailbox.acl, value, Right.HAS_NO_RIGHTS, isNew);
-                this.contactsRight = aclToRight(acls.value.addressBook.acl, value, Right.HAS_NO_RIGHTS, isNew);
+                this.calendarRight = this.aclToRight(this.getCalendarAcl(), value, this.Right.CAN_EDIT, isNew);
+                this.todoListRight = this.aclToRight(this.getTodoListAcl(), value, this.Right.CAN_EDIT, isNew);
+                this.messageRight = this.aclToRight(this.getMailboxAcl(), value, this.Right.HAS_NO_RIGHTS, isNew);
+                this.contactsRight = this.aclToRight(this.getContactsAcl(), value, this.Right.HAS_NO_RIGHTS, isNew);
 
-                this.copyImipToDelegate = await hasCopyImipMailboxRuleAction(value);
+                this.copyImipToDelegate = await this.hasCopyImipMailboxRuleAction(value);
             },
             immediate: true
         }
@@ -275,11 +333,11 @@ export default {
             }
             const dirEntries = await inject("DirectoryPersistence").search({
                 nameOrEmailFilter: pattern,
-                kindsFilter: [BaseDirEntry.Kind.USER, BaseDirEntry.Kind.GROUP],
+                kindsFilter: [BaseDirEntry.Kind.USER],
                 size: 10
             });
             const userUid = inject("UserSession").userId;
-            const excludedUsers = [userUid, ...Object.keys(delegates)];
+            const excludedUsers = [userUid, ...Object.keys(this.delegates)];
             this.autocompleteResults = dirEntries.values
                 .filter(({ uid }) => !excludedUsers.includes(uid))
                 .map(DirEntryAdaptor.toContact);
@@ -287,44 +345,50 @@ export default {
         async save() {
             const promises = [];
 
-            if (this.selectedDelegate !== this.delegate || this.containerRightsChanged) {
-                const calendarAcl = rightToAcl(this.calendarRight, this.selectedDelegate);
-                promises.push(setCalendarAcl(calendarAcl, this.selectedDelegate));
-
-                const todoListAcl = rightToAcl(this.todoListRight, this.selectedDelegate);
-                promises.push(setTodoListAcl(todoListAcl, this.selectedDelegate));
-
+            const saveMailboxAcl = () => {
                 const delegationAc = { subject: this.selectedDelegate, verb: this.delegationRight };
-                const mailboxAcl = rightToAcl(this.messageRight, this.selectedDelegate).concat([delegationAc]);
-                promises.push(setMailboxAcl(mailboxAcl, this.selectedDelegate));
+                const mailboxAcl = this.rightToAcl(this.messageRight, this.selectedDelegate).concat([delegationAc]);
+                promises.push(this.setMailboxAcl(mailboxAcl, this.selectedDelegate));
+            };
 
-                const contactsAcl = rightToAcl(this.contactsRight, this.selectedDelegate);
-                promises.push(setContactsAcl(contactsAcl, this.selectedDelegate));
+            if (this.selectedDelegate !== this.delegate || this.containerRightsChanged) {
+                const calendarAcl = this.rightToAcl(this.calendarRight, this.selectedDelegate);
+                promises.push(this.setCalendarAcl(calendarAcl, this.selectedDelegate));
+
+                const todoListAcl = this.rightToAcl(this.todoListRight, this.selectedDelegate);
+                promises.push(this.setTodoListAcl(todoListAcl, this.selectedDelegate));
+
+                const contactsAcl = this.rightToAcl(this.contactsRight, this.selectedDelegate);
+                promises.push(this.setContactsAcl(contactsAcl, this.selectedDelegate));
+
+                saveMailboxAcl();
+            } else if (this.delegationRight !== this.initialDelegationRight) {
+                saveMailboxAcl();
             }
 
             if (this.copyImipToDelegateChanged) {
                 promises.push(
                     this.copyImipToDelegate
-                        ? addDelegateToCopyImipMailboxRule({
+                        ? this.addDelegateToCopyImipMailboxRule({
                               uid: this.selectedDelegate,
                               address: this.selectedContacts[0].address,
                               receiveImipOption: this.receiveImipOption
                           })
-                        : removeDelegateFromCopyImipMailboxRule(this.selectedDelegate)
+                        : this.removeDelegateFromCopyImipMailboxRule(this.selectedDelegate)
                 );
             }
 
             await Promise.all(promises);
             this.$refs.delegatesModal.hide();
-            await fetchAcls();
+            await this.fetchAcls();
             this.$store.dispatch(`alert/${SUCCESS}`, SAVE_ALERT);
         },
         rights(container) {
             return [
-                { value: Right.HAS_NO_RIGHTS, text: Right.HAS_NO_RIGHTS.text(container) },
-                { value: Right.CAN_READ, text: Right.CAN_READ.text(container) },
-                { value: Right.CAN_EDIT, text: Right.CAN_EDIT.text(container) },
-                { value: Right.CAN_MANAGE_SHARES, text: Right.CAN_MANAGE_SHARES.text(container) }
+                { value: this.Right.HAS_NO_RIGHTS, text: this.Right.HAS_NO_RIGHTS.text(container) },
+                { value: this.Right.CAN_READ, text: this.Right.CAN_READ.text(container) },
+                { value: this.Right.CAN_EDIT, text: this.Right.CAN_EDIT.text(container) },
+                { value: this.Right.CAN_MANAGE_SHARES, text: this.Right.CAN_MANAGE_SHARES.text(container) }
             ];
         }
     }
@@ -360,6 +424,21 @@ export default {
             }
             .contact-and-input {
                 max-width: 100%;
+            }
+            .suggestions {
+                width: 100%;
+                .contact-kind {
+                    display: none;
+                }
+            }
+        }
+        .delegation-notice {
+            margin-top: $sp-2;
+            margin-bottom: base-px-to-rem(30);
+            .delegation-notice-label {
+                color: $neutral-fg-lo1;
+                font-weight: $font-weight-bold;
+                font-size: $font-size-sm;
             }
         }
     }

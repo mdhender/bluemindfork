@@ -19,7 +19,7 @@
                 <!-- eslint-disable-next-line vue/no-v-html -->
                 <div class="text-muted text-truncate caption" v-html="address" />
             </div>
-            <div class="ml-auto"><bm-icon :icon="isGroup ? 'group' : 'user'" /></div>
+            <div class="ml-auto contact-kind"><bm-icon :icon="contact.kind === 'group' ? 'group' : 'user'" /></div>
         </div>
         <div v-if="!isGroupWithoutAddress" class="h-100 p-0 delete-autocomplete">
             <bm-button-close
