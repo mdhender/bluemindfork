@@ -107,6 +107,10 @@ public class GroupUpdateCommand implements ICmdLet, Runnable {
 
 			IGroup groupApi = ctx.adminApi().instance(IGroup.class, domain.uid);
 			ItemValue<Group> group = groupApi.byName(name);
+			if (group == null) {
+				ctx.error("Group.byName({}) not found", name);
+				return;
+			}
 
 			if (extId != null) {
 				groupApi.setExtId(group.uid, extId.trim().isEmpty() ? null : extId);
