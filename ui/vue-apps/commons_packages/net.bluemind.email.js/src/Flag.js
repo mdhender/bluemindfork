@@ -5,5 +5,6 @@ export default {
     FORWARDED: "$Forwarded",
     SEEN: "\\Seen",
     MDN_SENT: "$MDNSent",
-    BM_DSN: "BmDSN"
+    BM_DSN: "BmDSN",
+    READ_ONLY_EVENT: "BmEventReadOnly"
 };

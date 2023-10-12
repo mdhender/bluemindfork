@@ -38,7 +38,7 @@ describe("consultPanel node", () => {
             calendarService.getByIcsUid.mockReturnValue(["event"]);
             EventHelper.adapt = jest.fn().mockReturnValue("adaptedEvent");
             await store.dispatch(FETCH_EVENT, {
-                message: { eventInfo: { icsUid }, from: { address: "ori@gina.tor" } },
+                message: { eventInfo: { icsUid }, from: { address: "ori@gina.tor" }, flags: [] },
                 mailbox: { owner: userUid }
             });
             expect(calendarService.getByIcsUid).toHaveBeenCalledWith(icsUid);
@@ -60,7 +60,8 @@ describe("consultPanel node", () => {
             await store.dispatch(FETCH_EVENT, {
                 message: {
                     eventInfo: { icsUid: "myICS", isResourceBooking: true, resourceUid: "resourceUid" },
-                    from: { address: "ori@gina.tor" }
+                    from: { address: "ori@gina.tor" },
+                    flags: []
                 },
                 mailbox: { owner: userUid }
             });
@@ -83,7 +84,11 @@ describe("consultPanel node", () => {
             calendarService.getByIcsUid.mockReturnValue([otherEvent, exceptionalEvent]);
             EventHelper.adapt = jest.fn().mockReturnValue("adaptedEvent");
             await store.dispatch(FETCH_EVENT, {
-                message: { eventInfo: { icsUid, recuridIsoDate: "isoDate" }, from: { address: "ori@gina.tor" } },
+                message: {
+                    eventInfo: { icsUid, recuridIsoDate: "isoDate" },
+                    from: { address: "ori@gina.tor" },
+                    flags: []
+                },
                 mailbox: { owner: userUid }
             });
             expect(calendarService.getByIcsUid).toHaveBeenCalledWith(icsUid);

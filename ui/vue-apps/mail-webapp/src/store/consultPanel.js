@@ -1,3 +1,4 @@
+import { Flag } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
 import { loadingStatusUtils, messageUtils } from "@bluemind/mail";
 import EventHelper from "./helpers/EventHelper";
@@ -55,8 +56,8 @@ export default {
                 const mailboxOwner = message.eventInfo.isResourceBooking
                     ? message.eventInfo.resourceUid
                     : mailbox.owner;
-                const isWritable = await isCalendarWritable(calendarUid);
-
+                const isWritable =
+                    !message.flags.includes(Flag.READ_ONLY_EVENT) && (await isCalendarWritable(calendarUid));
                 event = EventHelper.adapt(
                     event,
                     mailboxOwner,

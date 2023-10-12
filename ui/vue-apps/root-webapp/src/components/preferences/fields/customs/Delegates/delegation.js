@@ -1,6 +1,7 @@
 import without from "lodash.without";
 import { computed, ref, watch } from "vue";
 import { Verb } from "@bluemind/core.container.api";
+import { Flag } from "@bluemind/email";
 import i18n from "@bluemind/i18n";
 import { inject } from "@bluemind/inject";
 import store from "@bluemind/store";
@@ -185,7 +186,7 @@ const getMailboxFilter = async userId => {
 
 const setFlagsAction = {
     name: "SET_FLAGS",
-    flags: ["X-BM-EVENT-ReadOnly"],
+    flags: [Flag.READ_ONLY_EVENT],
     clientProperties: { type: "delegation" }
 };
 
