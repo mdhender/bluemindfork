@@ -17,6 +17,9 @@
   */
 package net.bluemind.exchange.mapi.notifications;
 
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,7 +66,6 @@ public class HierarchyEventsConsumer extends AbstractVerticle {
 
 	@Override
 	public void start() {
-
 		EventBus eb = vertx.eventBus();
 		vertx.eventBus().consumer(ContainersFlatHierarchyBusAddresses.ALL_HIERARCHY_CHANGES,
 				(Message<JsonObject> msg) -> vertx.executeBlocking(() -> {
@@ -87,83 +89,125 @@ public class HierarchyEventsConsumer extends AbstractVerticle {
 		vertx.eventBus().consumer(ContainersFlatHierarchyBusAddresses.ALL_HIERARCHY_CHANGES_OPS,
 				(Message<JsonObject> msg) -> vertx.executeBlocking(() -> {
 					JsonObject flatNotification = msg.body();
-					String container = flatNotification.getString("container");
-
-					if (!container.startsWith(IMailReplicaUids.MAILBOX_RECORDS_PREFIX)) {
+					Notification notif = Notification.fromJson(flatNotification);
+					if (!notif.container.startsWith(IMailReplicaUids.MAILBOX_RECORDS_PREFIX) //
+							|| FreshOwnerListener.isFreshOwner(notif.owner) //
+							|| notif.owner.equals(PublicFolders.mailboxGuid(notif.domain))) {
 						return null;
 					}
 
-					String owner = flatNotification.getString("owner");
-					if (FreshOwnerListener.isFreshOwner(owner)) {
-						return null;
-					}
-
-					String domain = flatNotification.getString("domain");
-
-					if (owner.equals(PublicFolders.mailboxGuid(domain))) {
-						return null;
-					}
-
-					long version = flatNotification.getLong("version");
-					String op = flatNotification.getString("op");
-
-					JsonObject forMapi = new JsonObject();
-					forMapi.put("owner", owner).put("domain", domain).put("version", version);
-
-					switch (op) {
+					CompletableFuture<Optional<JsonObject>> futureMapiNotif;
+					switch (notif.op) {
 					case "CREATE":
 					case "UPDATE":
-						// transform create/update notifications into an update on the parent uniqueId
-						ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
-						IMailboxes mboxApi = prov.instance(IMailboxes.class, domain);
-						ItemValue<Mailbox> ownerBox = mboxApi.getComplete(owner);
-						String subtree = IMailReplicaUids.subtreeUid(domain, ownerBox);
-						IDbByContainerReplicatedMailboxes treeApi = prov
-								.instance(IDbByContainerReplicatedMailboxes.class, subtree);
-						ItemValue<MailboxFolder> freshFolder = treeApi
-								.getComplete(IMailReplicaUids.uniqueId(container));
-						if (freshFolder.value.parentUid != null
-								&& !isSharedMailboxRoot(ownerBox, treeApi.getComplete(freshFolder.value.parentUid))) {
-
-							forMapi.put("details",
-									new JsonObject().put(op.toLowerCase(), new JsonArray().add(container)));
-							container = IMailReplicaUids.mboxRecords(freshFolder.value.parentUid);
-							op = "UPDATE";
-						} else {
-							// assume it is the root, try to locate IPM subtree
-							IMapiMailbox mapiApi = prov.instance(IMapiMailbox.class, domain, owner);
-							MapiReplica replica = mapiApi.get();
-							if (replica == null) {
-								logger.warn("parentless create of {} in {}, null replica, drop MAPI notification.",
-										container, ownerBox);
-								return null;
-							} else {
-								forMapi.put("details",
-										new JsonObject().put(op.toLowerCase(), new JsonArray().add(container)));
-								container = MapiFolderContainer.getIdentifier("IPM_SUBTREE", replica.localReplicaGuid);
-								op = "UPDATE";
-							}
-						}
+						futureMapiNotif = notifyUpdateOnParent(notif);
 						break;
 					case "DELETE":
 						// the thing is deleted, we cannot figure out what was the parent folder anymore
+						futureMapiNotif = CompletableFuture.completedFuture(Optional.of(notif.forContainer()));
 						break;
 					default:
-						logger.warn("Unknown op: {}", op);
+						futureMapiNotif = CompletableFuture.completedFuture(Optional.empty());
+						logger.warn("Unknown op: {}", notif.op);
 					}
-					forMapi.put("container", container).put("op", op);
 
-					logger.info("MAPI hierarchy container {} ({}) notification owner: {}, version {}", container, op,
-							owner, version);
-					eb.publish(Topic.MAPI_HIERARCHY_NOTIFICATIONS, forMapi);
+					futureMapiNotif.thenAccept(maybeMapiNotif -> maybeMapiNotif
+							.ifPresent(mapiNotif -> eb.publish(Topic.MAPI_HIERARCHY_NOTIFICATIONS, mapiNotif)));
 					return null;
 				}, false));
 
 	}
 
-	private boolean isSharedMailboxRoot(ItemValue<Mailbox> ownerBox, ItemValue<MailboxFolder> maybeRoot) {
-		return maybeRoot.value.parentUid == null && (//
-		(ownerBox.value.type.sharedNs && maybeRoot.value.name.equals(ownerBox.value.name)));
+	private CompletableFuture<Optional<JsonObject>> notifyUpdateOnParent(Notification notif) {
+		ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
+		IMailboxes mboxApi = prov.instance(IMailboxes.class, notif.domain);
+		ItemValue<Mailbox> ownerBox = mboxApi.getComplete(notif.owner);
+		String subtree = IMailReplicaUids.subtreeUid(notif.domain, ownerBox);
+
+		IDbByContainerReplicatedMailboxes treeApi = prov.instance(IDbByContainerReplicatedMailboxes.class, subtree);
+		CompletableFuture<Optional<MailboxFolder>> futureFolder = notifiedFolder(treeApi, notif);
+		return futureFolder.thenApply(freshFolder -> freshFolder.map(folder -> {
+			String parentUid;
+			if (folder.parentUid != null && !isSharedMailboxRoot(ownerBox, treeApi.getComplete(folder.parentUid))) {
+				parentUid = IMailReplicaUids.mboxRecords(folder.parentUid);
+			} else {
+				// assume it is the root, try to locate IPM subtree
+				MapiReplica replica = prov.instance(IMapiMailbox.class, notif.domain, notif.owner).get();
+				parentUid = (replica != null)
+						? MapiFolderContainer.getIdentifier("IPM_SUBTREE", replica.localReplicaGuid)
+						: null;
+			}
+			return (parentUid != null) ? notif.forParentContainer(parentUid) : null;
+		}));
 	}
 
+	private CompletableFuture<Optional<MailboxFolder>> notifiedFolder(IDbByContainerReplicatedMailboxes treeApi,
+			Notification notif) {
+		CompletableFuture<Optional<MailboxFolder>> futureReplica = new CompletableFuture<>();
+		ItemValue<MailboxFolder> replica = treeApi.getComplete(IMailReplicaUids.uniqueId(notif.container));
+		if (replica == null || replica.value == null) {
+			return retryNotifiedFolder(treeApi, notif);
+		} else {
+			futureReplica.complete(Optional.ofNullable(replica.value));
+			return futureReplica;
+		}
+	}
+
+	private CompletableFuture<Optional<MailboxFolder>> retryNotifiedFolder(IDbByContainerReplicatedMailboxes treeApi,
+			Notification notif) {
+		CompletableFuture<Optional<MailboxFolder>> futureReplica = new CompletableFuture<>();
+		vertx.setTimer(100, t -> {
+			ItemValue<MailboxFolder> replica = treeApi.getComplete(IMailReplicaUids.uniqueId(notif.container));
+			futureReplica.complete(replica != null ? Optional.ofNullable(replica.value) : Optional.empty());
+		});
+		return futureReplica;
+	}
+
+	private boolean isSharedMailboxRoot(ItemValue<Mailbox> ownerBox, ItemValue<MailboxFolder> maybeRoot) {
+		return maybeRoot.value.parentUid == null
+				&& (ownerBox.value.type.sharedNs && maybeRoot.value.name.equals(ownerBox.value.name));
+	}
+
+	private static class Notification {
+		private final String domain;
+		private final String owner;
+		private final String container;
+		private final Long id;
+		private final String op;
+		private final long version;
+
+		public Notification(String domain, String owner, String container, Long id, String op, long version) {
+			this.domain = domain;
+			this.owner = owner;
+			this.container = container;
+			this.id = id;
+			this.op = op;
+			this.version = version;
+		}
+
+		public static Notification fromJson(JsonObject json) {
+			return new Notification(json.getString("domain"), json.getString("owner"), json.getString("container"),
+					json.getLong("id"), json.getString("op"), json.getLong("version"));
+		}
+
+		public JsonObject forParentContainer(String parentContainer) {
+			return toJson() //
+					.put("container", parentContainer) //
+					.put("op", "UPDATE") //
+					.put("details", new JsonObject().put(op.toLowerCase(), new JsonArray().add(String.valueOf(id))));
+		}
+
+		public JsonObject forContainer() {
+			return toJson().put("id", id);
+		}
+
+		private JsonObject toJson() {
+			return new JsonObject() //
+					.put("domain", domain) //
+					.put("owner", owner) //
+					.put("container", container) //
+					.put("op", op) //
+					.put("version", version);
+		}
+	}
 }

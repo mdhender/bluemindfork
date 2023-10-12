@@ -61,28 +61,28 @@ public class InternalContainersHierarchyService implements IInternalContainersFl
 	public void create(String uid, ContainerHierarchyNode node) throws ServerFault {
 		rbacManager.check(Verb.Write.name(), Verb.Manage.name());
 		ItemVersion itemVersion = storeService.create(uid, node.name, node);
-		eventsProducer.changed(itemVersion.version, node.containerUid, Operation.CREATE);
+		eventsProducer.changed(itemVersion.version, node.containerUid, itemVersion.id, Operation.CREATE);
 	}
 
 	@Override
 	public void createWithId(long id, String uid, ContainerHierarchyNode node) throws ServerFault {
 		rbacManager.check(Verb.Write.name(), Verb.Manage.name());
 		ItemVersion itemVersion = storeService.createWithId(uid, id, null, node.name, node);
-		eventsProducer.changed(itemVersion.version, node.containerUid, Operation.CREATE);
+		eventsProducer.changed(itemVersion.version, node.containerUid, itemVersion.id, Operation.CREATE);
 	}
 
 	@Override
 	public void createItem(Item it, ContainerHierarchyNode node) throws ServerFault {
 		rbacManager.check(Verb.Write.name(), Verb.Manage.name());
 		ItemVersion itemVersion = storeService.create(it, node);
-		eventsProducer.changed(itemVersion.version, node.containerUid, Operation.CREATE);
+		eventsProducer.changed(itemVersion.version, node.containerUid, itemVersion.id, Operation.CREATE);
 	}
 
 	@Override
 	public void update(String uid, ContainerHierarchyNode node) throws ServerFault {
 		rbacManager.check(Verb.Write.name(), Verb.Manage.name());
 		ItemVersion itemVersion = storeService.update(uid, node.name, node);
-		eventsProducer.changed(itemVersion.version, node.containerUid, Operation.UPDATE);
+		eventsProducer.changed(itemVersion.version, node.containerUid, itemVersion.id, Operation.UPDATE);
 	}
 
 	@Override
@@ -95,7 +95,8 @@ public class InternalContainersHierarchyService implements IInternalContainersFl
 		rbacManager.check(Verb.Write.name(), Verb.Manage.name());
 		ItemVersion delete = storeService.delete(uid);
 		if (delete != null) {
-			eventsProducer.changed(delete.version, ContainerHierarchyNode.extractContainerUid(uid), Operation.DELETE);
+			eventsProducer.changed(delete.version, ContainerHierarchyNode.extractContainerUid(uid), delete.id,
+					Operation.DELETE);
 		}
 	}
 

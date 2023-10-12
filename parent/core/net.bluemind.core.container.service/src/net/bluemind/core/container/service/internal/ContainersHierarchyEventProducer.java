@@ -44,7 +44,7 @@ public class ContainersHierarchyEventProducer {
 		this.eventBus = bus;
 	}
 
-	public void changed(long version, String containerUid, Operation op) {
+	public void changed(long version, String containerUid, Long id, Operation op) {
 		if (StateContext.getState() == SystemState.CORE_STATE_CLONING) {
 			return;
 		}
@@ -54,7 +54,7 @@ public class ContainersHierarchyEventProducer {
 		eventBus.publish(ContainersFlatHierarchyBusAddresses.containersHierarchyChanges(ownerUid, domainUid), change);
 
 		JsonObject detailed = change.copy();
-		detailed.put("container", containerUid).put("op", op.name());
+		detailed.put("container", containerUid).put("id", id).put("op", op.name());
 		eventBus.publish(ContainersFlatHierarchyBusAddresses.ALL_HIERARCHY_CHANGES_OPS, detailed);
 	}
 
