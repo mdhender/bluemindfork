@@ -73,7 +73,7 @@ public class EmailResponseFormatter implements IEasResponseFormatter<EmailRespon
 
 		afterMeetingRequest(b, protocolVersion, email);
 
-		if (protocolVersion > 14.1) {
+		if (email.meetingRequest == null && protocolVersion > 14.1) {
 			b.text(NamespaceMapping.EMAIL_2, "IsDraft", email.isDraft ? "1" : "0");
 		}
 
