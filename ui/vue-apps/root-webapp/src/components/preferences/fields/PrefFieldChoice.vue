@@ -1,16 +1,14 @@
 <template>
     <bm-form-radio-group
         v-model="value"
-        class="pref-field-choice d-flex flex-wrap py-5"
-        :class="{ 'image-mode': imageMode, 'flex-column': !imageMode }"
+        class="pref-field-choice d-flex flex-wrap"
+        :class="{ 'image-mode': imageMode, 'flex-column py-5': !imageMode }"
     >
         <bm-form-radio v-for="choice in choices" :key="choice.value" :value="choice.value" :aria-label="choice.name">
             <template v-if="imageMode" #img>
-                <template v-if="!collapsed">
-                    <img v-if="choice.img" :src="choice.img" alt="null" />
-                    <!-- eslint-disable-next-line vue/no-v-html -->
-                    <div v-if="choice.svg" v-html="choice.svg" />
-                </template>
+                <img v-if="choice.img" :src="choice.img" alt="null" />
+                <!-- eslint-disable-next-line vue/no-v-html -->
+                <div v-if="choice.svg" v-html="choice.svg" />
             </template>
             <span class="text-neutral">{{ choice.name }}</span>
         </bm-form-radio>

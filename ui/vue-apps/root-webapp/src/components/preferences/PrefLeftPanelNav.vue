@@ -1,44 +1,49 @@
 <template>
-    <nav class="pref-left-panel-nav mt-3" :aria-label="$t('preferences.menu.apps')">
-        <bm-list-group v-bm-scrollspy:scroll-area>
-            <bm-list-group-item
-                v-for="section in sections"
-                ref="section"
-                :key="section.id"
-                :active="isActive(section.id)"
-                class="app-item container"
-                :class="{ 'my-account-list-group-item': section.id === 'my_account' }"
-                role="button"
-                tabindex="0"
-                :to="anchor(section, true)"
-                @click="goToSection(section)"
-            >
-                <div class="d-flex flex-nowrap text-truncate w-100">
-                    <div class="text-center mr-4"><pref-section-icon :section="section" /></div>
-                    <div v-if="section.id === 'my_account'" class="display-name">
-                        {{ userDisplayName }}
-                    </div>
-                    <div v-else class="section-name text-truncate">{{ section.name }}</div>
+    <nav class="pref-left-panel-nav mt-3" :class="{ searching: HAS_SEARCH }" :aria-label="$t('preferences.menu.apps')">
+        <bm-list-group v-bm-scrollspy:scroll-area="40">
+            <template v-for="section in sections">
+                <bm-list-group-item
+                    ref="section"
+                    :key="section.id"
+                    class="section-title"
+                    :class="{ 'section-active': isSectionActive(section) }"
+                    role="button"
+                    :to="anchor(section, true)"
+                    @click="goTo(section)"
+                >
+                    <bm-app-icon :icon-app="section.icon" class="text-secondary mr-4" />
+                    <div class="section-name text-truncate">{{ section.name }}</div>
+                </bm-list-group-item>
+                <div v-show="isSectionActive(section)" :key="`${section.id}-categories`" class="mb-6">
+                    <bm-list-group-item
+                        v-for="category in section.categories.filter(c => c.visible)"
+                        :key="category.id"
+                        class="category-title"
+                        role="button"
+                        :to="anchor(category, true)"
+                        @click="
+                            goTo(category);
+                            $emit('categoryClicked');
+                        "
+                    >
+                        <bm-icon :icon="category.icon" />
+                        <div>{{ category.name }}</div>
+                    </bm-list-group-item>
                 </div>
-                <div v-if="section.id === 'my_account'" class="section-name my-account-section-name">
-                    {{ $t("preferences.general.manage_account") }}
-                </div>
-                <div class="arrow position-absolute" />
-            </bm-list-group-item>
+            </template>
         </bm-list-group>
     </nav>
 </template>
 
 <script>
 import { mapGetters, mapMutations, mapState } from "vuex";
-import { inject } from "@bluemind/inject";
-import { BmListGroup, BmListGroupItem, BmScrollspy } from "@bluemind/ui-components";
+import { BmIcon, BmListGroup, BmListGroupItem, BmScrollspy } from "@bluemind/ui-components";
 import Navigation from "./mixins/Navigation";
-import PrefSectionIcon from "./PrefSectionIcon";
+import BmAppIcon from "../BmAppIcon";
 
 export default {
     name: "PrefLeftPanelNav",
-    components: { BmListGroup, BmListGroupItem, PrefSectionIcon },
+    components: { BmIcon, BmListGroup, BmListGroupItem, BmAppIcon },
     directives: { BmScrollspy },
     mixins: [Navigation],
     props: {
@@ -47,89 +52,96 @@ export default {
             type: Array
         }
     },
-    data() {
-        return { userDisplayName: inject("UserSession").formatedName };
-    },
     computed: {
         ...mapGetters("preferences", ["HAS_SEARCH"]),
-        ...mapState("preferences", ["selectedSectionId"])
-    },
-    mounted() {
-        this.$refs.section[0].focus();
+        ...mapState("preferences", ["selectedSectionId", "offset"])
     },
     methods: {
-        ...mapMutations("preferences", ["SET_SEARCH", "SET_SELECTED_SECTION"]),
-        async goToSection(section) {
+        ...mapMutations("preferences", ["SET_SEARCH", "SET_CURRENT_PATH"]),
+        async goTo(sectionOrCategory) {
             this.SET_SEARCH("");
-            this.SET_SELECTED_SECTION(section.id);
             await this.$nextTick();
-            this.scrollTo(section);
+            this.scrollTo(sectionOrCategory.id);
         },
-        isActive(sectionId) {
-            return !this.HAS_SEARCH && sectionId === this.selectedSectionId;
+        isSectionActive(section) {
+            return !this.HAS_SEARCH && this.offset !== 0 && section.id === this.selectedSectionId;
         }
     }
 };
 </script>
 
 <style lang="scss">
+@import "~@bluemind/ui-components/src/css/utils/focus";
 @import "~@bluemind/ui-components/src/css/utils/typography";
 @import "~@bluemind/ui-components/src/css/utils/variables";
 
-.pref-left-panel-nav .app-item {
-    border-bottom: 0 !important;
-    background-color: $fill-primary-bg;
-    list-style: none;
-    outline: none;
+.pref-left-panel-nav {
+    $arrow-width: base-px-to-rem(12);
+    $arrow-half-height: base-px-to-rem(10);
 
-    &:hover,
-    &.active {
-        background-color: $fill-primary-bg-hi1;
-    }
-
-    &.active .arrow {
-        width: 0;
-        height: 0;
-        $arrow-half-height: base-px-to-rem(10);
-        border-top: $arrow-half-height solid transparent;
-        border-bottom: $arrow-half-height solid transparent;
-        border-right: $arrow-half-height solid $surface;
-        top: calc(50% - #{$arrow-half-height});
-        right: 0;
-    }
-
-    .display-name {
-        font-size: $font-size-lg;
-        line-height: $line-height-base;
+    .list-group-item {
         color: $fill-primary-fg;
-        white-space: initial;
-        padding-top: base-px-to-rem(6);
-    }
-
-    .section-name {
-        color: $fill-primary-fg;
-    }
-    &.active .section-name {
-        color: $fill-primary-fg-hi1;
-    }
-
-    &.list-group-item {
-        padding: $sp-6 !important;
-        height: initial;
-
-        &.my-account-list-group-item {
-            flex-direction: column;
-            justify-content: flex-start;
+        border: none;
+        height: unset;
+        &,
+        &:focus,
+        &:hover,
+        &.active {
+            background: none;
         }
-        &:not(.my-account-list-group-item) > div {
-            align-items: center;
+
+        &:focus-visible {
+            @include default-focus($fill-primary-fg);
+            &:hover {
+                @include default-focus($fill-primary-fg-hi1);
+            }
+        }
+        &:hover {
+            color: $fill-primary-fg-hi1;
+        }
+
+        &.section-title {
+            padding: $sp-6;
+            padding-right: $sp-4 + $arrow-width;
+            @include large;
+        }
+
+        &.category-title {
+            padding-top: $sp-4;
+            padding-bottom: $sp-4;
+            @include from-lg {
+                padding-top: $sp-5;
+                padding-bottom: $sp-5;
+                padding-right: $sp-4 + $arrow-width;
+            }
+            $section-icon-width: 22px;
+            $category-icon-width: map-get($icon-sizes, "md");
+            padding-left: calc(#{$sp-6} + (#{$section-icon-width} - #{$category-icon-width}) / 2);
+            gap: $sp-4;
+            align-items: start;
         }
     }
 
-    .my-account-section-name {
-        width: 100%;
-        padding-left: $avatar-width + $sp-4;
-        margin-top: $sp-2;
+    &:not(.searching) .list-group-item {
+        &.section-title.section-active.router-link-active,
+        &:not(.section-title).router-link-active {
+            background-color: $fill-primary-bg-hi1;
+            @include from-lg {
+                &:after {
+                    content: "";
+                    position: absolute;
+                    right: 0;
+                    top: calc(50% - #{$arrow-half-height});
+                    border-right: $arrow-width solid $fill-primary-fg;
+                    border-top: $arrow-half-height solid transparent;
+                    border-bottom: $arrow-half-height solid transparent;
+                }
+            }
+        }
+
+        &.section-title.section-active {
+            @include large-bold;
+        }
     }
 }
 </style>

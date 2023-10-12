@@ -1,46 +1,82 @@
 <template>
-    <bm-col class="pref-left-panel d-lg-flex flex-column" cols="12" lg="2">
-        <div class="p-6">
-            <div class="desktop-only bold">
-                <bm-label-icon icon="preferences">{{ $t("common.preference") }}</bm-label-icon>
-            </div>
-            <div class="mobile-only">
-                <bm-icon-button
-                    variant="compact-on-fill-primary"
-                    size="lg"
-                    class="mr-auto"
-                    icon="arrow-back"
-                    @click="$emit('close')"
-                />
-                <div class="d-inline align-middle bold">{{ $t("common.preference") }}</div>
-            </div>
+    <div class="pref-left-panel scroller-y">
+        <div class="pref-title mobile-only">
+            <bm-icon icon="preferences" />
+            <div class="large-bold text-truncate">{{ $t("common.preference") }}</div>
         </div>
-        <pref-left-panel-nav :sections="sections" class="flex-grow-1" />
-    </bm-col>
+        <div class="identity">
+            <bm-avatar :alt="userDisplayName" :urn="urn" size="xl" />
+            <div class="large">{{ userDisplayName }}</div>
+        </div>
+        <pref-left-panel-nav :sections="sections" class="flex-grow-1" @categoryClicked="$emit('categoryClicked')" />
+    </div>
 </template>
 
 <script>
-import { BmIconButton, BmCol, BmLabelIcon } from "@bluemind/ui-components";
+import { inject } from "@bluemind/inject";
+import { BmAvatar, BmIcon } from "@bluemind/ui-components";
 import PrefLeftPanelNav from "./PrefLeftPanelNav";
 
 export default {
     name: "PrefLeftPanel",
-    components: { BmIconButton, BmLabelIcon, BmCol, PrefLeftPanelNav },
+    components: { BmAvatar, BmIcon, PrefLeftPanelNav },
     props: {
         sections: {
             required: true,
             type: Array
         }
+    },
+    data() {
+        const session = inject("UserSession");
+        return {
+            userDisplayName: session.formatedName,
+            urn: session.userId + "@addressbook_" + session.domain
+        };
     }
 };
 </script>
 
 <style lang="scss">
+@import "~@bluemind/ui-components/src/css/utils/responsiveness";
 @import "~@bluemind/ui-components/src/css/utils/variables";
 
 .pref-left-panel {
+    display: flex;
+    flex-direction: column;
+
     background-color: $fill-primary-bg;
     color: $fill-primary-fg;
-    padding: 0 !important;
+    @include from-lg {
+        padding: $sp-7 0 $sp-5;
+    }
+    max-height: 100%;
+    flex: none;
+    width: 100%;
+    @include from-lg {
+        width: 20%;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: $surface;
+    }
+
+    .identity {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: $sp-5;
+        margin-bottom: $sp-7;
+    }
+
+    .pref-title {
+        display: flex;
+        align-items: center;
+        gap: $sp-4;
+        padding-left: $sp-6;
+        height: base-px-to-rem(48);
+        flex: none;
+        margin-bottom: $sp-6;
+    }
 }
 </style>

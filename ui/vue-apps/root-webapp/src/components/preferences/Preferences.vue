@@ -9,16 +9,23 @@
             @click="lockClose = true"
             @keydown.esc="closePreferences"
         >
-            <bm-row class="h-100">
+            <section
+                v-show="showMobileLeftPanel"
+                class="mobile-left-panel-section mobile-only"
+                @click="showMobileLeftPanel = false"
+            >
                 <pref-left-panel
                     :sections="SECTIONS"
-                    :class="selectedSection ? 'd-none' : ''"
-                    @close="closePreferences"
+                    @click.native.stop
+                    @categoryClicked="showMobileLeftPanel = false"
                 />
+            </section>
+            <bm-row class="h-100 flex-nowrap">
+                <pref-left-panel :sections="SECTIONS" class="desktop-only" />
                 <pref-right-panel
-                    :class="selectedSection ? 'd-flex' : 'd-none'"
                     :sections="SECTIONS"
                     @close="closePreferences"
+                    @showMobileLeftPanel="showMobileLeftPanel = true"
                 />
             </bm-row>
         </bm-container>
@@ -56,10 +63,10 @@ export default {
         }
     },
     data() {
-        return { loaded: false, lockClose: false };
+        return { loaded: false, lockClose: false, showMobileLeftPanel: false };
     },
     computed: {
-        ...mapState("preferences", { selectedSection: "selectedSectionId" }),
+        ...mapState("preferences", ["selectedSectionId", "selectedCategoryId"]),
         ...mapState("settings", ["lang", "timeformat"]),
         ...mapGetters("preferences", ["SECTIONS"])
     },
@@ -100,8 +107,8 @@ export default {
         ...mapActions("settings", ["FETCH_ALL_SETTINGS"]),
         ...mapMutations("preferences", [
             "TOGGLE_PREFERENCES",
-            "SET_SELECTED_SECTION",
             "SET_SECTIONS",
+            "SET_CURRENT_PATH",
             "SET_OFFSET",
             "SET_SEARCH"
         ]),
@@ -140,22 +147,22 @@ export default {
         },
         async scrollOnLoad() {
             // @see https://bootstrap-vue.org/docs/directives/scrollspy#events
-            this.$root.$on("bv::scrollspy::activate", path => {
-                const newSectionId = path.split("-")[1];
-                if (this.selectedSection !== newSectionId) {
-                    this.SET_SELECTED_SECTION(newSectionId);
+            this.$root.$on("bv::scrollspy::activate", hash => {
+                const path = hash.replace("#preferences-", "");
+                if (`${this.selectedSectionId}-${this.selectedCategoryId}` !== path) {
+                    this.SET_CURRENT_PATH(path);
                 }
-                if (this.$route.hash !== path) {
-                    this.$router.push({ hash: path });
+                if (this.$route.hash !== hash) {
+                    this.$router.push({ hash });
                 }
             });
             await this.$nextTick();
             if (this.$route.hash && this.$route.hash.startsWith("#preferences-")) {
                 const path = this.$route.hash.replace("#preferences-", "");
-                this.SET_SELECTED_SECTION(path.split("-").shift());
+                this.SET_CURRENT_PATH(path);
                 this.scrollTo(path);
             } else {
-                this.SET_SELECTED_SECTION("my_account");
+                this.SET_CURRENT_PATH("");
             }
         }
     }
@@ -173,6 +180,34 @@ export default {
             max-width: $modal-max-width;
             height: map-get($modal-heights, "lg", "xl");
             margin: auto;
+            overflow: hidden;
+            box-shadow: $box-shadow-lg;
+        }
+    }
+}
+
+.preferences {
+    .mobile-left-panel-section {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: $zindex-modal;
+        background-color: $modal-backdrop;
+
+        display: flex;
+
+        .pref-left-panel {
+            width: 85%;
+            max-width: base-px-to-rem(320);
+            box-shadow: $box-shadow-lg;
+        }
+    }
+
+    @include until-lg {
+        .pref-right-panel {
+            width: 100%;
         }
     }
 }

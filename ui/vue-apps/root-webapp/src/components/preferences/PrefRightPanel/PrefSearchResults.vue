@@ -12,50 +12,55 @@
         </p>
     </div>
     <div v-else class="pref-search-results scroller-y">
-        <div class="d-flex justify-content-end pr-6">
-            <bm-button variant="text" @click="toggleAll">
-                {{ areAllExpanded ? $t("common.collapse_all") : $t("common.expand_all") }}
-            </bm-button>
-        </div>
-        <bm-alert-area
-            v-if="alerts.length > 0"
-            class="border-top border-neutral"
-            :alerts="alerts"
-            stackable
-            @remove="REMOVE"
+        <bm-button
+            class="toggle-all-button"
+            variant="text"
+            :icon="areAllExpanded ? 'collapse' : 'expand'"
+            @click="toggleAll"
         >
-            <template #default="context"><component :is="context.alert.renderer" :alert="context.alert" /></template>
-        </bm-alert-area>
-        <div class="border-bottom border-neutral" />
+            {{ areAllExpanded ? $t("common.collapse_all") : $t("common.expand_all") }}
+        </bm-button>
+        <hr />
         <template v-for="(group, index) in results">
-            <div :key="group.id" class="group-header">
-                <pref-section-icon :section="GET_SECTION(group.id)" :set="(isCollapsed = isGroupCollapsed(group.id))" />
-                <bm-button-expand :expanded="!isCollapsed" @click="toggleGroup(group.id)" />
-                <pref-group
-                    ref="group"
-                    v-highlight="SEARCH_PATTERN"
+            <div :key="`header-${index}`" class="group-header">
+                <bm-button-expand
+                    :set="(isCollapsed = isGroupCollapsed(group.id))"
+                    :expanded="!isCollapsed"
+                    size="sm"
+                    @click="toggleGroup(group.id)"
+                />
+                <pref-breadcrumb
+                    v-bind="GET_SECTION_AND_CATEGORY(group.id)"
                     :group="group"
-                    :collapsed="isCollapsed"
-                    class="flex-fill"
+                    search-result
+                    @click.native="toggleGroup(group.id)"
                 />
             </div>
-            <div v-if="index !== results.length - 1" :key="index" class="border-bottom border-neutral" />
+            <pref-group
+                :key="`body-${index}`"
+                ref="group"
+                v-highlight="SEARCH_PATTERN"
+                :group="group"
+                :collapsed="isCollapsed"
+                no-heading
+                class="flex-fill"
+                :class="{ 'last-group': index === results.length - 1 }"
+            />
+            <hr v-if="separatorNeededAfterIndex(index)" :key="`hr-${index}`" />
         </template>
     </div>
 </template>
 
 <script>
 import PrefGroup from "../PrefGroup";
-import PrefSectionIcon from "../PrefSectionIcon";
-import RightPanelAlerts from "../mixins/RightPanelAlerts";
+import PrefBreadcrumb from "./PrefBreadcrumb";
 import { BmButton, BmButtonExpand, BmIllustration, BmSpinner, Highlight } from "@bluemind/ui-components";
 import { mapGetters } from "vuex";
 
 export default {
     name: "PrefSearchResults",
-    components: { BmButton, BmButtonExpand, BmIllustration, BmSpinner, PrefGroup, PrefSectionIcon },
+    components: { BmButton, BmButtonExpand, BmIllustration, BmSpinner, PrefGroup, PrefBreadcrumb },
     directives: { Highlight },
-    mixins: [RightPanelAlerts],
     props: {
         isLoading: {
             type: Boolean,
@@ -70,7 +75,7 @@ export default {
         return { expandedGroups: [] };
     },
     computed: {
-        ...mapGetters("preferences", ["GET_SECTION", "SEARCH_PATTERN"]),
+        ...mapGetters("preferences", ["GET_SECTION_AND_CATEGORY", "SEARCH_PATTERN"]),
         areAllExpanded() {
             return this.expandedGroups.length === this.results.length;
         }
@@ -98,6 +103,13 @@ export default {
             } else {
                 this.expandedGroups = this.results.map(group => group.id);
             }
+        },
+        separatorNeededAfterIndex(index) {
+            const getCategory = result => result.id.substring(0, result.id.indexOf("."));
+            return (
+                index < this.results.length - 1 &&
+                getCategory(this.results[index]) !== getCategory(this.results[index + 1])
+            );
         }
     }
 };
@@ -106,41 +118,100 @@ export default {
 <style lang="scss">
 @use "sass:math";
 @import "~@bluemind/ui-components/src/css/utils/responsiveness";
+@import "~@bluemind/ui-components/src/css/utils/typography";
 @import "~@bluemind/ui-components/src/css/utils/variables";
-@import "../variables";
 
 .pref-search-results {
+    height: 100%;
+    padding-top: $sp-6;
+
     &.pref-empty-search-results {
+        padding: $sp-7 $sp-6;
+
         display: flex;
         flex-direction: column;
         gap: $sp-6;
 
-        @include until-lg {
-            align-items: center;
-        }
-
-        padding-top: $sp-7;
-        padding-left: $prefs-padding-left;
+        align-items: center;
         @include from-lg {
-            padding-left: $prefs-padding-left-lg;
+            align-items: start;
+            padding-left: $sp-7 + $sp-6;
+        }
+    }
+
+    $expand-btn-width-sm: $icon-btn-width-compact-sm;
+    $expand-btn-width: base-px-to-rem(54);
+
+    .bm-button.toggle-all-button {
+        .bm-icon {
+            $icon-width: map-get($icon-sizes, "sm");
+            $padding-x: math.div($expand-btn-width-sm - $icon-width, 2);
+            padding-left: $padding-x;
+            padding-right: $padding-x;
+            @include from-lg {
+                $padding-x: math.div($expand-btn-width - $icon-width, 2);
+                padding-left: $padding-x;
+                padding-right: $padding-x;
+            }
+        }
+        margin-bottom: $sp-5;
+
+        @include until-lg {
+            gap: $sp-3;
         }
     }
 
     .group-header {
         display: flex;
-        padding-left: $sp-6;
+        align-items: center;
+
+        @include from-lg {
+            .bm-button-expand.btn-sm {
+                width: $expand-btn-width;
+            }
+        }
+        .pref-breadcrumb {
+            cursor: pointer;
+            user-select: none;
+            @include until-lg {
+                padding-right: $sp-2;
+            }
+        }
+
+        padding-bottom: $sp-5;
     }
 
-    .pref-section-icon {
-        margin-top: $pref-entry-name-padding-top + math.div($h3-line-height - $section-icon-size, 2);
+    .pref-group {
+        padding-top: $sp-5;
+        padding-left: $sp-5 + $sp-3;
+        padding-right: $sp-5 + $sp-3;
+        @include from-lg {
+            padding-left: $sp-7 + $sp-6;
+            padding-right: $sp-7;
+        }
+
+        &.last-group {
+            padding-bottom: base-px-to-rem(240);
+        }
     }
-    .bm-button-expand {
-        margin-top: $pref-entry-name-padding-top + math.div($h3-line-height - $icon-btn-height, 2);
+
+    > hr {
+        margin: 0;
+        border: none;
+        padding-top: $sp-6;
+        border-bottom: 1px solid $secondary-fg;
+        margin-bottom: $sp-7;
+        margin-left: $expand-btn-width-sm + $sp-3;
+        margin-right: $expand-btn-width-sm + $sp-3;
+        @include from-lg {
+            margin-left: $expand-btn-width + $sp-3;
+            margin-right: $expand-btn-width + $sp-3;
+        }
     }
 
     .search-pattern {
         color: $primary-fg-hi1;
-        font-weight: $font-weight-bold;
+        @include bold;
         word-break: break-all;
     }
 }

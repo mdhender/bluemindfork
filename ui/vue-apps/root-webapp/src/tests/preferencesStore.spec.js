@@ -34,9 +34,13 @@ describe("Preferences store", () => {
         expect(store.state.sectionById).toEqual({ main: { id: "main" }, mail: { id: "mail" } });
     });
 
-    test("SET_SELECTED_SECTION mutation", () => {
-        preferencesStore.mutations.SET_SELECTED_SECTION(store.state, "main");
-        expect(store.state.selectedSectionId).toEqual("main");
+    test("SET_CURRENT_PATH mutation", () => {
+        preferencesStore.mutations.SET_CURRENT_PATH(store.state, "section_id-category_id");
+        expect(store.state.selectedSectionId).toEqual("section_id");
+        expect(store.state.selectedCategoryId).toEqual("category_id");
+        preferencesStore.mutations.SET_CURRENT_PATH(store.state, "new_section_id");
+        expect(store.state.selectedSectionId).toEqual("new_section_id");
+        expect(store.state.selectedCategoryId).toBeUndefined();
     });
 
     test("SECTIONS getter", () => {
@@ -55,14 +59,30 @@ describe("Preferences store", () => {
         expect(preferencesStore.getters.GET_GROUP(store.state, store.getters)("dont-exist")).toBeFalsy();
     });
 
-    test("GET_SECTION getter", () => {
+    test("GET_SECTION_AND_CATEGORY getter", () => {
         store.state.sectionById = {
-            main: { id: "main", check: "ok", visible: true, categories: [{ groups: [{ id: "find-me" }] }] }
+            main: {
+                id: "main",
+                check: "ok",
+                visible: true,
+                categories: [
+                    {
+                        id: "my-category",
+                        groups: [{ id: "find-me" }]
+                    }
+                ]
+            }
         };
-        expect(preferencesStore.getters.GET_SECTION(store.state, store.getters)("find-me")).toMatchObject({
-            check: "ok"
+        expect(preferencesStore.getters.GET_SECTION_AND_CATEGORY(store.state, store.getters)("find-me")).toMatchObject({
+            section: { check: "ok" },
+            category: { id: "my-category" }
         });
-        expect(preferencesStore.getters.GET_SECTION(store.state, store.getters)("dont-exist")).toBeFalsy();
+        expect(
+            preferencesStore.getters.GET_SECTION_AND_CATEGORY(store.state, store.getters)("dont-exist")
+        ).toMatchObject({
+            section: undefined,
+            category: undefined
+        });
     });
 
     test("HAS_SEARCH getters", () => {

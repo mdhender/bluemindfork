@@ -86,14 +86,14 @@ export default {
 </script>
 
 <style lang="scss">
+@use "sass:math";
 @import "~@bluemind/ui-components/src/css/utils/variables";
 
 .bm-banner-user {
-    min-width: 10rem;
-    max-width: 15rem;
+    max-width: base-px-to-rem(240);
     .bm-avatar {
-        position: relative;
-        left: -1em;
+        position: absolute;
+        left: math.div(-$avatar-width-sm, 2);
     }
     .dropdown-menu,
     .nav-link,
@@ -115,7 +115,8 @@ export default {
         }
 
         .dropdown-toggle {
-            padding-right: 2 * $sp-5 + map-get($icon-sizes, "xs") !important;
+            padding-right: $sp-5 !important;
+            gap: $sp-5;
         }
     }
 
@@ -149,15 +150,9 @@ export default {
 
     .nav-link {
         height: 100% !important;
-        padding: unset;
         display: flex;
         align-items: center;
-        padding-left: 0 !important;
-        &:after {
-            position: absolute;
-            right: $sp-5;
-            vertical-align: middle;
-        }
+        padding-left: math.div($avatar-width-sm, 2) + $sp-5 !important;
     }
 }
 </style>

@@ -89,6 +89,7 @@ mark,
 .mark {
     padding: $mark-padding;
     background-color: $mark-bg;
+    color: unset;
 }
 
 .list-unstyled {

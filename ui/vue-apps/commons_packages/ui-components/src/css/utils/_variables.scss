@@ -488,6 +488,14 @@ $thumbnail-box-shadow: none;
 
 $figure-caption-color: $neutral-fg-lo1;
 
+// Breadcrumbs
+
+$breadcrumb-bg: transparent;
+
+$breadcrumb-height: base-px-to-rem(24);
+
+$breadcrumb-separator-width: base-px-to-rem(12);
+
 // Close
 
 $close-font-size: 2.5em;

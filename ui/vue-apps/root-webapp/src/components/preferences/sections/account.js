@@ -3,6 +3,7 @@ import { AvailableTimeFormats, AvailableDateFormats } from "@bluemind/date";
 import { AvailableLanguages } from "@bluemind/i18n";
 import Roles from "@bluemind/roles";
 
+import bluemindLogo from "!svg-inline-loader?removeSVGTagAttrs=false!../../../../assets/bluemind-logo.svg";
 import themeSystem from "../../../../assets/theme-system.png";
 import themeLight from "../../../../assets/theme-light.png";
 import themeDark from "../../../../assets/theme-dark.png";
@@ -11,7 +12,9 @@ export default function (i18n) {
     return {
         id: "my_account",
         name: i18n.t("common.my_account"),
-        icon: { name: "preferences" },
+        icon: {
+            svg: bluemindLogo
+        },
         priority: Number.MAX_SAFE_INTEGER,
         categories: [main(i18n), security(i18n), cti(i18n), delegates(i18n), advanced(i18n), externalAccounts(i18n)]
     };
@@ -220,7 +223,7 @@ function cti(i18n) {
         groups: [
             {
                 id: "status",
-                name: i18n.t("preferences.telephony.status"),
+                name: i18n.t("common.telephony"),
                 fields: [
                     {
                         id: "field",

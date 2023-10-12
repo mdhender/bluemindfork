@@ -74,9 +74,10 @@ export default {
 
 .bm-alert-area {
     margin-bottom: 0;
+    gap: $sp-1;
 
     .alert {
-        margin-bottom: $sp-1;
+        margin-bottom: 0;
     }
 
     &.position-absolute {

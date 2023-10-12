@@ -3,6 +3,7 @@
         class="pref-search-input"
         autofocus
         :variant="variant"
+        :size="variant === 'outline' ? 'sm' : 'md'"
         :value="search"
         :placeholder="$t('common.search')"
         icon="search"

@@ -3,7 +3,7 @@
         <a v-if="readMore" target="_blank" :href="readMore.href" class="mb-3">{{ readMore.text }}</a>
         <template v-if="containers.length > 0">
             <bm-form-input
-                v-if="!manageMine && !collapsed"
+                v-if="!manageMine"
                 v-model="pattern"
                 class="pref-filter mt-2 mb-3"
                 :placeholder="$t('common.filter')"
@@ -109,10 +109,6 @@ export default {
             type: Boolean,
             default: false
         },
-        collapsed: {
-            type: Boolean,
-            required: true
-        },
         fieldId: {
             type: String,
             required: true
@@ -127,7 +123,7 @@ export default {
     },
     computed: {
         perPage() {
-            return this.collapsed ? 2 : 5;
+            return 5;
         },
         subscribeToContainerLabel() {
             return this.$t("preferences.add_containers.subscribe", {

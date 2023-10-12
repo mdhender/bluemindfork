@@ -8,8 +8,6 @@ import threadSettingImageOff from "../../../../assets/setting-thread-off.svg";
 
 import { mapExtensions } from "@bluemind/extensions";
 
-import PrefSoonAvailable from "../PrefEntryName/PrefSoonAvailable";
-
 export default function (i18n) {
     const mail = mapExtensions("net.bluemind.webapp", ["application"]).application?.find(
         ({ $bundle }) => $bundle === "net.bluemind.webapp.mail.js"
@@ -33,7 +31,6 @@ function main(i18n) {
             {
                 id: "thread",
                 name: i18n.t("preferences.mail.thread"),
-                nameRenderer: PrefSoonAvailable,
                 disabled: { name: "StoreFieldCondition", args: ["mail.main.thread.field", "unavailable"] },
                 fields: [
                     {
@@ -331,8 +328,8 @@ function myMailbox(i18n) {
         icon: "user-enveloppe",
         groups: [
             {
-                name: i18n.t("common.my_mailbox"),
                 id: "group",
+                name: i18n.t("common.my_mailbox"),
                 fields: [{ id: "field", component: { name: "PrefManageMyMailbox" } }]
             }
         ]
@@ -346,8 +343,8 @@ function otherMailboxes(i18n) {
         icon: "3dots-enveloppe",
         groups: [
             {
-                name: i18n.t("common.other_mailboxes"),
                 id: "group",
+                name: i18n.t("common.other_mailboxes"),
                 fields: [{ id: "field", component: { name: "PrefManageOtherMailboxes" } }]
             }
         ]
@@ -357,12 +354,12 @@ function otherMailboxes(i18n) {
 function filters(i18n) {
     return {
         id: "filters",
-        name: i18n.t("preferences.mail.filters_category"),
+        name: i18n.t("preferences.mail.filters"),
         icon: "filter",
         groups: [
             {
                 id: "filter",
-                name: i18n.t("preferences.mail.filters_group"),
+                name: i18n.t("preferences.mail.filters"),
                 description: i18n.t("preferences.mail.filters.desc"),
 
                 fields: [
@@ -393,7 +390,7 @@ function identities(i18n) {
         groups: [
             {
                 id: "manage",
-                name: i18n.t("preferences.mail.identities.manage"),
+                name: i18n.t("common.identities"),
                 disabled: {
                     name: "RoleCondition.none",
                     args: [Roles.MANAGE_USER_MAIL_IDENTITIES, Roles.SELF_CHANGE_MAIL_IDENTITIES]

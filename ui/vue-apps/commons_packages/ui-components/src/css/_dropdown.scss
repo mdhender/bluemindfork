@@ -73,6 +73,11 @@ a.dropdown-item {
     margin: 0;
 }
 
+.dropdown-toggle::after {
+    position: relative;
+    top: base-px-to-rem(1);
+}
+
 // Primary high-filled dropdown
 .dropdown-on-fill-primary {
     .dropdown-menu {

@@ -2,30 +2,27 @@
     <div class="chooser-breadcrumb">
         <folder-up-button class="mr-4" @click.native="select(directories.length - 2)" />
         <bm-breadcrumb>
-            <bm-breadcrumb-item class="home" @click="select(0)">
-                <bm-icon icon="home" />
-            </bm-breadcrumb-item>
+            <bm-breadcrumb-item class="home" icon="home" @click="select(0)" />
             <bm-breadcrumb-item
                 v-for="(directory, index) in directories"
                 :key="index"
-                :class="{ active: index === directories.length - 1 }"
+                :active="index === directories.length - 1"
+                :text="directory"
                 @click="select(index + 1)"
-            >
-                {{ directory }}
-            </bm-breadcrumb-item>
+            />
         </bm-breadcrumb>
     </div>
 </template>
 
 <script>
 import { mapState } from "vuex";
-import { BmBreadcrumb, BmBreadcrumbItem, BmIcon } from "@bluemind/ui-components";
+import { BmBreadcrumb, BmBreadcrumbItem } from "@bluemind/ui-components";
 import { RESET_PATH, SET_PATH } from "../../store/mutations";
 import FolderUpButton from "./FolderUpButton";
 
 export default {
     name: "ChooserBreadcrumb",
-    components: { BmBreadcrumb, BmBreadcrumbItem, BmIcon, FolderUpButton },
+    components: { BmBreadcrumb, BmBreadcrumbItem, FolderUpButton },
 
     computed: {
         ...mapState("chooser", ["path", "rootPath"]),
@@ -51,8 +48,12 @@ export default {
 @import "~@bluemind/ui-components/src/css/utils/variables";
 
 .chooser-breadcrumb {
-    .breadcrumb {
+    .bm-breadcrumb {
         width: 100%;
+        align-items: center;
+        background-color: $surface;
+        border: 1px solid $neutral-fg-lo1;
+        padding-left: $sp-4;
     }
 }
 </style>

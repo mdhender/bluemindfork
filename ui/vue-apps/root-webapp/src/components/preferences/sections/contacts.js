@@ -22,8 +22,8 @@ function myAddressBooks(i18n) {
         icon: "addressbook",
         groups: [
             {
-                name: i18n.t("common.my_address_books"),
                 id: "group",
+                name: i18n.t("common.my_address_books"),
                 fields: [{ id: "field", component: { name: "PrefManageMyAddressBooks" } }]
             }
         ]

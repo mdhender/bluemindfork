@@ -4,10 +4,6 @@ export default {
             type: String,
             required: true
         },
-        collapsed: {
-            type: Boolean,
-            default: false
-        },
         disabled: {
             type: Boolean,
             default: false

@@ -2,7 +2,6 @@
     <containers-management
         :containers="otherCalendars"
         :container-type="containerType"
-        :collapsed="collapsed"
         :field-id="id"
         :read-more="readMore"
         @offline-sync-changed="UPDATE_OTHER_CALENDAR"

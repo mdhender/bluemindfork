@@ -1,33 +1,38 @@
 <template>
-    <bm-col lg="10" cols="12" class="pref-right-panel d-lg-flex flex-column h-100" tabindex="-1">
-        <pref-right-panel-header :selected-section="section" @close="$emit('close')" />
-        <pref-right-panel-nav v-if="!HAS_SEARCH" :sections="sections" />
+    <div class="pref-right-panel h-100" tabindex="-1">
+        <pref-right-panel-header
+            :selected-section="section"
+            :selected-category="category"
+            @close="$emit('close')"
+            @showMobileLeftPanel="$emit('showMobileLeftPanel')"
+        />
         <pref-sections v-show="!HAS_SEARCH" ref="sections" :sections="sections" />
         <pref-search-results v-if="HAS_SEARCH" :results="searchResults" :is-loading="isSearchLoading" />
-        <transition name="slide-fade"><pref-right-panel-footer @saved="$el.focus()" /></transition>
-    </bm-col>
+        <div class="bottom-area">
+            <pref-alert-area />
+            <transition name="slide-fade"><pref-right-panel-footer @saved="$el.focus()" /></transition>
+        </div>
+    </div>
 </template>
 
 <script>
 import debounce from "lodash.debounce";
 import { mapActions, mapGetters, mapState } from "vuex";
 
-import { BmCol } from "@bluemind/ui-components";
 import { ERROR, REMOVE, WARNING } from "@bluemind/alert.store";
 
 import PrefRightPanelFooter from "./PrefRightPanelFooter";
 import PrefRightPanelHeader from "./PrefRightPanelHeader";
-import PrefRightPanelNav from "./PrefRightPanelNav";
+import PrefAlertArea from "../PrefAlertArea";
 import PrefSections from "../PrefSections";
 import PrefSearchResults from "./PrefSearchResults";
 
 export default {
     name: "PrefRightPanel",
     components: {
-        BmCol,
         PrefRightPanelFooter,
         PrefRightPanelHeader,
-        PrefRightPanelNav,
+        PrefAlertArea,
         PrefSections,
         PrefSearchResults
     },
@@ -57,7 +62,7 @@ export default {
         };
     },
     computed: {
-        ...mapState("preferences", ["selectedSectionId", "sectionById"]),
+        ...mapState("preferences", ["selectedSectionId", "selectedCategoryId", "sectionById"]),
         ...mapGetters("preferences/fields", [
             "ERRORS",
             "IS_LOGOUT_NEEDED",
@@ -69,7 +74,10 @@ export default {
             return this.IS_LOGOUT_NEEDED || this.IS_RELOAD_NEEDED;
         },
         section() {
-            return this.sectionById[this.selectedSectionId] || {};
+            return this.sectionById[this.selectedSectionId];
+        },
+        category() {
+            return this.section?.categories?.find(c => c.id === `${this.selectedSectionId}.${this.selectedCategoryId}`);
         }
     },
     watch: {
@@ -172,16 +180,33 @@ function doesNodeMatch(node, pattern) {
 </script>
 
 <style lang="scss">
+@import "~@bluemind/ui-components/src/css/utils/responsiveness";
 @import "~@bluemind/ui-components/src/css/utils/variables";
 
 .pref-right-panel {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+
     padding: 0 !important;
 
-    .bm-alert-area {
-        position: sticky;
-        top: 0;
-        z-index: $zindex-sticky;
+    width: 100%;
+    @include from-lg {
+        width: 80%;
+    }
+
+    position: relative;
+
+    .bottom-area {
+        position: absolute;
+        bottom: 0;
+        z-index: $zindex-fixed;
         width: 100%;
+
+        .bm-alert-area {
+            width: 100%;
+            background-color: $surface;
+        }
     }
 
     .slide-fade-enter-active,

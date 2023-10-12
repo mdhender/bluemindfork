@@ -3,7 +3,6 @@
         :containers="myTodoLists"
         :container-type="containerType"
         :create-container-fn="create"
-        :collapsed="collapsed"
         :field-id="id"
         manage-mine
         @offline-sync-changed="UPDATE_PERSONAL_TODO_LIST"

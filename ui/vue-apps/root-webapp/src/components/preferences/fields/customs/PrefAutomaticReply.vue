@@ -3,7 +3,7 @@
         <bm-form-checkbox v-model="value.enabled" class="mb-3">
             {{ $t("preferences.mail.automatic_reply.activate") }}
         </bm-form-checkbox>
-        <div v-if="!collapsed" :class="{ disabled: !value.enabled }">
+        <div :class="{ disabled: !value.enabled }">
             <bm-form-group
                 :label="$t('common.subject')"
                 label-for="subject"
@@ -182,6 +182,7 @@ export default {
     }
 
     .date-range {
+        margin-top: $sp-6;
         display: flex;
         flex-direction: column;
         gap: $sp-2;

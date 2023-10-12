@@ -22,8 +22,8 @@ function myTodoLists(i18n) {
         icon: "list",
         groups: [
             {
-                name: i18n.t("common.my_todo_lists"),
                 id: "group",
+                name: i18n.t("common.my_todo_lists"),
                 fields: [{ id: "field", component: { name: "PrefManageMyTodoLists" } }]
             }
         ]

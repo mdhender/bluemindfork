@@ -9,6 +9,7 @@ const state = {
     showPreferences: false,
     search: "",
     selectedSectionId: "",
+    selectedCategoryId: "",
     sectionById: {},
     userPasswordLastChange: null,
     subscriptions: [],
@@ -58,8 +59,8 @@ const mutations = {
         sections.forEach(s => (sectionById[s.id] = s));
         state.sectionById = sectionById;
     },
-    SET_SELECTED_SECTION: (state, selectedPrefSection) => {
-        state.selectedSectionId = selectedPrefSection;
+    SET_CURRENT_PATH: (state, path) => {
+        [state.selectedSectionId, state.selectedCategoryId] = path.split("-");
     },
     SET_USER_PASSWORD_LAST_CHANGE: (state, user) => {
         state.userPasswordLastChange = user.value.passwordLastChange || user.created;
@@ -94,12 +95,18 @@ const mutations = {
 };
 
 const getters = {
-    GET_SECTION:
+    GET_SECTION_AND_CATEGORY:
         (state, { SECTIONS }) =>
-        groupId =>
-            SECTIONS.find(section =>
-                section.categories.flatMap(category => category.groups).find(group => group.id === groupId)
-            ),
+        groupId => {
+            for (const section of SECTIONS) {
+                for (const category of section.categories) {
+                    if (category.groups.find(group => group.id === groupId)) {
+                        return { section, category };
+                    }
+                }
+            }
+            return { section: undefined, category: undefined };
+        },
     GET_GROUP:
         (state, { SECTIONS }) =>
         groupId =>

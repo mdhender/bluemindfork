@@ -56,7 +56,7 @@ export default {
                         SET_OFFSET: jest.fn(),
                         TOGGLE_PREFERENCES: jest.fn(),
                         SET_SECTIONS: jest.fn(),
-                        SET_SELECTED_SECTION: jest.fn()
+                        SET_CURRENT_PATH: jest.fn()
                     },
                     modules: {
                         fields: {

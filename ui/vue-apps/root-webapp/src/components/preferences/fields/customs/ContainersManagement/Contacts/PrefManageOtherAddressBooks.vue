@@ -2,7 +2,6 @@
     <containers-management
         :containers="otherAddressbooks"
         :container-type="containerType"
-        :collapsed="collapsed"
         :field-id="id"
         share-column
         @offline-sync-changed="UPDATE_OTHER_ADDRESSBOOK"

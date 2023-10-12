@@ -1,5 +1,5 @@
 <template>
-    <div v-if="!collapsed" class="mt-4 d-flex align-items-center">
+    <div class="mt-4 d-flex align-items-center">
         <bm-progress
             circular
             :value="quota.used"

@@ -1,5 +1,5 @@
 <template>
-    <div v-if="!collapsed" class="d-flex pref-switch-webmail align-items-center text-neutral">
+    <div class="d-flex pref-switch-webmail align-items-center text-neutral">
         <img :src="image" alt="" />
         <div class="text-wrapper">
             <strong class="font-italic">{{ warning }}</strong>
