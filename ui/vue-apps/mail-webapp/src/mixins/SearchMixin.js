@@ -1,6 +1,7 @@
-import { mapMutations, mapState } from "vuex";
+import { mapGetters, mapMutations, mapState } from "vuex";
 import { MailRoutesMixin } from "~/mixins";
 import { ConversationListStatus } from "~/store/conversationList";
+import { CURRENT_MAILBOX } from "~/getters";
 import { SET_CONVERSATION_LIST_STATUS } from "~/mutations";
 
 const SPINNER_TIMEOUT = 250;
@@ -10,7 +11,8 @@ export default {
     computed: {
         ...mapState("mail", {
             currentSearch: ({ conversationList }) => conversationList.search.currentSearch
-        })
+        }),
+        ...mapGetters("mail", { CURRENT_MAILBOX })
     },
     methods: {
         ...mapMutations("mail", { SET_CONVERSATION_LIST_STATUS }),
@@ -30,7 +32,8 @@ export default {
                 name: "v:mail:home",
                 params: {
                     search: this.buildSearchQuery(pattern, folder, deep),
-                    ...this.folderRoute({ key: folder?.key }).params
+                    mailbox: this.CURRENT_MAILBOX.name,
+                    folder: folder?.path
                 }
             });
         },

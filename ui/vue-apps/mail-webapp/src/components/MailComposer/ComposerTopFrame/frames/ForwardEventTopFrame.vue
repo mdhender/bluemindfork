@@ -1,6 +1,6 @@
 <template>
     <chain-of-responsibility :is-responsible="hasEvent">
-        <event-detail class="event-details m-4" :event="event" :message="message" />
+        <event-detail v-if="hasEvent" class="event-details m-4" :event="event" :message="message" />
     </chain-of-responsibility>
 </template>
 

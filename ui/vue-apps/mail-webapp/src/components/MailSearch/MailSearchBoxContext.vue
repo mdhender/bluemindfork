@@ -65,14 +65,9 @@ export default {
             }
         }
     },
-    watch: {
-        folder: {
-            handler() {
-                this.SET_CURRENT_SEARCH_FOLDER(this.folder.imapName === DEFAULT_FOLDERS.INBOX ? null : this.folder);
-                this.SET_CURRENT_SEARCH_DEEP(true);
-            },
-            immediate: true
-        }
+    created() {
+        this.SET_CURRENT_SEARCH_FOLDER(this.folder.imapName === DEFAULT_FOLDERS.INBOX ? null : this.folder);
+        this.SET_CURRENT_SEARCH_DEEP(true);
     },
     methods: {
         ...mapMutations("mail", { SET_CURRENT_SEARCH_FOLDER, SET_CURRENT_SEARCH_DEEP }),

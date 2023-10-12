@@ -1,6 +1,6 @@
 import isEqual from "lodash.isequal";
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
-import { loadingStatusUtils } from "@bluemind/mail";
+import { loadingStatusUtils, folderUtils } from "@bluemind/mail";
 import { FETCH_CONVERSATION_LIST_KEYS, UNREAD_FOLDER_COUNT } from "~/actions";
 import {
     CONVERSATIONS_ACTIVATED,
@@ -17,9 +17,6 @@ import {
     SET_CONVERSATION_LIST_FILTER,
     SET_CONVERSATION_LIST_SORT,
     SET_CONVERSATION_LIST,
-    SET_CURRENT_SEARCH_DEEP,
-    SET_CURRENT_SEARCH_FOLDER,
-    SET_CURRENT_SEARCH_PATTERN,
     SET_MAIL_THREAD_SETTING,
     SET_ROUTE_FILTER,
     SET_ROUTE_FOLDER,
@@ -37,6 +34,7 @@ import { ConversationListFilter } from "~/store/conversationList";
 import { WaitForMixin } from "~/mixins";
 import { SortField, SortOrder } from "../../store/conversationList";
 
+const { DEFAULT_FOLDERS } = folderUtils;
 const { LoadingStatus } = loadingStatusUtils;
 
 export default {
@@ -114,9 +112,6 @@ export default {
             SET_CONVERSATION_LIST_FILTER,
             SET_CONVERSATION_LIST_SORT,
             SET_CONVERSATION_LIST,
-            SET_CURRENT_SEARCH_DEEP,
-            SET_CURRENT_SEARCH_FOLDER,
-            SET_CURRENT_SEARCH_PATTERN,
             SET_ROUTE_FILTER,
             SET_ROUTE_FOLDER,
             SET_ROUTE_MAILBOX,
@@ -165,13 +160,18 @@ export default {
             this.SET_CONVERSATION_LIST_SORT(sort);
         },
         $_RouterMixin_resolveFolder() {
-            let path = this.route.folder;
-            if (path) {
+            let folderPath = this.route.folder;
+            let mailboxName = this.route.mailbox;
+            if (mailboxName && !folderPath) {
+                folderPath = DEFAULT_FOLDERS.INBOX;
+            }
+
+            if (folderPath) {
                 let mailbox = this.MY_MAILBOX;
-                if (this.route.mailbox) {
-                    mailbox = this.MAILBOX_BY_NAME(this.route.mailbox);
+                if (mailboxName) {
+                    mailbox = this.MAILBOX_BY_NAME(mailboxName);
                 }
-                return this.FOLDER_BY_PATH(path, mailbox);
+                return this.FOLDER_BY_PATH(folderPath, mailbox);
             }
             return this.MY_INBOX;
         },

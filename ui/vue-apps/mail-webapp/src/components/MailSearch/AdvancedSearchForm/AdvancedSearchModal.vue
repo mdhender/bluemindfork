@@ -124,7 +124,7 @@ export default {
             currentPattern: ({ conversationList }) => conversationList.search.currentSearch.pattern
         }),
         currentFolder() {
-            return this.folders[this.activeFolder];
+            return this.folders[this.activeFolder] || {};
         },
         newPattern() {
             const subParts = Object.values(SearchHelper.PATTERN_KEYWORDS).flatMap(keyword => {
