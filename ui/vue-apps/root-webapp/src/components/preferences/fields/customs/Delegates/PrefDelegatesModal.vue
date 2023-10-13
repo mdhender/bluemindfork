@@ -26,7 +26,11 @@
                 {{ $t("preferences.account.delegates.delegate") }}
             </bm-label-icon>
         </contact-input>
-        <bm-form-radio-group v-model="delegationRight" class="radio-group" :disabled="!selectedDelegate">
+        <bm-form-radio-group
+            v-model="formData.delegationRight.current"
+            class="radio-group"
+            :disabled="!selectedDelegate"
+        >
             <bm-form-radio :value="Verb.SendOnBehalf">
                 {{ $t("preferences.account.delegates.edit.send_on_behalf") }}
             </bm-form-radio>
@@ -40,7 +44,7 @@
             </div>
             <div class="d-flex align-items-center pt-1 px-2">
                 <contact :contact="userAsContact" transparent bold-dn avatar-size="md" />
-                <span v-if="delegationRight === Verb.SendOnBehalf" class="ml-3">
+                <span v-if="formData.delegationRight.current === Verb.SendOnBehalf" class="ml-3">
                     <i18n path="preferences.account.delegates.edit.notice.send_by">
                         <template #delegate>
                             <span class="bold">{{
@@ -61,18 +65,14 @@
                 </span>
             </div>
             <bm-form-select
-                v-model="calendarRight"
+                v-model="formData.calendarRight.current"
                 :disabled="!selectedDelegate"
                 :auto-min-width="false"
                 class="my-4"
                 :options="rights(Container.CALENDAR)"
                 @input="onCalendarRightChanged"
             />
-            <bm-form-checkbox
-                v-model="copyImipToDelegate"
-                :disabled="copyImipToDelegateDisabled"
-                @change="copyImipToDelegateChanged = true"
-            >
+            <bm-form-checkbox v-model="formData.copyImipToDelegate.current" :disabled="copyImipToDelegateDisabled">
                 <div
                     class="d-flex align-items-center"
                     :title="
@@ -97,8 +97,13 @@
                     />
                 </div>
             </bm-form-checkbox>
-            <!--  TODO: uncomment once implemented
-            <bm-form-checkbox>{{ $t("preferences.account.delegates.calendar.private") }}</bm-form-checkbox> -->
+            <bm-form-checkbox
+                v-model="formData.seePrivateEvents.current"
+                :disabled="!selectedDelegate || !isSeePrivateEventsPossible"
+            >
+                {{ $t("preferences.account.delegates.calendar.private") }}
+                <bm-icon class="pl-4" icon="lock" />
+            </bm-form-checkbox>
         </div>
         <!-- TodoLists -->
         <div class="pt-2 pb-4">
@@ -108,12 +113,11 @@
                 </span>
             </div>
             <bm-form-select
-                v-model="todoListRight"
+                v-model="formData.todoListRight.current"
                 :disabled="!selectedDelegate"
                 :auto-min-width="false"
                 class="my-4"
                 :options="rights(Container.TODO_LIST)"
-                @input="containerRightsChanged = true"
             />
         </div>
         <!-- Mailboxes -->
@@ -124,12 +128,11 @@
                 </span>
             </div>
             <bm-form-select
-                v-model="messageRight"
+                v-model="formData.messageRight.current"
                 :disabled="!selectedDelegate"
                 :auto-min-width="false"
                 class="my-4"
                 :options="rights(Container.MAILBOX)"
-                @input="containerRightsChanged = true"
             />
         </div>
         <!-- Contacts -->
@@ -140,12 +143,11 @@
                 </span>
             </div>
             <bm-form-select
-                v-model="contactsRight"
+                v-model="formData.contactsRight.current"
                 :disabled="!selectedDelegate"
                 :auto-min-width="false"
                 class="my-4"
                 :options="rights(Container.CONTACTS)"
-                @input="containerRightsChanged = true"
             />
         </div>
         <!-- Footer -->
@@ -232,11 +234,7 @@ export default {
             hasIncoherentCopyImipOption,
             removeDelegateFromCopyImipMailboxRule,
             Right,
-            rightToAcl,
-            setCalendarAcl,
-            setContactsAcl,
-            setMailboxAcl,
-            setTodoListAcl
+            setContainerAcl
         } = useDelegation();
         return {
             aclToRight,
@@ -253,50 +251,45 @@ export default {
             hasIncoherentCopyImipOption,
             removeDelegateFromCopyImipMailboxRule,
             Right,
-            rightToAcl,
-            setCalendarAcl,
-            setContactsAcl,
-            setMailboxAcl,
-            setTodoListAcl
+            setContainerAcl
         };
     },
     data() {
         return {
             autocompleteResults: [],
             calendarApp,
-            calendarRight: undefined,
             contactsApp,
-            contactsRight: undefined,
-            containerRightsChanged: false,
-            copyImipToDelegate: undefined,
-            copyImipToDelegateChanged: false,
-            delegationRight: undefined,
-            initialDelegationRight: undefined,
             messageApp,
-            messageRight: undefined,
             selectedContacts: [],
             todoListApp,
-            todoListRight: undefined,
-            Verb
+            Verb,
+            formData: {
+                copyImipToDelegate: { current: undefined, initial: undefined },
+                calendarRight: { current: undefined, initial: undefined },
+                contactsRight: { current: undefined, initial: undefined },
+                messageRight: { current: undefined, initial: undefined },
+                todoListRight: { current: undefined, initial: undefined },
+                delegationRight: { current: undefined, initial: undefined },
+                seePrivateEvents: { current: undefined, initial: undefined },
+                delegate: { current: undefined, initial: undefined }
+            }
         };
     },
     computed: {
         hasChanged() {
-            return (
-                this.containerRightsChanged ||
-                this.selectedDelegate !== this.delegate ||
-                this.delegationRight !== this.initialDelegationRight ||
-                this.copyImipToDelegateChanged
-            );
+            return Object.values(this.formData).some(changed);
         },
         selectedDelegate() {
             return this.selectedContacts[0]?.uid;
         },
-        calendarRightSufficientForCopyImipOption() {
+        isCopyImipOptionPossible() {
             return (
                 inject("UserSession").roles.includes(BmRoles.SELF_CHANGE_MAILBOX_FILTER) &&
-                this.calendarRight.level >= this.Right.CAN_EDIT.level
+                this.formData.calendarRight.current?.level >= this.Right.CAN_EDIT.level
             );
+        },
+        isSeePrivateEventsPossible() {
+            return this.formData.calendarRight.current?.level >= this.Right.CAN_READ.level;
         },
         userAsContact() {
             return {
@@ -308,10 +301,7 @@ export default {
             return this.hasIncoherentCopyImipOption(this.selectedDelegate, this.copyImipToDelegate, this.calendarRight);
         },
         copyImipToDelegateDisabled() {
-            return (
-                !this.incoherentCopyImipToDelegate &&
-                (!this.selectedDelegate || !this.calendarRightSufficientForCopyImipOption)
-            );
+            return !this.incoherentCopyImipToDelegate && (!this.selectedDelegate || !this.isCopyImipOptionPossible);
         }
     },
     watch: {
@@ -323,17 +313,47 @@ export default {
         },
         selectedDelegate: {
             handler: async function (value) {
-                this.initialDelegationRight = this.delegationTypes[this.delegate] || Verb.SendOnBehalf;
-                this.delegationRight = this.initialDelegationRight;
+                this.formData.delegationRight.initial = this.delegationTypes[this.delegate] || Verb.SendOnBehalf;
+                this.formData.delegationRight.current = this.formData.delegationRight.initial;
 
                 const isNew = !this.delegate;
 
-                this.calendarRight = this.aclToRight(this.getCalendarAcl(), value, this.Right.CAN_EDIT, isNew);
-                this.todoListRight = this.aclToRight(this.getTodoListAcl(), value, this.Right.CAN_EDIT, isNew);
-                this.messageRight = this.aclToRight(this.getMailboxAcl(), value, this.Right.HAS_NO_RIGHTS, isNew);
-                this.contactsRight = this.aclToRight(this.getContactsAcl(), value, this.Right.HAS_NO_RIGHTS, isNew);
-
-                this.copyImipToDelegate = await this.hasCopyImipMailboxRuleAction(value);
+                this.formData.calendarRight.initial = this.aclToRight(
+                    this.getCalendarAcl(),
+                    value,
+                    this.Right.CAN_EDIT,
+                    isNew
+                );
+                this.formData.calendarRight.current = this.formData.calendarRight.initial;
+                this.formData.todoListRight.initial = this.aclToRight(
+                    this.getTodoListAcl(),
+                    value,
+                    this.Right.CAN_EDIT,
+                    isNew
+                );
+                this.formData.todoListRight.current = this.formData.todoListRight.initial;
+                this.formData.messageRight.initial = this.aclToRight(
+                    this.getMailboxAcl(),
+                    value,
+                    this.Right.HAS_NO_RIGHTS,
+                    isNew
+                );
+                this.formData.messageRight.current = this.formData.messageRight.initial;
+                this.formData.contactsRight.initial = this.aclToRight(
+                    this.getContactsAcl(),
+                    value,
+                    this.Right.HAS_NO_RIGHTS,
+                    isNew
+                );
+                this.formData.contactsRight.current = this.formData.contactsRight.initial;
+                this.formData.copyImipToDelegate.initial = this.hasCopyImipMailboxRuleAction(value);
+                this.formData.copyImipToDelegate.current = this.formData.copyImipToDelegate.initial;
+                this.formData.seePrivateEvents.initial = this.getCalendarAcl()?.some(
+                    ({ subject, verb }) => subject === value && verb === Verb.ReadExtended
+                );
+                this.formData.seePrivateEvents.current = this.formData.seePrivateEvents.initial;
+                this.formData.delegate.initial = this.delegate;
+                this.formData.delegate.current = value;
             },
             immediate: true
         }
@@ -349,8 +369,6 @@ export default {
                 : [];
         },
         init() {
-            this.containerRightsChanged = false;
-            this.copyImipToDelegateChanged = false;
             if (!this.delegate) {
                 this.selectedContacts = [];
             }
@@ -372,45 +390,69 @@ export default {
                 .map(DirEntryAdaptor.toContact);
         },
         async save() {
-            const promises = [];
-
-            const saveMailboxAcl = () => {
-                const delegationAc = { subject: this.selectedDelegate, verb: this.delegationRight };
-                const mailboxAcl = this.rightToAcl(this.messageRight, this.selectedDelegate).concat([delegationAc]);
-                promises.push(this.setMailboxAcl(mailboxAcl, this.selectedDelegate));
-            };
-
-            if (this.selectedDelegate !== this.delegate || this.containerRightsChanged) {
-                const calendarAcl = this.rightToAcl(this.calendarRight, this.selectedDelegate);
-                promises.push(this.setCalendarAcl(calendarAcl, this.selectedDelegate));
-
-                const todoListAcl = this.rightToAcl(this.todoListRight, this.selectedDelegate);
-                promises.push(this.setTodoListAcl(todoListAcl, this.selectedDelegate));
-
-                const contactsAcl = this.rightToAcl(this.contactsRight, this.selectedDelegate);
-                promises.push(this.setContactsAcl(contactsAcl, this.selectedDelegate));
-
-                saveMailboxAcl();
-            } else if (this.delegationRight !== this.initialDelegationRight) {
-                saveMailboxAcl();
-            }
-
-            if (this.copyImipToDelegateChanged) {
-                promises.push(
-                    this.copyImipToDelegate
-                        ? this.addDelegateToCopyImipMailboxRule({
-                              uid: this.selectedDelegate,
-                              address: this.selectedContacts[0].address,
-                              receiveImipOption: this.receiveImipOption
-                          })
-                        : this.removeDelegateFromCopyImipMailboxRule(this.selectedDelegate)
-                );
-            }
-
-            await Promise.all(promises);
+            await Promise.all([
+                this.saveMailboxAcl(),
+                this.saveCalendarAcl(),
+                this.saveTodoListAcl(),
+                this.saveContactsAcl(),
+                this.saveCopyImip()
+            ]);
             this.$refs.delegatesModal.hide();
             await this.fetchAcls();
             this.$store.dispatch(`alert/${SUCCESS}`, SAVE_ALERT);
+        },
+        saveMailboxAcl() {
+            return changed(this.formData.delegate) ||
+                changed(this.formData.messageRight) ||
+                changed(this.formData.delegationRight)
+                ? this.setContainerAcl(
+                      this.Container.MAILBOX,
+                      this.selectedDelegate,
+                      this.formData.messageRight.current,
+                      [this.formData.delegationRight.current]
+                  )
+                : Promise.resolve();
+        },
+        saveCalendarAcl() {
+            return changed(this.formData.delegate) ||
+                changed(this.formData.calendarRight) ||
+                changed(this.formData.seePrivateEvents)
+                ? this.setContainerAcl(
+                      this.Container.CALENDAR,
+                      this.selectedDelegate,
+                      this.formData.calendarRight.current,
+                      this.formData.seePrivateEvents.current ? [Verb.ReadExtended] : []
+                  )
+                : Promise.resolve();
+        },
+        saveTodoListAcl() {
+            return changed(this.formData.delegate) || changed(this.formData.todoListRight)
+                ? this.setContainerAcl(
+                      this.Container.TODO_LIST,
+                      this.selectedDelegate,
+                      this.formData.todoListRight.current
+                  )
+                : Promise.resolve();
+        },
+        saveContactsAcl() {
+            return changed(this.formData.delegate) || changed(this.formData.contactsRight)
+                ? this.setContainerAcl(
+                      this.Container.CONTACTS,
+                      this.selectedDelegate,
+                      this.formData.contactsRight.current
+                  )
+                : Promise.resolve();
+        },
+        saveCopyImip() {
+            return changed(this.formData.copyImipToDelegate)
+                ? this.formData.copyImipToDelegate.current
+                    ? this.addDelegateToCopyImipMailboxRule({
+                          uid: this.selectedDelegate,
+                          address: this.selectedContacts[0].address,
+                          receiveImipOption: this.receiveImipOption
+                      })
+                    : this.removeDelegateFromCopyImipMailboxRule(this.selectedDelegate)
+                : Promise.resolve();
         },
         rights(container) {
             return [
@@ -421,14 +463,16 @@ export default {
             ];
         },
         onCalendarRightChanged() {
-            if (!this.calendarRightSufficientForCopyImipOption && this.copyImipToDelegate) {
-                this.copyImipToDelegate = false;
-                this.copyImipToDelegateChanged = true;
+            if (!this.isCopyImipOptionPossible && this.formData.copyImipToDelegate.current) {
+                this.formData.copyImipToDelegate.current = false;
             }
-            this.containerRightsChanged = true;
         }
     }
 };
+
+function changed({ current, initial }) {
+    return current !== initial;
+}
 </script>
 
 <style lang="scss">

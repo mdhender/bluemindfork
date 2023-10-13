@@ -162,10 +162,28 @@ export function useDelegation() {
         return inject("ContainerManagementPersistence", containerUid).setAccessControlList(newAcl);
     };
 
-    const setCalendarAcl = (acl, delegate) => setAclForDelegate(calendarUid.value, acl, delegate);
-    const setMailboxAcl = (acl, delegate) => setAclForDelegate(mailboxUid.value, acl, delegate);
-    const setTodoListAcl = (acl, delegate) => setAclForDelegate(todoListUid.value, acl, delegate);
-    const setContactsAcl = (acl, delegate) => setAclForDelegate(addressBookUid.value, acl, delegate);
+    const setContainerAcl = (container, delegate, right, extraVerbs) => {
+        let acl = rightToAcl(right, delegate);
+        if (extraVerbs?.length) {
+            acl = acl.concat(extraVerbs.map(verb => ({ subject: delegate, verb })));
+        }
+        let containerUid;
+        switch (container) {
+            case Container.CALENDAR:
+                containerUid = calendarUid.value;
+                break;
+            case Container.MAILBOX:
+                containerUid = mailboxUid.value;
+                break;
+            case Container.TODO_LIST:
+                containerUid = todoListUid.value;
+                break;
+            case Container.CONTACTS:
+                containerUid = addressBookUid.value;
+                break;
+        }
+        return setAclForDelegate(containerUid, acl, delegate);
+    };
 
     const rightToAcl = (right, subject) => {
         return right.verbs.map(verb => ({ verb, subject }));
@@ -412,10 +430,7 @@ export function useDelegation() {
         removeDelegateFromCopyImipMailboxRule,
         Right,
         rightToAcl,
-        setCalendarAcl,
-        setContactsAcl,
-        setMailboxAcl,
-        setTodoListAcl,
+        setContainerAcl,
         updateReceiveImipOption
     };
 }
