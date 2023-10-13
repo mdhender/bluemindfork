@@ -25,3 +25,4 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.network.topology,
  net.bluemind.delivery.lmtp.filters;bundle-version="5.0.0"
 Automatic-Module-Name: net.bluemind.resource.lmtp.filter
+Export-Package: net.bluemind.resource.lmtp.filter

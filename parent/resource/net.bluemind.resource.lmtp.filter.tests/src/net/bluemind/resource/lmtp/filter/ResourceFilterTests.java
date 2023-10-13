@@ -347,7 +347,6 @@ public class ResourceFilterTests {
 
 		LmtpEnvelope envelope = EnvelopeBuilder.forEmails(((Mailbox) m.getTo().iterator().next()).getAddress(),
 				resourceUid + "@" + domainUid);
-
 		Message m2 = new ResourceFilter(mailer).filter(envelope, m);
 		assertNull(m2);
 
