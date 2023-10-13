@@ -99,7 +99,14 @@ function addDays(str, days) {
 }
 
 function defaultParser(node) {
-    return node?.term ? node.term : LuceneQueryParser.toString(node.right);
+    if (node?.term) {
+        return node.term;
+    } else if (node.parenthesized) {
+        const valueWithParenthesis = LuceneQueryParser.toString(node);
+        return valueWithParenthesis.substring(1, valueWithParenthesis.length - 1);
+    } else {
+        return LuceneQueryParser.toString(node.right);
+    }
 }
 
 function toIsoDate(str) {

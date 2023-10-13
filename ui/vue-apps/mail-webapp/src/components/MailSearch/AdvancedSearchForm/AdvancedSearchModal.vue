@@ -243,7 +243,8 @@ export default {
                         : this[keyword];
                 }
                 default: {
-                    return this[keyword];
+                    const isMultiWord = /\s+/.test(this[keyword]?.trim());
+                    return isMultiWord ? `(${this[keyword]})` : this[keyword];
                 }
             }
         },
