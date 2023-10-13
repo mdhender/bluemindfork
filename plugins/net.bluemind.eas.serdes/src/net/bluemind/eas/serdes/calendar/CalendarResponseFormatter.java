@@ -388,11 +388,17 @@ public class CalendarResponseFormatter implements IEasFragmentFormatter<Calendar
 					"xP///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoAAAAFAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAAAFAAIAAAAAAAAAxP///w==");
 		}
 
+		String globalObjId = ExtIdConverter.fromExtId(calendar.uid);
 		if (protocolVersion < 16) {
-			String globalObjId = ExtIdConverter.fromExtId(calendar.uid);
 			b.text(NamespaceMapping.EMAIL, "GlobalObjId", toB64(ExtIdConverter.fromHexString(globalObjId)));
 		} else {
 			b.text(NamespaceMapping.CALENDAR, "UID", calendar.uid);
+			// it should not be necessary to add GlobalObjId with pv >=16, but IOS seems to
+			// work better like this
+			// The server will return the calendar:UID element ([MS-ASCAL] section 2.2.2.46)
+			// instead of the
+			// GlobalObjId element when protocol version 16.0 or 16.1 is used.
+			b.text(NamespaceMapping.EMAIL, "GlobalObjId", toB64(ExtIdConverter.fromHexString(globalObjId)));
 		}
 
 		if (protocolVersion > 12.1) {
