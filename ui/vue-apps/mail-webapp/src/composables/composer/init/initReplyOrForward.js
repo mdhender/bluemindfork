@@ -58,7 +58,7 @@ export default async function initReplyOrForward(message, creationMode, previous
         store.commit(`mail/${SET_MESSAGE_CC}`, { messageKey: message.key, cc });
     }
 
-    createEditorContent(creationMode, userPrefTextOnly, previousMessage, previousInlines, message);
+    await createEditorContent(creationMode, userPrefTextOnly, previousMessage, previousInlines, message);
     await setFrom(identity, message);
     const structure = buildMessageStructure(creationMode, previousInlines, previousAttachments);
     store.commit(`mail/${SET_MESSAGE_STRUCTURE}`, { messageKey: message.key, structure });
