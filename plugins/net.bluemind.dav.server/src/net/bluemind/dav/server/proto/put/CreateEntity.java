@@ -24,11 +24,17 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bluemind.addressbook.adapter.AddressbookOwner;
+import net.bluemind.addressbook.adapter.VCardAdapter;
+import net.bluemind.addressbook.api.IAddressBook;
+import net.bluemind.addressbook.api.VCard;
+import net.bluemind.addressbook.api.VCardChanges;
 import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.VEventChanges;
 import net.bluemind.calendar.api.VEventSeries;
@@ -42,6 +48,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.dav.server.ics.ICS;
 import net.bluemind.dav.server.store.LoggedCore;
 import net.bluemind.dav.server.store.SyncTokens;
+import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.todolist.adapter.VTodoAdapter;
 import net.bluemind.todolist.api.ITodoList;
 import net.bluemind.todolist.api.VTodo;
@@ -59,6 +66,8 @@ abstract class CreateEntity {
 				return new CreateCalendar();
 			} else if ("todolist".equals(type)) {
 				return new CreateTodoList();
+			} else if ("addressbook".equals(type)) {
+				return new CreateAddressbook();
 			}
 		}
 		return new NoOp();
@@ -68,7 +77,8 @@ abstract class CreateEntity {
 
 		public void create(LoggedCore lc, PutQuery query, PutResponse pr, ContainerDescriptor cal) throws ServerFault {
 			new VTodoAdapter();
-			List<ItemValue<VTodo>> todos = new VTodoAdapter().convertToVTodoList(query.getCalendar());
+
+			List<ItemValue<VTodo>> todos = new VTodoAdapter().convertToVTodoList(((CalendarPutQuery) query).calendar);
 
 			if (todos.size() != 1) {
 				logger.error("we only support one task put", new Exception());
@@ -136,8 +146,8 @@ abstract class CreateEntity {
 			List<ItemValue<VEventSeries>> events = new LinkedList<>();
 			Consumer<ItemValue<VEventSeries>> consumer = series -> events.add(series);
 			CalendarProperties calendarProperties = VEventServiceHelper.parseCalendar(
-					new ByteArrayInputStream(query.getCalendar().getBytes()), Optional.empty(), Collections.emptyList(),
-					consumer);
+					new ByteArrayInputStream(((CalendarPutQuery) query).calendar.getBytes()), Optional.empty(),
+					Collections.emptyList(), consumer);
 
 			ICalendar calApi = lc.getCore().instance(ICalendar.class, cal.uid);
 			if (events.size() != 1) {
@@ -160,6 +170,42 @@ abstract class CreateEntity {
 				changes.modify = Arrays.asList(VEventChanges.ItemModify.create(itemUid, series.value, true));
 				res = calApi.updates(changes);
 			}
+			pr.setEtag(SyncTokens.getEtag(query.getPath(), res.version));
+			pr.setStatus(query.isCreate() ? 201 : 200);
+		}
+
+	}
+
+	static class CreateAddressbook extends CreateEntity {
+
+		@Override
+		public void create(LoggedCore lc, PutQuery query, PutResponse pr, ContainerDescriptor ab) throws ServerFault {
+			String itemUid = query.getExtId();
+			logger.info("[{}] Contact uid from query is {}", ab.uid, itemUid);
+
+			AddressbookPutQuery abQuery = (AddressbookPutQuery) query;
+			List<net.fortuna.ical4j.vcard.VCard> parsed = VCardAdapter.parse(abQuery.addressbook);
+			if (parsed.size() != 1) {
+				throw new ServerFault("More than one vcard has been submitted to creation");
+			}
+
+			String seed = "" + System.currentTimeMillis();
+			ItemValue<VCard> adaptedCard = VCardAdapter.adaptCard(parsed.get(0),
+					s -> UUID.nameUUIDFromBytes(seed.concat(s).getBytes()).toString(),
+					Optional.of(new AddressbookOwner(lc.getDomain(), lc.getUser().uid, Kind.USER)),
+					Collections.emptyList());
+
+			IAddressBook abApi = lc.getCore().instance(IAddressBook.class, ab.uid);
+
+			ItemValue<VCard> current = abApi.getComplete(itemUid);
+			VCardChanges changes = new VCardChanges();
+			if (current == null) {
+				changes.add = Arrays.asList(VCardChanges.ItemAdd.create(itemUid, adaptedCard.value));
+			} else {
+				changes.modify = Arrays.asList(VCardChanges.ItemModify.create(itemUid, adaptedCard.value));
+			}
+			ContainerUpdatesResult res = abApi.updates(changes);
+
 			pr.setEtag(SyncTokens.getEtag(query.getPath(), res.version));
 			pr.setStatus(query.isCreate() ? 201 : 200);
 		}

@@ -51,9 +51,11 @@ public class PutProtocol implements IDavProtocol<PutQuery, PutResponse> {
 					}
 				}
 
+				String ct = r.headers().get("Content-Type");
+				PutQuery pq = PutQuery.of(davRes, ct, b);
+
 				String p = r.path();
 				logger.info("[{}] parse {}\n{}", b.length(), p, b.toString());
-				PutQuery pq = new PutQuery(davRes);
 				DavHeaders.parse(pq, r.headers());
 				pq.setCreate(r.headers().contains("If-None-Match"));
 				int lastDot = p.lastIndexOf('.');
@@ -67,13 +69,6 @@ public class PutProtocol implements IDavProtocol<PutQuery, PutResponse> {
 					} catch (Exception e) {
 						logger.error(e.getMessage(), e);
 					}
-				}
-
-				String ct = r.headers().get("Content-Type");
-				if (ct != null && ct.startsWith("text/calendar")) {
-					pq.setCalendar(b.toString());
-				} else {
-					throw new RuntimeException("Unsupported content type: " + ct);
 				}
 
 				handler.handle(pq);

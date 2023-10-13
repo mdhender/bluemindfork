@@ -18,26 +18,18 @@
  */
 package net.bluemind.dav.server.proto.put;
 
+import io.vertx.core.buffer.Buffer;
 import net.bluemind.dav.server.proto.DavQuery;
 import net.bluemind.dav.server.store.DavResource;
 
-public class PutQuery extends DavQuery {
+public abstract class PutQuery extends DavQuery {
 
-	private String calendar;
 	private String extId;
 	private String collection;
 	private boolean create;
 
 	protected PutQuery(DavResource dr) {
 		super(dr);
-	}
-
-	public String getCalendar() {
-		return calendar;
-	}
-
-	public void setCalendar(String calendar) {
-		this.calendar = calendar;
 	}
 
 	public String getExtId() {
@@ -62,6 +54,20 @@ public class PutQuery extends DavQuery {
 
 	public void setCreate(boolean create) {
 		this.create = create;
+	}
+
+	protected static PutQuery of(DavResource dr, String contentType, Buffer b) {
+		if (contentType == null) {
+			throw new RuntimeException("Content type is not set");
+		}
+
+		if (contentType.startsWith("text/calendar")) {
+			return new CalendarPutQuery(dr, b.toString());
+		} else if (contentType.startsWith("text/vcard")) {
+			return new AddressbookPutQuery(dr, b.toString());
+		}
+
+		throw new RuntimeException("Content type not supported: " + contentType);
 	}
 
 }
