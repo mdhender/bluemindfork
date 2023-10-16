@@ -7,15 +7,15 @@
 
 <script>
 import { inject } from "@bluemind/inject";
-import { messageUtils, attachmentUtils } from "@bluemind/mail";
+import { messageUtils, attachmentUtils, partUtils } from "@bluemind/mail";
 import ChainOfResponsibility from "../../../ChainOfResponsibility";
 import EventDetail from "../../../MailViewer/EventViewer/EventDetail";
 import EventNotFound from "../../../MailViewer/EventViewer/EventNotFound";
 import EventHelper from "~/store/helpers/EventHelper";
 
 import MimeType from "@bluemind/email/src/MimeType";
-const { hasCalendarPart, computeParts } = messageUtils;
-
+const { getCalendarParts } = messageUtils;
+const { getPartsFromCapabilities, hasCalendarPart } = partUtils;
 export default {
     name: "ForwardEventTopFrame",
     components: { ChainOfResponsibility, EventDetail, EventNotFound },
@@ -46,14 +46,14 @@ export default {
     async created() {
         if (this.hasEvent) {
             try {
-                const ics = await this.fetchIcsToText();
-                const event = await this.retreiveCalendarEvent(this.message, this.retreiveUid(ics));
+                const event = await this.retreiveEventFromCalendarPart(this.message);
                 this.event = EventHelper.adapt(
                     event,
                     this.message.eventInfo.resourceUid,
                     this.message.from.address,
                     this.message.eventInfo.recuridIsoDate
                 );
+
                 this.error = false;
             } catch {
                 this.error = true;
@@ -61,6 +61,19 @@ export default {
         }
     },
     methods: {
+        async retreiveEventFromCalendarPart(message) {
+            const part = getCalendarParts(message.structure).pop();
+            const blob = await inject("MailboxItemsPersistence", message.folderRef.uid).fetch(
+                message.remoteRef.imapUid,
+                part.address,
+                part.encoding,
+                part.mime,
+                part.charset
+            );
+            const text = await blob.text();
+            return this.retreiveCalendarEvent(message, this.retreiveUid(text));
+        },
+
         async retreiveCalendarEvent(message, icsUid) {
             if (message.eventInfo.isResourceBooking) {
                 return inject("CalendarPersistence", "calendar:" + message.eventInfo.resourceUid).getComplete(icsUid);
@@ -69,17 +82,28 @@ export default {
             return EventHelper.findEvent(events, message.eventInfo.recuridIsoDate);
         },
 
-        retreiveUid(ics) {
-            const UUID_REGEX = /UID:(\S+)/i;
-            return ics.match(UUID_REGEX)?.[1];
-        },
-
-        async fetchIcsToText() {
-            const res = await fetch(encodeURI(this.icsFileUrl));
-            return res.text();
+        retreiveUid(textContent) {
+            return readTextPropertyValue(textContent, "UID");
         }
     }
 };
+
+function readTextPropertyValue(input, property) {
+    let len = input.length;
+    let begin = input.search(new RegExp(`^${property}\\S*:`, "mi"));
+    begin = input.indexOf(":", begin);
+    let end,
+        line = "";
+    do {
+        end = input.indexOf("\n", begin) + 1 || len;
+        line += input.slice(begin + 1, end).replace(/\r?\n/g, "");
+        if (input.charAt(end) !== " " && input.charAt(end) !== "\t") {
+            return line.trim();
+        }
+        begin = end;
+    } while (end < len && end > 0);
+    return line.trim();
+}
 </script>
 
 <style lang="scss">

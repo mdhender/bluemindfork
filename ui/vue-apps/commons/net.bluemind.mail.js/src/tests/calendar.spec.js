@@ -1,4 +1,4 @@
-import { hasCalendarPart } from "../message/structureParsers";
+import { hasCalendarPart } from "../part";
 
 describe("CALENDAR utils", () => {
     describe("hasCalendar", () => {

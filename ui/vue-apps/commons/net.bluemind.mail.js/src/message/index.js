@@ -9,7 +9,8 @@ import { Flag } from "@bluemind/email";
 import { LoadingStatus } from "../loading-status";
 import EmlParser from "./EmlParser";
 import MessageAdaptor from "./MessageAdaptor";
-import { getReportsParts, hasAttachment, computeParts, getLeafParts, hasCalendarPart } from "./structureParsers";
+import { getReportsParts, hasAttachment, computeParts, getLeafParts, getCalendarParts } from "./structureParsers";
+import { hasCalendarPart } from "../part";
 
 export function createOnlyMetadata({ internalId, folder: { key, uid }, conversationRef, date }) {
     return {
@@ -325,5 +326,6 @@ export default {
     partialCopy,
     removeDispositionNotificationHeader,
     setDispositionNotificationHeader,
-    hasCalendarPart
+    hasCalendarPart,
+    getCalendarParts
 };

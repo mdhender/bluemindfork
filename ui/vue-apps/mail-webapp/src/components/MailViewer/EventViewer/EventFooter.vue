@@ -82,8 +82,7 @@ function copyLink() {
             :entries="resources"
         />
         <event-footer-section v-if="description" :label="$t('mail.viewer.invitation.description')">
-            <!-- eslint-disable-next-line vue/no-v-html -->
-            <div class="event-footer-description" v-html="description" />
+            <div class="event-footer-description" v-text="description" />
         </event-footer-section>
     </div>
 </template>
@@ -115,6 +114,7 @@ function copyLink() {
 
     .event-footer-description {
         word-wrap: break-word;
+        white-space: break-spaces;
     }
 
     .event-footer-entry {

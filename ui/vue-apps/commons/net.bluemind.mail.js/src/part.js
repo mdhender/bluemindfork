@@ -73,6 +73,13 @@ export function sanitizeTextPartForCyrus(text) {
     return text.replace(/\r?\n/g, "\r\n");
 }
 
+export function hasCalendarPart(node) {
+    if (MimeType.isCalendar(node)) {
+        return true;
+    }
+    return node.children?.some(hasCalendarPart);
+}
+
 export default {
     createFromFile,
     getPartsFromCapabilities,
@@ -81,5 +88,6 @@ export default {
     mergePartsForRichEditor,
     mergePartsForTextarea,
     sanitizeTextPartForCyrus,
-    VIEWER_CAPABILITIES
+    VIEWER_CAPABILITIES,
+    hasCalendarPart
 };
