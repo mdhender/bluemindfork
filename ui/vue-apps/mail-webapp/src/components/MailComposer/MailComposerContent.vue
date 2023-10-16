@@ -100,8 +100,10 @@ export default {
         },
         async "messageCompose.editorContent"() {
             if (!this.loading) {
-                await this.getEditorRef();
-                this.$refs["message-content"].setContent(this.messageCompose.editorContent);
+                const editor = await this.getEditorRef();
+                if (editor.getContent() !== this.messageCompose.editorContent) {
+                    editor.setContent(this.messageCompose.editorContent);
+                }
             }
         }
     },
