@@ -62,7 +62,7 @@ function copyLink() {
         <event-footer-section
             :label="$tc('mail.viewer.invitation.attendee', attendees?.length, { count: attendees?.length })"
         >
-            <div v-for="(attendee, index) in attendees" :key="index" class="event-footer-entry">
+            <div v-for="(attendee, index) in attendees" :key="index" class="event-footer-entry" role="listitem">
                 <mail-contact-card-slots
                     :component="Contact"
                     :contact="attendee"

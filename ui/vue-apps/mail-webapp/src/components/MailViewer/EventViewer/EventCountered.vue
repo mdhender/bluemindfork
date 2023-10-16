@@ -7,6 +7,9 @@ import { ACCEPT_COUNTER_EVENT, DECLINE_COUNTER_EVENT } from "~/actions";
 import EventHeader from "./EventHeader";
 import EventDetail from "./EventDetail";
 import EventFooter from "./EventFooter";
+import EventFooterSection from "./EventFooterSection.vue";
+import MailContactCardSlots from "../../MailContactCardSlots";
+
 import { STATUS_KEY_FOR_OCCURRENCE, STATUS_KEY_FOR_EVENT } from "./replyActions";
 const { MessageHeader } = messageUtils;
 
@@ -75,7 +78,29 @@ const attendeeHeader = computed(() =>
         </event-header>
 
         <event-detail :event="event" :message="message" />
-        <event-footer :event="event" />
+
+        <div v-if="attendeeHeader" class="event-footer">
+            <event-footer-section label="Participant ajouté (1)">
+                <div
+                    v-for="(attendee, index) in [{ address: 'newone@devenv.dev.bluemind.net' }]"
+                    :key="index"
+                    class="event-footer-entry"
+                    role="listitem"
+                >
+                    <mail-contact-card-slots
+                        :component="Contact"
+                        :contact="attendee"
+                        no-avatar
+                        show-address
+                        transparent
+                        bold-dn
+                        enable-card
+                        class="text-truncate"
+                    />
+                </div>
+            </event-footer-section>
+        </div>
+        <event-footer v-else :event="event" />
     </div>
 </template>
 
