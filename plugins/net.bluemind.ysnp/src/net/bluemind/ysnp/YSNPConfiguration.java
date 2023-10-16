@@ -33,7 +33,6 @@ public class YSNPConfiguration {
 	public static final String CFG = "/etc/ysnp/ysnp.conf";
 	private Properties conf;
 	private static final String daemonSocketPath = "daemon.socket.path";
-	private static final String bmptDaemonSocketPath = "bmpt-daemon.socket.path";
 	private static final String expiredOkDaemonSocketPath = "expireok-daemon.socket.path";
 	private static final String archivedOkDaemonSocketPath = "archivedok-daemon.socket.path";
 	private static final Logger logger = LoggerFactory.getLogger(YSNPConfiguration.class);
@@ -43,7 +42,6 @@ public class YSNPConfiguration {
 	private YSNPConfiguration() {
 		try {
 			initSaslauthdSocketDir();
-			initPtsockSocketDir();
 		} catch (Exception e) {
 			throw new YSNPError(e);
 		}
@@ -51,7 +49,6 @@ public class YSNPConfiguration {
 		conf.put(daemonSocketPath, System.getProperty("ysnp.sock", "/var/run/saslauthd/mux"));
 		conf.put(expiredOkDaemonSocketPath, "/var/run/saslauthd/expireok");
 		conf.put(archivedOkDaemonSocketPath, "/var/run/saslauthd/archivedok");
-		conf.put(bmptDaemonSocketPath, "/var/run/cyrus/socket/bm-ptsock");
 		try (InputStream in = Files.newInputStream(Paths.get(CFG))) {
 			conf.load(in);
 		} catch (Exception e) {
@@ -63,44 +60,6 @@ public class YSNPConfiguration {
 	private static class YSNPError extends RuntimeException {
 		public YSNPError(Throwable t) {
 			super(t);
-		}
-	}
-
-	private void initPtsockSocketDir() throws IOException, InterruptedException {
-		File cyrusDir = new File("/var/run/cyrus");
-		File socketDir = new File("/var/run/cyrus/socket");
-
-		if (!cyrusDir.isDirectory()) {
-			Process p = Runtime.getRuntime().exec("/bin/rm -rf " + cyrusDir.getPath());
-			try {
-				p.waitFor();
-			} catch (InterruptedException e) {
-				logger.warn("Unable to remove: {}", cyrusDir.getPath());
-				throw e;
-			}
-		}
-
-		if (!socketDir.isDirectory()) {
-			Process p = Runtime.getRuntime().exec("/bin/rm -rf " + socketDir.getPath());
-			try {
-				p.waitFor();
-			} catch (InterruptedException e) {
-				logger.warn("Unable to remove: {}", socketDir.getPath());
-				throw e;
-			}
-
-			socketDir.mkdirs();
-		}
-
-		try {
-			Process p = Runtime.getRuntime().exec("chown cyrus:mail " + cyrusDir.getPath());
-			p.waitFor();
-
-			p = Runtime.getRuntime().exec("chown cyrus:mail " + socketDir.getPath());
-			p.waitFor();
-		} catch (InterruptedException e) {
-			logger.warn("Unable to set permissions on: {}", socketDir.getPath());
-			throw e;
 		}
 	}
 
@@ -145,10 +104,6 @@ public class YSNPConfiguration {
 			logger.warn("Unable to create: " + runDir.getPath() + " link to directory: " + postfixChrootDir.getPath());
 			throw e;
 		}
-	}
-
-	public String getPtSocketPath() {
-		return getString(bmptDaemonSocketPath);
 	}
 
 	public String getSocketPath() {
