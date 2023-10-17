@@ -1,6 +1,7 @@
 <template>
     <chain-of-responsibility :is-responsible="hasEvent">
-        <event-detail v-if="hasEvent" class="event-details m-4" :event="event" :message="message" />
+        <event-not-found v-if="error" class="event-details m-4" />
+        <event-detail v-else-if="hasEvent && event" class="event-details m-4" :event="event" :message="message" />
     </chain-of-responsibility>
 </template>
 
@@ -9,6 +10,7 @@ import { inject } from "@bluemind/inject";
 import { messageUtils, attachmentUtils } from "@bluemind/mail";
 import ChainOfResponsibility from "../../../ChainOfResponsibility";
 import EventDetail from "../../../MailViewer/EventViewer/EventDetail";
+import EventNotFound from "../../../MailViewer/EventViewer/EventNotFound";
 import EventHelper from "~/store/helpers/EventHelper";
 
 import MimeType from "@bluemind/email/src/MimeType";
@@ -16,14 +18,15 @@ const { hasCalendarPart, computeParts } = messageUtils;
 
 export default {
     name: "ForwardEventTopFrame",
-    components: { ChainOfResponsibility, EventDetail },
+    components: { ChainOfResponsibility, EventDetail, EventNotFound },
     props: {
         message: { type: Object, required: true },
         attachments: { type: Array, required: true }
     },
     data() {
         return {
-            event: {}
+            event: {},
+            error: false
         };
     },
     computed: {
@@ -42,14 +45,19 @@ export default {
     },
     async created() {
         if (this.hasEvent) {
-            const ics = await this.fetchIcsToText();
-            const event = await this.retreiveCalendarEvent(this.message, this.retreiveUid(ics));
-            this.event = EventHelper.adapt(
-                event,
-                this.message.eventInfo.resourceUid,
-                this.message.from.address,
-                this.message.eventInfo.recuridIsoDate
-            );
+            try {
+                const ics = await this.fetchIcsToText();
+                const event = await this.retreiveCalendarEvent(this.message, this.retreiveUid(ics));
+                this.event = EventHelper.adapt(
+                    event,
+                    this.message.eventInfo.resourceUid,
+                    this.message.from.address,
+                    this.message.eventInfo.recuridIsoDate
+                );
+                this.error = false;
+            } catch {
+                this.error = true;
+            }
         }
     },
     methods: {

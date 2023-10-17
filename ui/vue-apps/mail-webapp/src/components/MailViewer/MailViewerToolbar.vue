@@ -48,15 +48,16 @@
 </template>
 
 <script>
-import { BmButtonToolbar, BmIconButton, BmIconDropdown, BmDropdownItem } from "@bluemind/ui-components";
 import { mapState } from "vuex";
+import { messageUtils } from "@bluemind/mail";
+import { BmButtonToolbar, BmIconButton, BmIconDropdown, BmDropdownItem } from "@bluemind/ui-components";
 import { ReplyAndForwardRoutesMixin } from "~/mixins";
 import MailViewerToolbarOtherActions from "./MailViewerToolbarOtherActions";
-import MailOpenInPopupWithShift from "../MailOpenInPopupWithShift";
-import { messageUtils } from "@bluemind/mail";
-const { MessageHeader } = messageUtils;
 import { useComposerInit } from "~/composables/composer/ComposerInit";
 import ForwardEventButton from "../../calendar/components/ForwardEventButton";
+import MailOpenInPopupWithShift from "../MailOpenInPopupWithShift";
+
+const { MessageHeader } = messageUtils;
 
 export default {
     name: "MailViewerToolbar",
