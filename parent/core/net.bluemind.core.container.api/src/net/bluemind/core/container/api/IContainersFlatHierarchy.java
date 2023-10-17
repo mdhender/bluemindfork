@@ -22,7 +22,6 @@ import java.util.List;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
-
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ContainerChangeset;
@@ -45,5 +44,9 @@ public interface IContainersFlatHierarchy
 	@GET
 	@Path("{uid}/complete")
 	ItemValue<ContainerHierarchyNode> getComplete(@PathParam("uid") String uid);
+
+	@GET
+	@Path("{uid}/touch")
+	void touch(@PathParam("uid") String uid);
 
 }

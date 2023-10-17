@@ -31,8 +31,6 @@ public interface IInternalContainersFlatHierarchy extends IContainersFlatHierarc
 
 	void update(String uid, ContainerHierarchyNode node);
 
-	void touch(String uid);
-
 	void delete(String uid);
 
 	void reset();

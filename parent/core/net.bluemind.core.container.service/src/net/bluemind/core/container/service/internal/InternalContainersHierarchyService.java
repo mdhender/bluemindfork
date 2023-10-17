@@ -87,7 +87,9 @@ public class InternalContainersHierarchyService implements IInternalContainersFl
 
 	@Override
 	public void touch(String uid) {
-		storeService.touch(uid);
+		ItemVersion itemVersion = storeService.touch(uid);
+		eventsProducer.changed(itemVersion.version, ContainerHierarchyNode.extractContainerUid(uid), itemVersion.id,
+				Operation.UPDATE);
 	}
 
 	@Override
