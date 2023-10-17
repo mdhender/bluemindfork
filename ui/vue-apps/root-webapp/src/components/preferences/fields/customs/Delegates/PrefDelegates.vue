@@ -60,7 +60,7 @@ watchEffect(() => {
         <p>{{ $t("preferences.account.delegates.description") }}</p>
         <p v-if="!delegations.length">{{ $t("preferences.account.delegates.none") }}</p>
         <pref-delegates-table v-else @edit="editDelegate" />
-        <bm-button icon="plus" variant="outline" size="lg" @click="createDelegate">
+        <bm-button icon="plus" variant="outline" size="lg" class="mb-5" @click="createDelegate">
             {{ $t("preferences.account.delegates.create") }}
         </bm-button>
         <template v-if="delegations.length">
@@ -88,13 +88,13 @@ watchEffect(() => {
                     :aria-describedby="ariaDescribedby"
                     @change="updateFilter"
                 >
-                    <bm-form-radio :value="receiveImipOptions.ONLY_DELEGATE" class="ml-6">
+                    <bm-form-radio :value="receiveImipOptions.ONLY_DELEGATE" class="receive-imip-option">
                         {{ $t("preferences.account.delegates.receive_imip.choice.only_delegate") }}
                     </bm-form-radio>
-                    <bm-form-radio :value="receiveImipOptions.COPY" class="ml-6">
+                    <bm-form-radio :value="receiveImipOptions.COPY" class="receive-imip-option">
                         {{ $t("preferences.account.delegates.receive_imip.choice.copy") }}
                     </bm-form-radio>
-                    <bm-form-radio :value="receiveImipOptions.BOTH" class="ml-6">
+                    <bm-form-radio :value="receiveImipOptions.BOTH" class="receive-imip-option">
                         {{ $t("preferences.account.delegates.receive_imip.choice.both") }}
                     </bm-form-radio>
                 </bm-form-radio-group>
@@ -107,3 +107,13 @@ watchEffect(() => {
         />
     </div>
 </template>
+
+<style lang="scss">
+@import "@bluemind/ui-components/src/css/utils/variables";
+
+.pref-delegates {
+    .receive-imip-option {
+        margin-left: map-get($icon-sizes, "md") + $sp-4;
+    }
+}
+</style>

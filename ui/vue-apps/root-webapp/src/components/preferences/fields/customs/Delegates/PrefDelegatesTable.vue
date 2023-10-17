@@ -106,7 +106,7 @@ const remove = async contact => {
     <div class="pref-delegates-table">
         <bm-form-input
             v-model="pattern"
-            class="pref-filter mt-2 mb-3"
+            class="pref-filter mt-2 mb-5"
             :placeholder="$t('common.filter')"
             icon="filter"
             resettable
