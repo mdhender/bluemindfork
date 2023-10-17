@@ -52,7 +52,13 @@ public class CalendarResponseFormatter implements IEasFragmentFormatter<Calendar
 			b.text(NamespaceMapping.CALENDAR, "Subject", calendar.subject);
 		}
 		if (notEmpty(calendar.location)) {
-			b.text(NamespaceMapping.CALENDAR, "Location", calendar.location);
+			if (protocolVersion > 14.1) {
+				b.container(NamespaceMapping.AIR_SYNC_BASE, "Location");
+				b.text(NamespaceMapping.AIR_SYNC_BASE, "DisplayName", calendar.location);
+				b.endContainer();
+			} else {
+				b.text(NamespaceMapping.CALENDAR, "Location", calendar.location);
+			}
 		}
 		if (notEmpty(calendar.uid)) {
 			b.text(NamespaceMapping.CALENDAR, "UID", calendar.uid);
@@ -298,10 +304,12 @@ public class CalendarResponseFormatter implements IEasFragmentFormatter<Calendar
 		}
 
 		if (notEmpty(calendar.location)) {
-			if (protocolVersion < 16) {
-				b.text(NamespaceMapping.EMAIL, "Location", calendar.location);
+			if (protocolVersion > 14.1) {
+				b.container(NamespaceMapping.AIR_SYNC_BASE, "Location");
+				b.text(NamespaceMapping.AIR_SYNC_BASE, "DisplayName", calendar.location);
+				b.endContainer();
 			} else {
-				b.text(NamespaceMapping.AIR_SYNC_BASE, "Location", calendar.location);
+				b.text(NamespaceMapping.EMAIL, "Location", calendar.location);
 			}
 		}
 
