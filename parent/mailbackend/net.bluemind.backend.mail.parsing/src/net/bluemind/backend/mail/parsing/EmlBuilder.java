@@ -38,19 +38,22 @@ import java.util.Set;
 import javax.mail.internet.MimeUtility;
 
 import org.apache.james.mime4j.MimeException;
+import org.apache.james.mime4j.codec.DecodeMonitor;
 import org.apache.james.mime4j.dom.Body;
 import org.apache.james.mime4j.dom.Header;
 import org.apache.james.mime4j.dom.Message;
 import org.apache.james.mime4j.dom.address.Address;
 import org.apache.james.mime4j.dom.address.Mailbox;
 import org.apache.james.mime4j.dom.field.ContentDispositionField;
-import org.apache.james.mime4j.dom.field.ParsedField;
+import org.apache.james.mime4j.dom.field.UnstructuredField;
 import org.apache.james.mime4j.field.LenientFieldParser;
+import org.apache.james.mime4j.field.UnstructuredFieldImpl;
 import org.apache.james.mime4j.message.AbstractEntity;
 import org.apache.james.mime4j.message.BasicBodyFactory;
 import org.apache.james.mime4j.message.BodyPart;
 import org.apache.james.mime4j.message.MessageImpl;
 import org.apache.james.mime4j.message.MultipartImpl;
+import org.apache.james.mime4j.stream.RawField;
 import org.apache.james.mime4j.util.MimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,11 +83,7 @@ public class EmlBuilder {
 		BasicBodyFactory bbf = new BasicBodyFactory();
 		logger.info("Subject is '{}'", mb.subject);
 		msg.setSubject(mb.subject);
-		try {
-			fillHeader(msg.getHeader(), mb.headers, true);
-		} catch (MimeException e1) {
-			logger.error(e1.getMessage(), e1);
-		}
+		fillHeader(msg.getHeader(), mb.headers, true);
 		setRecipients(msg, mb.recipients);
 
 		Part structure = mb.structure;
@@ -99,11 +98,7 @@ public class EmlBuilder {
 				setBody(msg, body, structure);
 			}
 			Header partHeader = msg.getHeader();
-			try {
-				fillHeader(partHeader, mb.structure.headers, true);
-			} catch (MimeException e) {
-				logger.error(e.getMessage(), e);
-			}
+			fillHeader(partHeader, mb.structure.headers, true);
 		} catch (IOException e) {
 			msg.setBody(bbf.textBody("CRAP: " + e.getMessage(), StandardCharsets.UTF_8));
 		}
@@ -233,11 +228,7 @@ public class EmlBuilder {
 					setBody(bp, childBody, p);
 				}
 				Header partHeader = bp.getHeader();
-				try {
-					fillHeader(partHeader, p.headers, true);
-				} catch (MimeException e) {
-					logger.error(e.getMessage(), e);
-				}
+				fillHeader(partHeader, p.headers, true);
 				mp.addBodyPart(bp);
 			}
 			body = mp;
@@ -248,22 +239,23 @@ public class EmlBuilder {
 	private static final Set<String> IGNORED_CLIENT_HEADERS = Sets.newHashSet("content-disposition");
 
 	private static void fillHeader(Header partHeader, List<net.bluemind.backend.mail.api.MessageBody.Header> headers,
-			boolean replace) throws MimeException {
-		for (net.bluemind.backend.mail.api.MessageBody.Header h : headers) {
-			if (IGNORED_CLIENT_HEADERS.contains(h.name.toLowerCase())) {
-				logger.warn("Ignoring client provided {}: {}", h.name, h.values);
+			boolean replace) {
+		for (net.bluemind.backend.mail.api.MessageBody.Header header : headers) {
+			if (IGNORED_CLIENT_HEADERS.contains(header.name.toLowerCase())) {
+				logger.warn("Ignoring client provided {}: {}", header.name, header.values);
 				continue;
 			}
 
-			if (replace || h.name.equals("Content-Type") || h.name.equals("Content-Transfer-Encoding")) {
-				partHeader.removeFields(h.name);
+			if (replace || header.name.equals("Content-Type") || header.name.equals("Content-Transfer-Encoding")) {
+				partHeader.removeFields(header.name);
 			}
 
-			if (h.values.size() == 1) {
-				ParsedField parsed = LenientFieldParser.parse(h.name + ": " + h.values.get(0));
-				partHeader.addField(parsed);
+			if (header.values.size() == 1) {
+				RawField rawheader = new RawField(header.name, header.values.get(0));
+				UnstructuredField headerField = UnstructuredFieldImpl.PARSER.parse(rawheader, DecodeMonitor.SILENT);
+				partHeader.addField(headerField);
 			} else {
-				logger.warn("Skipping multivalued {}", h.name);
+				logger.warn("Skipping multivalued {}", header.name);
 			}
 		}
 	}
