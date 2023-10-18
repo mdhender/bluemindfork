@@ -41,9 +41,9 @@ public class VisioAccountTypeHook extends DefaultUserHook implements IUserHook {
 	}
 
 	@Override
-	public void onAccountTypeUpdated(BmContext context, String domainUid, String uid, AccountType update)
-			throws ServerFault {
-		UserAccountFactory.get(update).updateRoles(context, domainUid, uid);
+	public void onAccountTypeUpdated(BmContext context, String domainUid, ItemValue<User> user,
+			AccountType newAccountType) throws ServerFault {
+		UserAccountFactory.get(newAccountType).updateRoles(context, domainUid, user.uid);
 	}
 
 }

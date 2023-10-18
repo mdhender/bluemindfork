@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TimeZone;
 
@@ -912,13 +913,21 @@ public class UserService implements IInCoreUser, IUser {
 	public void updateAccountType(String uid, AccountType accountType) throws ServerFault {
 		rbacManager.forEntry(uid).check(BasicRoles.ROLE_MANAGE_USER);
 
-		if (accountType != null) {
-			DirEntryHandlers.byKind(BaseDirEntry.Kind.USER).updateAccountType(bmContext, domainName, uid, accountType);
-			for (IUserHook uh : userHooks) {
-				uh.onAccountTypeUpdated(bmContext, domainName, uid, accountType);
-			}
-			eventProducer.changed(uid, storeService.getVersion());
+		if (Objects.isNull(accountType)) {
+			return;
 		}
+
+		ItemValue<User> user = getComplete(uid);
+		if (user.value.accountType == accountType || (accountType == AccountType.SIMPLE && user.value.fullAccount())) {
+			// Downgrade to simple account not supported
+			return;
+		}
+
+		DirEntryHandlers.byKind(BaseDirEntry.Kind.USER).updateAccountType(bmContext, domainName, uid, accountType);
+		for (IUserHook uh : userHooks) {
+			uh.onAccountTypeUpdated(bmContext, domainName, user, accountType);
+		}
+		eventProducer.changed(uid, storeService.getVersion());
 	}
 
 	private MailFilter transformExternalEmailsToForwards(User user, MailFilter filter) {

@@ -64,8 +64,8 @@ public class DefaultUserHook implements IUserHook {
 	}
 
 	@Override
-	public void onAccountTypeUpdated(BmContext context, String domainUid, String uid, AccountType update)
-			throws ServerFault {
+	public void onAccountTypeUpdated(BmContext context, String domainUid, ItemValue<User> user,
+			AccountType newAccoutType) throws ServerFault {
 	}
 
 }

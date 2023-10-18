@@ -42,6 +42,7 @@ import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.directory.api.BaseDirEntry.AccountType;
 import net.bluemind.user.api.User;
 import net.bluemind.user.hook.DefaultUserHook;
 
@@ -63,15 +64,41 @@ public class UserCalendarHook extends DefaultUserHook {
 	@Override
 	public void onUserUpdated(BmContext context, String domainUid, ItemValue<User> previous, ItemValue<User> current)
 			throws ServerFault {
-		if (!current.value.system) {
-			if (!getUserDisplayName(previous.value).equals(getUserDisplayName(current.value))) {
-				UserCalendarServiceFactory calendarServiceFactory = new UserCalendarServiceFactory();
-				try {
-					calendarServiceFactory.getService(SecurityContext.SYSTEM).updateDefault(domainUid, current);
-				} catch (ServerFault e) {
-					logger.error(e.getMessage(), e);
-				}
+		if (current.value.system) {
+			return;
+		}
+
+		UserCalendarServiceFactory calendarServiceFactory = new UserCalendarServiceFactory();
+		if (!getUserDisplayName(previous.value).equals(getUserDisplayName(current.value))) {
+			try {
+				calendarServiceFactory.getService(SecurityContext.SYSTEM).updateDefault(domainUid, current);
+			} catch (ServerFault e) {
+				logger.error(e.getMessage(), e);
 			}
+		}
+
+		if (!previous.value.fullAccount() && current.value.fullAccount()) {
+			try {
+				calendarServiceFactory.getService(SecurityContext.SYSTEM).upgradeFromSimpleAccount(domainUid,
+						current.uid);
+			} catch (ServerFault e) {
+				logger.error(e.getMessage(), e);
+			}
+		}
+	}
+
+	@Override
+	public void onAccountTypeUpdated(BmContext context, String domainUid, ItemValue<User> user,
+			AccountType newAccountType) throws ServerFault {
+		if (user.value.fullAccount() || newAccountType == AccountType.SIMPLE) {
+			return;
+		}
+
+		try {
+			new UserCalendarServiceFactory().getService(SecurityContext.SYSTEM).upgradeFromSimpleAccount(domainUid,
+					user.uid);
+		} catch (ServerFault e) {
+			logger.error(e.getMessage(), e);
 		}
 	}
 
@@ -202,5 +229,4 @@ public class UserCalendarHook extends DefaultUserHook {
 			logger.error(e.getMessage(), e);
 		}
 	}
-
 }

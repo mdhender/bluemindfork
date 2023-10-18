@@ -165,6 +165,24 @@ public class UserCalendarService {
 	}
 
 	/**
+	 * Add invitation ACL
+	 * 
+	 * @param user
+	 */
+	public void upgradeFromSimpleAccount(String domainUid, String userUid) {
+		String defaultCalendarUid = getDefaultCalendarUid(userUid);
+		IContainerManagement manager = serviceProvider.instance(IContainerManagement.class, defaultCalendarUid);
+		List<AccessControlEntry> acls = manager.getAccessControlList();
+
+		AccessControlEntry invitationAcls = AccessControlEntry.create(domainUid, Verb.Invitation);
+		if (!acls.contains(invitationAcls)) {
+			logger.info("Add invitation ACL for userSubject: {} to container {}", userUid, defaultCalendarUid);
+			acls.add(invitationAcls);
+			manager.setAccessControlList(acls);
+		}
+	}
+
+	/**
 	 * @param domainUid
 	 * @param user
 	 * @param uid
