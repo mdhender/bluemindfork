@@ -199,7 +199,9 @@ export default {
             this.loading = true;
 
             try {
-                if (!addressbookId) return [];
+                if (!addressbookId) {
+                    return;
+                }
                 const addressbookRepository = inject("AddressBookPersistence", addressbookId);
                 const ids = await addressbookRepository.sortedIds();
                 this.allContacts = (await addressbookRepository.multipleGetById(ids)).map(contact => ({

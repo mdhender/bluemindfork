@@ -6,6 +6,8 @@ import DecoratedFileItem from "./components/MailAttachment/DecoratedFileItem.vue
 import PreviewBlockedRemoteContent from "./components/MailAttachment/Preview/Fallback/PreviewBlockedRemoteContent";
 import PreviewTooLarge from "./components/MailAttachment/Preview/Fallback/PreviewTooLarge";
 import ForwardEventAlertTrigger from "./calendar/components/alerts/ForwardEventAlertTrigger";
+import NotifyOrganizerTrigger from "./calendar/components/alerts/NotifyOrganizerTrigger";
+import NotifyOrganizerAlert from "./calendar/components/alerts/NotifyOrganizerAlert";
 import ForwardEventHandler from "./calendar/handlers/ForwardEventHandler";
 import ForwardedEventAlert from "./calendar/components/alerts/ForwardedEventAlert";
 
@@ -49,6 +51,14 @@ export default function () {
         }
     });
     Vue.component("ForwardedEventAlert", ForwardedEventAlert);
+    Vue.component("NotifyOrganizerAlert", NotifyOrganizerAlert);
+    Vue.component("NotifyOrganizerTrigger", NotifyOrganizerTrigger);
+    extensions.register("webapp.mail", "net.bluemind.webapp.mail.js", {
+        component: {
+            path: "composer.header",
+            name: "NotifyOrganizerTrigger"
+        }
+    });
     Vue.component("ForwardEventAlertTrigger", ForwardEventAlertTrigger);
     extensions.register("webapp.mail", "net.bluemind.webapp.mail.js", {
         component: {

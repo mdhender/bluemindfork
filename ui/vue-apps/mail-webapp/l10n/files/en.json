@@ -155,6 +155,7 @@
     "alert.mail.disposition_notification.info.pref": "Change my preferences",
     "alert.mail.forward_eml.fetch.error": "Failed to retrieve message in EML format. Unable to forward it.",
     "alert.mail.forwarded_event.info": "This invitation sent by {sender} is for an event organized by {organizer}.",
+    "alert.mail.notify_organizer.info": "{organizer} will be notified when new participants are added.",
     "alert.mail.mdn_sent.success": "Reading confirmation sent to {recipient}",
     "alert.mail.mdn_sent.error": "Failed to send the reading confirmation",
     "alert.mail.message.draft.attach.error": "Attachment error. Try again.",

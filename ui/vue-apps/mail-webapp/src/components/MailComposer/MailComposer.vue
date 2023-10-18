@@ -1,5 +1,6 @@
 <template>
     <bm-form class="mail-composer flex-grow-1 d-flex flex-column bg-surface" @keypress.ctrl.enter="sendMessage">
+        <bm-extension id="webapp.mail" path="composer.header" :message="message" />
         <mail-open-in-popup
             v-slot="action"
             :href="{ name: 'mail:popup:message', params: { messagepath } }"
@@ -95,6 +96,7 @@
 
 <script>
 import { mapGetters } from "vuex";
+import { BmExtension } from "@bluemind/extensions.vue";
 import { BmDropzone, BmFileDropZone, BmIconButton, BmFormInput, BmForm } from "@bluemind/ui-components";
 import { ComposerActionsMixin, FileDropzoneMixin } from "~/mixins";
 import { useComposer } from "~/composables/composer/Composer";
@@ -120,6 +122,7 @@ export default {
     name: "MailComposer",
     components: {
         BmDropzone,
+        BmExtension,
         BmIconButton,
         BmFileDropZone,
         BmFormInput,

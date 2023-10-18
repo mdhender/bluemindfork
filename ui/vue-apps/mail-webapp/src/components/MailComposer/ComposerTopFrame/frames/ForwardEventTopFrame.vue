@@ -6,16 +6,18 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
 import { inject } from "@bluemind/inject";
-import { messageUtils, attachmentUtils, partUtils } from "@bluemind/mail";
+import { messageUtils, attachmentUtils } from "@bluemind/mail";
+import MimeType from "@bluemind/email/src/MimeType";
+import EventHelper from "~/store/helpers/EventHelper";
+import { SET_CURRENT_EVENT } from "~/mutations";
 import ChainOfResponsibility from "../../../ChainOfResponsibility";
 import EventDetail from "../../../MailViewer/EventViewer/base/EventDetail";
 import EventNotFound from "../../../MailViewer/EventViewer/EventNotFound";
-import EventHelper from "~/store/helpers/EventHelper";
 
-import MimeType from "@bluemind/email/src/MimeType";
-const { getCalendarParts } = messageUtils;
-const { getPartsFromCapabilities, hasCalendarPart } = partUtils;
+const { hasCalendarPart, computeParts, getCalendarParts } = messageUtils;
+
 export default {
     name: "ForwardEventTopFrame",
     components: { ChainOfResponsibility, EventDetail, EventNotFound },
@@ -25,11 +27,13 @@ export default {
     },
     data() {
         return {
-            event: {},
             error: false
         };
     },
     computed: {
+        ...mapState("mail", {
+            event: state => state.consultPanel.currentEvent
+        }),
         hasEvent() {
             return hasCalendarPart(this.message.structure);
         },
@@ -47,14 +51,18 @@ export default {
         if (this.hasEvent) {
             try {
                 const [event, recurid] = await this.retreiveEventFromCalendarPart(this.message);
-                this.event = EventHelper.adapt(
-                    event,
-                    this.message.eventInfo.resourceUid,
-                    this.message.from.address,
-                    recurid ?? this.message.eventInfo.recuridIsoDate
+                this.$store.commit(
+                    `mail/${SET_CURRENT_EVENT}`,
+                    EventHelper.adapt(
+                        event,
+                        this.message.eventInfo.resourceUid,
+                        this.message.from.address,
+                        recurid ?? this.message.eventInfo.recuridIsoDate
+                    )
                 );
                 this.error = false;
             } catch {
+                this.$store.commit(`mail/${SET_CURRENT_EVENT}`, {});
                 this.error = true;
             }
         }

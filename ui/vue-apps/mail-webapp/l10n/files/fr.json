@@ -155,6 +155,7 @@
     "alert.mail.disposition_notification.info.pref": "Modifier mes préférences",
     "alert.mail.forward_eml.fetch.error": "Erreur lors de la récupération du message au format EML. Impossible de le transférer.",
     "alert.mail.forwarded_event.info": "Cette invitation envoyée par {sender} concerne un événement organisé par {organizer}.",
+    "alert.mail.notify_organizer.info": "{organizer} sera notifié(e) de l'ajout de participants.",
     "alert.mail.mdn_sent.success": "Confirmation de lecture envoyée à {recipient}",
     "alert.mail.mdn_sent.error": "Echec de l'envoi de la confirmation de lecture",
     "alert.mail.message.draft.attach.error": "Pièce-jointe en erreur. Réessayez.",
