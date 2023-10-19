@@ -79,7 +79,7 @@ public class UserCalendarHook extends DefaultUserHook {
 
 		if (!previous.value.fullAccount() && current.value.fullAccount()) {
 			try {
-				calendarServiceFactory.getService(SecurityContext.SYSTEM).upgradeFromSimpleAccount(domainUid,
+				calendarServiceFactory.getService(SecurityContext.SYSTEM).addDefaultCalendarInvitationAcl(domainUid,
 						current.uid);
 			} catch (ServerFault e) {
 				logger.error(e.getMessage(), e);
@@ -95,7 +95,7 @@ public class UserCalendarHook extends DefaultUserHook {
 		}
 
 		try {
-			new UserCalendarServiceFactory().getService(SecurityContext.SYSTEM).upgradeFromSimpleAccount(domainUid,
+			new UserCalendarServiceFactory().getService(SecurityContext.SYSTEM).addDefaultCalendarInvitationAcl(domainUid,
 					user.uid);
 		} catch (ServerFault e) {
 			logger.error(e.getMessage(), e);

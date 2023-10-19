@@ -169,7 +169,7 @@ public class UserCalendarService {
 	 * 
 	 * @param user
 	 */
-	public void upgradeFromSimpleAccount(String domainUid, String userUid) {
+	public void addDefaultCalendarInvitationAcl(String domainUid, String userUid) {
 		String defaultCalendarUid = getDefaultCalendarUid(userUid);
 		IContainerManagement manager = serviceProvider.instance(IContainerManagement.class, defaultCalendarUid);
 		List<AccessControlEntry> acls = manager.getAccessControlList();
