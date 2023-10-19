@@ -217,6 +217,7 @@ public class ReplicatedMailboxesRootMgmtService implements IReplicatedMailboxesR
 		} else {
 			logger.warn("Owner ns: {}, mbox: {} not found.", namespace, mailboxName);
 		}
+		SubtreeContainer.invalidateCacheEntry(context, partition.domainUid, mailboxName);
 	}
 
 	private void reset(Function<Lookup, List<Container>> lookup, DataSource ds) {

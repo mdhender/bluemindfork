@@ -73,15 +73,9 @@ public class SubtreeContainer {
 	private static String owner(BmContext context, MailboxReplicaRootDescriptor root, String domainOrPartition) {
 		String domainUid = domainOrPartition.replace('_', '.');
 		String nameOrUid = root.name.replace('^', '.');
-		CacheRegistry cacheRegistry = context.provider().instance(CacheRegistry.class);
-		CacheHolder<String, String> cache;
-		if (cacheRegistry != null) {
-			cache = CacheHolder.of(cacheRegistry.get("subtreeContainerMboxes"));
-		} else {
-			// backup context does not uses caches
-			cache = CacheHolder.of(null);
-		}
-		String cacheKey = nameOrUid + "@" + domainUid;
+		String cacheKey = getCacheKeyByMboxRoot(domainOrPartition, root.name);
+		CacheHolder<String, String> cache = getCache(context);
+
 		return Optional.ofNullable(cache.getIfPresent(cacheKey)).orElseGet(() -> {
 			IMailboxes mboxApi = context.su().provider().instance(IMailboxes.class, domainUid);
 			ItemValue<Mailbox> mboxIv = mboxApi.byName(nameOrUid);
@@ -104,6 +98,29 @@ public class SubtreeContainer {
 				return cacheAndReturn(cache, cacheKey, mboxIv);
 			}
 		});
+	}
+
+	private static String getCacheKeyByMboxRoot(String domainOrPartition, String name) {
+		String domainUid = domainOrPartition.replace('_', '.');
+		String nameOrUid = name.replace('^', '.');
+		return nameOrUid + "@" + domainUid;
+	}
+
+	public static void invalidateCacheEntry(BmContext context, String domainOrPartition, String name) {
+		CacheHolder<String, String> cache = SubtreeContainer.getCache(context);
+		cache.invalidate(getCacheKeyByMboxRoot(domainOrPartition, name));
+	}
+
+	public static CacheHolder<String, String> getCache(BmContext context) {
+		CacheRegistry cacheRegistry = context.provider().instance(CacheRegistry.class);
+		CacheHolder<String, String> cache;
+		if (cacheRegistry != null) {
+			cache = CacheHolder.of(cacheRegistry.get("subtreeContainerMboxes"));
+		} else {
+			// backup context does not uses caches
+			cache = CacheHolder.of(null);
+		}
+		return cache;
 	}
 
 	private static String cacheAndReturn(CacheHolder<String, String> cache, String cacheKey,
