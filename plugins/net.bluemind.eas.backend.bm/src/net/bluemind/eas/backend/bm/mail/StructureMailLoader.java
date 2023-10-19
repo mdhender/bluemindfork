@@ -18,19 +18,25 @@
  */
 package net.bluemind.eas.backend.bm.mail;
 
+import java.io.ByteArrayInputStream;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.backend.mail.api.MailboxItem;
 import net.bluemind.backend.mail.api.MessageBody.Header;
+import net.bluemind.backend.mail.api.MessageBody.Part;
 import net.bluemind.backend.mail.api.MessageBody.Recipient;
 import net.bluemind.backend.mail.api.MessageBody.RecipientKind;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.calendar.api.VEventSeries;
+import net.bluemind.calendar.helper.ical4j.VEventServiceHelper;
 import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.container.model.ItemValue;
@@ -41,6 +47,7 @@ import net.bluemind.eas.backend.bm.calendar.EventConverter;
 import net.bluemind.eas.backend.bm.compat.OldFormats;
 import net.bluemind.eas.backend.bm.impl.CoreConnect;
 import net.bluemind.eas.backend.bm.mail.loader.EventProvider;
+import net.bluemind.eas.backend.bm.mail.loader.MailAttachmentProvider;
 import net.bluemind.eas.dto.calendar.CalendarResponse;
 import net.bluemind.eas.dto.calendar.CalendarResponse.InstanceType;
 import net.bluemind.eas.dto.email.EmailResponse;
@@ -143,7 +150,10 @@ public class StructureMailLoader extends CoreConnect {
 				.findFirst();
 		if (cancel.isPresent()) {
 			HeaderUtil hUtil = new HeaderUtil(cancel.get().firstValue());
-			ret.meetingRequest = new CalendarResponse();
+			Optional<Part> ics = item.body.structure.attachments().stream()
+					.filter(part -> part.fileName.endsWith(".ics")).findFirst();
+			ret.meetingRequest = ics.map(icsAttachment -> icsToMeetingRequest(item.imapUid, icsAttachment))
+					.orElse(new CalendarResponse());
 			ret.meetingRequest.uid = hUtil.getHeaderValue().map(HeaderUtil.Value::toString).orElseThrow();
 			ret.messageClass = MessageClass.SCHEDULE_MEETING_CANCELED;
 			return ret;
@@ -192,6 +202,24 @@ public class StructureMailLoader extends CoreConnect {
 		}
 
 		return ret;
+	}
+
+	private CalendarResponse icsToMeetingRequest(long imapUid, Part ics) {
+		CalendarResponse calResponse;
+		try {
+			byte[] fetchedPart = new MailAttachmentProvider(bs).fetchPart(ics, imapUid, folder.uid);
+			List<ItemValue<VEventSeries>> ret = new LinkedList<>();
+			Consumer<ItemValue<VEventSeries>> consumer = ret::add;
+			VEventServiceHelper.parseCalendar(new ByteArrayInputStream(fetchedPart), Optional.empty(),
+					Collections.emptyList(), consumer);
+			EventConverter converter = new EventConverter();
+			MSEvent msEvent = converter.convert(bs.getUser(), ret.get(0));
+			calResponse = OldFormats.update(msEvent, bs.getUser());
+		} catch (Exception e) {
+			logger.warn("Cannot transform ics to CalendarResponse", e);
+			return new CalendarResponse();
+		}
+		return calResponse;
 	}
 
 }
