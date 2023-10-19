@@ -9,8 +9,8 @@ const i18n = new VueI18n({
     locale: "fr",
     messages: i18nFiles
 });
-describe("Event Countered", () => {
-    describe("Fowarded by attendee", () => {
+describe("Event Countered - Fowarded by attendee", () => {
+    describe("List added attendees", () => {
         it("shoud have a section with added participants  ", async () => {
             const addedAttendeesSection = await extractAttendeesList(mountEventCountered());
             expect(addedAttendeesSection.exists()).toBeTruthy();
@@ -50,6 +50,7 @@ describe("Event Countered", () => {
                 }).exists()
             ).toBeTruthy();
         });
+
         test("what if no counter attendees value", async () => {
             const wrapper = mount(EventCountered, {
                 localVue,
@@ -66,17 +67,55 @@ describe("Event Countered", () => {
             expect(wrapper.find(".event-footer-section").text()).toEqual("Participants ajoutés (0)");
             expect((await extractAttendeesList(wrapper)).find("[role='listitem']").exists()).toBeFalsy();
         });
+
+        async function extractAttendeesList(wrapper) {
+            const listOfAttendees = findByText(wrapper, {
+                selector: ".event-footer-section",
+                text: "Participants? ajoutés? \\(\\d\\)"
+            }).at(0);
+
+            await listOfAttendees.find("button").trigger("click");
+            return listOfAttendees;
+        }
     });
 
-    async function extractAttendeesList(wrapper) {
-        const listOfAttendees = findByText(wrapper, {
-            selector: ".event-footer-section",
-            text: "Participants? ajoutés? \\(\\d\\)"
-        }).at(0);
+    describe("Invitation can be refused by organizer", () => {
+        it("should contains a button to refuse new attendee ", () => {
+            const wrapper = mountEventCountered();
+            const refuseInvitationBtn = findByText(wrapper, {
+                selector: "button",
+                text: "Refuser"
+            }).at(0);
 
-        await listOfAttendees.find("button").trigger("click");
-        return listOfAttendees;
-    }
+            expect(refuseInvitationBtn.text()).toEqual("Refuser NEW ONE");
+        });
+
+        it("reject button should show how many attendees will be rejected when more than one ", () => {
+            const wrapper = mountEventCountered(["anymail@gmail.com"]);
+            const refuseInvitationBtn = findByText(wrapper, {
+                selector: "button",
+                text: "Refuser"
+            }).at(0);
+
+            expect(refuseInvitationBtn.text()).toEqual("Refuser les 2 participants ajoutés");
+        });
+
+        it("when more than five added attendees, button will only propose to rejects them all ", () => {
+            const wrapper = mountEventCountered([
+                "numero1@anymail.com",
+                "numero2@anymail.com",
+                "numero3@anymail.com",
+                "numero4@anymail.com",
+                "numero5@anymail.com"
+            ]);
+            const refuseInvitationBtn = findByText(wrapper, {
+                selector: "button",
+                text: "Refuser"
+            }).at(0);
+
+            expect(refuseInvitationBtn.text()).toEqual("Refuser tous les participants ajoutés");
+        });
+    });
 });
 
 function findByText(wrapper, { selector, text }) {

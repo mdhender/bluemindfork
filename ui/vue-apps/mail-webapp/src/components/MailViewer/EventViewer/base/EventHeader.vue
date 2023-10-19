@@ -19,6 +19,7 @@
 
     @include until-lg {
         display: grid;
+        justify-items: start;
     }
     @include from-lg {
         display: flex;

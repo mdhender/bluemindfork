@@ -7,7 +7,7 @@ import { ACCEPT_COUNTER_EVENT, DECLINE_COUNTER_EVENT } from "~/actions";
 import EventHeader from "./base/EventHeader";
 import EventDetail from "./base/EventDetail";
 import EventFooter from "./base/EventFooter";
-import EventFooterSection from "./base/EventFooterSection.vue";
+import EventFooterSection from "./base/EventFooterSection";
 import MailContactCardSlots from "../../MailContactCardSlots";
 import { Contact } from "@bluemind/business-components";
 
@@ -42,6 +42,8 @@ const newlyAddedAttendees = computed(() =>
         ?.filter(a => attendeeHeader.value.values?.[0]?.includes(a.mail))
         ?.map(a => ({ address: a.mail, dn: a.name }))
 );
+
+function rejectAttendees(attendees) {}
 </script>
 
 <template>
@@ -78,6 +80,16 @@ const newlyAddedAttendees = computed(() =>
 
         <event-header v-else-if="attendeeHeader">
             <span class="bold"> {{ $t("mail.viewer.invitation.counter.attendees") }}</span>
+            <template #actions>
+                <bm-toggleable-button icon="cross" @click="rejectAttendees(newlyAddedAttendees)">
+                    {{
+                        $tc("mail.viewer.invitation.counter.added_attendees.refuse", newlyAddedAttendees.length - 1, {
+                            attendee: newlyAddedAttendees?.[0]?.dn,
+                            count: newlyAddedAttendees.length
+                        })
+                    }}
+                </bm-toggleable-button>
+            </template>
         </event-header>
         <event-header v-else-if="!event.counter">
             <span class="bold"> {{ $t("mail.viewer.invitation.counter.answered") }}</span>
