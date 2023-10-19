@@ -13,7 +13,7 @@ import { useAddAttachmentsCommand } from "~/commands/AddAttachmentsCommand";
 const { MessageCreationModes, createEmlName } = messageUtils;
 const { computeSubject } = draftUtils;
 export default function useForwardEml() {
-    const { maxSize, execAddAttachments } = useAddAttachmentsCommand();
+    const { execAddAttachments } = useAddAttachmentsCommand();
 
     async function initForwardEml(message, related) {
         const { message: relatedMessage } = related;
@@ -32,7 +32,7 @@ export default function useForwardEml() {
             const file = new File([content], createEmlName(relatedMessage, i18n.t("mail.viewer.no.subject")), {
                 type: MimeType.EML
             });
-            await execAddAttachments({ files: [file], message, maxSize: maxSize.value });
+            await execAddAttachments({ files: [file], message });
         } catch {
             store.dispatch(`alert/${ERROR}`, {
                 alert: { name: "mail.forward_eml.fetch", uid: "FWD_EML_UID" }

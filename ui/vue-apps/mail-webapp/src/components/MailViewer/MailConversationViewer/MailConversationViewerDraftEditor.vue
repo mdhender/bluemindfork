@@ -94,7 +94,7 @@
                         :dragged-files-count="draggedFilesCount"
                         :message="message"
                         @files-count="draggedFilesCount = $event"
-                        @drop-files="$execute('add-attachments', { files: $event, message, maxSize })"
+                        @drop-files="$execute('add-attachments', { files: $event, message })"
                     />
                 </div>
             </div>
@@ -105,7 +105,7 @@
                     class="my-2"
                     :should-activate-fn="shouldActivate"
                     @files-count="draggedFilesCount = $event"
-                    @drop-files="$execute('add-attachments', { files: $event, message, maxSize })"
+                    @drop-files="$execute('add-attachments', { files: $event, message })"
                 >
                     <template #dropZone>
                         <mail-composer-attach-zone :text="$tc('mail.new.attachments.drop.zone', draggedFilesCount)" />

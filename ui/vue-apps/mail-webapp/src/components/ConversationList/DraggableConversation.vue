@@ -116,7 +116,7 @@ export default {
                     messageUtils.createEmlName(lastMessage, this.$t("mail.viewer.no.subject")),
                     { type: "message/rfc822" }
                 );
-                this.$execute("add-attachments", { files: [file], message, maxSize: this.maxSize });
+                this.$execute("add-attachments", { files: [file], message });
             } catch {
                 this.$store.dispatch(`alert/${ERROR}`, {
                     alert: { name: "mail.attach_eml.fetch", uid: "ATTACH_EML_UID" }

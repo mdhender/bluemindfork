@@ -60,7 +60,7 @@
                 type="file"
                 multiple
                 hidden
-                @change="execAddAttachments({ files: $event.target.files, message, maxSize })"
+                @change="execAddAttachments({ files: $event.target.files, message })"
                 @click.stop="closeFilePicker()"
             />
             <bm-icon-button
@@ -147,8 +147,8 @@ export default {
         isDispositionNotificationRequested: { type: Boolean, required: true }
     },
     setup() {
-        const { maxSize, execAddAttachments } = useAddAttachmentsCommand();
-        return { maxSize, execAddAttachments };
+        const { execAddAttachments } = useAddAttachmentsCommand();
+        return { execAddAttachments };
     },
     computed: {
         ...mapGetters("mail", { IS_SENDER_SHOWN }),

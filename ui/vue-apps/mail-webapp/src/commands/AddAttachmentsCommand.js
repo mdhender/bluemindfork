@@ -45,12 +45,8 @@ async function addAttachments({ files, message, maxSize }) {
 export default {
     commands: {
         addAttachments: function (payload) {
-            return addAttachments({ maxSize: this.maxSize, ...payload });
-        }
-    },
-    computed: {
-        maxSize() {
-            return store.state.mail.messageCompose.maxMessageSize;
+            const maxSize = store.state.mail.messageCompose.maxMessageSize;
+            return addAttachments({ maxSize, ...payload });
         }
     }
 };

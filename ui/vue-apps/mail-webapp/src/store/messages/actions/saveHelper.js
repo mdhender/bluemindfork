@@ -1,4 +1,4 @@
-import { Flag } from "@bluemind/email";
+import { Flag, MimeType } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
 
 import { draftUtils, messageUtils } from "@bluemind/mail";
@@ -27,8 +27,20 @@ export function isReadyToBeSaved(draft) {
         draft.status === MessageStatus.SAVE_ERROR
     );
 }
+function isValidDraft(draft) {
+    const hasNullAddress = node => {
+        if (!MimeType.isMultipart(node) && !node.address) {
+            return true;
+        }
+        return node.children?.some(hasNullAddress);
+    };
+    return !hasNullAddress(draft.structure);
+}
 
 export async function save({ commit, dispatch }, draft) {
+    if (!isValidDraft(draft)) {
+        return;
+    }
     const service = inject("MailboxItemsPersistence", draft.folderRef.uid);
     try {
         commit(SET_MESSAGES_STATUS, [{ key: draft.key, status: MessageStatus.SAVING }]);

@@ -1,6 +1,6 @@
 import debounce from "lodash/debounce";
 
-import { isReadyToBeSaved, save } from "./saveHelper";
+import { isReadyToBeSaved, save as doSave } from "./saveHelper";
 
 let debounceRef;
 
@@ -42,4 +42,8 @@ async function waitUntilReady(draft) {
         return waitUntilReady(draft);
     }
     return Promise.resolve();
+}
+
+function save(context, draft) {
+    return doSave(context, draft);
 }

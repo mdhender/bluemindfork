@@ -59,7 +59,7 @@
                 class="h-100 my-2"
                 :should-activate-fn="shouldActivate"
                 @files-count="draggedFilesCount = $event"
-                @drop-files="execAddAttachments({ files: $event, message, maxSize })"
+                @drop-files="execAddAttachments({ files: $event, message })"
             >
                 <template #dropZone>
                     <mail-composer-attach-zone :text="$tc('mail.new.attachments.drop.zone', draggedFilesCount)" />
@@ -70,7 +70,7 @@
                     :message="message"
                     :attachments="attachments"
                     @files-count="draggedFilesCount = $event"
-                    @drop-files="execAddAttachments({ files: $event, message, maxSize })"
+                    @drop-files="execAddAttachments({ files: $event, message })"
                 />
                 <mail-composer-content
                     ref="content"
@@ -143,7 +143,7 @@ export default {
     },
     setup(props) {
         const content = ref(); // DOM ref="content"
-        const { maxSize, execAddAttachments } = useAddAttachmentsCommand();
+        const { execAddAttachments } = useAddAttachmentsCommand();
         const {
             draggedFilesCount,
             isSignatureInserted,
@@ -170,7 +170,6 @@ export default {
             toggleDispositionNotification,
             checkAndRepairFrom,
             messageCompose,
-            maxSize,
             execAddAttachments,
             setFrom
         };

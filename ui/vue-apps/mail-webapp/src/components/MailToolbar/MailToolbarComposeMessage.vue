@@ -33,7 +33,7 @@
             type="file"
             multiple
             hidden
-            @change="$execute('add-attachments', { files: $event.target.files, message, maxSize })"
+            @change="$execute('add-attachments', { files: $event.target.files, message })"
             @click="closeFilePicker()"
         />
         <mail-toolbar-responsive-dropdown

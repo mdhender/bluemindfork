@@ -108,4 +108,12 @@ describe("[Mail-WebappStore][actions] :  save", () => {
         ]);
         jest.spyOn(global.console, "error");
     });
+    test("No save when invalid draft structure", async () => {
+        draft.structure = {
+            mime: "text/plain",
+            address: null
+        };
+        await saveAsap(context, saveParams);
+        expect(itemsService.updateById).not.toHaveBeenCalled();
+    });
 });
