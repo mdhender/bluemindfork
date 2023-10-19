@@ -98,23 +98,23 @@ export function useComposerInit() {
             switch (action) {
                 case MessageCreationModes.REPLY:
                 case MessageCreationModes.REPLY_ALL: {
-                    return initReplyOrForward(message, action, previousInfos);
+                    return await initReplyOrForward(message, action, previousInfos);
                 }
                 case MessageCreationModes.FORWARD: {
                     const { message: newMessage } = await execForward({ message, previousInfos });
                     return newMessage;
                 }
                 case MessageCreationModes.EDIT_AS_NEW: {
-                    return initEditAsNew(message, previousInfos);
+                    return await initEditAsNew(message, previousInfos);
                 }
                 case MessageCreationModes.FORWARD_AS_EML: {
-                    return initForwardEml(message, previousInfos);
+                    return await initForwardEml(message, previousInfos);
                 }
                 default:
-                    return initNewMessage(folder);
+                    return await initNewMessage(folder);
             }
         } catch {
-            return initNewMessage(folder);
+            return await initNewMessage(folder);
         } finally {
             store.commit(`mail/${SET_MESSAGE_LOADING_STATUS}`, {
                 messageKey: message.key,
