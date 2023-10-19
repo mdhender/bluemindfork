@@ -208,6 +208,10 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 				doOrFail(() -> changelogStore.itemChangelog(itemUid, since, to)));
 	}
 
+	protected void invalidateLastEmptyChangeset() {
+		lastEmptyChangeset.invalidate(containerCacheKey);
+	}
+
 	private <W> ContainerChangeset<W> cacheIfUnchanged(long from, SqlOperation<ContainerChangeset<W>> op) {
 		Long maybeSameAsSince = lastEmptyChangeset.getIfPresent(containerCacheKey);
 		if (maybeSameAsSince != null && maybeSameAsSince.longValue() == from) {

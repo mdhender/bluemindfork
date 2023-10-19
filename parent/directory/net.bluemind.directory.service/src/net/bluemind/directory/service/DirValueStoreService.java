@@ -308,13 +308,14 @@ public abstract class DirValueStoreService<T> extends BaseDirStoreService<DirEnt
 				throw ServerFault.notFound("entry[" + uid + "]@" + container.uid + " not found");
 			}
 
-			item = itemStore.update(uid, item.displayName);
 			vcardStore.update(item, vcardAdapter.asVCard(domain, uid, dirEntry));
+			item = itemStore.update(uid, item.displayName);
 
 			if (hasChangeLog) {
 				changelogStore.itemUpdated(LogEntry.create(item.version, item.uid, item.externalId,
 						securityContext.getSubject(), securityContext.getOrigin(), item.id, 0));
 			}
+			invalidateLastEmptyChangeset();
 			return null;
 		});
 	}
@@ -326,15 +327,16 @@ public abstract class DirValueStoreService<T> extends BaseDirStoreService<DirEnt
 				throw ServerFault.notFound("entry[" + uid + "]@" + container.uid + " not found");
 			}
 
+			documentStore.delete(getPhotoUid(uid));
+			documentStore.delete(getIconUid(uid));
+
 			item = itemStore.update(uid, item.displayName);
 			if (hasChangeLog) {
 				changelogStore.itemUpdated(LogEntry.create(item.version, item.uid, item.externalId,
 						securityContext.getSubject(), securityContext.getOrigin(), item.id, 0));
 			}
 
-			documentStore.delete(getPhotoUid(uid));
-			documentStore.delete(getIconUid(uid));
-
+			invalidateLastEmptyChangeset();
 			return null;
 		});
 	}
@@ -346,13 +348,15 @@ public abstract class DirValueStoreService<T> extends BaseDirStoreService<DirEnt
 				throw ServerFault.notFound("entry[" + uid + "]@" + container.uid + " not found");
 			}
 
+			documentStore.store(getPhotoUid(uid), photo);
+			documentStore.store(getIconUid(uid), icon);
+
 			item = itemStore.update(uid, item.displayName);
 			if (hasChangeLog) {
 				changelogStore.itemUpdated(LogEntry.create(item.version, item.uid, item.externalId,
 						securityContext.getSubject(), securityContext.getOrigin(), item.id, 0));
 			}
-			documentStore.store(getPhotoUid(uid), photo);
-			documentStore.store(getIconUid(uid), icon);
+			invalidateLastEmptyChangeset();
 			return null;
 		});
 	}
