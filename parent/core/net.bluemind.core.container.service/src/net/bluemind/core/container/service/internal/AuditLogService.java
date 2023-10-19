@@ -46,40 +46,38 @@ import net.bluemind.directory.api.IDirectory;
 public abstract class AuditLogService<T, U> {
 
 	private static final Logger logger = LoggerFactory.getLogger(AuditLogService.class);
-	private AuditLogLoader auditLogProvider = new AuditLogLoader();
 	private IAuditLogClient auditLogClient;
 
 	protected SecurityContext securityContext;
 	protected BaseContainerDescriptor container;
 	protected ILogMapperProvider<U> mapper;
 	protected String type;
+	protected String domainUid;
 
 	protected AuditLogService(SecurityContext sc, BaseContainerDescriptor cont, ILogMapperProvider<U> dm) {
 		securityContext = sc;
 		container = cont;
 		mapper = dm;
 		type = cont.type;
+		domainUid = cont.domainUid;
+		AuditLogLoader auditLogProvider = new AuditLogLoader();
 		auditLogClient = auditLogProvider.getClient();
 	}
 
 	protected AuditLogService(SecurityContext sc, BaseContainerDescriptor cont) {
 		securityContext = sc;
 		container = cont;
+		domainUid = cont.domainUid;
 		type = cont.type;
 		this.mapper = new DefaultLogMapperProvider<>();
-		auditLogClient = auditLogProvider.getClient();
-	}
-
-	protected AuditLogService(SecurityContext sc, String type) {
-		securityContext = sc;
-		this.type = type;
-		this.mapper = new DefaultLogMapperProvider<>();
+		AuditLogLoader auditLogProvider = new AuditLogLoader();
 		auditLogClient = auditLogProvider.getClient();
 	}
 
 	protected AuditLogService(String type, ILogMapperProvider<U> dm) {
 		this.type = type;
 		this.mapper = dm;
+		AuditLogLoader auditLogProvider = new AuditLogLoader();
 		auditLogClient = auditLogProvider.getClient();
 	}
 
@@ -87,12 +85,14 @@ public abstract class AuditLogService<T, U> {
 		AuditLogEntry auditLogEntry = createAuditLogEntry(value);
 		auditLogEntry.action = Type.Created.name();
 		auditLogEntry.criticity = MessageCriticity.MAJOR;
+		auditLogEntry.domainUid = domainUid;
 		store(auditLogEntry);
 	}
 
 	public void logUpdate(T value, U oldValue) {
 		AuditLogEntry auditLogEntry = createAuditLogEntry(value);
 		auditLogEntry.action = Type.Updated.name();
+		auditLogEntry.domainUid = domainUid;
 		AuditLogUpdateStatus updateStatus = createUpdateStatus(value, oldValue);
 		auditLogEntry.updatemessage = updateStatus.updateMessage;
 		auditLogEntry.criticity = updateStatus.crit;
@@ -101,6 +101,7 @@ public abstract class AuditLogService<T, U> {
 
 	public void logDelete(T value) {
 		AuditLogEntry auditLogEntry = createAuditLogEntry(value);
+		auditLogEntry.domainUid = domainUid;
 		auditLogEntry.action = Type.Deleted.name();
 		auditLogEntry.criticity = MessageCriticity.MAJOR;
 		store(auditLogEntry);
@@ -168,4 +169,7 @@ public abstract class AuditLogService<T, U> {
 
 	protected abstract AuditLogUpdateStatus createUpdateStatus(T newValue, U oldValue);
 
+	public void setDomainUid(String d) {
+		this.domainUid = d;
+	}
 }

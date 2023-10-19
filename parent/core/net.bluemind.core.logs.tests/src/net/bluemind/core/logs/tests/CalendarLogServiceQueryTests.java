@@ -231,12 +231,13 @@ public class CalendarLogServiceQueryTests {
 			AuditLogQuery logQuery = new AuditLogQuery();
 			logQuery.logtype = CALENDAR_LOGTYPE;
 			logQuery.author = user01.value.defaultEmailAddress();
+			logQuery.domainUid = domainUid;
 
 			ILogRequestService logRequestService = getLogQueryService(user01SecurityContext);
 			List<AuditLogEntry> list = logRequestService.queryAuditLog(logQuery);
 			return 1 == list.size();
 		});
-		ESearchActivator.refreshIndex("audit_log");
+		ESearchActivator.refreshIndex("audit_log_" + domainUid);
 	}
 
 	@After
@@ -249,6 +250,7 @@ public class CalendarLogServiceQueryTests {
 	public void getLogsForCalendarType() throws InterruptedException {
 		AuditLogQuery logQuery = new AuditLogQuery();
 		logQuery.logtype = CALENDAR_LOGTYPE;
+		logQuery.domainUid = domainUid;
 
 		ILogRequestService logRequestService = getLogQueryService(user01SecurityContext);
 		List<AuditLogEntry> list = logRequestService.queryAuditLog(logQuery);
@@ -269,6 +271,7 @@ public class CalendarLogServiceQueryTests {
 			AuditLogQuery logQuery = new AuditLogQuery();
 			logQuery.logtype = CALENDAR_LOGTYPE;
 			logQuery.size = 20;
+			logQuery.domainUid = domainUid;
 
 			ILogRequestService logRequestService = getLogQueryService(user01SecurityContext);
 			List<AuditLogEntry> list = logRequestService.queryAuditLog(logQuery);
@@ -287,6 +290,7 @@ public class CalendarLogServiceQueryTests {
 		AuditLogQuery logQuery = new AuditLogQuery();
 		logQuery.logtype = CALENDAR_LOGTYPE;
 		logQuery.author = user01.value.defaultEmailAddress();
+		logQuery.domainUid = domainUid;
 
 		ILogRequestService logRequestService = getLogQueryService(user01SecurityContext);
 		List<AuditLogEntry> list = logRequestService.queryAuditLog(logQuery);
@@ -305,6 +309,7 @@ public class CalendarLogServiceQueryTests {
 		AuditLogQuery logQuery = new AuditLogQuery();
 		logQuery.logtype = CALENDAR_LOGTYPE;
 		logQuery.with = user02.value.defaultEmailAddress();
+		logQuery.domainUid = domainUid;
 
 		ILogRequestService logRequestService = getLogQueryService(user01SecurityContext);
 		List<AuditLogEntry> list = logRequestService.queryAuditLog(logQuery);
@@ -318,6 +323,7 @@ public class CalendarLogServiceQueryTests {
 		AuditLogQuery logQuery = new AuditLogQuery();
 		logQuery.logtype = CALENDAR_LOGTYPE;
 		logQuery.description = "First Meeting";
+		logQuery.domainUid = domainUid;
 
 		ILogRequestService logRequestService = getLogQueryService(user01SecurityContext);
 		List<AuditLogEntry> list = logRequestService.queryAuditLog(logQuery);
@@ -335,6 +341,7 @@ public class CalendarLogServiceQueryTests {
 		Date to = new Date();
 		to.setYear(122);
 		logQuery.to = to;
+		logQuery.domainUid = domainUid;
 
 		ILogRequestService logRequestService = getLogQueryService(user01SecurityContext);
 		List<AuditLogEntry> list = logRequestService.queryAuditLog(logQuery);
@@ -349,6 +356,7 @@ public class CalendarLogServiceQueryTests {
 		Date from = new Date();
 		from.setYear(122);
 		logQuery.from = from;
+		logQuery.domainUid = domainUid;
 
 		ILogRequestService logRequestService = getLogQueryService(user01SecurityContext);
 		List<AuditLogEntry> list = logRequestService.queryAuditLog(logQuery);
@@ -363,6 +371,7 @@ public class CalendarLogServiceQueryTests {
 		Date from = new Date();
 		from.setYear(122);
 		logQuery.from = from;
+		logQuery.domainUid = domainUid;
 		logQuery.to = new Date();
 
 		ILogRequestService logRequestService = getLogQueryService(user01SecurityContext);

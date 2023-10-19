@@ -82,6 +82,9 @@ import net.bluemind.tag.persistence.ItemTagRef;
 
 public class AddressBookServiceTests extends AbstractServiceTests {
 
+	private static final String AUDITLOG_PREFIX = "audit_log_";
+	private static final String DATASTREAM_NAME = AUDITLOG_PREFIX + domainUid;
+
 	protected IAddressBook getService(SecurityContext context) throws ServerFault {
 		return ServerSideServiceProvider.getProvider(context).instance(IAddressBook.class, container.uid);
 	}
@@ -782,13 +785,12 @@ public class AddressBookServiceTests extends AbstractServiceTests {
 
 	@Test
 	public void testItemChangelog() throws ServerFault {
-
 		getService(defaultSecurityContext).create("test1", defaultVCard());
 		getService(defaultSecurityContext).update("test1", defaultVCard());
 		getService(defaultSecurityContext).create("test2", defaultVCard());
 		getService(defaultSecurityContext).delete("test1");
 		getService(defaultSecurityContext).update("test2", defaultVCard());
-		ESearchActivator.refreshIndex("audit_log");
+		ESearchActivator.refreshIndex(DATASTREAM_NAME);
 
 		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
 			ItemChangelog itemChangeLog = getService(defaultSecurityContext).itemChangelog("test1", 0L);
@@ -826,7 +828,7 @@ public class AddressBookServiceTests extends AbstractServiceTests {
 		getService(defaultSecurityContext).update("test1", defaultVCard());
 		getService(defaultSecurityContext).update("test1", defaultVCard());
 		getService(defaultSecurityContext).update("test1", defaultVCard());
-		ESearchActivator.refreshIndex("audit_log");
+		ESearchActivator.refreshIndex(DATASTREAM_NAME);
 
 		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
 			ItemChangelog itemChangeLog = getService(defaultSecurityContext).itemChangelog("test1", 0L);

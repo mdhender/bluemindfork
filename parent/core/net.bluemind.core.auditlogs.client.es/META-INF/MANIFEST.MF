@@ -3,7 +3,8 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.core.auditlogs.client.es
 Bundle-SymbolicName: net.bluemind.core.auditlogs.client.es;singleton:=true
 Bundle-Version: 5.0.0.qualifier
-Export-Package: net.bluemind.core.auditlogs.client.es
+Export-Package: net.bluemind.core.auditlogs.client.es,
+ net.bluemind.core.auditlogs.client.es.datastreams
 Require-Bundle: net.bluemind.core.auditlogs,
  slf4j.api,
  net.bluemind.core.commons,

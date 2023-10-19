@@ -23,8 +23,12 @@ public interface IAuditLogMgmt {
 
 	public void resetDatastream();
 
-	public void createDataStreamIfNotExists(String name);
+	public void createDataStreamIfNotExists(String name, String domainUid);
 
-	public void removeDatastream();
+	public void removeDatastreamForPrefix(String dataStreamPrefix);
+
+	public void removeDatastreamForPrefixAndDomain(String dataStreamPrefix, String domainUid);
+
+	public void removeAllDatastream();
 
 }

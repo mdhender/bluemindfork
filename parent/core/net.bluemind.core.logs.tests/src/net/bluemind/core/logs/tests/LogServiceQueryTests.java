@@ -20,6 +20,7 @@ package net.bluemind.core.logs.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
 
 import java.io.InputStream;
 import java.sql.SQLException;
@@ -154,12 +155,13 @@ public class LogServiceQueryTests {
 		createBodyAndRecord(1, adaptDate(5), "data/sort_1.eml");
 		createBodyAndRecord(2, adaptDate(10), "data/sort_2.eml");
 		createBodyAndRecord(3, adaptDate(12), "data/sort_3.eml");
-		ESearchActivator.refreshIndex("audit_log");
+		ESearchActivator.refreshIndex("audit_log_" + domainUid);
 
 		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
 			AuditLogQuery logQuery = new AuditLogQuery();
 			logQuery.logtype = "mailbox_records";
 			logQuery.author = "user1@devenv.net";
+			logQuery.domainUid = domainUid;
 
 			ILogRequestService logRequestService = getLogQueryService(userSecurityContext1);
 			List<AuditLogEntry> list = logRequestService.queryAuditLog(logQuery);
@@ -174,11 +176,23 @@ public class LogServiceQueryTests {
 	}
 
 	@Test
-	public void testSQueryAllEmailsFromUser1() throws InterruptedException {
+	public void testsQueryMustFailBecauseNoDomainUid() throws InterruptedException {
 
 		AuditLogQuery logQuery = new AuditLogQuery();
 		logQuery.logtype = "mailbox_records";
 		logQuery.author = "user1@devenv.net";
+
+		ILogRequestService logRequestService = getLogQueryService(userSecurityContext1);
+		assertThrows(ServerFault.class, () -> logRequestService.queryAuditLog(logQuery));
+	}
+
+	@Test
+	public void testsQueryAllEmailsFromUser1() throws InterruptedException {
+
+		AuditLogQuery logQuery = new AuditLogQuery();
+		logQuery.logtype = "mailbox_records";
+		logQuery.author = "user1@devenv.net";
+		logQuery.domainUid = domainUid;
 
 		ILogRequestService logRequestService = getLogQueryService(userSecurityContext1);
 		List<AuditLogEntry> list = logRequestService.queryAuditLog(logQuery);
@@ -186,27 +200,30 @@ public class LogServiceQueryTests {
 	}
 
 	@Test
-	public void testSQueryLogTypeToto() throws InterruptedException {
+	public void testsQueryLogTypeToto() throws InterruptedException {
 		AuditLogQuery logQuery = new AuditLogQuery();
 		logQuery.logtype = "toto";
+		logQuery.domainUid = domainUid;
 		ILogRequestService logRequestService = getLogQueryService(userSecurityContext1);
 		List<AuditLogEntry> list = logRequestService.queryAuditLog(logQuery);
 		assertEquals(0, list.size());
 	}
 
 	@Test
-	public void testSQueryAllEmailsToUser2() throws InterruptedException {
+	public void testsQueryAllEmailsToUser2() throws InterruptedException {
 		AuditLogQuery logQuery = new AuditLogQuery();
 		logQuery.with = "user1@devenv.net";
+		logQuery.domainUid = domainUid;
 		ILogRequestService logRequestService = getLogQueryService(userSecurityContext1);
 		List<AuditLogEntry> list = logRequestService.queryAuditLog(logQuery);
 		assertEquals(3, list.size());
 	}
 
 	@Test
-	public void testSQueryAllEmailsFromUser2() throws InterruptedException {
+	public void testsQueryAllEmailsFromUser2() throws InterruptedException {
 		AuditLogQuery logQuery = new AuditLogQuery();
 		logQuery.author = "user2@devenv.net";
+		logQuery.domainUid = domainUid;
 		ILogRequestService logRequestService = getLogQueryService(userSecurityContext1);
 		List<AuditLogEntry> list = logRequestService.queryAuditLog(logQuery);
 		assertEquals(1, list.size());

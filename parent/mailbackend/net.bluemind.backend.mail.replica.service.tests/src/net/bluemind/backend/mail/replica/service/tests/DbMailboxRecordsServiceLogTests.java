@@ -62,7 +62,7 @@ import net.bluemind.lib.elasticsearch.ESearchActivator;
 
 public class DbMailboxRecordsServiceLogTests extends AbstractMailboxRecordsServiceTests<IDbMailboxRecords> {
 
-	private static final String AUDIT_LOG_DATASTREAM = "audit_log";
+	private final String AUDIT_LOG_DATASTREAM = "audit_log_" + domainUid;
 
 	private ItemValue<MailboxRecord> createBodyAndRecord(int imapUid, Date internalDate, String eml) {
 		IDbMessageBodies mboxes = getBodies(SecurityContext.SYSTEM);

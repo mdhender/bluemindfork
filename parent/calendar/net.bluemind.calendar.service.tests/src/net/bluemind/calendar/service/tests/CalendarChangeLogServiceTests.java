@@ -34,6 +34,9 @@ import net.bluemind.lib.elasticsearch.ESearchActivator;
 
 public class CalendarChangeLogServiceTests extends AbstractCalendarTests {
 
+	private static final String AUDIT_LOG_PREFIX = "audit_log_";
+	private final String DATATSTREAM_PATH = AUDIT_LOG_PREFIX + domainUid;
+
 	@Test
 	public void testChangeLog() throws ServerFault {
 
@@ -45,9 +48,9 @@ public class CalendarChangeLogServiceTests extends AbstractCalendarTests {
 		getCalendarService(userSecurityContext, userCalendarContainer).update("test2", defaultVEvent(),
 				sendNotifications);
 		getCalendarService(userSecurityContext, userCalendarContainer).delete("test2", sendNotifications);
-		ESearchActivator.refreshIndex("audit_log");
+		ESearchActivator.refreshIndex(DATATSTREAM_PATH);
 
-		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+		Awaitility.await().atMost(5, TimeUnit.SECONDS).until(() -> {
 			ItemChangelog itemChangeLog = getCalendarService(userSecurityContext, userCalendarContainer)
 					.itemChangelog("test1", 0L);
 

@@ -1,9 +1,6 @@
 {
    "data_stream":{
    },
-   "index_patterns":[
-      "audit_log*"
-   ],
    "priority":500,
    "template":{
       "settings":{
@@ -75,7 +72,7 @@
                   },
                   "uid":{
                      "type":"keyword"
-                  }				   
+                  }
                }
             },
             "action":{
@@ -111,7 +108,10 @@
             },
             "logtype":{
                "type":"keyword"
-            }
+            },
+			"domainUid":{
+				"type":"keyword"
+			}
          }
       }
    }

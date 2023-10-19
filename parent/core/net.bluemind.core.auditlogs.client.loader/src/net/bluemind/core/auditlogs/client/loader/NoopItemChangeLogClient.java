@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2023
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -19,16 +19,26 @@
 
 package net.bluemind.core.auditlogs.client.loader;
 
+import java.util.Collections;
+import java.util.List;
+
 import net.bluemind.core.auditlogs.AuditLogEntry;
-import net.bluemind.core.auditlogs.IAuditLogClient;
+import net.bluemind.core.auditlogs.AuditLogQuery;
+import net.bluemind.core.auditlogs.IItemChangeLogClient;
+import net.bluemind.core.container.model.ItemChangelog;
 
-public final class NoopAuditLogClient implements IAuditLogClient {
+public final class NoopItemChangeLogClient implements IItemChangeLogClient {
 
-	public static final IAuditLogClient INSTANCE = new NoopAuditLogClient();
+	public static final IItemChangeLogClient INSTANCE = new NoopItemChangeLogClient();
 
 	@Override
-	public void storeAuditLog(AuditLogEntry document) {
-		//
+	public ItemChangelog getItemChangeLog(String domainUid, String containerUid, String itemUid, Long since) {
+		return new ItemChangelog();
+	}
+
+	@Override
+	public List<AuditLogEntry> queryAuditLog(AuditLogQuery query) {
+		return Collections.emptyList();
 	}
 
 }

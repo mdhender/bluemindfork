@@ -56,6 +56,9 @@ public class GetAuditLogCommand implements Runnable, ICmdLet {
 	@Option(names = "--description", required = false, description = "event description that must be present in audit log")
 	public String description;
 
+	@Option(names = "--domain", required = true, description = "domain uid")
+	public String domainUid;
+
 	@Option(names = "--output", description = "output format to use (default ${DEFAULT-VALUE}): ${COMPLETION-CANDIDATES}")
 	public OutputFormat outputFormat = OutputFormat.json;
 
@@ -89,6 +92,7 @@ public class GetAuditLogCommand implements Runnable, ICmdLet {
 			AuditLogQuery auditLogQuery = new AuditLogQuery();
 
 			auditLogQuery.size = size;
+			auditLogQuery.domainUid = domainUid;
 			auditLogQuery.logtype = logType.name();
 			if (with != null && !with.isBlank()) {
 				auditLogQuery.with = with;

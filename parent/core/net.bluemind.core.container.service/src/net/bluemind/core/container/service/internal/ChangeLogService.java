@@ -19,7 +19,7 @@
 
 package net.bluemind.core.container.service.internal;
 
-import net.bluemind.core.auditlogs.IAuditLogClient;
+import net.bluemind.core.auditlogs.IItemChangeLogClient;
 import net.bluemind.core.auditlogs.client.loader.AuditLogLoader;
 import net.bluemind.core.container.api.internal.IChangeLogService;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
@@ -27,18 +27,17 @@ import net.bluemind.core.container.model.ItemChangelog;
 
 public class ChangeLogService implements IChangeLogService {
 
-	private AuditLogLoader auditLogProvider = new AuditLogLoader();
-
-	private BaseContainerDescriptor container;
-	private IAuditLogClient auditLogClient;
+	private final BaseContainerDescriptor container;
+	private IItemChangeLogClient auditLogClient;
 
 	public ChangeLogService(BaseContainerDescriptor container) {
 		this.container = container;
-		auditLogClient = auditLogProvider.getClient();
+		AuditLogLoader auditLogProvider = new AuditLogLoader();
+		auditLogClient = auditLogProvider.getItemChangelogClient();
 	}
 
 	@Override
 	public ItemChangelog itemChangelog(String itemUid, Long since) {
-		return auditLogClient.getItemChangeLog(container.uid, itemUid, since);
+		return auditLogClient.getItemChangeLog(container.domainUid, container.uid, itemUid, since);
 	}
 }

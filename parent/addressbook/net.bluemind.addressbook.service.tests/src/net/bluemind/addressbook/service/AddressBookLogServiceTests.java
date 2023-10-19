@@ -67,6 +67,9 @@ import net.bluemind.tag.persistence.ItemTagRef;
 
 public class AddressBookLogServiceTests extends AbstractServiceTests {
 
+	private static final String AUDIT_LOG_PREFIX = "audit_log_";
+	private static final String DATASTREAM_NAME = AUDIT_LOG_PREFIX + domainUid;
+
 	protected IAddressBook getService(SecurityContext context) throws ServerFault {
 		return ServerSideServiceProvider.getProvider(context).instance(IAddressBook.class, container.uid);
 	}
@@ -155,11 +158,11 @@ public class AddressBookLogServiceTests extends AbstractServiceTests {
 		assertNotNull(containerMessage);
 
 		ElasticsearchClient esClient = ESearchActivator.getClient();
-		ESearchActivator.refreshIndex("audit_log");
+		ESearchActivator.refreshIndex(DATASTREAM_NAME);
 
 		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
 			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-					.index("audit_log") //
+					.index(DATASTREAM_NAME) //
 					.query(q -> q.bool(b -> b
 							.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
 							.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
@@ -169,7 +172,7 @@ public class AddressBookLogServiceTests extends AbstractServiceTests {
 		});
 
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-				.index("audit_log") //
+				.index(DATASTREAM_NAME) //
 				.query(q -> q
 						.bool(b -> b.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
 								.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
@@ -214,10 +217,10 @@ public class AddressBookLogServiceTests extends AbstractServiceTests {
 		getService(defaultSecurityContext).update(uid, card);
 		ElasticsearchClient esClient = ESearchActivator.getClient();
 
-		ESearchActivator.refreshIndex("audit_log");
+		ESearchActivator.refreshIndex(DATASTREAM_NAME);
 		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
 			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-					.index("audit_log") //
+					.index(DATASTREAM_NAME) //
 					.query(q -> q.bool(b -> b
 							.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
 							.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
@@ -227,7 +230,7 @@ public class AddressBookLogServiceTests extends AbstractServiceTests {
 		});
 
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-				.index("audit_log") //
+				.index(DATASTREAM_NAME) //
 				.query(q -> q
 						.bool(b -> b.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
 								.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
@@ -236,7 +239,7 @@ public class AddressBookLogServiceTests extends AbstractServiceTests {
 		assertEquals(1L, response.hits().total().value());
 
 		response = esClient.search(s -> s //
-				.index("audit_log") //
+				.index(DATASTREAM_NAME) //
 				.query(q -> q
 						.bool(b -> b.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
 								.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
@@ -300,10 +303,10 @@ public class AddressBookLogServiceTests extends AbstractServiceTests {
 		assertNull(itemStore.get(uid));
 		ElasticsearchClient esClient = ESearchActivator.getClient();
 
-		ESearchActivator.refreshIndex("audit_log");
+		ESearchActivator.refreshIndex(DATASTREAM_NAME);
 		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
 			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-					.index("audit_log") //
+					.index(DATASTREAM_NAME) //
 					.query(q -> q.bool(b -> b
 							.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
 							.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
@@ -313,7 +316,7 @@ public class AddressBookLogServiceTests extends AbstractServiceTests {
 		});
 
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-				.index("audit_log") //
+				.index(DATASTREAM_NAME) //
 				.query(q -> q
 						.bool(b -> b.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
 								.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
@@ -322,7 +325,7 @@ public class AddressBookLogServiceTests extends AbstractServiceTests {
 		assertEquals(0L, response.hits().total().value());
 
 		response = esClient.search(s -> s //
-				.index("audit_log") //
+				.index(DATASTREAM_NAME) //
 				.query(q -> q
 						.bool(b -> b.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
 								.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
@@ -408,11 +411,11 @@ public class AddressBookLogServiceTests extends AbstractServiceTests {
 		assertEquals(1, vgroup.organizational.member.size());
 		assertEquals(container.uid, vgroup.organizational.member.get(0).containerUid);
 		ElasticsearchClient esClient = ESearchActivator.getClient();
-		ESearchActivator.refreshIndex("audit_log");
+		ESearchActivator.refreshIndex(DATASTREAM_NAME);
 
 		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
 			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-					.index("audit_log") //
+					.index(DATASTREAM_NAME) //
 					.query(q -> q.bool(b -> b
 							.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
 							.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
@@ -422,7 +425,7 @@ public class AddressBookLogServiceTests extends AbstractServiceTests {
 		});
 
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-				.index("audit_log") //
+				.index(DATASTREAM_NAME) //
 				.query(q -> q
 						.bool(b -> b.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
 								.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
@@ -431,7 +434,7 @@ public class AddressBookLogServiceTests extends AbstractServiceTests {
 		assertEquals(3L, response.hits().total().value());
 
 		response = esClient.search(s -> s //
-				.index("audit_log") //
+				.index(DATASTREAM_NAME) //
 				.query(q -> q
 						.bool(b -> b.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
 								.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())

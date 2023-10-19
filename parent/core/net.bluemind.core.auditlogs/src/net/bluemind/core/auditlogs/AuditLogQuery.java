@@ -25,6 +25,7 @@ import net.bluemind.core.api.BMApi;
 @BMApi(version = "3")
 public class AuditLogQuery {
 
+	public String domainUid;
 	public String author;
 	public String with;
 	public String description;
@@ -40,6 +41,7 @@ public class AuditLogQuery {
 	}
 
 	public AuditLogQuery(LogMailQueryBuilder builder) {
+		domainUid = builder.domainUid;
 		author = builder.author;
 		with = builder.with;
 		description = builder.description;
@@ -52,6 +54,7 @@ public class AuditLogQuery {
 	}
 
 	public class LogMailQueryBuilder {
+		public String domainUid;
 		String author;
 		String with;
 		String description;
@@ -61,6 +64,11 @@ public class AuditLogQuery {
 		String key;
 		String logtype;
 		int size;
+
+		public LogMailQueryBuilder domainUid(String d) {
+			domainUid = d;
+			return this;
+		}
 
 		public LogMailQueryBuilder author(String a) {
 			author = a;
@@ -115,8 +123,9 @@ public class AuditLogQuery {
 
 	@Override
 	public String toString() {
-		return "logtype: " + logtype + " ,author: " + author + ",with: " + with + " ,description: " + description
-				+ " ,key:" + key + " ,from: " + from + " ,to: " + to + " ,size: " + size;
+		return "domainUid: " + domainUid + " ,logtype: " + logtype + " ,author: " + author + ",with: " + with
+				+ " ,description: " + description + " ,key:" + key + " ,from: " + from + " ,to: " + to + " ,size: "
+				+ size;
 	}
 
 }

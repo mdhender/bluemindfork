@@ -63,7 +63,7 @@ import net.bluemind.tag.api.TagRef;
 import net.bluemind.tag.persistence.ItemTagRef;
 
 public class NoteServiceTests extends AbstractServiceTests {
-	private final String DATASTREAM_NAME = "audit_log";
+	private final String DATASTREAM_NAME = "audit_log_" + domainUid;
 
 	@Test
 	public void testCreate() throws ServerFault, SQLException {

@@ -24,7 +24,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
@@ -46,7 +48,11 @@ import co.elastic.clients.ApiClient;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import co.elastic.clients.elasticsearch._types.HealthStatus;
+import co.elastic.clients.elasticsearch.indices.get_index_template.IndexTemplateItem;
+import co.elastic.clients.elasticsearch.indices.resolve_index.ResolveIndexDataStreamsItem;
 import co.elastic.clients.transport.ElasticsearchTransport;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.auditlogs.IAuditLogMgmt;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.lib.elasticsearch.exception.ElasticIndexException;
@@ -54,6 +60,7 @@ import net.bluemind.lib.elasticsearch.exception.ElasticIndexException;
 public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 
 	private static final Map<String, IndexTemplateDefinition> indexTemplates = new HashMap<>();
+	private static final String SEPARATOR = "_";
 	private static Logger logger = LoggerFactory.getLogger(DataStreamActivator.class);
 
 	@Override
@@ -82,93 +89,64 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 
 	}
 
-	public static void resetDataStream(String indexName, String dataStreamName) {
-		ESearchActivator.waitForElasticsearchHosts();
-		ElasticsearchClient esClient = ESearchActivator.getClient();
-		deleteDataStream(esClient, dataStreamName);
-		deleteIndexTemplate(esClient, indexName);
-		initDataStream(esClient, indexName, dataStreamName);
-	}
-
-	private static void deleteDataStream(ElasticsearchClient esClient, String dataStreamName) {
+	private static void deleteDataStream(ElasticsearchClient esClient, String dataStreamName, String domainUid) {
+		String fullDataStreamName = (domainUid != null) ? dataStreamName + SEPARATOR + domainUid : dataStreamName + "*";
 		try {
-			esClient.indices().deleteDataStream(d -> d.name(Arrays.asList(dataStreamName)));
-			logger.info("datastream '{}' deleted.", dataStreamName);
+
+			esClient.indices().deleteDataStream(d -> d.name(Arrays.asList(fullDataStreamName)));
+			logger.info("datastream '{}' deleted.", fullDataStreamName);
 		} catch (ElasticsearchException e) {
 			if (e.error() != null && "index_not_found_exception".equals(e.error().type())) {
-				logger.warn("dataStream '{}' not found, can't be delete", dataStreamName);
+				logger.warn("dataStream '{}' not found, can't be delete", fullDataStreamName);
 				return;
 			}
-			throw new ElasticIndexException(dataStreamName, e);
+			throw new ElasticIndexException(fullDataStreamName, e);
 		} catch (IOException e) {
-			throw new ElasticIndexException(dataStreamName, e);
+			throw new ElasticIndexException(fullDataStreamName, e);
 		}
 	}
 
-	private static void deleteIndexTemplate(ElasticsearchClient esClient, String indexTemplateName) {
+	private static void deleteIndexTemplate(ElasticsearchClient esClient, String indexTemplateName, String domainUid) {
+		String fullIndexTemplateName = (domainUid != null) ? indexTemplateName + SEPARATOR + domainUid
+				: indexTemplateName + "*";
 		try {
-			esClient.indices().deleteIndexTemplate(it -> it.name(Arrays.asList(indexTemplateName)));
-			logger.info("index template '{}' deleted.", indexTemplateName);
+			esClient.indices().deleteIndexTemplate(it -> it.name(Arrays.asList(fullIndexTemplateName)));
+			logger.info("index template '{}' deleted.", fullIndexTemplateName);
 
 		} catch (ElasticsearchException e) {
 			if (e.error() != null && "index_template_missing_exception".equals(e.error().type())) {
-				logger.warn("index template '{}' not found, can't be delete", indexTemplateName);
+				logger.warn("index template '{}' not found, can't be delete", fullIndexTemplateName);
 				return;
 			}
-			throw new ElasticIndexException(indexTemplateName, e);
+			throw new ElasticIndexException(fullIndexTemplateName, e);
 		} catch (IOException e) {
-			throw new ElasticIndexException(indexTemplateName, e);
+			throw new ElasticIndexException(fullIndexTemplateName, e);
 		}
-	}
-
-	public static void initDataStream(ElasticsearchClient esClient, String indexName, String dataStreamName) {
-		indexDefinitionOf(indexName).ifPresentOrElse(definition -> {
-			byte[] schema = definition.schema;
-
-			try {
-				logger.info("init index template '{}' with settings & schema", indexName);
-				esClient.indices()
-						.putIndexTemplate(it -> it.name(indexName).withJson(new ByteArrayInputStream(schema)));
-			} catch (Exception e) {
-				logger.error("Cannot init '{}' index template: {}", indexName, e.getMessage());
-				throw new ElasticIndexException(indexName, e);
-			}
-			logger.info("index template '{}' created, creating datastream ...", indexName);
-			try {
-				esClient.indices().createDataStream(d -> d.name(dataStreamName));
-				logger.info("datastream '{}' created, waiting for green...", dataStreamName);
-				esClient.cluster().health(h -> h.index(dataStreamName).waitForStatus(HealthStatus.Green));
-				logger.info("cluster is green.");
-			} catch (ElasticsearchException e) {
-				if (e.error() != null && "resource_already_exists_exception".equals(e.error().type())) {
-					logger.warn("datastream '{}' already exists", dataStreamName);
-				} else {
-					logger.error("Cannot init '{}' datastream: {}", dataStreamName, e.getMessage());
-					throw new ElasticIndexException(dataStreamName, e);
-				}
-			} catch (IOException e) {
-				logger.error("Cannot init '{}' datastream: {}", dataStreamName, e.getMessage());
-			}
-		}, () -> {
-			logger.warn("no SCHEMA for {}", indexName);
-			try {
-				esClient.indices().putIndexTemplate(it -> it.name(indexName));
-				esClient.indices().createDataStream(d -> d.name(dataStreamName));
-			} catch (Exception e) {
-				logger.error("Cannot init '{}' datastream: {}", dataStreamName, e.getMessage());
-				throw new ElasticIndexException(indexName, e);
-			}
-		});
 	}
 
 	private record IndexTemplateDefinition(String indexTemplateName, byte[] schema, String datastreamName) {
 		boolean supportsIndex(String name) {
 			return name.equals(indexTemplateName);
 		}
+
+		boolean supportsDataStream(String name) {
+			return name.equals(datastreamName);
+		}
 	}
 
 	private static Optional<IndexTemplateDefinition> indexDefinitionOf(String index) {
 		return indexTemplates.values().stream().filter(item -> item.supportsIndex(index)).findFirst();
+	}
+
+	private static boolean isDataStream(ElasticsearchClient esClient, String dataStream)
+			throws ElasticsearchException, IOException {
+		return !esClient.indices().resolveIndex(i -> i.name(dataStream)).dataStreams().isEmpty();
+	}
+
+	private static Optional<IndexTemplateItem> indexTemplateDefinitionOf(ElasticsearchClient esClient,
+			String indexTemplateName) throws ElasticsearchException, IOException {
+		return esClient.indices().getIndexTemplate().indexTemplates().stream()
+				.filter(i -> i.name().equals(indexTemplateName)).findFirst();
 	}
 
 	public static <T extends ApiClient<?, ?>> T buildClient(String tag, ElasticsearchTransport transport,
@@ -183,31 +161,109 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 
 	@Override
 	public void resetDatastream() {
-		indexTemplates.values().forEach(v -> resetDataStream(v.indexTemplateName, v.datastreamName));
+		// TODO SCL : review
+//		indexTemplates.values().forEach(v -> resetAllDataStreams(v.indexTemplateName, v.datastreamName));
 	}
 
 	@Override
-	public void createDataStreamIfNotExists(String name) {
+	public void createDataStreamIfNotExists(String dataStreamName, String domainUid) {
+		String dataStreamFullName = dataStreamName + SEPARATOR + domainUid;
 		ElasticsearchClient esClient = ESearchActivator.getClient();
-		indexDefinitionOf(name).map(indexDefinition -> ESearchActivator.indexNames(esClient).stream() //
-				.filter(indexDefinition::supportsIndex) //
-				.findFirst() //
-				.orElseGet(() -> {
-					initDataStream(esClient, indexDefinition.indexTemplateName, indexDefinition.datastreamName);
-					return indexDefinition.datastreamName;
-				}));
+		List<String> currentDataStreams = dataStreamNames(esClient);
+		Optional<IndexTemplateDefinition> optSchema = indexTemplates.values().stream()
+				.filter(d -> d.datastreamName.equals(dataStreamName)).findFirst();
 
+		try {
+			initOrUpdateIndexTemplate(esClient, optSchema.get(), dataStreamFullName);
+			if (!currentDataStreams.contains(dataStreamFullName) && optSchema.isPresent()) {
+				IndexTemplateDefinition schema = optSchema.get();
+				if (!isDataStream(esClient, dataStreamFullName)) {
+					initDataStream(esClient, dataStreamFullName);
+				}
+
+			}
+		} catch (ElasticsearchException | IOException e) {
+			// TODO: handle exception
+		}
+	}
+
+	public static List<String> dataStreamNames(ElasticsearchClient esClient) {
+		try {
+			return esClient.indices().resolveIndex(r -> r.name("*")).dataStreams() //
+					.stream().map(ResolveIndexDataStreamsItem::name).toList();
+		} catch (ElasticsearchException | IOException e) {
+			logger.error("[es][indices] Failed to list indices", e);
+			return Collections.emptyList();
+		}
+	}
+
+	private static void initDataStream(ElasticsearchClient esClient, String dataStreamName) {
+		try {
+			esClient.indices().createDataStream(d -> d.name(dataStreamName));
+			logger.info("datastream '{}' created, waiting for green...", dataStreamName);
+			esClient.cluster().health(h -> h.index(dataStreamName).waitForStatus(HealthStatus.Green));
+		} catch (Exception e) {
+			logger.error("Cannot init '{}' datastream: {}", dataStreamName, e.getMessage());
+		}
+
+	}
+
+	private static void initOrUpdateIndexTemplate(ElasticsearchClient esClient,
+			IndexTemplateDefinition indexTemplateDefinition, String indexPattern)
+			throws ElasticsearchException, IOException {
+		JsonObject jsonSchema = new JsonObject(new String(indexTemplateDefinition.schema));
+		JsonArray indexPatternsSchemaArray = (!jsonSchema.containsKey("index_patterns")) ? new JsonArray()
+				: jsonSchema.getJsonArray("index_patterns");
+		logger.info("Update index_patterns with '{}' for index template '{}' ", indexPattern,
+				indexTemplateDefinition.indexTemplateName);
+		indexPatternsSchemaArray.add(indexPattern + "*");
+
+		indexTemplateDefinitionOf(esClient, indexTemplateDefinition.indexTemplateName).ifPresent(indexTemplate -> {
+			// index template is present -> add indexPattern to index_patterns and updates
+			List<String> indexPatterns = indexTemplate.indexTemplate().indexPatterns();
+			indexPatterns.forEach(a -> {
+				if (!indexPatternsSchemaArray.contains(a)) {
+					indexPatternsSchemaArray.add(a);
+				}
+			});
+		});
+
+		jsonSchema.put("index_patterns", indexPatternsSchemaArray);
+		byte[] enhancedSchema = jsonSchema.toString().getBytes();
+		esClient.indices().putIndexTemplate(it -> it.name(indexTemplateDefinition.indexTemplateName)
+				.withJson(new ByteArrayInputStream(enhancedSchema)));
 	}
 
 	@VisibleForTesting
 	@Override
-	public void removeDatastream() {
+	public void removeDatastreamForPrefix(String dataStreamPrefix) {
+		indexTemplates.values().stream().filter(d -> d.datastreamName.equals(dataStreamPrefix)).forEach(v -> {
+			ESearchActivator.waitForElasticsearchHosts();
+			ElasticsearchClient esClient = ESearchActivator.getClient();
+			deleteDataStream(esClient, v.datastreamName, null);
+			deleteIndexTemplate(esClient, v.indexTemplateName, null);
+		});
+	}
+
+	@VisibleForTesting
+	public void removeAllDatastream() {
 		indexTemplates.values().forEach(v -> {
 			ESearchActivator.waitForElasticsearchHosts();
 			ElasticsearchClient esClient = ESearchActivator.getClient();
-			deleteDataStream(esClient, v.datastreamName);
-			deleteIndexTemplate(esClient, v.indexTemplateName);
+			deleteDataStream(esClient, v.datastreamName, null);
+			deleteIndexTemplate(esClient, v.indexTemplateName, null);
 		});
+	}
+
+	@Override
+	public void removeDatastreamForPrefixAndDomain(String dataStreamPrefix, String domainUid) {
+		indexTemplates.values().stream().filter(d -> d.datastreamName.equals(dataStreamPrefix)).forEach(v -> {
+			ESearchActivator.waitForElasticsearchHosts();
+			ElasticsearchClient esClient = ESearchActivator.getClient();
+			deleteDataStream(esClient, v.datastreamName, domainUid);
+			deleteIndexTemplate(esClient, v.indexTemplateName, domainUid);
+		});
+
 	}
 
 }

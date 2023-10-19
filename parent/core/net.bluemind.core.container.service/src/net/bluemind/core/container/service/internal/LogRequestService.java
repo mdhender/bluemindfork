@@ -23,15 +23,15 @@ import java.util.List;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.auditlogs.AuditLogEntry;
-import net.bluemind.core.auditlogs.IAuditLogClient;
 import net.bluemind.core.auditlogs.AuditLogQuery;
+import net.bluemind.core.auditlogs.IItemChangeLogClient;
 import net.bluemind.core.auditlogs.api.ILogRequestService;
 
 public class LogRequestService implements ILogRequestService {
 
-	private final IAuditLogClient client;
+	private final IItemChangeLogClient client;
 
-	public LogRequestService(IAuditLogClient client) {
+	public LogRequestService(IItemChangeLogClient client) {
 		this.client = client;
 	}
 

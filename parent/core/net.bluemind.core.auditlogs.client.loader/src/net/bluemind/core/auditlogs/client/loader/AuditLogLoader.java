@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import net.bluemind.core.auditlogs.IAuditLogClient;
 import net.bluemind.core.auditlogs.IAuditLogFactory;
 import net.bluemind.core.auditlogs.IAuditLogMgmt;
+import net.bluemind.core.auditlogs.IItemChangeLogClient;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.network.topology.Topology;
 
@@ -54,6 +55,11 @@ public class AuditLogLoader {
 				return NoopAuditLogManager.INSTANCE;
 			}
 
+			@Override
+			public IItemChangeLogClient createItemChangelogClient() {
+				return NoopItemChangeLogClient.INSTANCE;
+			}
+
 		};
 	}
 
@@ -65,12 +71,9 @@ public class AuditLogLoader {
 		return Topology.getIfAvailable().map(t -> auditLog.createManager()).orElse(NoopAuditLogManager.INSTANCE);
 	}
 
-	public void initialize() {
-		auditLog.createManager().resetDatastream();
-	}
-
-	public void remove() {
-		auditLog.createManager().removeDatastream();
+	public IItemChangeLogClient getItemChangelogClient() {
+		return Topology.getIfAvailable().map(t -> auditLog.createItemChangelogClient())
+				.orElse(NoopItemChangeLogClient.INSTANCE);
 	}
 
 }

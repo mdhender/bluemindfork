@@ -106,7 +106,7 @@ public abstract class AbstractServiceTests {
 
 	protected VCardContainerStoreService cardStoreService;
 
-	protected String domainUid;
+	protected static final String domainUid = "bm.lan";;
 
 	protected String datalocation;
 
@@ -131,7 +131,6 @@ public abstract class AbstractServiceTests {
 		esServer.tags = Lists.newArrayList("bm/es");
 		PopulateHelper.initGlobalVirt(esServer);
 
-		domainUid = "bm.lan";
 		datalocation = PopulateHelper.FAKE_CYRUS_IP;
 		dataDataSource = JdbcActivator.getInstance().getMailboxDataSource(datalocation);
 		PopulateHelper.addDomain(domainUid);

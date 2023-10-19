@@ -69,7 +69,11 @@ import net.bluemind.tests.defaultdata.PopulateHelper;
 public class AuthenticationAuditLogTests {
 
 	private ElasticsearchClient esClient;
-	private static final String AUDIT_LOG_NAME = "audit_log";
+	private static final String domainUid = "bm.lan";
+	private static final String domainGlobalUid = "global.virt";
+	private static final String AUDIT_LOG_NAME_BM_LAN = "audit_log_" + domainUid;
+	private static final String AUDIT_LOG_NAME_GLOBAL = "audit_log_" + domainGlobalUid;
+
 	private static final String TEST_API_KEY = "testApiKey";
 
 	@Before
@@ -87,26 +91,26 @@ public class AuthenticationAuditLogTests {
 		PopulateHelper.initGlobalVirt(esServer);
 
 		IDomainSettings settings0 = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IDomainSettings.class, "global.virt");
+				.instance(IDomainSettings.class, domainGlobalUid);
 		Map<String, String> domainSettings0 = settings0.get();
 		domainSettings0.put(DomainSettingsKeys.mail_routing_relay.name(), "external@test.fr");
 		settings0.set(domainSettings0);
 
-		PopulateHelper.addDomainAdmin("admin0", "global.virt", Routing.external);
+		PopulateHelper.addDomainAdmin("admin0", domainGlobalUid, Routing.external);
 
-		PopulateHelper.createTestDomain("bm.lan", esServer);
+		PopulateHelper.createTestDomain(domainUid, esServer);
 		IDomainSettings settings = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IDomainSettings.class, "bm.lan");
+				.instance(IDomainSettings.class, domainUid);
 		Map<String, String> domainSettings = settings.get();
 		domainSettings.put(DomainSettingsKeys.mail_routing_relay.name(), "external@test.fr");
 		domainSettings.put(DomainSettingsKeys.domain_max_basic_account.name(), "");
 		domainSettings.put(DomainSettingsKeys.password_lifetime.name(), "10");
 		settings.set(domainSettings);
-		PopulateHelper.addDomainAdmin("admin", "bm.lan", Routing.external);
-		PopulateHelper.addUser("toto", "bm.lan", Routing.external);
-		PopulateHelper.addUser("archived", "bm.lan", Routing.external);
-		PopulateHelper.addUser("nomail", "bm.lan", Routing.none);
-		PopulateHelper.addSimpleUser("simple", "bm.lan", Routing.external);
+		PopulateHelper.addDomainAdmin("admin", domainUid, Routing.external);
+		PopulateHelper.addUser("toto", domainUid, Routing.external);
+		PopulateHelper.addUser("archived", domainUid, Routing.external);
+		PopulateHelper.addUser("nomail", domainUid, Routing.none);
+		PopulateHelper.addSimpleUser("simple", domainUid, Routing.external);
 		createUserWithEpiredPassword();
 
 		StateContext.setState("reset");
@@ -116,7 +120,7 @@ public class AuthenticationAuditLogTests {
 	}
 
 	private void createUserWithEpiredPassword() throws SQLException {
-		PopulateHelper.addUser("expiredpassword", "bm.lan", Routing.external);
+		PopulateHelper.addUser("expiredpassword", domainUid, Routing.external);
 
 		Connection conn = JdbcTestHelper.getInstance().getDataSource().getConnection();
 		PreparedStatement st = null;
@@ -141,59 +145,84 @@ public class AuthenticationAuditLogTests {
 
 		IAuthentication authentication = getService(null);
 
-		LoginResponse response = authentication.login("admin0@global.virt", "admin", "junit");
+		LoginResponse response = authentication.login("admin0@" + domainGlobalUid, "admin", "junit");
 		assertEquals(Status.Ok, response.status);
 		assertNotNull(response.authKey);
 
 		String authKey = response.authKey;
 
-		response = authentication.login("admin0@global.virt", authKey, "auth-key");
+		response = authentication.login("admin0@" + domainGlobalUid, authKey, "auth-key");
 		assertEquals(Status.Ok, response.status);
 		assertEquals(authKey, response.authKey);
 
-		response = authentication.login("nomail@bm.lan", "nomail", "junit");
+		response = authentication.login("nomail@" + domainUid, "nomail", "junit");
 		assertEquals(Status.Ok, response.status);
 
-		response = authentication.login("expiredpassword@bm.lan", "expiredpassword", "junit");
+		response = authentication.login("expiredpassword@" + domainUid, "expiredpassword", "junit");
 		assertEquals(Status.Expired, response.status);
 
-		response = authentication.login("expiredpassword@bm.lan", "badexpiredpassword", "junit");
+		response = authentication.login("expiredpassword@" + domainUid, "badexpiredpassword", "junit");
 		assertEquals(Status.Bad, response.status);
 
-		response = authentication.login("admin0@global.virt", "not_valid", "invalid-junit");
+		response = authentication.login("admin0@" + domainGlobalUid, "not_valid", "invalid-junit");
 		assertEquals(Status.Bad, response.status);
 
-		ESearchActivator.refreshIndex(AUDIT_LOG_NAME);
-		Awaitility.await().atMost(3, TimeUnit.SECONDS).until(() -> {
+		ESearchActivator.refreshIndex(AUDIT_LOG_NAME_BM_LAN);
+		ESearchActivator.refreshIndex(AUDIT_LOG_NAME_GLOBAL);
+
+		Awaitility.await().atMost(4, TimeUnit.SECONDS).until(() -> {
 			SearchResponse<AuditLogEntry> esResponse = esClient.search(s -> s //
-					.index(AUDIT_LOG_NAME) //
+					.index(AUDIT_LOG_NAME_BM_LAN) //
 					.query(q -> q.bool(b -> b.must(TermQuery.of(t -> t.field("logtype").value("login"))._toQuery()))),
 					AuditLogEntry.class);
-			return 4L == esResponse.hits().total().value();
+			return 2L == esResponse.hits().total().value();
+		});
+		Awaitility.await().atMost(4, TimeUnit.SECONDS).until(() -> {
+			SearchResponse<AuditLogEntry> esResponse = esClient.search(s -> s //
+					.index(AUDIT_LOG_NAME_GLOBAL) //
+					.query(q -> q.bool(b -> b.must(TermQuery.of(t -> t.field("logtype").value("login"))._toQuery()))),
+					AuditLogEntry.class);
+			return 2L == esResponse.hits().total().value();
 		});
 
-		SearchResponse<AuditLogEntry> esResponse = esClient.search(s -> s //
-				.index(AUDIT_LOG_NAME) //
+		SearchResponse<AuditLogEntry> esResponseGlobal = esClient.search(s -> s //
+				.index(AUDIT_LOG_NAME_GLOBAL) //
 				.query(q -> q.bool(b -> b.must(TermQuery.of(t -> t.field("logtype").value("login"))._toQuery()))),
 				AuditLogEntry.class);
-		assertEquals(4L, esResponse.hits().total().value());
-		List<String> loggedUserMails = esResponse.hits().hits().stream().map(h -> h.source().securityContext.email())
-				.toList();
-		assertTrue(loggedUserMails.contains("admin0@global.virt"));
-		assertTrue(loggedUserMails.contains("nomail@bm.lan"));
-		assertTrue(loggedUserMails.contains("expiredpassword@bm.lan"));
+		assertEquals(2L, esResponseGlobal.hits().total().value());
+		List<String> loggedUserMailsGlobal = esResponseGlobal.hits().hits().stream()
+				.map(h -> h.source().securityContext.email()).toList();
+		assertTrue(loggedUserMailsGlobal.contains("admin0@" + domainGlobalUid));
 
-		AuditLogEntry auditLogEntry = esResponse.hits().hits().stream().map(h -> h.source())
-				.filter(a -> a.securityContext.uid().equals("admin0")).findFirst().get();
-		assertEquals("admin0", auditLogEntry.securityContext.uid());
-		assertEquals("admin0", auditLogEntry.securityContext.displayName());
-		assertEquals("junit", auditLogEntry.securityContext.origin());
-		assertEquals("admin0@global.virt", auditLogEntry.securityContext.email());
+		AuditLogEntry auditLogEntryBmGlobal = esResponseGlobal.hits().hits().get(0).source();
+		assertEquals("admin0", auditLogEntryBmGlobal.securityContext.uid());
+		assertEquals("admin0", auditLogEntryBmGlobal.securityContext.displayName());
+		assertEquals("junit", auditLogEntryBmGlobal.securityContext.origin());
+		assertEquals("admin0@" + domainGlobalUid, auditLogEntryBmGlobal.securityContext.email());
 
-		assertTrue(auditLogEntry.container == null);
-		assertTrue(auditLogEntry.item == null);
-		assertTrue(auditLogEntry.content.with().contains("admin0@global.virt"));
-		assertTrue(auditLogEntry.content.with().contains("admin0"));
+		assertTrue(auditLogEntryBmGlobal.container == null);
+		assertTrue(auditLogEntryBmGlobal.item == null);
+		assertTrue(auditLogEntryBmGlobal.content == null);
+
+		SearchResponse<AuditLogEntry> esResponseBmLan = esClient.search(s -> s //
+				.index(AUDIT_LOG_NAME_BM_LAN) //
+				.query(q -> q.bool(b -> b.must(TermQuery.of(t -> t.field("logtype").value("login"))._toQuery()))),
+				AuditLogEntry.class);
+		assertEquals(2L, esResponseBmLan.hits().total().value());
+		List<String> loggedUserMailsBmLan = esResponseBmLan.hits().hits().stream()
+				.map(h -> h.source().securityContext.email()).toList();
+		assertTrue(loggedUserMailsBmLan.contains("nomail@" + domainUid));
+		assertTrue(loggedUserMailsBmLan.contains("expiredpassword@" + domainUid));
+
+		AuditLogEntry auditLogEntryBmLan = esResponseBmLan.hits().hits().get(0).source();
+		assertEquals("nomail", auditLogEntryBmLan.securityContext.uid());
+		assertEquals("nomail", auditLogEntryBmLan.securityContext.displayName());
+		assertEquals("junit", auditLogEntryBmLan.securityContext.origin());
+		assertEquals("nomail@" + domainUid, auditLogEntryBmLan.securityContext.email());
+
+		assertTrue(auditLogEntryBmLan.container == null);
+		assertTrue(auditLogEntryBmLan.item == null);
+		assertTrue(auditLogEntryBmLan.content == null);
 	}
 
 	private void initState() {
@@ -211,36 +240,46 @@ public class AuthenticationAuditLogTests {
 	public void testAuditLogSu() throws ElasticsearchException, IOException {
 		initState();
 		IAuthentication authentication = getService(null);
-		LoginResponse response = authentication.login("admin0@global.virt", "admin", "junit");
+		LoginResponse response = authentication.login("admin0@" + domainGlobalUid, "admin", "junit");
 
 		authentication = getService(response.authKey);
 
-		response = authentication.su("admin0@global.virt");
+		response = authentication.su("admin0@" + domainGlobalUid);
 		assertEquals(LoginResponse.Status.Ok, response.status);
 		assertNotNull(response.authKey);
 
-		ESearchActivator.refreshIndex(AUDIT_LOG_NAME);
-		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+		ESearchActivator.refreshIndex(AUDIT_LOG_NAME_BM_LAN);
+		ESearchActivator.refreshIndex(AUDIT_LOG_NAME_GLOBAL);
+
+		Awaitility.await().atMost(3, TimeUnit.SECONDS).until(() -> {
 			SearchResponse<AuditLogEntry> esResponse = esClient.search(s -> s //
-					.index(AUDIT_LOG_NAME) //
+					.index(AUDIT_LOG_NAME_BM_LAN) //
+					.query(q -> q.bool(b -> b.must(TermQuery.of(t -> t.field("logtype").value("login"))._toQuery()))),
+					AuditLogEntry.class);
+			return 0L == esResponse.hits().total().value();
+		});
+		Awaitility.await().atMost(3, TimeUnit.SECONDS).until(() -> {
+			SearchResponse<AuditLogEntry> esResponse = esClient.search(s -> s //
+					.index(AUDIT_LOG_NAME_GLOBAL) //
 					.query(q -> q.bool(b -> b.must(TermQuery.of(t -> t.field("logtype").value("login"))._toQuery()))),
 					AuditLogEntry.class);
 			return 2L == esResponse.hits().total().value();
 		});
+
 		SearchResponse<AuditLogEntry> esResponse = esClient.search(s -> s //
-				.index(AUDIT_LOG_NAME) //
+				.index(AUDIT_LOG_NAME_GLOBAL) //
 				.query(q -> q.bool(b -> b.must(TermQuery.of(t -> t.field("logtype").value("login"))._toQuery()))),
 				AuditLogEntry.class);
 		assertEquals(2L, esResponse.hits().total().value());
 		List<String> loggedUserMails = esResponse.hits().hits().stream().map(h -> h.source().securityContext.email())
 				.toList();
-		assertTrue(loggedUserMails.contains("admin0@global.virt"));
+		assertTrue(loggedUserMails.contains("admin0@" + domainGlobalUid));
 
 		AuditLogEntry auditLogEntry = esResponse.hits().hits().get(0).source();
 		assertEquals("admin0", auditLogEntry.securityContext.uid());
 		assertEquals("admin0", auditLogEntry.securityContext.displayName());
 		assertEquals("junit", auditLogEntry.securityContext.origin());
-		assertEquals("admin0@global.virt", auditLogEntry.securityContext.email());
+		assertEquals("admin0@" + domainGlobalUid, auditLogEntry.securityContext.email());
 
 		assertNull(auditLogEntry.container);
 		assertNull(auditLogEntry.item);
@@ -253,7 +292,7 @@ public class AuthenticationAuditLogTests {
 		initState();
 
 		SecurityContext ctx = new SecurityContext(null, "admin0", Arrays.<String>asList(), Arrays.<String>asList(),
-				"global.virt");
+				domainGlobalUid);
 
 		IAPIKeys service = ServerSideServiceProvider.getProvider(ctx).instance(IAPIKeys.class);
 
@@ -262,36 +301,47 @@ public class AuthenticationAuditLogTests {
 		assertNotNull(key);
 
 		IAuthentication authentication = getService(null);
-		LoginResponse response = authentication.login("admin0@global.virt", key.sid, TEST_API_KEY);
+		LoginResponse response = authentication.login("admin0@" + domainGlobalUid, key.sid, TEST_API_KEY);
 		assertEquals(Status.Ok, response.status);
 
 		service.delete(key.sid);
 
-		response = authentication.login("admin0@global.virt", key.sid, TEST_API_KEY);
+		response = authentication.login("admin0@" + domainGlobalUid, key.sid, TEST_API_KEY);
 		assertEquals(Status.Bad, response.status);
 
-		ESearchActivator.refreshIndex(AUDIT_LOG_NAME);
-		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+		ESearchActivator.refreshIndex(AUDIT_LOG_NAME_BM_LAN);
+		ESearchActivator.refreshIndex(AUDIT_LOG_NAME_GLOBAL);
+
+		Awaitility.await().atMost(3, TimeUnit.SECONDS).until(() -> {
 			SearchResponse<AuditLogEntry> esResponse = esClient.search(s -> s //
-					.index(AUDIT_LOG_NAME) //
+					.index(AUDIT_LOG_NAME_BM_LAN) //
+					.query(q -> q.bool(b -> b.must(TermQuery.of(t -> t.field("logtype").value("login"))._toQuery()))),
+					AuditLogEntry.class);
+			return 0L == esResponse.hits().total().value();
+		});
+
+		Awaitility.await().atMost(3, TimeUnit.SECONDS).until(() -> {
+			SearchResponse<AuditLogEntry> esResponse = esClient.search(s -> s //
+					.index(AUDIT_LOG_NAME_GLOBAL) //
 					.query(q -> q.bool(b -> b.must(TermQuery.of(t -> t.field("logtype").value("login"))._toQuery()))),
 					AuditLogEntry.class);
 			return 1L == esResponse.hits().total().value();
 		});
+
 		SearchResponse<AuditLogEntry> esResponse = esClient.search(s -> s //
-				.index(AUDIT_LOG_NAME) //
+				.index(AUDIT_LOG_NAME_GLOBAL) //
 				.query(q -> q.bool(b -> b.must(TermQuery.of(t -> t.field("logtype").value("login"))._toQuery()))),
 				AuditLogEntry.class);
 		assertEquals(1L, esResponse.hits().total().value());
 		List<String> loggedUserMails = esResponse.hits().hits().stream().map(h -> h.source().securityContext.email())
 				.toList();
-		assertTrue(loggedUserMails.contains("admin0@global.virt"));
+		assertTrue(loggedUserMails.contains("admin0@" + domainGlobalUid));
 
 		AuditLogEntry auditLogEntry = esResponse.hits().hits().get(0).source();
 		assertEquals("admin0", auditLogEntry.securityContext.uid());
 		assertEquals("admin0", auditLogEntry.securityContext.displayName());
 		assertEquals(TEST_API_KEY, auditLogEntry.securityContext.origin());
-		assertEquals("admin0@global.virt", auditLogEntry.securityContext.email());
+		assertEquals("admin0@" + domainGlobalUid, auditLogEntry.securityContext.email());
 
 		assertTrue(auditLogEntry.container == null);
 		assertTrue(auditLogEntry.item == null);

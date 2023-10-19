@@ -31,5 +31,6 @@ Require-Bundle: org.junit,
  com.github.ben-manes.caffeine,
  net.bluemind.mailbox.persistence
 Automatic-Module-Name: net.bluemind.domain.service.tests
+Export-Package: net.bluemind.domain.service.tests
 
 

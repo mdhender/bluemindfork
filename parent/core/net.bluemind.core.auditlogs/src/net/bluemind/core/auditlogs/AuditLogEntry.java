@@ -44,6 +44,8 @@ public class AuditLogEntry {
 
 	public String action;
 
+	public String domainUid;
+
 	@JsonProperty("@timestamp")
 	public Date timestamp = Date.from(Instant.now());
 

@@ -19,15 +19,8 @@
 
 package net.bluemind.core.auditlogs;
 
-import java.util.List;
-
-import net.bluemind.core.container.model.ItemChangelog;
-
 public interface IAuditLogClient {
 
 	public void storeAuditLog(AuditLogEntry document);
 
-	public ItemChangelog getItemChangeLog(String containerUid, String itemUid, Long since);
-
-	public List<AuditLogEntry> queryAuditLog(AuditLogQuery query);
 }

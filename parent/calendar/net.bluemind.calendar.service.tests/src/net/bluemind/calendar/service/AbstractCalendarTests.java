@@ -159,7 +159,7 @@ public abstract class AbstractCalendarTests {
 	protected String groupUid;
 	protected boolean sendNotifications = false;
 
-	protected String domainUid;
+	protected String domainUid = "bm.lan";
 
 	private MailboxStoreService mailboxStore;
 
@@ -203,7 +203,6 @@ public abstract class AbstractCalendarTests {
 
 		PopulateHelper.initGlobalVirt(esServer, nodeServer);
 
-		domainUid = "bm.lan";
 		datalocation = PopulateHelper.FAKE_CYRUS_IP;
 		dataDataSource = JdbcActivator.getInstance().getMailboxDataSource(datalocation);
 		systemDataSource = JdbcTestHelper.getInstance().getDataSource();
@@ -213,6 +212,7 @@ public abstract class AbstractCalendarTests {
 		ContainerStore containerStore = new ContainerStore(testContext, systemDataSource, SecurityContext.SYSTEM);
 
 		Container mboxContainer = containerStore.get(domainUid);
+
 		assertNotNull(mboxContainer);
 
 		mailboxStore = new MailboxStoreService(JdbcTestHelper.getInstance().getDataSource(), SecurityContext.SYSTEM,
@@ -425,6 +425,7 @@ public abstract class AbstractCalendarTests {
 	@After
 	public void after() throws Exception {
 		JdbcTestHelper.getInstance().afterTest();
+		ElasticsearchTestHelper.getInstance().afterTest();
 	}
 
 	protected VEventSeries defaultVEvent() {

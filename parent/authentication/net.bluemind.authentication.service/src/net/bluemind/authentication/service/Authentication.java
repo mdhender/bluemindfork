@@ -309,6 +309,7 @@ public class Authentication implements IInCoreAuthentication {
 		}
 
 		try {
+			auditLogService.setDomainUid(authContext.domain.uid);
 			auditLogService.logCreate(context);
 		} catch (Exception e) {
 			logger.error("Error with authentication auditlog: {}", e.getMessage());
@@ -522,6 +523,7 @@ public class Authentication implements IInCoreAuthentication {
 					securityContext.getOrigin(), false, interactive);
 
 			try {
+				auditLogService.setDomainUid(domainPart);
 				auditLogService.logCreate(builtContext);
 			} catch (Exception e) {
 				logger.error("Error with authentication auditlog: {}", e.getMessage());

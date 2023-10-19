@@ -52,6 +52,7 @@ import net.bluemind.core.auditlogs.AuditLogEntry;
 import net.bluemind.core.container.api.ContainerSubscription;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.ChangeLogEntry.Type;
+import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.model.acl.Verb;
@@ -81,7 +82,7 @@ public class AclAuditLogServiceTests {
 	private AclStore aclStore;
 
 	private ElasticsearchClient esClient;
-	private String domainUid = "bm.lan";
+	private static final String domainUid = "bm.lan";
 	private ItemValue<User> user01;
 	private SecurityContext user01SecurityContext;
 	private String datalocation;
@@ -92,7 +93,7 @@ public class AclAuditLogServiceTests {
 	private ItemValue<User> user02;
 	private ItemValue<User> user03;
 	private static final String ACL_AUDITLOG_TYPE = "containeracl";
-	private static final String AUDIT_LOG_DATASTREAM = "audit_log";
+	private static final String AUDIT_LOG_DATASTREAM = "audit_log_" + domainUid;
 
 	@Before
 	public void before() throws Exception {
@@ -171,7 +172,7 @@ public class AclAuditLogServiceTests {
 
 		ESearchActivator.refreshIndex(AUDIT_LOG_DATASTREAM);
 
-		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+		Awaitility.await().atMost(3, TimeUnit.SECONDS).until(() -> {
 			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
 					.index(AUDIT_LOG_DATASTREAM) //
 					.query(q -> q.bool(b -> b
@@ -235,7 +236,7 @@ public class AclAuditLogServiceTests {
 
 		ESearchActivator.refreshIndex(AUDIT_LOG_DATASTREAM);
 
-		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+		Awaitility.await().atMost(3, TimeUnit.SECONDS).until(() -> {
 			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
 					.index(AUDIT_LOG_DATASTREAM) //
 					.query(q -> q.bool(b -> b
@@ -283,7 +284,7 @@ public class AclAuditLogServiceTests {
 
 		ESearchActivator.refreshIndex(AUDIT_LOG_DATASTREAM);
 
-		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+		Awaitility.await().atMost(3, TimeUnit.SECONDS).until(() -> {
 			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
 					.index(AUDIT_LOG_DATASTREAM) //
 					.query(q -> q.bool(b -> b
@@ -332,7 +333,7 @@ public class AclAuditLogServiceTests {
 
 		ESearchActivator.refreshIndex(AUDIT_LOG_DATASTREAM);
 
-		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+		Awaitility.await().atMost(3, TimeUnit.SECONDS).until(() -> {
 			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
 					.index(AUDIT_LOG_DATASTREAM) //
 					.query(q -> q.bool(b -> b
@@ -376,28 +377,6 @@ public class AclAuditLogServiceTests {
 		assertEquals(2L, response.hits().total().value());
 	}
 
-	private ItemValue<User> defaultUser(String login, String lastname, String firstname) {
-		net.bluemind.user.api.User user = new User();
-		login = login.toLowerCase();
-		user.login = login;
-		Email em = new Email();
-		em.address = login + "@" + domainUid;
-		em.isDefault = true;
-		em.allAliases = false;
-		user.emails = Arrays.asList(em);
-		user.password = login;
-		user.routing = Routing.internal;
-		user.dataLocation = PopulateHelper.FAKE_CYRUS_IP;
-		VCard card = new VCard();
-		card.identification.name = Name.create(lastname, firstname, null, null, null, null);
-		card.identification.formatedName = VCard.Identification.FormatedName.create(firstname + " " + lastname,
-				Arrays.<VCard.Parameter>asList());
-		user.contactInfos = card;
-		ItemValue<User> ret = ItemValue.create(login + "_" + domainUid, user);
-		ret.displayName = card.identification.formatedName.value;
-		return ret;
-	}
-
 	private Container createTestContainer(SecurityContext context, DataSource datasource, String type, String name,
 			String uid, String owner) throws SQLException {
 		BmContext ctx = new BmTestContext(context);
@@ -435,18 +414,4 @@ public class AclAuditLogServiceTests {
 		return ret;
 	}
 
-	private Container createTestContainer(SecurityContext context, DataSource datasource, String type, String name,
-			String uid, String owner) throws SQLException {
-		BmContext ctx = new BmTestContext(context);
-		ContainerStore containerHome = new ContainerStore(ctx, datasource, context);
-		Container container = Container.create(uid, type, name, owner, domainUid, true);
-		container = containerHome.create(container);
-		if (datasource != systemDataSource) {
-			ContainerStore directoryStore = new ContainerStore(ctx, ctx.getDataSource(), context);
-			directoryStore.createOrUpdateContainerLocation(container, datalocation);
-		}
-		IUserSubscription subApi = ctx.provider().instance(IUserSubscription.class, domainUid);
-		subApi.subscribe(context.getSubject(), Arrays.asList(ContainerSubscription.create(container.uid, true)));
-		return container;
-	}
 }

@@ -109,7 +109,7 @@ public abstract class AbstractServiceTests {
 
 	protected String datalocation;
 	protected DataSource dataDataSource;
-	protected String domainUid;
+	protected String domainUid = "bm.lan";
 	protected String owner;
 
 	protected static final String GLOBAL_EXTERNAL_URL = "my.test.external.url";
@@ -126,7 +126,6 @@ public abstract class AbstractServiceTests {
 		esServer.tags = Lists.newArrayList("bm/es");
 		PopulateHelper.initGlobalVirt(esServer);
 
-		domainUid = "bm.lan";
 		datalocation = PopulateHelper.FAKE_CYRUS_IP;
 		dataDataSource = JdbcActivator.getInstance().getMailboxDataSource(datalocation);
 

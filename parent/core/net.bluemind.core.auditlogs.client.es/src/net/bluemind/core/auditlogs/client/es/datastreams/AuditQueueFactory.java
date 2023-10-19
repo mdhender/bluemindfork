@@ -34,29 +34,35 @@ import net.bluemind.retry.support.RetryQueueVerticle.RetryProcessor;
 
 public class AuditQueueFactory implements IVerticleFactory, IUniqueVerticleFactory {
 	private static final Logger logger = LoggerFactory.getLogger(AuditQueueFactory.class);
-	private static final String AUDIT_LOG_DATASTREAM = "audit_log";
+	private static final String AUDIT_LOG_PREFIX = "audit_log_";
 
 	private static class RetryIndexing implements RetryProcessor {
 
 		@Override
 		public void retry(JsonObject js) throws Exception {
 			ElasticsearchClient esClient = ESearchActivator.getClient();
+			if (!js.containsKey("domainUid")) {
+				return;
+			}
 			if (esClient == null) {
 				return;
 			}
+			String domainUid = js.getString("domainUid");
 			byte[] jsBytes = js.encode().getBytes();
-			try {
-				esClient.index(i -> i.index(AUDIT_LOG_DATASTREAM).withJson(new ByteArrayInputStream(jsBytes)));
-			} catch (ElasticsearchException e) {
-				if (e.error() != null && "index_not_found_exception".equals(e.error().type())) {
-					logger.warn("datastream '{}' not found", AUDIT_LOG_DATASTREAM);
-					return;
-				}
-				throw new Exception(e);
 
+			if (domainUid != null) {
+				try {
+					esClient.index(
+							i -> i.index(AUDIT_LOG_PREFIX + domainUid).withJson(new ByteArrayInputStream(jsBytes)));
+				} catch (ElasticsearchException e) {
+					if (e.error() != null && "index_not_found_exception".equals(e.error().type())) {
+						logger.warn("datastream '{}' not found", AUDIT_LOG_PREFIX + domainUid);
+						return;
+					}
+					throw new Exception(e);
+				}
 			}
 		}
-
 	}
 
 	public static class AuditQueue extends RetryQueueVerticle {

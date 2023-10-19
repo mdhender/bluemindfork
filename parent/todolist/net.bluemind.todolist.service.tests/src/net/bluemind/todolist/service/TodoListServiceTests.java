@@ -75,6 +75,9 @@ import net.bluemind.todolist.hook.TodoListHookAddress;
 
 public class TodoListServiceTests extends AbstractServiceTests {
 
+	private static final String AUDIT_LOG_PREFIX = "audit_log_";
+	private final String DATASTREAM_NAME = AUDIT_LOG_PREFIX + domainUid;
+
 	@Test
 	public void testCreate() throws Exception, SQLException {
 
@@ -448,7 +451,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 		getService(defaultSecurityContext).create("test2", defaultVTodo());
 		getService(defaultSecurityContext).delete("test1");
 		getService(defaultSecurityContext).update("test2", defaultVTodo());
-		ESearchActivator.refreshIndex("audit_log");
+		ESearchActivator.refreshIndex(DATASTREAM_NAME);
 		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
 			ItemChangelog itemChangeLog = getService(defaultSecurityContext).itemChangelog("test1", 0L);
 			return 3 == itemChangeLog.entries.size();
@@ -483,7 +486,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 		getService(defaultSecurityContext).update("test1", defaultVTodo());
 		getService(defaultSecurityContext).update("test1", defaultVTodo());
 		getService(defaultSecurityContext).update("test1", defaultVTodo());
-		ESearchActivator.refreshIndex("audit_log");
+		ESearchActivator.refreshIndex(DATASTREAM_NAME);
 		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
 			ItemChangelog itemChangeLog = getService(defaultSecurityContext).itemChangelog("test1", 0L);
 			return 4 == itemChangeLog.entries.size();

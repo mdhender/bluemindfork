@@ -22,6 +22,7 @@ package net.bluemind.core.auditlogs.client.es;
 import net.bluemind.core.auditlogs.IAuditLogClient;
 import net.bluemind.core.auditlogs.IAuditLogFactory;
 import net.bluemind.core.auditlogs.IAuditLogMgmt;
+import net.bluemind.core.auditlogs.IItemChangeLogClient;
 import net.bluemind.core.auditlogs.client.es.datastreams.DataStreamActivator;
 
 public class ElasticSearchAuditLogFactory implements IAuditLogFactory {
@@ -29,6 +30,11 @@ public class ElasticSearchAuditLogFactory implements IAuditLogFactory {
 	@Override
 	public IAuditLogClient createClient() {
 		return new ElasticSearchAuditLogClient();
+	}
+
+	@Override
+	public IItemChangeLogClient createItemChangelogClient() {
+		return new ElasticSearchItemChangeLogClient();
 	}
 
 	@Override

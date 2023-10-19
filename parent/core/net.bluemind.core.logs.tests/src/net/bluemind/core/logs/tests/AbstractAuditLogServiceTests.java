@@ -110,7 +110,7 @@ public abstract class AbstractAuditLogServiceTests {
 	protected ItemValue<User> user01;
 	protected ItemValue<User> user02;
 	protected ItemValue<User> user03;
-	private ElasticsearchClient esClient;
+	protected ElasticsearchClient esClient;
 	protected boolean sendNotifications = false;
 	protected Container user01CalendarContainer;
 	protected SecurityContext user01SecurityContext;
