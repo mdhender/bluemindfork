@@ -89,6 +89,7 @@
                     </bm-dropzone>
                     <mail-composer-attachments
                         v-if="!showConversationDropzone"
+                        :attachments="attachments"
                         class="my-4"
                         :dragged-files-count="draggedFilesCount"
                         :message="message"
@@ -159,7 +160,7 @@ import MailOpenInPopupWithShift from "../../MailOpenInPopupWithShift";
 import MessagePathParam from "~/router/MessagePathParam";
 import { computed, ref } from "vue";
 
-const { MessageStatus } = messageUtils;
+const { MessageStatus, computeParts } = messageUtils;
 
 export default {
     name: "MailConversationViewerDraftEditor",
@@ -222,7 +223,10 @@ export default {
         };
     },
     data() {
-        return { showConversationDropzone: false };
+        return {
+            showConversationDropzone: false,
+            computedParts: {}
+        };
     },
 
     computed: {
@@ -232,6 +236,17 @@ export default {
                 name: "mail:message",
                 params: { messagepath: MessagePathParam.build("", this.message) }
             });
+        },
+        attachments() {
+            return this.computedParts?.attachments || [];
+        }
+    },
+    watch: {
+        "message.structure": {
+            handler() {
+                this.computedParts = computeParts(this.message.structure);
+            },
+            immediate: true
         }
     },
     mounted() {
