@@ -17,6 +17,10 @@ server {
     return 302 /webmail/?_task=logout;
   }
 
+  location ~ ^/webmail/(bin|conf|config|SQL|temp)/ {
+    deny all;
+  }
+
   location ~ ^/webmail(.*\.php) {
     #try_files $uri =404;
     allow all;
