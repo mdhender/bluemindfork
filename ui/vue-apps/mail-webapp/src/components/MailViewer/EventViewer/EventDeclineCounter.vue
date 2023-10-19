@@ -1,6 +1,6 @@
 <script setup>
-import EventHeader from "./EventHeader";
-import EventDetail from "./EventDetail";
+import EventHeader from "./base/EventHeader";
+import EventDetail from "./base/EventDetail";
 
 defineProps({
     event: { type: Object, required: true },

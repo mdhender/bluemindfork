@@ -2,10 +2,10 @@
 import { computed } from "vue";
 import { BmIcon } from "@bluemind/ui-components";
 import { messageUtils } from "@bluemind/mail";
-import EventCalendarIllustration from "./EventCalendarIllustration.vue";
-import { formatEventDates } from "./formatEventDates";
 import EventHelper from "~/store/helpers/EventHelper";
-import { REPLY_ACTIONS } from "./replyActions";
+import EventCalendarIllustration from "./EventCalendarIllustration.vue";
+import { formatEventDates } from "../formatEventDates";
+import { REPLY_ACTIONS } from "../replyActions";
 const { MessageHeader } = messageUtils;
 
 const props = defineProps({

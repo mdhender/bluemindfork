@@ -1,6 +1,6 @@
 import Vuex from "vuex";
 import { createLocalVue, mount } from "@vue/test-utils";
-import EventDetail from "../EventDetail";
+import EventDetail from "../base/EventDetail";
 import store from "~/store";
 
 describe("Event Insert Body", () => {

@@ -2,7 +2,7 @@
 import { computed } from "vue";
 import { BmIcon, BmResponsiveIllustration } from "@bluemind/ui-components";
 import { messageUtils } from "@bluemind/mail";
-import { REPLY_ACTIONS } from "./replyActions";
+import { REPLY_ACTIONS } from "../replyActions";
 
 const { MessageHeader } = messageUtils;
 

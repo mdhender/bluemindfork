@@ -453,6 +453,7 @@
     "mail.viewer.invitation.canceled.status.occurrence": "annulé une occurrence",
     "mail.viewer.invitation.not_found.event": "Ce message fait référence à un événement qui {status}.",
     "mail.viewer.invitation.not_found.status": "n'existe pas dans votre calendrier",
+    "mail.viewer.invitation.counter.added_attendees": "Participant ajouté ({count}) | Participants ajoutés ({count})",
     "mail.viewer.invitation.counter.event": "{name} a {status} l'invitation et {counter}.",
     "mail.viewer.invitation.counter.occurrence": "{name} a {status} de l'événement et {counter}.",
     "mail.viewer.invitation.counter.status": "proposé un nouvel horaire",

@@ -9,7 +9,7 @@
 import { inject } from "@bluemind/inject";
 import { messageUtils, attachmentUtils, partUtils } from "@bluemind/mail";
 import ChainOfResponsibility from "../../../ChainOfResponsibility";
-import EventDetail from "../../../MailViewer/EventViewer/EventDetail";
+import EventDetail from "../../../MailViewer/EventViewer/base/EventDetail";
 import EventNotFound from "../../../MailViewer/EventViewer/EventNotFound";
 import EventHelper from "~/store/helpers/EventHelper";
 

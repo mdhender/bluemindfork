@@ -1,8 +1,8 @@
 <script setup>
 import { computed } from "vue";
-import EventHeader from "./EventHeader";
-import EventDetail from "./EventDetail";
-import EventFooter from "./EventFooter";
+import EventHeader from "./base/EventHeader";
+import EventDetail from "./base/EventDetail";
+import EventFooter from "./base/EventFooter";
 import { STATUS_KEY_FOR_OCCURRENCE, STATUS_KEY_FOR_EVENT, REPLY_ACTIONS } from "./replyActions";
 
 const props = defineProps({

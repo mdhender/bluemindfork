@@ -4,11 +4,12 @@ import store from "@bluemind/store";
 import { BmToggleableButton } from "@bluemind/ui-components";
 import { messageUtils } from "@bluemind/mail";
 import { ACCEPT_COUNTER_EVENT, DECLINE_COUNTER_EVENT } from "~/actions";
-import EventHeader from "./EventHeader";
-import EventDetail from "./EventDetail";
-import EventFooter from "./EventFooter";
-import EventFooterSection from "./EventFooterSection.vue";
+import EventHeader from "./base/EventHeader";
+import EventDetail from "./base/EventDetail";
+import EventFooter from "./base/EventFooter";
+import EventFooterSection from "./base/EventFooterSection.vue";
 import MailContactCardSlots from "../../MailContactCardSlots";
+import { Contact } from "@bluemind/business-components";
 
 import { STATUS_KEY_FOR_OCCURRENCE, STATUS_KEY_FOR_EVENT } from "./replyActions";
 const { MessageHeader } = messageUtils;
@@ -35,6 +36,11 @@ const statusKey = computed(
 );
 const attendeeHeader = computed(() =>
     props.message?.headers?.find(({ name }) => name.toUpperCase() === MessageHeader.X_BM_COUNTER_ATTENDEE.toUpperCase())
+);
+const newlyAddedAttendees = computed(() =>
+    props.event.attendees
+        ?.filter(a => attendeeHeader.value.values?.[0]?.includes(a.mail))
+        ?.map(a => ({ address: a.mail, dn: a.name }))
 );
 </script>
 
@@ -80,9 +86,15 @@ const attendeeHeader = computed(() =>
         <event-detail :event="event" :message="message" />
 
         <div v-if="attendeeHeader" class="event-footer">
-            <event-footer-section label="Participant ajouté (1)">
+            <event-footer-section
+                :label="
+                    $tc('mail.viewer.invitation.counter.added_attendees', newlyAddedAttendees?.length, {
+                        count: newlyAddedAttendees?.length
+                    })
+                "
+            >
                 <div
-                    v-for="(attendee, index) in [{ address: 'newone@devenv.dev.bluemind.net' }]"
+                    v-for="(attendee, index) in newlyAddedAttendees"
                     :key="index"
                     class="event-footer-entry"
                     role="listitem"

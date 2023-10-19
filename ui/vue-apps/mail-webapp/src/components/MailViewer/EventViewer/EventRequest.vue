@@ -3,9 +3,9 @@ import { inject } from "@bluemind/inject";
 import store from "@bluemind/store";
 import { BmToggleableButton } from "@bluemind/ui-components";
 import { SET_EVENT_STATUS } from "~/actions";
-import EventHeader from "./EventHeader";
-import EventDetail from "./EventDetail";
-import EventFooter from "./EventFooter";
+import EventHeader from "./base/EventHeader";
+import EventDetail from "./base/EventDetail";
+import EventFooter from "./base/EventFooter";
 import { REPLY_ACTIONS } from "./replyActions";
 
 const props = defineProps({
