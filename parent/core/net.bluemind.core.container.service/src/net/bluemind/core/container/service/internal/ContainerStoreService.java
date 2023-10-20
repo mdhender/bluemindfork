@@ -366,11 +366,12 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 				throw new ServerFault(
 						"itemStore " + itemStore + " has **NOT** created item " + item + " can't continue");
 			}
+
+			createValue(created, value, itemValueStore);
 			if (hasChangeLog) {
 				changelogStore.itemCreated(LogEntry.create(created.version, created.uid, created.externalId,
 						securityContext.getSubject(), origin, created.id, weightSeedProvider.weightSeed(value)));
 			}
-			createValue(created, value, itemValueStore);
 			lastEmptyChangeset.invalidate(containerCacheKey);
 			if (hasChangeLog) {
 				containerChangeEventProducer.get().produceEvent();
