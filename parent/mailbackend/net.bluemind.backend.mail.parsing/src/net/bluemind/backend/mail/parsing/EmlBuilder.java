@@ -38,22 +38,19 @@ import java.util.Set;
 import javax.mail.internet.MimeUtility;
 
 import org.apache.james.mime4j.MimeException;
-import org.apache.james.mime4j.codec.DecodeMonitor;
 import org.apache.james.mime4j.dom.Body;
 import org.apache.james.mime4j.dom.Header;
 import org.apache.james.mime4j.dom.Message;
 import org.apache.james.mime4j.dom.address.Address;
 import org.apache.james.mime4j.dom.address.Mailbox;
 import org.apache.james.mime4j.dom.field.ContentDispositionField;
-import org.apache.james.mime4j.dom.field.UnstructuredField;
+import org.apache.james.mime4j.dom.field.ParsedField;
 import org.apache.james.mime4j.field.LenientFieldParser;
-import org.apache.james.mime4j.field.UnstructuredFieldImpl;
 import org.apache.james.mime4j.message.AbstractEntity;
 import org.apache.james.mime4j.message.BasicBodyFactory;
 import org.apache.james.mime4j.message.BodyPart;
 import org.apache.james.mime4j.message.MessageImpl;
 import org.apache.james.mime4j.message.MultipartImpl;
-import org.apache.james.mime4j.stream.RawField;
 import org.apache.james.mime4j.util.MimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -251,9 +248,14 @@ public class EmlBuilder {
 			}
 
 			if (header.values.size() == 1) {
-				RawField rawheader = new RawField(header.name, header.values.get(0));
-				UnstructuredField headerField = UnstructuredFieldImpl.PARSER.parse(rawheader, DecodeMonitor.SILENT);
-				partHeader.addField(headerField);
+				try {
+					String headerName = header.name + ": ";
+					String value = MimeUtil.fold(header.values.get(0), headerName.length());
+					ParsedField headerField = LenientFieldParser.parse(headerName + value);
+					partHeader.addField(headerField);
+				} catch (MimeException e) {
+					logger.warn("Cannot add header {}", header.name, e);
+				}
 			} else {
 				logger.warn("Skipping multivalued {}", header.name);
 			}

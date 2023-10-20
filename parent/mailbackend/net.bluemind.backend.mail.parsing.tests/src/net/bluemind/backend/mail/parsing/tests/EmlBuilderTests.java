@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -73,6 +74,33 @@ public class EmlBuilderTests {
 		assertNotNull(eml);
 		assertFalse("Euro unicode character must be encoded", eml.contains("€"));
 		assertTrue("UTF-8 charset must be explicit in eml", eml.contains("charset=utf-8"));
+	}
+
+	@Test
+	public void testBuilderHeaderFolding() throws IOException {
+		MessageBody mb = new MessageBody();
+		mb.subject = "un mail réaliste";
+		mb.headers = Arrays.asList(Header.create("Content-Transfer-Encoding", "quoted-printable"),
+				Header.create("X-Bm-InternalId",
+						"51EE9940-69FF-4F30-ADB9-5F853A101C39EE bluemind-e79fbb51-2483-4981-9b25-a614eeefe3f2 125"));
+
+		Part text = text("Coucou, tu veux...", TextStyle.plain);
+
+		Part html = text("<b>Coucou, tu veux...</b>\r\n<img src=\"cid:toto_id\"/>", TextStyle.html);
+		Part img = new Part();
+		img.mime = "image/png";
+		img.contentId = "toto_id";
+		img.fileName = "zizi coptère.png";
+		img.dispositionType = DispositionType.INLINE;
+		img.address = genPart(new byte[0]);
+		Part related = multipart(MultipartStyle.related, html, img);
+		Part alternative = multipart(MultipartStyle.alternative, text, related);
+		mb.structure = alternative;
+		String eml = toEML(EmlBuilder.of(mb, sid));
+		assertNotNull(eml);
+		assertTrue(eml.contains("Coucou")); // body present, means header parsing has been successful
+		assertTrue(eml.contains("X-Bm-InternalId: 51EE9940-69FF-4F30-ADB9-5F853A101C39EE\r\n" // folded
+				+ " bluemind-e79fbb51-2483-4981-9b25-a614eeefe3f2 125"));
 	}
 
 	@Test
