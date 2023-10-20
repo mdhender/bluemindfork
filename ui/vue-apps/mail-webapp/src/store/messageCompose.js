@@ -1,7 +1,7 @@
 import Vue from "vue";
 import { inject } from "@bluemind/inject";
 import { signatureUtils } from "@bluemind/mail";
-import { LOAD_MAX_MESSAGE_SIZE, REMOVE_ATTACHMENT, SET_MESSAGE_CONTENT, SET_DRAFT_CONTENT } from "~/actions";
+import { DEBOUNCED_SET_MESSAGE_CONTENT, LOAD_MAX_MESSAGE_SIZE, REMOVE_ATTACHMENT, SET_DRAFT_CONTENT } from "~/actions";
 import {
     ADD_FILE,
     RESET_COMPOSER,
@@ -108,7 +108,7 @@ export default {
         [SET_DRAFT_CONTENT]: ({ commit, getters, dispatch }, { draft, html }) => {
             commit(SET_DRAFT_EDITOR_CONTENT, html);
             const content = getters[GET_DRAFT_CONTENT];
-            return dispatch(SET_MESSAGE_CONTENT, { message: draft, content });
+            return dispatch(DEBOUNCED_SET_MESSAGE_CONTENT, { message: draft, content });
         }
     },
 

@@ -4,7 +4,7 @@ import cloneDeep from "lodash.clonedeep";
 import inject from "@bluemind/inject";
 import { MockMailboxesClient } from "@bluemind/test-utils";
 import storeOptions from "../messageCompose";
-import { LOAD_MAX_MESSAGE_SIZE, SET_DRAFT_CONTENT } from "~/actions";
+import { LOAD_MAX_MESSAGE_SIZE, SET_DRAFT_CONTENT, DEBOUNCED_SET_MESSAGE_CONTENT } from "~/actions";
 import { GET_DRAFT_CONTENT, IS_SENDER_SHOWN } from "~/getters";
 import {
     ADD_FILE,
@@ -156,7 +156,7 @@ describe("messageCompose", () => {
             expect(store.state.maxMessageSize).toBe(30 / 1.33);
         });
         test("SET_DRAFT_CONTENT", async () => {
-            storeOptions.actions["SET_MESSAGE_CONTENT"] = jest.fn();
+            storeOptions.actions[DEBOUNCED_SET_MESSAGE_CONTENT] = jest.fn();
             const store2 = new Vuex.Store(cloneDeep(storeOptions));
 
             const collapsed = "collapsed";
@@ -164,7 +164,7 @@ describe("messageCompose", () => {
             store2.commit(SET_DRAFT_COLLAPSED_CONTENT, collapsed);
             await store2.dispatch(SET_DRAFT_CONTENT, { draft: { key: "key" }, html: content });
             expect(store2.state.editorContent).toEqual(content);
-            expect(storeOptions.actions["SET_MESSAGE_CONTENT"]).toHaveBeenCalledWith(
+            expect(storeOptions.actions[DEBOUNCED_SET_MESSAGE_CONTENT]).toHaveBeenCalledWith(
                 expect.anything(),
                 expect.objectContaining({ content: content + collapsed })
             );

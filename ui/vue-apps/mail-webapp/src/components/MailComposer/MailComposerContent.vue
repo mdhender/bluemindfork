@@ -114,12 +114,9 @@ export default {
         ...mapMutations("mail", [SET_DRAFT_COLLAPSED_CONTENT, SET_DRAFT_EDITOR_CONTENT]),
         ...mapActions("mail", { SET_DRAFT_CONTENT }),
         async updateEditorContent(newContent) {
-            await this.debouncedSetDraftContent(newContent, this.message);
-        },
-        debouncedSetDraftContent: debounce(async function (html, draft) {
-            await this.SET_DRAFT_CONTENT({ draft, html });
+            await this.SET_DRAFT_CONTENT({ draft: this.message, html: newContent });
             this.debouncedSave();
-        }, 1000),
+        },
         expandContent() {
             this.SET_DRAFT_EDITOR_CONTENT(this.messageCompose.editorContent + this.messageCompose.collapsedContent);
             this.SET_DRAFT_COLLAPSED_CONTENT(null);
