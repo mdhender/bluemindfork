@@ -3,16 +3,13 @@ import { computed, watch } from "vue";
 import { messageUtils, loadingStatusUtils } from "@bluemind/mail";
 import store from "@bluemind/store";
 import ChainOfResponsibility from "../../../ChainOfResponsibility.vue";
+import * as EVENT_COMPONENT from "../../EventViewer";
 import { CURRENT_MAILBOX } from "~/getters";
 import { FETCH_EVENT } from "~/actions";
-import useEventComponent from "../../EventViewer/useEventComponent";
-
 const { isImip, MessageHeader } = messageUtils;
 const { LoadingStatus } = loadingStatusUtils;
 
 const props = defineProps({ message: { type: Object, required: true } });
-
-const event = computed(() => store.state.mail.consultPanel.currentEvent);
 
 const isMessageImip = computed(() => isImip(props.message));
 watch(
@@ -34,37 +31,41 @@ watch(
     { immediate: true }
 );
 
-const typeOfEvent = computed(() => {
+const event = computed(() => store.state.mail.consultPanel.currentEvent);
+const eventInsert = computed(() => {
     const typeIs = checkXmbEventType(props.message.headers);
 
     if (event.value.loading === LoadingStatus.LOADING) {
-        return "LOADING";
+        return EVENT_COMPONENT.EventLoading;
     }
     if (typeIs(MessageHeader.X_BM_EVENT_CANCELED)) {
-        return "CANCELED";
+        return EVENT_COMPONENT.EventCanceled;
     }
     if (event.value.loading === LoadingStatus.ERROR) {
-        return "NOT_FOUND";
+        return EVENT_COMPONENT.EventNotFound;
     }
     if (typeIs(MessageHeader.X_BM_EVENT_DECLINECOUNTER)) {
-        return "DECLINE_COUNTER";
+        return EVENT_COMPONENT.EventDeclineCounter;
     }
     if (typeIs(MessageHeader.X_BM_EVENT)) {
-        return "REQUEST";
+        return EVENT_COMPONENT.EventRequest;
+    }
+    if (typeIs(MessageHeader.X_BM_COUNTER_ATTENDEE)) {
+        return EVENT_COMPONENT.EventNotificationForward;
     }
     if (typeIs(MessageHeader.X_BM_EVENT_COUNTERED)) {
-        return "COUNTER";
+        return EVENT_COMPONENT.EventCountered;
     }
     if (typeIs(MessageHeader.X_BM_EVENT_REPLIED)) {
-        return "REPLY";
+        return EVENT_COMPONENT.EventReplied;
     }
     return null;
 });
 
-function checkXmbEventType(headersList = []) {
-    return anHeaderName => headersList.findIndex(({ name }) => name === anHeaderName) !== -1;
-}
-const eventInsert = useEventComponent(typeOfEvent);
+const checkXmbEventType = (headersList = []) => {
+    return anHeaderName =>
+        headersList.findIndex(({ name }) => name.toUpperCase() === anHeaderName.toUpperCase()) !== -1;
+};
 </script>
 
 <script>

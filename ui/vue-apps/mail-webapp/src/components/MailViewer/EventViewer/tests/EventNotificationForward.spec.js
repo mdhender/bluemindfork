@@ -1,5 +1,5 @@
 import { createLocalVue, mount } from "@vue/test-utils";
-import EventCountered from "../EventCountered.vue";
+import EventNotificationForward from "../EventNotificationForward";
 import VueI18n from "vue-i18n";
 import i18nFiles from "../../../../../l10n";
 
@@ -52,7 +52,7 @@ describe("Event Countered - Fowarded by attendee", () => {
         });
 
         test("what if no counter attendees value", async () => {
-            const wrapper = mount(EventCountered, {
+            const wrapper = mount(EventNotificationForward, {
                 localVue,
                 i18n,
                 propsData: {
@@ -60,7 +60,14 @@ describe("Event Countered - Fowarded by attendee", () => {
                         headers: [{ name: "X-BM-COUNTER-ATTENDEE" }]
                     },
                     event: {
-                        attendees: []
+                        attendees: [
+                            {
+                                name: "George Abitbol",
+                                mail: "george@devenv.dev.bluemind.net",
+                                status: "NeedsAction",
+                                cutype: "Individual"
+                            }
+                        ]
                     }
                 }
             });
@@ -102,11 +109,11 @@ describe("Event Countered - Fowarded by attendee", () => {
 
         it("when more than five added attendees, button will only propose to rejects them all ", () => {
             const wrapper = mountEventCountered([
-                "numero1@anymail.com",
-                "numero2@anymail.com",
-                "numero3@anymail.com",
-                "numero4@anymail.com",
-                "numero5@anymail.com"
+                "numero_2_@anymail.com",
+                "numero_3_@anymail.com",
+                "numero_4_@anymail.com",
+                "numero_5_@anymail.com",
+                "numero_6_@anymail.com"
             ]);
             const refuseInvitationBtn = findByText(wrapper, {
                 selector: "button",
@@ -114,6 +121,37 @@ describe("Event Countered - Fowarded by attendee", () => {
             }).at(0);
 
             expect(refuseInvitationBtn.text()).toEqual("Refuser tous les participants ajoutés");
+        });
+
+        it("should have a dropdown available when attendees are between 2 and 5", async () => {
+            const wrapper = mountEventCountered(["numero1@anymail.com"]);
+            const refuseInvitationDropdown = wrapper.find("[role='menu']").findAll('[role="menuitem"]');
+
+            expect(refuseInvitationDropdown.at(0).text()).toEqual("Refuser NEW ONE");
+            expect(refuseInvitationDropdown.at(1).text()).toEqual("Refuser numero1");
+        });
+
+        it("should be able to decline all at once", async () => {
+            const wrapper = mountEventCountered(["numero1@anymail.com"]);
+            const refuseInvitationDropdown = wrapper.find("button");
+
+            await refuseInvitationDropdown.trigger("click");
+
+            expect(wrapper.emitted().rejectAttendee[0]).toContainEqual([
+                { address: "newone@devenv.dev.bluemind.net", dn: "NEW ONE" },
+                { address: "numero1@anymail.com", dn: "numero1" }
+            ]);
+        });
+        it("should be able to decline individually when using dropdown", async () => {
+            const wrapper = mountEventCountered(["numero1@anymail.com"]);
+            const refuseInvitationDropdown = wrapper.find("[role='menu']").findAll('[role="menuitem"]');
+
+            await refuseInvitationDropdown.at(0).trigger("click");
+
+            expect(wrapper.emitted().rejectAttendee[0]).toContainEqual({
+                address: "newone@devenv.dev.bluemind.net",
+                dn: "NEW ONE"
+            });
         });
     });
 });
@@ -123,7 +161,7 @@ function findByText(wrapper, { selector, text }) {
 }
 
 function mountEventCountered(addedAttendees = []) {
-    return mount(EventCountered, {
+    return mount(EventNotificationForward, {
         localVue,
         i18n,
         propsData: {

@@ -5,3 +5,4 @@ export { default as EventCanceled } from "./EventCanceled.vue";
 export { default as EventLoading } from "./EventLoading.vue";
 export { default as EventNotFound } from "./EventNotFound.vue";
 export { default as EventDeclineCounter } from "./EventDeclineCounter.vue";
+export { default as EventNotificationForward } from "./EventNotificationForward.vue";

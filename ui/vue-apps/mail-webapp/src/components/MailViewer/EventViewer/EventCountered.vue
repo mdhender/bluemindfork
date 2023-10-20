@@ -2,17 +2,12 @@
 import { computed } from "vue";
 import store from "@bluemind/store";
 import { BmToggleableButton } from "@bluemind/ui-components";
-import { messageUtils } from "@bluemind/mail";
 import { ACCEPT_COUNTER_EVENT, DECLINE_COUNTER_EVENT } from "~/actions";
 import EventHeader from "./base/EventHeader";
 import EventDetail from "./base/EventDetail";
 import EventFooter from "./base/EventFooter";
-import EventFooterSection from "./base/EventFooterSection";
-import MailContactCardSlots from "../../MailContactCardSlots";
-import { Contact } from "@bluemind/business-components";
-
+import EventNotificationForward from "./EventNotificationForward";
 import { STATUS_KEY_FOR_OCCURRENCE, STATUS_KEY_FOR_EVENT } from "./replyActions";
-const { MessageHeader } = messageUtils;
 
 const props = defineProps({
     message: { type: Object, required: true },
@@ -30,20 +25,9 @@ const isOccurrence = computed(() => !!props.message.eventInfo.recuridIsoDate);
 const eventKey = computed(() =>
     isOccurrence.value ? "mail.viewer.invitation.counter.occurrence" : "mail.viewer.invitation.counter.event"
 );
-
 const statusKey = computed(
     () => (isOccurrence.value ? STATUS_KEY_FOR_OCCURRENCE : STATUS_KEY_FOR_EVENT)[fromAttendee.value.status]
 );
-const attendeeHeader = computed(() =>
-    props.message?.headers?.find(({ name }) => name.toUpperCase() === MessageHeader.X_BM_COUNTER_ATTENDEE.toUpperCase())
-);
-const newlyAddedAttendees = computed(() =>
-    props.event.attendees
-        ?.filter(a => attendeeHeader.value.values?.[0]?.includes(a.mail))
-        ?.map(a => ({ address: a.mail, dn: a.name }))
-);
-
-function rejectAttendees(attendees) {}
 </script>
 
 <template>
@@ -77,54 +61,13 @@ function rejectAttendees(attendees) {}
                 </div>
             </template>
         </event-header>
-
-        <event-header v-else-if="attendeeHeader">
-            <span class="bold"> {{ $t("mail.viewer.invitation.counter.attendees") }}</span>
-            <template #actions>
-                <bm-toggleable-button icon="cross" @click="rejectAttendees(newlyAddedAttendees)">
-                    {{
-                        $tc("mail.viewer.invitation.counter.added_attendees.refuse", newlyAddedAttendees.length - 1, {
-                            attendee: newlyAddedAttendees?.[0]?.dn,
-                            count: newlyAddedAttendees.length
-                        })
-                    }}
-                </bm-toggleable-button>
-            </template>
-        </event-header>
         <event-header v-else-if="!event.counter">
             <span class="bold"> {{ $t("mail.viewer.invitation.counter.answered") }}</span>
         </event-header>
 
         <event-detail :event="event" :message="message" />
 
-        <div v-if="attendeeHeader" class="event-footer">
-            <event-footer-section
-                :label="
-                    $tc('mail.viewer.invitation.counter.added_attendees', newlyAddedAttendees?.length, {
-                        count: newlyAddedAttendees?.length
-                    })
-                "
-            >
-                <div
-                    v-for="(attendee, index) in newlyAddedAttendees"
-                    :key="index"
-                    class="event-footer-entry"
-                    role="listitem"
-                >
-                    <mail-contact-card-slots
-                        :component="Contact"
-                        :contact="attendee"
-                        no-avatar
-                        show-address
-                        transparent
-                        bold-dn
-                        enable-card
-                        class="text-truncate"
-                    />
-                </div>
-            </event-footer-section>
-        </div>
-        <event-footer v-else :event="event" />
+        <event-footer :event="event" />
     </div>
 </template>
 
