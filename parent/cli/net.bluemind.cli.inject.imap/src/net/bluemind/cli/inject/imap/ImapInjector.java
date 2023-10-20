@@ -21,7 +21,6 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -31,10 +30,8 @@ import net.bluemind.cli.inject.common.GOTMessageProducer;
 import net.bluemind.cli.inject.common.IMessageProducer;
 import net.bluemind.cli.inject.common.MailExchangeInjector;
 import net.bluemind.cli.inject.common.TargetMailbox;
-import net.bluemind.cli.inject.common.TargetMailbox.Auth;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
-import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.imap.FlagsList;
 import net.bluemind.imap.StoreClient;
 import net.bluemind.mailbox.api.Mailbox;
@@ -135,10 +132,9 @@ public class ImapInjector extends MailExchangeInjector {
 		}
 	}
 
-	public ImapInjector(IServiceProvider provider, String domainUid, IMessageProducer prod, Set<String> filteredEmails,
+	public ImapInjector(IServiceProvider provider, String domainUid, IMessageProducer prod, DirEntryFilter filter,
 			int folders) {
-		super(provider, domainUid, auth -> new ImapTargetMailbox(auth, folders), prod,
-				new DirEntryFilter(filteredEmails, Set.of(Kind.USER, Kind.MAILSHARE)));
+		super(provider, domainUid, auth -> new ImapTargetMailbox(auth, folders), prod, filter);
 	}
 
 	public ImapInjector(ItemValue<Server> srv, IServiceProvider provider, String domainUid) {

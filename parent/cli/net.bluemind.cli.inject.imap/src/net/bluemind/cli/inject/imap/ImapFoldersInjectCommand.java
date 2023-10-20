@@ -17,6 +17,7 @@
   */
 package net.bluemind.cli.inject.imap;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -27,6 +28,8 @@ import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.inject.common.AbstractMailInjectCommand;
 import net.bluemind.cli.inject.common.IMessageProducer;
 import net.bluemind.cli.inject.common.MailExchangeInjector;
+import net.bluemind.cli.inject.common.MailExchangeInjector.DirEntryFilter;
+import net.bluemind.directory.api.BaseDirEntry.Kind;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -54,8 +57,10 @@ public class ImapFoldersInjectCommand extends AbstractMailInjectCommand {
 
 	@Override
 	protected MailExchangeInjector createInjector(CliContext ctx, String domUid, IMessageProducer prod) {
-		Set<String> filteredEmails = Set.copyOf(emails);
-		return new ImapInjector(ctx.adminApi(), domUid, prod, filteredEmails, folders);
+		DirEntryFilter filter = (emails == null || emails.isEmpty()) //
+				? new DirEntryFilter(Collections.emptySet(), Set.of(Kind.USER))
+				: new DirEntryFilter(Set.copyOf(emails), Set.of(Kind.USER, Kind.MAILSHARE));
+		return new ImapInjector(ctx.adminApi(), domUid, prod, filter, folders);
 	}
 
 }
