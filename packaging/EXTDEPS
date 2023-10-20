@@ -12,8 +12,8 @@ WEED="3.57-bluemind36"
 BMJDK="17.0.7+7-bluemind18"
 BMSNZIP="1.0.4-bluemind4"
 BMNGINX="1.24.0-bluemind109"
-BMPHP="5.6.40-bluemind115"
-BMPHPMEMCACHE="3.0.8-bluemind115"
+BMPHP="5.6.40-bluemind117"
+BMPHPMEMCACHE="3.0.8-bluemind117"
 
 # tick
 TELEGRAF="1.26.1-0"
