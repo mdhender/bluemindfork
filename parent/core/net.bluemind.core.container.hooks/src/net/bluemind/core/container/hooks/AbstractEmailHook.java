@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.james.mime4j.dom.address.Mailbox;
@@ -48,6 +49,7 @@ import net.bluemind.core.sendmail.SendmailHelper;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
+import net.bluemind.domain.api.IDomains;
 import net.bluemind.group.api.IGroup;
 import net.bluemind.group.api.Member;
 import net.bluemind.i18n.labels.I18nLabels;
@@ -128,7 +130,7 @@ public abstract class AbstractEmailHook implements IAclHook {
 						Map<String, String> prefs = settingService.get(memberDE.entryUid);
 						String lang = prefs.get("lang");
 						data.put("entity", I18nLabels.getInstance().translate(lang, container.name));
-						Mailbox from = buildFrom(memberDE, sc);
+						Mailbox from = buildFrom(context, container, memberDE);
 						sendMessage(from, memberDE, this.getTemplateSubject(), this.getTemplateBody(), data, lang,
 								headers);
 					}
@@ -139,7 +141,7 @@ public abstract class AbstractEmailHook implements IAclHook {
 			return;
 		}
 
-		Mailbox from = buildFrom(targetedUser, sc);
+		Mailbox from = buildFrom(context, container, targetedUser);
 		Map<String, String> prefs = settingService.get(targetedUser.entryUid);
 		String lang = prefs.get("lang");
 
@@ -147,12 +149,13 @@ public abstract class AbstractEmailHook implements IAclHook {
 		sendMessage(from, targetedUser, this.getTemplateSubject(), this.getTemplateBody(), data, lang, headers);
 	}
 
-	private Mailbox buildFrom(DirEntry de, SecurityContext sc) {
+	private Mailbox buildFrom(BmContext context, ContainerDescriptor container, DirEntry de) {
 		String noreply;
 		if (de != null && de.email.contains("@")) {
 			noreply = "no-reply@" + de.email.split("@")[1];
 		} else {
-			noreply = "no-reply@" + sc.getContainerUid();
+			noreply = "no-reply@" + Optional.of(context.provider().instance(IDomains.class).get(container.domainUid))
+					.map(d -> d.value.defaultAlias).orElse(container.domainUid);
 		}
 		return SendmailHelper.formatAddress(noreply, noreply);
 
