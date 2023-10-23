@@ -37,8 +37,14 @@ watch(
 const typeOfEvent = computed(() => {
     const typeIs = checkXmbEventType(props.message.headers);
 
+    if (event.value.loading === LoadingStatus.LOADING) {
+        return "LOADING";
+    }
+    if (typeIs(MessageHeader.X_BM_EVENT_CANCELED)) {
+        return "CANCELED";
+    }
     if (event.value.loading === LoadingStatus.ERROR) {
-        return typeIs(MessageHeader.X_BM_EVENT_CANCELED) ? "CANCELED" : "NOT_FOUND";
+        return "NOT_FOUND";
     }
     if (typeIs(MessageHeader.X_BM_EVENT_DECLINECOUNTER)) {
         return "DECLINE_COUNTER";
@@ -52,7 +58,7 @@ const typeOfEvent = computed(() => {
     if (typeIs(MessageHeader.X_BM_EVENT_REPLIED)) {
         return "REPLY";
     }
-    return "LOADING";
+    return null;
 });
 
 function checkXmbEventType(headersList = []) {
