@@ -38,6 +38,7 @@ import net.bluemind.backend.mail.api.MailboxItem;
 import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailApiHeaders;
+import net.bluemind.backend.mail.replica.service.internal.tools.EnvelopFrom;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemIdentifier;
 import net.bluemind.core.container.model.ItemValue;
@@ -57,10 +58,12 @@ import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.core.utils.JsonUtils;
+import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mime4j.common.Mime4JHelper;
+import net.bluemind.user.api.User;
 
 public class OutboxService implements IOutbox {
 
@@ -154,7 +157,7 @@ public class OutboxService implements IOutbox {
 				}
 				String fromMail = msg.getFrom().iterator().next().getAddress();
 				MailboxList rcptTo = allRecipients(msg);
-				SendmailResponse sendmailResponse = send(ctx.user.value.login, forSend, fromMail, rcptTo, msg,
+				SendmailResponse sendmailResponse = send(ctx.user.value, forSend, fromMail, rcptTo, msg,
 						requestDSN(item.value));
 				ret.requestedDSN = sendmailResponse.getRequestedDSNs() > 0;
 				boolean moveToSent = !isMDN(item.value);
@@ -234,22 +237,25 @@ public class OutboxService implements IOutbox {
 		}
 	}
 
-	private SendmailResponse send(String login, InputStream forSend, String fromEnvelop, MailboxList rcptTo,
+	private SendmailResponse send(User user, InputStream forSend, String fromMail, MailboxList rcptTo,
 			Message relatedMsg, boolean requestDSN) {
-		SendmailCredentials creds = SendmailCredentials.as(String.format("%s@%s", login, domainUid),
+		SendmailCredentials creds = SendmailCredentials.as(String.format("%s@%s", user.login, domainUid),
 				context.getSecurityContext().getSessionId());
-		String from = creds.notAdminAndNotCurrentUser(fromEnvelop) ? creds.loginAtDomain : fromEnvelop;
+
+		ItemValue<Domain> domain = serviceProvider.instance(IDomains.class).get(domainUid);
+		String from = new EnvelopFrom(domain).getFor(creds, user, fromMail);
 		SendmailResponse sendmailResponse = mailer.send(creds, from, domainUid, rcptTo, forSend, requestDSN);
 
+		String to = notAdminAndNotCurrentUser(domain, user, creds, fromMail) ? user.defaultEmailAddress() : fromMail;
 		if (!sendmailResponse.getFailedRecipients().isEmpty()) {
-			sendNonDeliveryReport(sendmailResponse.getFailedRecipients(), creds, fromEnvelop, relatedMsg);
+			sendNonDeliveryReport(domain, creds, to, sendmailResponse.getFailedRecipients(), relatedMsg);
 		} else if (!sendmailResponse.isOk()) {
 			boolean aclError = sendmailResponse.code == 503;
 			if (aclError) {
 				sendmailResponse.setFailedRecipients(
-						rcptTo.stream().map(r -> FailedRecipient.create(sendmailResponse, r.getAddress()))
-								.collect(Collectors.toList()));
-				sendNonDeliveryAclReport(sendmailResponse.getFailedRecipients(), creds, fromEnvelop, relatedMsg);
+						rcptTo.stream().map(r -> FailedRecipient.create(sendmailResponse, r.getAddress())).toList());
+				sendNonDeliveryAclReport(domain, creds, to, fromMail, sendmailResponse.getFailedRecipients(),
+						relatedMsg);
 			} else {
 				throw new ServerFault(sendmailResponse.toString());
 			}
@@ -313,8 +319,8 @@ public class OutboxService implements IOutbox {
 				.findFirst().map(MessageBody.Header::firstValue);
 	}
 
-	private void sendNonDeliveryReport(List<FailedRecipient> failedRecipients, SendmailCredentials creds, String sender,
-			Message relatedMsg) {
+	private void sendNonDeliveryReport(ItemValue<Domain> domain, SendmailCredentials creds, String to,
+			List<FailedRecipient> failedRecipients, Message relatedMsg) {
 		NonDeliveryReportMessage ndrMsg = new NonDeliveryReportMessage(failedRecipients, relatedMsg);
 
 		StringBuilder recipientsErrorMsg = new StringBuilder();
@@ -340,15 +346,14 @@ public class OutboxService implements IOutbox {
 				""".formatted(relatedMsg.getSubject(), recipientsErrorMsg);
 
 		MessageImpl message = ndrMsg.createNDRMessage(content);
-		sendIt(creds, sender, message);
+		sendIt(domain, creds, to, message);
 	}
 
-	private void sendNonDeliveryAclReport(List<FailedRecipient> failedRecipients, SendmailCredentials creds,
-			String originalFrom, Message relatedMsg) {
+	private void sendNonDeliveryAclReport(ItemValue<Domain> domain, SendmailCredentials creds, String to,
+			String originalFrom, List<FailedRecipient> failedRecipients, Message relatedMsg) {
 		NonDeliveryReportMessage ndrMsg = new NonDeliveryReportMessage(failedRecipients, relatedMsg);
 
 		String aclInfo = """
-
 				You haven't sufficient delegation rights to send messages using %s email address.
 
 				""".formatted(originalFrom);
@@ -363,12 +368,11 @@ public class OutboxService implements IOutbox {
 				""".formatted(relatedMsg.getSubject(), aclInfo);
 
 		MessageImpl message = ndrMsg.createNDRMessage(content);
-		sendIt(creds, originalFrom, message);
+		sendIt(domain, creds, to, message);
 	}
 
-	private void sendIt(SendmailCredentials creds, String sender, MessageImpl message) {
-		String from = "noreply@" + domainDefaultAlias();
-		String to = creds.notAdminAndNotCurrentUser(sender) ? creds.loginAtDomain : sender;
+	private void sendIt(ItemValue<Domain> domain, SendmailCredentials creds, String to, MessageImpl message) {
+		String from = "noreply@" + domain.value.defaultAlias;
 		String toLocalPart = to.split("@")[0];
 		String toDomainPart = to.split("@")[1];
 		org.apache.james.mime4j.dom.address.Mailbox mbRcptTo = new org.apache.james.mime4j.dom.address.Mailbox(
@@ -380,8 +384,9 @@ public class OutboxService implements IOutbox {
 		mailer.send(creds, from, domainUid, rcptTo, message);
 	}
 
-	private String domainDefaultAlias() {
-		return serviceProvider.instance(IDomains.class).get(domainUid).value.defaultAlias;
+	private boolean notAdminAndNotCurrentUser(ItemValue<Domain> domain, User user, SendmailCredentials creds,
+			String sender) {
+		return !creds.isAdminO() && !user.emails.stream().anyMatch(e -> e.match(sender, domain.value.aliases));
 	}
 
 	private MailboxList allRecipients(Message m) throws Exception {

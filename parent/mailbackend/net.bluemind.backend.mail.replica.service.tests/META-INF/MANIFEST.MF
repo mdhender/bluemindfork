@@ -68,7 +68,8 @@ Require-Bundle: org.junit,
  net.bluemind.core.auditlogs.schema,
  com.fasterxml.jackson.core.jackson-databind,
  net.bluemind.core.auditlogs,
- net.bluemind.core.auditlogs.client.es
+ net.bluemind.core.auditlogs.client.es,
+ net.bluemind.core.sendmail
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.backend.mail.replica.service.tests
