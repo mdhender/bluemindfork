@@ -94,45 +94,41 @@ describe("Folder adaptors", () => {
 
     describe("isDefault", () => {
         test("INBOX in user mailbox is a default folder", () => {
-            expect(isDefault(true, "INBOX", { type: MailboxType.USER })).toBeTruthy();
+            expect(isDefault(null, "INBOX", "INBOX", { type: MailboxType.USER })).toBeTruthy();
         });
         test("Sent in user mailbox is a default folder", () => {
-            expect(isDefault(true, "Sent", { type: MailboxType.USER })).toBeTruthy();
+            expect(isDefault(null, "Sent", "Sent", { type: MailboxType.USER })).toBeTruthy();
         });
         test("Drafts in user mailbox is a default folder", () => {
-            expect(isDefault(true, "Drafts", { type: MailboxType.USER })).toBeTruthy();
+            expect(isDefault(null, "Drafts", "Drafts", { type: MailboxType.USER })).toBeTruthy();
         });
         test("Trash in user mailbox is a default folder", () => {
-            expect(isDefault(true, "Trash", { type: MailboxType.USER })).toBeTruthy();
+            expect(isDefault(null, "Trash", "Trash", { type: MailboxType.USER })).toBeTruthy();
         });
         test("Templates in user mailbox is a default folder", () => {
-            expect(isDefault(true, "Templates", { type: MailboxType.USER })).toBeTruthy();
+            expect(isDefault(null, "Templates", "Templates", { type: MailboxType.USER })).toBeTruthy();
         });
 
         test("Junk in user mailbox is a default folder", () => {
-            expect(isDefault(true, "Junk", { type: MailboxType.USER })).toBeTruthy();
+            expect(isDefault(null, "Junk", "Junk", { type: MailboxType.USER })).toBeTruthy();
         });
         test("Outbox in user mailbox is a default folder", () => {
-            expect(isDefault(true, "Outbox", { type: MailboxType.USER })).toBeTruthy();
+            expect(isDefault(null, "Outbox", "Outbox", { type: MailboxType.USER })).toBeTruthy();
         });
         test("Any other root folder in user mailbox is not a folder", () => {
-            expect(isDefault(true, "Any", { type: MailboxType.USER })).toBeFalsy();
-            expect(isDefault(true, "inboxe", { type: MailboxType.USER })).toBeFalsy();
+            expect(isDefault(null, "Any", "Any", { type: MailboxType.USER })).toBeFalsy();
+            expect(isDefault(null, "inboxe", "inboxe", { type: MailboxType.USER })).toBeFalsy();
         });
         test("Detect default folders in mailshares", () => {
-            let isRoot = true;
-            expect(isDefault(isRoot, "INBOX", { type: MailboxType.MAILSHARE })).toBeFalsy();
-            isRoot = false;
-            expect(isDefault(isRoot, "Sent", { type: MailboxType.MAILSHARE })).toBeTruthy();
+            expect(isDefault(null, "shared/other/INBOX", "INBOX", { type: MailboxType.MAILSHARE })).toBeFalsy();
+            expect(isDefault("parentUid", "shared/SENT", "Sent", { type: MailboxType.MAILSHARE })).toBeTruthy();
         });
         test("Detect default folders in groups", () => {
-            let isRoot = true;
-            expect(isDefault(isRoot, "INBOX", { type: MailboxType.GROUP })).toBeFalsy();
-            isRoot = false;
-            expect(isDefault(isRoot, "Sent", { type: MailboxType.GROUP })).toBeTruthy();
+            expect(isDefault(null, "group/other/INBOX", "INBOX", { type: MailboxType.GROUP })).toBeFalsy();
+            expect(isDefault("parentUid", "group/SENT", "Sent", { type: MailboxType.GROUP })).toBeTruthy();
         });
         test("A sub folder cannot be a default folder ", () => {
-            expect(isDefault(false, "INBOX", { type: MailboxType.USER })).toBeFalsy();
+            expect(isDefault("parentUid", "INBOX", "INBOX", { type: MailboxType.USER })).toBeFalsy();
         });
     });
 });

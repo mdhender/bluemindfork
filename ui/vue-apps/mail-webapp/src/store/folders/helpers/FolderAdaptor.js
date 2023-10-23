@@ -5,7 +5,7 @@ const { MailboxType } = mailboxUtils;
 function fromMailboxFolder(remotefolder, mailbox) {
     const parent = remotefolder.value.parentUid;
     const path = remotefolder.value.fullName;
-    const isDefaultFolder = isDefault(!parent, remotefolder.value.name, mailbox);
+    const isDefaultFolder = isDefault(parent, path, remotefolder.value.name, mailbox);
     return {
         key: remotefolder.uid,
         remoteRef: {
@@ -27,7 +27,7 @@ function fromMailboxFolder(remotefolder, mailbox) {
         path,
         writable: mailbox.writable,
         allowConversations: allowConversations(path),
-        allowSubfolder: allowSubfolder(mailbox.writable, !parent, remotefolder.value.name, mailbox),
+        allowSubfolder: allowSubfolder(mailbox.writable, remotefolder.value.name, isDefaultFolder),
         default: isDefaultFolder,
         unread: undefined
     };

@@ -124,8 +124,7 @@ export default {
                 if (this.folder && this.folder.name === this.newFolderName) {
                     return;
                 }
-                const normalizedName = normalize(this.newFolderName, this.folderByPath);
-                this.$emit("submit", normalizedName);
+                this.$emit("submit", this.newFolderName);
                 this.closeInput();
             }
         },

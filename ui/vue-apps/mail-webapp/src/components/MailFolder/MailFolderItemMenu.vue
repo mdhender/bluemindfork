@@ -12,13 +12,13 @@
             <bm-dropdown-item-button :disabled="!folder.allowSubfolder" icon="plus" @click="$emit('create')">
                 {{ $t("mail.folder.create_subfolder") }}
             </bm-dropdown-item-button>
-            <bm-dropdown-item-button :disabled="isDefault" icon="rename" @click="$emit('edit')">
+            <bm-dropdown-item-button :disabled="folder.default" icon="rename" @click="$emit('edit')">
                 {{ $t("mail.folder.rename") }}
             </bm-dropdown-item-button>
-            <bm-dropdown-item-button :disabled="isDefault" icon="folder" @click="openMoveFolderModal">
+            <bm-dropdown-item-button :disabled="folder.default" icon="folder" @click="openMoveFolderModal">
                 {{ $t("mail.folder.move") }}
             </bm-dropdown-item-button>
-            <bm-dropdown-item-button :disabled="isDefault" icon="trash" @click="deleteFolder">
+            <bm-dropdown-item-button :disabled="folder.default" icon="trash" @click="deleteFolder">
                 {{ $t("common.delete") }}
             </bm-dropdown-item-button>
             <bm-dropdown-item-button
@@ -87,11 +87,8 @@ export default {
     computed: {
         ...mapGetters("mail", { IS_DESCENDANT, FOLDER_BY_PATH, FOLDER_HAS_CHILDREN, MAILBOX_TRASH }),
         ...mapState("mail", ["mailboxes", "folders", "activeFolder"]),
-        isDefault() {
-            return isDefault(!this.folder.parent, this.folder.imapName, this.mailbox);
-        },
         isTrash() {
-            return this.isDefault && this.folder.imapName === DEFAULT_FOLDERS.TRASH;
+            return this.folder.default && this.folder.imapName === DEFAULT_FOLDERS.TRASH;
         },
         hasChildren() {
             return this.FOLDER_HAS_CHILDREN(this.folder);

@@ -3,9 +3,9 @@ import { matchPattern } from "@bluemind/string";
 import { MailboxType } from "./mailbox";
 
 export function create(key, name, parent, mailbox) {
-    const defaultFolder = isDefault(!parent, name, mailbox);
-    const translatedName = defaultFolder ? translate(name) : name;
-    const folderPath = path(mailbox, translatedName, parent);
+    const folderPath = path(mailbox, name, parent);
+    const isDefaultFolder = isDefault(parent, folderPath, name, mailbox);
+    const translatedName = isDefaultFolder ? translate(name) : name;
     return {
         key: key,
         remoteRef: {
@@ -22,8 +22,8 @@ export function create(key, name, parent, mailbox) {
         path: folderPath,
         writable: mailbox.writable,
         allowConversations: allowConversations(folderPath),
-        allowSubfolder: allowSubfolder(mailbox.writable, !parent, name, mailbox),
-        default: defaultFolder,
+        allowSubfolder: allowSubfolder(mailbox.writable, name, isDefaultFolder),
+        default: isDefaultFolder,
         expanded: false,
         unread: 0
     };
@@ -93,13 +93,15 @@ function path(mailbox, name, parent) {
         return name;
     }
 }
-export function isDefault(isRoot, name, mailbox) {
+function isDefault(parent, path, name, mailbox) {
     switch (mailbox.type) {
         case MailboxType.USER:
-            return isRoot && !!DEFAULT_FOLDERS[name.toUpperCase()];
+            return !parent && !!DEFAULT_FOLDERS[name.toUpperCase()];
         case MailboxType.MAILSHARE:
-        case MailboxType.GROUP:
-            return !isRoot && !!DEFAULT_FOLDERS[name.toUpperCase()];
+        case MailboxType.GROUP: {
+            const isRoot = path.split("/").length === 2;
+            return isRoot && !!DEFAULT_FOLDERS[name.toUpperCase()];
+        }
     }
 }
 
@@ -107,9 +109,8 @@ export function isSharedRoot(folder, mailbox) {
     return MailboxType.isShared(mailbox.type) && !folder.parent;
 }
 
-export function allowSubfolder(writable, isRoot, name, mailbox) {
-    let allowed = !isDefault(isRoot, name, mailbox);
-    allowed |= DEFAULT_FOLDERS.INBOX.toUpperCase() === name.toUpperCase();
+export function allowSubfolder(writable, name, isDefault) {
+    const allowed = !isDefault || DEFAULT_FOLDERS.INBOX.toUpperCase() === name.toUpperCase();
     return Boolean(writable && allowed);
 }
 
