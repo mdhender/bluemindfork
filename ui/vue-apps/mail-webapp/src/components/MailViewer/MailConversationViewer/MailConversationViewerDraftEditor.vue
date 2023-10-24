@@ -26,50 +26,21 @@
                     :max-index="maxIndex"
                     after-avatar
                 />
-                <div class="to-contact-input">
-                    <mail-composer-recipients ref="recipients" class="px-4" :message="message">
-                        <mail-open-in-popup-with-shift v-slot="action" :href="route" :next="consult">
-                            <bm-icon-button
-                                variant="compact"
-                                class="expand-button"
-                                :title="action.label($t('mail.actions.extend'))"
-                                :disabled="anyAttachmentInError"
-                                :icon="action.icon('extend')"
-                                @click="saveAsap().then(() => action.execute(() => $router.navigate(route), $event))"
-                            />
-                        </mail-open-in-popup-with-shift>
-                    </mail-composer-recipients>
-                </div>
+                <mail-composer-recipients ref="recipients" class="px-4" :message="message">
+                    <mail-open-in-popup-with-shift v-slot="action" :href="route" :next="consult">
+                        <bm-icon-button
+                            variant="compact"
+                            class="expand-button"
+                            :title="action.label($t('mail.actions.extend'))"
+                            :disabled="anyAttachmentInError"
+                            :icon="action.icon('extend')"
+                            @click="saveAsap().then(() => action.execute(() => $router.navigate(route), $event))"
+                        />
+                    </mail-open-in-popup-with-shift>
+                </mail-composer-recipients>
             </div>
         </template>
         <template slot="subhead">
-            <template v-if="showCc">
-                <div class="d-flex conversation-viewer-row flex-nowrap">
-                    <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" after-avatar />
-                    <div class="cc-contact-input">
-                        <mail-composer-recipient ref="ccField" :message="message" recipient-type="cc">
-                            <div class="end-buttons">
-                                <bm-button
-                                    v-if="!showBcc"
-                                    v-key-nav-group:recipient-button
-                                    variant="text"
-                                    tabindex="-1"
-                                    @click="showAndFocusRecipientField('bcc')"
-                                    @keydown.tab.prevent="focusRecipientField('to')"
-                                >
-                                    {{ $t("common.bcc") }}
-                                </bm-button>
-                            </div>
-                        </mail-composer-recipient>
-                    </div>
-                </div>
-            </template>
-            <template v-if="showBcc">
-                <div class="d-flex conversation-viewer-row flex-nowrap">
-                    <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" after-avatar />
-                    <mail-composer-recipient ref="bccField" :message="message" recipient-type="bcc" />
-                </div>
-            </template>
             <div class="d-flex conversation-viewer-row flex-nowrap">
                 <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" after-avatar />
                 <div class="w-100">
@@ -140,7 +111,7 @@
 <script>
 import capitalize from "lodash.capitalize";
 import { mapMutations, mapState } from "vuex";
-import { BmIconButton, BmButton, BmDropzone, BmFileDropZone, KeyNavGroup } from "@bluemind/ui-components";
+import { BmIconButton, BmDropzone, BmFileDropZone, KeyNavGroup } from "@bluemind/ui-components";
 import { messageUtils } from "@bluemind/mail";
 import { ComposerActionsMixin, EditRecipientsMixin, FileDropzoneMixin } from "~/mixins";
 import { setFrom } from "~/composables/composer/ComposerFrom";
@@ -165,7 +136,6 @@ const { MessageStatus, computeParts } = messageUtils;
 export default {
     name: "MailConversationViewerDraftEditor",
     components: {
-        BmButton,
         BmDropzone,
         BmFileDropZone,
         BmIconButton,
@@ -280,20 +250,6 @@ export default {
 
 .mail-conversation-viewer-draft-editor {
     padding-right: $sp-6;
-
-    .to-contact-input,
-    .cc-contact-input {
-        flex: 1;
-        min-width: 0;
-    }
-
-    .end-buttons {
-        display: flex;
-        gap: $sp-4;
-        align-items: flex-start;
-        flex: none;
-        order: 12;
-    }
 
     .mail-composer-content .bm-rich-editor {
         padding-left: 0;
