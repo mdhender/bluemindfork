@@ -45,13 +45,9 @@ function getUploadedFiles(message) {
     return files.flatMap(file => {
         const isFh = !!getFhHeader(file.headers);
         if (isFh && file.status === FileStatus.UPLOADED) {
-            const uploadedFile = Object.values(store.state.mail.messageCompose.uploadingFiles).find(
-                ({ address }) => file.address === address
-            );
             return {
                 ...file,
-                ...getFhInfos(file.headers),
-                ...uploadedFile
+                ...getFhInfos(file)
             };
         }
         return [];
