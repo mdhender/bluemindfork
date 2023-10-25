@@ -2,6 +2,7 @@ import { loadingStatusUtils } from "@bluemind/mail";
 import { DateComparator, WeekDayCodes } from "@bluemind/date";
 import i18n, { WeekDay } from "@bluemind/i18n";
 import { sanitizeHtml } from "@bluemind/html-utils";
+import { ICalendarElement } from "@bluemind/icalendar.api";
 const { LoadingStatus } = loadingStatusUtils;
 
 const CLASSIFICATIONS = {
@@ -25,7 +26,7 @@ export default {
                 name: attendee.commonName,
                 mail: attendee.mailto,
                 status: attendee.partStatus,
-                cutype: attendee.cutype
+                cutype: attendee.cutype || ICalendarElement.CUType.Individual
             })),
             mailboxOwner,
             status: attendee?.partStatus,

@@ -23,6 +23,7 @@
         "@bluemind/file-utils": "^5.0.0",
         "@bluemind/html-utils": "^5.0.0",
         "@bluemind/i18n": "^5.0.0",
+        "@bluemind/icalendar.api": "^5.0.0",
         "@bluemind/inject": "^5.0.0",
         "@bluemind/logger": "^5.0.0",
         "@bluemind/mail": "^5.0.0",

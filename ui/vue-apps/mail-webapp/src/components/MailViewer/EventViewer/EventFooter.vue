@@ -3,23 +3,25 @@ import { computed } from "vue";
 import i18n from "@bluemind/i18n";
 import store from "@bluemind/store";
 import { html2text } from "@bluemind/html-utils";
+import { ICalendarElement } from "@bluemind/icalendar.api";
 import { BmDropdown, BmDropdownItem, BmLabelIcon } from "@bluemind/ui-components";
 import { Contact } from "@bluemind/business-components";
 import EventFooterSection from "./EventFooterSection.vue";
 import MailContactCardSlots from "../../MailContactCardSlots";
+const { CUType } = ICalendarElement;
 
 const props = defineProps({ event: { type: Object, required: true } });
 
 const organizer = computed(() => props.event.organizer || {});
 const attendees = computed(() =>
-    [organizer.value, ...getAttendeesByCutype(props.event.attendees, "Individual")].map(attendee => ({
+    [organizer.value, ...getAttendeesByCutype(props.event.attendees, CUType.Individual)].map(attendee => ({
         dn: attendee?.name,
         address: attendee?.mail
     }))
 );
 
 const resources = computed(() =>
-    getAttendeesByCutype(props.event.attendees, "Resource").map(({ name, mail }) => ({
+    getAttendeesByCutype(props.event.attendees, CUType.Resource).map(({ name, mail }) => ({
         name,
         text: mail
     }))
