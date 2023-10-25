@@ -38,7 +38,6 @@ import jakarta.ws.rs.PathParam;
 import net.bluemind.core.api.ParametersValidator;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.auditlogs.client.loader.AuditLogLoader;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerDescriptor;
@@ -112,8 +111,6 @@ public class DomainsService implements IInCoreDomains, IDomains {
 	public void create(String uid, Domain domain) {
 		ItemValue<Domain> item = ItemValue.create(uid, domain);
 		create(item);
-		AuditLogLoader auditLogProvider = new AuditLogLoader();
-		auditLogProvider.getManager().createDataStreamIfNotExists("audit_log", uid);
 	}
 
 	private void create(ItemValue<Domain> item) {
@@ -264,8 +261,6 @@ public class DomainsService implements IInCoreDomains, IDomains {
 			hook.onDeleted(context, domainItem);
 		}
 
-		AuditLogLoader auditLogProvider = new AuditLogLoader();
-		auditLogProvider.getManager().removeDatastreamForPrefixAndDomain("audit_log", uid);
 		notify("domain.deleted", uid);
 	}
 

@@ -17,7 +17,9 @@ Require-Bundle: net.bluemind.core.auditlogs,
  net.bluemind.system.api,
  net.bluemind.system.state,
  net.bluemind.chronicle.queue,
- net.bluemind.retry.support
+ net.bluemind.retry.support,
+ net.bluemind.domain.hook,
+ net.bluemind.core.auditlogs.client.loader
 Bundle-Vendor: net.bluemind
 Automatic-Module-Name: net.bluemind.core.auditlogs.client.es
 Bundle-ActivationPolicy: lazy

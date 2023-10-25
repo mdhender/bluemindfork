@@ -26,13 +26,15 @@ public final class NoopAuditLogManager implements IAuditLogMgmt {
 	public static final IAuditLogMgmt INSTANCE = new NoopAuditLogManager();
 
 	@Override
-	public void createDataStreamIfNotExists(String name, String domainUid) {
+	public void createDataStreamIfNotExists(String name) {
 		//
+
 	}
 
 	@Override
-	public void resetDatastream() {
+	public void createDataStreamForDomainIfNotExists(String name, String domainUid) {
 		//
+
 	}
 
 	@Override

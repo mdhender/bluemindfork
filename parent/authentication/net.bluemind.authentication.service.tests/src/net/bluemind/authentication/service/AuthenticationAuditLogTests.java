@@ -202,7 +202,7 @@ public class AuthenticationAuditLogTests {
 
 		assertTrue(auditLogEntryBmGlobal.container == null);
 		assertTrue(auditLogEntryBmGlobal.item == null);
-		assertTrue(auditLogEntryBmGlobal.content == null);
+		assertTrue(auditLogEntryBmGlobal.content.with().contains("admin0@" + domainGlobalUid));
 
 		SearchResponse<AuditLogEntry> esResponseBmLan = esClient.search(s -> s //
 				.index(AUDIT_LOG_NAME_BM_LAN) //
@@ -222,7 +222,7 @@ public class AuthenticationAuditLogTests {
 
 		assertTrue(auditLogEntryBmLan.container == null);
 		assertTrue(auditLogEntryBmLan.item == null);
-		assertTrue(auditLogEntryBmLan.content == null);
+		assertTrue(auditLogEntryBmLan.content.with().contains("nomail@" + domainUid));
 	}
 
 	private void initState() {

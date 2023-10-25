@@ -76,7 +76,7 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 				Bundle bundle = Platform.getBundle(ext.getContributor().getName());
 				URL url = bundle.getResource(schema);
 				try (InputStream in = url.openStream()) {
-					indexTemplates.put(index,
+					indexTemplates.put(dataStreamName,
 							new IndexTemplateDefinition(index, ByteStreams.toByteArray(in), dataStreamName));
 				}
 			}
@@ -134,11 +134,7 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 		}
 	}
 
-	private static Optional<IndexTemplateDefinition> indexDefinitionOf(String index) {
-		return indexTemplates.values().stream().filter(item -> item.supportsIndex(index)).findFirst();
-	}
-
-	private static boolean isDataStream(ElasticsearchClient esClient, String dataStream)
+	public static boolean isDataStream(ElasticsearchClient esClient, String dataStream)
 			throws ElasticsearchException, IOException {
 		return !esClient.indices().resolveIndex(i -> i.name(dataStream)).dataStreams().isEmpty();
 	}
@@ -160,30 +156,43 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 	}
 
 	@Override
-	public void resetDatastream() {
-		// TODO SCL : review
-//		indexTemplates.values().forEach(v -> resetAllDataStreams(v.indexTemplateName, v.datastreamName));
-	}
-
-	@Override
-	public void createDataStreamIfNotExists(String dataStreamName, String domainUid) {
-		String dataStreamFullName = dataStreamName + SEPARATOR + domainUid;
+	public void createDataStreamIfNotExists(String dataStreamName) {
 		ElasticsearchClient esClient = ESearchActivator.getClient();
 		List<String> currentDataStreams = dataStreamNames(esClient);
 		Optional<IndexTemplateDefinition> optSchema = indexTemplates.values().stream()
 				.filter(d -> d.datastreamName.equals(dataStreamName)).findFirst();
-
 		try {
-			initOrUpdateIndexTemplate(esClient, optSchema.get(), dataStreamFullName);
-			if (!currentDataStreams.contains(dataStreamFullName) && optSchema.isPresent()) {
-				IndexTemplateDefinition schema = optSchema.get();
-				if (!isDataStream(esClient, dataStreamFullName)) {
-					initDataStream(esClient, dataStreamFullName);
+			if (!currentDataStreams.contains(dataStreamName) && optSchema.isPresent()) {
+				initOrUpdateIndexTemplate(esClient, optSchema.get(), dataStreamName);
+				if (!isDataStream(esClient, dataStreamName)) {
+					initDataStream(esClient, dataStreamName);
 				}
 
 			}
 		} catch (ElasticsearchException | IOException e) {
-			// TODO: handle exception
+			logger.error("Create datastream failed.", e);
+		}
+	}
+
+	@Override
+	public void createDataStreamForDomainIfNotExists(String dataStreamName, String domainUid) {
+		ElasticsearchClient esClient = ESearchActivator.getClient();
+		String dataStreamFullName = dataStreamName + SEPARATOR + domainUid;
+		logger.info("SCL - datastream full name: {}", dataStreamFullName);
+		logger.info("SCL - esClient: {}", esClient);
+		List<String> currentDataStreams = dataStreamNames(esClient);
+		Optional<IndexTemplateDefinition> optSchema = indexTemplates.values().stream()
+				.filter(d -> d.datastreamName.equals(dataStreamName)).findFirst();
+		logger.info("SCL - currentDataStreams.contains(dataStreamFullName): {}",
+				currentDataStreams.contains(dataStreamFullName));
+		logger.info("SCL - optSchema.isPresent(): {}", optSchema.isPresent());
+		try {
+			if (!currentDataStreams.contains(dataStreamFullName) && optSchema.isPresent()) {
+				initOrUpdateIndexTemplate(esClient, optSchema.get(), dataStreamFullName);
+				initDataStream(esClient, dataStreamFullName);
+			}
+		} catch (ElasticsearchException | IOException e) {
+			logger.error("Create datastream failed.", e);
 		}
 	}
 
@@ -192,7 +201,7 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 			return esClient.indices().resolveIndex(r -> r.name("*")).dataStreams() //
 					.stream().map(ResolveIndexDataStreamsItem::name).toList();
 		} catch (ElasticsearchException | IOException e) {
-			logger.error("[es][indices] Failed to list indices", e);
+			logger.error("Failed to list datastreams", e);
 			return Collections.emptyList();
 		}
 	}
@@ -211,10 +220,14 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 	private static void initOrUpdateIndexTemplate(ElasticsearchClient esClient,
 			IndexTemplateDefinition indexTemplateDefinition, String indexPattern)
 			throws ElasticsearchException, IOException {
+		String indexPatternField = "index_patterns";
 		JsonObject jsonSchema = new JsonObject(new String(indexTemplateDefinition.schema));
-		JsonArray indexPatternsSchemaArray = (!jsonSchema.containsKey("index_patterns")) ? new JsonArray()
-				: jsonSchema.getJsonArray("index_patterns");
-		logger.info("Update index_patterns with '{}' for index template '{}' ", indexPattern,
+
+		// We need to change the index_patterns for the index_template definition, to
+		// allow datastream association
+		JsonArray indexPatternsSchemaArray = (!jsonSchema.containsKey(indexPatternField)) ? new JsonArray()
+				: jsonSchema.getJsonArray(indexPatternField);
+		logger.info("Update index_patterns field with '{}' for index template '{}' ", indexPattern,
 				indexTemplateDefinition.indexTemplateName);
 		indexPatternsSchemaArray.add(indexPattern + "*");
 
@@ -228,7 +241,7 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 			});
 		});
 
-		jsonSchema.put("index_patterns", indexPatternsSchemaArray);
+		jsonSchema.put(indexPatternField, indexPatternsSchemaArray);
 		byte[] enhancedSchema = jsonSchema.toString().getBytes();
 		esClient.indices().putIndexTemplate(it -> it.name(indexTemplateDefinition.indexTemplateName)
 				.withJson(new ByteArrayInputStream(enhancedSchema)));

@@ -94,7 +94,7 @@ public class DataStreamTests {
 	@Test
 	public void createDataStream() throws ElasticsearchException, IOException {
 		dataStreamActivator = new DataStreamActivator();
-		dataStreamActivator.createDataStreamIfNotExists(dataStreamName, domainUid);
+		dataStreamActivator.createDataStreamForDomainIfNotExists(dataStreamName, domainUid);
 		boolean isDataStream = !esClient.indices().resolveIndex(r -> r.name(dataStreamName + "_" + domainUid))
 				.dataStreams().isEmpty();
 		assertTrue(isDataStream);
@@ -103,8 +103,8 @@ public class DataStreamTests {
 	@Test
 	public void removeDataStreamForNameAndDomain() throws ElasticsearchException, IOException {
 		dataStreamActivator = new DataStreamActivator();
-		dataStreamActivator.createDataStreamIfNotExists(dataStreamName, domainUid);
-		dataStreamActivator.createDataStreamIfNotExists(dataStreamName, domainUid01);
+		dataStreamActivator.createDataStreamForDomainIfNotExists(dataStreamName, domainUid);
+		dataStreamActivator.createDataStreamForDomainIfNotExists(dataStreamName, domainUid01);
 		boolean isDataStream = !esClient.indices().resolveIndex(r -> r.name(dataStreamName + "_" + domainUid))
 				.dataStreams().isEmpty();
 		boolean isDataStream01 = !esClient.indices().resolveIndex(r -> r.name(dataStreamName + "_" + domainUid01))
@@ -122,8 +122,8 @@ public class DataStreamTests {
 	@Test
 	public void removeDataStreamForName() throws ElasticsearchException, IOException {
 		dataStreamActivator = new DataStreamActivator();
-		dataStreamActivator.createDataStreamIfNotExists(dataStreamName, domainUid);
-		dataStreamActivator.createDataStreamIfNotExists(dataStreamName, domainUid01);
+		dataStreamActivator.createDataStreamForDomainIfNotExists(dataStreamName, domainUid);
+		dataStreamActivator.createDataStreamForDomainIfNotExists(dataStreamName, domainUid01);
 		boolean isDataStream = !esClient.indices().resolveIndex(r -> r.name(dataStreamName + "_" + domainUid))
 				.dataStreams().isEmpty();
 		boolean isDataStream01 = !esClient.indices().resolveIndex(r -> r.name(dataStreamName + "_" + domainUid01))

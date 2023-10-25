@@ -14,5 +14,11 @@
             impl="net.bluemind.core.auditlogs.client.es.datastreams.AuditQueueFactory">
       </verticle>
    </extension>
+   <extension
+         point="net.bluemind.domain.domainHook">
+      <hook
+            class="net.bluemind.core.auditlogs.client.es.hooks.DataStreamDomainsHook">
+      </hook>
+   </extension>
 
 </plugin>

@@ -53,7 +53,6 @@ public class RetryQueuesTests {
 				failed++;
 				throw new IllegalArgumentException("we were asked to fail for " + js.encode());
 			}
-			System.err.println(js.encodePrettily());
 			processed++;
 		}
 

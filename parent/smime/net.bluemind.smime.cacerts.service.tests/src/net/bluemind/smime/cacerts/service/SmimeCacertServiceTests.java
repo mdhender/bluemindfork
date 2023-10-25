@@ -408,7 +408,7 @@ public class SmimeCacertServiceTests extends AbstractServiceTests {
 		getServiceCacert(defaultSecurityContext, container.uid).create("test2", defaultSmimeCacert(CA_FILE_PATH));
 		getServiceCacert(defaultSecurityContext, container.uid).delete("test1");
 		getServiceCacert(defaultSecurityContext, container.uid).update("test2", defaultSmimeCacert(CA_FILE_PATH));
-		ESearchActivator.refreshIndex("audit_log");
+		ESearchActivator.refreshIndex("audit_log_" + domainUid);
 
 		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
 			ItemChangelog itemChangeLog = getServiceCacert(defaultSecurityContext, container.uid).itemChangelog("test1",

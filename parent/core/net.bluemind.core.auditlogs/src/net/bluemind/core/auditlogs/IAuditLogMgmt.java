@@ -21,9 +21,9 @@ package net.bluemind.core.auditlogs;
 
 public interface IAuditLogMgmt {
 
-	public void resetDatastream();
+	public void createDataStreamForDomainIfNotExists(String name, String domainUid);
 
-	public void createDataStreamIfNotExists(String name, String domainUid);
+	public void createDataStreamIfNotExists(String name);
 
 	public void removeDatastreamForPrefix(String dataStreamPrefix);
 

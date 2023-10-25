@@ -159,7 +159,6 @@ public class DbMailboxRecordsServiceLogTests extends AbstractMailboxRecordsServi
 					AuditLogEntry.class);
 			return 3L == response.hits().total().value();
 		});
-
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
 				.index(AUDIT_LOG_DATASTREAM) //
 				.query(q -> q.bool(b -> b
@@ -168,7 +167,7 @@ public class DbMailboxRecordsServiceLogTests extends AbstractMailboxRecordsServi
 						.must(TermQuery.of(t -> t.field("logtype").value("mailbox_records"))._toQuery())
 						.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
 				AuditLogEntry.class);
-		assertEquals(1L, response.hits().total().value());
+		assertEquals(2L, response.hits().total().value());
 
 		AuditLogEntry firstAuditLogEntry = response.hits().hits().get(0).source();
 		AuditLogEntry secondAuditLogEntry = response.hits().hits().get(1).source();

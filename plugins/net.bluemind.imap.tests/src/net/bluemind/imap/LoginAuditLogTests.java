@@ -57,7 +57,8 @@ public class LoginAuditLogTests {
 
 	private final int PORT = 1143;
 	private String loginUid;
-	private String domainUid;
+	private static final String domainUid = "test.devenv";
+	private static final String DATASTREAM_NAME = "audit_log_" + domainUid;
 
 	@AfterClass
 	public static void afterClass() {
@@ -91,7 +92,6 @@ public class LoginAuditLogTests {
 		PopulateHelper.initGlobalVirt(pipo, esServer);
 		PopulateHelper.addDomainAdmin("admin0", "global.virt", Routing.none);
 
-		domainUid = "test.devenv";
 		loginUid = "user" + System.currentTimeMillis();
 		PopulateHelper.addDomain(domainUid);
 		PopulateHelper.addUser(loginUid, domainUid);
@@ -112,7 +112,7 @@ public class LoginAuditLogTests {
 		IAuthentication authService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IAuthentication.class);
 
-		LoginResponse resp = authService.login("admin0@global.virt", "admin", "testSIDLoginLogout");
+		LoginResponse resp = authService.login(loginUid + "@" + domainUid, loginUid, "testSIDLoginLogout");
 
 		String sid = resp.authKey;
 		assertNotNull(sid);
@@ -128,10 +128,10 @@ public class LoginAuditLogTests {
 		}
 
 		ElasticsearchClient esClient = ESearchActivator.getClient();
-		ESearchActivator.refreshIndex("audit_log");
+		ESearchActivator.refreshIndex(DATASTREAM_NAME);
 
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-				.index("audit_log") //
+				.index(DATASTREAM_NAME) //
 				.query(q -> q.bool(b -> b.must(TermQuery.of(t -> t.field("logtype").value("login"))._toQuery())
 						.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
 				AuditLogEntry.class);
