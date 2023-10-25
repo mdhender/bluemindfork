@@ -39,15 +39,15 @@ public class CalendarResponseFormatter implements IEasFragmentFormatter<Calendar
 	@Override
 	public void append(IResponseBuilder b, double protocolVersion, CalendarResponse calendar,
 			Callback<IResponseBuilder> cb) {
-		if (notEmpty(calendar.timezone)) {
+		if (notEmpty(calendar.timezone) && notAllDayOrProtocolLessThan16(protocolVersion, calendar)) {
 			b.text(NamespaceMapping.CALENDAR, "Timezone", calendar.timezone);
 		}
 		if (calendar.dtStamp != null) {
 			b.text(NamespaceMapping.CALENDAR, "DtStamp", FastDateFormat.format(calendar.dtStamp));
 		}
-		if (calendar.startTime != null) {
-			b.text(NamespaceMapping.CALENDAR, "StartTime", FastDateFormat.format(calendar.startTime));
-		}
+
+		setDate(b, protocolVersion, calendar, "StartTime", NamespaceMapping.CALENDAR, calendar.startTime);
+
 		if (notEmpty(calendar.subject)) {
 			b.text(NamespaceMapping.CALENDAR, "Subject", calendar.subject);
 		}
@@ -69,9 +69,9 @@ public class CalendarResponseFormatter implements IEasFragmentFormatter<Calendar
 		if (notEmpty(calendar.organizerEmail)) {
 			b.text(NamespaceMapping.CALENDAR, "OrganizerEmail", calendar.organizerEmail);
 		}
-		if (calendar.endTime != null) {
-			b.text(NamespaceMapping.CALENDAR, "EndTime", FastDateFormat.format(calendar.endTime));
-		}
+
+		setDate(b, protocolVersion, calendar, "EndTime", NamespaceMapping.CALENDAR, calendar.endTime);
+
 		if (calendar.sensitivity != null) {
 			b.text(NamespaceMapping.CALENDAR, "Sensitivity", calendar.sensitivity.xmlValue());
 		}
@@ -126,7 +126,7 @@ public class CalendarResponseFormatter implements IEasFragmentFormatter<Calendar
 				c.setTime(calendar.recurrence.until);
 				// year 2038 problem on Android
 				if (c.get(Calendar.YEAR) < 2037) {
-					b.text("Until", FastDateFormat.format(c.getTime()));
+					setDate(b, protocolVersion, calendar, "Until", c.getTime());
 				}
 			}
 			if (calendar.recurrence.dayOfMonth != null) {
@@ -154,16 +154,16 @@ public class CalendarResponseFormatter implements IEasFragmentFormatter<Calendar
 					b.text("Deleted", e.deleted ? "1" : "0");
 				}
 				if (e.exceptionStartTime != null) {
-					b.text("ExceptionStartTime", FastDateFormat.format(e.exceptionStartTime));
+					setDate(b, protocolVersion, calendar, "ExceptionStartTime", e.exceptionStartTime);
 				}
 				if (notEmpty(e.calendar.subject)) {
 					b.text("Subject", e.calendar.subject);
 				}
 				if (e.calendar.startTime != null) {
-					b.text("StartTime", FastDateFormat.format(e.calendar.startTime));
+					setDate(b, protocolVersion, calendar, "StartTime", e.calendar.startTime);
 				}
 				if (e.calendar.endTime != null) {
-					b.text("EndTime", FastDateFormat.format(e.calendar.endTime));
+					setDate(b, protocolVersion, calendar, "EndTime", e.calendar.endTime);
 				}
 
 				// TODO Airsync:Body ?
@@ -252,6 +252,34 @@ public class CalendarResponseFormatter implements IEasFragmentFormatter<Calendar
 		}
 
 		cb.onResult(b);
+	}
+
+	private void setDate(IResponseBuilder b, double protocolVersion, CalendarResponse calendar, String element,
+			Date date) {
+		setDate(b, protocolVersion, calendar, element, null, date);
+	}
+
+	private void setDate(IResponseBuilder b, double protocolVersion, CalendarResponse calendar, String element,
+			NamespaceMapping mapping, Date date) {
+		if (date != null) {
+			if (notAllDayOrProtocolLessThan16(protocolVersion, calendar)) {
+				if (mapping != null) {
+					b.text(mapping, element, FastDateFormat.format(date));
+				} else {
+					b.text(element, FastDateFormat.format(date));
+				}
+			} else {
+				if (mapping != null) {
+					b.text(mapping, element, FastDateFormat.format(date, calendar.timezoneJava));
+				} else {
+					b.text(element, FastDateFormat.format(date, calendar.timezoneJava));
+				}
+			}
+		}
+	}
+
+	private boolean notAllDayOrProtocolLessThan16(double protocolVersion, CalendarResponse calendar) {
+		return protocolVersion < 16 || calendar.allDayEvent == null || !calendar.allDayEvent.booleanValue();
 	}
 
 	private void appendAttachments(IResponseBuilder responseBuilder, CalendarResponse calendar) {
@@ -389,6 +417,7 @@ public class CalendarResponseFormatter implements IEasFragmentFormatter<Calendar
 		if (calendar.busyStatus != null) {
 			b.text(NamespaceMapping.EMAIL, "BusyStatus", calendar.busyStatus.xmlValue());
 		}
+
 		if (notEmpty(calendar.timezone)) {
 			b.text(NamespaceMapping.EMAIL, "TimeZone", calendar.timezone);
 		} else {

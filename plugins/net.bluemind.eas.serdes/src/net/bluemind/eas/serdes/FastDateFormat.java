@@ -18,29 +18,29 @@
  */
 package net.bluemind.eas.serdes;
 
-import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
-import java.util.TimeZone;
 
 public final class FastDateFormat {
 
-	private static final ThreadLocal<SimpleDateFormat> local = new ThreadLocal<>();
+	private FastDateFormat() {
 
-	private static final SimpleDateFormat newFormatter() {
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'");
-		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-		return sdf;
 	}
 
+	private static final DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss'Z'")
+			.withZone(ZoneId.of("UTC"));
+
 	public static final String format(Date d) {
-		SimpleDateFormat sdf = local.get();
-		if (sdf == null) {
-			sdf = newFormatter();
-			local.set(sdf);
+		return format.format(d.toInstant().atOffset(ZoneOffset.UTC).toLocalDateTime());
+	}
+
+	public static final String format(Date d, String timezone) {
+		if (timezone == null) {
+			return format(d);
 		}
-		synchronized (sdf) {
-			return sdf.format(d);
-		}
+		return format.format(d.toInstant().atZone(ZoneId.of(timezone)).toLocalDateTime());
 	}
 
 }

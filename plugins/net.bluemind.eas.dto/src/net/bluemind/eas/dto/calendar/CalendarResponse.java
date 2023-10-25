@@ -344,4 +344,5 @@ public class CalendarResponse {
 	public Date recurrenceId;
 
 	public List<Attachment> attachments;
+	public String timezoneJava;
 }

@@ -69,6 +69,7 @@ public class OldFormats {
 		}
 		EASTimeZone easTz = EASTimeZoneHelper.from(tz);
 		cr.timezone = easTz.toBase64();
+		cr.timezoneJava = tz.getID();
 
 		cr.busyStatus = event.getBusyStatus();
 		cr.allDayEvent = event.getAllDayEvent();
