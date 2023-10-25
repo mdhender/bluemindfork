@@ -49,7 +49,7 @@
 
 <script>
 import { mapState } from "vuex";
-import { messageUtils } from "@bluemind/mail";
+import { messageUtils, partUtils } from "@bluemind/mail";
 import { BmButtonToolbar, BmIconButton, BmIconDropdown, BmDropdownItem } from "@bluemind/ui-components";
 import { ReplyAndForwardRoutesMixin } from "~/mixins";
 import MailViewerToolbarOtherActions from "./MailViewerToolbarOtherActions";
@@ -58,6 +58,7 @@ import ForwardEventButton from "../../calendar/components/ForwardEventButton";
 import MailOpenInPopupWithShift from "../MailOpenInPopupWithShift";
 
 const { MessageHeader } = messageUtils;
+const { hasCalendarPart } = partUtils;
 
 export default {
     name: "MailViewerToolbar",
@@ -97,7 +98,10 @@ export default {
             return !this.folders[this.message.folderRef.key].writable;
         },
         isEventRequest() {
-            return this.message.headers.some(({ name }) => name === MessageHeader.X_BM_EVENT);
+            return (
+                this.message.headers.some(({ name }) => name === MessageHeader.X_BM_EVENT) &&
+                hasCalendarPart(this.message.structure)
+            );
         }
     }
 };

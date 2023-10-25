@@ -31,7 +31,7 @@ export default {
                         "calendar:" + message.eventInfo.resourceUid
                     ).getComplete(message.eventInfo.icsUid);
                     calendarOwner = message.eventInfo.resourceUid;
-                    calendarUid = getCalendarUid(calendarOwner);
+                    calendarUid = getCalendarUid(calendarOwner, true);
                 } else {
                     const otherCalendarUid = (messageUtils.extractHeaderValues(
                         message,

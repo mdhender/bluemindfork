@@ -40,7 +40,11 @@ export default {
     watch: {
         eventOrganizer: {
             async handler() {
-                if (isEventRequest(this.message) && (await this.eventIsForwarded())) {
+                if (
+                    isEventRequest(this.message) &&
+                    (await this.eventIsForwarded()) &&
+                    !this.message.eventInfo.isResourceBooking
+                ) {
                     this.INFO({
                         alert: this.alert,
                         options: { area: "right-panel", renderer: "ForwardedEventAlert" }

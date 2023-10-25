@@ -29,8 +29,12 @@ const user = inject("UserSession").userId;
         <event-header v-if="event.isWritable">
             <template v-if="user !== event.calendarOwner">
                 <i18n path="mail.viewer.invitation.request.delegate">
-                    <template #name>
-                        <span class="font-weight-bold">{{ event.attendee.commonName }}</span>
+                    <template #for>
+                        <i18n path="mail.viewer.invitation.request.delegate_for" class="font-weight-bold">
+                            <template #name>
+                                {{ event.attendee.commonName }}
+                            </template>
+                        </i18n>
                     </template>
                 </i18n>
             </template>
