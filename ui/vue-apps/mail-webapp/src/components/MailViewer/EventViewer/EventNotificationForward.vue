@@ -1,11 +1,12 @@
 <script setup>
 import { computed } from "vue";
+import store from "@bluemind/store";
 import { BmToggleableButton, BmDropdown, BmDropdownItem, BmLabelIcon } from "@bluemind/ui-components";
 import { Contact } from "@bluemind/business-components";
+import { REJECT_ATTENDEES } from "~/actions";
 import MailContactCardSlots from "../../MailContactCardSlots";
 import EventHeader from "./base/EventHeader";
 import EventDetail from "./base/EventDetail";
-import EventFooter from "./base/EventFooter";
 import EventFooterSection from "./base/EventFooterSection";
 import { messageUtils } from "@bluemind/mail";
 
@@ -23,9 +24,8 @@ const newlyAddedAttendees = computed(() =>
         ?.filter(a => attendeeHeader.value.values?.[0]?.includes(a.mail))
         ?.map(a => ({ address: a.mail, dn: a.name }))
 );
-const emit = defineEmits(["rejects"]);
 function rejectAttendees(attendees) {
-    emit("rejectAttendee", attendees);
+    store.dispatch(`mail/${REJECT_ATTENDEES}`, { rejectedAttendees: attendees });
 }
 </script>
 
@@ -33,7 +33,7 @@ function rejectAttendees(attendees) {
     <div v-if="attendeeHeader" class="event-countered">
         <event-header>
             <span class="bold"> {{ $t("mail.viewer.invitation.counter.attendees") }}</span>
-            <template #actions>
+            <template v-if="newlyAddedAttendees?.length" #actions>
                 <bm-dropdown
                     v-if="newlyAddedAttendees?.length > 1 && newlyAddedAttendees?.length <= 5"
                     right
@@ -55,7 +55,7 @@ function rejectAttendees(attendees) {
                         v-for="(attendee, index) in newlyAddedAttendees"
                         :key="index"
                         role="menuitem"
-                        @click="rejectAttendees(attendee)"
+                        @click="rejectAttendees([attendee])"
                         >{{
                             $tc("mail.viewer.invitation.counter.added_attendees.refuse", 0, { attendee: attendee.dn })
                         }}</bm-dropdown-item
@@ -79,6 +79,7 @@ function rejectAttendees(attendees) {
 
         <div class="event-footer">
             <event-footer-section
+                v-if="newlyAddedAttendees?.length"
                 :label="
                     $tc('mail.viewer.invitation.counter.added_attendees', newlyAddedAttendees?.length, {
                         count: newlyAddedAttendees?.length

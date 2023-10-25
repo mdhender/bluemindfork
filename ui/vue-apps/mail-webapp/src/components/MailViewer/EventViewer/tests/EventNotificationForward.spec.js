@@ -2,14 +2,35 @@ import { createLocalVue, mount } from "@vue/test-utils";
 import EventNotificationForward from "../EventNotificationForward";
 import VueI18n from "vue-i18n";
 import i18nFiles from "../../../../../l10n";
+import inject from "@bluemind/inject";
+import consultPanel from "~/store/consultPanel";
+import Vuex from "vuex";
+import store from "@bluemind/store";
+jest.mock("@bluemind/webappdata");
+inject.register({ provide: "CalendarPersistence", factory: () => ({ update: () => true }) });
 
 const localVue = createLocalVue();
 localVue.use(VueI18n);
+localVue.use(Vuex);
 const i18n = new VueI18n({
     locale: "fr",
     messages: i18nFiles
 });
 describe("Event Countered - Fowarded by attendee", () => {
+    beforeAll(() => {
+        if (!store.hasModule("mail")) {
+            store.registerModule("mail", { namespaced: true });
+        }
+        store.registerModule(["mail", "consultPanel"], consultPanel);
+    });
+    afterAll(() => {
+        if (store.hasModule("mail")) {
+            store.unregisterModule("mail");
+        }
+    });
+    afterEach(() => {
+        jest.resetAllMocks();
+    });
     describe("List added attendees", () => {
         it("shoud have a section with added participants  ", async () => {
             const addedAttendeesSection = await extractAttendeesList(mountEventCountered());
@@ -51,13 +72,18 @@ describe("Event Countered - Fowarded by attendee", () => {
             ).toBeTruthy();
         });
 
-        test("what if no counter attendees value", async () => {
+        it("should not show list if all added attendees have been rejected", () => {
             const wrapper = mount(EventNotificationForward, {
                 localVue,
                 i18n,
                 propsData: {
                     message: {
-                        headers: [{ name: "X-BM-COUNTER-ATTENDEE" }]
+                        headers: [
+                            {
+                                name: "X-BM-COUNTER-ATTENDEE",
+                                values: ["newone@devenv.dev.bluemind.net"]
+                            }
+                        ]
                     },
                     event: {
                         attendees: [
@@ -71,19 +97,14 @@ describe("Event Countered - Fowarded by attendee", () => {
                     }
                 }
             });
-            expect(wrapper.find(".event-footer-section").text()).toEqual("Participants ajoutés (0)");
-            expect((await extractAttendeesList(wrapper)).find("[role='listitem']").exists()).toBeFalsy();
+
+            expect(
+                findByText(wrapper, {
+                    selector: ".event-footer-section",
+                    text: "Participants? ajoutés? \\(\\d\\)"
+                }).exists()
+            ).toBeFalsy();
         });
-
-        async function extractAttendeesList(wrapper) {
-            const listOfAttendees = findByText(wrapper, {
-                selector: ".event-footer-section",
-                text: "Participants? ajoutés? \\(\\d\\)"
-            }).at(0);
-
-            await listOfAttendees.find("button").trigger("click");
-            return listOfAttendees;
-        }
     });
 
     describe("Invitation can be refused by organizer", () => {
@@ -132,36 +153,51 @@ describe("Event Countered - Fowarded by attendee", () => {
         });
 
         it("should be able to decline all at once", async () => {
-            const wrapper = mountEventCountered(["numero1@anymail.com"]);
+            const wrapper = mountEventCountered(["numero1@anymail.com"], true);
             const refuseInvitationDropdown = wrapper.find("button");
 
             await refuseInvitationDropdown.trigger("click");
+            await wrapper.setProps({ event: store.state.mail.consultPanel.currentEvent });
 
-            expect(wrapper.emitted().rejectAttendee[0]).toContainEqual([
-                { address: "newone@devenv.dev.bluemind.net", dn: "NEW ONE" },
-                { address: "numero1@anymail.com", dn: "numero1" }
-            ]);
+            expect(
+                findByText(wrapper, {
+                    selector: ".event-footer-section",
+                    text: "Participants? ajoutés? \\(\\d\\)"
+                }).exists()
+            ).toBeFalsy();
         });
         it("should be able to decline individually when using dropdown", async () => {
-            const wrapper = mountEventCountered(["numero1@anymail.com"]);
+            const wrapper = mountEventCountered(["numero1@anymail.com"], true);
             const refuseInvitationDropdown = wrapper.find("[role='menu']").findAll('[role="menuitem"]');
 
             await refuseInvitationDropdown.at(0).trigger("click");
-
-            expect(wrapper.emitted().rejectAttendee[0]).toContainEqual({
-                address: "newone@devenv.dev.bluemind.net",
-                dn: "NEW ONE"
+            await wrapper.setProps({
+                event: store.state.mail.consultPanel.currentEvent
             });
+            const attendeesToAdd = await extractAttendeesList(wrapper);
+
+            expect(attendeesToAdd.text()).toMatch("numero1");
+            expect(attendeesToAdd.text()).not.toMatch("NEW ONE");
         });
     });
+
+    async function extractAttendeesList(wrapper) {
+        const listOfAttendees = findByText(wrapper, {
+            selector: ".event-footer-section",
+            text: "Participants? ajoutés? \\(\\d\\)"
+        }).at(0);
+
+        await listOfAttendees.find("button").trigger("click");
+        return listOfAttendees;
+    }
 });
 
 function findByText(wrapper, { selector, text }) {
     return wrapper.findAll(selector).filter(w => w.text().match(text));
 }
 
-function mountEventCountered(addedAttendees = []) {
-    return mount(EventNotificationForward, {
+function mountEventCountered(addedAttendees = [], storeEvent = false) {
+    const wrapper = mount(EventNotificationForward, {
         localVue,
         i18n,
         propsData: {
@@ -199,6 +235,48 @@ function mountEventCountered(addedAttendees = []) {
                     }))
                 ]
             }
-        }
+            /**
+             * serverEvent.value.main.attendees is omitted in the setup
+             * but it is actually required to handle actions of rejecting attendee
+             * outside of Test context
+             * */
+        },
+        mocks: {
+            $t: path => (path === "styleguide.contact-input.invalid" ? path : i18n.t(path)),
+            $d: path => path
+        },
+        attachTo: document.body
     });
+    if (storeEvent) {
+        store.commit("mail/SET_CURRENT_EVENT", {
+            serverEvent: {
+                value: {
+                    main: {
+                        dtstart: { iso8601: new Date(2023, 0, 1, 9, 0).toISOString() },
+                        attendees: [
+                            {
+                                commonName: "George Abitbol",
+                                mailto: "george@devenv.dev.bluemind.net",
+                                status: "NeedsAction",
+                                cutype: "Individual"
+                            },
+                            {
+                                commonName: "NEW ONE",
+                                mailto: "newone@devenv.dev.bluemind.net",
+                                status: "NeedsAction",
+                                cutype: "Individual"
+                            },
+                            ...addedAttendees.map(aa => ({
+                                commonName: aa.split("@")[0],
+                                mailto: aa,
+                                status: "NeedsAction",
+                                cutype: "Individual"
+                            }))
+                        ]
+                    }
+                }
+            }
+        });
+    }
+    return wrapper;
 }

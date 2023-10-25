@@ -1,7 +1,13 @@
 import { inject } from "@bluemind/inject";
 import { loadingStatusUtils, messageUtils } from "@bluemind/mail";
 import EventHelper from "./helpers/EventHelper";
-import { FETCH_EVENT, SET_EVENT_STATUS, ACCEPT_COUNTER_EVENT, DECLINE_COUNTER_EVENT } from "~/actions";
+import {
+    FETCH_EVENT,
+    SET_EVENT_STATUS,
+    ACCEPT_COUNTER_EVENT,
+    DECLINE_COUNTER_EVENT,
+    REJECT_ATTENDEES
+} from "~/actions";
 import {
     RESET_ACTIVE_MESSAGE,
     SET_BLOCK_REMOTE_IMAGES,
@@ -68,6 +74,45 @@ export default {
             } catch {
                 commit(SET_CURRENT_EVENT, { loading: LoadingStatus.ERROR });
                 throw "Event not found";
+            }
+        },
+
+        async [REJECT_ATTENDEES]({ commit, state }, { rejectedAttendees }) {
+            const serverEvent = setProperty(
+                state.currentEvent,
+                "serverEvent.value.main.attendees",
+                state.currentEvent.serverEvent.value.main.attendees.filter(
+                    a =>
+                        rejectedAttendees.findIndex(
+                            aRejectedAttendeee =>
+                                aRejectedAttendeee.address === a.mailto && aRejectedAttendeee.dn === a.commonName
+                        ) === -1
+                )
+            );
+            await inject("CalendarPersistence", state.currentEvent.calendarUid).update(
+                state.currentEvent.uid,
+                serverEvent.serverEvent.value
+            );
+
+            commit(SET_CURRENT_EVENT, {
+                ...serverEvent,
+                attendees: serverEvent.serverEvent.value.main.attendees.map(attendee => ({
+                    name: attendee.commonName,
+                    mail: attendee.mailto,
+                    status: attendee.partStatus,
+                    cutype: attendee.cutype
+                }))
+            });
+
+            function setProperty(obj, path, value) {
+                const [head, ...rest] = path.split(".");
+                if (!(head in obj)) {
+                    obj[head] = {};
+                }
+                return {
+                    ...obj,
+                    [head]: rest.length ? setProperty(obj[head], rest.join("."), value) : value
+                };
             }
         },
 

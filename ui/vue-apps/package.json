@@ -82,7 +82,7 @@
         "smime-plugin": "cd plugins/net.bluemind.plugins.smime && yarn dev",
         "videoconferencing-saas": "cd videoconferencing-saas-webapp && yarn dev",
         "test": "LANG='fr' jest -i --silent ",
-        "test:watch": "jest --silent --watch",
+        "test:watch": "jest --watch --verbose",
         "test:coverage": "jest --coverage --collectCoverageFrom='./plugins/net.bluemind.plugins.smime/src/**/*[.ts|.js]' net.bluemind.plugins.smime",
         "test-ci": "jest -i --ci --json --testResultsProcessor jest-jenkins-reporter --coverage --coverageReporters cobertura > jest.json"
     },

@@ -1,7 +1,5 @@
-import Vuex from "vuex";
-import { createLocalVue, mount } from "@vue/test-utils";
+import { mount } from "@vue/test-utils";
 import EventDetail from "../base/EventDetail";
-import store from "~/store";
 
 describe("Event Insert Body", () => {
     it("should be a Vue component", () => {
@@ -59,12 +57,6 @@ function EventDetailComponent(currentEvent) {
             this.serverEvent.value.main.dtend.iso8601 = new Date(value).toISOString();
         }
     };
-    const localVue = createLocalVue();
-    localVue.use(Vuex);
-    const mockStore = new Vuex.Store();
-    const MailAppStore = store;
-    mockStore.registerModule("mail", MailAppStore);
-    mockStore.commit("mail/SET_CURRENT_EVENT", currentEvent ?? CURRENT_EVENT);
 
     return {
         withEventDate({ start, end }) {
@@ -78,7 +70,6 @@ function EventDetailComponent(currentEvent) {
                     event: currentEvent ?? CURRENT_EVENT
                 },
                 mocks: {
-                    $store: mockStore,
                     $d: () => {}
                 }
             });

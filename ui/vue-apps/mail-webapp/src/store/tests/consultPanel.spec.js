@@ -1,4 +1,3 @@
-import Vue from "vue";
 import Vuex from "vuex";
 import cloneDeep from "lodash.clonedeep";
 import inject from "@bluemind/inject";
@@ -11,7 +10,6 @@ import { SET_CURRENT_EVENT, SET_CURRENT_EVENT_STATUS, SET_BLOCK_REMOTE_IMAGES } 
 const calendarService = new MockCalendarClient();
 const containerMgmtService = new MockContainerManagementClient();
 inject.register({ provide: "CalendarPersistence", factory: () => calendarService });
-Vue.use(Vuex);
 inject.register({ provide: "UserSession", use: { userId: "userId" } });
 inject.register({ provide: "ContainerManagementPersistence", factory: () => containerMgmtService });
 describe("consultPanel node", () => {
