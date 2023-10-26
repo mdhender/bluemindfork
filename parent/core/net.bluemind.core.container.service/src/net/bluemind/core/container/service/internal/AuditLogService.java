@@ -77,9 +77,9 @@ public abstract class AuditLogService<T, U> {
 		auditLogClient = auditLogProvider.getClient();
 	}
 
-	protected AuditLogService(String type) {
+	protected AuditLogService(String type, ILogMapperProvider<U> dm) {
 		this.type = type;
-		this.mapper = new DefaultLogMapperProvider<>();
+		this.mapper = dm;
 		auditLogClient = auditLogProvider.getClient();
 	}
 

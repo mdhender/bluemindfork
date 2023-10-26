@@ -62,7 +62,9 @@ public class InCoreAuthenticationFactory
 
 	@Override
 	public IInCoreAuthentication instance(BmContext context, String... params) throws ServerFault {
-		AuditLogService<SecurityContext, Void> auditLogService = new SecurityContextAuditLogService("login");
+		LoginAuditLogMapper mapper = new LoginAuditLogMapper();
+		AuditLogService<SecurityContext, SecurityContext> auditLogService = new SecurityContextAuditLogService("login",
+				mapper);
 		return new Authentication(context, authProviders, loginListeners, sessionValidators, auditLogService);
 	}
 }

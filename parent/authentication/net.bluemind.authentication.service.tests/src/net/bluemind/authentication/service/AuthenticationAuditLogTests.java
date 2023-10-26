@@ -164,7 +164,7 @@ public class AuthenticationAuditLogTests {
 		assertEquals(Status.Bad, response.status);
 
 		ESearchActivator.refreshIndex(AUDIT_LOG_NAME);
-		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+		Awaitility.await().atMost(3, TimeUnit.SECONDS).until(() -> {
 			SearchResponse<AuditLogEntry> esResponse = esClient.search(s -> s //
 					.index(AUDIT_LOG_NAME) //
 					.query(q -> q.bool(b -> b.must(TermQuery.of(t -> t.field("logtype").value("login"))._toQuery()))),
@@ -183,7 +183,8 @@ public class AuthenticationAuditLogTests {
 		assertTrue(loggedUserMails.contains("nomail@bm.lan"));
 		assertTrue(loggedUserMails.contains("expiredpassword@bm.lan"));
 
-		AuditLogEntry auditLogEntry = esResponse.hits().hits().get(0).source();
+		AuditLogEntry auditLogEntry = esResponse.hits().hits().stream().map(h -> h.source())
+				.filter(a -> a.securityContext.uid().equals("admin0")).findFirst().get();
 		assertEquals("admin0", auditLogEntry.securityContext.uid());
 		assertEquals("admin0", auditLogEntry.securityContext.displayName());
 		assertEquals("junit", auditLogEntry.securityContext.origin());
@@ -191,7 +192,8 @@ public class AuthenticationAuditLogTests {
 
 		assertTrue(auditLogEntry.container == null);
 		assertTrue(auditLogEntry.item == null);
-		assertTrue(auditLogEntry.content == null);
+		assertTrue(auditLogEntry.content.with().contains("admin0@global.virt"));
+		assertTrue(auditLogEntry.content.with().contains("admin0"));
 	}
 
 	private void initState() {
@@ -242,7 +244,8 @@ public class AuthenticationAuditLogTests {
 
 		assertNull(auditLogEntry.container);
 		assertNull(auditLogEntry.item);
-		assertNull(auditLogEntry.content);
+		assertTrue(auditLogEntry.content.with().contains("admin0"));
+		assertTrue(auditLogEntry.content.with().contains("admin0@global.virt"));
 	}
 
 	@Test
@@ -292,7 +295,8 @@ public class AuthenticationAuditLogTests {
 
 		assertTrue(auditLogEntry.container == null);
 		assertTrue(auditLogEntry.item == null);
-		assertTrue(auditLogEntry.content == null);
+		assertTrue(auditLogEntry.content.with().contains("admin0"));
+		assertTrue(auditLogEntry.content.with().contains("admin0@global.virt"));
 	}
 
 }

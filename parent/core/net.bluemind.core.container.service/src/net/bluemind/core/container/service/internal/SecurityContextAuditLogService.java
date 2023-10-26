@@ -21,24 +21,26 @@ package net.bluemind.core.container.service.internal;
 
 import net.bluemind.core.auditlogs.AuditLogEntry;
 import net.bluemind.core.auditlogs.AuditLogUpdateStatus;
+import net.bluemind.core.auditlogs.ILogMapperProvider;
 import net.bluemind.core.context.SecurityContext;
 
-public class SecurityContextAuditLogService extends AuditLogService<SecurityContext, Void> {
+public class SecurityContextAuditLogService extends AuditLogService<SecurityContext, SecurityContext> {
 
-	public SecurityContextAuditLogService(String type) {
-		super(type);
+	public SecurityContextAuditLogService(String type, ILogMapperProvider<SecurityContext> dm) {
+		super(type, dm);
 	}
 
 	@Override
 	protected AuditLogEntry createAuditLogEntry(SecurityContext sc) {
 		AuditLogEntry auditLogEntry = new AuditLogEntry();
 		auditLogEntry.logtype = type();
+		auditLogEntry.content = mapper.createContentElement(sc);
 		auditLogEntry.securityContext = createSecurityContextElement(sc);
 		return auditLogEntry;
 	}
 
 	@Override
-	protected AuditLogUpdateStatus createUpdateStatus(SecurityContext newValue, Void oldValue) {
+	protected AuditLogUpdateStatus createUpdateStatus(SecurityContext newValue, SecurityContext oldValue) {
 		return new AuditLogUpdateStatus();
 	}
 

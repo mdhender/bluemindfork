@@ -82,13 +82,13 @@ public class Authentication implements IInCoreAuthentication {
 	private final List<ILoginValidationListener> loginListeners;
 	private final List<ILoginSessionValidator> sessionValidators;
 	private final IDomains domainService;
-	private final AuditLogService<SecurityContext, Void> auditLogService;
+	private final AuditLogService<SecurityContext, SecurityContext> auditLogService;
 
 	private BmContext context;
 
 	public Authentication(BmContext context, List<IAuthProvider> authProviders,
 			List<ILoginValidationListener> loginListeners, List<ILoginSessionValidator> sessionValidators,
-			AuditLogService<SecurityContext, Void> auditLogService) throws ServerFault {
+			AuditLogService<SecurityContext, SecurityContext> auditLogService) throws ServerFault {
 		this.context = context;
 		this.securityContext = context.getSecurityContext();
 		this.authProviders = authProviders;

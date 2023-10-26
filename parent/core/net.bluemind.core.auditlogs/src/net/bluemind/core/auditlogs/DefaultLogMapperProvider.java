@@ -30,8 +30,8 @@ public class DefaultLogMapperProvider<T> implements ILogMapperProvider<T> {
 
 	private static final Logger logger = LoggerFactory.getLogger(DefaultLogMapperProvider.class);
 
+	@Override
 	public ContentElement createContentElement(T newValue) {
-
 		ContentElementBuilder builder = new ContentElement.ContentElementBuilder();
 		try {
 			String source = JsonUtils.asString(newValue);
