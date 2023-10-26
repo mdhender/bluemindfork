@@ -44,6 +44,15 @@ describe("InlineImageHelper insertInlineImages", () => {
         expect(result.imageInlined[0].address).toEqual("2.4");
     });
 
+    // Test to fix BM-20303
+    test("with a '>' character between quotes before the src attribute", () => {
+        const html = `<body> <img
+            alt="<Linkedin>"
+            src="cid:999999999@test.com"
+        /> </body>`;
+        const cids = InlineImageHelper.cids(html);
+        expect(cids.pop()).toEqual("999999999@test.com".toUpperCase());
+    });
     test("a more complex case", async () => {
         const imagePart1Content = "45D67E89\n1A23BC6\n";
         const imagePart1 = {
@@ -63,10 +72,10 @@ describe("InlineImageHelper insertInlineImages", () => {
             <body>
                 <p><img src="cid:999999999@test.com"></p>
                 <img src="http://... " />
-                Salut Kévin j'ai un src="cid:123456789@test.com" dans mon mail c'est normal ?
+                Salut Kévin j'ai un "cid:123456789@test.com" dans mon mail c'est normal ?
                 <div>
                     <img alt="alternative text" width="42px" 
-                        src="cid:123456789@test.com" height="42px">
+                        src="cid:123456789@test.com" height="42px"/>
                 </div>
                 <p><img src="cid:DOESNOTEXIST"></p>
             </body>
@@ -77,27 +86,26 @@ describe("InlineImageHelper insertInlineImages", () => {
             3.6: imagePart1Content
         };
 
-        const expectedContent =
-            `<html>
-            <body>
-                <p><img src="` +
-            imagePart1Content +
-            `" data-bm-cid="<999999999@test.com>"></p>
-                <img src="http://... " />
-                Salut Kévin j'ai un src="cid:123456789@test.com" dans mon mail c'est normal ?
-                <div>
-                    <img alt="alternative text" width="42px" 
-                        src="` +
-            imagePart2Content +
-            `" data-bm-cid="<123456789@test.com>" height="42px">
-                </div>
-                <p><img src="cid:DOESNOTEXIST"></p>
-            </body>
-        </html>`;
-
         const result = await InlineImageHelper.insertAsBase64([htmlWithCid], imageParts, partContentByAddress);
 
-        expect(result.contentsWithImageInserted[0]).toEqual(expectedContent);
+        expect(result.contentsWithImageInserted[0]).toMatchInlineSnapshot(`
+            "<html>
+                        <body>
+                            <p><img src=\\"45D67E89
+            1A23BC6
+            \\" data-bm-cid=\\"<999999999@test.com>\\"></p>
+                            <img src=\\"http://... \\" />
+                            Salut Kévin j'ai un \\"cid:123456789@test.com\\" dans mon mail c'est normal ?
+                            <div>
+                                <img alt=\\"alternative text\\" width=\\"42px\\" 
+                                    src=\\"1A23BC6
+            45D67E89
+            \\" data-bm-cid=\\"<123456789@test.com>\\" height=\\"42px\\"/>
+                            </div>
+                            <p><img src=\\"cid:DOESNOTEXIST\\"></p>
+                        </body>
+                    </html>"
+        `);
         expect(result.imageInlined.length).toEqual(2);
         expect(result.imageInlined.map(part => part.address)).toEqual(["3.6", "3.4"]);
     });

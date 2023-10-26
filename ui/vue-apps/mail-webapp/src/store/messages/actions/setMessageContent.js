@@ -111,20 +111,22 @@ function extractImages(htmlContent) {
     const imageNodes = Array.from(
         new DOMParser().parseFromString(htmlContent, "text/html").querySelectorAll("img[src]")
     );
-    const imageNodesByCid = imageNodes.filter(extractCid).reduce((nodesByCid, node) => {
-        const cid = extractCid(node);
-        if (!nodesByCid[cid]) {
-            const cidSrc = `cid:${cid.slice(1, -1)}`;
-            htmlWithCids = htmlWithCids.replaceAll(encodeHtmlEntities(node.attributes.src.nodeValue), cidSrc);
-            const { data, metadata } = extractDataFromImg(node);
-            nodesByCid[cid] = {
-                data,
-                mime: getMimeType(metadata),
-                size: data.byteLength
-            };
-        }
-        return nodesByCid;
-    }, {});
+    const imageNodesByCid = imageNodes
+        .filter(node => node.attributes.src.nodeValue && extractCid(node))
+        .reduce((nodesByCid, node) => {
+            const cid = extractCid(node);
+            if (!nodesByCid[cid]) {
+                const cidSrc = `cid:${cid.slice(1, -1)}`;
+                htmlWithCids = htmlWithCids.replaceAll(encodeHtmlEntities(node.attributes.src.nodeValue), cidSrc);
+                const { data, metadata } = extractDataFromImg(node);
+                nodesByCid[cid] = {
+                    data,
+                    mime: getMimeType(metadata),
+                    size: data.byteLength
+                };
+            }
+            return nodesByCid;
+        }, {});
 
     return { imageNodesByCid, htmlWithCids };
 }

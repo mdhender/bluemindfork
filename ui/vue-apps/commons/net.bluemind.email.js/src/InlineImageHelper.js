@@ -32,8 +32,8 @@ export default {
         return getCids(html);
     }
 };
-
-const CID_REFERENCE_REGEXP = /<img[^>]+?src\s*=\s*['"]cid:([^'"]*)['"][^>]*?>/gim;
+const CID_REFERENCE_REGEXP =
+    /<img(?=\s)(?=(?:[^>"']|"[^"]*"|'[^']*')*?(?:\ssrc\s*=\s*)(?:"cid:([^"]*)"|'cid:([^']*)'))(.*?)|(:?\s+)>/gim;
 function getCids(html) {
     return [...html.matchAll(CID_REFERENCE_REGEXP)].map(match => match[1].toUpperCase());
 }
@@ -54,7 +54,7 @@ function insertInHtml(htmlWithCids = [], imageParts = [], getNewSrcFn) {
     for (const html of htmlWithCids) {
         let modifiedHtml = html;
         for (let cid of getCids(html)) {
-            const replaceRegex = new RegExp("(<img[^>]+?src\\s*=\\s*['\"])cid:" + cid + "(['\"][^>]*?>{1}?)", "gmi");
+            const replaceRegex = new RegExp(`(?:\\ssrc\\s*=\\s*)(?:"cid:${cid}"|'cid:${cid}')`, "gmi");
             const imagePart = imageParts.find(
                 part =>
                     part.contentId &&
@@ -64,7 +64,7 @@ function insertInHtml(htmlWithCids = [], imageParts = [], getNewSrcFn) {
             if (imagePart) {
                 let newSrc = getNewSrcFn(imagePart);
                 newSrc += '" ' + CID_DATA_ATTRIBUTE + '="' + imagePart.contentId;
-                modifiedHtml = modifiedHtml.replace(replaceRegex, "$1" + newSrc + "$2");
+                modifiedHtml = modifiedHtml.replace(replaceRegex, ` src="${newSrc}"`);
                 result.imageInlined.push(imagePart);
             }
         }
