@@ -25,9 +25,11 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.awaitility.Awaitility;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -44,16 +46,16 @@ import io.vertx.core.json.JsonObject;
 import net.bluemind.authentication.api.IAuthentication;
 import net.bluemind.authentication.api.LoginResponse;
 import net.bluemind.authentication.api.LoginResponse.Status;
+import net.bluemind.cli.auditlog.tests.utils.AbstractCliAuditLogServiceTests;
 import net.bluemind.cli.auditlog.tests.utils.CliTestHelper;
 import net.bluemind.cli.launcher.CLIManager;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.auditlogs.AuditLogEntry;
-import net.bluemind.core.logs.tests.AbstractAuditLogServiceTests;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.system.state.StateContext;
 
-public class AuditLogGetTests extends AbstractAuditLogServiceTests {
+public class AuditLogGetTests extends AbstractCliAuditLogServiceTests {
 	private static final Logger logger = LoggerFactory.getLogger(AuditLogGetTests.class);
 	protected static final String AUDIT_LOG_INDEX = "audit_log";
 	private static CliTestHelper testHelper;
@@ -90,6 +92,23 @@ public class AuditLogGetTests extends AbstractAuditLogServiceTests {
 	@Test
 	public void testGetCalendarJSonFormatAuditLogs() {
 		ESearchActivator.refreshIndex(AUDIT_LOG_INDEX);
+
+		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+			cli.processArgs("auditlog", "get", "--logtype", "calendar");
+			List<JsonObject> entryObjects = Pattern.compile("\n").splitAsStream(testHelper.outputAndReset())
+					.filter(l -> l.startsWith("{")).map(l -> new JsonObject(l)).collect(Collectors.toList());
+			List<AuditLogEntry> auditLogEntries = entryObjects.stream().map(e -> {
+				try {
+					return mapper.readValue(e.toString(), AuditLogEntry.class);
+				} catch (JsonProcessingException e1) {
+					logger.error(e1.getMessage());
+					e1.printStackTrace();
+					return null;
+				}
+			}).toList();
+			return 4 == auditLogEntries.size();
+		});
+
 		cli.processArgs("auditlog", "get", "--logtype", "calendar");
 		String output = testHelper.outputAndReset();
 		assertNotNull(output);
@@ -119,6 +138,23 @@ public class AuditLogGetTests extends AbstractAuditLogServiceTests {
 					event01, sendNotifications);
 		}
 		ESearchActivator.refreshIndex(AUDIT_LOG_INDEX);
+
+		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+			cli.processArgs("auditlog", "get", "--logtype", "calendar", "--size", "20");
+			List<JsonObject> entryObjects = Pattern.compile("\n").splitAsStream(testHelper.outputAndReset())
+					.filter(l -> l.startsWith("{")).map(l -> new JsonObject(l)).collect(Collectors.toList());
+			List<AuditLogEntry> auditLogEntries = entryObjects.stream().map(e -> {
+				try {
+					return mapper.readValue(e.toString(), AuditLogEntry.class);
+				} catch (JsonProcessingException e1) {
+					logger.error(e1.getMessage());
+					e1.printStackTrace();
+					return null;
+				}
+			}).toList();
+			return 20 == auditLogEntries.size();
+		});
+
 		cli.processArgs("auditlog", "get", "--logtype", "calendar", "--size", "20");
 		String output = testHelper.outputAndReset();
 		assertNotNull(output);
@@ -139,6 +175,13 @@ public class AuditLogGetTests extends AbstractAuditLogServiceTests {
 	@Test
 	public void testGetCalendarTableFormatAuditLogs() {
 		ESearchActivator.refreshIndex(AUDIT_LOG_INDEX);
+
+		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+			cli.processArgs("auditlog", "get", "--logtype", "calendar", "--output", "table");
+			String out = testHelper.outputAndReset();
+			return !out.isBlank();
+		});
+
 		cli.processArgs("auditlog", "get", "--logtype", "calendar", "--output", "table");
 		String output = testHelper.outputAndReset();
 		assertNotNull(output);
@@ -148,6 +191,23 @@ public class AuditLogGetTests extends AbstractAuditLogServiceTests {
 	@Test
 	public void testGetCalendarMailboxRecordsAuditLogs() {
 		ESearchActivator.refreshIndex(AUDIT_LOG_INDEX);
+
+		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+			cli.processArgs("auditlog", "get", "--logtype", "calendar,mailbox_records");
+			List<JsonObject> entryObjects = Pattern.compile("\n").splitAsStream(testHelper.outputAndReset())
+					.filter(l -> l.startsWith("{")).map(l -> new JsonObject(l)).collect(Collectors.toList());
+			List<AuditLogEntry> auditLogEntries = entryObjects.stream().map(e -> {
+				try {
+					return mapper.readValue(e.toString(), AuditLogEntry.class);
+				} catch (JsonProcessingException e1) {
+					logger.error(e1.getMessage());
+					e1.printStackTrace();
+					return null;
+				}
+			}).toList();
+			return 7 == auditLogEntries.size();
+		});
+
 		cli.processArgs("auditlog", "get", "--logtype", "calendar,mailbox_records");
 		String output = testHelper.outputAndReset();
 		assertNotNull(output);
@@ -175,9 +235,27 @@ public class AuditLogGetTests extends AbstractAuditLogServiceTests {
 	@Test
 	public void testGetCalendarWithAuditLogs() {
 		ESearchActivator.refreshIndex(AUDIT_LOG_INDEX);
+
+		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+			cli.processArgs("auditlog", "get", "--logtype", "calendar", "--with", user02.value.defaultEmailAddress());
+			List<JsonObject> entryObjects = Pattern.compile("\n").splitAsStream(testHelper.outputAndReset())
+					.filter(l -> l.startsWith("{")).map(l -> new JsonObject(l)).collect(Collectors.toList());
+			List<AuditLogEntry> auditLogEntries = entryObjects.stream().map(e -> {
+				try {
+					return mapper.readValue(e.toString(), AuditLogEntry.class);
+				} catch (JsonProcessingException e1) {
+					logger.error(e1.getMessage());
+					e1.printStackTrace();
+					return null;
+				}
+			}).toList();
+			return 2 == auditLogEntries.size();
+		});
+
 		cli.processArgs("auditlog", "get", "--logtype", "calendar", "--with", user02.value.defaultEmailAddress());
 		String output = testHelper.outputAndReset();
 		assertNotNull(output);
+
 		List<JsonObject> entryObjects = Pattern.compile("\n").splitAsStream(output).filter(l -> l.startsWith("{"))
 				.map(l -> new JsonObject(l)).collect(Collectors.toList());
 		List<AuditLogEntry> auditLogEntries = entryObjects.stream().map(e -> {
@@ -217,6 +295,23 @@ public class AuditLogGetTests extends AbstractAuditLogServiceTests {
 	@Test
 	public void testGetCalendarDescriptionAuditLogs() {
 		ESearchActivator.refreshIndex(AUDIT_LOG_INDEX);
+
+		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+			cli.processArgs("auditlog", "get", "--logtype", "calendar", "--description", "First Meeting");
+			List<JsonObject> entryObjects = Pattern.compile("\n").splitAsStream(testHelper.outputAndReset())
+					.filter(l -> l.startsWith("{")).map(l -> new JsonObject(l)).collect(Collectors.toList());
+			List<AuditLogEntry> auditLogEntries = entryObjects.stream().map(e -> {
+				try {
+					return mapper.readValue(e.toString(), AuditLogEntry.class);
+				} catch (JsonProcessingException e1) {
+					logger.error(e1.getMessage());
+					e1.printStackTrace();
+					return null;
+				}
+			}).toList();
+			return 3 == auditLogEntries.size();
+		});
+
 		cli.processArgs("auditlog", "get", "--logtype", "calendar", "--description", "First Meeting");
 		String output = testHelper.outputAndReset();
 		assertNotNull(output);
@@ -256,6 +351,23 @@ public class AuditLogGetTests extends AbstractAuditLogServiceTests {
 		assertEquals(Status.Ok, response.status);
 
 		ESearchActivator.refreshIndex(AUDIT_LOG_INDEX);
+
+		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+			cli.processArgs("auditlog", "get", "--logtype", "login");
+			List<JsonObject> entryObjects = Pattern.compile("\n").splitAsStream(testHelper.outputAndReset())
+					.filter(l -> l.startsWith("{")).map(l -> new JsonObject(l)).collect(Collectors.toList());
+			List<AuditLogEntry> auditLogEntries = entryObjects.stream().map(e -> {
+				try {
+					return mapper.readValue(e.toString(), AuditLogEntry.class);
+				} catch (JsonProcessingException e1) {
+					logger.error(e1.getMessage());
+					e1.printStackTrace();
+					return null;
+				}
+			}).toList();
+			return 3 == auditLogEntries.size();
+		});
+
 		cli.processArgs("auditlog", "get", "--logtype", "login");
 		String output = testHelper.outputAndReset();
 		assertNotNull(output);
@@ -277,6 +389,118 @@ public class AuditLogGetTests extends AbstractAuditLogServiceTests {
 		assertEquals("junit", auditLogEntries.get(0).securityContext.origin());
 		assertEquals("junit", auditLogEntries.get(1).securityContext.origin());
 		assertEquals("junit", auditLogEntries.get(2).securityContext.origin());
+	}
+
+	@Test
+	public void testAuditCliJSONLoginWithUser01() throws ElasticsearchException, IOException {
+		IAuthentication authentication = getAuthenticationService(null);
+
+		LoginResponse response = authentication.login(user01.value.defaultEmailAddress(), user01.value.login, "junit");
+
+		assertEquals(Status.Ok, response.status);
+		assertNotNull(response.authKey);
+
+		String authKey = response.authKey;
+
+		response = authentication.login(user01.value.defaultEmailAddress(), authKey, "auth-key");
+		assertEquals(Status.Ok, response.status);
+		assertEquals(authKey, response.authKey);
+
+		response = authentication.login(user02.value.defaultEmailAddress(), user02.value.login, "junit");
+		assertEquals(Status.Ok, response.status);
+
+		ESearchActivator.refreshIndex(AUDIT_LOG_INDEX);
+
+		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+			cli.processArgs("auditlog", "get", "--logtype", "login", "--with", user01.value.defaultEmailAddress());
+			List<JsonObject> entryObjects = Pattern.compile("\n").splitAsStream(testHelper.outputAndReset())
+					.filter(l -> l.startsWith("{")).map(l -> new JsonObject(l)).collect(Collectors.toList());
+			List<AuditLogEntry> auditLogEntries = entryObjects.stream().map(e -> {
+				try {
+					return mapper.readValue(e.toString(), AuditLogEntry.class);
+				} catch (JsonProcessingException e1) {
+					logger.error(e1.getMessage());
+					e1.printStackTrace();
+					return null;
+				}
+			}).toList();
+			return 2 == auditLogEntries.size();
+		});
+
+		cli.processArgs("auditlog", "get", "--logtype", "login", "--with", user01.value.defaultEmailAddress());
+		String output = testHelper.outputAndReset();
+		assertNotNull(output);
+		List<JsonObject> entryObjects = Pattern.compile("\n").splitAsStream(output).filter(l -> l.startsWith("{"))
+				.map(l -> new JsonObject(l)).collect(Collectors.toList());
+		List<AuditLogEntry> auditLogEntries = entryObjects.stream().map(e -> {
+			try {
+				return mapper.readValue(e.toString(), AuditLogEntry.class);
+			} catch (JsonProcessingException e1) {
+				logger.error(e1.getMessage());
+				e1.printStackTrace();
+				return null;
+			}
+		}).toList();
+		assertEquals(2, auditLogEntries.size());
+		assertEquals(user01.value.defaultEmailAddress(), auditLogEntries.get(0).securityContext.email());
+		assertEquals(user01.value.defaultEmailAddress(), auditLogEntries.get(1).securityContext.email());
+		assertEquals("junit", auditLogEntries.get(0).securityContext.origin());
+		assertEquals("junit", auditLogEntries.get(1).securityContext.origin());
+	}
+
+	@Test
+	public void testAuditCliJSONLoginWithUser02() throws ElasticsearchException, IOException {
+		IAuthentication authentication = getAuthenticationService(null);
+
+		LoginResponse response = authentication.login(user01.value.defaultEmailAddress(), user01.value.login, "junit");
+
+		assertEquals(Status.Ok, response.status);
+		assertNotNull(response.authKey);
+
+		String authKey = response.authKey;
+
+		response = authentication.login(user01.value.defaultEmailAddress(), authKey, "auth-key");
+		assertEquals(Status.Ok, response.status);
+		assertEquals(authKey, response.authKey);
+
+		response = authentication.login(user02.value.defaultEmailAddress(), user02.value.login, "junit");
+		assertEquals(Status.Ok, response.status);
+
+		ESearchActivator.refreshIndex(AUDIT_LOG_INDEX);
+
+		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+			cli.processArgs("auditlog", "get", "--logtype", "login", "--with", user02.value.defaultEmailAddress());
+			List<JsonObject> entryObjects = Pattern.compile("\n").splitAsStream(testHelper.outputAndReset())
+					.filter(l -> l.startsWith("{")).map(l -> new JsonObject(l)).collect(Collectors.toList());
+			List<AuditLogEntry> auditLogEntries = entryObjects.stream().map(e -> {
+				try {
+					return mapper.readValue(e.toString(), AuditLogEntry.class);
+				} catch (JsonProcessingException e1) {
+					logger.error(e1.getMessage());
+					e1.printStackTrace();
+					return null;
+				}
+			}).toList();
+			return 1 == auditLogEntries.size();
+		});
+
+		cli.processArgs("auditlog", "get", "--logtype", "login", "--with", user02.value.defaultEmailAddress());
+		String output = testHelper.outputAndReset();
+		assertNotNull(output);
+		List<JsonObject> entryObjects = Pattern.compile("\n").splitAsStream(output).filter(l -> l.startsWith("{"))
+				.map(l -> new JsonObject(l)).collect(Collectors.toList());
+		List<AuditLogEntry> auditLogEntries = entryObjects.stream().map(e -> {
+			try {
+				return mapper.readValue(e.toString(), AuditLogEntry.class);
+			} catch (JsonProcessingException e1) {
+				logger.error(e1.getMessage());
+				e1.printStackTrace();
+				return null;
+			}
+		}).toList();
+		assertEquals(1, auditLogEntries.size());
+		assertEquals(user02.value.defaultEmailAddress(), auditLogEntries.get(0).securityContext.email());
+		assertEquals("junit", auditLogEntries.get(0).securityContext.origin());
 	}
 
 	@Test

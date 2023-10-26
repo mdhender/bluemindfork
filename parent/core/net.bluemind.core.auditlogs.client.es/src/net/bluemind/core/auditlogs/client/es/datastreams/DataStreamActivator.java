@@ -124,17 +124,30 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 	public static void initDataStream(ElasticsearchClient esClient, String indexName, String dataStreamName) {
 		indexDefinitionOf(indexName).ifPresentOrElse(definition -> {
 			byte[] schema = definition.schema;
+
 			try {
 				logger.info("init index template '{}' with settings & schema", indexName);
 				esClient.indices()
 						.putIndexTemplate(it -> it.name(indexName).withJson(new ByteArrayInputStream(schema)));
-				logger.info("index template '{}' created, creating datastream ...", indexName);
+			} catch (Exception e) {
+				logger.error("Cannot init '{}' index template: {}", indexName, e.getMessage());
+				throw new ElasticIndexException(indexName, e);
+			}
+			logger.info("index template '{}' created, creating datastream ...", indexName);
+			try {
 				esClient.indices().createDataStream(d -> d.name(dataStreamName));
 				logger.info("datastream '{}' created, waiting for green...", dataStreamName);
 				esClient.cluster().health(h -> h.index(dataStreamName).waitForStatus(HealthStatus.Green));
-			} catch (Exception e) {
+				logger.info("cluster is green.");
+			} catch (ElasticsearchException e) {
+				if (e.error() != null && "resource_already_exists_exception".equals(e.error().type())) {
+					logger.warn("datastream '{}' already exists", dataStreamName);
+				} else {
+					logger.error("Cannot init '{}' datastream: {}", dataStreamName, e.getMessage());
+					throw new ElasticIndexException(dataStreamName, e);
+				}
+			} catch (IOException e) {
 				logger.error("Cannot init '{}' datastream: {}", dataStreamName, e.getMessage());
-				throw new ElasticIndexException(indexName, e);
 			}
 		}, () -> {
 			logger.warn("no SCHEMA for {}", indexName);
