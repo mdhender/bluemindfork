@@ -187,7 +187,12 @@ public enum SysConfKeys {
 	/**
 	 * SRS enabled
 	 */
-	srs_disabled;
+	srs_disabled,
+
+	/**
+	 * trust all mode for https connexions
+	 */
+	tls_trust_allcertificates;
 
 	public static boolean isSysConfigKey(String key) {
 		for (SysConfKeys k : SysConfKeys.values()) {

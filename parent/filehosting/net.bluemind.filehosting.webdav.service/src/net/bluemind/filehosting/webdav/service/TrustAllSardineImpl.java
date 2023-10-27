@@ -121,16 +121,8 @@ public class TrustAllSardineImpl extends SardineImpl {
 
 	@Override
 	protected ConnectionSocketFactory createDefaultSecureSocketFactory() {
-		try {
-			return getSSLConnectionSocketFactory();
-		} catch (Exception e) {
-			logger.warn("Cannot configure TrustAll ConnectionSocketFactory", e);
-			return super.createDefaultSecureSocketFactory();
-		}
-	}
-
-	private SSLConnectionSocketFactory getSSLConnectionSocketFactory() throws Exception {
-		return new SSLConnectionSocketFactory(Trust.createSSLContext(), (hostname, session) -> true);
+		Trust trust = new Trust();
+		return new SSLConnectionSocketFactory(trust.getSSLSocketFactory("webdav"), trust.getHostNameVerifier("webdav"));
 	}
 
 }

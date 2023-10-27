@@ -26,8 +26,6 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
 import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
 
 import io.vertx.core.json.JsonObject;
 import net.bluemind.cti.wazo.api.client.exception.WazoApiResponseException;
@@ -42,6 +40,9 @@ public class HttpsWazoApiConnection implements AutoCloseable {
 
 	private String host;
 	private WazoEndpoints endpoint;
+
+	public HttpsWazoApiConnection() {
+	}
 
 	public void init(String host, WazoEndpoints endpoint) {
 		this.host = host;
@@ -67,14 +68,11 @@ public class HttpsWazoApiConnection implements AutoCloseable {
 	}
 
 	private void openConnection(String authKey, String authValue) {
-		SSLContext context = Trust.createSSLContext();
-		HttpsURLConnection.setDefaultSSLSocketFactory(context.getSocketFactory());
-
 		URL url;
 		try {
 			url = new URL(host.concat(endpoint.endpoint()));
 			connection = (HttpsURLConnection) url.openConnection();
-			connection.setHostnameVerifier(Trust.acceptAllVerifier());
+			new Trust().prepareConnection("wazo", connection);
 			connection.setRequestProperty(authKey, authValue);
 		} catch (IOException e) {
 			throw new WazoConnectionException(host, endpoint, e);
@@ -148,12 +146,10 @@ public class HttpsWazoApiConnection implements AutoCloseable {
 
 	@Override
 	public void close() {
-
 		try {
 			if (connection != null) {
 				connection.disconnect();
 			}
-			HttpsURLConnection.setDefaultSSLSocketFactory((SSLSocketFactory) SSLSocketFactory.getDefault());
 			connection = null;
 		} catch (Exception e) {
 			throw new WazoConnectionException(host, endpoint, e);

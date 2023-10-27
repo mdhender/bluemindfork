@@ -49,5 +49,6 @@
 		<module>net.bluemind.cli.wazo</module>
 		<module>net.bluemind.cloud.monitoring.cli</module>
 		<module>net.bluemind.cli.eas</module>
+		<module>net.bluemind.cli.security</module>
 	</modules>
 </project>

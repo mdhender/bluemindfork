@@ -28,19 +28,9 @@ import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.security.SecureRandom;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.X509TrustManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,6 +47,7 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.domain.service.internal.IInCoreDomainSettings;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
+import net.bluemind.utils.Trust;
 
 public class OpenIdFlow {
 
@@ -121,21 +112,22 @@ public class OpenIdFlow {
 	private HttpURLConnection connect(String url) throws MalformedURLException, IOException {
 		Map<String, String> sysConfMap = context.su().provider().instance(ISystemConfiguration.class)
 				.getValues().values;
+		HttpURLConnection connection = null;
 		String proxyEnabled = sysConfMap.get(SysConfKeys.http_proxy_enabled.name());
 		if (proxyEnabled == null || proxyEnabled.trim().isEmpty() || !proxyEnabled.equals("true")) {
-			return (HttpURLConnection) new URL(url).openConnection();
+			connection = (HttpURLConnection) new URL(url).openConnection();
 		} else {
 			Proxy proxy = new Proxy(Proxy.Type.HTTP,
 					new InetSocketAddress(sysConfMap.get(SysConfKeys.http_proxy_hostname.name()),
 							Integer.valueOf(sysConfMap.get(SysConfKeys.http_proxy_port.name()))));
-			return (HttpURLConnection) new URL(url).openConnection(proxy);
+			connection = (HttpURLConnection) new URL(url).openConnection(proxy);
 		}
-
+		new Trust().prepareConnection("openid-connect", connection);
+		return connection;
 	}
 
 	protected JsonObject postCall(String url, Map<String, String> parameters) {
 		StringBuilder json = new StringBuilder();
-		SSLSocketFactory sslFactory = trust();
 		HttpURLConnection conn = null;
 		try {
 			byte[] data = getFormDataString(parameters).getBytes();
@@ -161,42 +153,14 @@ public class OpenIdFlow {
 			if (httpCode != 200) {
 				throw new OpenIdException(httpCode, json.toString());
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw new ServerFault(e);
 		} finally {
 			if (conn != null) {
 				conn.disconnect();
 			}
-			HttpsURLConnection.setDefaultSSLSocketFactory(sslFactory);
 		}
 		return new JsonObject(json.toString());
-	}
-
-	private SSLSocketFactory trust() {
-		SSLSocketFactory defaultSSLSocketFactory = HttpsURLConnection.getDefaultSSLSocketFactory();
-		try {
-			HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
-				public boolean verify(String hostname, SSLSession session) {
-					return true;
-				}
-			});
-			SSLContext context = SSLContext.getInstance("TLS");
-			context.init(null, new X509TrustManager[] { new X509TrustManager() {
-				public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-				}
-
-				public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-				}
-
-				public X509Certificate[] getAcceptedIssuers() {
-					return new X509Certificate[0];
-				}
-			} }, new SecureRandom());
-			HttpsURLConnection.setDefaultSSLSocketFactory(context.getSocketFactory());
-		} catch (Exception e) { // should never happen
-			e.printStackTrace();
-		}
-		return defaultSSLSocketFactory;
 	}
 
 	private String getFormDataString(Map<String, String> params) throws UnsupportedEncodingException {

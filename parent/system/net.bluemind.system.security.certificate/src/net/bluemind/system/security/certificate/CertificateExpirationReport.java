@@ -20,7 +20,6 @@ package net.bluemind.system.security.certificate;
 
 import java.io.IOException;
 import java.net.URL;
-import java.security.SecureRandom;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.time.Duration;
@@ -40,9 +39,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.X509TrustManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,11 +94,8 @@ public class CertificateExpirationReport extends AbstractVerticle {
 
 				HttpsURLConnection con = null;
 				try {
-					SSLContext context = SSLContext.getInstance("TLS");
-					context.init(null, new X509TrustManager[] { Trust.createTrustManager() }, new SecureRandom());
-					HttpsURLConnection.setDefaultSSLSocketFactory(context.getSocketFactory());
 					con = (HttpsURLConnection) url.openConnection();
-					con.setHostnameVerifier(Trust.acceptAllVerifier());
+					new Trust().prepareConnection("certificate_report", con);
 					con.connect();
 					Certificate[] certs = con.getServerCertificates();
 					for (Certificate cert : certs) {
@@ -117,9 +110,7 @@ public class CertificateExpirationReport extends AbstractVerticle {
 								sendAlert(validityInDays, dn);
 							}
 							break;
-						case 29:
-						case 7:
-						case 1:
+						case 29, 7, 1:
 							sendAlert(validityInDays, dn);
 							break;
 						default:
@@ -131,7 +122,6 @@ public class CertificateExpirationReport extends AbstractVerticle {
 					if (con != null) {
 						con.disconnect();
 					}
-					HttpsURLConnection.setDefaultSSLSocketFactory((SSLSocketFactory) SSLSocketFactory.getDefault());
 				}
 			}
 		} catch (Exception e) {

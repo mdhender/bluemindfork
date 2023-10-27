@@ -125,6 +125,7 @@
    <bundle id="net.bluemind.cli.sds" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.cli.server" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.cli.sysconf" version="5.0.0.qualifier"/>
+   <bundle id="net.bluemind.cli.security" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.cli.todolist" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.cli.user" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.cli.utils" version="5.0.0.qualifier"/>

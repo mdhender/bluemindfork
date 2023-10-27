@@ -18,24 +18,59 @@
  */
 package net.bluemind.utils;
 
+import java.net.HttpURLConnection;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.List;
 
 import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bluemind.system.api.SysConfKeys;
+import net.bluemind.system.sysconf.helper.LocalSysconfCache;
+
 /**
  * Helper class to disable SSL chains validation
  */
 public class Trust {
+
+	private static SSLSocketFactory defaultSocketFactory = HttpsURLConnection.getDefaultSSLSocketFactory();
 	private static final Logger logger = LoggerFactory.getLogger(Trust.class);
+
+	public Trust() {
+
+	}
+
+	public void prepareConnection(String module, HttpURLConnection con) {
+		if (!(con instanceof HttpsURLConnection)) {
+			return;
+		}
+
+		if (trustall(module)) {
+			((HttpsURLConnection) con).setSSLSocketFactory(getSSLSocketFactory(true));
+			((HttpsURLConnection) con).setHostnameVerifier(getHostNameVerifier(true));
+		}
+	}
+
+	public SSLSocketFactory getSSLSocketFactory(String module) {
+		return getSSLSocketFactory(trustall(module));
+	}
+
+	public SSLSocketFactory getSSLSocketFactory(boolean trustAll) {
+		if (trustAll) {
+			return createSSLContext().getSocketFactory();
+		} else {
+			return defaultSocketFactory;
+		}
+	}
 
 	private static final class TrustAll implements X509TrustManager {
 
@@ -59,21 +94,12 @@ public class Trust {
 	private static final X509TrustManager trustManager = new TrustAll();
 	private static final TrustManager[] trustManagers = new TrustManager[] { trustManager };
 
-	private static final HostnameVerifier acceptAll = new HostnameVerifier() {
-
-		@Override
-		public boolean verify(String hostname, SSLSession session) {
-			logger.debug("verify '{}', session: {}", hostname, session);
-			return true;
-		}
-	};
-
 	/**
 	 * Creates a trust-all ssl context
 	 * 
 	 * @return an accept all context
 	 */
-	public static SSLContext createSSLContext() {
+	private SSLContext createSSLContext() {
 		try {
 			SecureRandom secureRandom = new SecureRandom();
 
@@ -86,11 +112,31 @@ public class Trust {
 		}
 	}
 
-	public static X509TrustManager createTrustManager() {
-		return trustManager;
+	public final HostnameVerifier getHostNameVerifier(String module) {
+		return getHostNameVerifier(trustall(module));
 	}
 
-	public static HostnameVerifier acceptAllVerifier() {
-		return acceptAll;
+	private final HostnameVerifier getHostNameVerifier(boolean trustAll) {
+		if (trustAll) {
+			return (hostname, session) -> true;
+		} else {
+			return HttpsURLConnection.getDefaultHostnameVerifier();
+		}
 	}
+
+	private boolean trustall(String module) {
+		List<String> modules = getTrustAllModules();
+		if (modules.isEmpty()) {
+			return false;
+		}
+		if (modules.size() == 1 && modules.get(0).equals("ALL")) {
+			return true;
+		}
+		return modules.contains(module);
+	}
+
+	protected List<String> getTrustAllModules() {
+		return LocalSysconfCache.get().stringList(SysConfKeys.tls_trust_allcertificates.name());
+	}
+
 }
