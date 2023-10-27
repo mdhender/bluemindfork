@@ -123,6 +123,13 @@ function verbsToRight(verbs, defaultRight) {
     return defaultRight;
 }
 
+function removeReadExtended(uid) {
+    const readExtendedIndex = otherAcl.findIndex(({ verb, subject }) => subject === uid && verb === Verb.ReadExtended);
+    if (readExtendedIndex > -1) {
+        otherAcl.splice(readExtendedIndex, 1);
+    }
+}
+
 function rightsToAcls(rightBySubject) {
     const acl = [];
 
@@ -130,6 +137,7 @@ function rightsToAcls(rightBySubject) {
         switch (right) {
             case CalendarRight.CAN_INVITE_ME:
                 acl.push({ subject, verb: Verb.Invitation });
+                removeReadExtended(subject);
                 break;
             case CalendarRight.CAN_SEE_MY_AVAILABILITY:
                 acl.push({ subject, verb: Verb.Freebusy });
@@ -146,6 +154,8 @@ function rightsToAcls(rightBySubject) {
                 acl.push({ subject, verb: Verb.Manage });
                 break;
             case CalendarRight.CANT_INVITE_ME:
+                removeReadExtended(subject);
+                break;
             default:
                 break;
         }
