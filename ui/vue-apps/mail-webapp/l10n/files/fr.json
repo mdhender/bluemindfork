@@ -455,6 +455,7 @@
     "mail.viewer.invitation.not_found.status": "n'existe pas dans votre calendrier",
     "mail.viewer.invitation.counter.added_attendees": "Participant ajouté ({count}) | Participants ajoutés ({count})",
     "mail.viewer.invitation.counter.added_attendees.refuse": "Refuser {attendee} | Refuser les {count} participants ajoutés | Refuser tous les participants ajoutés",
+    "mail.viewer.invitation.counter.rejected_attendees": "Participant refusé ({count}) | Participants refusés ({count})",
     "mail.viewer.invitation.counter.event": "{name} a {status} l'invitation et {counter}.",
     "mail.viewer.invitation.counter.occurrence": "{name} a {status} de l'événement et {counter}.",
     "mail.viewer.invitation.counter.status": "proposé un nouvel horaire",

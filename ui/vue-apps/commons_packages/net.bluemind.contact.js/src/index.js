@@ -13,14 +13,17 @@ function searchVCardsHelper(pattern, size = 5, noGroup = false, addressBook = nu
     if (size < 0) {
         size = SEARCH_API_MAX_SIZE;
     }
-    const escaped = escape(pattern);
+    const escaped = Array.isArray(pattern)
+        ? pattern.reduce((escaped, current, index) => escaped + (index !== 0 ? " OR " : "") + escape(current), "")
+        : escape(pattern);
+
     const groupPart = noGroup ? "" : "(value.kind:group AND _exists_:value.organizational.member) OR ";
     const esQuery =
-        "(value.identification.formatedName.value:" +
+        "(value.identification.formatedName.value:(" +
         escaped +
-        " OR value.communications.emails.value:" +
+        ") OR value.communications.emails.value:(" +
         escaped +
-        ") AND (" +
+        ")) AND (" +
         groupPart +
         "_exists_:value.communications.emails.value)" +
         (addressBook ? ` AND containerUid:${escape(addressBook)}` : "");

@@ -2,12 +2,11 @@
 import { computed } from "vue";
 import store from "@bluemind/store";
 import { BmToggleableButton, BmDropdown, BmDropdownItem, BmLabelIcon } from "@bluemind/ui-components";
-import { Contact } from "@bluemind/business-components";
 import { REJECT_ATTENDEES } from "~/actions";
-import MailContactCardSlots from "../../MailContactCardSlots";
 import EventHeader from "./base/EventHeader";
 import EventDetail from "./base/EventDetail";
-import EventFooterSection from "./base/EventFooterSection";
+import AttendeeList from "./AttendeeList";
+import { EmailExtractor } from "@bluemind/email";
 import { messageUtils } from "@bluemind/mail";
 
 const { MessageHeader } = messageUtils;
@@ -24,6 +23,14 @@ const newlyAddedAttendees = computed(() =>
         ?.filter(a => attendeeHeader.value.values?.[0]?.includes(a.mail))
         ?.map(a => ({ address: a.mail, dn: a.name }))
 );
+const rejectedAttendees = computed(() => {
+    const attendeesMail = props.event.attendees?.map(a => a.mail);
+    return attendeeHeader.value.values?.[0]
+        .split(",")
+        .map(str => ({ address: EmailExtractor.extractEmail(str), dn: EmailExtractor.extractDN(str) }))
+        .filter(anAttendee => !attendeesMail.includes(anAttendee.address));
+});
+
 function rejectAttendees(attendees) {
     store.dispatch(`mail/${REJECT_ATTENDEES}`, { rejectedAttendees: attendees });
 }
@@ -78,32 +85,14 @@ function rejectAttendees(attendees) {
         <event-detail :event="event" :message="message" />
 
         <div class="event-footer">
-            <event-footer-section
-                v-if="newlyAddedAttendees?.length"
-                :label="
-                    $tc('mail.viewer.invitation.counter.added_attendees', newlyAddedAttendees?.length, {
-                        count: newlyAddedAttendees?.length
-                    })
-                "
-            >
-                <div
-                    v-for="(attendee, index) in newlyAddedAttendees"
-                    :key="index"
-                    class="event-footer-entry"
-                    role="listitem"
-                >
-                    <mail-contact-card-slots
-                        :component="Contact"
-                        :contact="attendee"
-                        no-avatar
-                        show-address
-                        transparent
-                        bold-dn
-                        enable-card
-                        class="text-truncate"
-                    />
-                </div>
-            </event-footer-section>
+            <attendee-list
+                :label="$tc('mail.viewer.invitation.counter.added_attendees', newlyAddedAttendees?.length)"
+                :attendees="newlyAddedAttendees"
+            />
+            <attendee-list
+                :label="$tc('mail.viewer.invitation.counter.rejected_attendees', rejectedAttendees?.length)"
+                :attendees="rejectedAttendees"
+            />
         </div>
     </div>
 </template>

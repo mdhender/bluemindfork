@@ -6,8 +6,21 @@ import inject from "@bluemind/inject";
 import consultPanel from "~/store/consultPanel";
 import Vuex from "vuex";
 import store from "@bluemind/store";
+
 jest.mock("@bluemind/webappdata");
 inject.register({ provide: "CalendarPersistence", factory: () => ({ update: () => true }) });
+inject.register({
+    provide: "AddressBooksPersistence",
+    factory: () => ({
+        search: vCard => {
+            const mails = vCard.query.split(" ")[0].split("value:(")[1].split(")")[0].split(",");
+            return {
+                total: mails.length,
+                values: mails.map(mail => ({ value: { mail: mail, formatedName: mail.split("@")[0] } }))
+            };
+        }
+    })
+});
 
 const localVue = createLocalVue();
 localVue.use(VueI18n);
@@ -21,7 +34,9 @@ describe("Event Countered - Fowarded by attendee", () => {
         if (!store.hasModule("mail")) {
             store.registerModule("mail", { namespaced: true });
         }
-        store.registerModule(["mail", "consultPanel"], consultPanel);
+        if (store.hasModule("mail") && !store.hasModule("consultPanel")) {
+            store.registerModule(["mail", "consultPanel"], consultPanel);
+        }
     });
     afterAll(() => {
         if (store.hasModule("mail")) {
@@ -40,9 +55,8 @@ describe("Event Countered - Fowarded by attendee", () => {
         it("shoud list new attendee(s) added ", async () => {
             const listOfAttendees = await extractAttendeesList(mountEventCountered());
 
-            expect(listOfAttendees.findAll("[role='listitem']").at(0).text()).toMatch("NEW ONE");
             expect(listOfAttendees.findAll("[role='listitem']").at(0).text()).toMatch(
-                "<newone@devenv.dev.bluemind.net>"
+                /NEW ONE\s*<newone@devenv.dev.bluemind.net>/
             );
         });
 
@@ -81,7 +95,7 @@ describe("Event Countered - Fowarded by attendee", () => {
                         headers: [
                             {
                                 name: "X-BM-COUNTER-ATTENDEE",
-                                values: ["newone@devenv.dev.bluemind.net"]
+                                values: ['"NEW ONE" <newone@devenv.dev.bluemind.net>']
                             }
                         ]
                     },
@@ -153,10 +167,11 @@ describe("Event Countered - Fowarded by attendee", () => {
         });
 
         it("should be able to decline all at once", async () => {
-            const wrapper = mountEventCountered(["numero1@anymail.com"], true);
+            const wrapper = mountEventCountered(["numero1@anymail.com"], { requireStore: true });
             const refuseInvitationDropdown = wrapper.find("button");
 
             await refuseInvitationDropdown.trigger("click");
+            /**WE must simulate the update of props since it is managed by the parent */
             await wrapper.setProps({ event: store.state.mail.consultPanel.currentEvent });
 
             expect(
@@ -167,7 +182,7 @@ describe("Event Countered - Fowarded by attendee", () => {
             ).toBeFalsy();
         });
         it("should be able to decline individually when using dropdown", async () => {
-            const wrapper = mountEventCountered(["numero1@anymail.com"], true);
+            const wrapper = mountEventCountered(["numero1@anymail.com"], { requireStore: true });
             const refuseInvitationDropdown = wrapper.find("[role='menu']").findAll('[role="menuitem"]');
 
             await refuseInvitationDropdown.at(0).trigger("click");
@@ -178,6 +193,35 @@ describe("Event Countered - Fowarded by attendee", () => {
 
             expect(attendeesToAdd.text()).toMatch("numero1");
             expect(attendeesToAdd.text()).not.toMatch("NEW ONE");
+        });
+
+        test("when attendees have been rejected, a section below 'added participants' should be visible", async () => {
+            const wrapper = mountEventCountered([], {
+                alreadyRejected: ["newone@devenv.dev.bluemind.net"]
+            });
+
+            expect(
+                findByText(wrapper, {
+                    selector: ".event-footer-section",
+                    text: "Participants? refusés? \\(1\\)"
+                }).exists()
+            ).toBeTruthy();
+        });
+
+        it("should display each rejected attendees in related section within footer", async () => {
+            const wrapper = mountEventCountered(['"AN OTHER" <another@devenv.dev.bluemind.net>'], {
+                alreadyRejected: ["newone@devenv.dev.bluemind.net"]
+            });
+
+            const rejectedAttendeesList = findByText(wrapper, {
+                selector: ".event-footer-section",
+                text: "Participants? refusés? \\(\\d\\)"
+            }).at(0);
+            await rejectedAttendeesList.find("button").trigger("click");
+
+            expect(rejectedAttendeesList.findAll('[role="listitem"]').at(0).text()).toMatch(
+                /NEW ONE\s*<newone@devenv.dev.bluemind.net>/
+            );
         });
     });
 
@@ -196,7 +240,10 @@ function findByText(wrapper, { selector, text }) {
     return wrapper.findAll(selector).filter(w => w.text().match(text));
 }
 
-function mountEventCountered(addedAttendees = [], storeEvent = false) {
+function mountEventCountered(addedAttendees = [], options = { requireStore: false, alreadyRejected: [] }) {
+    if (!("alreadyRejected" in options)) options.alreadyRejected = [];
+    if (!("requireStore" in options)) options.requireStore = false;
+
     const wrapper = mount(EventNotificationForward, {
         localVue,
         i18n,
@@ -205,7 +252,12 @@ function mountEventCountered(addedAttendees = [], storeEvent = false) {
                 headers: [
                     {
                         name: "X-BM-COUNTER-ATTENDEE",
-                        values: new Array(["newone@devenv.dev.bluemind.net", ...addedAttendees].join(", "))
+                        values: new Array(
+                            [
+                                '"NEW ONE" <newone@devenv.dev.bluemind.net>',
+                                ...addedAttendees.map(aa => aa.split("@")[0] + " <" + aa + ">")
+                            ].join(", ")
+                        )
                     },
                     {
                         name: "X-BM-Event-Countered",
@@ -233,7 +285,7 @@ function mountEventCountered(addedAttendees = [], storeEvent = false) {
                         status: "NeedsAction",
                         cutype: "Individual"
                     }))
-                ]
+                ].filter(aa => !options.alreadyRejected.includes(aa.mail))
             }
             /**
              * serverEvent.value.main.attendees is omitted in the setup
@@ -247,7 +299,8 @@ function mountEventCountered(addedAttendees = [], storeEvent = false) {
         },
         attachTo: document.body
     });
-    if (storeEvent) {
+
+    if (options.requireStore) {
         store.commit("mail/SET_CURRENT_EVENT", {
             serverEvent: {
                 value: {

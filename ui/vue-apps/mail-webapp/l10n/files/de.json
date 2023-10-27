@@ -455,6 +455,7 @@
     "mail.viewer.invitation.not_found.status": "das in Ihrem Kalender nicht existiert",
     "mail.viewer.invitation.counter.added_attendees": "Teilnehmer hinzugefügt ({count}) | Hinzugefügte Teilnehmer ({count})",
     "mail.viewer.invitation.counter.added_attendees.refuse": "Ablehnen {attendee} | Ablehnen der {count} hinzugefügten Teilnehmer | Alle Teilnehmer ablehnen",
+    "mail.viewer.invitation.counter.rejected_attendees": "Abgelehnter Teilnehmer ({count}) | Abgelehnte Teilnehmer ({count})",
     "mail.viewer.invitation.counter.event": "{name} hat die Einladung {status} und {counter}.",
     "mail.viewer.invitation.counter.occurrence": "{name} hat ein Auftreten des Termins {status} und {counter}.",
     "mail.viewer.invitation.counter.status": "schlug einen neuen Zeitplan vor",

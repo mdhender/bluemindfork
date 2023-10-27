@@ -455,6 +455,7 @@
     "mail.viewer.invitation.not_found.status": "does not exist in your calendar",
     "mail.viewer.invitation.counter.added_attendees": "Added attendee ({count}) | Attendees added ({count})",
     "mail.viewer.invitation.counter.added_attendees.refuse": "Reject {attendee} | Reject the {count} added attendees | Reject all added attendees",
+    "mail.viewer.invitation.counter.rejected_attendees": "Rejected attendee ({count}) | Rejected attendees ({count})",
     "mail.viewer.invitation.counter.event": "{name} has {status} the invitation and {counter}.",
     "mail.viewer.invitation.counter.occurrence": "{name} has {status} of the event and {counter}.",
     "mail.viewer.invitation.counter.status": "has suggested a new time",
