@@ -398,6 +398,9 @@ export function useDelegation() {
     const matchCopyImipActionForDelegate = ({ clientProperties: { type, delegate } }, delegateUid) =>
         type === "delegation" && delegate === delegateUid;
 
+    const canSeePrivateEvents = uid =>
+        getCalendarAcl()?.some(({ subject, verb }) => subject === uid && verb === Verb.ReadExtended);
+
     const hasIncoherentCopyImipOption = (delegate, hasCopyImip, calendarRight) => {
         hasCopyImip = hasCopyImip !== undefined ? hasCopyImip : hasCopyImipMailboxRuleAction(delegate);
         const calendarVerbs =
@@ -408,6 +411,7 @@ export function useDelegation() {
     return {
         aclToRight,
         addDelegateToCopyImipMailboxRule,
+        canSeePrivateEvents,
         computeReceiveImipOption,
         Container,
         countDelegatesHavingTheCopyImipRule,

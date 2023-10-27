@@ -13,6 +13,7 @@ import { BmFormInput, BmIcon, BmIconButton, BmModal, BmPagination, BmTable } fro
 import { useDelegation } from "./delegation";
 
 const {
+    canSeePrivateEvents,
     Container,
     delegates,
     delegationTypes,
@@ -78,6 +79,7 @@ watchEffect(async () => {
         contactsRight: getContactsRight(uid),
         hasCopyImip: hasCopyImipMailboxRuleAction(uid),
         isSendAs: delegationTypes.value[uid] === Verb.SendAs,
+        canSeePrivateEvents: canSeePrivateEvents(uid),
         incoherentCopyImip: hasIncoherentCopyImipOption(uid)
     }));
 
@@ -128,6 +130,7 @@ const remove = async contact => {
                 <div class="d-flex align-items-center pr-5">
                     <div class="text-truncate">{{ cell.value.shortText(Container.CALENDAR) }}</div>
                     <bm-icon v-if="cell.item.hasCopyImip" icon="open-envelope" class="ml-4" />
+                    <bm-icon v-if="cell.item.canSeePrivateEvents" icon="lock" class="ml-4" />
                     <bm-icon
                         v-if="cell.item.incoherentCopyImip"
                         class="pl-4 text-warning"

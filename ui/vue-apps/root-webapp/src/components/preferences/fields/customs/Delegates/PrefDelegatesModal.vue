@@ -222,6 +222,7 @@ export default {
         const {
             aclToRight,
             addDelegateToCopyImipMailboxRule,
+            canSeePrivateEvents,
             Container,
             delegates,
             delegationTypes,
@@ -239,6 +240,7 @@ export default {
         return {
             aclToRight,
             addDelegateToCopyImipMailboxRule,
+            canSeePrivateEvents,
             Container,
             delegates,
             delegationTypes,
@@ -348,9 +350,7 @@ export default {
                 this.formData.contactsRight.current = this.formData.contactsRight.initial;
                 this.formData.copyImipToDelegate.initial = this.hasCopyImipMailboxRuleAction(value);
                 this.formData.copyImipToDelegate.current = this.formData.copyImipToDelegate.initial;
-                this.formData.seePrivateEvents.initial = this.getCalendarAcl()?.some(
-                    ({ subject, verb }) => subject === value && verb === Verb.ReadExtended
-                );
+                this.formData.seePrivateEvents.initial = this.canSeePrivateEvents(value);
                 this.formData.seePrivateEvents.current = this.formData.seePrivateEvents.initial;
                 this.formData.delegate.initial = this.delegate;
                 this.formData.delegate.current = value;
