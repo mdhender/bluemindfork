@@ -22,7 +22,7 @@ export function create(key, name, parent, mailbox) {
         path: folderPath,
         writable: mailbox.writable,
         allowConversations: allowConversations(folderPath),
-        allowSubfolder: allowSubfolder(mailbox.writable, name, isDefaultFolder),
+        allowSubfolder: allowSubfolder(name, parent, folderPath, mailbox),
         default: isDefaultFolder,
         expanded: false,
         unread: 0
@@ -99,8 +99,10 @@ function isDefault(parent, path, name, mailbox) {
             return !parent && !!DEFAULT_FOLDERS[name.toUpperCase()];
         case MailboxType.MAILSHARE:
         case MailboxType.GROUP: {
-            const isRoot = path.split("/").length === 2;
-            return isRoot && !!DEFAULT_FOLDERS[name.toUpperCase()];
+            const isTrashOrSent =
+                path.split("/").length === 2 &&
+                [DEFAULT_FOLDERS.SENT.toUpperCase(), DEFAULT_FOLDERS.TRASH.toUpperCase()].includes(name.toUpperCase());
+            return !parent || isTrashOrSent;
         }
     }
 }
@@ -109,9 +111,13 @@ export function isSharedRoot(folder, mailbox) {
     return MailboxType.isShared(mailbox.type) && !folder.parent;
 }
 
-export function allowSubfolder(writable, name, isDefault) {
-    const allowed = !isDefault || DEFAULT_FOLDERS.INBOX.toUpperCase() === name.toUpperCase();
-    return Boolean(writable && allowed);
+export function allowSubfolder(name, parent, path, mailbox) {
+    const isDefaultFolder = isDefault(parent, path, name, mailbox);
+    let allowed = !isDefaultFolder || DEFAULT_FOLDERS.INBOX.toUpperCase() === name.toUpperCase();
+    if (MailboxType.isShared(mailbox.type)) {
+        allowed |= !parent;
+    }
+    return Boolean(mailbox.writable && allowed);
 }
 
 export function allowConversations(path) {

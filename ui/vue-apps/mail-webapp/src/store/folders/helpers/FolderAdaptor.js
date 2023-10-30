@@ -27,7 +27,7 @@ function fromMailboxFolder(remotefolder, mailbox) {
         path,
         writable: mailbox.writable,
         allowConversations: allowConversations(path),
-        allowSubfolder: allowSubfolder(mailbox.writable, remotefolder.value.name, isDefaultFolder),
+        allowSubfolder: allowSubfolder(remotefolder.value.name, parent, path, mailbox),
         default: isDefaultFolder,
         unread: undefined
     };

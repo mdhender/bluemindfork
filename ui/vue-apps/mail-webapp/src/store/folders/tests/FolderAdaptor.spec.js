@@ -120,11 +120,11 @@ describe("Folder adaptors", () => {
             expect(isDefault(null, "inboxe", "inboxe", { type: MailboxType.USER })).toBeFalsy();
         });
         test("Detect default folders in mailshares", () => {
-            expect(isDefault(null, "shared/other/INBOX", "INBOX", { type: MailboxType.MAILSHARE })).toBeFalsy();
+            expect(isDefault("shared", "shared/other/INBOX", "INBOX", { type: MailboxType.MAILSHARE })).toBeFalsy();
             expect(isDefault("parentUid", "shared/SENT", "Sent", { type: MailboxType.MAILSHARE })).toBeTruthy();
         });
         test("Detect default folders in groups", () => {
-            expect(isDefault(null, "group/other/INBOX", "INBOX", { type: MailboxType.GROUP })).toBeFalsy();
+            expect(isDefault("grp", "group/other/INBOX", "INBOX", { type: MailboxType.GROUP })).toBeFalsy();
             expect(isDefault("parentUid", "group/SENT", "Sent", { type: MailboxType.GROUP })).toBeTruthy();
         });
         test("A sub folder cannot be a default folder ", () => {

@@ -71,7 +71,7 @@ describe("Folder model functions", () => {
                 Object {
                   "allowConversations": true,
                   "allowSubfolder": true,
-                  "default": false,
+                  "default": true,
                   "expanded": false,
                   "imapName": "name",
                   "key": "123",
@@ -149,18 +149,61 @@ describe("Folder model functions", () => {
         test("Outbox in user mailbox is a default folder", () => {
             expect(create(undefined, "Outbox", undefined, user).default).toBeTruthy();
         });
-        test("Any other root folder in user or mailshare mailbox is not a folder", () => {
+        test("Any other root folder in user mailbox is not a default folder", () => {
             expect(create(undefined, "Any", undefined, user).default).not.toBeTruthy();
             expect(create(undefined, "inboxe", undefined, user).default).not.toBeTruthy();
 
-            expect(create(undefined, "Any", undefined, mailshare).default).not.toBeTruthy();
+            expect(create(undefined, "Any", { path: "shared" }, mailshare).default).not.toBeTruthy();
+        });
+        test("A root folder in mailshare mailbox is a default folder", () => {
+            expect(create(undefined, "Any", undefined, mailshare).default).toBeTruthy();
         });
         test("Inbox is not a default folder in mailshare", () => {
-            expect(create(undefined, "INBOX", undefined, mailshare).default).not.toBeTruthy();
+            expect(create(undefined, "INBOX", { path: "shared" }, mailshare).default).not.toBeTruthy();
+        });
+        test("Sent and Trash are the only default folders in a mail", () => {
+            expect(create(undefined, "Sent", { path: "shared" }, mailshare).default).toBeTruthy();
+            expect(create(undefined, "Trash", { path: "shared" }, mailshare).default).toBeTruthy();
+            expect(create(undefined, "Outbox", { path: "shared" }, mailshare).default).not.toBeTruthy();
         });
         test("A user sub folder cannot be a default folder ", () => {
-            expect(create(undefined, "INBOX", {}, user).default).not.toBeTruthy();
-            expect(create(undefined, "Root", {}, mailshare).default).not.toBeTruthy();
+            expect(create(undefined, "INBOX", { path: "other" }, user).default).not.toBeTruthy();
+            expect(create(undefined, "Root", { path: "other" }, mailshare).default).not.toBeTruthy();
+        });
+    });
+    describe("Allow sub folder", () => {
+        const user = { type: MailboxType.USER, remoteRef: {}, writable: true };
+        const mailshare = { type: MailboxType.MAILSHARE, remoteRef: {}, root: "mailshareRoot", writable: true };
+        test("Non writable folder do not allow subfolders", () => {
+            const mailbox = { type: MailboxType.USER, remoteRef: {}, writable: false };
+            const folder = create(undefined, "other", undefined, mailbox);
+            expect(folder.allowSubfolder).not.toBeTruthy();
+        });
+        test("Root folders allow sub folders", () => {
+            const rootUser = create(undefined, "", undefined, user);
+            expect(rootUser.allowSubfolder).toBeTruthy();
+            const rootMailshare = create(undefined, "", undefined, mailshare);
+            expect(rootMailshare.allowSubfolder).toBeTruthy();
+        });
+        test("In a user mailbox, the default folders, except INBOX, do not allow subfolders", () => {
+            const inbox = create(undefined, "INBOX", undefined, user);
+            expect(inbox.allowSubfolder).toBeTruthy();
+            const sent = create(undefined, "Sent", undefined, user);
+            expect(sent.allowSubfolder).not.toBeTruthy();
+            const outbox = create(undefined, "Outbox", undefined, user);
+            expect(outbox.allowSubfolder).not.toBeTruthy();
+            const trash = create(undefined, "Trash", undefined, user);
+            expect(trash.allowSubfolder).not.toBeTruthy();
+        });
+        test("In a mailshare mailbox, only Sent and Trash do not allow subfolders", () => {
+            const inbox = create(undefined, "INBOX", { path: "shared" }, mailshare);
+            expect(inbox.allowSubfolder).toBeTruthy();
+            const sent = create(undefined, "Sent", { path: "shared" }, mailshare);
+            expect(sent.allowSubfolder).not.toBeTruthy();
+            const outbox = create(undefined, "Outbox", { path: "shared" }, mailshare);
+            expect(outbox.allowSubfolder).toBeTruthy();
+            const trash = create(undefined, "Trash", { path: "shared" }, mailshare);
+            expect(trash.allowSubfolder).not.toBeTruthy();
         });
     });
     describe("rename", () => {
