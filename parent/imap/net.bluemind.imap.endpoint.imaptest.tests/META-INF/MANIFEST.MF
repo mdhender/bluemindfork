@@ -12,7 +12,9 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.testcontainers,
  net.bluemind.network.utils,
  slf4j.api;bundle-version="1.7.36",
- net.bluemind.imap.endpoint
+ net.bluemind.imap.endpoint,
+ net.bluemind.tests.defaultdata,
+ net.bluemind.role.api
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.imap.endpoint.imaptests.tests
 Bundle-ActivationPolicy: lazy

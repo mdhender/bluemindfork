@@ -24,6 +24,8 @@ import java.time.Duration;
 import java.util.Enumeration;
 import java.util.List;
 
+import org.testcontainers.images.builder.Transferable;
+
 public class ImaptestPlanBuilder {
 
 	private String targetHost;
@@ -36,6 +38,7 @@ public class ImaptestPlanBuilder {
 	private Integer logout;
 	private Integer checkpoint;
 	private boolean onlyLoginSelectLogout;
+	private Transferable profile;
 
 	public ImaptestPlanBuilder() {
 		this.targetHost = getMyIpAddress();
@@ -49,15 +52,19 @@ public class ImaptestPlanBuilder {
 
 	public DovecotImaptestRunner build() {
 		String cmd = buildCommand();
-		return new DovecotImaptestRunner(cmd, Duration.ofSeconds(duration.toSeconds() + 10));
+		return new DovecotImaptestRunner(cmd, Duration.ofSeconds(duration.toSeconds() + 10), profile);
 	}
 
 	public String buildCommand() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("/root/imaptest seed=31032012 mbox=/root/dovecot-crlf");
-		sb.append(" clients=" + clients);
 		sb.append(" host=" + targetHost).append(" port=" + port);
-		sb.append(" user=" + user).append(" pass=" + pass);
+		if (profile == null) {
+			sb.append(" user=" + user).append(" pass=" + pass);
+		} else {
+			sb.append(" user=unused pass=").append(pass).append(" profile=/root/profile.conf");
+		}
+		sb.append(" clients=" + clients);
 		if (duration != null) {
 			sb.append(" secs=" + duration.toSeconds());
 		}
@@ -158,6 +165,11 @@ public class ImaptestPlanBuilder {
 
 	public static ImaptestPlanBuilder create() {
 		return new ImaptestPlanBuilder();
+	}
+
+	public ImaptestPlanBuilder profile(Transferable profile) {
+		this.profile = profile;
+		return this;
 	}
 
 }

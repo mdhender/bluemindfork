@@ -29,6 +29,7 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.output.BaseConsumer;
 import org.testcontainers.containers.output.OutputFrame;
 import org.testcontainers.containers.startupcheck.OneShotStartupCheckStrategy;
+import org.testcontainers.images.builder.Transferable;
 
 public class DovecotImaptestRunner extends GenericContainer<DovecotImaptestRunner> {
 
@@ -48,14 +49,18 @@ public class DovecotImaptestRunner extends GenericContainer<DovecotImaptestRunne
 	}
 
 	private final ImapTestOutputConsumer consumer;
+	private String startCommand;
 
-	DovecotImaptestRunner(String cmd, Duration duration) {
+	DovecotImaptestRunner(String cmd, Duration duration, Transferable optionalProfile) {
 		super("docker.bluemind.net/bluemind/imaptest:5.0.4859");
-
-		withCommand(cmd);
+		this.startCommand = cmd;
+		withCommand(startCommand);
 		this.consumer = new ImapTestOutputConsumer();
 		withLogConsumer(consumer);
-		System.err.println("start with duration " + duration);
+		if (optionalProfile != null) {
+			withCopyToContainer(optionalProfile, "/root/profile.conf");
+		}
+		logger.info("start with duration {}", duration);
 		setStartupCheckStrategy(new OneShotStartupCheckStrategy().withTimeout(duration));
 	}
 
@@ -71,7 +76,7 @@ public class DovecotImaptestRunner extends GenericContainer<DovecotImaptestRunne
 
 	@Override
 	public void start() {
-		logger.info("Starting imaptest...");
+		logger.info("Starting imaptest with command {}", startCommand);
 		super.start();
 	}
 
