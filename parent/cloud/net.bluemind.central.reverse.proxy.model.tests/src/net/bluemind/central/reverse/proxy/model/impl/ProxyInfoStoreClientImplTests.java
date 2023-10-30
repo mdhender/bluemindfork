@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 import org.junit.After;
 import org.junit.Before;
@@ -43,12 +44,12 @@ public class ProxyInfoStoreClientImplTests {
 	}
 
 	@After
-	public void tearDownTest() {
+	public void tearDownTest() throws InterruptedException, ExecutionException {
 		store.tearDown();
 	}
 
 	@Test
-	public void noStore() {
+	public void noStore() throws InterruptedException, ExecutionException {
 		store.tearDown();
 		ProxyInfoStoreClient client = ProxyInfoStoreClient.create(vertx);
 		AsyncTestContext.asyncTest(context -> {
@@ -103,7 +104,7 @@ public class ProxyInfoStoreClientImplTests {
 		ProxyInfoStoreClient client = ProxyInfoStoreClient.create(vertx);
 		AsyncTestContext.asyncTest(context -> {
 			List<DirEmail> emails = Arrays.asList(new DirEmail("three@alias1", false));
-			DirInfo dir = new DirInfo(".internal", emails, "here1");
+			DirInfo dir = new DirInfo(".internal", null, null, false, null, null, emails, "here1");
 			client.addDir(dir).compose(v -> client.ip("three@alias1")).onComplete(ar -> {
 				context.assertions(() -> {
 					assertTrue(ar.succeeded());
@@ -117,8 +118,8 @@ public class ProxyInfoStoreClientImplTests {
 	public void addDataLocation() {
 		ProxyInfoStoreClient client = ProxyInfoStoreClient.create(vertx);
 		AsyncTestContext.asyncTest(context -> {
-			client.addInstallation(new InstallationInfo("here1", "elsewere")).compose(v -> client.ip("one@alias1"))
-					.onComplete(ar -> {
+			client.addInstallation(new InstallationInfo("here1", "elsewere", true, false))
+					.compose(v -> client.ip("one@alias1")).onComplete(ar -> {
 						context.assertions(() -> {
 							assertTrue(ar.succeeded());
 							assertEquals("elsewere", ar.result());

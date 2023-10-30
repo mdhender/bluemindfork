@@ -7,4 +7,10 @@
             impl="net.bluemind.central.reverse.proxy.vertx.impl.ProxyVerticleFactory">
       </verticle>
    </extension>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.central.reverse.proxy.vertx.impl.postfix.PostfixMapsVerticleFactory">
+      </verticle>
+   </extension>
 </plugin>

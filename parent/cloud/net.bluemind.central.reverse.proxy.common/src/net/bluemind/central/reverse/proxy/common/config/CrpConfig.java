@@ -93,10 +93,16 @@ public class CrpConfig {
 		public static final String NUMBER_OF_THREADS = "bm.crp.stream.number-of-threads";
 	}
 
+	public static class PostfixMaps {
+		private PostfixMaps() {
+		}
+
+		public static final String PORT = "bm.crp.postfixmaps.port";
+	}
+
 	private static Config config;
 
 	private CrpConfig() {
-
 	}
 
 	public static Config get(String name, ClassLoader loader) {
@@ -145,5 +151,4 @@ public class CrpConfig {
 
 		throw new RuntimeException("No configuration available for kafka bootstrap servers");
 	}
-
 }

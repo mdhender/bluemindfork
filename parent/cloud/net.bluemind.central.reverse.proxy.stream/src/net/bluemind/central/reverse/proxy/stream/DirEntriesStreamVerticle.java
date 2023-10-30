@@ -14,6 +14,7 @@ import static net.bluemind.central.reverse.proxy.common.config.CrpConfig.Topic.R
 import static org.apache.kafka.common.utils.Utils.murmur2;
 import static org.apache.kafka.common.utils.Utils.toPositive;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
@@ -25,6 +26,7 @@ import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.serialization.Serdes.ByteArraySerde;
 import org.apache.kafka.streams.KafkaStreams;
+import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler.StreamThreadExceptionResponse;
@@ -42,6 +44,7 @@ import net.bluemind.central.reverse.proxy.common.config.CrpConfig;
 import net.bluemind.central.reverse.proxy.model.common.kafka.InstallationTopics;
 import net.bluemind.central.reverse.proxy.model.common.kafka.KafkaAdminClient;
 import net.bluemind.central.reverse.proxy.model.common.mapper.RecordKeyMapper;
+import net.bluemind.central.reverse.proxy.model.common.mapper.RecordValueMapper;
 
 public class DirEntriesStreamVerticle extends AbstractVerticle {
 
@@ -50,14 +53,16 @@ public class DirEntriesStreamVerticle extends AbstractVerticle {
 	private final Config config;
 	private final String bootstrapServers;
 	private final RecordKeyMapper<byte[]> keyMapper;
+	private final RecordValueMapper<byte[]> valueMapper;
 
 	private KafkaAdminClient adminClient;
 
-	public DirEntriesStreamVerticle(Config config, RecordKeyMapper<byte[]> keyMapper) {
+	public DirEntriesStreamVerticle(Config config, RecordKeyMapper<byte[]> keyMapper,
+			RecordValueMapper<byte[]> valueMapper) {
 		this.config = config;
 		this.bootstrapServers = config.getString(BOOTSTRAP_SERVERS);
 		this.keyMapper = keyMapper;
-
+		this.valueMapper = valueMapper;
 	}
 
 	@Override
@@ -120,9 +125,31 @@ public class DirEntriesStreamVerticle extends AbstractVerticle {
 		topology //
 				.<byte[], byte[]>stream(inputTopicNames) //
 				.filter((key, value) -> keyMapper.map(key)
-						.map(recordKey -> recordKey.type.equals("dir") || recordKey.type.equals("memberships"))
+						.map(recordKey -> value != null
+								&& (recordKey.type.equals("dir") || recordKey.type.equals("memberships")))
 						.orElse(false))
-				.to(ouputTopicName, withProducer());
+				.flatMap((key, value) -> {
+					Collection<KeyValue<byte[], byte[]>> keyValueList = new ArrayList<>();
+
+					keyMapper.map(key).filter(recordKey -> recordKey.operation.equals("DELETE"))
+							.ifPresent(recordKey -> {
+								recordKey.operation = "UPDATE";
+								keyMapper.map(recordKey)
+										.map(keyAsByteArray -> new KeyValue<byte[], byte[]>(keyAsByteArray, null))
+										.ifPresent(keyValueList::add);
+
+								recordKey.operation = "CREATE";
+								keyMapper.map(recordKey)
+										.map(keyAsByteArray -> new KeyValue<byte[], byte[]>(keyAsByteArray, null))
+										.ifPresent(keyValueList::add);
+
+								recordKey.operation = "DELETE";
+							});
+
+					keyValueList.add(new KeyValue<byte[], byte[]>(key, value));
+					return keyValueList;
+				}).to(ouputTopicName, withProducer());
+
 		KafkaStreams stream = new KafkaStreams(topology.build(), props);
 		stream.setUncaughtExceptionHandler((Throwable throwable) -> {
 			logger.error("[stream] Exception occurred during stream processing", throwable);
@@ -135,7 +162,17 @@ public class DirEntriesStreamVerticle extends AbstractVerticle {
 
 	private Produced<byte[], byte[]> withProducer() {
 		return Produced.with(new ByteArraySerde(), new ByteArraySerde(), //
-				(String topic, byte[] key, byte[] value, int numPart) -> toPositive(murmur2(key)) % numPart);
+				(String topic, byte[] key, byte[] value, int numPart) -> toPositive(murmur2(partitionId(key, value)))
+						% numPart);
+	}
+
+	private byte[] partitionId(byte[] key, byte[] value) {
+		return keyMapper.map(key).filter(k -> k.owner.equals("system")).map(k -> k.owner.getBytes())
+				.orElseGet(() -> partitionIdFromValue(value));
+	}
+
+	private byte[] partitionIdFromValue(byte[] value) {
+		return valueMapper.getValueUid(value).map(String::getBytes).orElse("default".getBytes());
 	}
 
 	private InstallationTopics publishTopics(InstallationTopics installationTopics) {

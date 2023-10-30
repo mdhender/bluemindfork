@@ -5,19 +5,23 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 
 public class InstallationInfo {
-
-	public final String dataLocation;
+	public final String dataLocationUid;
 	public final String ip;
+	public final boolean hasNginx;
+	public final boolean hasCore;
 
 	@JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-	public InstallationInfo(@JsonProperty("dataLocation") String dataLocation, @JsonProperty("ip") String ip) {
-		this.dataLocation = dataLocation;
+	public InstallationInfo(@JsonProperty("dataLocation") String dataLocationUid, @JsonProperty("ip") String ip,
+			@JsonProperty("hasNginx") boolean hasNginx, @JsonProperty("hasCore") boolean hasCore) {
+		this.dataLocationUid = dataLocationUid;
 		this.ip = ip;
+		this.hasNginx = hasNginx;
+		this.hasCore = hasCore;
 	}
 
 	@Override
 	public String toString() {
-		return MoreObjects.toStringHelper(InstallationInfo.class).add("loc", dataLocation).add("ip", ip).toString();
+		return MoreObjects.toStringHelper(InstallationInfo.class).add("loc", dataLocationUid).add("ip", ip)
+				.add("hasNginx", hasNginx).add("hasCore", hasCore).toString();
 	}
-
 }

@@ -31,6 +31,7 @@ import io.vertx.core.Promise;
 import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.central.reverse.proxy.common.ProxyEventBusAddress;
+import net.bluemind.central.reverse.proxy.model.PostfixMapsStore;
 import net.bluemind.central.reverse.proxy.model.ProxyInfoStore;
 import net.bluemind.central.reverse.proxy.model.RecordHandler;
 import net.bluemind.central.reverse.proxy.model.common.kafka.InstallationTopics;
@@ -42,16 +43,19 @@ public class ProxyInfoVerticle extends AbstractVerticle {
 
 	private final Config config;
 	private final String bootstrapServers;
-	private final ProxyInfoStore store;
+	private final ProxyInfoStore proxyInfoStore;
+	private final PostfixMapsStore postfixMapsStore;
 	private final RecordHandler<byte[], byte[]> recordHandler;
 
 	private MessageConsumer<JsonObject> vertxConsumer;
 	private List<KafkaConsumerClient<byte[], byte[]>> kafkaConsumers = new ArrayList<>();
 
-	public ProxyInfoVerticle(Config config, ProxyInfoStore store, RecordHandler<byte[], byte[]> recordHandler) {
+	public ProxyInfoVerticle(Config config, ProxyInfoStore proxyInfoStore, PostfixMapsStore postfixMapsStore,
+			RecordHandler<byte[], byte[]> recordHandler) {
 		this.config = config;
 		this.bootstrapServers = config.getString(BOOTSTRAP_SERVERS);
-		this.store = store;
+		this.proxyInfoStore = proxyInfoStore;
+		this.postfixMapsStore = postfixMapsStore;
 		this.recordHandler = recordHandler;
 	}
 
@@ -61,7 +65,8 @@ public class ProxyInfoVerticle extends AbstractVerticle {
 		vertx.eventBus().<JsonObject>consumer(ADDRESS).handler(event -> {
 			if (STREAM_READY_NAME.equals(event.headers().get("action"))) {
 				logger.info("[model] Dir entries stream ready, starting model");
-				store.setupService();
+				proxyInfoStore.setupService();
+				postfixMapsStore.setupService();
 				InstallationTopics topics = event.body().mapTo(InstallationTopics.class);
 				startKafkaConsumption(topics) //
 						.onSuccess(v -> logger.info("[model] Started")) //

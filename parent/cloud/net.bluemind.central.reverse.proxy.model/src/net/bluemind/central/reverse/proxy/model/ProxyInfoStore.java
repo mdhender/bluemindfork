@@ -12,7 +12,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+
+import org.apache.curator.shaded.com.google.common.annotations.VisibleForTesting;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.Message;
@@ -24,7 +28,6 @@ import net.bluemind.central.reverse.proxy.model.common.DomainInfo;
 import net.bluemind.central.reverse.proxy.model.common.InstallationInfo;
 
 public class ProxyInfoStore {
-
 	private final Vertx vertx;
 	private final ProxyInfoStorage storage;
 
@@ -74,6 +77,12 @@ public class ProxyInfoStore {
 	private void addDir(Message<JsonObject> event) {
 		try {
 			DirInfo dir = event.body().mapTo(DirInfo.class);
+			System.err.println(dir);
+
+			if (dir.kind == null || !dir.kind.equalsIgnoreCase("user") || dir.emails.isEmpty()) {
+				event.reply(null);
+			}
+
 			dir.emails.stream() //
 					.flatMap(email -> expand(email, dir.domainUid).stream()) //
 					.forEach(email -> storage.addLogin(email, dir.dataLocation));
@@ -107,7 +116,11 @@ public class ProxyInfoStore {
 	private void addInstallation(Message<JsonObject> event) {
 		try {
 			InstallationInfo installation = event.body().mapTo(InstallationInfo.class);
-			String oldIp = storage.addDataLocation(installation.dataLocation, installation.ip);
+			if (!installation.hasNginx) {
+				event.reply(null);
+			}
+
+			String oldIp = storage.addDataLocation(installation.dataLocationUid, installation.ip);
 			event.reply(oldIp);
 		} catch (IllegalArgumentException e) {
 			event.fail(500, "unable to decode parameters '" + event.body().encode() + "'");
@@ -141,9 +154,12 @@ public class ProxyInfoStore {
 		event.reply(new JsonObject().put("ips", storage.allIps()));
 	}
 
-	public void tearDown() {
+	@VisibleForTesting
+	public void tearDown() throws InterruptedException, ExecutionException {
 		if (consumer != null) {
-			consumer.unregister();
+			CompletableFuture<Void> c = new CompletableFuture<>();
+			consumer.unregister().onSuccess(c::complete).onFailure(c::completeExceptionally);
+			c.get();
 		}
 	}
 

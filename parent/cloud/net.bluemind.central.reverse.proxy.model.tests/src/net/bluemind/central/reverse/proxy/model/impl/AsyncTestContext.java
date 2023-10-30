@@ -71,4 +71,12 @@ public class AsyncTestContext {
 			failed(t);
 		}
 	}
+
+	public void partialAssertions(Runnable assertions) {
+		try {
+			assertions.run();
+		} catch (Throwable t) {
+			failed(t);
+		}
+	}
 }

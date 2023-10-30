@@ -12,6 +12,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import java.util.concurrent.ExecutionException;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,7 +45,7 @@ public class ProxyInfoStoreTests {
 	}
 
 	@After
-	public void tearDownTest() {
+	public void tearDownTest() throws InterruptedException, ExecutionException {
 		store.tearDown();
 	}
 

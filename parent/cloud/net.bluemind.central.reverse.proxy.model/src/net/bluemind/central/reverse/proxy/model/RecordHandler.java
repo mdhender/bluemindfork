@@ -4,6 +4,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import net.bluemind.central.reverse.proxy.model.client.PostfixMapsStoreClient;
 import net.bluemind.central.reverse.proxy.model.client.ProxyInfoStoreClient;
 import net.bluemind.central.reverse.proxy.model.common.mapper.RecordKeyMapper;
 import net.bluemind.central.reverse.proxy.model.common.mapper.RecordValueMapper;
@@ -14,8 +15,10 @@ public interface RecordHandler<T, U> extends Handler<ConsumerRecord<T, U>> {
 	@Override
 	void handle(ConsumerRecord<T, U> rec);
 
-	public static RecordHandler<byte[], byte[]> createByteHandler(ProxyInfoStoreClient client, Vertx vertx) {
-		return new ByteArrayRecordHandler(vertx, client, RecordKeyMapper.byteArray(), RecordValueMapper.byteArray());
+	public static RecordHandler<byte[], byte[]> createByteHandler(ProxyInfoStoreClient proxyInfoStoreClient,
+			PostfixMapsStoreClient postfixMapsStoreClient, Vertx vertx) {
+		return new ByteArrayRecordHandler(vertx, proxyInfoStoreClient, postfixMapsStoreClient,
+				RecordKeyMapper.byteArray(), RecordValueMapper.byteArray());
 	}
 
 }

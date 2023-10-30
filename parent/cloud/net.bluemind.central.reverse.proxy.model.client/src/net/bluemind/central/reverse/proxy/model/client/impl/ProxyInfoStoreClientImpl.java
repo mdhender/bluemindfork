@@ -21,10 +21,9 @@ import net.bluemind.central.reverse.proxy.model.common.DomainInfo;
 import net.bluemind.central.reverse.proxy.model.common.InstallationInfo;
 
 public class ProxyInfoStoreClientImpl implements ProxyInfoStoreClient {
+	private final Logger logger = LoggerFactory.getLogger(ProxyInfoStoreClientImpl.class);
 
 	private static final String STORE_NOT_AVAILABLE = "proxy info store not available";
-
-	private final Logger logger = LoggerFactory.getLogger(ProxyInfoStoreClientImpl.class);
 
 	private final Vertx vertx;
 

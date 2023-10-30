@@ -22,8 +22,11 @@ import com.typesafe.config.Config;
 
 import net.bluemind.central.reverse.proxy.common.config.CrpConfig;
 import net.bluemind.central.reverse.proxy.vertx.impl.ProxyVerticleFactory;
+import net.bluemind.central.reverse.proxy.vertx.impl.postfix.PostfixMapsVerticleFactory;
 
 public class ConfigHolder {
 
 	public static final Config config = CrpConfig.get("Proxy", ProxyVerticleFactory.class.getClassLoader());
+	public static final Config postfixMapsConfig = CrpConfig.get("PostfixMaps",
+			PostfixMapsVerticleFactory.class.getClassLoader());
 }
