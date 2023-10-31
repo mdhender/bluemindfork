@@ -19,17 +19,18 @@
 package net.bluemind.imap.endpoint.driver;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Predicate;
 
 import com.google.common.base.MoreObjects;
 
+import it.unimi.dsi.fastutil.longs.Long2IntMap;
 import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
+import it.unimi.dsi.fastutil.longs.LongList;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.core.container.model.ItemValue;
@@ -67,41 +68,41 @@ public class SelectedFolder {
 				.toString();
 	}
 
-	public Map<Long, Integer> imapUidToSeqNum() {
-		Map<Long, Integer> uidToSeq = new Long2IntOpenHashMap((int) (sequences.length * 1.3));
+	public Long2IntMap imapUidToSeqNum() {
+		Long2IntMap uidToSeq = new Long2IntOpenHashMap((int) (sequences.length * 1.3));
 		for (int i = 0; i < sequences.length; i++) {
 			uidToSeq.put(sequences[i].imapUid(), i + 1);
 		}
 		return uidToSeq;
 	}
 
-	public Map<Long, Integer> internalIdToSeqNum() {
-		Map<Long, Integer> uidToSeq = new Long2IntOpenHashMap((int) (sequences.length * 1.3));
+	public Long2IntMap internalIdToSeqNum() {
+		Long2IntMap uidToSeq = new Long2IntOpenHashMap((int) (sequences.length * 1.3));
 		for (int i = 0; i < sequences.length; i++) {
 			uidToSeq.put(sequences[i].internalId(), i + 1);
 		}
 		return uidToSeq;
 	}
 
-	public List<Long> imapUids() {
+	public LongList imapUids() {
 		LongArrayList col = new LongArrayList(sequences.length);
 		Arrays.stream(sequences).mapToLong(r -> r.imapUid()).forEach(col::add);
 		return col;
 	}
 
-	public List<Long> internalIds() {
+	public LongList internalIds() {
 		return internalIds(sm -> true);
 	}
 
-	public List<Long> internalIds(Predicate<SelectedMessage> sm) {
+	public LongList internalIds(Predicate<SelectedMessage> sm) {
 		LongArrayList col = new LongArrayList(sequences.length);
 		Arrays.stream(sequences).filter(sm).mapToLong(r -> r.internalId()).forEach(col::add);
 		return col;
 	}
 
-	public Set<Long> internalIdsSet() {
-		Set<Long> col = new HashSet<>();
-		Arrays.stream(sequences).mapToLong(r -> r.internalId()).forEach(col::add);
+	public LongSet internalIdsSet() {
+		LongSet col = new LongOpenHashSet();
+		Arrays.stream(sequences).mapToLong(SelectedMessage::internalId).forEach(col::add);
 		return col;
 	}
 

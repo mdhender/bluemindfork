@@ -17,12 +17,11 @@
   */
 package net.bluemind.imap.endpoint.locks;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
 import org.slf4j.Logger;
 
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
+import it.unimi.dsi.fastutil.longs.LongSet;
 import net.bluemind.imap.endpoint.ImapContext;
 import net.bluemind.imap.endpoint.driver.SelectedFolder;
 import net.bluemind.imap.endpoint.driver.SelectedMessage;
@@ -45,10 +44,8 @@ public interface ISequenceCheckpoint extends IFlagsCheckpoint {
 		}
 		SelectedFolder live = ctx.mailbox().refreshed(atSelectionTime);
 
-		List<Integer> expungedSequences = expungedSequences(atSelectionTime, live);
-		for (Integer seq : expungedSequences) {
-			sb.append("* ").append(seq.intValue()).append(" EXPUNGE\r\n");
-		}
+		IntList expungedSequences = expungedSequences(atSelectionTime, live);
+		expungedSequences.intStream().forEach((int seq) -> sb.append("* ").append(seq).append(" EXPUNGE\r\n"));
 		if (!expungedSequences.isEmpty() || atSelectionTime.exist != live.exist
 				|| live.notifiedContentVersion.get() > atSelectionTime.contentVersion) {
 			sb.append("* ").append(live.exist).append(" EXISTS\r\n");
@@ -57,9 +54,9 @@ public interface ISequenceCheckpoint extends IFlagsCheckpoint {
 		ctx.selected(live);
 	}
 
-	default List<Integer> expungedSequences(SelectedFolder f, SelectedFolder live) {
-		List<Integer> expungedSequences = new ArrayList<>();
-		Set<Long> liveItems = live.internalIdsSet();
+	default IntList expungedSequences(SelectedFolder f, SelectedFolder live) {
+		IntList expungedSequences = new IntArrayList();
+		LongSet liveItems = live.internalIdsSet();
 		for (int i = f.sequences.length; i > 0; i--) {
 			SelectedMessage oldMsg = f.sequences[i - 1];
 			if (!liveItems.contains(oldMsg.internalId())) {
