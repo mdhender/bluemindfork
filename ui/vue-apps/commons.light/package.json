@@ -1,0 +1,8 @@
+{
+  "name": "@bluemind/commons.light",
+  "version": "5.0.0-SNAPSHOT",
+  "description": "Librairies designed to be used in a restricted environment like ServiceWorker, WebWorkers...",
+  "main": "index.ts",
+  "author": "Blue Mind SAS",
+  "license": "AGPL-3.0-only"
+}

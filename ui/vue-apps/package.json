@@ -2,7 +2,9 @@
     "private": true,
     "workspaces": {
         "packages": [
-            "commons/*",
+            "commons",
+            "commons_packages/*",
+            "commons.light",
             "mail-webapp",
             "root-webapp",
             "videoconferencing-saas-webapp",

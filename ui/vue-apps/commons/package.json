@@ -1,0 +1,11 @@
+{
+  "name": "@bluemind/commons",
+  "version": "5.0.0-SNAPSHOT",
+  "description": "BlueMind libraries, utils, and commons model definitions.",
+  "main": "index.ts",
+  "author": "Blue Mind SAS",
+  "license": "AGPL-3.0-only",
+  "dependencies": {
+    "@bluemind/commons.light": "~5.0.0-SNAPSHOT"
+  }
+}
