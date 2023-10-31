@@ -47,4 +47,4 @@ echo "Will profile service ${product} with PID ${service_pid}, output will be in
 test -f /proc/sys/kernel/perf_event_paranoid && echo 1 > /proc/sys/kernel/perf_event_paranoid
 test -f /proc/sys/kernel/kptr_restrict && echo 0 > /proc/sys/kernel/kptr_restrict
 
-exec $PROFILER -d 60 -f ${output} --jfrsync profile ${service_pid}
+exec $PROFILER ${AP_OPTS} -d ${SECS:-240} -f ${output} --jfrsync profile ${service_pid}

@@ -25,6 +25,7 @@ PROFILER=/usr/lib/jvm/bm-jdk/async-profiler/profiler.sh
 
 test $# -eq 1 || {
 	echo "Usage $0 <bluemind-service>, eg. $0 bm-core"
+	echo "AP_OPTS='-e wall -I io/vertx/core/impl/ContextInternal.dispatch' SECS=60 env vars are usable"
 	exit 1
 }
 
@@ -47,4 +48,4 @@ echo "Will profile service ${product} with PID ${service_pid}, output will be in
 test -f /proc/sys/kernel/perf_event_paranoid && echo 1 > /proc/sys/kernel/perf_event_paranoid
 test -f /proc/sys/kernel/kptr_restrict && echo 0 > /proc/sys/kernel/kptr_restrict
 
-exec $PROFILER -d 30 -f ${output} ${service_pid}
+exec $PROFILER ${AP_OPTS} -d ${SECS:-30} -f ${output} ${service_pid}
