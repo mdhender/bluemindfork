@@ -101,8 +101,8 @@ public class EventForwardingAction implements MilterAction {
 			BmDateTime recurId = event instanceof VEventOccurrence ? ((VEventOccurrence) event).recurid : null;
 
 			String from = modifier.getMessage().getFrom().get(0).getAddress();
-			Set<String> tos = new HashSet<>(
-					modifier.getMessage().getTo().stream().map((addr -> ((Mailbox) addr).getAddress())).toList());
+			Set<Mailbox> tos = new HashSet<>(
+					modifier.getMessage().getTo().stream().map((Mailbox.class::cast)).toList());
 
 			String organizer = event.organizer.mailto;
 			String coreHost = Topology.get().core().value.address();
@@ -113,7 +113,7 @@ public class EventForwardingAction implements MilterAction {
 	}
 
 	private void checkForForwards(UpdatedMailMessage modifier, IClientContext mailflowContext, IMIPInfos imip,
-			BmDateTime recurId, String from, Set<String> tos, String organizer, String coreHost,
+			BmDateTime recurId, String from, Set<Mailbox> tos, String organizer, String coreHost,
 			ClientSideServiceProvider provider) {
 		try (Sudo sudo = Sudo.byEmail(from, mailflowContext.getSenderDomain().uid, provider)) {
 			String cal = ICalendarUids.defaultUserCalendar(sudo.getUser().uid);
@@ -129,10 +129,10 @@ public class EventForwardingAction implements MilterAction {
 			VEventOccurrence existingEvent = findEvent(existingEventValue, recurId);
 			Set<String> attendees = new HashSet<>(existingEvent.attendees.stream().map(att -> att.mailto).toList());
 
-			Set<String> newAttendees = new HashSet<>();
+			Set<Mailbox> newAttendees = new HashSet<>();
 			if (!from.equals(organizer) && attendees.contains(from)) {
-				for (String addr : tos) {
-					if (!attendees.contains(addr) && !addr.equals(organizer)) {
+				for (Mailbox addr : tos) {
+					if (!attendees.contains(addr.getAddress()) && !addr.getAddress().equals(organizer)) {
 						logger.info("Message contains a forwarded event. Creating counter from {} to {}", from, addr);
 						newAttendees.add(addr);
 					}
@@ -140,16 +140,14 @@ public class EventForwardingAction implements MilterAction {
 			}
 
 			if (!newAttendees.isEmpty()) {
-				sendCounter(modifier, from, newAttendees, existingEvent, service, sudo.getUser().displayName,
-						existingEventValue);
+				sendCounter(from, newAttendees, existingEvent, service, sudo.getUser().displayName, existingEventValue);
 			}
 
 		}
 	}
 
-	private void sendCounter(UpdatedMailMessage modifier, String from, Set<String> newAttendees,
-			VEventOccurrence existingEvent, ICalendar service, String originator,
-			ItemValue<VEventSeries> existingSeries) {
+	private void sendCounter(String from, Set<Mailbox> newAttendees, VEventOccurrence existingEvent, ICalendar service,
+			String originator, ItemValue<VEventSeries> existingSeries) {
 		VEventCounter counter = new VEventCounter();
 
 		counter.counter = existingEvent.copy();
@@ -160,7 +158,8 @@ public class EventForwardingAction implements MilterAction {
 				counter.counter.attendees.stream().filter(att -> att.mailto.equals(from)).toList());
 		newAttendees.forEach(to -> {
 			Attendee newAttendee = Attendee.create(CUType.Individual, null, Role.NonParticipant,
-					ParticipationStatus.Tentative, null, null, null, null, null, null, null, null, to);
+					ParticipationStatus.Tentative, null, null, null, null, to.getName(), null, null, null,
+					to.getAddress());
 			counter.counter.attendees.add(newAttendee);
 		});
 		existingSeries.value.counters = Arrays.asList(counter);

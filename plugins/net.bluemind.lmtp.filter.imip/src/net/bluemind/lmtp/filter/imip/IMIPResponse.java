@@ -29,6 +29,7 @@ import org.apache.james.mime4j.dom.field.UnstructuredField;
 import org.apache.james.mime4j.field.UnstructuredFieldImpl;
 import org.apache.james.mime4j.stream.Field;
 import org.apache.james.mime4j.stream.RawField;
+import org.columba.ristretto.message.Address;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.calendar.api.VEventOccurrence;
@@ -82,7 +83,8 @@ public class IMIPResponse {
 
 		if (!proposedAttendees.isEmpty()) {
 			ret.headerFields = new ArrayList<>(ret.headerFields);
-			String attendeeList = String.join(",", proposedAttendees.stream().map(att -> att.mailto).toList());
+			String attendeeList = String.join(",",
+					proposedAttendees.stream().map(att -> new Address(att.commonName, att.mailto).toString()).toList());
 			RawField attendeeHeader = new RawField("X-BM-Counter-Attendee", attendeeList);
 			UnstructuredField attendeeHeaderField = UnstructuredFieldImpl.PARSER.parse(attendeeHeader,
 					DecodeMonitor.SILENT);
