@@ -19,7 +19,7 @@ export default {
     matchingFileTypeIcon: () => "file-type-ics",
     allowedFileTypes: () => MimeType.TEXT_CALENDAR || MimeType.ICS || MimeType.TEXT_PLAIN,
     importFileRequest: async (containerUid, file, uploadCanceller) => {
-        const encoded = await file.text().then(res => JSON.stringify(res));
+        const encoded = await file.text();
         return inject("VTodoPersistence", containerUid).importIcs(encoded, uploadCanceller);
     },
     defaultUserRight: TodoListRight.CAN_EDIT_MY_TODO_LIST,

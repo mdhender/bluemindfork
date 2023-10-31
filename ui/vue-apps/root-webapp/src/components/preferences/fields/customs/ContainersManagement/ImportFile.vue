@@ -13,14 +13,12 @@
             </div>
             <div class="align-self-end">
                 <bm-button-close v-if="uploadStatus === 'IN_PROGRESS' && autoUpload" size="sm" @click="cancelUpload" />
-                <div v-else-if="uploadStatus === 'SUCCESS'">
-                    <bm-icon icon="check-circle" class="text-success" />
+                <bm-label-icon v-else-if="uploadStatus === 'SUCCESS'" icon="check-circle" class="import-successful">
                     {{ $t("common.import_successful") }}
-                </div>
-                <div v-else-if="uploadStatus === 'ERROR'">
-                    <bm-icon icon="exclamation-circle" class="text-danger" />
+                </bm-label-icon>
+                <bm-label-icon v-else-if="uploadStatus === 'ERROR'" icon="exclamation-circle" class="import-error">
                     {{ $t("common.import_error") }}
-                </div>
+                </bm-label-icon>
             </div>
         </template>
     </div>
@@ -52,12 +50,12 @@
 <script>
 import { ContainerHelper } from "./container";
 import { inject } from "@bluemind/inject";
-import { BmButton, BmButtonClose, BmFileDropZone, BmIcon, BmProgress } from "@bluemind/ui-components";
+import { BmButton, BmButtonClose, BmFileDropZone, BmIcon, BmLabelIcon, BmProgress } from "@bluemind/ui-components";
 import { retrieveTaskResult } from "@bluemind/task";
 
 export default {
     name: "ImportFile",
-    components: { BmButton, BmButtonClose, BmFileDropZone, BmIcon, BmProgress },
+    components: { BmButton, BmButtonClose, BmFileDropZone, BmIcon, BmLabelIcon, BmProgress },
     props: {
         container: {
             type: Object,
@@ -172,6 +170,14 @@ export default {
             .icon-and-text {
                 gap: $sp-3;
             }
+        }
+    }
+    .bm-label-icon {
+        &.import-successful .bm-icon {
+            color: $success-fg;
+        }
+        &.import-error .bm-icon {
+            color: $danger-fg;
         }
     }
 }

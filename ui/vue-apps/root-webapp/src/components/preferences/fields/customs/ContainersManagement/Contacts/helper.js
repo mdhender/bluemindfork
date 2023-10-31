@@ -19,8 +19,8 @@ export default {
     matchingFileTypeIcon: () => "file-type-vcard",
     allowedFileTypes: () => MimeType.VCARD,
     importFileRequest: async (containerUid, file, uploadCanceller) => {
-        const encoded = await file.text().then(res => JSON.stringify(res));
-        return inject("VCardServicePersistence", containerUid).importCards(encoded, uploadCanceller);
+        const vcard = await file.text();
+        return inject("VCardServicePersistence", containerUid).importCards(vcard, uploadCanceller);
     },
     defaultUserRight: AddressBookRight.CAN_READ_MY_ADDRESSBOOK,
     defaultDomainRight: AddressBookRight.HAS_NO_RIGHTS,
