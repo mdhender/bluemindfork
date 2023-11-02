@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import org.apache.james.mime4j.dom.Message;
 import org.columba.ristretto.message.Address;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,9 +44,13 @@ import net.bluemind.milter.action.MilterActionsFactory;
 import net.bluemind.milter.action.UpdatedMailMessage;
 import net.bluemind.milter.cache.DirectoryCache;
 import net.bluemind.milter.cache.DomainAliasCache;
+import net.bluemind.role.api.BasicRoles;
+import net.bluemind.user.api.IUser;
+import net.bluemind.user.api.IUserMailIdentities;
 
 public class DelegationAction implements MilterAction {
 	private static final Logger logger = LoggerFactory.getLogger(DelegationAction.class);
+	private static final IMilterListener.Status SMTP_ERROR_STATUS = IMilterListener.Status.DELEGATION_ACL_FAIL;
 
 	public static class DelegationActionFactory implements MilterActionsFactory {
 
@@ -82,8 +85,7 @@ public class DelegationAction implements MilterAction {
 		if (!modifier.getMessage().getFrom().isEmpty()) {
 			String fromAddress = modifier.getMessage().getFrom().get(0).getAddress();
 			getConnectedUserEmail(modifier).ifPresent(senderAddress -> {
-				if (isNotAdmin(senderAddress) && !senderAddress.equals(fromAddress)
-						&& areSameFromAndSenderDomains(modifier.getMessage(), domainItem)) {
+				if (isNotAdmin(senderAddress) && !senderAddress.equals(fromAddress)) {
 					verifyAclAndApplyHeader(modifier, context, senderAddress, fromAddress);
 				}
 			});
@@ -99,12 +101,36 @@ public class DelegationAction implements MilterAction {
 		DirectoryCache.getUserUidByEmail(context, context.getSenderDomain().uid, senderAddress)
 				.ifPresent(senderUserUid -> DirectoryCache
 						.getUserUidByEmail(context, context.getSenderDomain().uid, fromAddress)
-						.ifPresent(fromUserUid -> {
+						.ifPresentOrElse(fromUserUid -> {
 							if (!senderUserUid.equals(fromUserUid)) {
 								canSendAsOnBehalf(context, modifier, senderUserUid, fromUserUid,
 										context.getSenderDomain().uid, senderAddress);
 							}
+						}, () -> {
+							verifyExternalIdentity(senderUserUid, modifier, context, senderAddress, fromAddress);
 						}));
+	}
+
+	private void verifyExternalIdentity(String senderUserUid, UpdatedMailMessage modifier, IClientContext context,
+			String senderAddress, String fromAddress) {
+		if (!hasExternalIdentity(context, senderUserUid, fromAddress)) {
+			modifier.errorStatus = SMTP_ERROR_STATUS;
+		}
+	}
+
+	private boolean hasExternalIdentity(IClientContext context, String senderUserUid, String fromAddress) {
+		return hasRole(context, senderUserUid) && identityMatch(context, senderUserUid, fromAddress);
+	}
+
+	private boolean hasRole(IClientContext context, String senderUserUid) {
+		return context.provider().instance(IUser.class, context.getSenderDomain().uid) //
+				.getResolvedRoles(senderUserUid).stream()
+				.anyMatch(role -> role.equals(BasicRoles.ROLE_EXTERNAL_IDENTITY));
+	}
+
+	private boolean identityMatch(IClientContext context, String senderUserUid, String fromAddress) {
+		return context.provider().instance(IUserMailIdentities.class, context.getSenderDomain().uid, senderUserUid)
+				.getIdentities().stream().anyMatch(i -> i.email.equals(fromAddress));
 	}
 
 	private Optional<String> getConnectedUserEmail(UpdatedMailMessage modifier) {
@@ -132,19 +158,20 @@ public class DelegationAction implements MilterAction {
 				.map(v -> v.verb).toList();
 
 		if (filteredVerbs.isEmpty()) {
-			modifier.errorStatus = IMilterListener.Status.DELEGATION_ACL_FAIL;
+			modifier.errorStatus = SMTP_ERROR_STATUS;
 		} else {
 			if (filteredVerbs.stream().noneMatch(v -> v.can(Verb.SendAs))) {
-				Optional<VCard> vCard = DirectoryCache.getVCard(context, domainUid, senderAddress);
-				String displayname = vCard.isPresent() ? vCard.get().identification.formatedName.value
-						: DomainAliasCache.getLeftPartFromEmail(senderAddress).orElse(senderAddress);
-				modifier.addHeader("Sender", new Address(displayname, senderAddress).toString(), identifier());
+				addSenderHeader(context, modifier, domainUid, senderAddress);
 			}
 		}
 	}
 
-	private boolean areSameFromAndSenderDomains(Message message, ItemValue<Domain> domainItem) {
-		return message.getFrom().size() == 1 && domainItem.value.aliases.contains(message.getFrom().get(0).getDomain());
+	private void addSenderHeader(IClientContext context, UpdatedMailMessage modifier, String domainUid,
+			String senderAddress) {
+		Optional<VCard> vCard = DirectoryCache.getVCard(context, domainUid, senderAddress);
+		String displayname = vCard.isPresent() ? vCard.get().identification.formatedName.value
+				: DomainAliasCache.getLeftPartFromEmail(senderAddress).orElse(senderAddress);
+		modifier.addHeader("Sender", new Address(displayname, senderAddress).toString(), identifier());
 	}
 
 }

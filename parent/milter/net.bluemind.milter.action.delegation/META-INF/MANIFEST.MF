@@ -17,6 +17,9 @@ Require-Bundle: net.bluemind.milter,
  net.bluemind.core.rest.http,
  net.bluemind.core.rest,
  net.bluemind.lib.ristretto,
- net.bluemind.addressbook.api
+ net.bluemind.addressbook.api,
+ net.bluemind.user.api,
+ net.bluemind.role.api,
+ net.bluemind.mailbox.identity.api
 Export-Package: net.bluemind.milter.action.delegation
 Import-Package: com.google.common.base

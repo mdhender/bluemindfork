@@ -184,7 +184,8 @@ public class UserMailIdentities implements IUserMailIdentities, IInternalUserMai
 
 		List<String> mboxUids = getMailboxAclUids();
 
-		return storeService.getIdentities(userUid).stream().filter(i -> mboxUids.contains(i.mbox)).toList();
+		return storeService.getIdentities(userUid).stream().filter(i -> i.mbox == null || mboxUids.contains(i.mbox))
+				.toList();
 	}
 
 	@Override

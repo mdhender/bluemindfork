@@ -18,6 +18,7 @@
  */
 package net.bluemind.milter.action.delegation;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -31,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -44,6 +46,7 @@ import com.google.common.collect.Lists;
 
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.Email;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
@@ -57,6 +60,7 @@ import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
+import net.bluemind.mailbox.identity.api.SignatureFormat;
 import net.bluemind.mailflow.rbe.CoreClientContext;
 import net.bluemind.mailflow.rbe.IClientContext;
 import net.bluemind.milter.IMilterListener;
@@ -64,9 +68,14 @@ import net.bluemind.milter.SmtpAddress;
 import net.bluemind.milter.action.UpdatedMailMessage;
 import net.bluemind.milter.cache.DomainAliasCache;
 import net.bluemind.mime4j.common.Mime4JHelper;
+import net.bluemind.role.api.BasicRoles;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
+import net.bluemind.user.api.IUser;
+import net.bluemind.user.api.IUserMailIdentities;
+import net.bluemind.user.api.IUserSettings;
+import net.bluemind.user.api.UserMailIdentity;
 
 public class DelegationActionTests {
 
@@ -78,10 +87,13 @@ public class DelegationActionTests {
 	private ItemValue<Mailbox> mailboxRead;
 	private ItemValue<Mailbox> mailboxAll;
 	private ItemValue<Server> dataLocation;
+
+	private String domainUid;
 	private List<String> emails = new ArrayList<>();
 
 	private static final String DOMAIN_ALIAS = "test.bm.lan";
 	private static final String DOMAIN_ALIAS_1 = "test1.bm.lan";
+	private static final String IDENTITY_ID = "test_identity";
 
 	public static class DomainAliasCacheFiller extends DomainAliasCache {
 		public static void addDomain(ItemValue<Domain> domain) {
@@ -114,28 +126,77 @@ public class DelegationActionTests {
 		DomainAliasCacheFiller.addDomain(domainItem);
 
 		cliContext = new CoreClientContext(domainItem);
+		domainUid = cliContext.getSenderDomain().uid;
+
 		assertNotNull(cliContext.getSenderDomain().value.defaultAlias);
 
-		PopulateHelper.addUser("hpot", domainItem.uid);
-		PopulateHelper.addUser("dumbledore", domainItem.uid);
-		PopulateHelper.addUser("mcgonagal", domainItem.uid);
-		PopulateHelper.addUser("malefoy", domainItem.uid);
-		PopulateHelper.addUser("rogue", domainItem.uid);
-		PopulateHelper.addUser("voldemort", domainItem.uid);
+		PopulateHelper.addUser("hpot", domainUid);
+		PopulateHelper.addUser("dumbledore", domainUid);
+		PopulateHelper.addUser("mcgonagal", domainUid);
+		PopulateHelper.addUserWithRoles("malefoy", domainUid, BasicRoles.ROLE_EXTERNAL_IDENTITY);
+		PopulateHelper.addUser("rogue", domainUid);
+		PopulateHelper.addUser("voldemort", domainUid);
 
 		emails.add("hpot@" + DOMAIN_ALIAS);
 		emails.add("h-pot@" + DOMAIN_ALIAS);
 		emails.add("harry@" + DOMAIN_ALIAS_1);
-		mailboxFrom = getServiceMailbox(cliContext.getSenderDomain().uid).byEmail(emails.get(0));
+		mailboxFrom = getServiceMailbox(domainUid).byEmail(emails.get(0));
 		mailboxFrom.value.emails.add(Email.create(emails.get(1), false));
 		mailboxFrom.value.emails.add(Email.create(emails.get(2), false));
-		getServiceMailbox(cliContext.getSenderDomain().uid).update(mailboxFrom.uid, mailboxFrom.value);
+		getServiceMailbox(domainUid).update(mailboxFrom.uid, mailboxFrom.value);
 
-		mailboxSendAs = getServiceMailbox(cliContext.getSenderDomain().uid).byEmail("dumbledore@test.bm.lan");
-		mailboxSendOnBehalf = getServiceMailbox(cliContext.getSenderDomain().uid).byEmail("mcgonagal@test.bm.lan");
-		mailboxWrite = getServiceMailbox(cliContext.getSenderDomain().uid).byEmail("rogue@test.bm.lan");
-		mailboxRead = getServiceMailbox(cliContext.getSenderDomain().uid).byEmail("malefoy@test.bm.lan");
-		mailboxAll = getServiceMailbox(cliContext.getSenderDomain().uid).byEmail("voldemort@test.bm.lan");
+		mailboxSendAs = getServiceMailbox(domainUid).byEmail("dumbledore@test.bm.lan");
+		mailboxSendOnBehalf = getServiceMailbox(domainUid).byEmail("mcgonagal@test.bm.lan");
+		mailboxWrite = getServiceMailbox(domainUid).byEmail("rogue@test.bm.lan");
+		mailboxRead = getServiceMailbox(domainUid).byEmail("malefoy@test.bm.lan");
+		mailboxAll = getServiceMailbox(domainUid).byEmail("voldemort@test.bm.lan");
+
+		addUserSettings("malefoy");
+		getServiceIdentity(domainUid, "malefoy").create(IDENTITY_ID, defaultIdentity());
+		long identities = getServiceIdentity(domainUid, "malefoy").getIdentities().stream().count();
+		assertEquals(2, identities);
+	}
+
+	private void addUserSettings(String userUid) throws ServerFault {
+		HashMap<String, String> userSettings = new HashMap<>();
+		userSettings.put("lang", "en");
+
+		getSettingsService().set(userUid, userSettings);
+
+		Map<String, String> us = getSettingsService().get(userUid);
+		assertNotNull(us);
+		assertTrue(us.size() > 0);
+		assertEquals("18", us.get("work_hours_end"));
+		assertEquals("en", us.get("lang"));
+	}
+
+	private UserMailIdentity defaultIdentity() {
+		UserMailIdentity i = new UserMailIdentity();
+		i.displayname = "hagrid";
+		i.name = "hagrid";
+		i.email = "hagrid-external@ext.test.lan";
+		i.format = SignatureFormat.PLAIN;
+		i.signature = "-- gg";
+		i.sentFolder = "Sent";
+		i.isDefault = false;
+		return i;
+	}
+
+	protected IUserSettings getSettingsService() throws ServerFault {
+		return ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IUserSettings.class, domainUid);
+	}
+
+	private IUser getServiceUser(String domainUid) {
+		return ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IUser.class, domainUid);
+	}
+
+	private IUserMailIdentities getServiceIdentity(String domainUid, String userUid) {
+		// Test external identity
+		String sid = "sid" + System.currentTimeMillis();
+		SecurityContext context = new SecurityContext(sid, "admin@" + domainUid, new ArrayList<String>(),
+				Arrays.asList(SecurityContext.ROLE_ADMIN, BasicRoles.ROLE_EXTERNAL_IDENTITY), domainUid);
+
+		return ServerSideServiceProvider.getProvider(context).instance(IUserMailIdentities.class, domainUid, userUid);
 	}
 
 	private IContainerManagement getServiceManagement(String userContainer) {
@@ -295,6 +356,69 @@ public class DelegationActionTests {
 		assertFalse(smtpError(mm));
 	}
 
+	@Test
+	public void testWithIdentity_withRoleWithoutIdentity() throws IOException {
+		getServiceIdentity(domainUid, mailboxRead.uid).delete(IDENTITY_ID);
+
+		String senderAddress = mailboxRead.value.defaultEmail().address;
+		UpdatedMailMessage mm = loadTemplate("sendAsExternal.eml", senderAddress);
+
+		SmtpAddress sender = new SmtpAddress(senderAddress);
+
+		new DelegationAction().execute(mm, null, null, cliContext);
+
+		assertEnvelop(mm, sender);
+		assertMessageHeaders(mm, sender, Verb.Read);
+		assertTrue(smtpError(mm));
+	}
+
+	@Test
+	public void testWithIdentity_withRoleWithIdentity() throws IOException {
+		String senderAddress = mailboxRead.value.defaultEmail().address;
+		UpdatedMailMessage mm = loadTemplate("sendAsExternal.eml", senderAddress);
+
+		SmtpAddress sender = new SmtpAddress(senderAddress);
+
+		new DelegationAction().execute(mm, null, null, cliContext);
+
+		assertEnvelop(mm, sender);
+		assertMessageHeaders(mm, sender, Verb.Read);
+		assertFalse(smtpError(mm));
+	}
+
+	@Test
+	public void testWithIdentity_withoutRoleWithIdentity() throws IOException {
+		getServiceUser(domainUid).setRoles("malefoy", new HashSet<String>());
+
+		String senderAddress = mailboxRead.value.defaultEmail().address;
+		UpdatedMailMessage mm = loadTemplate("sendAsExternal.eml", senderAddress);
+
+		SmtpAddress sender = new SmtpAddress(senderAddress);
+
+		new DelegationAction().execute(mm, null, null, cliContext);
+
+		assertEnvelop(mm, sender);
+		assertMessageHeaders(mm, sender, Verb.Read);
+		assertTrue(smtpError(mm));
+	}
+
+	@Test
+	public void testWithIdentity_withoutRoleWithoutIdentity() throws IOException {
+		getServiceUser(domainUid).setRoles("malefoy", new HashSet<String>());
+		getServiceIdentity(domainUid, mailboxRead.uid).delete(IDENTITY_ID);
+
+		String senderAddress = mailboxRead.value.defaultEmail().address;
+		UpdatedMailMessage mm = loadTemplate("sendAsExternal.eml", senderAddress);
+
+		SmtpAddress sender = new SmtpAddress(senderAddress);
+
+		new DelegationAction().execute(mm, null, null, cliContext);
+
+		assertEnvelop(mm, sender);
+		assertMessageHeaders(mm, sender, Verb.Read);
+		assertTrue(smtpError(mm));
+	}
+
 	private UpdatedMailMessage loadTemplate(String name, String sender) throws IOException {
 		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
@@ -326,9 +450,9 @@ public class DelegationActionTests {
 		assertMessageTo(mm, recipient);
 	}
 
-	private void assertMessageFrom(UpdatedMailMessage mm, SmtpAddress sender) {
+	private void assertMessageFrom(UpdatedMailMessage mm, SmtpAddress from) {
 		assertTrue(mm.getMessage().getFrom().stream()
-				.anyMatch(m -> m.getAddress().equalsIgnoreCase(sender.getEmailAddress())));
+				.anyMatch(m -> m.getAddress().equalsIgnoreCase(from.getEmailAddress())));
 	}
 
 	private void assertMessageTo(UpdatedMailMessage mm, SmtpAddress recipient) {
