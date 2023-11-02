@@ -101,6 +101,7 @@ public class RuleEngine {
 					CASE_INSENSITIVE) //
 					.or(contains("from.email", "-request@", SUBSTRING, Modifier.NONE))
 					.or(contains("from.email", "owner-", PREFIX, Modifier.NONE))), //
+			not(contains("from.email", "BM_DYNAMIC_ADDRESSES_ME")),
 			not(contains("headers.precedence", asList("bulk", "list", "junk"), FULLSTRING, CASE_INSENSITIVE)), //
 			not(exists("headers.auto-submitted"))
 					.or(contains("headers.auto-submitted", "no", FULLSTRING, CASE_INSENSITIVE)), //
