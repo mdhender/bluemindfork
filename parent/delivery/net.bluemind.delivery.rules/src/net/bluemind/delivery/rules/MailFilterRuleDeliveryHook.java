@@ -1,5 +1,9 @@
 package net.bluemind.delivery.rules;
 
+import static net.bluemind.mailbox.api.rules.conditions.MailFilterRuleCondition.contains;
+import static net.bluemind.mailbox.api.rules.conditions.MailFilterRuleCondition.equal;
+
+import java.util.Arrays;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -21,6 +25,8 @@ public class MailFilterRuleDeliveryHook implements IDeliveryHook {
 	private static final MailboxVacationSendersCache.Factory vacationCacheFactory = MailboxVacationSendersCache.Factory
 			.build("/var/spool/bm-core/rules/");
 
+	public static MailFilterRule discardAutoReplyFromSelf = discardAutoReplyFromSelf();
+
 	@Override
 	public DeliveryContent preDelivery(IDeliveryContext ctx, DeliveryContent content) {
 		IServiceProvider provider = ctx.provider();
@@ -40,8 +46,18 @@ public class MailFilterRuleDeliveryHook implements IDeliveryHook {
 		}
 
 		List<MailFilterRule> rules = MailFilterRule.sort(mailboxesApi.getMailboxRules(box.mbox.uid));
+		rules.add(0, discardAutoReplyFromSelf);
 		content = engine.apply(rules);
 
 		return content;
+	}
+
+	private static final MailFilterRule discardAutoReplyFromSelf() {
+		MailFilterRule discardAutoReplyFromSelf = new MailFilterRule();
+		discardAutoReplyFromSelf.conditions //
+				.addAll(Arrays.asList(equal("headers.x-autoreply", "yes"), //
+						contains("from.email", "BM_DYNAMIC_ADDRESSES_ME"))); //
+		discardAutoReplyFromSelf.addDiscard();
+		return discardAutoReplyFromSelf;
 	}
 }
