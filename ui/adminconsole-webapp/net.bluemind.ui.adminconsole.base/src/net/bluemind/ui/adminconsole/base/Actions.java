@@ -134,8 +134,6 @@ public class Actions {
 	}
 
 	public void show(String scr, ScreenShowRequest ssr) {
-		new Exception().printStackTrace();
-		GWT.log("newItem: " + scr);
 		History.newItem(scr);
 	}
 
