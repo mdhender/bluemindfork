@@ -284,7 +284,8 @@ $items-info: (
     margin-bottom: $sp-2;
 }
 
-.form-input {
+.form-input,
+.bm-rich-editor {
     & ~ small,
     & ~ .invalid-feedback,
     & ~ .valid-feedback {

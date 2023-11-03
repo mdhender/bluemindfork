@@ -18,7 +18,13 @@
                     :state="subjectInputState"
                 />
             </bm-form-group>
-            <bm-form-group :label="$t('common.message')" label-for="message" label-class="text-capitalize">
+            <bm-form-group
+                :label="$t('common.message')"
+                label-for="message"
+                label-class="text-capitalize"
+                :invalid-feedback="invalidText"
+                :state="!isTooHeavy"
+            >
                 <bm-rich-editor
                     ref="message"
                     :init-value="textHtml"
@@ -29,6 +35,7 @@
                     :default-font-family="composerDefaultFont"
                     :extra-font-families="EXTRA_FONT_FAMILIES"
                     name="auto-reply"
+                    :invalid="isTooHeavy"
                     @input="onInput"
                 />
             </bm-form-group>
@@ -61,10 +68,12 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+import { inject } from "@bluemind/inject";
+import { computeUnit } from "@bluemind/file-utils";
 import { BmFormCheckbox, BmFormGroup, BmFormInput, BmRichEditor } from "@bluemind/ui-components";
 import PrefAutomaticReplyOptionalDate from "./PrefAutomaticReplyOptionalDate.vue";
 import CentralizedSaving from "../../mixins/CentralizedSaving";
-import { mapGetters } from "vuex";
 
 export default {
     name: "PrefAutomaticReply",
@@ -76,6 +85,12 @@ export default {
         PrefAutomaticReplyOptionalDate
     },
     mixins: [CentralizedSaving],
+    data: () => {
+        return {
+            maxSize: null,
+            isTooHeavy: false
+        };
+    },
     computed: {
         ...mapGetters("settings", ["IS_COMPUTED_THEME_DARK", "EXTRA_FONT_FAMILIES"]),
         composerDefaultFont() {
@@ -85,7 +100,7 @@ export default {
             return this.$store.state.settings.lang;
         },
         isValid() {
-            return !this.value.enabled || this.subject.trim() !== "";
+            return !this.value.enabled || (this.subject.trim() !== "" && !this.isTooHeavy);
         },
         subjectInputState() {
             if (!this.value.enabled) {
@@ -108,6 +123,9 @@ export default {
             set(value) {
                 this.value.subject = value;
             }
+        },
+        invalidText() {
+            return this.$t("mail.message.max_size", { size: computeUnit(this.maxSize, this.$i18n) });
         }
     },
     watch: {
@@ -129,10 +147,22 @@ export default {
         this.value = { ...this.$store.state.preferences.mailboxFilter.vacation };
     },
     methods: {
-        onInput(content) {
+        async onInput(content) {
             if (content !== this.textHtml) {
+                this.maxSize = await this.getMaxSize();
+                this.isTooHeavy = new Blob([content]).size > this.maxSize;
                 this.textHtml = content;
             }
+        },
+        async getMaxSize() {
+            let maxSize = this.maxSize;
+            if (!maxSize) {
+                const { userId } = inject("UserSession");
+                const config = await inject("MailboxesPersistence").getMailboxConfig(userId);
+                maxSize = config.messageMaxSize / 2;
+            }
+            // Out of office is a response message, we arbitrarily divide by two the max size of this message to take into account the previous message
+            return maxSize;
         }
     }
 };

@@ -2,7 +2,7 @@
     <div
         ref="rich-editor"
         class="bm-rich-editor d-flex flex-column"
-        :class="{ 'has-border': hasBorder, disabled, 'has-focus': hasFocus, 'dark-mode': darkMode }"
+        :class="{ 'has-border': hasBorder, disabled, 'has-focus': hasFocus, 'dark-mode': darkMode, invalid }"
         :style="{ fontFamily: defaultFontValue }"
         @input="onChange"
         @contentchanged="onChange"
@@ -120,6 +120,10 @@ export default {
         extraFontFamilies: {
             type: Array,
             default: () => []
+        },
+        invalid: {
+            type: Boolean,
+            default: false
         }
     },
     data() {
@@ -351,6 +355,7 @@ function getTableParentNode(node, containerNode) {
         background-color: #ffffff !important;
         flex: 1;
         padding: $sp-4;
+        overflow-wrap: break-word;
     }
 
     &.dark-mode .roosterjs-container {
@@ -397,6 +402,17 @@ function getTableParentNode(node, containerNode) {
             .full-toolbar {
                 border-top: 2 * $input-border-width solid $secondary-fg;
                 padding: 0;
+            }
+        }
+
+        &.invalid {
+            &,
+            & .full-toolbar {
+                border-color: $danger-fg;
+                &.has-focus,
+                &:hover {
+                    border-color: $danger-fg-hi1;
+                }
             }
         }
     }

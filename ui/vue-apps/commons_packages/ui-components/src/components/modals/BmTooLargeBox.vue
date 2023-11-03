@@ -37,7 +37,7 @@ export default {
         },
         i18nPath: {
             type: String,
-            default: "mail.actions.attach.max_size"
+            default: "mail.message.max_size"
         }
     },
     computed: {
