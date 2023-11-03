@@ -82,7 +82,7 @@ public class PushSetup {
                         @net.bluemind.ui.push.client.internal.PushSetup::register(Ljava/lang/String;Lnet/bluemind/ui/push/client/internal/MessageHandler;)(mailboxUid + ".notifications.mails", @net.bluemind.ui.push.client.internal.MailNotificationHandler::new()());
                     } else {
                         $wnd.bundleResolve("net.bluemind.webmodules.webapp.wrapper", function() {
-                            if (!$wnd.WebApp || $wnd.WebApp.hasNotifWhenReceivingMail !== true) {
+                            if (!$wnd.WebApp) {
                                 @net.bluemind.ui.push.client.internal.PushSetup::register(Ljava/lang/String;Lnet/bluemind/ui/push/client/internal/MessageHandler;)(mailboxUid + ".notifications.mails", @net.bluemind.ui.push.client.internal.MailNotificationHandler::new()());
                             }
                         });

@@ -1,6 +1,7 @@
 import { mapGetters, mapState } from "vuex";
 import throttle from "lodash.throttle";
 
+import ServiceWorker from "@bluemind/commons/utils/service-worker";
 import { MAILBOXES, MY_MAILBOX_KEY, MAILBOXES_ARE_LOADED } from "~/getters";
 import { WaitForMixin } from "~/mixins";
 
@@ -13,14 +14,7 @@ export default {
     },
     async created() {
         try {
-            if (navigator.serviceWorker) {
-                navigator.serviceWorker.addEventListener("message", this.$_ServerPush_serviceWorkerListener);
-                this.listenerRegistry.push(() =>
-                    navigator.serviceWorker.removeEventListener("message", this.$_ServerPush_serviceWorkerListener)
-                );
-                await navigator.serviceWorker.ready;
-                navigator.serviceWorker.controller.postMessage({ type: "INIT" });
-            }
+            this.$_ServerPush_serviceWorkerInit();
             await this.$waitFor(MAILBOXES_ARE_LOADED);
             this.MAILBOXES.forEach(mailbox => {
                 const callback = this.$_ServerPush_handle(mailbox);
@@ -31,21 +25,31 @@ export default {
             });
         } catch (error) {
             // eslint-disable-next-line no-console
-            console.error("[SW] failed to init service worker", error);
+            console.error("[ServerPush] Failed to initialize websocket listeners", error);
         }
     },
     beforeDestroy() {
         this.listenerRegistry.forEach(unregister => unregister());
     },
     methods: {
+        async $_ServerPush_serviceWorkerInit() {
+            if (await ServiceWorker.isAvailable()) {
+                navigator.serviceWorker.addEventListener("message", this.$_ServerPush_serviceWorkerListener);
+                this.listenerRegistry.push(() =>
+                    navigator.serviceWorker.removeEventListener("message", this.$_ServerPush_serviceWorkerListener)
+                );
+                navigator.serviceWorker.controller.postMessage({ type: "INIT" });
+            } else {
+                console.error("[ServerPush] Failed to initialize service worker");
+            }
+        },
         $_ServerPush_serviceWorkerListener(event) {
             if (event.data.type === "refresh") {
                 event.data.folderUids.forEach(folderUid => this.$_ServerPush_refreshUI(folderUid));
             }
         },
         async $_ServerPush_sendMessage(message, skipSync, defaultResponse = null) {
-            if (navigator.serviceWorker && !skipSync) {
-                await navigator.serviceWorker.ready;
+            if ((await ServiceWorker.isAvailable()) && !skipSync) {
                 navigator.serviceWorker.controller.postMessage(message);
             } else if (defaultResponse) {
                 await this.$_ServerPush_refreshUI(defaultResponse);

@@ -1,7 +1,7 @@
+import { isAvailable } from "@bluemind/commons/utils/notification";
 import { AvailableTimeFormats, AvailableDateFormats } from "@bluemind/date";
 import { AvailableLanguages } from "@bluemind/i18n";
 import Roles from "@bluemind/roles";
-import NotificationManager from "../../../NotificationManager";
 
 import themeSystem from "../../../../assets/theme-system.png";
 import themeLight from "../../../../assets/theme-light.png";
@@ -164,7 +164,7 @@ function advanced(i18n) {
             {
                 id: "notification",
                 name: i18n.t("preferences.advanced.notifications"),
-                visible: new NotificationManager().isAvailable,
+                visible: isAvailable(),
                 fields: [
                     {
                         id: "field",

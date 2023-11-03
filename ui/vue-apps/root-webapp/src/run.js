@@ -2,6 +2,7 @@ import Vue from "vue";
 import Vue2TouchEvents from "vue2-touch-events";
 
 import { default as AlertStore, DefaultAlert } from "@bluemind/alert.store";
+import NotificationManager from "@bluemind/commons/utils/notification";
 import i18n, { generateDateTimeFormats, TranslationRegistry } from "@bluemind/i18n";
 import { inject } from "@bluemind/inject";
 import router from "@bluemind/router";
@@ -21,7 +22,6 @@ import RootAppStore from "./rootAppStore";
 import SettingsL10N from "../l10n/preferences/";
 import SettingsStore from "./settingsStore";
 import MainApp from "./components/MainApp";
-import NotificationManager from "./NotificationManager";
 import Command, { useCommandRegistryProvider } from "@bluemind/command";
 
 const userSession = window.bmcSessionInfos;
@@ -30,6 +30,11 @@ TranslationRegistry.register(RootAppL10N);
 TranslationRegistry.register(SettingsL10N);
 registerDependencies(userSession);
 initWebApp(userSession);
+setDateTimeFormat(userSession);
+
+// Request permission for Notification
+NotificationManager.requestPermission();
+
 initSentry(userSession);
 
 async function initWebApp(userSession) {
@@ -47,10 +52,6 @@ async function initWebApp(userSession) {
         router,
         store
     });
-    if (userSession.userId) {
-        setDateTimeFormat(userSession);
-        new NotificationManager().setNotificationWhenReceivingMail(userSession);
-    }
 }
 
 function setVuePlugins(userSession) {
@@ -71,23 +72,14 @@ function initStore() {
     store.registerModule("preferences", PreferencesStore);
 }
 
-async function showNotification(message) {
-    const result = await Notification.requestPermission();
-    if (result === "granted") {
-        navigator.serviceWorker.ready.then(function (registration) {
-            registration.showNotification("Periodic Sync", {
-                body: message
-            });
+async function setDateTimeFormat(session) {
+    if (userSession.userId) {
+        const timeformat = await inject("UserSettingsPersistence").getOne(session.userId, "timeformat");
+        const dateTimeFormats = generateDateTimeFormats(timeformat);
+        Object.entries(dateTimeFormats).forEach(entry => {
+            i18n.setDateTimeFormat(entry[0], entry[1]);
         });
     }
-}
-
-async function setDateTimeFormat(session) {
-    const timeformat = await inject("UserSettingsPersistence").getOne(session.userId, "timeformat");
-    const dateTimeFormats = generateDateTimeFormats(timeformat);
-    Object.entries(dateTimeFormats).forEach(entry => {
-        i18n.setDateTimeFormat(entry[0], entry[1]);
-    });
 }
 
 (async () => {
@@ -103,7 +95,8 @@ async function setDateTimeFormat(session) {
 
         navigator.serviceWorker.addEventListener("message", event => {
             if (event.data.type === "ERROR") {
-                showNotification(event.data.payload.message);
+                // eslint-disable-next-line no-console
+                console.warn(event.data.payload.message);
             }
         });
 
@@ -116,7 +109,8 @@ async function setDateTimeFormat(session) {
 
         navigator.serviceWorker.addEventListener("installed", event => {
             if (event.isUpdate) {
-                showNotification("A new version of the site is available, please refresh the page.");
+                // eslint-disable-next-line no-console
+                console.warn("A new version of the site is available, please refresh the page.");
             }
         });
     }

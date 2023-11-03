@@ -10,6 +10,7 @@ import MailboxItemsCacheProxy from "./proxies/MailboxItemsCacheProxy";
 import MailboxFoldersDBProxy from "./proxies/MailboxFoldersDBProxy";
 import OwnerSubscriptionsDBProxy from "./proxies/OwnerSubscriptionsDBProxy";
 import { registerRoute } from "workbox-routing";
+import { onMailNotificationClick } from "./mailNotifications";
 
 extensions.register("serviceworker.handlers", "net.bluemind.webapp.mail.js", {
     "api-handler": { class: MailboxItemsDBProxy, priority: 128 }
@@ -38,6 +39,12 @@ self.addEventListener("message", async ({ data }) => {
                 await synchronizeFolder(data);
             }
             break;
+    }
+});
+
+self.addEventListener("notificationclick", async event => {
+    if (event.notification.tag === "notifications.mails") {
+        onMailNotificationClick(event);
     }
 });
 
