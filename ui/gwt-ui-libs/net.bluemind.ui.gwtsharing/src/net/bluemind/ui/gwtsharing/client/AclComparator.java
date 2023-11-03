@@ -41,22 +41,22 @@ public class AclComparator {
 	}
 
 	private static void sanitizeAclTarget(List<AccessControlEntry> source, List<AccessControlEntry> target) {
-		List<AccessControlEntry> sendAsOnBehalfAcls = source.stream().filter(acl -> delegationAce(acl))
+		List<AccessControlEntry> handledAcl = source.stream().filter(acl -> !isPermanentAcl(acl))
 				.collect(Collectors.toList());
-
-		if (!sendAsOnBehalfAcls.isEmpty()) {
+		
+		if (!handledAcl.isEmpty()) {
 			List<AccessControlEntry> sameAclSubjects = target.stream()
-					.filter(acl -> sendAsOnBehalfAcls.stream().anyMatch(a -> a.subject.equals(acl.subject)))
+					.filter(acl -> handledAcl.stream().anyMatch(a -> a.subject.equals(acl.subject)))
 					.collect(Collectors.toList());
 
-			if (!sameAclSubjects.isEmpty() && sameAclSubjects.stream().noneMatch(acl -> delegationAce(acl))) {
-				sendAsOnBehalfAcls.stream().forEach(target::add);
+			if (!sameAclSubjects.isEmpty() && sameAclSubjects.stream().noneMatch(acl -> !isPermanentAcl(acl))) {
+				handledAcl.stream().forEach(target::add);
 			}
 		}
 	}
 
-	private static boolean delegationAce(AccessControlEntry acl) {
-		return acl.verb.can(Verb.SendAs) || acl.verb.can(Verb.SendOnBehalf);
+	private static boolean isPermanentAcl(AccessControlEntry acl) {
+		return acl.verb == Verb.Freebusy || acl.verb == Verb.Invitation || acl.verb == Verb.Read || acl.verb == Verb.Write|| acl.verb == Verb.Manage || acl.verb == Verb.All;
 	}
 
 	private static boolean aceEquals(AccessControlEntry source, AccessControlEntry target) {

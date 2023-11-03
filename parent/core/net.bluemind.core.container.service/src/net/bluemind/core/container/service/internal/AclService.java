@@ -72,7 +72,7 @@ public class AclService implements IAccessControlList {
 	@Override
 	public void store(final List<AccessControlEntry> entries) {
 		try {
-			List<AccessControlEntry> compacted = compact(entries);
+			List<AccessControlEntry> compacted = AccessControlEntry.compact(entries);
 			compacted.forEach(auditLog::logCreate);
 			aclStore.store(container, compacted);
 		} catch (SQLException e) {
@@ -83,7 +83,7 @@ public class AclService implements IAccessControlList {
 	@Override
 	public void add(final List<AccessControlEntry> entries) {
 		try {
-			List<AccessControlEntry> compacted = compact(entries);
+			List<AccessControlEntry> compacted = AccessControlEntry.compact(entries);
 			compacted.forEach(auditLog::logCreate);
 			aclStore.add(container, compacted);
 		} catch (SQLException e) {
@@ -94,7 +94,7 @@ public class AclService implements IAccessControlList {
 	@Override
 	public List<AccessControlEntry> get() {
 		try {
-			return expand(addOwnerRights(aclStore.get(container)));
+			return AccessControlEntry.expand(addOwnerRights(aclStore.get(container)));
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}
@@ -114,31 +114,17 @@ public class AclService implements IAccessControlList {
 	@Override
 	public List<AccessControlEntry> retrieveAndStore(List<AccessControlEntry> entries) {
 		try {
-			List<AccessControlEntry> compacted = compact(entries);
+			List<AccessControlEntry> compacted = AccessControlEntry.compact(entries);
 			List<AccessControlEntry> oldEntries = aclStore.retrieveAndStore(container, compacted);
 			compacted.stream().filter(e -> !oldEntries.contains(e)).forEach(e -> auditLog.logUpdate(e, null));
 			oldEntries.stream().filter(e -> !entries.contains(e)).forEach(auditLog::logDelete);
-			return expand(addOwnerRights(oldEntries));
+			return AccessControlEntry.expand(addOwnerRights(oldEntries));
 		} catch (ServerFault e) {
 			throw ServerFault.sqlFault(e);
 
 		}
 	}
 	
-	private List<AccessControlEntry> expand(List<AccessControlEntry> list) {
-		return list.stream()
-				.flatMap(
-						acl -> Verb.expand(acl.verb).stream().map(verb -> AccessControlEntry.create(acl.subject, verb)))
-				.distinct().collect(Collectors.toList());
-	}
-
-	private List<AccessControlEntry> compact(List<AccessControlEntry> list) {
-		Map<String, List<Verb>> aclBySubject = list.stream().collect(Collectors.groupingBy(
-				AccessControlEntry::getSubject, Collectors.mapping(AccessControlEntry::getVerb, Collectors.toList())));
-		return aclBySubject.keySet().stream().flatMap(subject -> Verb.compact(aclBySubject.get(subject)).stream()
-				.map(verb -> AccessControlEntry.create(subject, verb))).collect(Collectors.toList());
-	}
-
 	private List<AccessControlEntry> addOwnerRights(List<AccessControlEntry> list) {
 		if (isOwnedByAUser()) {
 			Set<AccessControlEntry> extended = new HashSet<>(list);

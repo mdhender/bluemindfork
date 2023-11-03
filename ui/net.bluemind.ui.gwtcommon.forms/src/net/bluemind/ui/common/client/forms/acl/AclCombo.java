@@ -89,9 +89,7 @@ public class AclCombo extends Composite {
 			combo.setSelectedIndex(items.get("read"));
 		} else if (r == Verb.Invitation && items.containsKey("access")) {
 			combo.setSelectedIndex(items.get("access"));
-		} else if (r == Verb.SendOnBehalf && items.containsKey("send-on-behalf")) {
-			combo.setSelectedIndex(items.get("send-on-behalf"));
-		}
+		} 
 	}
 
 	public Verb getValue() {
@@ -104,9 +102,7 @@ public class AclCombo extends Composite {
 	 */
 	private Verb getRightFromValue(String value) {
 		Verb r = null;
-		if (value.equals("send-on-behalf")) {
-			r = Verb.SendOnBehalf;
-		} else if (value.equals("access")) {
+		if (value.equals("access")) {
 			r = Verb.Invitation; // FIXME
 		} else if (value.equals("read")) {
 			r = Verb.Read;

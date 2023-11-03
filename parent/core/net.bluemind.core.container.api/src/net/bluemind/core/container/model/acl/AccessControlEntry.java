@@ -18,6 +18,10 @@
  */
 package net.bluemind.core.container.model.acl;
 
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import net.bluemind.core.api.BMApi;
 
 /**
@@ -92,5 +96,19 @@ public class AccessControlEntry {
 
 	public String getSubject() {
 		return subject;
+	}
+
+	public static List<AccessControlEntry> expand(List<AccessControlEntry> list) {
+		return list.stream()
+				.flatMap(
+						acl -> Verb.expand(acl.verb).stream().map(verb -> AccessControlEntry.create(acl.subject, verb)))
+				.distinct().collect(Collectors.toList());
+	}
+
+	public static List<AccessControlEntry> compact(List<AccessControlEntry> list) {
+		Map<String, List<Verb>> aclBySubject = list.stream().collect(Collectors.groupingBy(
+				AccessControlEntry::getSubject, Collectors.mapping(AccessControlEntry::getVerb, Collectors.toList())));
+		return aclBySubject.keySet().stream().flatMap(subject -> Verb.compact(aclBySubject.get(subject)).stream()
+				.map(verb -> AccessControlEntry.create(subject, verb))).collect(Collectors.toList());
 	}
 }

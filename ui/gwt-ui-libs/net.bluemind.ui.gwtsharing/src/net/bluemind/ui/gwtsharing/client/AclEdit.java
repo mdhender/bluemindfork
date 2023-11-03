@@ -257,11 +257,13 @@ public class AclEdit extends CommonForm implements IEntitySelectTarget {
 				.findFirst();
 	}
 
-	public void setValue(List<AccessControlEntry> entries) {
+	public void setValue(List<AccessControlEntry> value) {
 		if (directory == null) {
 			throw new RuntimeException("domainUid is not defined");
 		}
 
+		List<AccessControlEntry> entries = AccessControlEntry.compact(value);
+		
 		entities = new HashMap<AclEntity, AclCombo>();
 		table.removeAllRows();
 		publicCombo.setEnable(false);
