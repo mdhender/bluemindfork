@@ -46,7 +46,7 @@ export default {
     commands: {
         addAttachments: function (payload) {
             const maxSize = store.state.mail.messageCompose.maxMessageSize;
-            return addAttachments({ maxSize, ...payload });
+            return addAttachments.call(this, { maxSize, ...payload });
         }
     }
 };
