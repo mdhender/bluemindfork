@@ -248,14 +248,13 @@ public class OutboxService implements IOutbox {
 
 		String to = notAdminAndNotCurrentUser(domain, user, creds, fromMail) ? user.defaultEmailAddress() : fromMail;
 		if (!sendmailResponse.getFailedRecipients().isEmpty()) {
-			sendNonDeliveryReport(domain, creds, to, sendmailResponse.getFailedRecipients(), relatedMsg);
+			sendNonDeliveryReport(domain, to, sendmailResponse.getFailedRecipients(), relatedMsg);
 		} else if (!sendmailResponse.isOk()) {
 			boolean aclError = sendmailResponse.code == 503;
 			if (aclError) {
 				sendmailResponse.setFailedRecipients(
 						rcptTo.stream().map(r -> FailedRecipient.create(sendmailResponse, r.getAddress())).toList());
-				sendNonDeliveryAclReport(domain, creds, to, fromMail, sendmailResponse.getFailedRecipients(),
-						relatedMsg);
+				sendNonDeliveryAclReport(domain, to, fromMail, sendmailResponse.getFailedRecipients(), relatedMsg);
 			} else {
 				throw new ServerFault(sendmailResponse.toString());
 			}
@@ -319,8 +318,8 @@ public class OutboxService implements IOutbox {
 				.findFirst().map(MessageBody.Header::firstValue);
 	}
 
-	private void sendNonDeliveryReport(ItemValue<Domain> domain, SendmailCredentials creds, String to,
-			List<FailedRecipient> failedRecipients, Message relatedMsg) {
+	private void sendNonDeliveryReport(ItemValue<Domain> domain, String to, List<FailedRecipient> failedRecipients,
+			Message relatedMsg) {
 		NonDeliveryReportMessage ndrMsg = new NonDeliveryReportMessage(failedRecipients, relatedMsg);
 
 		StringBuilder recipientsErrorMsg = new StringBuilder();
@@ -346,11 +345,12 @@ public class OutboxService implements IOutbox {
 				""".formatted(relatedMsg.getSubject(), recipientsErrorMsg);
 
 		MessageImpl message = ndrMsg.createNDRMessage(content);
-		sendIt(domain, creds, to, message);
+
+		sendIt(domain, SendmailCredentials.asAdmin0(), to, message);
 	}
 
-	private void sendNonDeliveryAclReport(ItemValue<Domain> domain, SendmailCredentials creds, String to,
-			String originalFrom, List<FailedRecipient> failedRecipients, Message relatedMsg) {
+	private void sendNonDeliveryAclReport(ItemValue<Domain> domain, String to, String originalFrom,
+			List<FailedRecipient> failedRecipients, Message relatedMsg) {
 		NonDeliveryReportMessage ndrMsg = new NonDeliveryReportMessage(failedRecipients, relatedMsg);
 
 		String aclInfo = """
@@ -368,7 +368,7 @@ public class OutboxService implements IOutbox {
 				""".formatted(relatedMsg.getSubject(), aclInfo);
 
 		MessageImpl message = ndrMsg.createNDRMessage(content);
-		sendIt(domain, creds, to, message);
+		sendIt(domain, SendmailCredentials.asAdmin0(), to, message);
 	}
 
 	private void sendIt(ItemValue<Domain> domain, SendmailCredentials creds, String to, MessageImpl message) {
