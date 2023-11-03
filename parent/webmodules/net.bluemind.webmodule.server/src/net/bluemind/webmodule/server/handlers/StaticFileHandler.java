@@ -17,6 +17,7 @@
 package net.bluemind.webmodule.server.handlers;
 
 import java.io.File;
+import java.net.URLConnection;
 import java.util.Arrays;
 import java.util.List;
 
@@ -33,7 +34,6 @@ import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
-import net.bluemind.webmodule.server.WebModuleServerActivator;
 import net.bluemind.webmodule.server.WebResource;
 
 /**
@@ -221,7 +221,7 @@ public class StaticFileHandler implements Handler<HttpServerRequest> {
 	}
 
 	private void addMimetype(HttpServerRequest req, String file) {
-		String mt = WebModuleServerActivator.getMimeTypes().getContentType(file);
+		String mt = URLConnection.guessContentTypeFromName(file);
 		if (mt != null) {
 			req.response().headers().add("Content-Type", mt);
 		}

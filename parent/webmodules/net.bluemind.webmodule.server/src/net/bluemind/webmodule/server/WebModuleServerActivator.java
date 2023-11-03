@@ -18,8 +18,6 @@
  */
 package net.bluemind.webmodule.server;
 
-import java.io.InputStream;
-import java.net.URL;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -50,11 +48,6 @@ public class WebModuleServerActivator implements BundleActivator {
 		WebModuleResolver resolver = new WebModuleResolver();
 		modules = resolver.loadExtensions();
 		resolver.logModules(modules);
-
-		URL url = WebModuleServerActivator.class.getResource("mime.types");
-		try (InputStream in = url.openStream()) {
-			mimeTypes = new MimetypesFileTypeMap(in);
-		}
 		new WebServerFilters().loadExtensions();
 
 		conf = Suppliers.memoize(ConfigBuilder::build);
@@ -76,9 +69,4 @@ public class WebModuleServerActivator implements BundleActivator {
 	public static Supplier<WebserverConfiguration> getConf() {
 		return conf;
 	}
-
-	public static MimetypesFileTypeMap getMimeTypes() {
-		return mimeTypes;
-	}
-
 }
