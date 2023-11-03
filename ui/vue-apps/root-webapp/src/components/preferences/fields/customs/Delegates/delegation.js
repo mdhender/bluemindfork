@@ -55,10 +55,12 @@ export const fetchAcls = async () => {
 };
 
 export const delegations = computed(() => {
-    return Object.values(acls.value)
-        .map(({ uid, acl }) => acl?.filter(({ verb }) => DELEGATION_VERBS.includes(verb)).map(ac => ({ uid, ac })))
-        .flat()
-        .filter(Boolean);
+    return Object.values(acls.value).flatMap(
+        ({ uid, acl }) =>
+            acl
+                ?.filter(({ subject, verb }) => subject !== getUserId() && DELEGATION_VERBS.includes(verb))
+                .map(ac => ({ uid, ac })) || []
+    );
 });
 
 /** Delegates and their rights: { delegatUid1: {containerUid1: [verb1, verb2]} } */
