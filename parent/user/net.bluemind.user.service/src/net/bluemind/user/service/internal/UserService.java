@@ -920,6 +920,7 @@ public class UserService implements IInCoreUser, IUser {
 		ItemValue<User> user = getComplete(uid);
 		if (user.value.accountType == accountType || (accountType == AccountType.SIMPLE && user.value.fullAccount())) {
 			// Downgrade to simple account not supported
+			logger.info("Downgrade to simple account is not supported");
 			return;
 		}
 

@@ -63,7 +63,7 @@ public class MessageFieldValueProviderTests {
 		assertTrue(body.get(0).contains("Pouvez vous m'envoyer la facture concernant cette intervention"));
 
 		Date date = provider.provides(MailFilterRuleKnownField.DATE.toField());
-		assertEquals(0, toDate("2019-10-01 14:44:09").compareTo(date));
+		assertEquals(toDate("2019-10-01 14:44:09"), date);
 
 		List<String> replyTo = provider.provides(headerField("reply-to"));
 		assertEquals("Serge DAVEU <daveuls@orange.fr>", replyTo.get(0));

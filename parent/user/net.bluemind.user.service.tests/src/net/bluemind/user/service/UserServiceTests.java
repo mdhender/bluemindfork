@@ -1739,6 +1739,7 @@ public class UserServiceTests {
 
 	@Test
 	public void testUpdateAccountType_fullToFullvisio() throws Exception {
+
 		setDomainMaxBasicUsers(domainUid, 1);
 
 		String login = "test." + System.nanoTime();
@@ -1756,14 +1757,15 @@ public class UserServiceTests {
 		getService(domainAdminSecurityContext).updateAccountType(uid, AccountType.SIMPLE);
 
 		DirEntry de = testContext.provider().instance(IDirectory.class, domainUid).findByEntryUid(uid);
-		assertEquals(AccountType.SIMPLE, de.accountType);
+		// We want FULL here, because we don't want to be able to downgrade from FULL to
+		// SIMPLE
+		assertEquals(AccountType.FULL, de.accountType);
 
 		u = getService(domainAdminSecurityContext).getComplete(uid);
-		assertEquals(AccountType.SIMPLE, u.value.accountType);
+		assertEquals(AccountType.FULL, u.value.accountType);
 
 		roles = getService(domainAdminSecurityContext).getResolvedRoles(u.uid);
 		assertTrue(roles.stream().noneMatch(r -> r.equals("hasFullVideoconferencing")));
-		assertTrue(roles.stream().noneMatch(r -> r.equals("hasSimpleVideoconferencing")));
 
 		// FULL_AND_VISIO
 		getService(domainAdminSecurityContext).updateAccountType(uid, AccountType.FULL_AND_VISIO);

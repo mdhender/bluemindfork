@@ -23,6 +23,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Set;
 
@@ -48,7 +49,7 @@ public class KeycloakServiceTests extends AbstractServiceTests {
 		assertTrue(realm.enabled);
 		assertTrue(realm.internationalizationEnabled);
 		assertTrue(realm.loginWithEmailAllowed);
-		assertEquals(86400, realm.accessCodeLifespanLogin);
+		assertEquals(Duration.ofDays(30).toSeconds(), realm.accessCodeLifespanLogin);
 	}
 
 	@Test

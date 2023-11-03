@@ -172,6 +172,8 @@ public class CalendarHookServiceTests {
 //		userCalendarContainer = createTestContainer(defaultSecurityContext, dataDataSource, ICalendarUids.TYPE,
 //				"John Doe", ICalendarUids.TYPE + ":Default:" + testuser.uid, testuser.uid);
 
+		CalendarTestAsyncHook.reset();
+
 	}
 
 	@Test
@@ -235,6 +237,7 @@ public class CalendarHookServiceTests {
 	@After
 	public void after() throws Exception {
 		JdbcTestHelper.getInstance().afterTest();
+		CalendarTestAsyncHook.reset();
 	}
 
 	protected ICalendar getCalendarService(SecurityContext context, Container container) throws ServerFault {
