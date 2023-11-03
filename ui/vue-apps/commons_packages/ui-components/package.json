@@ -6,6 +6,7 @@
     "license": "AGPL-3.0-only",
     "main": "src/index.js",
     "dependencies": {
+        "@bluemind/addressbook.api": "^5.0.0",
         "@bluemind/alert.store": "^5.0.0",
         "@bluemind/email": "^5.0.0",
         "@bluemind/extensions.vue": "^5.0.0",
