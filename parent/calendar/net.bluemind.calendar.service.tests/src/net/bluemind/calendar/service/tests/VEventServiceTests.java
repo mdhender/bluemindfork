@@ -164,11 +164,11 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		rrule.bySetPos = Arrays.asList(4, 7);
 
 		List<VEvent.RRule.WeekDay> weekDay = new ArrayList<VEvent.RRule.WeekDay>(4);
-		weekDay.add(VEvent.RRule.WeekDay.SU);
-		weekDay.add(VEvent.RRule.WeekDay.MO);
-		weekDay.add(VEvent.RRule.WeekDay.TU);
-		weekDay.add(VEvent.RRule.WeekDay.TH);
-		weekDay.add(VEvent.RRule.WeekDay.FR);
+		weekDay.add(VEvent.RRule.WeekDay.su());
+		weekDay.add(VEvent.RRule.WeekDay.mo());
+		weekDay.add(VEvent.RRule.WeekDay.tu());
+		weekDay.add(VEvent.RRule.WeekDay.th());
+		weekDay.add(VEvent.RRule.WeekDay.fr());
 		rrule.byDay = weekDay;
 
 		rrule.byMonthDay = Arrays.asList(2, 3);
@@ -923,10 +923,10 @@ public class VEventServiceTests extends AbstractCalendarTests {
 
 		assertNotNull(rrule.byDay);
 		assertEquals(4, rrule.byDay.size());
-		assertTrue(rrule.byDay.contains(VEvent.RRule.WeekDay.MO));
-		assertTrue(rrule.byDay.contains(VEvent.RRule.WeekDay.TU));
-		assertTrue(rrule.byDay.contains(VEvent.RRule.WeekDay.TH));
-		assertTrue(rrule.byDay.contains(VEvent.RRule.WeekDay.FR));
+		assertTrue(rrule.byDay.contains(VEvent.RRule.WeekDay.mo()));
+		assertTrue(rrule.byDay.contains(VEvent.RRule.WeekDay.tu()));
+		assertTrue(rrule.byDay.contains(VEvent.RRule.WeekDay.th()));
+		assertTrue(rrule.byDay.contains(VEvent.RRule.WeekDay.fr()));
 
 		assertNotNull(rrule.byMonthDay);
 		assertEquals(2, rrule.byMonthDay.size());

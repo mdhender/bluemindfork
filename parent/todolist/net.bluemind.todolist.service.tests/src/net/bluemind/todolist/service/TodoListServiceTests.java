@@ -810,10 +810,10 @@ public class TodoListServiceTests extends AbstractServiceTests {
 		rrule.frequency = VTodo.RRule.Frequency.WEEKLY;
 		rrule.until = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 6, 4, 0, 0, 0, 0, tz), Precision.DateTime);
 		List<VTodo.RRule.WeekDay> weekDay = new ArrayList<VTodo.RRule.WeekDay>(4);
-		weekDay.add(VTodo.RRule.WeekDay.MO);
-		weekDay.add(VTodo.RRule.WeekDay.TU);
-		weekDay.add(VTodo.RRule.WeekDay.TH);
-		weekDay.add(VTodo.RRule.WeekDay.FR);
+		weekDay.add(VTodo.RRule.WeekDay.mo());
+		weekDay.add(VTodo.RRule.WeekDay.tu());
+		weekDay.add(VTodo.RRule.WeekDay.th());
+		weekDay.add(VTodo.RRule.WeekDay.fr());
 		rrule.byDay = weekDay;
 		todo.rrule = rrule;
 

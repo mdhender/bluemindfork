@@ -267,10 +267,10 @@ public class VTodoStoreTests {
 		rrule.byHour = Arrays.asList(2, 22);
 
 		List<VTodo.RRule.WeekDay> weekDay = new ArrayList<VTodo.RRule.WeekDay>(5);
-		weekDay.add(VTodo.RRule.WeekDay.MO);
-		weekDay.add(VTodo.RRule.WeekDay.TU);
-		weekDay.add(VTodo.RRule.WeekDay.TH);
-		weekDay.add(VTodo.RRule.WeekDay.FR);
+		weekDay.add(VTodo.RRule.WeekDay.mo());
+		weekDay.add(VTodo.RRule.WeekDay.tu());
+		weekDay.add(VTodo.RRule.WeekDay.th());
+		weekDay.add(VTodo.RRule.WeekDay.fr());
 		weekDay.add(new VTodo.RRule.WeekDay("SA", 2));
 		rrule.byDay = weekDay;
 
@@ -318,11 +318,11 @@ public class VTodoStoreTests {
 
 		assertNotNull(rrule.byDay);
 		assertEquals(5, rrule.byDay.size());
-		assertTrue(rrule.byDay.contains(VTodo.RRule.WeekDay.MO));
-		assertTrue(rrule.byDay.contains(VTodo.RRule.WeekDay.TU));
-		assertTrue(rrule.byDay.contains(VTodo.RRule.WeekDay.TH));
-		assertTrue(rrule.byDay.contains(VTodo.RRule.WeekDay.FR));
-		assertFalse(rrule.byDay.contains(VTodo.RRule.WeekDay.SA));
+		assertTrue(rrule.byDay.contains(VTodo.RRule.WeekDay.mo()));
+		assertTrue(rrule.byDay.contains(VTodo.RRule.WeekDay.tu()));
+		assertTrue(rrule.byDay.contains(VTodo.RRule.WeekDay.th()));
+		assertTrue(rrule.byDay.contains(VTodo.RRule.WeekDay.fr()));
+		assertFalse(rrule.byDay.contains(VTodo.RRule.WeekDay.sa()));
 		assertTrue(rrule.byDay.contains(new VTodo.RRule.WeekDay("SA", 2)));
 
 		assertNotNull(rrule.byMonthDay);

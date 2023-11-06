@@ -185,7 +185,7 @@ public class OccurrenceHelperTest {
 		VEvent.RRule rrule = new VEvent.RRule();
 		rrule.frequency = Frequency.WEEKLY;
 		rrule.interval = 1;
-		rrule.byDay = Arrays.asList(ICalendarElement.RRule.WeekDay.SU);
+		rrule.byDay = Arrays.asList(ICalendarElement.RRule.WeekDay.su());
 
 		serie.value.main.rrule = rrule;
 		VEventOccurrence occurence = VEventOccurrence.fromEvent(serie.value.main,

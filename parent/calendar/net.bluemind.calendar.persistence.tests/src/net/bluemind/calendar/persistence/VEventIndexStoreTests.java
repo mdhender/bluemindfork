@@ -97,8 +97,9 @@ public class VEventIndexStoreTests {
 		indexStore.create(Item.create(event.uid, System.nanoTime()), event.value);
 		indexStore.refresh();
 
-		SearchResponse<IndexableVEventSeries> resp = client.search(s -> s.index(VEVENT_READ_ALIAS)
-				.query(q -> q.term(t -> t.field("uid").value(event.uid))), IndexableVEventSeries.class);
+		SearchResponse<IndexableVEventSeries> resp = client.search(
+				s -> s.index(VEVENT_READ_ALIAS).query(q -> q.term(t -> t.field("uid").value(event.uid))),
+				IndexableVEventSeries.class);
 		assertEquals(1, resp.hits().total().value());
 
 		IndexableVEventSeries hit = resp.hits().hits().get(0).source();
@@ -122,8 +123,9 @@ public class VEventIndexStoreTests {
 		indexStore.create(item, event.value);
 		indexStore.refresh();
 
-		SearchResponse<IndexableVEventSeries> resp = client.search(s -> s.index(VEVENT_READ_ALIAS)
-				.query(q -> q.term(t -> t.field("uid").value(event.uid))), IndexableVEventSeries.class);
+		SearchResponse<IndexableVEventSeries> resp = client.search(
+				s -> s.index(VEVENT_READ_ALIAS).query(q -> q.term(t -> t.field("uid").value(event.uid))),
+				IndexableVEventSeries.class);
 		assertEquals(1, resp.hits().total().value());
 
 		IndexableVEventSeries hit = resp.hits().hits().get(0).source();
@@ -135,8 +137,8 @@ public class VEventIndexStoreTests {
 		indexStore.update(item, event.value);
 		indexStore.refresh();
 
-		resp = client.search(s -> s.index(VEVENT_READ_ALIAS)
-				.query(q -> q.term(t -> t.field("uid").value(event.uid))), IndexableVEventSeries.class);
+		resp = client.search(s -> s.index(VEVENT_READ_ALIAS).query(q -> q.term(t -> t.field("uid").value(event.uid))),
+				IndexableVEventSeries.class);
 		assertEquals(1, resp.hits().total().value());
 
 		IndexableVEventSeries updateHit = resp.hits().hits().get(0).source();
@@ -157,8 +159,9 @@ public class VEventIndexStoreTests {
 		indexStore.create(item, event.value);
 		indexStore.refresh();
 
-		SearchResponse<IndexableVEventSeries> resp = client.search(s -> s.index(VEVENT_READ_ALIAS)
-				.query(q -> q.term(t -> t.field("uid").value(event.uid))), IndexableVEventSeries.class);
+		SearchResponse<IndexableVEventSeries> resp = client.search(
+				s -> s.index(VEVENT_READ_ALIAS).query(q -> q.term(t -> t.field("uid").value(event.uid))),
+				IndexableVEventSeries.class);
 		assertEquals(1, resp.hits().total().value());
 
 		Hit<IndexableVEventSeries> hit = resp.hits().hits().get(0);
@@ -167,8 +170,8 @@ public class VEventIndexStoreTests {
 		indexStore.delete(item.id);
 		indexStore.refresh();
 
-		resp = client.search(s -> s.index(VEVENT_READ_ALIAS)
-				.query(q -> q.term(t -> t.field("uid").value(event.uid))), IndexableVEventSeries.class);
+		resp = client.search(s -> s.index(VEVENT_READ_ALIAS).query(q -> q.term(t -> t.field("uid").value(event.uid))),
+				IndexableVEventSeries.class);
 		assertEquals(0, resp.hits().total().value());
 	}
 
@@ -185,8 +188,7 @@ public class VEventIndexStoreTests {
 		indexStore.refresh();
 
 		SearchResponse<IndexableVEventSeries> resp = client.search(
-				s -> s.index(VEVENT_READ_ALIAS)
-						.query(q -> q.term(t -> t.field("containerUid").value(container.uid))),
+				s -> s.index(VEVENT_READ_ALIAS).query(q -> q.term(t -> t.field("containerUid").value(container.uid))),
 				IndexableVEventSeries.class);
 		assertEquals(2, resp.hits().total().value());
 
@@ -194,8 +196,7 @@ public class VEventIndexStoreTests {
 		indexStore.refresh();
 
 		resp = client.search(
-				s -> s.index(VEVENT_READ_ALIAS)
-						.query(q -> q.term(t -> t.field("containerUid").value(container.uid))),
+				s -> s.index(VEVENT_READ_ALIAS).query(q -> q.term(t -> t.field("containerUid").value(container.uid))),
 				IndexableVEventSeries.class);
 		assertEquals(0, resp.hits().total().value());
 	}
@@ -209,7 +210,7 @@ public class VEventIndexStoreTests {
 			allEvents.add(ItemValue.create(Item.create(event.uid, System.nanoTime()), event.value));
 		}
 		indexStore.updates(allEvents);
-		
+
 		indexStore.refresh();
 
 		// test with specific unique summary
@@ -462,10 +463,10 @@ public class VEventIndexStoreTests {
 		rrule.until = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 6, 4, 0, 0, 0, 0, ZoneId.of("UTC")),
 				Precision.Date);
 		List<VEvent.RRule.WeekDay> weekDay = new ArrayList<VEvent.RRule.WeekDay>(4);
-		weekDay.add(VEvent.RRule.WeekDay.MO);
-		weekDay.add(VEvent.RRule.WeekDay.TU);
-		weekDay.add(VEvent.RRule.WeekDay.TH);
-		weekDay.add(VEvent.RRule.WeekDay.FR);
+		weekDay.add(VEvent.RRule.WeekDay.mo());
+		weekDay.add(VEvent.RRule.WeekDay.tu());
+		weekDay.add(VEvent.RRule.WeekDay.th());
+		weekDay.add(VEvent.RRule.WeekDay.fr());
 		rrule.byDay = weekDay;
 
 		event.value.main.rrule = rrule;

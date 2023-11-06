@@ -279,10 +279,10 @@ public class SyncEndpointMeetingRequestTests extends AbstractEndpointTest {
 			event.rrule.count = 10;
 			event.rrule.interval = 13;
 			List<VEvent.RRule.WeekDay> weekDay = new ArrayList<VEvent.RRule.WeekDay>(4);
-			weekDay.add(VEvent.RRule.WeekDay.MO);
-			weekDay.add(VEvent.RRule.WeekDay.TU);
-			weekDay.add(VEvent.RRule.WeekDay.TH);
-			weekDay.add(VEvent.RRule.WeekDay.FR);
+			weekDay.add(VEvent.RRule.WeekDay.mo());
+			weekDay.add(VEvent.RRule.WeekDay.tu());
+			weekDay.add(VEvent.RRule.WeekDay.th());
+			weekDay.add(VEvent.RRule.WeekDay.fr());
 			event.rrule.byDay = weekDay;
 		}
 

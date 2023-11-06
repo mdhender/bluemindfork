@@ -279,10 +279,10 @@ public class VEventServiceHelperTest {
 
 		assertNotNull(rrule.byDay);
 		assertEquals(4, rrule.byDay.size());
-		assertTrue(rrule.byDay.contains(ICalendarElement.RRule.WeekDay.MO));
-		assertTrue(rrule.byDay.contains(ICalendarElement.RRule.WeekDay.TU));
-		assertTrue(rrule.byDay.contains(ICalendarElement.RRule.WeekDay.TH));
-		assertTrue(rrule.byDay.contains(ICalendarElement.RRule.WeekDay.FR));
+		assertTrue(rrule.byDay.contains(ICalendarElement.RRule.WeekDay.mo()));
+		assertTrue(rrule.byDay.contains(ICalendarElement.RRule.WeekDay.tu()));
+		assertTrue(rrule.byDay.contains(ICalendarElement.RRule.WeekDay.th()));
+		assertTrue(rrule.byDay.contains(ICalendarElement.RRule.WeekDay.fr()));
 
 		assertNotNull(rrule.byMonthDay);
 		assertEquals(2, rrule.byMonthDay.size());

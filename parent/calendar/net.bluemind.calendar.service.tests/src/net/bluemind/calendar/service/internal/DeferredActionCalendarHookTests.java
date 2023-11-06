@@ -219,7 +219,7 @@ public class DeferredActionCalendarHookTests {
 		addAlarm(defaultVEvent.main, 15 * 60 * 60);
 		VEvent.RRule rrule = new VEvent.RRule();
 		rrule.frequency = VEvent.RRule.Frequency.WEEKLY;
-		rrule.byDay = Arrays.asList(WeekDay.SA);
+		rrule.byDay = Arrays.asList(WeekDay.sa());
 		rrule.interval = 2;
 		defaultVEvent.main.rrule = rrule;
 
@@ -366,8 +366,8 @@ public class DeferredActionCalendarHookTests {
 		defaultVEvent.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2017, 2, 13, 0, 0, 1, 0, tz));
 		defaultVEvent.main.dtend = BmDateTimeHelper.time(ZonedDateTime.of(2017, 2, 13, 1, 0, 1, 0, tz));
 		defaultVEvent.main.rrule = new RRule();
-		defaultVEvent.main.rrule.byDay = Arrays.asList(WeekDay.MO, WeekDay.TU, WeekDay.WE, WeekDay.TH, WeekDay.FR,
-				WeekDay.SA, WeekDay.SU);
+		defaultVEvent.main.rrule.byDay = Arrays.asList(WeekDay.mo(), WeekDay.tu(), WeekDay.we(), WeekDay.th(),
+				WeekDay.fr(), WeekDay.sa(), WeekDay.su());
 		defaultVEvent.main.rrule.frequency = Frequency.WEEKLY;
 		defaultVEvent.main.rrule.until = BmDateTimeHelper.time(ZonedDateTime.of(2025, 2, 13, 0, 0, 0, 1, tz));
 		addAlarm(defaultVEvent.main, 60 * 60 * 2);
@@ -425,8 +425,8 @@ public class DeferredActionCalendarHookTests {
 		defaultVEvent.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2017, 2, 13, 8, 0, 0, 0, tz));
 		defaultVEvent.main.dtend = BmDateTimeHelper.time(ZonedDateTime.of(2017, 2, 13, 9, 0, 0, 0, tz));
 		defaultVEvent.main.rrule = new RRule();
-		defaultVEvent.main.rrule.byDay = Arrays.asList(WeekDay.MO, WeekDay.TU, WeekDay.WE, WeekDay.TH, WeekDay.FR,
-				WeekDay.SA, WeekDay.SU);
+		defaultVEvent.main.rrule.byDay = Arrays.asList(WeekDay.mo(), WeekDay.tu(), WeekDay.we(), WeekDay.th(),
+				WeekDay.fr(), WeekDay.sa(), WeekDay.su());
 		defaultVEvent.main.rrule.frequency = Frequency.WEEKLY;
 		defaultVEvent.main.rrule.until = null;
 		addAlarm(defaultVEvent.main, 120);
@@ -449,8 +449,8 @@ public class DeferredActionCalendarHookTests {
 		defaultVEvent.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2017, 2, 13, 8, 0, 0, 0, tz));
 		defaultVEvent.main.dtend = BmDateTimeHelper.time(ZonedDateTime.of(2017, 2, 13, 9, 0, 0, 0, tz));
 		defaultVEvent.main.rrule = new RRule();
-		defaultVEvent.main.rrule.byDay = Arrays.asList(WeekDay.MO, WeekDay.TU, WeekDay.WE, WeekDay.TH, WeekDay.FR,
-				WeekDay.SA, WeekDay.SU);
+		defaultVEvent.main.rrule.byDay = Arrays.asList(WeekDay.mo(), WeekDay.tu(), WeekDay.we(), WeekDay.th(),
+				WeekDay.fr(), WeekDay.sa(), WeekDay.su());
 		defaultVEvent.main.rrule.frequency = Frequency.WEEKLY;
 		defaultVEvent.main.rrule.until = null;
 		addAlarm(defaultVEvent.main, 120);

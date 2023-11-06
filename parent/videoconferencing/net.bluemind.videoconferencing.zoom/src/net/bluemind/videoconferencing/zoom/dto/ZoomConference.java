@@ -89,17 +89,17 @@ public class ZoomConference {
 			recurrence.put("type", 2);
 			if (rec.byDay != null && !rec.byDay.isEmpty()) {
 				List<String> values = rec.byDay.stream().map(day -> {
-					if (day.equals(WeekDay.SU)) {
+					if (day.equals(WeekDay.su())) {
 						return "1";
-					} else if (day.equals(WeekDay.MO)) {
+					} else if (day.equals(WeekDay.mo())) {
 						return "2";
-					} else if (day.equals(WeekDay.TU)) {
+					} else if (day.equals(WeekDay.tu())) {
 						return "3";
-					} else if (day.equals(WeekDay.WE)) {
+					} else if (day.equals(WeekDay.we())) {
 						return "4";
-					} else if (day.equals(WeekDay.TH)) {
+					} else if (day.equals(WeekDay.th())) {
 						return "5";
-					} else if (day.equals(WeekDay.FR)) {
+					} else if (day.equals(WeekDay.fr())) {
 						return "6";
 					} else
 						return "7";

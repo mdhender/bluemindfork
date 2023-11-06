@@ -462,7 +462,7 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 		event.main.rrule = new RRule();
 		event.main.rrule.frequency = Frequency.WEEKLY;
 		event.main.rrule.interval = 10;
-		event.main.rrule.byDay = Arrays.asList(WeekDay.TU, WeekDay.FR);
+		event.main.rrule.byDay = Arrays.asList(WeekDay.tu(), WeekDay.fr());
 		getCalendarService(userSecurityContext, userCalendarContainer).update(uid, event, sendNotifications);
 		ESearchActivator.refreshIndex(AUDIT_LOG_DATASTREAM);
 
@@ -495,7 +495,7 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 		event.main.rrule = new RRule();
 		event.main.rrule.frequency = Frequency.WEEKLY;
 		event.main.rrule.interval = 10;
-		event.main.rrule.byDay = Arrays.asList(WeekDay.TU, WeekDay.FR);
+		event.main.rrule.byDay = Arrays.asList(WeekDay.tu(), WeekDay.fr());
 		getCalendarService(userSecurityContext, userCalendarContainer).create(uid, event, sendNotifications);
 
 		event.main.rrule.frequency = Frequency.MONTHLY;
@@ -531,10 +531,10 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 		event.main.rrule = new RRule();
 		event.main.rrule.frequency = Frequency.WEEKLY;
 		event.main.rrule.interval = 10;
-		event.main.rrule.byDay = Arrays.asList(WeekDay.TU, WeekDay.FR);
+		event.main.rrule.byDay = Arrays.asList(WeekDay.tu(), WeekDay.fr());
 		getCalendarService(userSecurityContext, userCalendarContainer).create(uid, event, sendNotifications);
 
-		event.main.rrule.byDay = Arrays.asList(WeekDay.TU, WeekDay.SA);
+		event.main.rrule.byDay = Arrays.asList(WeekDay.tu(), WeekDay.sa());
 		getCalendarService(userSecurityContext, userCalendarContainer).update(uid, event, sendNotifications);
 		ESearchActivator.refreshIndex(AUDIT_LOG_DATASTREAM);
 
@@ -567,7 +567,7 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 		event.main.rrule = new RRule();
 		event.main.rrule.frequency = Frequency.WEEKLY;
 		event.main.rrule.interval = 10;
-		event.main.rrule.byDay = Arrays.asList(WeekDay.TU, WeekDay.FR);
+		event.main.rrule.byDay = Arrays.asList(WeekDay.tu(), WeekDay.fr());
 		event.main.rrule.byMinute = Arrays.asList(0, 30);
 		getCalendarService(userSecurityContext, userCalendarContainer).create(uid, event, sendNotifications);
 

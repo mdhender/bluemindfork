@@ -202,7 +202,7 @@ public class VEventValidatorTest {
 		try {
 			validator.validate(vevent);
 			assertEquals(1, vevent.rrule.byDay.size());
-			assertEquals(WeekDay.FR, vevent.rrule.byDay.get(0));
+			assertEquals(WeekDay.fr(), vevent.rrule.byDay.get(0));
 		} catch (ServerFault e) {
 			fail();
 		}

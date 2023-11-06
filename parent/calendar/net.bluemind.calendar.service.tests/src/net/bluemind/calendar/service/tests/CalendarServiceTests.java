@@ -958,10 +958,10 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		rrule.frequency = RRule.Frequency.WEEKLY;
 		rrule.until = BmDateTimeHelper.time(ZonedDateTime.of(2014, 6, 4, 0, 0, 0, 0, tz));
 		List<RRule.WeekDay> weekDay = new ArrayList<RRule.WeekDay>(4);
-		weekDay.add(RRule.WeekDay.MO);
-		weekDay.add(RRule.WeekDay.TU);
-		weekDay.add(RRule.WeekDay.TH);
-		weekDay.add(RRule.WeekDay.FR);
+		weekDay.add(RRule.WeekDay.mo());
+		weekDay.add(RRule.WeekDay.tu());
+		weekDay.add(RRule.WeekDay.th());
+		weekDay.add(RRule.WeekDay.fr());
 		rrule.byDay = weekDay;
 
 		event.main.rrule = rrule;

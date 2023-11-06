@@ -514,13 +514,33 @@ public class ICalendarElement {
 			public String day;
 			public int offset;
 
-			public static final WeekDay SU = new WeekDay("SU");
-			public static final WeekDay MO = new WeekDay("MO");
-			public static final WeekDay TU = new WeekDay("TU");
-			public static final WeekDay WE = new WeekDay("WE");
-			public static final WeekDay TH = new WeekDay("TH");
-			public static final WeekDay FR = new WeekDay("FR");
-			public static final WeekDay SA = new WeekDay("SA");
+			public static WeekDay su() {
+				return new WeekDay("SU");
+			}
+
+			public static WeekDay mo() {
+				return new WeekDay("MO");
+			}
+
+			public static WeekDay tu() {
+				return new WeekDay("TU");
+			}
+
+			public static WeekDay we() {
+				return new WeekDay("WE");
+			}
+
+			public static WeekDay th() {
+				return new WeekDay("TH");
+			}
+
+			public static WeekDay fr() {
+				return new WeekDay("FR");
+			}
+
+			public static WeekDay sa() {
+				return new WeekDay("SA");
+			}
 
 			public WeekDay() {
 			}
@@ -558,19 +578,20 @@ public class ICalendarElement {
 			}
 
 			public int toInt() {
-				if (this.equals(MO)) {
+				WeekDay strippedOffset = new WeekDay(this.day);
+				if (strippedOffset.equals(mo())) {
 					return 1;
-				} else if (this.equals(TU)) {
+				} else if (strippedOffset.equals(tu())) {
 					return 2;
-				} else if (this.equals(WE)) {
+				} else if (strippedOffset.equals(we())) {
 					return 3;
-				} else if (this.equals(TH)) {
+				} else if (strippedOffset.equals(th())) {
 					return 4;
-				} else if (this.equals(FR)) {
+				} else if (strippedOffset.equals(fr())) {
 					return 5;
-				} else if (this.equals(SA)) {
+				} else if (strippedOffset.equals(sa())) {
 					return 6;
-				} else if (this.equals(SU)) {
+				} else if (strippedOffset.equals(su())) {
 					return 7;
 				} else {
 					return -1;

@@ -618,7 +618,7 @@ public class SyncEndpointTests extends AbstractEndpointTest {
 		ZonedDateTime tempDate = ZonedDateTime.ofInstant(Instant.ofEpochMilli(c.getTime().getTime()),
 				ZoneId.systemDefault());
 		event.rrule.until = BmDateTimeWrapper.create(tempDate, Precision.DateTime);
-		event.rrule.byDay = Arrays.asList(WeekDay.TU, WeekDay.WE);
+		event.rrule.byDay = Arrays.asList(WeekDay.tu(), WeekDay.we());
 		event.rrule.frequency = Frequency.WEEKLY;
 		event.rrule.interval = 1;
 

@@ -1814,7 +1814,7 @@ public class IcsHookTests {
 	public void o2a_tooMuchInICS_OnWeeklyUpdate() throws Exception {
 		ItemValue<VEventSeries> event = defaultVEventWithAttendeeAndSimpleRecur("invite", "u2", "u2@test.lan");
 		event.value.main.rrule.frequency = ICalendarElement.RRule.Frequency.WEEKLY;
-		event.value.main.rrule.byDay = Arrays.asList(ICalendarElement.RRule.WeekDay.MO);
+		event.value.main.rrule.byDay = Arrays.asList(ICalendarElement.RRule.WeekDay.mo());
 
 		ItemValue<VEventSeries> newEvent = defaultVEventWithAttendeeAndSimpleRecur("invite", "u2", "u2@test.lan");
 		VEventOccurrence occur = createSimpleOccur(newEvent.value.main);
@@ -2736,7 +2736,7 @@ public class IcsHookTests {
 		event.dtend = new BmDateTime("2019-12-02T14:00:00.000+01:00", "Europe/Paris", Precision.DateTime);
 		event.rrule = new RRule();
 		event.rrule.frequency = Frequency.WEEKLY;
-		event.rrule.byDay = Arrays.asList(WeekDay.WE);
+		event.rrule.byDay = Arrays.asList(WeekDay.we());
 		event.rrule.interval = 1;
 
 		BmDateTime recurId = new BmDateTime(event.dtstart.iso8601, event.dtstart.timezone, event.dtstart.precision);

@@ -622,7 +622,7 @@ public class VEventSanitizerTests {
 		vevent.rrule = new RRule();
 		vevent.rrule.frequency = Frequency.WEEKLY;
 		vevent.rrule.count = 10;
-		vevent.rrule.byDay = Arrays.asList(WeekDay.WE, WeekDay.TH, WeekDay.FR);
+		vevent.rrule.byDay = Arrays.asList(WeekDay.we(), WeekDay.th(), WeekDay.fr());
 		vevent.summary = "event " + System.currentTimeMillis();
 
 		sanitizer.sanitize(vevent, true);
@@ -645,7 +645,7 @@ public class VEventSanitizerTests {
 		vevent.rrule = new RRule();
 		vevent.rrule.frequency = Frequency.WEEKLY;
 		vevent.rrule.count = 10;
-		vevent.rrule.byDay = Arrays.asList(WeekDay.TU, WeekDay.FR);
+		vevent.rrule.byDay = Arrays.asList(WeekDay.tu(), WeekDay.fr());
 		vevent.summary = "event " + System.currentTimeMillis();
 
 		sanitizer.sanitize(vevent, true);
@@ -668,7 +668,7 @@ public class VEventSanitizerTests {
 		vevent.rrule = new RRule();
 		vevent.rrule.frequency = Frequency.WEEKLY;
 		vevent.rrule.count = 10;
-		vevent.rrule.byDay = Arrays.asList(WeekDay.TU, WeekDay.FR);
+		vevent.rrule.byDay = Arrays.asList(WeekDay.tu(), WeekDay.fr());
 		vevent.summary = "event " + System.currentTimeMillis();
 
 		sanitizer.sanitize(vevent, true);

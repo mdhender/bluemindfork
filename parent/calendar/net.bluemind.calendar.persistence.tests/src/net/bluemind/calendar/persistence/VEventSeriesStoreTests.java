@@ -44,6 +44,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import net.bluemind.attachment.api.AttachedFile;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventCounter;
@@ -478,10 +479,10 @@ public class VEventSeriesStoreTests {
 		rrule.byHour = Arrays.asList(2, 22);
 
 		List<VEvent.RRule.WeekDay> weekDay = new ArrayList<VEvent.RRule.WeekDay>(5);
-		weekDay.add(VEvent.RRule.WeekDay.MO);
-		weekDay.add(VEvent.RRule.WeekDay.TU);
-		weekDay.add(VEvent.RRule.WeekDay.TH);
-		weekDay.add(VEvent.RRule.WeekDay.FR);
+		weekDay.add(VEvent.RRule.WeekDay.mo());
+		weekDay.add(VEvent.RRule.WeekDay.tu());
+		weekDay.add(VEvent.RRule.WeekDay.th());
+		weekDay.add(VEvent.RRule.WeekDay.fr());
 		weekDay.add(new VEvent.RRule.WeekDay("SA", 2));
 		rrule.byDay = weekDay;
 
@@ -530,11 +531,11 @@ public class VEventSeriesStoreTests {
 
 		assertNotNull(rrule.byDay);
 		assertEquals(5, rrule.byDay.size());
-		assertTrue(rrule.byDay.contains(VEvent.RRule.WeekDay.MO));
-		assertTrue(rrule.byDay.contains(VEvent.RRule.WeekDay.TU));
-		assertTrue(rrule.byDay.contains(VEvent.RRule.WeekDay.TH));
-		assertTrue(rrule.byDay.contains(VEvent.RRule.WeekDay.FR));
-		assertFalse(rrule.byDay.contains(VEvent.RRule.WeekDay.SA));
+		assertTrue(rrule.byDay.contains(VEvent.RRule.WeekDay.mo()));
+		assertTrue(rrule.byDay.contains(VEvent.RRule.WeekDay.tu()));
+		assertTrue(rrule.byDay.contains(VEvent.RRule.WeekDay.th()));
+		assertTrue(rrule.byDay.contains(VEvent.RRule.WeekDay.fr()));
+		assertFalse(rrule.byDay.contains(VEvent.RRule.WeekDay.sa()));
 		assertTrue(rrule.byDay.contains(new VEvent.RRule.WeekDay("SA", 2)));
 
 		assertNotNull(rrule.byMonthDay);

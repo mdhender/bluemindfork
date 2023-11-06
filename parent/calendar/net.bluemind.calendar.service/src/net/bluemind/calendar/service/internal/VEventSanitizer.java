@@ -282,19 +282,19 @@ public class VEventSanitizer {
 	private WeekDay convertToWeekDay(DayOfWeek dayOfWeek) {
 		switch (dayOfWeek) {
 		case MONDAY:
-			return WeekDay.MO;
+			return WeekDay.mo();
 		case TUESDAY:
-			return WeekDay.TU;
+			return WeekDay.tu();
 		case WEDNESDAY:
-			return WeekDay.WE;
+			return WeekDay.we();
 		case THURSDAY:
-			return WeekDay.TH;
+			return WeekDay.th();
 		case FRIDAY:
-			return WeekDay.FR;
+			return WeekDay.fr();
 		case SATURDAY:
-			return WeekDay.SA;
+			return WeekDay.sa();
 		case SUNDAY:
-			return WeekDay.SU;
+			return WeekDay.su();
 		default:
 			throw new IllegalArgumentException();
 		}

@@ -112,25 +112,25 @@ public class VEventValidator implements IValidator<VEventSeries> {
 				BmDateTimeWrapper tw = new BmDateTimeWrapper(vevent.dtstart);
 				switch (tw.format("E")) {
 				case "Sun":
-					rrule.byDay.add(WeekDay.SU);
+					rrule.byDay.add(WeekDay.su());
 					break;
 				case "Mon":
-					rrule.byDay.add(WeekDay.MO);
+					rrule.byDay.add(WeekDay.mo());
 					break;
 				case "Tue":
-					rrule.byDay.add(WeekDay.TU);
+					rrule.byDay.add(WeekDay.tu());
 					break;
 				case "Wed":
-					rrule.byDay.add(WeekDay.WE);
+					rrule.byDay.add(WeekDay.we());
 					break;
 				case "Thu":
-					rrule.byDay.add(WeekDay.TH);
+					rrule.byDay.add(WeekDay.th());
 					break;
 				case "Fri":
-					rrule.byDay.add(WeekDay.FR);
+					rrule.byDay.add(WeekDay.fr());
 					break;
 				case "Sat":
-					rrule.byDay.add(WeekDay.SA);
+					rrule.byDay.add(WeekDay.sa());
 					break;
 				}
 			}

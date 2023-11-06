@@ -419,25 +419,25 @@ public class EventConverter {
 		List<RRule.WeekDay> ret = new ArrayList<>(dayOfWeek.days.size());
 
 		if (dayOfWeek.days.contains(Days.SUNDAY)) {
-			ret.add(RRule.WeekDay.SU);
+			ret.add(RRule.WeekDay.su());
 		}
 		if (dayOfWeek.days.contains(Days.MONDAY)) {
-			ret.add(RRule.WeekDay.MO);
+			ret.add(RRule.WeekDay.mo());
 		}
 		if (dayOfWeek.days.contains(Days.TUESDAY)) {
-			ret.add(RRule.WeekDay.TU);
+			ret.add(RRule.WeekDay.tu());
 		}
 		if (dayOfWeek.days.contains(Days.WEDNESDAY)) {
-			ret.add(RRule.WeekDay.WE);
+			ret.add(RRule.WeekDay.we());
 		}
 		if (dayOfWeek.days.contains(Days.THRUSDAY)) {
-			ret.add(RRule.WeekDay.TH);
+			ret.add(RRule.WeekDay.th());
 		}
 		if (dayOfWeek.days.contains(Days.FRIDAY)) {
-			ret.add(RRule.WeekDay.FR);
+			ret.add(RRule.WeekDay.fr());
 		}
 		if (dayOfWeek.days.contains(Days.SATURDAY)) {
-			ret.add(RRule.WeekDay.SA);
+			ret.add(RRule.WeekDay.sa());
 		}
 		return ret;
 	}
@@ -545,31 +545,31 @@ public class EventConverter {
 
 		dow.days = new HashSet<Days>(byDay.size());
 
-		if (byDay.contains(RRule.WeekDay.SU)) {
+		if (byDay.contains(RRule.WeekDay.su())) {
 			dow.days.add(Days.SUNDAY);
 		}
 
-		if (byDay.contains(RRule.WeekDay.MO)) {
+		if (byDay.contains(RRule.WeekDay.mo())) {
 			dow.days.add(Days.MONDAY);
 		}
 
-		if (byDay.contains(RRule.WeekDay.TU)) {
+		if (byDay.contains(RRule.WeekDay.tu())) {
 			dow.days.add(Days.TUESDAY);
 		}
 
-		if (byDay.contains(RRule.WeekDay.WE)) {
+		if (byDay.contains(RRule.WeekDay.we())) {
 			dow.days.add(Days.WEDNESDAY);
 		}
 
-		if (byDay.contains(RRule.WeekDay.TH)) {
+		if (byDay.contains(RRule.WeekDay.th())) {
 			dow.days.add(Days.THRUSDAY);
 		}
 
-		if (byDay.contains(RRule.WeekDay.FR)) {
+		if (byDay.contains(RRule.WeekDay.fr())) {
 			dow.days.add(Days.FRIDAY);
 		}
 
-		if (byDay.contains(RRule.WeekDay.SA)) {
+		if (byDay.contains(RRule.WeekDay.sa())) {
 			dow.days.add(Days.SATURDAY);
 		}
 

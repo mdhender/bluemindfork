@@ -327,7 +327,7 @@ public class ResourceCalendarHookTests {
 				ICalendarUids.resourceCalendar("r1"));
 		VEventSeries event = defaultVEvent("invite");
 		event.main.rrule = new RRule();
-		event.main.rrule.byDay = Arrays.asList(WeekDay.SA);
+		event.main.rrule.byDay = Arrays.asList(WeekDay.sa());
 		event.main.rrule.frequency = Frequency.DAILY;
 		event.main.status = ICalendarElement.Status.NeedsAction;
 		event.main.attendees.add(
