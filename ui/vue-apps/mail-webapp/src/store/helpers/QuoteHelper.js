@@ -97,7 +97,9 @@ function findFromNodeAndNextSiblings(htmlDoc, message) {
         let nodes;
         if (fromNode) {
             nodes = [fromNode];
-            let sibling = fromNode;
+
+            const isOnlyChild = fromNode.parentNode.children.length === 1;
+            let sibling = isOnlyChild ? fromNode.parentNode : fromNode;
             while ((sibling = sibling.nextElementSibling)) {
                 nodes.push(sibling);
             }
