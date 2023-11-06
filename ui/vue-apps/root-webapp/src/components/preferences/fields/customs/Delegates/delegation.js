@@ -64,7 +64,7 @@ export function useDelegation() {
     const updateDelegates = acls => {
         const mailboxAcl = acls[mailboxUid.value];
         const delegatesUids = mailboxAcl?.flatMap(({ subject, verb }) =>
-            DELEGATION_VERBS.includes(verb) ? subject : []
+            subject !== getUserId() && DELEGATION_VERBS.includes(verb) ? subject : []
         );
         const tmp = {};
         if (delegatesUids?.length) {
