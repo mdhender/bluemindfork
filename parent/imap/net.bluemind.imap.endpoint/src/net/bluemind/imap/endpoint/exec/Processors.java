@@ -52,6 +52,7 @@ public class Processors {
 		register(new IdleProcessor());
 		register(new DoneProcessor());
 		register(new UidSearchProcessor());
+		register(new SearchProcessor());
 		register(new AppendProcessor());
 		register(new UidStoreProcessor());
 		register(new UidCopyProcessor());

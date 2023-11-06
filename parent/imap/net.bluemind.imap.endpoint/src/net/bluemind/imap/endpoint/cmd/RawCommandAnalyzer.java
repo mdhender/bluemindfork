@@ -135,6 +135,8 @@ public class RawCommandAnalyzer {
 				return new StoreCommand(raw);
 			} else if (cmd.startsWith("subscribe ")) {
 				return new SubscribeCommand(raw);
+			} else if (cmd.startsWith("search ")) {
+				return new SearchCommand(raw);
 			}
 			return null;
 		case 'u':
