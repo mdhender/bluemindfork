@@ -33,8 +33,8 @@ import InlineStyle from "~/components/InlineStyle";
 import MailViewerContentLoading from "../MailViewerContentLoading";
 import FileViewerMixin from "./FileViewerMixin";
 
-const { isForward } = messageUtils;
-const { getPartsFromCapabilities, VIEWER_CAPABILITIES } = partUtils;
+const { isForward, computeParts } = messageUtils;
+const { VIEWER_CAPABILITIES } = partUtils;
 
 export default {
     name: "TextHtmlFileViewer",
@@ -137,7 +137,8 @@ export default {
                             this.$store.state.mail.partsData.partsByMessageKey,
                             this.message,
                             conversationMessages,
-                            this.file
+                            this.file,
+                            this.relatedParts
                         );
                     }
                     return quoteNodes;
@@ -152,7 +153,8 @@ async function findQuoteNodesUsingTextComparison(
     partsByMessageKey,
     message,
     conversationMessages,
-    messagePart
+    messagePart,
+    relatedParts
 ) {
     const references = messageUtils.extractHeaderValues(message, messageUtils.MessageHeader.REFERENCES);
 
@@ -160,20 +162,19 @@ async function findQuoteNodesUsingTextComparison(
         const lastRef = references[references.length - 1];
         const relatedMessage = conversationMessages.find(m => m.messageId === lastRef);
         if (relatedMessage) {
-            let relatedParts = partsByMessageKey[relatedMessage.key];
-            if (!relatedParts) {
-                const inlines = getPartsFromCapabilities(relatedMessage, VIEWER_CAPABILITIES);
+            let relatedPartsContent = partsByMessageKey[relatedMessage.key];
+            if (!relatedPartsContent && relatedParts.length) {
                 await dispatch(FETCH_PART_DATA, {
                     messageKey: relatedMessage.key,
                     folderUid: relatedMessage.folderRef.uid,
                     imapUid: relatedMessage.remoteRef.imapUid,
-                    parts: inlines.filter(part => MimeType.isHtml(part))
+                    parts: relatedParts
                 });
-                relatedParts = partsByMessageKey[relatedMessage.key];
+                relatedPartsContent = partsByMessageKey[relatedMessage.key];
             }
 
-            if (relatedParts) {
-                for (const relatedPart in Object.values(relatedParts)) {
+            if (relatedPartsContent) {
+                for (const relatedPart in Object.values(relatedPartsContent)) {
                     const quoteNodes = QuoteHelper.findQuoteNodesUsingTextComparison(messagePart, relatedPart);
                     if (quoteNodes) {
                         return quoteNodes;
