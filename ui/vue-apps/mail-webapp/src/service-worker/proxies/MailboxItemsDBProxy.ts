@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import sortedIndexBy from "lodash.sortedindexby";
+import { sortBy } from "lodash";
 import { MailboxItemsClient } from "@bluemind/backend.mail.api";
 import { ItemFlag, ItemFlagFilter, SortDescriptor } from "@bluemind/core.container.api";
 import { isSubscribedAndSynced } from "../sync";
@@ -34,20 +34,17 @@ export default class extends MailboxItemsClient {
     }
 
     async sortedIds(sort?: SortDescriptor) {
-        sort = sort as SortDescriptor;
         if (await isSubscribedAndSynced(this.replicatedMailboxUid)) {
             const allMailItems: Array<MailItemLight> = await db.getAllMailItemLight(this.replicatedMailboxUid);
             const iteratee = getIteratee(sort?.fields?.at(0));
-            const data: Array<MailItemLight> = [];
-            const ids: Array<number> = [];
-            allMailItems.forEach(item => {
-                if (matchFilter(item.flags, sort?.filter)) {
-                    const index = indexOf(data, item, iteratee, sort?.fields?.at(0)?.dir);
-                    data.splice(index, 0, item);
-                    ids.splice(index, 0, item.internalId);
+            const sorted = sortBy(allMailItems, iteratee);
+            const ids: number[] = [];
+            sorted.forEach(({ internalId, flags }) => {
+                if (matchFilter(flags, sort?.filter)) {
+                    ids.push(internalId);
                 }
             });
-            return ids;
+            return sort?.fields?.at(0)?.dir === "Desc" ? ids.reverse() : ids;
         }
         return this.next!();
     }
@@ -64,15 +61,6 @@ function getIteratee(field?: SortDescriptor.Field) {
         default:
             return "date";
     }
-}
-function indexOf(
-    array: Array<MailItemLight>,
-    value: MailItemLight,
-    iteratee: string,
-    direction?: "Desc" | "Asc"
-): number {
-    const index = sortedIndexBy(array, value, iteratee);
-    return direction === "Desc" ? array.length - index : index;
 }
 
 export function filterByFlags(expected: ItemFlagFilter | undefined, flags: ItemFlag[]) {
