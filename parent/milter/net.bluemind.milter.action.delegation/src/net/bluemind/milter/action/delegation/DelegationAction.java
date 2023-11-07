@@ -107,30 +107,20 @@ public class DelegationAction implements MilterAction {
 										context.getSenderDomain().uid, senderAddress);
 							}
 						}, () -> {
-							verifyExternalIdentity(senderUserUid, modifier, context, senderAddress, fromAddress);
+							verifyExternalIdentity(senderUserUid, modifier, context);
 						}));
 	}
 
-	private void verifyExternalIdentity(String senderUserUid, UpdatedMailMessage modifier, IClientContext context,
-			String senderAddress, String fromAddress) {
-		if (!hasExternalIdentity(context, senderUserUid, fromAddress)) {
+	private void verifyExternalIdentity(String senderUserUid, UpdatedMailMessage modifier, IClientContext context) {
+		if (!hasRole(context, senderUserUid)) {
 			modifier.errorStatus = SMTP_ERROR_STATUS;
 		}
-	}
-
-	private boolean hasExternalIdentity(IClientContext context, String senderUserUid, String fromAddress) {
-		return hasRole(context, senderUserUid) && identityMatch(context, senderUserUid, fromAddress);
 	}
 
 	private boolean hasRole(IClientContext context, String senderUserUid) {
 		return context.provider().instance(IUser.class, context.getSenderDomain().uid) //
 				.getResolvedRoles(senderUserUid).stream()
 				.anyMatch(role -> role.equals(BasicRoles.ROLE_EXTERNAL_IDENTITY));
-	}
-
-	private boolean identityMatch(IClientContext context, String senderUserUid, String fromAddress) {
-		return context.provider().instance(IUserMailIdentities.class, context.getSenderDomain().uid, senderUserUid)
-				.getIdentities().stream().anyMatch(i -> i.email.equals(fromAddress));
 	}
 
 	private Optional<String> getConnectedUserEmail(UpdatedMailMessage modifier) {
