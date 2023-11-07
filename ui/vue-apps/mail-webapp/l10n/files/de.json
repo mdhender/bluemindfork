@@ -453,7 +453,7 @@
     "mail.viewer.invitation.canceled.status.occurrence": "Termin der Terminserie abgesagt",
     "mail.viewer.invitation.not_found.event": "Diese Nachricht bezieht sich auf einen Termin, {status}.",
     "mail.viewer.invitation.not_found.status": "das in Ihrem Kalender nicht existiert",
-    "mail.viewer.invitation.counter.added_attendees": "Teilnehmer hinzugefügt ({count}) | Hinzugefügte Teilnehmer ({count})",
+    "mail.viewer.invitation.counter.added_attendees": "Teilnehmer hinzugefügt ({count})",
     "mail.viewer.invitation.counter.added_attendees.refuse": "Ablehnen {attendee} | Ablehnen der {count} hinzugefügten Teilnehmer | Alle Teilnehmer ablehnen",
     "mail.viewer.invitation.counter.rejected_attendees": "Abgelehnter Teilnehmer ({count}) | Abgelehnte Teilnehmer ({count})",
     "mail.viewer.invitation.counter.event": "{name} hat die Einladung {status} und {counter}.",

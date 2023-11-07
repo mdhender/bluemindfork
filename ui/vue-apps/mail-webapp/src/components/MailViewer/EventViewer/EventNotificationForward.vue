@@ -46,18 +46,14 @@ function rejectAttendees(attendees) {
                     right
                     split
                     variant="outline"
+                    icon="cross"
+                    :text="
+                        $tc('mail.viewer.invitation.counter.added_attendees.refuse', 1, {
+                            count: newlyAddedAttendees?.length
+                        })
+                    "
                     @click="rejectAttendees(newlyAddedAttendees)"
                 >
-                    <template #button-content>
-                        <bm-label-icon icon="cross" @click="rejectAttendees(newlyAddedAttendees)">
-                            {{
-                                $tc("mail.viewer.invitation.counter.added_attendees.refuse", 1, {
-                                    count: newlyAddedAttendees?.length
-                                })
-                            }}
-                        </bm-label-icon>
-                    </template>
-
                     <bm-dropdown-item
                         v-for="(attendee, index) in newlyAddedAttendees"
                         :key="index"

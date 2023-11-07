@@ -91,7 +91,8 @@ export default {
             );
             await inject("CalendarPersistence", state.currentEvent.calendarUid).update(
                 state.currentEvent.uid,
-                serverEvent.serverEvent.value
+                serverEvent.serverEvent.value,
+                true
             );
 
             commit(SET_CURRENT_EVENT, {

@@ -10,7 +10,7 @@ defineProps({
 </script>
 
 <template>
-    <event-footer-section v-if="attendees?.length" :label="label">
+    <event-footer-section v-if="attendees?.length" :label="label" role="list">
         <div v-for="(attendee, index) in attendees" :key="index" class="event-footer-entry" role="listitem">
             <mail-contact-card-slots
                 :component="Contact"

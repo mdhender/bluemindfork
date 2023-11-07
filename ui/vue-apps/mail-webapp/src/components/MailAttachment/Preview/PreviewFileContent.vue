@@ -17,13 +17,12 @@
 <script>
 import { MimeType } from "@bluemind/email";
 import { mapActions, mapMutations, mapState } from "vuex";
-import { WARNING } from "@bluemind/alert.store";
+import { WARNING, REMOVE } from "@bluemind/alert.store";
 import apiAddressbooks from "~/store/api/apiAddressbooks";
 import { SET_BLOCK_REMOTE_IMAGES } from "~/mutations";
 import { BmExtension } from "@bluemind/extensions.vue";
 import { BmAlertArea, BmIcon, BmSpinner } from "@bluemind/ui-components";
 import { fileUtils } from "@bluemind/mail";
-import { REMOVE } from "@bluemind/alert.store";
 import { PreviewMixin } from "~/mixins";
 import FileViewerFacade from "../../MailViewer/FilesViewer/FileViewerFacade";
 import NoPreview from "./Fallback/NoPreview";
