@@ -36,7 +36,7 @@
                 </div>
             </template>
             <template #cell(editable)="cell">
-                <div v-if="cell.value" class="actions">
+                <div v-if="editable && cell.value" class="actions">
                     <bm-icon-button variant="compact" icon="arrow-up" @click="$emit('up', cell.item)" />
                     <bm-icon-button variant="compact" icon="arrow-down" @click="$emit('down', cell.item)" />
                     <bm-icon-button variant="compact" icon="pencil" @click="$emit('edit', cell.item)" />
