@@ -36,6 +36,16 @@ module.exports = {
         },
         {
             ...baseConfig,
+            displayName: "commons.light",
+            testMatch: ["<rootDir>/commons.light/" + testFileMatcher]
+        },
+        {
+            ...baseConfig,
+            displayName: "commons_packages",
+            testMatch: ["<rootDir>/commons_packages/" + testFileMatcher]
+        },
+        {
+            ...baseConfig,
             displayName: "plugins",
             testMatch: ["<rootDir>/plugins/" + testFileMatcher]
         },
