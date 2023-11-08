@@ -19,9 +19,11 @@
 
 package net.bluemind.core.auditlogs;
 
+import net.bluemind.core.auditlogs.exception.DataStreamCreationException;
+
 public interface IAuditLogMgmt {
 
-	public void createDataStreamForDomainIfNotExists(String name, String domainUid);
+	public void createDataStreamForDomainIfNotExists(String name, String domainUid) throws DataStreamCreationException;
 
 	public void createDataStreamIfNotExists(String name);
 
@@ -30,5 +32,7 @@ public interface IAuditLogMgmt {
 	public void removeDatastreamForPrefixAndDomain(String dataStreamPrefix, String domainUid);
 
 	public void removeAllDatastream();
+
+	public boolean isDataStream(String dataStream);
 
 }

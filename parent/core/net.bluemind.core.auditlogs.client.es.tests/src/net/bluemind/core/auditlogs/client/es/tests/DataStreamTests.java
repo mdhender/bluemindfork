@@ -32,8 +32,8 @@ import org.junit.Test;
 import com.google.common.collect.Lists;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import net.bluemind.core.auditlogs.client.es.datastreams.DataStreamActivator;
+import net.bluemind.core.auditlogs.exception.DataStreamCreationException;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.context.SecurityContext;
@@ -92,7 +92,7 @@ public class DataStreamTests {
 	}
 
 	@Test
-	public void createDataStream() throws ElasticsearchException, IOException {
+	public void createDataStream() throws DataStreamCreationException, IOException {
 		dataStreamActivator = new DataStreamActivator();
 		dataStreamActivator.createDataStreamForDomainIfNotExists(dataStreamName, domainUid);
 		boolean isDataStream = !esClient.indices().resolveIndex(r -> r.name(dataStreamName + "_" + domainUid))
@@ -101,7 +101,7 @@ public class DataStreamTests {
 	}
 
 	@Test
-	public void removeDataStreamForNameAndDomain() throws ElasticsearchException, IOException {
+	public void removeDataStreamForNameAndDomain() throws DataStreamCreationException, IOException {
 		dataStreamActivator = new DataStreamActivator();
 		dataStreamActivator.createDataStreamForDomainIfNotExists(dataStreamName, domainUid);
 		dataStreamActivator.createDataStreamForDomainIfNotExists(dataStreamName, domainUid01);
@@ -120,7 +120,7 @@ public class DataStreamTests {
 	}
 
 	@Test
-	public void removeDataStreamForName() throws ElasticsearchException, IOException {
+	public void removeDataStreamForName() throws DataStreamCreationException, IOException {
 		dataStreamActivator = new DataStreamActivator();
 		dataStreamActivator.createDataStreamForDomainIfNotExists(dataStreamName, domainUid);
 		dataStreamActivator.createDataStreamForDomainIfNotExists(dataStreamName, domainUid01);

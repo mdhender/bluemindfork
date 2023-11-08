@@ -54,6 +54,7 @@ import co.elastic.clients.transport.ElasticsearchTransport;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.core.auditlogs.IAuditLogMgmt;
+import net.bluemind.core.auditlogs.exception.DataStreamCreationException;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.lib.elasticsearch.exception.ElasticIndexException;
 
@@ -134,11 +135,6 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 		}
 	}
 
-	public static boolean isDataStream(ElasticsearchClient esClient, String dataStream)
-			throws ElasticsearchException, IOException {
-		return !esClient.indices().resolveIndex(i -> i.name(dataStream)).dataStreams().isEmpty();
-	}
-
 	private static Optional<IndexTemplateItem> indexTemplateDefinitionOf(ElasticsearchClient esClient,
 			String indexTemplateName) throws ElasticsearchException, IOException {
 		return esClient.indices().getIndexTemplate().indexTemplates().stream()
@@ -164,7 +160,7 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 		try {
 			if (!currentDataStreams.contains(dataStreamName) && optSchema.isPresent()) {
 				initOrUpdateIndexTemplate(esClient, optSchema.get(), dataStreamName);
-				if (!isDataStream(esClient, dataStreamName)) {
+				if (!isDataStream(dataStreamName)) {
 					initDataStream(esClient, dataStreamName);
 				}
 
@@ -175,17 +171,13 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 	}
 
 	@Override
-	public void createDataStreamForDomainIfNotExists(String dataStreamName, String domainUid) {
+	public void createDataStreamForDomainIfNotExists(String dataStreamName, String domainUid)
+			throws DataStreamCreationException {
 		ElasticsearchClient esClient = ESearchActivator.getClient();
 		String dataStreamFullName = dataStreamName + SEPARATOR + domainUid;
-		logger.info("SCL - datastream full name: {}", dataStreamFullName);
-		logger.info("SCL - esClient: {}", esClient);
 		List<String> currentDataStreams = dataStreamNames(esClient);
 		Optional<IndexTemplateDefinition> optSchema = indexTemplates.values().stream()
 				.filter(d -> d.datastreamName.equals(dataStreamName)).findFirst();
-		logger.info("SCL - currentDataStreams.contains(dataStreamFullName): {}",
-				currentDataStreams.contains(dataStreamFullName));
-		logger.info("SCL - optSchema.isPresent(): {}", optSchema.isPresent());
 		try {
 			if (!currentDataStreams.contains(dataStreamFullName) && optSchema.isPresent()) {
 				initOrUpdateIndexTemplate(esClient, optSchema.get(), dataStreamFullName);
@@ -193,6 +185,7 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 			}
 		} catch (ElasticsearchException | IOException e) {
 			logger.error("Create datastream failed.", e);
+			throw new DataStreamCreationException(e);
 		}
 	}
 
@@ -277,6 +270,17 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 			deleteIndexTemplate(esClient, v.indexTemplateName, domainUid);
 		});
 
+	}
+
+	@Override
+	public boolean isDataStream(String dataStreamName) {
+		ElasticsearchClient esClient = ESearchActivator.getClient();
+		try {
+			return !esClient.indices().resolveIndex(i -> i.name(dataStreamName)).dataStreams().isEmpty();
+		} catch (ElasticsearchException | IOException e) {
+			logger.error(e.getMessage());
+			return false;
+		}
 	}
 
 }

@@ -20,5 +20,11 @@
             class="net.bluemind.core.auditlogs.client.es.hooks.DataStreamDomainsHook">
       </hook>
    </extension>
+   <extension
+         point="net.bluemind.scheduledjob.scheduler.job">
+      <scheduledjob_provider
+            implementation="net.bluemind.core.auditlogs.client.es.job.DataStreamConsistencyJob">
+      </scheduledjob_provider>
+   </extension>
 
 </plugin>

@@ -55,4 +55,9 @@ public final class NoopAuditLogManager implements IAuditLogMgmt {
 
 	}
 
+	@Override
+	public boolean isDataStream(String dataStream) {
+		return false;
+	}
+
 }

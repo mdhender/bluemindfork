@@ -4,7 +4,8 @@ Bundle-Name: net.bluemind.core.auditlogs
 Bundle-SymbolicName: net.bluemind.core.auditlogs;singleton:=true
 Bundle-Version: 5.0.0.qualifier
 Export-Package: net.bluemind.core.auditlogs,
- net.bluemind.core.auditlogs.api
+ net.bluemind.core.auditlogs.api,
+ net.bluemind.core.auditlogs.exception
 Bundle-Vendor: net.bluemind
 Automatic-Module-Name: net.bluemind.core.auditlogs
 Bundle-ClassPath: schema/,

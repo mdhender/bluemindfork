@@ -56,7 +56,12 @@ Require-Bundle: org.junit;bundle-version="4.13.2",
  net.bluemind.backend.mail.replica.utils,
  net.bluemind.domain.service,
  net.bluemind.domain.service.tests,
- net.bluemind.network.topology
+ net.bluemind.network.topology,
+ slf4j.api,
+ net.bluemind.scheduledjob.api,
+ net.bluemind.core.auditlogs.client.loader,
+ net.bluemind.scheduledjob.job,
+ net.bluemind.scheduledjob.service
 Bundle-Vendor: net.bluemind
 Automatic-Module-Name: net.bluemind.core.logs.tests
 Bundle-RequiredExecutionEnvironment: JavaSE-21

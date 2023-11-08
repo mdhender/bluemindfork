@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.auditlogs.client.loader.AuditLogLoader;
+import net.bluemind.core.auditlogs.exception.DataStreamCreationException;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.domain.api.Domain;
@@ -34,14 +35,18 @@ public class DataStreamDomainsHook extends DomainHookAdapter {
 	@Override
 	public void onCreated(BmContext context, ItemValue<Domain> domain) {
 		AuditLogLoader auditLogProvider = new AuditLogLoader();
-		logger.info("SCL - create datastream '{}' for domain: '{}'", DATASTREAM_PREFIX, domain.uid);
-		auditLogProvider.getManager().createDataStreamForDomainIfNotExists(DATASTREAM_PREFIX, domain.uid);
+		logger.info("Create datastream '{}' for domain: '{}'", DATASTREAM_PREFIX, domain.uid);
+		try {
+			auditLogProvider.getManager().createDataStreamForDomainIfNotExists(DATASTREAM_PREFIX, domain.uid);
+		} catch (DataStreamCreationException e) {
+			logger.error("Failed to create datastream '{}': {}", DATASTREAM_PREFIX + "_" + domain.uid, e.getMessage());
+		}
 	}
 
 	@Override
 	public void onDeleted(BmContext context, ItemValue<Domain> domain) {
 		AuditLogLoader auditLogProvider = new AuditLogLoader();
-		logger.info("SCL - remove datastream '{}' for domain: '{}'", DATASTREAM_PREFIX, domain.uid);
+		logger.info("Remove datastream '{}' for domain: '{}'", DATASTREAM_PREFIX, domain.uid);
 		auditLogProvider.getManager().removeDatastreamForPrefixAndDomain(DATASTREAM_PREFIX, domain.uid);
 	}
 }
