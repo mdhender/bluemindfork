@@ -34,11 +34,19 @@ describe("check if certificate can be trusted for S/MIME usage", () => {
                 revocation: { serialNumber: "myCertSerialNumber" }
             }
         ]);
+        /**
+         * checkCertificate strong coupling with Date Object - 
+         * test failing because of date in data-test-certificates was overdue
+         * TODO: find a way to extract dependency from checkCertificate 
+         *  */
+        jest.useFakeTimers("modern").setSystemTime(new Date("2023-03-17").getTime());
+
     });
 
     afterEach(() => {
         resetCaCerts();
         fetchMock.reset();
+        jest.useRealTimers()
     });
 
     test("untrusted if date is not within certificate validity period", async () => {
@@ -82,6 +90,7 @@ describe("check if certificate can be trusted for S/MIME usage", () => {
         });
         done();
     });
+
     test("cant use certificate because of its 'extendedKeyUsage' (if set, its value should be either emailProtection or anyExtendedKeyUsage)", async () => {
         await expect(checkCertificate(aliceCert)).resolves.toBeTruthy();
         await expect(checkCertificate(pki.certificateFromPem(anyExtendedKeyUsageCert))).resolves.toBeTruthy();

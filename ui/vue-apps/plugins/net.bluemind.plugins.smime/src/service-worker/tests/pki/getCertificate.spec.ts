@@ -141,7 +141,12 @@ describe("getCertificate", () => {
             ],
             { overwriteRoutes: true }
         );
+        jest.useFakeTimers("modern").setSystemTime(new Date("2023-03-17").getTime());
+
     });
+    afterEach(() => {
+        jest.useRealTimers()
+    })
     test("get first trusted certificate", async () => {
         const certificate = await getCertificate("test@devenv.blue", SMIME_CERT_USAGE.ENCRYPT);
         expect(certificate).toBeTruthy();
