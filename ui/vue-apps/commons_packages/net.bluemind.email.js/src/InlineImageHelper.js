@@ -33,9 +33,9 @@ export default {
     }
 };
 const CID_REFERENCE_REGEXP =
-    /<img(?=\s)(?=(?:[^>"']|"[^"]*"|'[^']*')*?(?:\ssrc\s*=\s*)(?:"cid:([^"]*)"|'cid:([^']*)'))(.*?)|(:?\s+)>/gim;
+    /<img(?=\s)(?=(?:[^>"']|"[^"]*"|'[^']*')*?(?:\ssrc\s*=\s*)(?:"cid:([^"]*)"|'cid:([^']*)')).*?>/gims;
 function getCids(html) {
-    return [...html.matchAll(CID_REFERENCE_REGEXP)].map(match => match[1].toUpperCase());
+    return [...html.matchAll(CID_REFERENCE_REGEXP)].map(match => match[1]?.toUpperCase());
 }
 
 /**
