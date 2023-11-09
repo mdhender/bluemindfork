@@ -50,8 +50,8 @@ import net.bluemind.authentication.service.internal.AuthContextCache;
 import net.bluemind.authentication.service.tokens.TokensStore;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.container.service.internal.AuditLogService;
 import net.bluemind.core.container.service.internal.RBACManager;
+import net.bluemind.core.container.service.internal.SecurityContextAuditLogService;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.IServiceProvider;
@@ -82,13 +82,13 @@ public class Authentication implements IInCoreAuthentication {
 	private final List<ILoginValidationListener> loginListeners;
 	private final List<ILoginSessionValidator> sessionValidators;
 	private final IDomains domainService;
-	private final AuditLogService<SecurityContext, SecurityContext> auditLogService;
+	private final SecurityContextAuditLogService auditLogService;
 
 	private BmContext context;
 
 	public Authentication(BmContext context, List<IAuthProvider> authProviders,
 			List<ILoginValidationListener> loginListeners, List<ILoginSessionValidator> sessionValidators,
-			AuditLogService<SecurityContext, SecurityContext> auditLogService) throws ServerFault {
+			SecurityContextAuditLogService auditLogService) throws ServerFault {
 		this.context = context;
 		this.securityContext = context.getSecurityContext();
 		this.authProviders = authProviders;
@@ -309,8 +309,7 @@ public class Authentication implements IInCoreAuthentication {
 		}
 
 		try {
-			auditLogService.setDomainUid(authContext.domain.uid);
-			auditLogService.logCreate(context);
+			auditLogService.logCreate(context, authContext.domain.uid);
 		} catch (Exception e) {
 			logger.error("Error with authentication auditlog: {}", e.getMessage());
 		}
@@ -523,8 +522,7 @@ public class Authentication implements IInCoreAuthentication {
 					securityContext.getOrigin(), false, interactive);
 
 			try {
-				auditLogService.setDomainUid(domainPart);
-				auditLogService.logCreate(builtContext);
+				auditLogService.logCreate(builtContext, domainPart);
 			} catch (Exception e) {
 				logger.error("Error with authentication auditlog: {}", e.getMessage());
 			}
@@ -533,6 +531,7 @@ public class Authentication implements IInCoreAuthentication {
 			Sessions.get().put(resp.authKey, builtContext);
 			return resp;
 		}
+
 	}
 
 	@Override

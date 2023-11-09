@@ -34,8 +34,7 @@ import net.bluemind.lib.elasticsearch.ESearchActivator;
 
 public class CalendarChangeLogServiceTests extends AbstractCalendarTests {
 
-	private static final String AUDIT_LOG_PREFIX = "audit_log_";
-	private final String DATATSTREAM_PATH = AUDIT_LOG_PREFIX + domainUid;
+	private final String DATATSTREAM_PATH = "audit_log_" + domainUid;
 
 	@Test
 	public void testChangeLog() throws ServerFault {

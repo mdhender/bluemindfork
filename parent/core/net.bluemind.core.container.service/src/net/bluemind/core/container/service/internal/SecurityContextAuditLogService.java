@@ -21,7 +21,9 @@ package net.bluemind.core.container.service.internal;
 
 import net.bluemind.core.auditlogs.AuditLogEntry;
 import net.bluemind.core.auditlogs.AuditLogUpdateStatus;
+import net.bluemind.core.auditlogs.AuditLogUpdateStatus.MessageCriticity;
 import net.bluemind.core.auditlogs.ILogMapperProvider;
+import net.bluemind.core.container.model.ChangeLogEntry.Type;
 import net.bluemind.core.context.SecurityContext;
 
 public class SecurityContextAuditLogService extends AuditLogService<SecurityContext, SecurityContext> {
@@ -42,6 +44,14 @@ public class SecurityContextAuditLogService extends AuditLogService<SecurityCont
 	@Override
 	protected AuditLogUpdateStatus createUpdateStatus(SecurityContext newValue, SecurityContext oldValue) {
 		return new AuditLogUpdateStatus();
+	}
+
+	public void logCreate(SecurityContext value, String domainUid) {
+		AuditLogEntry auditLogEntry = createAuditLogEntry(value);
+		auditLogEntry.action = Type.Created.name();
+		auditLogEntry.criticity = MessageCriticity.MAJOR;
+		auditLogEntry.domainUid = domainUid;
+		store(auditLogEntry);
 	}
 
 }

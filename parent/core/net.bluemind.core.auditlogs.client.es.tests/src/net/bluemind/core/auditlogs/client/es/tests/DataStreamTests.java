@@ -33,7 +33,7 @@ import com.google.common.collect.Lists;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import net.bluemind.core.auditlogs.client.es.datastreams.DataStreamActivator;
-import net.bluemind.core.auditlogs.exception.DataStreamCreationException;
+import net.bluemind.core.auditlogs.exception.AuditLogCreationException;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.context.SecurityContext;
@@ -52,7 +52,7 @@ public class DataStreamTests {
 	private static final String domainUid = "bm" + System.currentTimeMillis() + ".lan";
 	private static final String domainUid01 = "bm01" + System.currentTimeMillis() + ".lan";
 	private DataStreamActivator dataStreamActivator;
-	private final String dataStreamName = "audit_log";
+	private static final String AUDIT_LOG_DATASTREAM_PREFIX = "audit_log";
 	private ElasticsearchClient esClient;
 	private Container domainsContainer;
 	private BmTestContext testContext;
@@ -92,50 +92,50 @@ public class DataStreamTests {
 	}
 
 	@Test
-	public void createDataStream() throws DataStreamCreationException, IOException {
+	public void createDataStream() throws AuditLogCreationException, IOException {
 		dataStreamActivator = new DataStreamActivator();
-		dataStreamActivator.createDataStreamForDomainIfNotExists(dataStreamName, domainUid);
-		boolean isDataStream = !esClient.indices().resolveIndex(r -> r.name(dataStreamName + "_" + domainUid))
-				.dataStreams().isEmpty();
+		dataStreamActivator.setupAuditBackingStoreForDomain(domainUid);
+		boolean isDataStream = !esClient.indices()
+				.resolveIndex(r -> r.name(AUDIT_LOG_DATASTREAM_PREFIX + "_" + domainUid)).dataStreams().isEmpty();
 		assertTrue(isDataStream);
 	}
 
 	@Test
-	public void removeDataStreamForNameAndDomain() throws DataStreamCreationException, IOException {
+	public void removeDataStreamForNameAndDomain() throws AuditLogCreationException, IOException {
 		dataStreamActivator = new DataStreamActivator();
-		dataStreamActivator.createDataStreamForDomainIfNotExists(dataStreamName, domainUid);
-		dataStreamActivator.createDataStreamForDomainIfNotExists(dataStreamName, domainUid01);
-		boolean isDataStream = !esClient.indices().resolveIndex(r -> r.name(dataStreamName + "_" + domainUid))
-				.dataStreams().isEmpty();
-		boolean isDataStream01 = !esClient.indices().resolveIndex(r -> r.name(dataStreamName + "_" + domainUid01))
-				.dataStreams().isEmpty();
+		dataStreamActivator.setupAuditBackingStoreForDomain(domainUid);
+		dataStreamActivator.setupAuditBackingStoreForDomain(domainUid01);
+		boolean isDataStream = !esClient.indices()
+				.resolveIndex(r -> r.name(AUDIT_LOG_DATASTREAM_PREFIX + "_" + domainUid)).dataStreams().isEmpty();
+		boolean isDataStream01 = !esClient.indices()
+				.resolveIndex(r -> r.name(AUDIT_LOG_DATASTREAM_PREFIX + "_" + domainUid01)).dataStreams().isEmpty();
 		assertTrue(isDataStream);
 		assertTrue(isDataStream01);
 
-		dataStreamActivator.removeDatastreamForPrefixAndDomain(dataStreamName, domainUid);
-		isDataStream = !esClient.indices().resolveIndex(r -> r.name(dataStreamName + "_" + domainUid)).dataStreams()
-				.isEmpty();
+		dataStreamActivator.removeAuditBackingStoreForDomain(domainUid);
+		isDataStream = !esClient.indices().resolveIndex(r -> r.name(AUDIT_LOG_DATASTREAM_PREFIX + "_" + domainUid))
+				.dataStreams().isEmpty();
 		assertFalse(isDataStream);
 		assertTrue(isDataStream01);
 	}
 
 	@Test
-	public void removeDataStreamForName() throws DataStreamCreationException, IOException {
+	public void removeDataStreamForName() throws AuditLogCreationException, IOException {
 		dataStreamActivator = new DataStreamActivator();
-		dataStreamActivator.createDataStreamForDomainIfNotExists(dataStreamName, domainUid);
-		dataStreamActivator.createDataStreamForDomainIfNotExists(dataStreamName, domainUid01);
-		boolean isDataStream = !esClient.indices().resolveIndex(r -> r.name(dataStreamName + "_" + domainUid))
-				.dataStreams().isEmpty();
-		boolean isDataStream01 = !esClient.indices().resolveIndex(r -> r.name(dataStreamName + "_" + domainUid01))
-				.dataStreams().isEmpty();
+		dataStreamActivator.setupAuditBackingStoreForDomain(domainUid);
+		dataStreamActivator.setupAuditBackingStoreForDomain(domainUid01);
+		boolean isDataStream = !esClient.indices()
+				.resolveIndex(r -> r.name(AUDIT_LOG_DATASTREAM_PREFIX + "_" + domainUid)).dataStreams().isEmpty();
+		boolean isDataStream01 = !esClient.indices()
+				.resolveIndex(r -> r.name(AUDIT_LOG_DATASTREAM_PREFIX + "_" + domainUid01)).dataStreams().isEmpty();
 		assertTrue(isDataStream);
 		assertTrue(isDataStream01);
 
-		dataStreamActivator.removeDatastreamForPrefix(dataStreamName);
-		isDataStream = !esClient.indices().resolveIndex(r -> r.name(dataStreamName + "_" + domainUid)).dataStreams()
-				.isEmpty();
-		isDataStream01 = !esClient.indices().resolveIndex(r -> r.name(dataStreamName + "_" + domainUid01)).dataStreams()
-				.isEmpty();
+		dataStreamActivator.removeAuditBackingStore();
+		isDataStream = !esClient.indices().resolveIndex(r -> r.name(AUDIT_LOG_DATASTREAM_PREFIX + "_" + domainUid))
+				.dataStreams().isEmpty();
+		isDataStream01 = !esClient.indices().resolveIndex(r -> r.name(AUDIT_LOG_DATASTREAM_PREFIX + "_" + domainUid01))
+				.dataStreams().isEmpty();
 		assertFalse(isDataStream);
 		assertFalse(isDataStream01);
 	}

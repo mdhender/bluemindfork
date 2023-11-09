@@ -21,10 +21,11 @@
       </hook>
    </extension>
    <extension
-         point="net.bluemind.scheduledjob.scheduler.job">
-      <scheduledjob_provider
-            implementation="net.bluemind.core.auditlogs.client.es.job.DataStreamConsistencyJob">
-      </scheduledjob_provider>
+         point="net.bluemind.maintenance.scripts">
+      <java
+            code="net.bluemind.core.auditlogs.client.es.maintenance.DataStreamConsistency"
+            priority="100">
+      </java>
    </extension>
 
 </plugin>

@@ -67,8 +67,7 @@ import net.bluemind.tag.persistence.ItemTagRef;
 
 public class AddressBookLogServiceTests extends AbstractServiceTests {
 
-	private static final String AUDIT_LOG_PREFIX = "audit_log_";
-	private static final String DATASTREAM_NAME = AUDIT_LOG_PREFIX + domainUid;
+	private static final String DATASTREAM_NAME = "audit_log_" + domainUid;
 
 	protected IAddressBook getService(SecurityContext context) throws ServerFault {
 		return ServerSideServiceProvider.getProvider(context).instance(IAddressBook.class, container.uid);

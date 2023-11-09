@@ -75,8 +75,7 @@ import net.bluemind.todolist.hook.TodoListHookAddress;
 
 public class TodoListServiceTests extends AbstractServiceTests {
 
-	private static final String AUDIT_LOG_PREFIX = "audit_log_";
-	private final String DATASTREAM_NAME = AUDIT_LOG_PREFIX + domainUid;
+	private final String DATASTREAM_NAME = "audit_log_" + domainUid;
 
 	@Test
 	public void testCreate() throws Exception, SQLException {

@@ -17,19 +17,19 @@
   */
 package net.bluemind.core.auditlogs.exception;
 
-public class DataStreamCreationException extends Exception {
+public class AuditLogRemovalException extends Exception {
 
-	private static final long serialVersionUID = -3075511602076394168L;
+	private static final long serialVersionUID = -2399015093051317785L;
 
-	public DataStreamCreationException() {
+	public AuditLogRemovalException() {
 		super();
 	}
 
-	public DataStreamCreationException(String message) {
+	public AuditLogRemovalException(String message) {
 		super(message);
 	}
 
-	public DataStreamCreationException(Throwable e) {
+	public AuditLogRemovalException(Throwable e) {
 		super(e);
 	}
 }

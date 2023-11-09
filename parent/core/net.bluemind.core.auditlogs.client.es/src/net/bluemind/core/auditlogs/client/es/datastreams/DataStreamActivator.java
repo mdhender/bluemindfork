@@ -54,13 +54,14 @@ import co.elastic.clients.transport.ElasticsearchTransport;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.core.auditlogs.IAuditLogMgmt;
-import net.bluemind.core.auditlogs.exception.DataStreamCreationException;
+import net.bluemind.core.auditlogs.exception.AuditLogCreationException;
+import net.bluemind.core.auditlogs.exception.AuditLogRemovalException;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
-import net.bluemind.lib.elasticsearch.exception.ElasticIndexException;
 
 public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 
 	private static final Map<String, IndexTemplateDefinition> indexTemplates = new HashMap<>();
+	private static final String AUDIT_LOG_PREFIX = "audit_log";
 	private static final String SEPARATOR = "_";
 	private static Logger logger = LoggerFactory.getLogger(DataStreamActivator.class);
 
@@ -90,7 +91,8 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 
 	}
 
-	private static void deleteDataStream(ElasticsearchClient esClient, String dataStreamName, String domainUid) {
+	private static void deleteDataStream(ElasticsearchClient esClient, String dataStreamName, String domainUid)
+			throws AuditLogRemovalException {
 		String fullDataStreamName = (domainUid != null) ? dataStreamName + SEPARATOR + domainUid : dataStreamName + "*";
 		try {
 
@@ -101,13 +103,14 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 				logger.warn("dataStream '{}' not found, can't be delete", fullDataStreamName);
 				return;
 			}
-			throw new ElasticIndexException(fullDataStreamName, e);
+			throw new AuditLogRemovalException(e);
 		} catch (IOException e) {
-			throw new ElasticIndexException(fullDataStreamName, e);
+			throw new AuditLogRemovalException(e);
 		}
 	}
 
-	private static void deleteIndexTemplate(ElasticsearchClient esClient, String indexTemplateName, String domainUid) {
+	private static void deleteIndexTemplate(ElasticsearchClient esClient, String indexTemplateName, String domainUid)
+			throws AuditLogRemovalException {
 		String fullIndexTemplateName = (domainUid != null) ? indexTemplateName + SEPARATOR + domainUid
 				: indexTemplateName + "*";
 		try {
@@ -119,9 +122,9 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 				logger.warn("index template '{}' not found, can't be delete", fullIndexTemplateName);
 				return;
 			}
-			throw new ElasticIndexException(fullIndexTemplateName, e);
+			throw new AuditLogRemovalException(e);
 		} catch (IOException e) {
-			throw new ElasticIndexException(fullIndexTemplateName, e);
+			throw new AuditLogRemovalException(e);
 		}
 	}
 
@@ -152,40 +155,38 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 	}
 
 	@Override
-	public void createDataStreamIfNotExists(String dataStreamName) {
+	public void setupAuditBackingStore() throws AuditLogCreationException {
 		ElasticsearchClient esClient = ESearchActivator.getClient();
 		List<String> currentDataStreams = dataStreamNames(esClient);
 		Optional<IndexTemplateDefinition> optSchema = indexTemplates.values().stream()
-				.filter(d -> d.datastreamName.equals(dataStreamName)).findFirst();
+				.filter(d -> d.datastreamName.equals(AUDIT_LOG_PREFIX)).findFirst();
 		try {
-			if (!currentDataStreams.contains(dataStreamName) && optSchema.isPresent()) {
-				initOrUpdateIndexTemplate(esClient, optSchema.get(), dataStreamName);
-				if (!isDataStream(dataStreamName)) {
-					initDataStream(esClient, dataStreamName);
+			if (!currentDataStreams.contains(AUDIT_LOG_PREFIX) && optSchema.isPresent()) {
+				initOrUpdateIndexTemplate(esClient, optSchema.get(), AUDIT_LOG_PREFIX);
+				if (!hasAuditBackingStore()) {
+					initDataStream(esClient, AUDIT_LOG_PREFIX);
 				}
 
 			}
 		} catch (ElasticsearchException | IOException e) {
-			logger.error("Create datastream failed.", e);
+			throw new AuditLogCreationException(e);
 		}
 	}
 
 	@Override
-	public void createDataStreamForDomainIfNotExists(String dataStreamName, String domainUid)
-			throws DataStreamCreationException {
+	public void setupAuditBackingStoreForDomain(String domainUid) throws AuditLogCreationException {
 		ElasticsearchClient esClient = ESearchActivator.getClient();
-		String dataStreamFullName = dataStreamName + SEPARATOR + domainUid;
+		String dataStreamFullName = AUDIT_LOG_PREFIX + SEPARATOR + domainUid;
 		List<String> currentDataStreams = dataStreamNames(esClient);
 		Optional<IndexTemplateDefinition> optSchema = indexTemplates.values().stream()
-				.filter(d -> d.datastreamName.equals(dataStreamName)).findFirst();
+				.filter(d -> d.datastreamName.equals(AUDIT_LOG_PREFIX)).findFirst();
 		try {
 			if (!currentDataStreams.contains(dataStreamFullName) && optSchema.isPresent()) {
 				initOrUpdateIndexTemplate(esClient, optSchema.get(), dataStreamFullName);
 				initDataStream(esClient, dataStreamFullName);
 			}
 		} catch (ElasticsearchException | IOException e) {
-			logger.error("Create datastream failed.", e);
-			throw new DataStreamCreationException(e);
+			throw new AuditLogCreationException(e);
 		}
 	}
 
@@ -242,41 +243,51 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 
 	@VisibleForTesting
 	@Override
-	public void removeDatastreamForPrefix(String dataStreamPrefix) {
-		indexTemplates.values().stream().filter(d -> d.datastreamName.equals(dataStreamPrefix)).forEach(v -> {
+	public void removeAuditBackingStore() {
+		indexTemplates.values().stream().filter(d -> d.datastreamName.equals(AUDIT_LOG_PREFIX)).forEach(v -> {
 			ESearchActivator.waitForElasticsearchHosts();
 			ElasticsearchClient esClient = ESearchActivator.getClient();
-			deleteDataStream(esClient, v.datastreamName, null);
-			deleteIndexTemplate(esClient, v.indexTemplateName, null);
-		});
-	}
-
-	@VisibleForTesting
-	public void removeAllDatastream() {
-		indexTemplates.values().forEach(v -> {
-			ESearchActivator.waitForElasticsearchHosts();
-			ElasticsearchClient esClient = ESearchActivator.getClient();
-			deleteDataStream(esClient, v.datastreamName, null);
-			deleteIndexTemplate(esClient, v.indexTemplateName, null);
+			try {
+				deleteDataStream(esClient, v.datastreamName, null);
+				deleteIndexTemplate(esClient, v.indexTemplateName, null);
+			} catch (AuditLogRemovalException e) {
+				logger.error("Error on audit log store removal: {}", e.getMessage());
+			}
 		});
 	}
 
 	@Override
-	public void removeDatastreamForPrefixAndDomain(String dataStreamPrefix, String domainUid) {
-		indexTemplates.values().stream().filter(d -> d.datastreamName.equals(dataStreamPrefix)).forEach(v -> {
+	public void removeAuditBackingStoreForDomain(String domainUid) {
+		indexTemplates.values().stream().filter(d -> d.datastreamName.equals(AUDIT_LOG_PREFIX)).forEach(v -> {
 			ESearchActivator.waitForElasticsearchHosts();
 			ElasticsearchClient esClient = ESearchActivator.getClient();
-			deleteDataStream(esClient, v.datastreamName, domainUid);
-			deleteIndexTemplate(esClient, v.indexTemplateName, domainUid);
+			try {
+				deleteDataStream(esClient, v.datastreamName, domainUid);
+				deleteIndexTemplate(esClient, v.indexTemplateName, domainUid);
+			} catch (AuditLogRemovalException e) {
+				logger.error("Error on audit log store removal for domainUid '{}': {}", domainUid, e.getMessage());
+			}
 		});
 
 	}
 
 	@Override
-	public boolean isDataStream(String dataStreamName) {
+	public boolean hasAuditBackingStoreForDomain(String domainUid) {
 		ElasticsearchClient esClient = ESearchActivator.getClient();
 		try {
-			return !esClient.indices().resolveIndex(i -> i.name(dataStreamName)).dataStreams().isEmpty();
+			return !esClient.indices().resolveIndex(i -> i.name(AUDIT_LOG_PREFIX + "_" + domainUid)).dataStreams()
+					.isEmpty();
+		} catch (ElasticsearchException | IOException e) {
+			logger.error(e.getMessage());
+			return false;
+		}
+	}
+
+	@Override
+	public boolean hasAuditBackingStore() {
+		ElasticsearchClient esClient = ESearchActivator.getClient();
+		try {
+			return !esClient.indices().resolveIndex(i -> i.name(AUDIT_LOG_PREFIX)).dataStreams().isEmpty();
 		} catch (ElasticsearchException | IOException e) {
 			logger.error(e.getMessage());
 			return false;

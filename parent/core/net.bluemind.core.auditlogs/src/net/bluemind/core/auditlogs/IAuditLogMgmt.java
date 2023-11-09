@@ -19,20 +19,19 @@
 
 package net.bluemind.core.auditlogs;
 
-import net.bluemind.core.auditlogs.exception.DataStreamCreationException;
+import net.bluemind.core.auditlogs.exception.AuditLogCreationException;
 
 public interface IAuditLogMgmt {
 
-	public void createDataStreamForDomainIfNotExists(String name, String domainUid) throws DataStreamCreationException;
+	public void setupAuditBackingStore() throws AuditLogCreationException;
 
-	public void createDataStreamIfNotExists(String name);
+	public void setupAuditBackingStoreForDomain(String domainUid) throws AuditLogCreationException;
 
-	public void removeDatastreamForPrefix(String dataStreamPrefix);
+	public void removeAuditBackingStore();
 
-	public void removeDatastreamForPrefixAndDomain(String dataStreamPrefix, String domainUid);
+	public void removeAuditBackingStoreForDomain(String domainUid);
 
-	public void removeAllDatastream();
+	public boolean hasAuditBackingStore();
 
-	public boolean isDataStream(String dataStream);
-
+	public boolean hasAuditBackingStoreForDomain(String domainUid);
 }

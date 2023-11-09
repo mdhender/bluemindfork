@@ -169,7 +169,4 @@ public abstract class AuditLogService<T, U> {
 
 	protected abstract AuditLogUpdateStatus createUpdateStatus(T newValue, U oldValue);
 
-	public void setDomainUid(String d) {
-		this.domainUid = d;
-	}
 }

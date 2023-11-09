@@ -26,9 +26,7 @@ import net.bluemind.authentication.provider.IAuthProvider;
 import net.bluemind.authentication.provider.ILoginSessionValidator;
 import net.bluemind.authentication.provider.ILoginValidationListener;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.container.service.internal.AuditLogService;
 import net.bluemind.core.container.service.internal.SecurityContextAuditLogService;
-import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
@@ -63,8 +61,7 @@ public class InCoreAuthenticationFactory
 	@Override
 	public IInCoreAuthentication instance(BmContext context, String... params) throws ServerFault {
 		LoginAuditLogMapper mapper = new LoginAuditLogMapper();
-		AuditLogService<SecurityContext, SecurityContext> auditLogService = new SecurityContextAuditLogService("login",
-				mapper);
+		SecurityContextAuditLogService auditLogService = new SecurityContextAuditLogService("login", mapper);
 		return new Authentication(context, authProviders, loginListeners, sessionValidators, auditLogService);
 	}
 }

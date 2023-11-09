@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
-  * Copyright © Blue Mind SAS, 2012-2022
+  * Copyright © Blue Mind SAS, 2012-2021
   *
   * This file is part of BlueMind. BlueMind is a messaging and collaborative
   * solution.
@@ -17,45 +17,43 @@
   */
 package net.bluemind.core.logs.tests;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.auditlogs.IAuditLogMgmt;
-import net.bluemind.core.auditlogs.client.es.job.DataStreamConsistencyJob;
 import net.bluemind.core.auditlogs.client.loader.AuditLogLoader;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcTestHelper;
-import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.lib.vertx.VertxPlatform;
-import net.bluemind.scheduledjob.api.IJob;
-import net.bluemind.scheduledjob.api.JobExecutionQuery;
-import net.bluemind.scheduledjob.api.JobExitStatus;
+import net.bluemind.maintenance.IMaintenanceScript;
+import net.bluemind.maintenance.MaintenanceScripts;
 import net.bluemind.server.api.Server;
 import net.bluemind.system.state.StateContext;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
-public class DataStreamConsistencyJobTests {
-
+public class DataStreamConsistencyMaintenanceTests {
 	private String domainUid = "bm.lan";
 	private String domainUid1 = "bm1.lan";
-	private static final String AUDITLOG_PREFIX = "audit_log";
+	private IAuditLogMgmt auditLogManager;
 
-	private IJob serviceAdmin0;
-
-	private String dataStreamConsistencyJob = new DataStreamConsistencyJob().getJobId();
-	IAuditLogMgmt auditLogManager;
+	@BeforeClass
+	public static void beforeClass() {
+		System.setProperty("ahcnode.fail.https.ok", "true");
+	}
 
 	@Before
 	public void before() throws Exception {
@@ -79,8 +77,6 @@ public class DataStreamConsistencyJobTests {
 		AuditLogLoader auditLogProvider = new AuditLogLoader();
 		auditLogManager = auditLogProvider.getManager();
 
-		serviceAdmin0 = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IJob.class);
-
 		StateContext.setState("core.stopped");
 		StateContext.setState("core.started");
 		StateContext.setState("core.started");
@@ -89,42 +85,34 @@ public class DataStreamConsistencyJobTests {
 	@After
 	public void after() throws Exception {
 		JdbcTestHelper.getInstance().afterTest();
-		ElasticsearchTestHelper.getInstance().afterTest();
 	}
 
 	@Test
-	public void testDataStreamConsistencyJob() throws Exception {
+	public void testMaintenanceDataStreamConsistency() throws ServerFault {
 
-		String fullDataStreamNameForDomainUid1 = AUDITLOG_PREFIX + "_" + domainUid1;
 		// Remove datastream for domainUid1
-		auditLogManager.removeDatastreamForPrefixAndDomain(AUDITLOG_PREFIX, domainUid1);
+		auditLogManager.removeAuditBackingStoreForDomain(domainUid1);
 
 		// Asserts datastream has been removed
-		assertFalse(auditLogManager.isDataStream(fullDataStreamNameForDomainUid1));
+		assertFalse(auditLogManager.hasAuditBackingStoreForDomain(domainUid1));
 
-		JobExecutionQuery query = new JobExecutionQuery();
-		serviceAdmin0.start(dataStreamConsistencyJob, null);
-
-		// Wait for datastream consistency check job to be completed.
-		waitFor(dataStreamConsistencyJob);
-
-		query.jobId = dataStreamConsistencyJob;
-		Assert.assertEquals(1L, serviceAdmin0.searchExecution(query).total);
-		Assert.assertEquals(JobExitStatus.SUCCESS, serviceAdmin0.searchExecution(query).values.get(0).status);
-
-		assertTrue(auditLogManager.isDataStream(fullDataStreamNameForDomainUid1));
-	}
-
-	private void waitFor(String jobId) throws ServerFault {
-		JobExecutionQuery query = new JobExecutionQuery();
-		query.active = true;
-		query.jobId = jobId;
-		do {
-			try {
-				Thread.sleep(10);
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
+		List<IMaintenanceScript> scripts = MaintenanceScripts.getMaintenanceScripts();
+		scripts.stream().forEach(s -> System.err.println(s.getClass().getSimpleName()));
+		IMaintenanceScript dataStreamConsistency = scripts.stream()
+				.filter(s -> "DataStreamConsistency".equals(s.name())).findFirst().get();
+		TestMonitor monitor = new TestMonitor();
+		dataStreamConsistency.run(monitor);
+		int analyzeRuns = 0;
+		for (String l : monitor.logs) {
+			if (l == null)
+				continue;
+			if (l.contains("DataStreamConsistency")) {
+				analyzeRuns++;
 			}
-		} while (!serviceAdmin0.searchExecution(query).values.isEmpty());
+		}
+		assertEquals(analyzeRuns, 1);
+
+		assertTrue(auditLogManager.hasAuditBackingStoreForDomain(domainUid1));
 	}
+
 }

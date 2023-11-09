@@ -69,8 +69,7 @@ import net.bluemind.tests.defaultdata.BmDateTimeHelper;
 
 public class CalendarServiceLogTests extends AbstractCalendarTests {
 	private static final String CRLF = "\r\n";
-	private static final String AUDIT_LOG_DATASTREAM_PREFIX = "audit_log_";
-	private final String AUDIT_LOG_DATASTREAM_FULL = AUDIT_LOG_DATASTREAM_PREFIX + domainUid;
+	private final String AUDIT_LOG_DATASTREAM_FULL = "audit_log_" + domainUid;
 
 	@Test
 	public void testCreate() throws ServerFault, ElasticsearchException, IOException {

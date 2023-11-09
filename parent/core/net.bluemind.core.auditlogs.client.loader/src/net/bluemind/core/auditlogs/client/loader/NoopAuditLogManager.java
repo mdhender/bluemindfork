@@ -20,43 +20,43 @@
 package net.bluemind.core.auditlogs.client.loader;
 
 import net.bluemind.core.auditlogs.IAuditLogMgmt;
+import net.bluemind.core.auditlogs.exception.AuditLogCreationException;
 
 public final class NoopAuditLogManager implements IAuditLogMgmt {
 
 	public static final IAuditLogMgmt INSTANCE = new NoopAuditLogManager();
 
 	@Override
-	public void createDataStreamIfNotExists(String name) {
+	public void setupAuditBackingStore() throws AuditLogCreationException {
 		//
 
 	}
 
 	@Override
-	public void createDataStreamForDomainIfNotExists(String name, String domainUid) {
+	public void setupAuditBackingStoreForDomain(String domainUid) throws AuditLogCreationException {
 		//
 
 	}
 
 	@Override
-	public void removeAllDatastream() {
+	public void removeAuditBackingStore() {
 		//
 
 	}
 
 	@Override
-	public void removeDatastreamForPrefix(String dataStreamPrefix) {
+	public void removeAuditBackingStoreForDomain(String domainUid) {
 		//
 
 	}
 
 	@Override
-	public void removeDatastreamForPrefixAndDomain(String dataStreamPrefix, String domainUid) {
-		//
-
+	public boolean hasAuditBackingStoreForDomain(String domainUid) {
+		return false;
 	}
 
 	@Override
-	public boolean isDataStream(String dataStream) {
+	public boolean hasAuditBackingStore() {
 		return false;
 	}
 
