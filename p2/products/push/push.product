@@ -25,6 +25,10 @@
    </vm>
 
    <plugins>
+      <plugin id="bcpg"/>
+      <plugin id="bcpkix"/>
+      <plugin id="bcprov"/>
+      <plugin id="bcutil"/>
       <plugin id="backport-util-concurrent"/>
       <plugin id="ch.qos.logback.classic"/>
       <plugin id="ch.qos.logback.core"/>
@@ -172,10 +176,6 @@
       <plugin id="org.apache.xml.serializer"/>
       <plugin id="org.asynchttpclient.async-http-client"/>
       <plugin id="org.asynchttpclient.async-http-client-netty-utils"/>
-      <plugin id="org.bouncycastle.bcpg"/>
-      <plugin id="org.bouncycastle.bcpkix"/>
-      <plugin id="org.bouncycastle.bcprov"/>
-      <plugin id="org.bouncycastle.bcutil"/>
       <plugin id="org.eclipse.core.contenttype"/>
       <plugin id="org.eclipse.core.jobs"/>
       <plugin id="org.eclipse.core.runtime"/>

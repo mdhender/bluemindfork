@@ -4,6 +4,7 @@ import static co.elastic.clients.elasticsearch._types.HealthStatus.Green;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +17,7 @@ import co.elastic.clients.elasticsearch.cluster.HealthResponse;
 import co.elastic.clients.elasticsearch.core.ReindexResponse;
 import co.elastic.clients.elasticsearch.indices.GetAliasResponse;
 import co.elastic.clients.elasticsearch.indices.IndicesStatsResponse;
-import co.elastic.clients.elasticsearch.tasks.Status;
+import co.elastic.clients.json.JsonData;
 import co.elastic.clients.transport.endpoints.BooleanResponse;
 import io.vertx.core.Vertx;
 import net.bluemind.lib.elasticsearch.exception.ElasticTaskException;
@@ -82,12 +83,14 @@ public class IndexRewriter {
 				.slices(s -> s.value(numberOfShards)) //
 				.conflicts(Conflicts.Proceed) //
 				.scroll(s -> s.time("1d")));
-		Status status;
+		JsonData status;
 		try {
 			status = new VertxEsTaskMonitor(Vertx.vertx(), esClient).waitForCompletion(response.task());
-			if (!status.failures().isEmpty()) {
+			List<String> failures = status.toJson().asJsonObject().getJsonArray("failures").stream()
+					.map(Object::toString).toList();
+			if (!failures.isEmpty()) {
 				logger.error("Reindexation done with {} failures:", response.failures().size());
-				status.failures().forEach(failure -> logger.error("- {}", failure));
+				failures.forEach(failure -> logger.error("- {}", failure));
 			} else {
 				logger.info("Reindexation done for {} into {}: {}", fromIndex, toIndex, response);
 			}

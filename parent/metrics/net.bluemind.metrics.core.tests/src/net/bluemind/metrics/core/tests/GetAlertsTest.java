@@ -27,7 +27,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -51,7 +51,8 @@ public class GetAlertsTest {
 		List<AlertInfo> infos = Arrays.asList(info1, info2, info3);
 
 		MonitoringService service = spy(new MonitoringService(null));
-		doReturn(prepareResponse(infos).encode()).when(service).query(Matchers.anyString(), Matchers.anyInt());
+		doReturn(prepareResponse(infos).encode()).when(service).query(ArgumentMatchers.anyString(),
+				ArgumentMatchers.anyInt());
 
 		List<AlertInfo> collected = service.collectAlerts("", 1000, false, Arrays.asList(AlertLevel.values()));
 		assertEquals(3, collected.size());
@@ -79,7 +80,8 @@ public class GetAlertsTest {
 		List<AlertInfo> infos = Arrays.asList(info1, info2, info3);
 
 		MonitoringService service = spy(new MonitoringService(null));
-		doReturn(prepareResponse(infos).encode()).when(service).query(Matchers.anyString(), Matchers.anyInt());
+		doReturn(prepareResponse(infos).encode()).when(service).query(ArgumentMatchers.anyString(),
+				ArgumentMatchers.anyInt());
 
 		List<AlertInfo> collected = service.collectAlerts("", 1000, true, Arrays.asList(AlertLevel.values()));
 		assertEquals(0, collected.size());
@@ -107,7 +109,8 @@ public class GetAlertsTest {
 		List<AlertInfo> infos = Arrays.asList(info1, info2, info3);
 
 		MonitoringService service = spy(new MonitoringService(null));
-		doReturn(prepareResponse(infos).encode()).when(service).query(Matchers.anyString(), Matchers.anyInt());
+		doReturn(prepareResponse(infos).encode()).when(service).query(ArgumentMatchers.anyString(),
+				ArgumentMatchers.anyInt());
 
 		List<AlertInfo> collected = service.collectAlerts("", 1000, false, Arrays.asList(AlertLevel.values()));
 		assertEquals(3, collected.size());
@@ -160,7 +163,8 @@ public class GetAlertsTest {
 				id1_4, id1_5);
 
 		MonitoringService service = spy(new MonitoringService(null));
-		doReturn(prepareResponse(infos).encode()).when(service).query(Matchers.anyString(), Matchers.anyInt());
+		doReturn(prepareResponse(infos).encode()).when(service).query(ArgumentMatchers.any(),
+				ArgumentMatchers.anyInt());
 
 		List<AlertInfo> collected = service.collectAlerts("", 1000, false, Arrays.asList(AlertLevel.values()));
 		assertEquals(12, collected.size());

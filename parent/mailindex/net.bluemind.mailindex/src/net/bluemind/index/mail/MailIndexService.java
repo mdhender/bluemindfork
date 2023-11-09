@@ -62,7 +62,6 @@ import co.elastic.clients.elasticsearch.indices.GetAliasResponse;
 import co.elastic.clients.elasticsearch.indices.GetMappingResponse;
 import co.elastic.clients.elasticsearch.indices.get_alias.IndexAliases;
 import co.elastic.clients.elasticsearch.indices.stats.IndicesStats;
-import co.elastic.clients.elasticsearch.tasks.Status;
 import co.elastic.clients.json.JsonData;
 import co.elastic.clients.util.ObjectBuilder;
 import io.vertx.core.Vertx;
@@ -674,9 +673,12 @@ public class MailIndexService implements IMailIndexService {
 					.dest(d -> d.index(toIndex).opType(OpType.Index)) //
 					.scroll(s -> s.time("1d")) //
 					.conflicts(Conflicts.Proceed));
-			Status parentStatus = taskMonitor.waitForCompletion(parentResponse.task());
-			if (!parentStatus.failures().isEmpty()) {
-				logger.error("copy failure : {}", parentStatus.failures());
+			jakarta.json.JsonObject parentStatus = taskMonitor.waitForCompletion(parentResponse.task()).toJson()
+					.asJsonObject();
+			List<String> parentStatusFailures = parentStatus.getJsonArray("failures").stream().map(Object::toString)
+					.toList();
+			if (!parentStatusFailures.isEmpty()) {
+				logger.error("copy failure : {}", parentStatusFailures);
 			}
 			logger.info("bulk copy of msgBody response {}", parentStatus);
 
@@ -690,9 +692,12 @@ public class MailIndexService implements IMailIndexService {
 					.dest(d -> d.index(toIndex).opType(OpType.Index)) //
 					.scroll(s -> s.time("1d")) //
 					.conflicts(Conflicts.Proceed));
-			Status childStatus = taskMonitor.waitForCompletion(childResponse.task());
-			if (!childStatus.failures().isEmpty()) {
-				logger.error("copy failure : {}", childStatus.failures());
+			jakarta.json.JsonObject childStatus = taskMonitor.waitForCompletion(childResponse.task()).toJson()
+					.asJsonObject();
+			List<String> childStatusFailures = parentStatus.getJsonArray("failures").stream().map(Object::toString)
+					.toList();
+			if (!childStatusFailures.isEmpty()) {
+				logger.error("copy failure : {}", childStatusFailures);
 			}
 			logger.info("bulk copy of msg response {}", childStatus);
 		} catch (ElasticsearchException | IOException | ElasticTaskException e) {

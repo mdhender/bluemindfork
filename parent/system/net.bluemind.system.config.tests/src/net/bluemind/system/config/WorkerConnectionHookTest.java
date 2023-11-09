@@ -29,7 +29,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -61,10 +61,10 @@ public class WorkerConnectionHookTest {
 	@Test
 	public void onUpdated_noPreviousNoNew() {
 		NginxService hook = spy(new NginxService());
-		doNothing().when(hook).updateWorkerConnection(Matchers.<String>any());
+		doNothing().when(hook).updateWorkerConnection(ArgumentMatchers.<String>any());
 
 		new WorkerConnectionHook().onUpdated(null, new SystemConf(), new SystemConf());
-		verify(hook, times(0)).updateWorkerConnection(Matchers.<String>any());
+		verify(hook, times(0)).updateWorkerConnection(ArgumentMatchers.<String>any());
 	}
 
 	private SystemConf getSystemConf(String value) {
@@ -77,54 +77,54 @@ public class WorkerConnectionHookTest {
 	@Test
 	public void onUpdated_emptyOrNullPreviousAndNew() {
 		NginxService hook = spy(new NginxService());
-		doNothing().when(hook).updateWorkerConnection(Matchers.<String>any());
+		doNothing().when(hook).updateWorkerConnection(ArgumentMatchers.<String>any());
 
 		new WorkerConnectionHook(hook).onUpdated(null, getSystemConf(""), getSystemConf(""));
-		verify(hook, times(0)).updateWorkerConnection(Matchers.<String>any());
+		verify(hook, times(0)).updateWorkerConnection(ArgumentMatchers.<String>any());
 
 		new WorkerConnectionHook(hook).onUpdated(null, getSystemConf(""), getSystemConf(null));
-		verify(hook, times(0)).updateWorkerConnection(Matchers.<String>any());
+		verify(hook, times(0)).updateWorkerConnection(ArgumentMatchers.<String>any());
 
 		new WorkerConnectionHook(hook).onUpdated(null, getSystemConf(null), getSystemConf(""));
-		verify(hook, times(0)).updateWorkerConnection(Matchers.<String>any());
+		verify(hook, times(0)).updateWorkerConnection(ArgumentMatchers.<String>any());
 
 		new WorkerConnectionHook(hook).onUpdated(null, getSystemConf(null), getSystemConf(null));
-		verify(hook, times(0)).updateWorkerConnection(Matchers.<String>any());
+		verify(hook, times(0)).updateWorkerConnection(ArgumentMatchers.<String>any());
 	}
 
 	@Test
 	public void onUpdated_samePreviousNoNew() {
 		NginxService hook = spy(new NginxService());
-		doNothing().when(hook).updateWorkerConnection(Matchers.<String>any());
+		doNothing().when(hook).updateWorkerConnection(ArgumentMatchers.<String>any());
 
 		new WorkerConnectionHook(hook).onUpdated(null, getSystemConf(null), getSystemConf(null));
-		verify(hook, times(0)).updateWorkerConnection(Matchers.<String>any());
+		verify(hook, times(0)).updateWorkerConnection(ArgumentMatchers.<String>any());
 
 		new WorkerConnectionHook(hook).onUpdated(null, getSystemConf(""), getSystemConf(""));
-		verify(hook, times(0)).updateWorkerConnection(Matchers.<String>any());
+		verify(hook, times(0)).updateWorkerConnection(ArgumentMatchers.<String>any());
 
 		new WorkerConnectionHook(hook).onUpdated(null, getSystemConf("12"), getSystemConf("12"));
-		verify(hook, times(0)).updateWorkerConnection(Matchers.<String>any());
+		verify(hook, times(0)).updateWorkerConnection(ArgumentMatchers.<String>any());
 	}
 
 	@Test
 	public void onUpdated_update() {
 		NginxService hook = spy(new NginxService());
-		doNothing().when(hook).updateWorkerConnection(Matchers.<String>any());
+		doNothing().when(hook).updateWorkerConnection(ArgumentMatchers.<String>any());
 
 		new WorkerConnectionHook(hook).onUpdated(null, getSystemConf(null), getSystemConf("12"));
-		verify(hook, times(1)).updateWorkerConnection(Matchers.<String>any());
+		verify(hook, times(1)).updateWorkerConnection(ArgumentMatchers.<String>any());
 
 		new WorkerConnectionHook(hook).onUpdated(null, getSystemConf(""), getSystemConf("12"));
-		verify(hook, times(2)).updateWorkerConnection(Matchers.<String>any());
+		verify(hook, times(2)).updateWorkerConnection(ArgumentMatchers.<String>any());
 
 		new WorkerConnectionHook(hook).onUpdated(null, getSystemConf("12"), getSystemConf("15"));
-		verify(hook, times(3)).updateWorkerConnection(Matchers.<String>any());
+		verify(hook, times(3)).updateWorkerConnection(ArgumentMatchers.<String>any());
 
 		new WorkerConnectionHook(hook).onUpdated(null, getSystemConf("12"), getSystemConf(""));
-		verify(hook, times(4)).updateWorkerConnection(Matchers.<String>any());
+		verify(hook, times(4)).updateWorkerConnection(ArgumentMatchers.<String>any());
 
 		new WorkerConnectionHook(hook).onUpdated(null, getSystemConf("12"), getSystemConf(null));
-		verify(hook, times(5)).updateWorkerConnection(Matchers.<String>any());
+		verify(hook, times(5)).updateWorkerConnection(ArgumentMatchers.<String>any());
 	}
 }

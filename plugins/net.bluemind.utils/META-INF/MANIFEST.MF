@@ -11,13 +11,13 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.common.io;bundle-version="5.0.0",
  org.jsoup,
  com.sun.mail.jakarta.mail,
- org.bouncycastle.bcpkix,
- org.bouncycastle.bcpg;bundle-version="1.71.0",
- org.bouncycastle.bcprov;bundle-version="1.71.0",
- org.bouncycastle.bcutil;bundle-version="1.71.0",
  net.bluemind.core.rest,
  net.bluemind.system.api,
- net.bluemind.system.sysconf.helper
+ net.bluemind.system.sysconf.helper,
+ bcprov;bundle-version="1.76.0",
+ bcpg;bundle-version="1.76.0",
+ bcpkix;bundle-version="1.76.0",
+ bcutil;bundle-version="1.76.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.utils;
   uses:="org.eclipse.core.runtime,

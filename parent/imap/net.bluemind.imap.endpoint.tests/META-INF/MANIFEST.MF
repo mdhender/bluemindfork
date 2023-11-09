@@ -19,7 +19,6 @@ Require-Bundle: org.eclipse.core.runtime,
  com.google.guava,
  com.google.truth,
  com.google.truth.extensions.truth-java8-extension,
- org.mockito.mockito-all,
  net.bluemind.tests.extensions,
  it.unimi.dsi.fastutil
 Import-Package: org.junit.jupiter.api,

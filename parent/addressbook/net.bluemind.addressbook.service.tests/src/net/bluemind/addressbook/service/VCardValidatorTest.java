@@ -10,7 +10,7 @@ import java.util.UUID;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Communications.Email;
@@ -30,12 +30,14 @@ public class VCardValidatorTest {
 		VCard card = new VCard();
 		card.kind = Kind.individual;
 		ItemValue<VCard> iv = ItemValue.create(new Item(), card);
-		doReturn(iv).when(validator).getMemberVCard(Matchers.<String>any(), Matchers.matches("auser\\d{1}"));
+		doReturn(iv).when(validator).getMemberVCard(ArgumentMatchers.<String>any(),
+				ArgumentMatchers.matches("auser\\d{1}"));
 
 		VCard cardGroup = new VCard();
 		cardGroup.kind = Kind.group;
 		ItemValue<VCard> ivGroup = ItemValue.create(new Item(), cardGroup);
-		doReturn(ivGroup).when(validator).getMemberVCard(Matchers.<String>any(), Matchers.matches("agroup\\d{1}"));
+		doReturn(ivGroup).when(validator).getMemberVCard(ArgumentMatchers.<String>any(),
+				ArgumentMatchers.matches("agroup\\d{1}"));
 	}
 
 	@Test

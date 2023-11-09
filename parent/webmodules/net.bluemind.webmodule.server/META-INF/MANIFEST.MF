@@ -20,7 +20,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.rest.http,
  net.bluemind.network.topology,
  net.bluemind.system.api,
- net.bluemind.system.stateobserver
+ net.bluemind.system.stateobserver,
+ angus-activation
 Closure-Bundle-Type: Embedded
 Web-Resources: web-resources
 Closure-Inputs: BundlesManager.js

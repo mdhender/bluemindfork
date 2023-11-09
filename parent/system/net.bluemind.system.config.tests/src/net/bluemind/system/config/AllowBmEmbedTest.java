@@ -29,7 +29,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -72,10 +72,10 @@ public class AllowBmEmbedTest {
 	@Test
 	public void onUpdated_noPreviousNoNew() {
 		NginxService hook = spy(new NginxService());
-		doNothing().when(hook).updateAllowBmEmbed(Matchers.anyBoolean());
+		doNothing().when(hook).updateAllowBmEmbed(ArgumentMatchers.anyBoolean());
 
 		new AllowBmEmbedHook().onUpdated(null, new SystemConf(), new SystemConf());
-		verify(hook, times(0)).updateAllowBmEmbed(Matchers.anyBoolean());
+		verify(hook, times(0)).updateAllowBmEmbed(ArgumentMatchers.anyBoolean());
 	}
 
 	private SystemConf getSystemConf(String value) {
@@ -88,55 +88,55 @@ public class AllowBmEmbedTest {
 	@Test
 	public void onUpdated_emptyOrNullPreviousAndNew() {
 		NginxService hook = spy(new NginxService());
-		doNothing().when(hook).updateAllowBmEmbed(Matchers.anyBoolean());
+		doNothing().when(hook).updateAllowBmEmbed(ArgumentMatchers.anyBoolean());
 
 		new AllowBmEmbedHook(hook).onUpdated(null, getSystemConf(""), getSystemConf(""));
-		verify(hook, times(0)).updateAllowBmEmbed(Matchers.anyBoolean());
+		verify(hook, times(0)).updateAllowBmEmbed(ArgumentMatchers.anyBoolean());
 
 		new AllowBmEmbedHook(hook).onUpdated(null, getSystemConf(""), getSystemConf(null));
-		verify(hook, times(0)).updateAllowBmEmbed(Matchers.anyBoolean());
+		verify(hook, times(0)).updateAllowBmEmbed(ArgumentMatchers.anyBoolean());
 
 		new AllowBmEmbedHook(hook).onUpdated(null, getSystemConf(null), getSystemConf(""));
-		verify(hook, times(0)).updateAllowBmEmbed(Matchers.anyBoolean());
+		verify(hook, times(0)).updateAllowBmEmbed(ArgumentMatchers.anyBoolean());
 
 		new AllowBmEmbedHook(hook).onUpdated(null, getSystemConf(null), getSystemConf(null));
-		verify(hook, times(0)).updateAllowBmEmbed(Matchers.anyBoolean());
+		verify(hook, times(0)).updateAllowBmEmbed(ArgumentMatchers.anyBoolean());
 	}
 
 	@Test
 	public void onUpdated_samePreviousNoNew() {
 		NginxService hook = spy(new NginxService());
-		doNothing().when(hook).updateAllowBmEmbed(Matchers.anyBoolean());
+		doNothing().when(hook).updateAllowBmEmbed(ArgumentMatchers.anyBoolean());
 
 		new AllowBmEmbedHook(hook).onUpdated(null, getSystemConf(null), getSystemConf(null));
-		verify(hook, times(0)).updateAllowBmEmbed(Matchers.anyBoolean());
+		verify(hook, times(0)).updateAllowBmEmbed(ArgumentMatchers.anyBoolean());
 
 		new AllowBmEmbedHook(hook).onUpdated(null, getSystemConf("true"), getSystemConf("true"));
-		verify(hook, times(0)).updateAllowBmEmbed(Matchers.anyBoolean());
+		verify(hook, times(0)).updateAllowBmEmbed(ArgumentMatchers.anyBoolean());
 
 		new AllowBmEmbedHook(hook).onUpdated(null, getSystemConf("false"), getSystemConf("false"));
-		verify(hook, times(0)).updateAllowBmEmbed(Matchers.anyBoolean());
+		verify(hook, times(0)).updateAllowBmEmbed(ArgumentMatchers.anyBoolean());
 	}
 
 	@Test
 	public void onUpdated_update() {
 		NginxService hook = spy(new NginxService());
-		doNothing().when(hook).updateAllowBmEmbed(Matchers.anyBoolean());
+		doNothing().when(hook).updateAllowBmEmbed(ArgumentMatchers.anyBoolean());
 
 		new AllowBmEmbedHook(hook).onUpdated(null, getSystemConf(null), getSystemConf("true"));
-		verify(hook, times(1)).updateAllowBmEmbed(Matchers.anyBoolean());
+		verify(hook, times(1)).updateAllowBmEmbed(ArgumentMatchers.anyBoolean());
 
 		new AllowBmEmbedHook(hook).onUpdated(null, getSystemConf("false"), getSystemConf("true"));
-		verify(hook, times(2)).updateAllowBmEmbed(Matchers.anyBoolean());
+		verify(hook, times(2)).updateAllowBmEmbed(ArgumentMatchers.anyBoolean());
 
 		new AllowBmEmbedHook(hook).onUpdated(null, getSystemConf("true"), getSystemConf("false"));
-		verify(hook, times(3)).updateAllowBmEmbed(Matchers.anyBoolean());
+		verify(hook, times(3)).updateAllowBmEmbed(ArgumentMatchers.anyBoolean());
 
 		new AllowBmEmbedHook(hook).onUpdated(null, getSystemConf("true"), getSystemConf(null));
-		verify(hook, times(4)).updateAllowBmEmbed(Matchers.anyBoolean());
+		verify(hook, times(4)).updateAllowBmEmbed(ArgumentMatchers.anyBoolean());
 
 		// false == null
 		new AllowBmEmbedHook(hook).onUpdated(null, getSystemConf("false"), getSystemConf(null));
-		verify(hook, times(4)).updateAllowBmEmbed(Matchers.anyBoolean());
+		verify(hook, times(4)).updateAllowBmEmbed(ArgumentMatchers.anyBoolean());
 	}
 }

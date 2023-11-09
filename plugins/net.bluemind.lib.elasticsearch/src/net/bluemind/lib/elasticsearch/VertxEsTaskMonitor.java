@@ -17,7 +17,7 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import co.elastic.clients.elasticsearch._types.Time;
 import co.elastic.clients.elasticsearch.tasks.GetTasksResponse;
-import co.elastic.clients.elasticsearch.tasks.Status;
+import co.elastic.clients.json.JsonData;
 import io.vertx.core.Vertx;
 import net.bluemind.lib.elasticsearch.exception.ElasticTaskException;
 
@@ -38,8 +38,8 @@ public class VertxEsTaskMonitor implements EsTaskMonitor {
 	}
 
 	@Override
-	public Status waitForCompletion(String taskId) throws ElasticTaskException {
-		CompletableFuture<Status> future = new CompletableFuture<>();
+	public JsonData waitForCompletion(String taskId) throws ElasticTaskException {
+		CompletableFuture<JsonData> future = new CompletableFuture<>();
 		try {
 			return monitor(future, taskId).get();
 		} catch (InterruptedException e) {
@@ -55,13 +55,14 @@ public class VertxEsTaskMonitor implements EsTaskMonitor {
 	}
 
 	@Override
-	public CompletableFuture<Status> monitor(String taskId) {
+	public CompletableFuture<JsonData> monitor(String taskId) {
 		return monitor(new CompletableFuture<>(), taskId);
 	}
 
-	private CompletableFuture<Status> monitor(CompletableFuture<Status> future, String taskId) {
+	private CompletableFuture<JsonData> monitor(CompletableFuture<JsonData> future, String taskId) {
 		try {
-			var task = esClient.tasks().get(t -> t.taskId(taskId).waitForCompletion(true).timeout(waitTimeout));
+			GetTasksResponse task = esClient.tasks()
+					.get(t -> t.taskId(taskId).waitForCompletion(true).timeout(waitTimeout));
 			return (!task.completed()) ? queue(future, taskId) : complete(future, task);
 		} catch (ResponseException e) {
 			JsonNode details = decodeResponseException(e);
@@ -74,12 +75,12 @@ public class VertxEsTaskMonitor implements EsTaskMonitor {
 
 	}
 
-	private CompletableFuture<Status> queue(CompletableFuture<Status> future, String taskId) {
+	private CompletableFuture<JsonData> queue(CompletableFuture<JsonData> future, String taskId) {
 		vertx.setTimer(delay, timer -> monitor(future, taskId));
 		return future;
 	}
 
-	private CompletableFuture<Status> complete(CompletableFuture<Status> future, GetTasksResponse task) {
+	private CompletableFuture<JsonData> complete(CompletableFuture<JsonData> future, GetTasksResponse task) {
 		if (task.error() != null) {
 			future.completeExceptionally(new ElasticTaskException(task.error().reason()));
 		} else {

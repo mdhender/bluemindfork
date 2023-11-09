@@ -8,10 +8,9 @@ import static net.bluemind.central.reverse.proxy.model.common.ProxyInfoStoreEven
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import org.junit.After;
 import org.junit.Before;
@@ -90,7 +89,7 @@ public class ProxyInfoStoreTests {
 
 	@Test
 	public void testIp() {
-		when(storage.ip(Mockito.anyString())).thenReturn("1.2.3.4");
+		org.mockito.Mockito.when(storage.ip(Mockito.anyString())).thenReturn("1.2.3.4");
 		AsyncTestContext.asyncTest(context -> {
 			JsonObject json = new JsonObject().put("login", "any");
 			vertx.eventBus().<JsonObject>request(ADDRESS, json, IP, ar -> context.assertions(() -> {
@@ -103,7 +102,7 @@ public class ProxyInfoStoreTests {
 
 	@Test
 	public void testIp_withNonExistantIp() {
-		when(storage.ip(Mockito.anyString())).thenReturn(null);
+		org.mockito.Mockito.when(storage.ip(Mockito.anyString())).thenReturn(null);
 		AsyncTestContext.asyncTest(context -> {
 			JsonObject json = new JsonObject().put("login", "any");
 			vertx.eventBus().request(ADDRESS, json, IP, ar -> context.assertions(() -> {
@@ -130,7 +129,7 @@ public class ProxyInfoStoreTests {
 
 	@Test
 	public void testAnyIp() {
-		when(storage.anyIp()).thenReturn("1.2.3.4");
+		org.mockito.Mockito.when(storage.anyIp()).thenReturn("1.2.3.4");
 		AsyncTestContext.asyncTest(context -> {
 			vertx.eventBus().<JsonObject>request(ADDRESS, null, ANY_IP, ar -> context.assertions(() -> {
 				assertTrue(ar.succeeded());
@@ -142,7 +141,7 @@ public class ProxyInfoStoreTests {
 
 	@Test
 	public void testAnyIp_whenNoIpAvailable() {
-		when(storage.anyIp()).thenReturn(null);
+		org.mockito.Mockito.when(storage.anyIp()).thenReturn(null);
 		AsyncTestContext.asyncTest(context -> {
 			vertx.eventBus().request(ADDRESS, null, ANY_IP, ar -> context.assertions(() -> {
 				assertTrue(ar.failed());

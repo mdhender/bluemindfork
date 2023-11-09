@@ -28,6 +28,6 @@ Require-Bundle: org.junit,
  net.bluemind.vertx.testhelper,
  net.bluemind.serialization.client,
  net.bluemind.directory.hollow.datamodel.utils,
- org.bouncycastle.bcprov
+ bcprov;bundle-version="1.76.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.directory.hollow.datamodel.producer.tests

@@ -27,7 +27,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import org.junit.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.context.SecurityContext;
@@ -38,10 +38,10 @@ public class RestServiceSecurityCheckTest {
 	private RestServiceSecurityCheck getService(String... requiredRoles) {
 		RestServiceSecurityCheck service = spy(new RestServiceSecurityCheck(Arrays.asList(requiredRoles), null));
 
-		doNothing().when(service).invokeNext(Matchers.<SecurityContext>any(), Matchers.<Object>any(),
-				Matchers.<Object[]>any(), Matchers.<AsyncHandler<Object>>any());
+		doNothing().when(service).invokeNext(ArgumentMatchers.<SecurityContext>any(), ArgumentMatchers.<Object>any(),
+				ArgumentMatchers.<Object[]>any(), ArgumentMatchers.<AsyncHandler<Object>>any());
 
-		doNothing().when(service).executeFaultHandler(Matchers.<AsyncHandler<Object>>any());
+		doNothing().when(service).executeFaultHandler(ArgumentMatchers.<AsyncHandler<Object>>any());
 
 		return service;
 	}
@@ -57,10 +57,10 @@ public class RestServiceSecurityCheckTest {
 		service.invoke(getWithRoles(), null, null, null);
 		service.invoke(getWithRoles("canDoAnything1", "canDoAnything2"), null, null, null);
 
-		verify(service, times(2)).invokeNext(Matchers.<SecurityContext>any(), Matchers.<Object>any(),
-				Matchers.<Object[]>any(), Matchers.<AsyncHandler<Object>>any());
+		verify(service, times(2)).invokeNext(ArgumentMatchers.<SecurityContext>any(), ArgumentMatchers.<Object>any(),
+				ArgumentMatchers.<Object[]>any(), ArgumentMatchers.<AsyncHandler<Object>>any());
 
-		verify(service, times(0)).executeFaultHandler(Matchers.<AsyncHandler<Object>>any());
+		verify(service, times(0)).executeFaultHandler(ArgumentMatchers.<AsyncHandler<Object>>any());
 	}
 
 	@Test
@@ -69,10 +69,10 @@ public class RestServiceSecurityCheckTest {
 
 		service.invoke(getWithRoles(), null, null, null);
 
-		verify(service, times(0)).invokeNext(Matchers.<SecurityContext>any(), Matchers.<Object>any(),
-				Matchers.<Object[]>any(), Matchers.<AsyncHandler<Object>>any());
+		verify(service, times(0)).invokeNext(ArgumentMatchers.<SecurityContext>any(), ArgumentMatchers.<Object>any(),
+				ArgumentMatchers.<Object[]>any(), ArgumentMatchers.<AsyncHandler<Object>>any());
 
-		verify(service, times(1)).executeFaultHandler(Matchers.<AsyncHandler<Object>>any());
+		verify(service, times(1)).executeFaultHandler(ArgumentMatchers.<AsyncHandler<Object>>any());
 	}
 
 	@Test
@@ -81,10 +81,10 @@ public class RestServiceSecurityCheckTest {
 
 		service.invoke(getWithRoles("canDoSomethingElse"), null, null, null);
 
-		verify(service, times(0)).invokeNext(Matchers.<SecurityContext>any(), Matchers.<Object>any(),
-				Matchers.<Object[]>any(), Matchers.<AsyncHandler<Object>>any());
+		verify(service, times(0)).invokeNext(ArgumentMatchers.<SecurityContext>any(), ArgumentMatchers.<Object>any(),
+				ArgumentMatchers.<Object[]>any(), ArgumentMatchers.<AsyncHandler<Object>>any());
 
-		verify(service, times(1)).executeFaultHandler(Matchers.<AsyncHandler<Object>>any());
+		verify(service, times(1)).executeFaultHandler(ArgumentMatchers.<AsyncHandler<Object>>any());
 	}
 
 	@Test
@@ -93,10 +93,10 @@ public class RestServiceSecurityCheckTest {
 
 		service.invoke(getWithRoles(), null, null, null);
 
-		verify(service, times(0)).invokeNext(Matchers.<SecurityContext>any(), Matchers.<Object>any(),
-				Matchers.<Object[]>any(), Matchers.<AsyncHandler<Object>>any());
+		verify(service, times(0)).invokeNext(ArgumentMatchers.<SecurityContext>any(), ArgumentMatchers.<Object>any(),
+				ArgumentMatchers.<Object[]>any(), ArgumentMatchers.<AsyncHandler<Object>>any());
 
-		verify(service, times(1)).executeFaultHandler(Matchers.<AsyncHandler<Object>>any());
+		verify(service, times(1)).executeFaultHandler(ArgumentMatchers.<AsyncHandler<Object>>any());
 	}
 
 	@Test
@@ -105,10 +105,10 @@ public class RestServiceSecurityCheckTest {
 
 		service.invoke(getWithRoles("canDoSomethingElse"), null, null, null);
 
-		verify(service, times(0)).invokeNext(Matchers.<SecurityContext>any(), Matchers.<Object>any(),
-				Matchers.<Object[]>any(), Matchers.<AsyncHandler<Object>>any());
+		verify(service, times(0)).invokeNext(ArgumentMatchers.<SecurityContext>any(), ArgumentMatchers.<Object>any(),
+				ArgumentMatchers.<Object[]>any(), ArgumentMatchers.<AsyncHandler<Object>>any());
 
-		verify(service, times(1)).executeFaultHandler(Matchers.<AsyncHandler<Object>>any());
+		verify(service, times(1)).executeFaultHandler(ArgumentMatchers.<AsyncHandler<Object>>any());
 	}
 
 	@Test
@@ -117,10 +117,10 @@ public class RestServiceSecurityCheckTest {
 
 		service.invoke(getWithRoles("canAccessMethod", "isAdmin"), null, null, null);
 
-		verify(service, times(1)).invokeNext(Matchers.<SecurityContext>any(), Matchers.<Object>any(),
-				Matchers.<Object[]>any(), Matchers.<AsyncHandler<Object>>any());
+		verify(service, times(1)).invokeNext(ArgumentMatchers.<SecurityContext>any(), ArgumentMatchers.<Object>any(),
+				ArgumentMatchers.<Object[]>any(), ArgumentMatchers.<AsyncHandler<Object>>any());
 
-		verify(service, times(0)).executeFaultHandler(Matchers.<AsyncHandler<Object>>any());
+		verify(service, times(0)).executeFaultHandler(ArgumentMatchers.<AsyncHandler<Object>>any());
 	}
 
 	@Test
@@ -129,10 +129,10 @@ public class RestServiceSecurityCheckTest {
 
 		service.invoke(getWithRoles("canAccessMethod", "isAdmin", "isRoot"), null, null, null);
 
-		verify(service, times(1)).invokeNext(Matchers.<SecurityContext>any(), Matchers.<Object>any(),
-				Matchers.<Object[]>any(), Matchers.<AsyncHandler<Object>>any());
+		verify(service, times(1)).invokeNext(ArgumentMatchers.<SecurityContext>any(), ArgumentMatchers.<Object>any(),
+				ArgumentMatchers.<Object[]>any(), ArgumentMatchers.<AsyncHandler<Object>>any());
 
-		verify(service, times(0)).executeFaultHandler(Matchers.<AsyncHandler<Object>>any());
+		verify(service, times(0)).executeFaultHandler(ArgumentMatchers.<AsyncHandler<Object>>any());
 	}
 
 	@Test
@@ -141,10 +141,10 @@ public class RestServiceSecurityCheckTest {
 
 		service.invoke(getWithRoles("isAdmin"), null, null, null);
 
-		verify(service, times(1)).invokeNext(Matchers.<SecurityContext>any(), Matchers.<Object>any(),
-				Matchers.<Object[]>any(), Matchers.<AsyncHandler<Object>>any());
+		verify(service, times(1)).invokeNext(ArgumentMatchers.<SecurityContext>any(), ArgumentMatchers.<Object>any(),
+				ArgumentMatchers.<Object[]>any(), ArgumentMatchers.<AsyncHandler<Object>>any());
 
-		verify(service, times(0)).executeFaultHandler(Matchers.<AsyncHandler<Object>>any());
+		verify(service, times(0)).executeFaultHandler(ArgumentMatchers.<AsyncHandler<Object>>any());
 	}
 
 }

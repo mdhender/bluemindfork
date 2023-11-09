@@ -28,6 +28,10 @@
 
    <plugins>
       <plugin id="backport-util-concurrent"/>
+      <plugin id="bcpg"/>
+      <plugin id="bcpkix"/>
+      <plugin id="bcprov"/>
+      <plugin id="bcutil"/>
       <plugin id="ch.qos.logback.classic"/>
       <plugin id="ch.qos.logback.core"/>
       <plugin id="com.beetstra.jutf7"/>
@@ -518,10 +522,6 @@
       <plugin id="org.asynchttpclient.async-http-client"/>
       <plugin id="org.asynchttpclient.async-http-client-netty-utils"/>
       <plugin id="org.bitbucket.b_c.jose4j"/>
-      <plugin id="org.bouncycastle.bcpg"/>
-      <plugin id="org.bouncycastle.bcpkix"/>
-      <plugin id="org.bouncycastle.bcprov"/>
-      <plugin id="org.bouncycastle.bcutil"/>
       <plugin id="org.eclipse.core.contenttype"/>
       <plugin id="org.eclipse.core.jobs"/>
       <plugin id="org.eclipse.core.runtime"/>

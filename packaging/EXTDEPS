@@ -3,13 +3,13 @@ BMSDS="5.0.0-370"
 
 BMES="7.17.13-bluemind107"
 
-BMKEYCLOAK="22.0.3-bluemind59"
+BMKEYCLOAK="22.0.5-bluemind415"
 
 KAFKA="3.6.0-bluemind412"
 MINIO="2023.11.01-bluemind412"
 WEED="3.58-bluemind412"
 
-BMJDK="17.0.7+7-bluemind18"
+BMJDK="21.0.1+12-bluemind409"
 BMSNZIP="1.0.4-bluemind4"
 BMNGINX="1.24.0-bluemind109"
 BMPHP="5.6.40-bluemind117"

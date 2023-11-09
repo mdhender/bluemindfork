@@ -1,13 +1,13 @@
 package net.bluemind.central.reverse.proxy.vertx.impl;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 import io.vertx.core.Future;
@@ -55,7 +55,7 @@ public class DownstreamSelectorTests {
 	public void testAnonymousRouteSelection() throws InterruptedException {
 
 		ProxyInfoStoreClient storeClient = Mockito.mock(ProxyInfoStoreClient.class);
-		when(storeClient.ip(anyString())).thenReturn(Future.succeededFuture());
+		when(storeClient.ip(ArgumentMatchers.<String>any())).thenReturn(Future.succeededFuture());
 		when(storeClient.anyIp()).thenReturn(Future.succeededFuture("1.1.1.1"), Future.succeededFuture("2.2.2.2"));
 
 		DownstreamSelector<HttpServerRequestContext> selector = new DownstreamSelector<>(new RequestInfoMatcher(),

@@ -37,7 +37,6 @@ import com.netflix.spectator.api.Timer;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.Scope;
-import io.opentelemetry.semconv.trace.attributes.SemanticAttributes;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
 import io.vertx.core.Future;
@@ -131,9 +130,8 @@ public class RestRootHandler implements IRestCallHandler, IRestBusHandler {
 		Span parentSpan = tracer.spanBuilder(request.path).startSpan();
 		try (Scope scope = parentSpan.makeCurrent()) {
 			final Span span = Span.current();
-			span.setAttribute(SemanticAttributes.HTTP_METHOD, request.method.name());
-			span.setAttribute(SemanticAttributes.HTTP_CLIENT_IP,
-					request.remoteAddresses.stream().findFirst().orElse("127.127.127.127"));
+			span.setAttribute("http.method", request.method.name());
+			span.setAttribute("http.client_ip", request.remoteAddresses.stream().findFirst().orElse("127.127.127.127"));
 			for (IRestFilter filter : filters) {
 				responseHandler = filter.preAuthorization(request, responseHandler);
 				if (responseHandler == null) {
@@ -168,7 +166,7 @@ public class RestRootHandler implements IRestCallHandler, IRestBusHandler {
 			@Override
 			public void success(RestResponse value) {
 				Span span = Span.current();
-				span.setAttribute(SemanticAttributes.HTTP_STATUS_CODE, value.statusCode);
+				span.setAttribute("http.status_code", value.statusCode);
 				rh.success(value);
 				long elapsed = metrics.registry.clock().monotonicTime() - start;
 				vertx.executeBlocking(() -> {
@@ -184,7 +182,7 @@ public class RestRootHandler implements IRestCallHandler, IRestBusHandler {
 			@Override
 			public void failure(Throwable e) {
 				Span span = Span.current();
-				span.setAttribute(SemanticAttributes.HTTP_STATUS_CODE, 500);
+				span.setAttribute("http.status_code", 500);
 				metrics.countFail.increment();
 			}
 

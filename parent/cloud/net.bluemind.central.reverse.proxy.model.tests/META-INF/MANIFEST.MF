@@ -6,7 +6,6 @@ Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: www.blue-mind.net
 Require-Bundle: org.eclipse.core.runtime,
  org.junit;bundle-version="3.8.2",
- org.mockito.mockito-all,
  slf4j.api,
  net.bluemind.lib.vertx,
  net.bluemind.kafka.client,
@@ -20,7 +19,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.central.reverse.proxy.stream,
  net.bluemind.central.reverse.proxy.model,
  net.bluemind.central.reverse.proxy.common,
- com.typesafe.config
+ com.typesafe.config,
+ org.mockito.mockito-core
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.central.reverse.proxy.model.tests

@@ -38,8 +38,8 @@ import co.elastic.clients.elasticsearch._types.query_dsl.TermQuery;
 import co.elastic.clients.elasticsearch.core.ReindexResponse;
 import co.elastic.clients.elasticsearch.indices.AliasDefinition;
 import co.elastic.clients.elasticsearch.indices.get_alias.IndexAliases;
-import co.elastic.clients.elasticsearch.tasks.Status;
 import io.vertx.core.Vertx;
+import jakarta.json.JsonObject;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.CliException;
 import net.bluemind.cli.cmd.api.ICmdLet;
@@ -191,7 +191,8 @@ public class ReindexMailIndexesCommand implements ICmdLet, Runnable {
 			script.ifPresent(r::script);
 			return r;
 		});
-		Status status = new VertxEsTaskMonitor(Vertx.vertx(), esClient).waitForCompletion(response.task());
+		JsonObject status = new VertxEsTaskMonitor(Vertx.vertx(), esClient).waitForCompletion(response.task()).toJson()
+				.asJsonObject();
 		ctx.info("Reindexing {} from index {} to {}: {}", type, srcIndex, targetIndex,
 				Matcher.quoteReplacement(status.toString()));
 	}

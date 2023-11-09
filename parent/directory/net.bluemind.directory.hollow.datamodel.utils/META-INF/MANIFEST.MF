@@ -7,10 +7,10 @@ Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  slf4j.api,
  com.netflix.hollow;bundle-version="3.0.1",
- org.bouncycastle.bcpkix,
- org.bouncycastle.bcprov,
  net.bluemind.utils,
- net.bluemind.core.commons
+ net.bluemind.core.commons,
+ bcpkix;bundle-version="1.76.0",
+ bcprov;bundle-version="1.76.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.directory.hollow.datamodel.utils
 Bundle-ActivationPolicy: lazy

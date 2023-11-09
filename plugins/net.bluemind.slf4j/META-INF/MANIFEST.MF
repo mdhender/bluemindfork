@@ -6,10 +6,10 @@ Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: bluemind.net
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ClassPath: .
-Require-Bundle: slf4j.api;bundle-version="1.7.25",
- ch.qos.logback.classic;bundle-version="1.2.3",
- ch.qos.logback.core;bundle-version="1.2.3",
- jcl.over.slf4j;bundle-version="1.7.25",
- jul.to.slf4j;bundle-version="1.7.25"
+Require-Bundle: slf4j.api,
+ ch.qos.logback.classic,
+ ch.qos.logback.core,
+ jcl.over.slf4j,
+ jul.to.slf4j
 Automatic-Module-Name: net.bluemind.slf4j
 

@@ -63,13 +63,13 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-		<bm-plugins-version>1.0.634</bm-plugins-version>
-		<bm.metrics.agent>1.31.2</bm.metrics.agent>
+		<bm-plugins-version>1.1.326</bm-plugins-version>
+		<bm.metrics.agent>1.40.416</bm.metrics.agent>
 		<docker.devenv.tag>5.0.4859</docker.devenv.tag>
-		<target-platform-version>jdk17-134</target-platform-version>
+		<target-platform-version>jdk21-418</target-platform-version>
 
 		<!-- Not to be modified usually -->
-		<tycho-version>4.0.2</tycho-version>
+		<tycho-version>4.0.3</tycho-version>
 		<maven-source-plugin-version>3.2.1</maven-source-plugin-version>
 		<maven-clean-plugin-version>3.2.0</maven-clean-plugin-version>
 		<jacoco-maven-plugin-version>0.8.9-bm</jacoco-maven-plugin-version>
@@ -217,8 +217,8 @@
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>${maven-compiler-plugin-version}</version>
 					<configuration>
-						<source>17</source>
-						<target>17</target>
+						<source>20</source>
+						<target>20</target>
 					</configuration>
 					<executions>
 						<execution>
@@ -262,8 +262,8 @@
 					<extensions>true</extensions>
 					<configuration>
 						<encoding>UTF-8</encoding>
-						<source>17</source>
-						<target>17</target>
+						<source>20</source>
+						<target>20</target>
 					</configuration>
 				</plugin>
 				<plugin>
@@ -299,8 +299,8 @@
 							<annotationProcessor>net.bluemind.codegen.processor.MetaModelProcessor</annotationProcessor>
 						</annotationProcessors>
 						<generatedSourcesDirectory>${basedir}/generated</generatedSourcesDirectory>
-						<source>17</source>
-						<target>17</target>
+						<source>20</source>
+						<target>20</target>
 						<useProjectSettings>false</useProjectSettings>
 					</configuration>
 					<dependencies>
@@ -339,7 +339,7 @@
 						<forkedProcessTimeoutInSeconds>2400</forkedProcessTimeoutInSeconds>
 						<systemPropertyVariables>
 							<net.fortuna.ical4j.timezone.cache.impl>net.fortuna.ical4j.util.MapTimeZoneCache</net.fortuna.ical4j.timezone.cache.impl>
-                        </systemPropertyVariables>
+						</systemPropertyVariables>
 					</configuration>
 				</plugin>
 				<plugin>

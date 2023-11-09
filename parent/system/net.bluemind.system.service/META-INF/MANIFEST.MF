@@ -29,8 +29,6 @@ Require-Bundle: net.bluemind.core.commons,
  net.bluemind.node.api,
  net.bluemind.system.iptables;bundle-version="1.0.0",
  net.bluemind.system.schemaupgrader,
- org.bouncycastle.bcpkix,
- org.bouncycastle.bcprov,
  net.bluemind.globalsettings.persistence,
  net.bluemind.core.container.service,
  net.bluemind.role.api,
@@ -56,7 +54,9 @@ Require-Bundle: net.bluemind.core.commons,
  com.github.ben-manes.caffeine,
  net.bluemind.system.pg,
  net.bluemind.system.systemcheck,
- net.bluemind.core.auditlogs.client.loader
+ net.bluemind.core.auditlogs.client.loader,
+ bcprov;bundle-version="1.76.0",
+ bcpkix;bundle-version="1.76.0"
 Bundle-ClassPath: .
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.system.service,
