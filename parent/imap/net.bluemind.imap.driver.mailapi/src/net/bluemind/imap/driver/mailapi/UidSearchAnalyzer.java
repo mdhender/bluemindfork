@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,7 +13,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.LongStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +25,8 @@ import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.json.JsonData;
+import net.bluemind.imap.endpoint.driver.ImapIdSet;
+import net.bluemind.imap.endpoint.driver.SelectedFolder;
 
 public class UidSearchAnalyzer {
 
@@ -85,8 +85,9 @@ public class UidSearchAnalyzer {
 	private UidSearchAnalyzer() {
 	}
 
-	public static QueryBuilderResult buildQuery(ElasticsearchClient esClient, String query, String folderUid,
-			String meUid) throws UidSearchException {
+	public static QueryBuilderResult buildQuery(ElasticsearchClient esClient, String query, SelectedFolder selected,
+			ImapIdSetResolver resolver, String meUid) throws UidSearchException {
+		String folderUid = selected.folder.uid;
 		query = query + " END";
 		boolean hasSequence = false;
 
@@ -143,9 +144,11 @@ public class UidSearchAnalyzer {
 			if (analyzer != null) {
 				String analyzedQuery = null;
 				if (isCertain) {
-					analyzedQuery = analyzer.analyse(qb, subQuery, positiveKeyword, isCertain, maxUid);
+					analyzedQuery = analyzer.analyse(qb, subQuery, positiveKeyword, isCertain, maxUid, selected,
+							resolver);
 				} else {
-					analyzedQuery = analyzer.analyse(qbShould, subQuery, positiveKeyword, isCertain, maxUid);
+					analyzedQuery = analyzer.analyse(qbShould, subQuery, positiveKeyword, isCertain, maxUid, selected,
+							resolver);
 				}
 				if (analyzedQuery == null) {
 					throw new UidSearchException("Invalid Search criteria");
@@ -156,9 +159,11 @@ public class UidSearchAnalyzer {
 					analyzer = UidSearchAnalyzer.analyzers.get("UID");
 					String analyzedQuery = null;
 					if (isCertain) {
-						analyzedQuery = analyzer.analyse(qb, subQuery, positiveKeyword, isCertain, maxUid);
+						analyzedQuery = analyzer.analyse(qb, subQuery, positiveKeyword, isCertain, maxUid, selected,
+								resolver);
 					} else {
-						analyzedQuery = analyzer.analyse(qbShould, subQuery, positiveKeyword, isCertain, maxUid);
+						analyzedQuery = analyzer.analyse(qbShould, subQuery, positiveKeyword, isCertain, maxUid,
+								selected, resolver);
 					}
 					if (analyzedQuery == null) {
 						throw new UidSearchException("Invalid Search criteria (qb: " + qb + " qbShould: " + qbShould
@@ -211,7 +216,8 @@ public class UidSearchAnalyzer {
 		}
 
 		@Override
-		public String analyse(BoolQuery.Builder qb, String query, boolean positive, boolean certain, long maxUid) {
+		public String analyse(BoolQuery.Builder qb, String query, boolean positive, boolean certain, long maxUid,
+				SelectedFolder selected, ImapIdSetResolver resolver) {
 			Matcher matcher = compiledRE.matcher(query);
 			if (matcher.find()) {
 				String gr = matcher.group(1);
@@ -243,7 +249,8 @@ public class UidSearchAnalyzer {
 		}
 
 		@Override
-		public String analyse(BoolQuery.Builder qb, String query, boolean positive, boolean certain, long maxUid) {
+		public String analyse(BoolQuery.Builder qb, String query, boolean positive, boolean certain, long maxUid,
+				SelectedFolder selected, ImapIdSetResolver resolver) {
 			Matcher matcher = compiledRE.matcher(query);
 
 			if (matcher.find()) {
@@ -277,7 +284,8 @@ public class UidSearchAnalyzer {
 		}
 
 		@Override
-		public String analyse(BoolQuery.Builder qb, String query, boolean positive, boolean certain, long maxUid) {
+		public String analyse(BoolQuery.Builder qb, String query, boolean positive, boolean certain, long maxUid,
+				SelectedFolder selected, ImapIdSetResolver resolver) {
 			Matcher matcher = compiledRE.matcher(query);
 
 			if (matcher.find()) {
@@ -310,7 +318,8 @@ public class UidSearchAnalyzer {
 		}
 
 		@Override
-		public String analyse(BoolQuery.Builder qb, String query, boolean positive, boolean certain, long maxUid) {
+		public String analyse(BoolQuery.Builder qb, String query, boolean positive, boolean certain, long maxUid,
+				SelectedFolder selected, ImapIdSetResolver resolver) {
 			Matcher matcher = compiledRE.matcher(query);
 
 			if (matcher.find()) {
@@ -344,7 +353,8 @@ public class UidSearchAnalyzer {
 		}
 
 		@Override
-		public String analyse(BoolQuery.Builder qb, String query, boolean positive, boolean certain, long maxUid) {
+		public String analyse(BoolQuery.Builder qb, String query, boolean positive, boolean certain, long maxUid,
+				SelectedFolder selected, ImapIdSetResolver resolver) {
 			Matcher matcher = compiledRE.matcher(query);
 
 			if (matcher.find()) {
@@ -379,7 +389,8 @@ public class UidSearchAnalyzer {
 		}
 
 		@Override
-		public String analyse(BoolQuery.Builder qb, String query, boolean positive, boolean certain, long maxUid) {
+		public String analyse(BoolQuery.Builder qb, String query, boolean positive, boolean certain, long maxUid,
+				SelectedFolder selected, ImapIdSetResolver resolver) {
 			Matcher matcher = compiledRE.matcher(query);
 			if (matcher.find()) {
 				String size = matcher.group(1);
@@ -417,7 +428,8 @@ public class UidSearchAnalyzer {
 		}
 
 		@Override
-		public String analyse(BoolQuery.Builder qb, String query, boolean positive, boolean certain, long maxUid) {
+		public String analyse(BoolQuery.Builder qb, String query, boolean positive, boolean certain, long maxUid,
+				SelectedFolder selected, ImapIdSetResolver resolver) {
 			Matcher matcher = compiledRE.matcher(query);
 			if (matcher.find()) {
 				String size = matcher.group(1);
@@ -454,7 +466,8 @@ public class UidSearchAnalyzer {
 		}
 
 		@Override
-		public String analyse(BoolQuery.Builder qb, String query, boolean positive, boolean certain, long maxUid) {
+		public String analyse(BoolQuery.Builder qb, String query, boolean positive, boolean certain, long maxUid,
+				SelectedFolder selected, ImapIdSetResolver resolver) {
 			Matcher matcher = compiledRE.matcher(query);
 			if (matcher.find()) {
 				String dateString = matcher.group(1);
@@ -498,7 +511,8 @@ public class UidSearchAnalyzer {
 		}
 
 		@Override
-		public String analyse(BoolQuery.Builder qb, String query, boolean positive, boolean certain, long maxUid) {
+		public String analyse(BoolQuery.Builder qb, String query, boolean positive, boolean certain, long maxUid,
+				SelectedFolder selected, ImapIdSetResolver resolver) {
 			Matcher matcher = compiledRE.matcher(query);
 			if (matcher.find()) {
 				String dateString = matcher.group(1);
@@ -540,7 +554,8 @@ public class UidSearchAnalyzer {
 		}
 
 		@Override
-		public String analyse(BoolQuery.Builder qb, String query, boolean positive, boolean certain, long maxUid) {
+		public String analyse(BoolQuery.Builder qb, String query, boolean positive, boolean certain, long maxUid,
+				SelectedFolder selected, ImapIdSetResolver resolver) {
 			Matcher matcher = compiledRE.matcher(query);
 			if (matcher.find()) {
 				JsonData dateString = JsonData.of(matcher.group(1));
@@ -576,7 +591,8 @@ public class UidSearchAnalyzer {
 		}
 
 		@Override
-		public String analyse(BoolQuery.Builder qb, String query, boolean positive, boolean certain, long maxUid) {
+		public String analyse(BoolQuery.Builder qb, String query, boolean positive, boolean certain, long maxUid,
+				SelectedFolder selected, ImapIdSetResolver resolver) {
 			Matcher matcher = compiledRE.matcher(query);
 			if (matcher.find()) {
 				String field = matcher.group(1).toLowerCase();
@@ -637,7 +653,8 @@ public class UidSearchAnalyzer {
 		}
 
 		@Override
-		public String analyse(BoolQuery.Builder qb, String query, boolean positive, boolean certain, long maxUid) {
+		public String analyse(BoolQuery.Builder qb, String query, boolean positive, boolean certain, long maxUid,
+				SelectedFolder selected, ImapIdSetResolver resolver) {
 			Matcher matcher = compiledRE.matcher(query);
 			if (matcher.find()) {
 				String match = matcher.group(1).toLowerCase();
@@ -677,54 +694,24 @@ public class UidSearchAnalyzer {
 		}
 
 		@Override
-		public String analyse(BoolQuery.Builder qb, String query, boolean positive, boolean certain, long maxUid) {
+		public String analyse(BoolQuery.Builder qb, String query, boolean positive, boolean certain, long maxUid,
+				SelectedFolder selected, ImapIdSetResolver resolver) {
 			Set<Long> set = new HashSet<>();
-			long lowerBond = 0L;
 			Matcher matcher = compiledRE.matcher(query);
 			if (matcher.find()) {
 				String sequence = matcher.group(1);
-				List<String> listSeq = Arrays.asList(sequence.split(","));
-				for (String seq : listSeq) {
-					if (!seq.contains(":")) {
-						// No sequence like 4
-						Long l = Long.parseLong(seq);
-						set.add(l);
-					} else {
-						// Sequence like 4:7 or 4:*
-						if (seq.contains("*")) {
-							// Unbounded case like 4:* or *:4
-							String lower = seq.replace("*", "").replace(":", "");
-							Long l = Long.parseLong(lower);
-							if (l > lowerBond) {
-								lowerBond = l;
-							}
-						} else {
-							// Bounded case like 4:7
-							if (seq.split(":").length > 2) {
-								continue;
-							}
-							Integer firstDigit = Integer.parseInt(seq.split(":")[0]);
-							Integer secondDigit = Integer.parseInt(seq.split(":")[1]);
-							Long urBound = (long) Math.max(firstDigit, secondDigit);
-							Long lBound = (long) Math.min(firstDigit, secondDigit);
-							for (long l = lBound; l <= urBound; l++) {
-								set.add(l);
-							}
-						}
-					}
-				}
-				if (lowerBond > 0 && lowerBond < maxUid) {
-					var remainingUids = LongStream.range(lowerBond, maxUid + 1).boxed().toList();
-					set.addAll(remainingUids);
-				}
+				ImapIdSet asSet = query.toLowerCase().startsWith("uid ") ? ImapIdSet.uids(sequence)
+						: ImapIdSet.sequences(sequence);
+				List<Long> itemIds = resolver.resolveIdSet(selected, asSet);
+				// FIXME 1:* produces a shitty query on big folders
 				if (positive) {
 					logger.info("termsQuery 'uid' must be in {}", set);
-					qb.must(m -> m
-							.terms(t -> t.field("uid").terms(f -> f.value(set.stream().map(FieldValue::of).toList()))));
+					qb.must(m -> m.terms(
+							t -> t.field("itemId").terms(f -> f.value(itemIds.stream().map(FieldValue::of).toList()))));
 				} else {
 					logger.info("termsQuery 'uid' must not be in {}", set);
-					qb.mustNot(m -> m
-							.terms(t -> t.field("uid").terms(f -> f.value(set.stream().map(FieldValue::of).toList()))));
+					qb.mustNot(m -> m.terms(
+							t -> t.field("itemId").terms(f -> f.value(itemIds.stream().map(FieldValue::of).toList()))));
 				}
 				return matcher.group(0);
 			}

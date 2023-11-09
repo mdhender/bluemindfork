@@ -822,7 +822,7 @@ public class MailApiConnection implements MailboxConnection {
 		ElasticsearchClient esClient = esSupplier.get();
 		try {
 			List<Long> uids;
-			QueryBuilderResult qbr = UidSearchAnalyzer.buildQuery(esClient, query, sel.folder.uid, me.uid);
+			QueryBuilderResult qbr = UidSearchAnalyzer.buildQuery(esClient, query, sel, this::resolveIdSet, me.uid);
 			PaginableSearchQueryBuilder paginableSearch = s -> s.source(src -> src.fetch(false)) //
 					.docvalueFields(f -> f.field("uid")) //
 					.query(qbr.q());
