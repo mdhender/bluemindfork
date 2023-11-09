@@ -31,7 +31,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.metrics.registry,
  net.bluemind.scheduledjob.service;bundle-version="5.0.0"
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-Vendor: blue-mind.net
 Export-Package: net.bluemind.system.ldap.importation;
   uses:="org.osgi.framework,

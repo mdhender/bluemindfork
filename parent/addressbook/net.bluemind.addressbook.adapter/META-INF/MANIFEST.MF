@@ -21,7 +21,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.user.api,
  net.bluemind.core.rest,
  net.bluemind.core.sessions
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.addressbook.adapter
 Automatic-Module-Name: net.bluemind.addressbook.adapter

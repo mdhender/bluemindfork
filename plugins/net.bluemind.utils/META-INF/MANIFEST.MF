@@ -23,6 +23,6 @@ Export-Package: net.bluemind.utils;
   uses:="org.eclipse.core.runtime,
    javax.xml.transform,
    org.osgi.framework"
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-Vendor: blue-mind.net
 Automatic-Module-Name: net.bluemind.utils

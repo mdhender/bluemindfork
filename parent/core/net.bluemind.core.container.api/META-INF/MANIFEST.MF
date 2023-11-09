@@ -7,7 +7,7 @@ Export-Package: net.bluemind.core.container.api,
  net.bluemind.core.container.api.internal,
  net.bluemind.core.container.model,
  net.bluemind.core.container.model.acl
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Require-Bundle: net.bluemind.core.commons;visibility:=reexport,
  net.bluemind.core.task.api;visibility:=reexport,
  jakarta.validation.jakarta.validation-api;bundle-version="3.0.2"

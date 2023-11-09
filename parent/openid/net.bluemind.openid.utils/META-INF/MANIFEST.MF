@@ -15,4 +15,4 @@ Require-Bundle: io.vertx.core;visibility:=reexport,
  net.bluemind.keycloak.utils.endpoints
 Bundle-Vendor: www.bluemind.net
 Automatic-Module-Name: net.bluemind.openid.utils
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21

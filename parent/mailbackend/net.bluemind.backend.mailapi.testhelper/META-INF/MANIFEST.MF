@@ -34,6 +34,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.authentication.service;bundle-version="5.0.0",
  net.bluemind.utils;visibility:=reexport,
  net.bluemind.role.api
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.backend.mailapi.testhelper
 Bundle-ActivationPolicy: lazy

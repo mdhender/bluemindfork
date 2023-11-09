@@ -7,7 +7,7 @@ Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  slf4j.api,
  net.bluemind.cli.cmd.api
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.cloud.monitoring.cli
 Bundle-ActivationPolicy: lazy
 

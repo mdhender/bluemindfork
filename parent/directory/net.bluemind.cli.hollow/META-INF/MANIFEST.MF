@@ -10,6 +10,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.directory.hollow.datamodel.consumer;bundle-version="5.0.0",
  net.bluemind.cli.utils;bundle-version="5.0.0",
  com.google.guava
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.cli.hollow
 Bundle-ActivationPolicy: lazy

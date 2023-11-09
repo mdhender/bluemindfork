@@ -31,6 +31,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.delivery.conversationreference.sqlschema,
  net.bluemind.imap.endpoint,
  net.bluemind.imap.driver.mailapi
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.sds.store.s3.tests
 Bundle-ActivationPolicy: lazy

@@ -10,4 +10,4 @@ Require-Bundle: net.bluemind.system.domaintemplate;bundle-version="5.0.0",
  com.google.guava;bundle-version="32.1.0"
 Automatic-Module-Name: net.bluemind.webmail
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21

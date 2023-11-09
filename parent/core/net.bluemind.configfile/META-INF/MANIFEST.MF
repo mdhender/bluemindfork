@@ -10,7 +10,7 @@ Require-Bundle:
  org.eclipse.osgi,
  slf4j.api,
  io.vertx.core
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Export-Package: net.bluemind.configfile,
  net.bluemind.configfile.imap,
  net.bluemind.configfile.elastic,

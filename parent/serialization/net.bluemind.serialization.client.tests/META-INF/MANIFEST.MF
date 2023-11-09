@@ -16,6 +16,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.directory.hollow.datamodel.producer;bundle-version="5.0.0",
  org.awaitility,
  org.hamcrest;bundle-version="2.2.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.serialization.client.tests
 Bundle-ActivationPolicy: lazy

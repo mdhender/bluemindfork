@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Tests
 Bundle-SymbolicName: net.bluemind.resource.service.tests;singleton:=true
 Bundle-Version: 5.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Require-Bundle: org.junit,
  net.bluemind.core.jdbc.testshelper,
  net.bluemind.core.context,

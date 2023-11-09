@@ -7,7 +7,7 @@ Export-Package: net.bluemind.keycloak.internal,
  net.bluemind.keycloak.service
 Bundle-Vendor: www.bluemind.net
 Automatic-Module-Name: net.bluemind.keycloak.service
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Require-Bundle: net.bluemind.server.hook,
  net.bluemind.node.client,
  net.bluemind.node.api,

@@ -9,6 +9,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.backend.cyrus.partitions,
  net.bluemind.mailbox.api,
  org.junit
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.backend.cyrus.partitions.tests
 Bundle-ActivationPolicy: lazy

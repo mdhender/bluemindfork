@@ -8,7 +8,7 @@ Require-Bundle: org.eclipse.core.runtime,
  io.vertx.core,
  slf4j.api,
  com.google.guava;bundle-version="19.0.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ClassPath: .
 Export-Package: net.bluemind.lib.grafana.client,
  net.bluemind.lib.grafana.config,

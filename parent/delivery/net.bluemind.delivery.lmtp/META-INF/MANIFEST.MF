@@ -31,7 +31,7 @@ Require-Bundle: org.eclipse.core.runtime,
  com.typesafe.config,
  net.bluemind.utils,
  net.bluemind.system.api
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.delivery.lmtp
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.delivery.lmtp,

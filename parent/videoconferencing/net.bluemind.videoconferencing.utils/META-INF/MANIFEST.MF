@@ -5,7 +5,7 @@ Bundle-SymbolicName: net.bluemind.videoconferencing.utils
 Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: www.bluemind.net
 Automatic-Module-Name: net.bluemind.videoconferencing.utils
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Export-Package: net.bluemind.videoconferencing.utils
 Require-Bundle: io.vertx.core,
  net.bluemind.core.commons,

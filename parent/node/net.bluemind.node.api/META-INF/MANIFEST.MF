@@ -12,7 +12,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.eclipse.common,
  net.bluemind.node.shared;visibility:=reexport,
  com.google.guava
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.node.api
 Automatic-Module-Name: net.bluemind.node.api

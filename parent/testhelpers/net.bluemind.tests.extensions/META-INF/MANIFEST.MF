@@ -10,7 +10,7 @@ Require-Bundle: slf4j.api,
  net.bluemind.core.jdbc.testshelper,
  net.bluemind.lib.vertx,
  net.bluemind.core.elasticsearch.testshelper
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.tests.extensions
 Automatic-Module-Name: net.bluemind.tests.extensions

@@ -6,6 +6,6 @@ Bundle-Version: 5.0.0.qualifier
 Bundle-Activator: net.bluemind.node.client.build.Activator
 Require-Bundle: org.eclipse.core.runtime
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-Vendor: blue-mind.net
 Automatic-Module-Name: net.bluemind.node.client.build

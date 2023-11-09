@@ -7,4 +7,4 @@ Require-Bundle: net.bluemind.cli.cmd.api,
  net.bluemind.directory.api
 Bundle-Vendor: bluemind.net
 Automatic-Module-Name: net.bluemind.cli.ou
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21

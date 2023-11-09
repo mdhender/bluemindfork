@@ -21,7 +21,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.central.reverse.proxy.common,
  com.typesafe.config,
  org.mockito.mockito-core
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.central.reverse.proxy.model.tests
 Automatic-Module-Name: net.bluemind.central.reverse.proxy.model.tests

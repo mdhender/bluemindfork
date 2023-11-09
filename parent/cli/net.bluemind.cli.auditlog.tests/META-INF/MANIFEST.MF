@@ -47,4 +47,4 @@ Bundle-Vendor: net.bluemind
 Automatic-Module-Name: net.bluemind.cli.auditlog.tests
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: net.bluemind.cli.auditlog.tests.Activator
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21

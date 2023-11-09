@@ -20,6 +20,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.caches.registry,
  net.bluemind.configfile,
  net.bluemind.system.application.registration
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Export-Package: net.bluemind.application.launcher
 Automatic-Module-Name: net.bluemind.application.launcher

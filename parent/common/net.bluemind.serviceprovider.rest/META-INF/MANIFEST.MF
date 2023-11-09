@@ -8,6 +8,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.serviceprovider,
  net.bluemind.config,
  net.bluemind.core.rest.http
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.serviceprovider.rest
 Bundle-ActivationPolicy: lazy

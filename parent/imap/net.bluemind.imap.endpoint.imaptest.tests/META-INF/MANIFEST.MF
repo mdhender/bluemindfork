@@ -15,6 +15,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.imap.endpoint,
  net.bluemind.tests.defaultdata,
  net.bluemind.role.api
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.imap.endpoint.imaptests.tests
 Bundle-ActivationPolicy: lazy

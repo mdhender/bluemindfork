@@ -4,7 +4,7 @@ Bundle-Name: Sqlschema
 Bundle-SymbolicName: net.bluemind.delivery.rules;singleton:=true
 Bundle-Version: 5.0.0.qualifier
 Automatic-Module-Name: net.bluemind.delivery.rules
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-Vendor: net.bluemind
 Require-Bundle: slf4j.api,
  com.google.guava;bundle-version="19.0.0",

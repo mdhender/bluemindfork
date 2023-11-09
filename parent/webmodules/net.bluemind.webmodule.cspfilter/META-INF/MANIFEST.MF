@@ -7,4 +7,4 @@ Require-Bundle: net.bluemind.webmodule.server,
  io.vertx.core,
  slf4j.api
 Automatic-Module-Name: net.bluemind.webmodule.cspfilter
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21

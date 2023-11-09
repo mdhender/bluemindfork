@@ -40,7 +40,7 @@ Require-Bundle: org.eclipse.core.runtime,
  slf4j.api,
  net.bluemind.serviceprovider.rest;bundle-version="5.0.0",
  net.bluemind.cli.notes
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.cli.user
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.cli.user

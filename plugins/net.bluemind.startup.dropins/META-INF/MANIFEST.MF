@@ -6,7 +6,7 @@ Bundle-Version: 5.0.0.qualifier
 Bundle-Activator: net.bluemind.startup.dropins.DropinsActivator
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.osgi
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.startup.dropins
 Export-Package: net.bluemind.startup.dropins
 Bundle-ActivationPolicy: lazy

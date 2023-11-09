@@ -4,6 +4,6 @@ Bundle-Name: net.bluemind.mailflow.registration
 Bundle-SymbolicName: net.bluemind.mailflow.registration;singleton:=true
 Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: www.bluemind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Require-Bundle: net.bluemind.mailflow.service;bundle-version="5.0.0"
 Automatic-Module-Name: net.bluemind.mailflow.registration

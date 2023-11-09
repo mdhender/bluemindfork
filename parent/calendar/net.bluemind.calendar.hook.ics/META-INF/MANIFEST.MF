@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.calendar.hook.ics
 Bundle-SymbolicName: net.bluemind.calendar.hook.ics;singleton:=true
 Bundle-Version: 5.0.0.qualifier
 Export-Package: net.bluemind.calendar.hook
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Require-Bundle: slf4j.api,
  net.bluemind.calendar.hook;bundle-version="1.0.0",
  net.bluemind.calendar.api;bundle-version="1.0.0",

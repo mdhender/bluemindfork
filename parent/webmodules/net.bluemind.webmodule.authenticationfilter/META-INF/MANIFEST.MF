@@ -28,4 +28,4 @@ Require-Bundle: net.bluemind.webmodule.server,
  net.bluemind.core.caches.registry
 Bundle-Vendor: www.bluemind.net
 Automatic-Module-Name: net.bluemind.webmodule.authentication
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21

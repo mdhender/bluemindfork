@@ -387,7 +387,7 @@
 					<artifactId>target-platform-configuration</artifactId>
 					<version>${tycho-version}</version>
 					<configuration>
-						<executionEnvironment>JavaSE-17</executionEnvironment>
+						<executionEnvironment>JavaSE-21</executionEnvironment>
 						<environments>
 							<environment>
 								<os>linux</os>

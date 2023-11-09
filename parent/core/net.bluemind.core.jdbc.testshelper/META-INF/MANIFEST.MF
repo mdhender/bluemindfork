@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.core.jdbc.testshelper
 Bundle-SymbolicName: net.bluemind.core.jdbc.testshelper;singleton:=true
 Bundle-Version: 5.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Require-Bundle: net.bluemind.pool;bundle-version="1.0.0",
  slf4j.api,
  net.bluemind.core.jdbc;bundle-version="1.0.0",

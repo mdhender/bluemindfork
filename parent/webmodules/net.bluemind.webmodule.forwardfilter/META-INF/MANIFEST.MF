@@ -9,4 +9,4 @@ Require-Bundle: net.bluemind.webmodule.server,
  com.google.guava
 Bundle-Vendor: www.bluemind.net
 Automatic-Module-Name: net.bluemind.webmodule.forwardfilter
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21

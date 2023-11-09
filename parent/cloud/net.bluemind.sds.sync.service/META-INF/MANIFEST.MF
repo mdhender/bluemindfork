@@ -13,6 +13,6 @@ Require-Bundle: slf4j.api,
  net.bluemind.role.api,
  net.bluemind.core.container.service
 Automatic-Module-Name: net.bluemind.sds.sync.service
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Export-Package: net.bluemind.sds.sync.service,
  net.bluemind.sds.sync.service.internal.queue

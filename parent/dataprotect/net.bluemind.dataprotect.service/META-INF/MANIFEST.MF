@@ -34,7 +34,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.user.api,
  org.apache.james.apache-mime4j-dom,
  net.bluemind.core.sendmail
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Export-Package: net.bluemind.dataprotect.service,
  net.bluemind.dataprotect.service.internal, 
  net.bluemind.dataprotect.service.action

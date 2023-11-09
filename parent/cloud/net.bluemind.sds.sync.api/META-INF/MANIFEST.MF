@@ -8,4 +8,4 @@ Require-Bundle: net.bluemind.core.commons,
  io.vertx.core
 Bundle-Vendor: www.bluemind.net
 Automatic-Module-Name: net.bluemind.sds.sync.api
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21

@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.ui.adminconsole.jobs
 Bundle-SymbolicName: net.bluemind.ui.adminconsole.jobs;singleton:=true
 Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: blue-mind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Require-Bundle: net.bluemind.core.commons;bundle-version="5.0.0",
  net.bluemind.core.commons.gwt;bundle-version="5.0.0";visibility:=reexport,
  net.bluemind.domain.api;bundle-version="5.0.0",

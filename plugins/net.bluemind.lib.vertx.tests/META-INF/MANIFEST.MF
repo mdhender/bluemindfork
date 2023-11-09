@@ -12,7 +12,7 @@ Require-Bundle: org.eclipse.core.runtime,
  slf4j.api,
  net.bluemind.vertx.testhelper,
  com.google.guava
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Eclipse-RegisterBuddy: net.bluemind.lib.vertx
 Export-Package: net.bluemind.lib.vertx.tests
 Automatic-Module-Name: net.bluemind.lib.vertx.tests

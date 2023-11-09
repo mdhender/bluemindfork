@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.plugins.smime
 Bundle-SymbolicName: net.bluemind.plugins.smime;singleton:=true
 Bundle-Version: 5.0.0.qualifier
 Automatic-Module-Name: net.bluemind.plugins.smime
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Require-Bundle: net.bluemind.webmodule.server
 Web-Resources: web-resources
 Web-Dependencies: net.bluemind.webmodules.vue,

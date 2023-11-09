@@ -27,4 +27,4 @@ Require-Bundle: net.bluemind.keycloak.api,
  net.bluemind.authentication.service,
  net.bluemind.hornetq.client
 Automatic-Module-Name: net.bluemind.keycloak.service.tests
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21

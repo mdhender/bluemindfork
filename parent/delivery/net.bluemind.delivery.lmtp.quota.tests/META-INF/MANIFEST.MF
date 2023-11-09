@@ -11,6 +11,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.lmtp.testhelper,
  net.bluemind.lib.elasticsearch,
  slf4j.api
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.delivery.lmtp.quota.tests
 Bundle-ActivationPolicy: lazy

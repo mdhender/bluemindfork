@@ -43,6 +43,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.webappdata.api,
  net.bluemind.kafka.client,
  com.fasterxml.jackson.core.jackson-databind
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.core.backup.continuous.mgmt.service
 Bundle-ActivationPolicy: lazy

@@ -59,6 +59,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.sds.sync.service;bundle-version="5.0.0",
  net.bluemind.sds.store.cyrusspool;bundle-version="5.0.0",
  net.bluemind.dataprotect.sdsspool;bundle-version="5.0.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.dataprotect.mailbox.tests

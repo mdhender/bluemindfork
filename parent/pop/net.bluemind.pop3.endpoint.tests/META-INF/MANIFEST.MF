@@ -33,6 +33,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.backend.mailapi.storage;bundle-version="5.0.0",
  net.bluemind.backend.cyrus.partitions,
  net.bluemind.system.state
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.pop3.endpoint.tests
 Bundle-ActivationPolicy: lazy

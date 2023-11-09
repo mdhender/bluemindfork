@@ -34,6 +34,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.sds.store.cyrusspool;bundle-version="5.0.0",
  net.bluemind.sds.sync.api,
  net.bluemind.core.tests.testshelper
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.cli.inject.smtp.tests
 Bundle-ActivationPolicy: lazy

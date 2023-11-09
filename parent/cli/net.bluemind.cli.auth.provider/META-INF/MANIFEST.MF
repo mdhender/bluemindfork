@@ -6,7 +6,7 @@ Bundle-Version: 5.0.0.qualifier
 Export-Package: net.bluemind.cli.auth.provider
 Bundle-Vendor: bluemind.net
 Automatic-Module-Name: net.bluemind.cli.auth.provider
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Require-Bundle: net.bluemind.cli.cmd.api,
  net.bluemind.system.api,
  com.github.freva.ascii-table,

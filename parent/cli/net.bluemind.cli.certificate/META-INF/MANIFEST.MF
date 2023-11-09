@@ -12,6 +12,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.smime.cacerts.api,
  net.bluemind.cli.utils,
  net.bluemind.utils
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.cli.certificate
 Bundle-ActivationPolicy: lazy

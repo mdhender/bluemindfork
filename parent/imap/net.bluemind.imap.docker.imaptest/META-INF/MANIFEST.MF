@@ -10,6 +10,6 @@ Require-Bundle: org.eclipse.core.runtime,
  org.junit,
  net.bluemind.testcontainers,
  slf4j.api
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.imap.docker.imaptest
 Bundle-ActivationPolicy: lazy

@@ -9,7 +9,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.rest,
  org.apache.james.apache-mime4j-dom,
  net.bluemind.resource.lmtp.filter;bundle-version="5.0.0";visibility:=reexport
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.delivery.lmtp.filter.testhelper
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.delivery.lmtp.filter.testhelper

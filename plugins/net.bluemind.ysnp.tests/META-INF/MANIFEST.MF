@@ -24,5 +24,5 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.network.topology,
  com.github.jnr.uber;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.ysnp.tests

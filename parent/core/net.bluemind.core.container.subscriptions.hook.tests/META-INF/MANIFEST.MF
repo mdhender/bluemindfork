@@ -20,6 +20,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.directory.service,
  net.bluemind.core.task.service,
  slf4j.api
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.core.container.subscriptions.hook.tests
 Bundle-ActivationPolicy: lazy

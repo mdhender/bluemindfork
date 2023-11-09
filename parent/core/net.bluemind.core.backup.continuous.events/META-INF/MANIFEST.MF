@@ -46,6 +46,6 @@ Require-Bundle: org.eclipse.core.runtime,
  com.github.ben-manes.caffeine;bundle-version="2.9.3",
  net.bluemind.mailindex,
  com.fasterxml.jackson.core.jackson-databind
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.core.backup.continuous.events
 Export-Package: net.bluemind.core.backup.continuous.events

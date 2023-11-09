@@ -18,7 +18,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.notes.api,
  net.bluemind.utils,
  net.bluemind.core.commons
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.cli.notes
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.cli.notes

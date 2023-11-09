@@ -19,7 +19,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.cli.inject.common;bundle-version="5.0.0";visibility:=reexport,
  net.bluemind.lib.ristretto,
  net.datafaker;bundle-version="1.8.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.cli.inject.smtp
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.cli.inject.imap

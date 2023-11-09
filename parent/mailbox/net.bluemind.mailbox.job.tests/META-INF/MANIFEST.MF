@@ -5,7 +5,7 @@ Bundle-SymbolicName: net.bluemind.mailbox.job.tests;singleton:=true
 Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: net.bluemind
 Automatic-Module-Name: net.bluemind.mailbox.job.tests
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Require-Bundle: org.junit,
  org.eclipse.core.runtime,
  org.awaitility;bundle-version="4.2.0",

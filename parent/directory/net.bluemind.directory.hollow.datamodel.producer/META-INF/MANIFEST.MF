@@ -37,7 +37,7 @@ Require-Bundle: org.eclipse.core.runtime,
  com.typesafe.config,
  net.bluemind.calendar.api,
  net.bluemind.addressbook.api
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.directory.hollow.datamodel.producer
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.directory.hollow.datamodel.producer

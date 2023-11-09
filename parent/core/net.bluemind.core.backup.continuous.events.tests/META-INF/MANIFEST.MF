@@ -40,4 +40,4 @@ Require-Bundle: org.junit,
  net.bluemind.core.backup.continuous.dto
 Bundle-Vendor: net.bluemind
 Automatic-Module-Name: net.bluemind.core.backup.continuous.events.tests
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21

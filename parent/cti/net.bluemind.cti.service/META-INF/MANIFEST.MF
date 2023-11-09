@@ -23,7 +23,7 @@ Require-Bundle: net.bluemind.core.commons,
  net.bluemind.calendar.api,
  com.github.ben-manes.caffeine,
  net.bluemind.user.hook
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: net.bluemind.cti.service.CTIActivator
 Export-Package: net.bluemind.cti.service

@@ -12,7 +12,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.rest,
  org.apache.james.apache-mime4j-dom,
  net.bluemind.mime4j.common
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.delivery.lmtp.common
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.delivery.lmtp.common

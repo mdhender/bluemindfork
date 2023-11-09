@@ -6,7 +6,7 @@ Bundle-Version: 5.0.0.qualifier
 Bundle-Activator: net.bluemind.lib.globalid.Activator
 Bundle-Vendor: http://www.blue-mind.net
 Require-Bundle: org.eclipse.core.runtime
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.lib.globalid
 Automatic-Module-Name: net.bluemind.lib.globalid

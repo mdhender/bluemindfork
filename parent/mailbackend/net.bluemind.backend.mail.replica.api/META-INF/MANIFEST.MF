@@ -13,7 +13,7 @@ Require-Bundle: org.eclipse.core.runtime,
  io.vertx.core,
  com.fasterxml.jackson.core.jackson-annotations,
  net.bluemind.directory.api;visibility:=reexport
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.backend.mail.replica.api,
  net.bluemind.backend.mail.replica.api.utils

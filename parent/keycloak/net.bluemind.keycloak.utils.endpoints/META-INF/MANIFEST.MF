@@ -6,7 +6,7 @@ Bundle-Version: 5.0.0.qualifier
 Export-Package: net.bluemind.keycloak.utils.endpoints
 Bundle-Vendor: www.bluemind.net
 Automatic-Module-Name: net.bluemind.keycloak.utils.endpoints
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Require-Bundle: net.bluemind.network.topology,
  net.bluemind.hornetq.client,
  net.bluemind.domain.api,

@@ -10,6 +10,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.utils,
  net.bluemind.lib.vertx,
  com.fasterxml.jackson.module.jackson-module-afterburner
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.common.vertx.msgpack.tests
 Bundle-ActivationPolicy: lazy

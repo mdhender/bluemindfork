@@ -8,6 +8,6 @@ Require-Bundle: org.eclipse.core.runtime,
  org.junit,
  net.bluemind.cli.launcher,
  net.bluemind.cli.metrics;bundle-version="5.0.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.cli.metrics.tests
 Bundle-ActivationPolicy: lazy

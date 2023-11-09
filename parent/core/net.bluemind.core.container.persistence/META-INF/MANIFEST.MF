@@ -19,5 +19,5 @@ Require-Bundle: net.bluemind.core.jdbc;bundle-version="1.0.0";visibility:=reexpo
  net.bluemind.core.rest;visibility:=reexport,
  com.github.ben-manes.caffeine,
  org.postgresql.jdbc42
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.core.container.persistence

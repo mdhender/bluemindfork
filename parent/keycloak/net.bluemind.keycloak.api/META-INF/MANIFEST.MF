@@ -10,4 +10,4 @@ Require-Bundle: net.bluemind.core.commons,
 Bundle-Vendor: www.bluemind.net
 Automatic-Module-Name: net.bluemind.keycloak.api
 Eclipse-RegisterBuddy: net.bluemind.core.rest
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21

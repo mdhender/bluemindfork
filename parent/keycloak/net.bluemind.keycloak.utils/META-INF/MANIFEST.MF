@@ -21,4 +21,4 @@ Require-Bundle: net.bluemind.keycloak.api,
  net.bluemind.utils
 Bundle-Vendor: www.bluemind.net
 Automatic-Module-Name: net.bluemind.keycloak.utils
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21

@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.videoconferencing.service
 Bundle-SymbolicName: net.bluemind.videoconferencing.service;singleton:=true
 Bundle-Version: 5.0.0.qualifier
 Automatic-Module-Name: net.bluemind.videoconferencing.service
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Require-Bundle: net.bluemind.core.rest,
  net.bluemind.videoconferencing.api;bundle-version="5.0.0",
  net.bluemind.icalendar.api,

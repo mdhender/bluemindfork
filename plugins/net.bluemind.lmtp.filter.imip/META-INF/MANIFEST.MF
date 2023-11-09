@@ -38,7 +38,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.delivery.lmtp.filters;bundle-version="5.0.0",
  net.bluemind.lib.ristretto
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-Vendor: blue-mind.net
 Automatic-Module-Name: net.bluemind.lmtp.filter.imip
 Export-Package: net.bluemind.lmtp.filter.imip

@@ -59,7 +59,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.sds.sync.api,
  net.bluemind.elastic.client;bundle-version="7.17.9",
  net.bluemind.lib.jackson;bundle-version="5.0.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.backend.mail.replica.service,
  net.bluemind.backend.mail.replica.service.internal,

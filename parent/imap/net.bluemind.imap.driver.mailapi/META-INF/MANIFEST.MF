@@ -29,6 +29,6 @@ Require-Bundle: org.eclipse.core.runtime,
  it.unimi.dsi.fastutil;bundle-version="8.5.12",
  net.bluemind.core.caches.registry,
  com.github.ben-manes.caffeine
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.imap.driver
 Export-Package: net.bluemind.imap.driver.mailapi

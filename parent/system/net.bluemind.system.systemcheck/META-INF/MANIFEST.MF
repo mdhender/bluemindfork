@@ -6,7 +6,7 @@ Bundle-Version: 5.0.0.qualifier
 Export-Package: net.bluemind.systemcheck,
  net.bluemind.systemcheck.checks,
  net.bluemind.systemcheck.collect
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Require-Bundle: slf4j.api,
  net.bluemind.system.api,
  net.bluemind.network.topology,

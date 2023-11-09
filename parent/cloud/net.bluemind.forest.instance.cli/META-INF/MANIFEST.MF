@@ -13,6 +13,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.rest.http,
  net.bluemind.core.backup.continuous.mgmt.api,
  net.bluemind.cli.utils
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.forest.instance.cli
 Bundle-ActivationPolicy: lazy

@@ -12,7 +12,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.backend.mail.api,
  net.bluemind.backend.mail.replica.sqlschema,
  org.postgresql.jdbc42
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.backend.mail.replica.persistence
 Automatic-Module-Name: net.bluemind.backend.mail.replica.persistence
