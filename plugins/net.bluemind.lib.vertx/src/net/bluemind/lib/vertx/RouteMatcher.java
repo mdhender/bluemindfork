@@ -29,7 +29,6 @@ import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import io.vertx.ext.web.handler.sockjs.SockJSHandlerOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSSocket;
-import io.vertx.micrometer.PrometheusScrapingHandler;
 
 public class RouteMatcher implements Handler<HttpServerRequest> {
 	private static final Logger logger = LoggerFactory.getLogger(RouteMatcher.class);
@@ -40,7 +39,6 @@ public class RouteMatcher implements Handler<HttpServerRequest> {
 	public RouteMatcher(Vertx vx) {
 		this.vertx = vx;
 		this.router = Router.router(vx);
-		this.router.route("/metrics").handler(PrometheusScrapingHandler.create());
 	}
 
 	private static HttpServerRequest unwrapVertxWeb(HttpServerRequest req) {

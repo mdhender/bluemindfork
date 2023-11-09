@@ -41,7 +41,6 @@
       <plugin id="com.sun.mail.jakarta.mail"/>
       <plugin id="io.netty"/>
       <plugin id="io.vertx.core"/>
-      <plugin id="io.vertx.micrometer"/>
       <plugin id="io.vertx.web"/>
       <plugin id="jakarta.activation-api"/>
       <plugin id="jakarta.ws.rs-api"/>
@@ -49,10 +48,6 @@
       <plugin id="javax.activation"/>
       <plugin id="jcl.over.slf4j"/>
       <plugin id="jul.to.slf4j"/>
-      <plugin id="micrometer-commons"/>
-      <plugin id="micrometer-core"/>
-      <plugin id="micrometer-observation"/>
-      <plugin id="micrometer-registry-prometheus"/>
       <plugin id="net.bluemind.common.io"/>
       <plugin id="net.bluemind.common.logback" fragment="true"/>
       <plugin id="net.bluemind.config"/>
