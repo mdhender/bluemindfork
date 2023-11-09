@@ -49,9 +49,10 @@ export function useComposer(message, contentRef) {
         { immediate: true }
     );
 
-    onMounted(() => {
+    onMounted(async () => {
         store.commit("mail/" + SET_SAVE_ERROR, {});
         if (message.value.from) {
+            await checkAndRepairFrom();
             setIdentity({ email: message.value.from.address, displayname: message.value.from.dn });
         }
         if (draftUtils.isNewMessage(message.value)) {
