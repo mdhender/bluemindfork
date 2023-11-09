@@ -171,7 +171,7 @@ public class UserMailIdentities implements IUserMailIdentities, IInternalUserMai
 		}
 
 		ContainerQuery query = ContainerQuery.type(IMailboxAclUids.TYPE);
-		query.verb = Arrays.asList(Verb.SendOnBehalf, Verb.SendAs, Verb.Write, Verb.All);
+		query.verb = Arrays.asList(Verb.SendOnBehalf, Verb.SendAs);
 		List<ContainerDescriptor> descriptors = containers.all(query);
 
 		return descriptors.stream().filter(d -> d.domainUid.equals(domainUid))
