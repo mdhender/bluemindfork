@@ -94,10 +94,13 @@ public class IMIPResponse {
 		return ret;
 	}
 
-	public static IMIPResponse createDeclineCounterResponse(String itemUid, String calendarUid) {
+	public static IMIPResponse createDeclineCounterResponse(String itemUid, String calendarUid, String recurid) {
 		IMIPResponse ret = new IMIPResponse();
 
 		StringBuilder eventIcsUid = new StringBuilder(itemUid);
+		if (recurid != null) {
+			eventIcsUid.append("; recurid=\"" + recurid + "\"");
+		}
 
 		RawField rf = new RawField("X-BM-Counter-Declined", eventIcsUid.toString());
 		UnstructuredField bmExtId = UnstructuredFieldImpl.PARSER.parse(rf, DecodeMonitor.SILENT);
