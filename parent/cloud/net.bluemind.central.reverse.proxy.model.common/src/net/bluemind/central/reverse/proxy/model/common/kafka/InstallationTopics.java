@@ -34,7 +34,7 @@ public class InstallationTopics {
 					String[] tokens = topicName.split("-");
 					return (tokens.length > 1) ? tokens[0] : null;
 				}).filter(Objects::nonNull).findFirst() //
-				.orElseThrow(() -> new RuntimeException("No installation id deduced from topic names"));
+				.orElseThrow(() -> new RuntimeException("No installation id deduced from topic names " + topicNames));
 
 		crpTopicName = installationId + "-" + crpTopicSuffix;
 		topicNames.stream().filter(topicName -> topicName.startsWith(installationId)).forEach(topicName -> {
