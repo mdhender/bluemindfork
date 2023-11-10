@@ -30,9 +30,10 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import net.bluemind.imap.endpoint.ImapContext;
 import net.bluemind.imap.endpoint.cmd.SearchCommand;
+import net.bluemind.imap.endpoint.locks.ISequenceReader;
 import net.bluemind.lib.vertx.Result;
 
-public class SearchProcessor extends SelectedStateCommandProcessor<SearchCommand> {
+public class SearchProcessor extends SelectedStateCommandProcessor<SearchCommand> implements ISequenceReader {
 
 	@Override
 	public Class<SearchCommand> handledType() {
@@ -46,8 +47,7 @@ public class SearchProcessor extends SelectedStateCommandProcessor<SearchCommand
 		List<Long> imapUids = ctx.mailbox().uids(ctx.selected(), command.query());
 
 		if (imapUids == null) {
-			ctx.write("BAD Invalid Search criteria\r\n");
-			completed.handle(Result.success());
+			ctx.write(command.raw().tag() + "BAD Invalid Search criteria\r\n").onComplete(completed);
 			return;
 		}
 		Map<Long, Integer> imapToSeq = ctx.selected().imapUidToSeqNum();

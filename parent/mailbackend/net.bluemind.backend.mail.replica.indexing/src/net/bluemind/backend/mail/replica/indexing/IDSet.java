@@ -69,10 +69,12 @@ public class IDSet implements Iterable<IDRange> {
 
 		@Override
 		public void remove() {
+			throw new UnsupportedOperationException("remove is not supported");
 		}
 
 		@Override
 		public void add(Long e) {
+			throw new UnsupportedOperationException("add is not supported");
 		}
 
 		@Override
@@ -87,6 +89,7 @@ public class IDSet implements Iterable<IDRange> {
 
 		@Override
 		public void set(Long e) {
+			throw new UnsupportedOperationException("set is not supported");
 		}
 
 	}
@@ -137,11 +140,11 @@ public class IDSet implements Iterable<IDRange> {
 			} else if (b == ',') {
 
 				if (state == RANGE_STATE) {
-					ranges.add(new IDRange(lastNumber, parseNumber(value, begin, i - begin)));
+					addRange(ranges, new IDRange(lastNumber, parseNumber(value, begin, i - begin)));
 					state = SEQUENCE_STATE;
 				} else {
 					long number = parseNumber(value, begin, i - begin);
-					ranges.add(new IDRange(number, number));
+					addRange(ranges, new IDRange(number, number));
 				}
 
 				begin = i + 1;
@@ -149,14 +152,26 @@ public class IDSet implements Iterable<IDRange> {
 		}
 
 		if (state == RANGE_STATE) {
-			ranges.add(new IDRange(lastNumber, parseNumber(value, begin, value.length - begin)));
+			addRange(ranges, new IDRange(lastNumber, parseNumber(value, begin, value.length - begin)));
 		} else {
 			long number = parseNumber(value, begin, value.length - begin);
-			ranges.add(new IDRange(number, number));
+			addRange(ranges, new IDRange(number, number));
 		}
 
 		return new IDSet(ranges);
 
+	}
+
+	private static void addRange(List<IDRange> ranges, IDRange range) {
+		if (range.from() == -1 && range.to() > 0) {
+			// cleanup *:35
+			ranges.add(new IDRange(range.to(), -1L));
+		} else if (range.from() > 0 && range.to() > 0 && range.to() < range.from()) {
+			// cleanup 10:5
+			ranges.add(new IDRange(range.to(), range.from()));
+		} else {
+			ranges.add(range);
+		}
 	}
 
 	public String toString() {

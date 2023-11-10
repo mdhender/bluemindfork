@@ -1,5 +1,7 @@
 package net.bluemind.imap.endpoint.driver;
 
+import com.google.common.base.MoreObjects;
+
 public class ImapIdSet {
 
 	public enum IdKind {
@@ -20,6 +22,11 @@ public class ImapIdSet {
 
 	public static ImapIdSet uids(String set) {
 		return new ImapIdSet(IdKind.UID, set);
+	}
+
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(ImapIdSet.class).add("k", setStyle).add("s", serializedSet).toString();
 	}
 
 }

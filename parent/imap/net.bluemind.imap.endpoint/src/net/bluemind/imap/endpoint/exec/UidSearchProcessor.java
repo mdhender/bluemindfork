@@ -22,15 +22,23 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Stopwatch;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import net.bluemind.imap.endpoint.ImapContext;
 import net.bluemind.imap.endpoint.cmd.UidSearchCommand;
+import net.bluemind.imap.endpoint.locks.ISequenceCheckpoint;
+import net.bluemind.imap.endpoint.locks.ISequenceReader;
 import net.bluemind.lib.vertx.Result;
 
-public class UidSearchProcessor extends SelectedStateCommandProcessor<UidSearchCommand> {
+public class UidSearchProcessor extends SelectedStateCommandProcessor<UidSearchCommand>
+		implements ISequenceReader, ISequenceCheckpoint {
+
+	private static final Logger logger = LoggerFactory.getLogger(UidSearchProcessor.class);
 
 	@Override
 	public Class<UidSearchCommand> handledType() {
@@ -41,18 +49,23 @@ public class UidSearchProcessor extends SelectedStateCommandProcessor<UidSearchC
 	protected void checkedOperation(UidSearchCommand command, ImapContext ctx, Handler<AsyncResult<Void>> completed) {
 		Stopwatch chrono = Stopwatch.createStarted();
 
+		StringBuilder forCheckpoint = new StringBuilder();
+		// uid search is allowed to checkpoint but search cannot do that
+		checkpointSequences(logger, command.raw().tag() + " uid search", forCheckpoint, ctx);
+
 		List<Long> imapUids = ctx.mailbox().uids(ctx.selected(), command.query());
 		if (imapUids == null) {
-			ctx.write("BAD Invalid Search criteria\r\n");
-			completed.handle(Result.success());
+			ctx.write(command.raw().tag() + " BAD Invalid Search criteria\r\n").onComplete(completed);
 			return;
 		}
 		if (imapUids.isEmpty()) {
 			long ms = chrono.elapsed(TimeUnit.MILLISECONDS);
-			ctx.write("* SEARCH\r\n" + command.raw().tag() + " OK Completed (took " + ms + "ms)\r\n");
+			ctx.write(forCheckpoint.toString() + "* SEARCH\r\n" + command.raw().tag() + " OK Completed (took " + ms
+					+ "ms)\r\n");
 		} else {
 			String uidsResp = imapUids.stream().mapToLong(Long::longValue).mapToObj(Long::toString)
-					.collect(Collectors.joining(" ", "* SEARCH ", "\r\n" + command.raw().tag() + " OK Completed\r\n"));
+					.collect(Collectors.joining(" ", forCheckpoint.toString() + "* SEARCH ",
+							"\r\n" + command.raw().tag() + " OK Completed\r\n"));
 			ctx.write(uidsResp);
 		}
 		completed.handle(Result.success());
