@@ -46,14 +46,13 @@ export default {
     async created() {
         if (this.hasEvent) {
             try {
-                const event = await this.retreiveEventFromCalendarPart(this.message);
+                const [event, recurid] = await this.retreiveEventFromCalendarPart(this.message);
                 this.event = EventHelper.adapt(
                     event,
                     this.message.eventInfo.resourceUid,
                     this.message.from.address,
-                    this.message.eventInfo.recuridIsoDate
+                    recurid ?? this.message.eventInfo.recuridIsoDate
                 );
-
                 this.error = false;
             } catch {
                 this.error = true;
@@ -71,7 +70,16 @@ export default {
                 part.charset
             );
             const text = await blob.text();
-            return this.retreiveCalendarEvent(message, this.retreiveUid(text));
+
+            const event = await this.retreiveCalendarEvent(message, this.retreiveUid(text));
+            const textRecurid = this.retreiveRecurid(text);
+
+            return [
+                event,
+                textRecurid
+                    ? event.value.occurrences.find(occ => occ.recurid.iso8601.startsWith(textRecurid)).recurid.iso8601
+                    : null
+            ];
         },
 
         async retreiveCalendarEvent(message, icsUid) {
@@ -79,11 +87,18 @@ export default {
                 return inject("CalendarPersistence", "calendar:" + message.eventInfo.resourceUid).getComplete(icsUid);
             }
             const events = await inject("CalendarPersistence").getByIcsUid(icsUid);
+
             return EventHelper.findEvent(events, message.eventInfo.recuridIsoDate);
         },
 
         retreiveUid(textContent) {
             return readTextPropertyValue(textContent, "UID");
+        },
+        retreiveRecurid(textContent) {
+            const textRecurid = readTextPropertyValue(textContent, "RECURRENCE-ID");
+            return textRecurid
+                ? textRecurid.replace(/(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})(\d*)?/, "$1-$2-$3T$4:$5:$6")
+                : null;
         }
     }
 };
@@ -91,6 +106,9 @@ export default {
 function readTextPropertyValue(input, property) {
     let len = input.length;
     let begin = input.search(new RegExp(`^${property}\\S*:`, "mi"));
+    if (begin === -1) {
+        return;
+    }
     begin = input.indexOf(":", begin);
     let end,
         line = "";

@@ -6,6 +6,7 @@ import inject from "@bluemind/inject";
 import consultPanel from "~/store/consultPanel";
 import Vuex from "vuex";
 import store from "@bluemind/store";
+import EventHelper from "../../../../store/helpers/EventHelper";
 
 jest.mock("@bluemind/webappdata");
 inject.register({ provide: "CalendarPersistence", factory: () => ({ update: () => true }) });
@@ -171,7 +172,7 @@ describe("Event Countered - Fowarded by attendee", () => {
             const refuseInvitationDropdown = wrapper.find("button");
 
             await refuseInvitationDropdown.trigger("click");
-            /**WE must simulate the update of props since it is managed by the parent */
+            /** WE must simulate the update of props since it is managed by the parent */
             await wrapper.setProps({ event: store.state.mail.consultPanel.currentEvent });
 
             expect(
@@ -186,9 +187,7 @@ describe("Event Countered - Fowarded by attendee", () => {
             const refuseInvitationDropdown = wrapper.find("[role='menu']").findAll('[role="menuitem"]');
 
             await refuseInvitationDropdown.at(0).trigger("click");
-            await wrapper.setProps({
-                event: store.state.mail.consultPanel.currentEvent
-            });
+            await wrapper.setProps({ event: store.state.mail.consultPanel.currentEvent });
             const attendeesToAdd = await extractAttendeesList(wrapper);
 
             expect(attendeesToAdd.text()).toMatch("numero1");
@@ -234,6 +233,167 @@ describe("Event Countered - Fowarded by attendee", () => {
         await listOfAttendees.find("button").trigger("click");
         return listOfAttendees;
     }
+
+    describe("When event is an exception (aka one occurence of a serie)", () => {
+        it("should reject attendee only from current occurrence", async () => {
+            const wrapper = mount(EventNotificationForward, {
+                localVue,
+                i18n,
+                propsData: {
+                    message: {
+                        eventInfos: {},
+                        headers: [
+                            {
+                                name: "X-BM-COUNTER-ATTENDEE",
+                                values: new Array(['"TEST max" <max@devenv.dev.bluemind.net>'].join(", "))
+                            },
+                            {
+                                name: "X-BM-Event-Countered",
+                                values: [
+                                    '7771e20a-be32-48c8-8d09-95b23ddcd510; originator="george@devenv.dev.bluemind.net"; recurid="2023-11-16T09:00:00.000+01:00"'
+                                ]
+                            }
+                        ]
+                    },
+                    event: occurenceForwarded
+                },
+                mocks: {
+                    $t: path => (path === "styleguide.contact-input.invalid" ? path : i18n.t(path)),
+                    $d: path => path
+                },
+                attachTo: document.body
+            });
+            store.commit("mail/SET_CURRENT_EVENT", occurenceForwarded);
+
+            const refuseInvitationDropdown = wrapper.find("button");
+            await refuseInvitationDropdown.trigger("click");
+
+            expect(
+                EventHelper.eventInfos(
+                    store.state.mail.consultPanel.currentEvent.serverEvent,
+                    store.state.mail.consultPanel.currentEvent.recuridIsoDate
+                ).attendees.map(attendee => ({
+                    name: attendee.commonName,
+                    mail: attendee.mailto,
+                    status: attendee.partStatus,
+                    cutype: attendee.cutype
+                }))
+            ).toEqual(store.state.mail.consultPanel.currentEvent.attendees);
+        });
+
+        const serverEvent = {
+            value: {
+                main: {
+                    summary: "EVERYDAY MEETING",
+                    attendees: [
+                        {
+                            cutype: "Individual",
+                            role: "RequiredParticipant",
+                            partStatus: "Tentative",
+                            rsvp: false,
+                            commonName: "George Abitbol",
+                            dir: "bm://75a0d5b3.internal/users/A574855D-907D-4B73-83C3-E2F1D794B50F",
+                            mailto: "george@devenv.dev.bluemind.net",
+                            uri: "addressbook_75a0d5b3.internal/A574855D-907D-4B73-83C3-E2F1D794B50F"
+                        }
+                    ],
+                    organizer: {
+                        commonName: "Jean Giono",
+                        mailto: "j.giono@devenv.dev.bluemind.net",
+                        dir: "bm://75a0d5b3.internal/users/79E5C4EB-060F-46CB-88F9-F218E7F139F7"
+                    },
+                    rrule: {
+                        frequency: "DAILY",
+                        count: 10,
+                        interval: 1
+                    },
+                    dtend: {
+                        iso8601: "2023-11-13T09:30:00.000+01:00",
+                        timezone: "Europe/Paris",
+                        precision: "DateTime"
+                    },
+                    transparency: "Opaque"
+                },
+                occurrences: [
+                    {
+                        attendees: [
+                            {
+                                cutype: "Individual",
+                                role: "RequiredParticipant",
+                                partStatus: "NeedsAction",
+                                rsvp: true,
+                                commonName: "George Abitbol",
+                                dir: "bm://75a0d5b3.internal/users/A574855D-907D-4B73-83C3-E2F1D794B50F",
+                                mailto: "george@devenv.dev.bluemind.net",
+                                uri: "addressbook_75a0d5b3.internal/A574855D-907D-4B73-83C3-E2F1D794B50F"
+                            }
+                        ],
+                        recurid: {
+                            iso8601: "2023-11-15T09:00:00.000+01:00",
+                            timezone: "Europe/Paris",
+                            precision: "DateTime"
+                        }
+                    },
+                    {
+                        dtstart: {
+                            iso8601: "2023-11-16T09:00:00.000+01:00",
+                            timezone: "Europe/Paris",
+                            precision: "DateTime"
+                        },
+                        attendees: [
+                            {
+                                cutype: "Individual",
+                                role: "RequiredParticipant",
+                                partStatus: "Accepted",
+                                rsvp: false,
+                                commonName: "George Abitbol",
+                                dir: "bm://75a0d5b3.internal/users/A574855D-907D-4B73-83C3-E2F1D794B50F",
+                                mailto: "george@devenv.dev.bluemind.net",
+                                uri: "addressbook_75a0d5b3.internal/A574855D-907D-4B73-83C3-E2F1D794B50F"
+                            },
+                            {
+                                cutype: "Individual",
+                                role: "OptionalParticipant",
+                                partStatus: "NeedsAction",
+                                commonName: "TEST max",
+                                dir: "bm://75a0d5b3.internal/users/6A3A9AF9-7073-4D49-B6F1-688D710ADA5E",
+                                mailto: "max@devenv.dev.bluemind.net"
+                            }
+                        ],
+                        // rrule: {
+                        //     frequency: "DAILY",
+                        //     count: 10,
+                        //     interval: 1
+                        // },
+
+                        recurid: {
+                            iso8601: "2023-11-16T09:00:00.000+01:00",
+                            timezone: "Europe/Paris",
+                            precision: "DateTime"
+                        }
+                    }
+                ]
+            }
+        };
+
+        const occurenceForwarded = {
+            summary: "EVERYDAY MEETING",
+            organizer: { name: "Jean Giono", mail: "j.giono@devenv.dev.bluemind.net" },
+            date: "Tous les jours, de 09:00 à 09:30, à partir du 16 novembre 2023",
+            attendees: [
+                {
+                    name: "George Abitbol",
+                    mail: "george@devenv.dev.bluemind.net",
+                    status: "Accepted",
+                    cutype: "Individual"
+                },
+                { name: "TEST max", mail: "max@devenv.dev.bluemind.net", status: "NeedsAction", cutype: "Individual" }
+            ],
+            recuridIsoDate: "2023-11-16T09:00:00.000+01:00",
+            serverEvent: serverEvent,
+            loading: "LOADED"
+        };
+    });
 });
 
 function findByText(wrapper, { selector, text }) {

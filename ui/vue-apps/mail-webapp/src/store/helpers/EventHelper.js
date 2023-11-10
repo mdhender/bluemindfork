@@ -22,12 +22,7 @@ export default {
             },
             date: adaptDate(infos.dtstart, infos.dtend, infos.rrule),
             conference: infos.conference,
-            attendees: infos.attendees.map(attendee => ({
-                name: attendee.commonName,
-                mail: attendee.mailto,
-                status: attendee.partStatus,
-                cutype: attendee.cutype || ICalendarElement.CUType.Individual
-            })),
+            attendees: this.adaptAttendeeList(infos.attendees),
             mailboxOwner,
             status: attendee?.partStatus,
             attendee,
@@ -45,7 +40,14 @@ export default {
             isWritable
         };
     },
-
+    adaptAttendeeList(attendees) {
+        return attendees.map(attendee => ({
+            name: attendee.commonName,
+            mail: attendee.mailto,
+            status: attendee.partStatus,
+            cutype: attendee.cutype || ICalendarElement.CUType.Individual
+        }));
+    },
     applyCounter(adaptedEvent, originator, recuridIsoDate) {
         const event = adaptedEvent.serverEvent;
         const counter = event.value.counters.find(c => matchCounter(c, originator, recuridIsoDate)).counter;
@@ -136,8 +138,36 @@ export default {
                 !recuridIsoDate ||
                 event.value.occurrences.some(occurrence => occurrence.recurid.iso8601 === recuridIsoDate)
         );
+    },
+
+    removeAttendees(event, attendeesList) {
+        let updatedEvent = { ...event };
+        if (event.recuridIsoDate) {
+            const occurrence = event.serverEvent.value.occurrences.find(
+                occ => occ.recurid.iso8601 === event.recuridIsoDate
+            );
+            updatedEvent.serverEvent.value.occurrences = event.serverEvent.value.occurrences
+                .slice()
+                .filter(currentOcc => currentOcc.recurid.iso8601 !== event.recuridIsoDate)
+                .concat({
+                    ...occurrence,
+                    attendees: occurrence.attendees.filter(removeAttendeesFilter(attendeesList))
+                });
+        } else {
+            updatedEvent.serverEvent.value.main.attendees = event.serverEvent.value.main.attendees.filter(
+                removeAttendeesFilter(attendeesList)
+            );
+        }
+        return updatedEvent;
     }
 };
+
+function removeAttendeesFilter(rejectedAttendees) {
+    return a =>
+        rejectedAttendees.findIndex(
+            aRejectedAttendeee => aRejectedAttendeee.address === a.mailto && aRejectedAttendeee.dn === a.commonName
+        ) === -1;
+}
 
 function adaptDate(dtstart, dtend, rrule) {
     // recurrent event

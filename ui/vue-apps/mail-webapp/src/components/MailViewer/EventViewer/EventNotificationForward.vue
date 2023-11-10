@@ -18,6 +18,7 @@ const props = defineProps({
 const attendeeHeader = computed(() =>
     props.message?.headers?.find(({ name }) => name.toUpperCase() === MessageHeader.X_BM_COUNTER_ATTENDEE.toUpperCase())
 );
+
 const newlyAddedAttendees = computed(() =>
     props.event.attendees
         ?.filter(a => attendeeHeader.value.values?.[0]?.includes(a.mail))

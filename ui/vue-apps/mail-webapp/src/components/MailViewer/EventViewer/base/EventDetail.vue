@@ -48,6 +48,7 @@ const calendarStatus = computed(() => {
     if (hasHeader(MessageHeader.X_BM_EVENT_REPLIED)) {
         return props.event?.attendees?.find(attendee => attendee.mail === props.message.from.address)?.status ?? null;
     }
+
     return null;
 });
 const isReply = computed(() => hasHeader(MessageHeader.X_BM_EVENT_REPLIED));

@@ -32,10 +32,6 @@ export default {
                 let calendarUid;
                 let calendarOwner;
                 if (message.eventInfo.isResourceBooking) {
-                    event = await inject(
-                        "CalendarPersistence",
-                        "calendar:" + message.eventInfo.resourceUid
-                    ).getComplete(message.eventInfo.icsUid);
                     calendarOwner = message.eventInfo.resourceUid;
                     calendarUid = getCalendarUid(calendarOwner, true);
                 } else {
@@ -78,43 +74,20 @@ export default {
         },
 
         async [REJECT_ATTENDEES]({ commit, state }, { rejectedAttendees }) {
-            const serverEvent = setProperty(
-                state.currentEvent,
-                "serverEvent.value.main.attendees",
-                state.currentEvent.serverEvent.value.main.attendees.filter(
-                    a =>
-                        rejectedAttendees.findIndex(
-                            aRejectedAttendeee =>
-                                aRejectedAttendeee.address === a.mailto && aRejectedAttendeee.dn === a.commonName
-                        ) === -1
-                )
-            );
+            const updatedEvent = EventHelper.removeAttendees(state.currentEvent, rejectedAttendees);
+
             await inject("CalendarPersistence", state.currentEvent.calendarUid).update(
                 state.currentEvent.uid,
-                serverEvent.serverEvent.value,
+                updatedEvent.serverEvent.value,
                 true
             );
 
             commit(SET_CURRENT_EVENT, {
-                ...serverEvent,
-                attendees: serverEvent.serverEvent.value.main.attendees.map(attendee => ({
-                    name: attendee.commonName,
-                    mail: attendee.mailto,
-                    status: attendee.partStatus,
-                    cutype: attendee.cutype
-                }))
+                ...updatedEvent,
+                attendees: EventHelper.adaptAttendeeList(
+                    EventHelper.eventInfos(updatedEvent.serverEvent, updatedEvent.recuridIsoDate).attendees
+                )
             });
-
-            function setProperty(obj, path, value) {
-                const [head, ...rest] = path.split(".");
-                if (!(head in obj)) {
-                    obj[head] = {};
-                }
-                return {
-                    ...obj,
-                    [head]: rest.length ? setProperty(obj[head], rest.join("."), value) : value
-                };
-            }
         },
 
         async [SET_EVENT_STATUS]({ state, commit }, { status }) {
