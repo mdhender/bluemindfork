@@ -1024,6 +1024,19 @@ public class UidSearchTests {
 	}
 
 	@Test
+	public void testOpenSeqRange() throws IMAPException, InterruptedException, IOException {
+		try (StoreClient sc = newStore(false)) {
+			SearchQuery sq = new SearchQuery();
+			sq.setSeq("2:*");
+			sq.setNotDeleted(true);
+			sc.select("INBOX");
+			setupBoxContent(5, 10, 12, 10);
+			Collection<Integer> uids = sc.uidSearch(sq);
+			assertEquals(32, uids.size());
+		}
+	}
+
+	@Test
 	public void testGetNotUidSequence() throws IMAPException, InterruptedException, IOException {
 		try (StoreClient sc = newStore(false)) {
 			SearchQuery sq = new SearchQuery();

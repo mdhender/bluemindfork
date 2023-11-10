@@ -6,11 +6,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -696,7 +694,6 @@ public class UidSearchAnalyzer {
 		@Override
 		public String analyse(BoolQuery.Builder qb, String query, boolean positive, boolean certain, long maxUid,
 				SelectedFolder selected, ImapIdSetResolver resolver) {
-			Set<Long> set = new HashSet<>();
 			Matcher matcher = compiledRE.matcher(query);
 			if (matcher.find()) {
 				String sequence = matcher.group(1);
@@ -705,11 +702,11 @@ public class UidSearchAnalyzer {
 				List<Long> itemIds = resolver.resolveIdSet(selected, asSet);
 				// FIXME 1:* produces a shitty query on big folders
 				if (positive) {
-					logger.info("termsQuery 'uid' must be in {}", set);
+					logger.info("termsQuery 'itemId' must be in {}", itemIds);
 					qb.must(m -> m.terms(
 							t -> t.field("itemId").terms(f -> f.value(itemIds.stream().map(FieldValue::of).toList()))));
 				} else {
-					logger.info("termsQuery 'uid' must not be in {}", set);
+					logger.info("termsQuery 'itemId' must not be in {}", itemIds);
 					qb.mustNot(m -> m.terms(
 							t -> t.field("itemId").terms(f -> f.value(itemIds.stream().map(FieldValue::of).toList()))));
 				}

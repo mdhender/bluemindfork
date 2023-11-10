@@ -27,7 +27,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -439,14 +438,12 @@ public class MailApiConnection implements MailboxConnection {
 			IDSet parsedSet = IDSet.parse(set.serializedSet);
 			return sf.internalIds(sm -> parsedSet.contains(sm.imapUid()));
 		} else {
+			IDSet seqMatcher = IDSet.parse(set.serializedSet);
 			int total = sf.sequences.length;
-			ListIterator<Long> iterator = IDSet.parse(set.serializedSet).iterateUid();
 			List<Long> ret = new LongArrayList(total);
-			while (iterator.hasNext()) {
-				int seq = iterator.next().intValue();
-				int position = seq - 1;
-				if (position >= 0 && position < total) {
-					ret.add(sf.sequences[position].internalId());
+			for (int pos = 0; pos < total; pos++) {
+				if (seqMatcher.contains(pos + 1L)) {
+					ret.add(sf.sequences[pos].internalId());
 				}
 			}
 			logger.debug("seqs {} resolves to itemId {}", set.serializedSet, ret);

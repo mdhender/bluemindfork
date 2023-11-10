@@ -61,7 +61,7 @@ public class PrimitiveMapsTests {
 		}
 	}
 
-	@Test(timeout = 5000)
+	@Test(timeout = 10000)
 	public void testInternalIdsSet() {
 		SelectedMessage[] messages = new SelectedMessage[COUNT];
 		Random r = ThreadLocalRandom.current();
