@@ -191,6 +191,12 @@ public class VEventUtil {
 	}
 
 	private static boolean changed(Object elem1, Object elem2) {
+		if (elem1 instanceof String asString && asString.isEmpty()) {
+			elem1 = null;
+		}
+		if (elem2 instanceof String asString && asString.isEmpty()) {
+			elem2 = null;
+		}
 		if (elem1 == null && elem2 == null) {
 			return false;
 		} else {
