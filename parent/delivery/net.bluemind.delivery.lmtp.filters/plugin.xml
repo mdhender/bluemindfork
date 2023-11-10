@@ -3,4 +3,9 @@
 <plugin>
    <extension-point id="net.bluemind.delivery.lmtp.filters.factory" name="factory" schema="schema/net.bluemind.delivery.lmtp.filters.factory.exsd"/>
 
+	<extension
+         point="net.bluemind.delivery.lmtp.filters.factory">
+      <factory
+            impl="net.bluemind.delivery.lmtp.filters.internal.RemoveMilterHandledHeader$Factory"></factory>
+   </extension>
 </plugin>

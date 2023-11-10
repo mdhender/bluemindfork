@@ -12,3 +12,4 @@ Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.delivery.lmtp.filters
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.delivery.lmtp.filters
+Import-Package: org.apache.james.mime4j.stream
