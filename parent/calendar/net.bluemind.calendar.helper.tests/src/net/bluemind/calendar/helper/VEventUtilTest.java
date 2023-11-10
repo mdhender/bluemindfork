@@ -1,7 +1,7 @@
 /**
  * 
  */
-package net.bluemind.calendar.hook.ics;
+package net.bluemind.calendar.helper;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -16,9 +16,9 @@ import java.util.HashSet;
 import org.junit.Before;
 import org.junit.Test;
 
+import net.bluemind.calendar.VEventUtil;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEvent.Transparency;
-import net.bluemind.calendar.hook.VEventUtil;
 import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.api.date.BmDateTime.Precision;
 import net.bluemind.core.api.date.BmDateTimeWrapper;

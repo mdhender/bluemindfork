@@ -20,7 +20,6 @@ package net.bluemind.calendar.hook;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -30,7 +29,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
@@ -49,6 +47,8 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Sets;
 
 import freemarker.template.TemplateException;
+import net.bluemind.calendar.VEventUtil;
+import net.bluemind.calendar.VEventUtil.EventChanges;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventCounter;
 import net.bluemind.calendar.api.VEventOccurrence;
@@ -61,7 +61,6 @@ import net.bluemind.calendar.helper.mail.CalendarMailHelper;
 import net.bluemind.calendar.helper.mail.EventAttachment;
 import net.bluemind.calendar.helper.mail.EventAttachmentHelper;
 import net.bluemind.calendar.helper.mail.Messages;
-import net.bluemind.calendar.hook.VEventUtil.EventChanges;
 import net.bluemind.common.freemarker.FreeMarkerMsg;
 import net.bluemind.common.freemarker.MessagesResolver;
 import net.bluemind.common.freemarker.MessagesResolverProvider;
@@ -227,7 +226,7 @@ public class IcsHook implements ICalendarHook {
 		Set<Attendee> userAttendingToSeries = new HashSet<>();
 		Set<Attendee> userDeletedFromSeries = new HashSet<>();
 		for (VEvent evt : flatten) {
-			VEvent oldEvent = findCorrespondingEvent(oldEventSeries, evt);
+			VEvent oldEvent = VEventUtil.findCorrespondingEvent(oldEventSeries, evt);
 			if (null == oldEvent) {
 				oldEvent = new VEvent();
 			}
@@ -243,7 +242,7 @@ public class IcsHook implements ICalendarHook {
 
 		if (oldEventSeries != null) {
 			for (VEventOccurrence occ : oldEventSeries.occurrences) {
-				VEvent matchingNewEvent = findCorrespondingEvent(updatedEvent, occ);
+				VEvent matchingNewEvent = VEventUtil.findCorrespondingEvent(updatedEvent, occ);
 				if (null == matchingNewEvent) {
 					sendCancelToAttendees(message, occ, occ.attendees);
 				}
@@ -355,7 +354,7 @@ public class IcsHook implements ICalendarHook {
 	private void onAttendeeEventVersionUpdated(VEventMessage message, VEventSeries oldEventSeries, List<VEvent> flatten,
 			DirEntry dirEntry) {
 		for (VEvent evt : flatten) {
-			VEvent oldEvent = findCorrespondingEvent(oldEventSeries, evt);
+			VEvent oldEvent = VEventUtil.findCorrespondingEvent(oldEventSeries, evt);
 			Optional<EventAttendeeTuple> attendee = getMatchingAttendeeForEvent(evt, dirEntry);
 			if (attendee.isPresent()) {
 				Optional<EventAttendeeTuple> oldAttendee = getMatchingAttendeeForEvent(oldEvent, dirEntry);
@@ -416,39 +415,6 @@ public class IcsHook implements ICalendarHook {
 		} catch (ServerFault e) {
 			logger.error(e.getMessage(), e);
 		}
-	}
-
-	private VEvent findCorrespondingEvent(VEventSeries otherSeries, VEvent evt) {
-		VEvent match = null;
-		if (evt.exception()) {
-			match = otherSeries.occurrence(((VEventOccurrence) evt).recurid);
-			if (match == null) {
-				match = calculateOldEventOfException(otherSeries, evt);
-			}
-		} else {
-			match = otherSeries.main;
-		}
-		if (match != null && match.draft) {
-			return null;
-		}
-		return match;
-	}
-
-	private VEvent calculateOldEventOfException(VEventSeries oldSeries, VEvent evt) {
-		if (oldSeries.main == null) {
-			return new VEvent();
-		}
-		VEvent oldEvent = oldSeries.main.copy();
-		oldEvent.rrule = null;
-		oldEvent.dtstart = ((VEventOccurrence) evt).recurid;
-		ZonedDateTime start = new BmDateTimeWrapper(oldEvent.dtstart).toDateTime();
-		Long duration = oldSeries.main.dtend != null
-				? (new BmDateTimeWrapper(oldSeries.main.dtend).toUTCTimestamp()
-						- new BmDateTimeWrapper(oldSeries.main.dtstart).toUTCTimestamp())
-				: 30000;
-		oldEvent.dtend = BmDateTimeWrapper
-				.fromTimestamp(start.plus(duration, ChronoUnit.MILLIS).toInstant().toEpochMilli());
-		return oldEvent;
 	}
 
 	private void sendSeriesInvitation(VEventMessage message, VEventSeries vevent) {
@@ -895,61 +861,7 @@ public class IcsHook implements ICalendarHook {
 				IUser userService = sp.instance(IUser.class, message.container.domainUid);
 				IUserSettings userSettingsService = sp.instance(IUserSettings.class, message.container.domainUid);
 
-				// BM-8343
-				if (message.oldEvent != null) {
-					VEvent findCorrespondingEvent = findCorrespondingEvent(message.oldEvent, event);
-					Map<String, Object> old = null != findCorrespondingEvent
-							? new CalendarMailHelper().extractVEventData(findCorrespondingEvent)
-							: new HashMap<>();
-
-					if (findCorrespondingEvent != null) {
-						List<String> deletedList = new HashSet<>(
-								ICalendarElement.diff(findCorrespondingEvent.attendees, event.attendees)).stream()
-								.map(CalendarMailHelper::attendeeDisplayName).toList();
-						data.put("deleted_attendees", deletedList);
-
-						List<String> addedAttendees = ICalendarElement
-								.diff(event.attendees, findCorrespondingEvent.attendees).stream()
-								.map(CalendarMailHelper::attendeeDisplayName).toList();
-						data.put("added_attendees", addedAttendees);
-
-						if (data.containsKey("attendees")) {
-							List<String> list = new ArrayList<>((List<String>) data.get("attendees"));
-							list.removeAll(addedAttendees);
-							data.put("attendees", list);
-						}
-					} else {
-						data.put("deleted_attendees", Collections.emptySet());
-						data.put("added_attendees", Collections.emptySet());
-					}
-
-					for (Entry<String, Object> e : old.entrySet()) {
-						data.put("old_" + e.getKey(), e.getValue());
-					}
-
-					// Fix highlight new location
-					if (!data.containsKey("old_location")) {
-						data.put("old_location", "");
-					}
-
-					// Fix highlight new description
-					if (!data.containsKey("old_description")) {
-						data.put("old_description", "");
-					}
-
-					// Fix highlight new url
-					if (!data.containsKey("old_url")) {
-						data.put("old_url", "");
-					}
-
-					// Fix highlight new conference url
-					if (!data.containsKey("old_conference")) {
-						data.put("old_conference", "");
-					}
-				} else {
-					data.put("deleted_attendees", Collections.emptySet());
-					data.put("added_attendees", Collections.emptySet());
-				}
+				VEventUtil.addPreviousEventInfos(message.oldEvent, event, data);
 
 				ItemValue<User> user = userService.byEmail(recipient.getAddress());
 				Map<String, String> settings = senderSettings;

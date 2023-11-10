@@ -16,21 +16,33 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.calendar.hook;
+package net.bluemind.calendar;
 
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.calendar.api.VEvent;
+import net.bluemind.calendar.api.VEventOccurrence;
+import net.bluemind.calendar.api.VEventSeries;
+import net.bluemind.calendar.helper.mail.CalendarMailHelper;
+import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.icalendar.api.ICalendarElement.RRule;
 
 public class VEventUtil {
+	private static Logger logger = LoggerFactory.getLogger(VEventUtil.class);
 
 	public static enum EventChanges {
 		EVENT, URL, CONFERENCE, SUMMARY, RRULE, PRIORITY, LOCATION, DESCRIPTION, DTSTART, DTEND, TRANSPARENCY,
@@ -42,15 +54,12 @@ public class VEventUtil {
 	}
 
 	public static <T extends VEvent> EnumSet<EventChanges> eventChanges(T oldEvent, T newEvent) {
-
 		EnumSet<EventChanges> changes = EnumSet.noneOf(EventChanges.class);
-
 		if (oldEvent == null && newEvent != null || oldEvent != null && newEvent == null) {
 			LoggerFactory.getLogger(VEventUtil.class).info("CH 1");
 			changes.add(EventChanges.EVENT);
 			return changes;
 		}
-
 		if (oldEvent == null && newEvent == null) {
 			changes.add(EventChanges.EVENT);
 			return changes;
@@ -221,6 +230,95 @@ public class VEventUtil {
 			}
 			return !list1.equals(list2);
 		}
+	}
+
+	public static void addPreviousEventInfos(VEventSeries oldSeries, VEvent event, Map<String, Object> data) {
+		if (oldSeries == null) {
+			data.put("deleted_attendees", Collections.emptySet());
+			data.put("added_attendees", Collections.emptySet());
+			return;
+		}
+
+		VEvent findCorrespondingEvent = findCorrespondingEvent(oldSeries, event);
+		Map<String, Object> old = null != findCorrespondingEvent
+				? new CalendarMailHelper().extractVEventData(findCorrespondingEvent)
+				: new HashMap<>();
+		for (Entry<String, Object> e : old.entrySet()) {
+			data.put("old_" + e.getKey(), e.getValue());
+		}
+
+		if (findCorrespondingEvent != null) {
+			List<String> deletedList = new HashSet<>(
+					ICalendarElement.diff(findCorrespondingEvent.attendees, event.attendees)).stream()
+					.map(CalendarMailHelper::attendeeDisplayName).toList();
+			data.put("deleted_attendees", deletedList);
+
+			List<String> addedAttendees = ICalendarElement.diff(event.attendees, findCorrespondingEvent.attendees)
+					.stream().map(CalendarMailHelper::attendeeDisplayName).toList();
+			data.put("added_attendees", addedAttendees);
+
+			if (data.containsKey("attendees")) {
+				List<String> list = new ArrayList<>((List<String>) data.get("attendees"));
+				list.removeAll(addedAttendees);
+				data.put("attendees", list);
+			}
+		} else {
+			data.put("deleted_attendees", Collections.emptySet());
+			data.put("added_attendees", Collections.emptySet());
+		}
+
+		// Fix highlight new location
+		if (!data.containsKey("old_location")) {
+			data.put("old_location", "");
+		}
+
+		// Fix highlight new description
+		if (!data.containsKey("old_description")) {
+			data.put("old_description", "");
+		}
+
+		// Fix highlight new url
+		if (!data.containsKey("old_url")) {
+			data.put("old_url", "");
+		}
+
+		// Fix highlight new conference url
+		if (!data.containsKey("old_conference")) {
+			data.put("old_conference", "");
+		}
+	}
+
+	public static VEvent findCorrespondingEvent(VEventSeries otherSeries, VEvent evt) {
+		VEvent match = null;
+		if (evt.exception()) {
+			match = otherSeries.occurrence(((VEventOccurrence) evt).recurid);
+			if (match == null) {
+				match = calculateOldEventOfException(otherSeries, evt);
+			}
+		} else {
+			match = otherSeries.main;
+		}
+		if (match != null && match.draft) {
+			return null;
+		}
+		return match;
+	}
+
+	private static VEvent calculateOldEventOfException(VEventSeries oldSeries, VEvent evt) {
+		if (oldSeries.main == null) {
+			return new VEvent();
+		}
+		VEvent oldEvent = oldSeries.main.copy();
+		oldEvent.rrule = null;
+		oldEvent.dtstart = ((VEventOccurrence) evt).recurid;
+		ZonedDateTime start = new BmDateTimeWrapper(oldEvent.dtstart).toDateTime();
+		Long duration = oldSeries.main.dtend != null
+				? (new BmDateTimeWrapper(oldSeries.main.dtend).toUTCTimestamp()
+						- new BmDateTimeWrapper(oldSeries.main.dtstart).toUTCTimestamp())
+				: 30000;
+		oldEvent.dtend = BmDateTimeWrapper
+				.fromTimestamp(start.plus(duration, ChronoUnit.MILLIS).toInstant().toEpochMilli());
+		return oldEvent;
 	}
 
 }

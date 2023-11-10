@@ -33,6 +33,7 @@ import org.columba.ristretto.message.Address;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.calendar.api.VEventOccurrence;
+import net.bluemind.calendar.helper.mail.MeetingUpdateDiff;
 import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
 
@@ -110,10 +111,11 @@ public class IMIPResponse {
 	}
 
 	public static IMIPResponse createEventResponse(String itemUid, ICalendarElement calElement, boolean needResponse,
-			String calendarUid) {
+			String calendarUid, MeetingUpdateDiff diff) {
 		IMIPResponse ret = new IMIPResponse();
+		Map<String, String> att = (diff == null) ? Collections.emptyMap() : diff.toMap();
 		UnstructuredField bmEventHeader = createNeedResponseHeader(EVENT_HEADER, itemUid, calElement, needResponse,
-				Collections.emptyMap());
+				att);
 		ret.headerFields = Arrays.asList(bmEventHeader, getImipHeader(calendarUid));
 		return ret;
 	}

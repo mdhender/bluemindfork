@@ -46,6 +46,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 
 import freemarker.template.TemplateException;
 import net.bluemind.calendar.EventChangesMerge;
+import net.bluemind.calendar.EventChangesMerge.VEventChangesWithDiff;
 import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventChanges;
@@ -165,15 +166,17 @@ public class EventRequestHandler extends AbstractLmtpHandler implements IIMIPHan
 
 		setDefaultAlarm(domain, recipientMailbox.uid, series);
 
-		VEventChanges changes = EventChangesMerge.getStrategy(vseries, series).merge(vseries, series);
+		VEventChangesWithDiff changesWithDiff = EventChangesMerge.getStrategy(vseries, series).merge(vseries, series);
+		VEventChanges changes = changesWithDiff.changes;
+		VEvent event = series.main == null ? series.occurrences.get(0) : series.main;
 
 		cal.updates(changes);
 		logger.info("[{}] {} new series, {} updated series, {} deleted series in BM (calendar {})", imip.messageId,
 				changes.add == null ? 0 : changes.add.size(), changes.modify == null ? 0 : changes.modify.size(),
 				changes.delete == null ? 0 : changes.delete.size(), calUid);
 
-		VEvent event = series.main == null ? series.occurrences.get(0) : series.main;
-		return IMIPResponse.createEventResponse(imip.uid, event, needResponse(domain, recipientMailbox, event), calUid);
+		return IMIPResponse.createEventResponse(imip.uid, event, needResponse(domain, recipientMailbox, event), calUid,
+				changesWithDiff.diff);
 	}
 
 	private boolean recipientIsOrganizer(ItemValue<Domain> domain, List<ItemValue<VEventSeries>> vseries,

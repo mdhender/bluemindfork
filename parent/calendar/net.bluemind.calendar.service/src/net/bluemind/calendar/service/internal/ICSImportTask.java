@@ -160,7 +160,7 @@ public abstract class ICSImportTask extends BlockingServerTask implements IServe
 				eventHasAddedExDates(event, byIcsUid.get(0).value) || // BM-16128 Google does not update last-modified
 																		// if only the exdates have been modified
 				itemValue.updated.after(byIcsUid.get(0).updated)) {
-			VEventChanges eventChanges = EventChangesMerge.getStrategy(byIcsUid, event).merge(byIcsUid, event);
+			VEventChanges eventChanges = EventChangesMerge.getStrategy(byIcsUid, event).merge(byIcsUid, event).changes;
 			changes.addAll(eventChanges);
 		} else {
 			ret.unhandled.add(itemValue.uid);

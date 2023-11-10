@@ -69,6 +69,14 @@ public class HeaderUtil {
 			return Boolean.valueOf(value);
 		}
 
+		public Long toLong() {
+			return Long.valueOf(value);
+		}
+
+		public Integer toInteger() {
+			return Integer.valueOf(value);
+		}
+
 		@Override
 		public String toString() {
 			return value;

@@ -32,6 +32,7 @@ import net.bluemind.calendar.api.VEventChanges.ItemModify;
 import net.bluemind.calendar.api.VEventCounter;
 import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
+import net.bluemind.calendar.helper.mail.MeetingUpdateDiff;
 import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ServerFault;
@@ -52,20 +53,41 @@ public class EventChangesMerge {
 	}
 
 	public static interface IVEventSeriesMerge {
-		public VEventChanges merge(List<ItemValue<VEventSeries>> bmSeries, VEventSeries imipSeries);
+		public VEventChangesWithDiff merge(List<ItemValue<VEventSeries>> bmSeries, VEventSeries imipSeries);
+	}
+
+	public static class VEventChangesWithDiff {
+		public final VEventChanges changes;
+		public final MeetingUpdateDiff diff;
+
+		public VEventChangesWithDiff(VEventChanges changes, MeetingUpdateDiff diff) {
+			this.changes = changes;
+			this.diff = diff;
+		}
+
+		public static VEventChangesWithDiff create(VEventChanges changes) {
+			return new VEventChangesWithDiff(changes, null);
+		}
 	}
 
 	private static class UpdateSeries implements IVEventSeriesMerge {
 
 		@Override
-		public VEventChanges merge(List<ItemValue<VEventSeries>> bmSeries, VEventSeries imipSeries) {
-
+		public VEventChangesWithDiff merge(List<ItemValue<VEventSeries>> bmSeries, VEventSeries imipSeries) {
 			ItemValue<VEventSeries> vevent = bmSeries.get(0);
+			VEvent previousMain = vevent.value.main;
+			MeetingUpdateDiff diff = null;
+			if (imipSeries.main != null) {
+				diff = new MeetingUpdateDiff(vevent.value.main, imipSeries.main);
+			}
 			vevent.value = updateMain(vevent.value, imipSeries.main);
 			vevent.value.acceptCounters = imipSeries.acceptCounters;
 			for (VEventOccurrence imipEvent : imipSeries.occurrences) {
 				List<VEventOccurrence> occ = vevent.value.occurrences.stream()
 						.filter(r -> !r.recurid.equals(imipEvent.recurid)).collect(Collectors.toList());
+				VEvent previousOcc = vevent.value.occurrences.stream().filter(r -> r.recurid.equals(imipEvent.recurid))
+						.findFirst().map(VEvent.class::cast).orElse(previousMain);
+				diff = new MeetingUpdateDiff(previousOcc, imipEvent);
 				occ.add(imipEvent);
 				List<VEventCounter> counters = vevent.value.counters.stream()
 						.filter(r -> r.counter.recurid == null || !r.counter.recurid.equals(imipEvent.recurid))
@@ -73,7 +95,10 @@ public class EventChangesMerge {
 				vevent.value.counters = counters;
 				vevent.value.occurrences = occ;
 			}
-			return VEventChanges.create(null, Arrays.asList(ItemModify.create(vevent.uid, vevent.value, false)), null);
+
+			VEventChanges changes = VEventChanges.create(null,
+					Arrays.asList(ItemModify.create(vevent.uid, vevent.value, false)), null);
+			return new VEventChangesWithDiff(changes, diff);
 		}
 
 		private VEventSeries updateMain(VEventSeries series, VEvent main) throws ServerFault {
@@ -87,8 +112,8 @@ public class EventChangesMerge {
 			} else {
 				adjustEventExceptionsValues(series, main);
 			}
-
 			adjustAlarms(series.main, main);
+
 			series.main = main;
 			return series;
 		}
@@ -203,7 +228,7 @@ public class EventChangesMerge {
 	private static class CreateSeries implements IVEventSeriesMerge {
 
 		@Override
-		public VEventChanges merge(List<ItemValue<VEventSeries>> bmSeries, VEventSeries imipSeries) {
+		public VEventChangesWithDiff merge(List<ItemValue<VEventSeries>> bmSeries, VEventSeries imipSeries) {
 
 			VEventChanges changes = VEventChanges.create(new ArrayList<ItemAdd>(), null, new ArrayList<ItemDelete>());
 
@@ -211,7 +236,7 @@ public class EventChangesMerge {
 				changes.delete.add(ItemDelete.create(toDelete.uid, false));
 			}
 			changes.add.add(ItemAdd.create(imipSeries.icsUid, imipSeries, false));
-			return changes;
+			return VEventChangesWithDiff.create(changes);
 		}
 
 	}
@@ -219,7 +244,7 @@ public class EventChangesMerge {
 	private static class StoreOrphans implements IVEventSeriesMerge {
 
 		@Override
-		public VEventChanges merge(List<ItemValue<VEventSeries>> bmSeries, VEventSeries imipSeries) {
+		public VEventChangesWithDiff merge(List<ItemValue<VEventSeries>> bmSeries, VEventSeries imipSeries) {
 
 			VEventChanges changes = VEventChanges.create(new ArrayList<ItemAdd>(), new ArrayList<ItemModify>(), null);
 			for (VEventOccurrence occ : imipSeries.occurrences) {
@@ -240,7 +265,7 @@ public class EventChangesMerge {
 					changes.add.add(ItemAdd.create(UIDGenerator.uid(), oneOcc, false));
 				}
 			}
-			return changes;
+			return VEventChangesWithDiff.create(changes);
 		}
 
 	}
