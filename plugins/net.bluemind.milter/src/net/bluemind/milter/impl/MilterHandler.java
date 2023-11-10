@@ -26,6 +26,7 @@ import org.apache.james.mime4j.dom.address.AddressList;
 import org.apache.james.mime4j.dom.address.Group;
 import org.apache.james.mime4j.dom.address.Mailbox;
 import org.apache.james.mime4j.dom.field.FieldName;
+import org.apache.james.mime4j.stream.Field;
 import org.apache.james.mime4j.stream.RawField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -157,7 +158,7 @@ public class MilterHandler implements JilterHandler {
 		modifiedMail.removeHeaders.add(MilterHeaders.SIEVE_REDIRECT);
 		modifiedMail.envelopSender = Optional.ofNullable(accumulator.getEnvelope().getSender().getEmailAddress());
 
-		if (accumulator.getMessage().getHeader().getField(MilterHeaders.HANDLED) == null) {
+		if (messageHasNotBeenHandledByThisInstallation()) {
 			int appliedActions = applyActions(modifiedMail);
 			logger.debug("Applied {} milter actions", appliedActions);
 			modifiedMail.newHeaders.add(new RawField(MilterHeaders.HANDLED, MilterInstanceID.get()));
@@ -167,6 +168,11 @@ public class MilterHandler implements JilterHandler {
 		applyMailModifications(eomActions, modifiedMail);
 
 		return modifiedMail.errorStatus;
+	}
+
+	private boolean messageHasNotBeenHandledByThisInstallation() {
+		Field field = accumulator.getMessage().getHeader().getField(MilterHeaders.HANDLED);
+		return field == null || !MilterInstanceID.get().equals(field.getBody());
 	}
 
 	private void applyMailModifications(JilterEOMActions eomActions, UpdatedMailMessage modifiedMail) {

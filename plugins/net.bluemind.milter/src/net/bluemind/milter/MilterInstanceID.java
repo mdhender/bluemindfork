@@ -17,14 +17,40 @@
   */
 package net.bluemind.milter;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.UUID;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MilterInstanceID {
 
-	private static final String ID = UUID.randomUUID().toString();
+	private static final String ETC_BM_MCAST_ID = "/etc/bm/mcast.id";
+	private static final Logger logger = LoggerFactory.getLogger(MilterInstanceID.class);
+	private static String id;
+
+	private MilterInstanceID() {
+
+	}
 
 	public static String get() {
-		return ID;
+		if (id == null) {
+			File mcastIdFile = new File(ETC_BM_MCAST_ID);
+			if (mcastIdFile.exists()) {
+				try {
+					id = Files.readString(mcastIdFile.toPath(), Charset.defaultCharset());
+					return id;
+				} catch (IOException e) {
+					logger.warn("Cannot read mcast.id", e);
+				}
+			}
+		} else {
+			return id;
+		}
+		return UUID.randomUUID().toString();
 	}
 
 }
