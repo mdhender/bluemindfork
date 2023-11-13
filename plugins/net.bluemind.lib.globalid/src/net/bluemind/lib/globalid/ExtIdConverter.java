@@ -37,8 +37,9 @@ public final class ExtIdConverter {
 			throw new IllegalArgumentException("extId must not be null");
 		}
 		if (extId.length() >= 82 && extId.startsWith(byteArrayId)) {
-			return extId;
+			return extId.contains(";") ? extId.substring(0, extId.indexOf(";")) : extId;
 		}
+
 		byte[] bytes = extId.getBytes(Charset.forName("UTF-8"));
 		String thirdPartyGlobalId = toHexString(bytes);
 		StringBuilder sb = new StringBuilder();
