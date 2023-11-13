@@ -20,11 +20,14 @@ package net.bluemind.core.container.hooks;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.james.mime4j.dom.address.Mailbox;
@@ -39,6 +42,7 @@ import io.vertx.core.eventbus.EventBus;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
+import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.LocalJsonObject;
@@ -61,6 +65,10 @@ public abstract class AbstractEmailHook implements IAclHook {
 	private static final Logger logger = LoggerFactory.getLogger(AbstractEmailHook.class);
 
 	private static final String VIDEOCONFERENCE_DOCUMENTATION_URL = "https://forge.bluemind.net/confluence/display/BM4/Lier+une+videoconference+a+un+evenement";
+
+	private static final EnumSet<Verb> sharingVerbs = EnumSet.of(Verb.All, Verb.Manage, Verb.Write, Verb.Read);
+
+	private static final EnumSet<Verb> delegationVerbs = EnumSet.of(Verb.All, Verb.SendAs, Verb.SendOnBehalf);
 
 	protected Configuration cfg;
 	private EventBus eventBus;
@@ -88,16 +96,26 @@ public abstract class AbstractEmailHook implements IAclHook {
 			fromDN = fromDE.displayName;
 		}
 
-		HashMap<String, String> data = new HashMap<>();
+		HashMap<String, Object> data = new HashMap<>();
 		data.put("user", fromDN);
 		data.put("videoconfdocumentation", VIDEOCONFERENCE_DOCUMENTATION_URL);
+		Set<String> types = new HashSet<String>(2);
+		entries.stream().forEach(ace -> {
+			if (sharingVerbs.contains(ace.getVerb())) {
+				types.add("sharing");
+			}
+			if (delegationVerbs.contains(ace.getVerb())) {
+				types.add("delegation");
+			}
+		});
+		data.put("types", types);
 
 		entries.stream().collect(Collectors.groupingBy(AccessControlEntry::getSubject)).entrySet().stream()
 				.forEach(e -> sendMessageForSubject(e.getKey(), sc, container, dirService, context, data, headers));
 	}
 
 	private void sendMessageForSubject(String entrySubject, SecurityContext sc, ContainerDescriptor container,
-			IDirectory dirService, BmContext context, HashMap<String, String> data, RawField[] headers) {
+			IDirectory dirService, BmContext context, HashMap<String, Object> data, RawField[] headers) {
 
 		if (entrySubject.equals(sc.getContainerUid())) {
 			logger.debug("do not notify for public sharing");
@@ -160,7 +178,7 @@ public abstract class AbstractEmailHook implements IAclHook {
 
 	}
 
-	private String buildSubject(String templateName, String locale, HashMap<String, String> data) {
+	private String buildSubject(String templateName, String locale, HashMap<String, Object> data) {
 		StringWriter sw = new StringWriter();
 		Template t;
 		try {
@@ -181,7 +199,7 @@ public abstract class AbstractEmailHook implements IAclHook {
 	}
 
 	private void sendMessage(Mailbox from, DirEntry de, String templateSubject, String templateName,
-			HashMap<String, String> data, String lang, RawField... headers) throws ServerFault {
+			HashMap<String, Object> data, String lang, RawField... headers) throws ServerFault {
 		try {
 			Mail m = new Mail();
 			m.from = from;

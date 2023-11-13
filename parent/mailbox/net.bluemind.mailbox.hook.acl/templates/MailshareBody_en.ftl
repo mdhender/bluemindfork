@@ -1,1 +1,1 @@
-${user} has shared the mailshare "${entity}" with you.
+${user} <#if types?seq_contains("sharing")>has shared with you the mail box "${entity}"</#if><#if types?seq_contains("sharing") && types?seq_contains("delegation")> and </#if><#if types?seq_contains("delegation")>has appointed you as delegate</#if>.
