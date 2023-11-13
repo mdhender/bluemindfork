@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import co.elastic.clients.elasticsearch.indices.ResolveIndexResponse;
+import co.elastic.clients.json.JsonData;
 import co.elastic.clients.transport.ElasticsearchTransport;
 import net.bluemind.core.auditlogs.client.loader.AuditLogLoader;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
@@ -120,6 +121,14 @@ public class ElasticsearchTestHelper implements BundleActivator {
 			ESearchActivator.resetIndexes();
 			AuditLogLoader auditLogProvider = new AuditLogLoader();
 			auditLogProvider.getManager().resetDatastream();
+			// Force elasticsearch to go on the edge
+			ESearchActivator.getClient().cluster()
+					.putSettings(sb -> sb
+							.persistent("cluster.routing.allocation.disk.watermark.low", JsonData.of("98%"))
+							.persistent("cluster.routing.allocation.disk.watermark.high", JsonData.of("99%"))
+							.persistent("cluster.routing.allocation.disk.watermark.flood_stage", JsonData.of("99%"))
+							.persistent("cluster.routing.allocation.disk.watermark.flood_stage.frozen.max_headroom",
+									JsonData.of("1GB")));
 		} catch (Exception n) {
 			String host = getHost();
 			System.err.println("Starting checks on " + host + " after " + n.getMessage() + " klass: " + n.getClass());
