@@ -60,7 +60,7 @@ async function buildTextPlainPart(service, textContent) {
 }
 
 async function buildHtmlRelatedPart(service, alternativePart, htmlContent) {
-    const { imageNodesByCid, htmlWithCids } = extractImages(htmlContent);
+    const { imageNodesByCid, htmlWithCids } = extractBase64Images(htmlContent);
     const oldRelatedPart = alternativePart.children.find(({ mime }) => mime === MimeType.MULTIPART_RELATED);
     const relatedPart = await buildRelatedPart(service, oldRelatedPart, imageNodesByCid, htmlWithCids);
     return sanitizeRelated(relatedPart);
@@ -106,24 +106,26 @@ function removeObsoleteImages(relatedPart, imageNodesByCid) {
     const cids = Object.keys(imageNodesByCid);
     return inlineParts.filter(part => cids.includes(part.contentId));
 }
-function extractImages(htmlContent) {
+function extractBase64Images(htmlContent) {
     let htmlWithCids = htmlContent;
     const imageNodes = Array.from(
         new DOMParser().parseFromString(htmlContent, "text/html").querySelectorAll("img[src]")
     );
     const imageNodesByCid = imageNodes
-        .filter(node => node.attributes.src.nodeValue && extractCid(node))
+        .filter(node => node.attributes.src.nodeValue?.startsWith("data:image") && extractCid(node))
         .reduce((nodesByCid, node) => {
             const cid = extractCid(node);
             if (!nodesByCid[cid]) {
                 const cidSrc = `cid:${cid.slice(1, -1)}`;
-                htmlWithCids = htmlWithCids.replaceAll(encodeHtmlEntities(node.attributes.src.nodeValue), cidSrc);
                 const { data, metadata } = extractDataFromImg(node);
-                nodesByCid[cid] = {
-                    data,
-                    mime: getMimeType(metadata),
-                    size: data.byteLength
-                };
+                if (data && metadata) {
+                    nodesByCid[cid] = {
+                        data,
+                        mime: getMimeType(metadata),
+                        size: data.byteLength
+                    };
+                    htmlWithCids = htmlWithCids.replaceAll(encodeHtmlEntities(node.attributes.src.nodeValue), cidSrc);
+                }
             }
             return nodesByCid;
         }, {});
@@ -142,12 +144,9 @@ function extractCid(imageNode) {
 }
 
 function extractDataFromImg(imageNode) {
-    let data, metadata;
-    if (imageNode.src.startsWith("data:image")) {
-        const extractDataRegex = /data:image(.*)base64,/g;
-        metadata = imageNode.src.match(extractDataRegex)[0];
-        data = imageNode.src.replace(metadata, "");
-    }
+    const extractDataRegex = /data:image(.*)base64,/g;
+    const metadata = imageNode.src.match(extractDataRegex)[0];
+    const data = imageNode.src.replace(metadata, "");
     return { data: convertData(data), metadata };
 }
 
