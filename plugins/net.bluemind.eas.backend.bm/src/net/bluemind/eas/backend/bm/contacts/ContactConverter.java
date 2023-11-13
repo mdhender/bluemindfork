@@ -201,7 +201,7 @@ public class ContactConverter {
 		List<Tel> tels = vcard.communications.tels;
 		for (Tel tel : tels) {
 			String value = tel.value;
-			if (value.trim().isEmpty()) {
+			if (value == null || value.isBlank()) {
 				continue;
 			}
 
