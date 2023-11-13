@@ -92,11 +92,12 @@ public class MailFilterRuleCondition {
 	public static boolean match(List<MailFilterRuleCondition> conditions, FieldValueProvider fieldProvider,
 			ParameterValueProvider parameterProvider) {
 		Boolean result = null;
-		for (MailFilterRuleCondition condition : conditions) {
-			OperatorFunction operator = condition.operator.func;
-			result = (result == null) //
-					? condition.match(fieldProvider, parameterProvider) //
-					: operator.apply(result, condition.match(fieldProvider, parameterProvider));
+		if (conditions != null) {
+			for (MailFilterRuleCondition condition : conditions) {
+				result = (result == null) //
+						? condition.match(fieldProvider, parameterProvider) //
+						: condition.operator.func.apply(result, condition.match(fieldProvider, parameterProvider));
+			}
 		}
 		return result == null || result;
 	}
