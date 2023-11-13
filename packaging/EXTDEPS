@@ -5,6 +5,7 @@ BMES="7.17.13-bluemind107"
 
 BMKEYCLOAK="22.0.5-bluemind415"
 
+KAFKA_REPL="0.1.0-bluemind451"
 KAFKA="3.6.0-bluemind412"
 MINIO="2023.11.01-bluemind412"
 WEED="3.58-bluemind412"
@@ -217,6 +218,7 @@ BMJDKDEB="bm-jdk=${BMJDK}"
 BMJDKRPM="bm-jdk=${BMJDK}"
 
 # KAFKA
+BMKAFKAREPLDEB="bm-kafka-replicator=${KAFKA_REPL}"
 BMKAFKADEB="bm-kafka=${KAFKA}"
 BMMINIODEB="bm-sds-storage-s3-minio=${MINIO}"
 BMWEEDDEB="bm-sds-storage-s3-seaweedfs=${WEED}"
@@ -330,6 +332,7 @@ DEB="${BMCYRUSDEB} \
 		${BMTICKDEB} \
 		${BMJDKDEB} \
 		${BMKAFKADEB} \
+		${BMKAFKAREPLDEB} \
 		${BM_TELEMETRY_DEB} \
 		${BM_GRAFANA_STACK_DEB} \
 		${GRAFANA_DEB} \
