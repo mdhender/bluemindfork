@@ -197,8 +197,12 @@ public class CalendarAuditLogMapper implements ILogMapperProvider<VEventSeries> 
 					"Changed event occurence count: '" + oldRules.count + "' -> '" + newRules.count + "'" + CRLF);
 		}
 		if (oldRules.until != newRules.until) {
-			sBuilder.append("Changed event occurence until date: '" + oldRules.until.iso8601 + "' -> '"
-					+ newRules.until.iso8601 + "'" + CRLF);
+			String oldValueUntil = (oldRules.until != null && oldRules.until.iso8601 != null) ? oldRules.until.iso8601
+					: "null";
+			String newValueUntil = (newRules.until != null && newRules.until.iso8601 != null) ? newRules.until.iso8601
+					: "null";
+			sBuilder.append(
+					"Changed event occurence until date: '" + oldValueUntil + "' -> '" + newValueUntil + "'" + CRLF);
 		}
 		if (oldRules.interval != null && newRules.interval != null && !oldRules.interval.equals(newRules.interval)) {
 			sBuilder.append("Changed event occurence interval: '" + oldRules.interval + "' -> '" + newRules.interval
