@@ -142,7 +142,7 @@ public class FetchedItemRenderer {
 			case "ENVELOPE":
 				ret.put(f.toString(), EnvelopeRenderer.render(body, rec));
 				break;
-			case "BODY", "BODY.PEEK":
+			case "BODY", "BODY.PEEK", "RFC822":
 				ByteBuf bodyPeek = bodyPeek(recApi, body, f, rec);
 				if (bodyPeek != null) {
 					ret.put(f.toString(), literalize(bodyPeek));
