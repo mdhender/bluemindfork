@@ -90,6 +90,10 @@ public class ItemNotificationVerticle extends AbstractVerticle {
 
 			final Producer hierProducer = MQ.registerProducer(Topic.MAPI_HIERARCHY_NOTIFICATIONS);
 			eb.consumer(Topic.MAPI_HIERARCHY_NOTIFICATIONS, (Message<JsonObject> msg) -> vertx.executeBlocking(() -> {
+				if (StateContext.getState() != SystemState.CORE_STATE_RUNNING) {
+					return null;
+				}
+
 				JsonObject body = msg.body();
 				hierProducer.send(body);
 				if (logger.isDebugEnabled()) {
@@ -100,18 +104,30 @@ public class ItemNotificationVerticle extends AbstractVerticle {
 
 			final Producer dioProducer = MQ.registerProducer(Topic.MAPI_DELEGATION_NOTIFICATIONS);
 			eb.consumer(Topic.MAPI_DELEGATION_NOTIFICATIONS, (Message<JsonObject> msg) -> vertx.executeBlocking(() -> {
+				if (StateContext.getState() != SystemState.CORE_STATE_RUNNING) {
+					return null;
+				}
+
 				dioProducer.send(msg.body());
 				return null;
 			}, false));
 
 			eb.consumer(OwnerSubscriptionsBusAddresses.ALL_SUBSCRIPTION_CHANGES,
 					(Message<JsonObject> domAndOwner) -> vertx.executeBlocking(() -> {
+						if (StateContext.getState() != SystemState.CORE_STATE_RUNNING) {
+							return null;
+						}
+
 						dioProducer.send(domAndOwner.body());
 						return null;
 					}, false));
 
 			final Producer pfAclUpdateProducer = MQ.registerProducer(Topic.MAPI_PF_ACL_UPDATE);
 			eb.consumer(Topic.MAPI_PF_ACL_UPDATE, (Message<JsonObject> msg) -> vertx.executeBlocking(() -> {
+				if (StateContext.getState() != SystemState.CORE_STATE_RUNNING) {
+					return null;
+				}
+
 				pfAclUpdateProducer.send(msg.body());
 				return null;
 			}, false));
@@ -119,6 +135,10 @@ public class ItemNotificationVerticle extends AbstractVerticle {
 			final Producer daProducer = MQ.registerProducer(Topic.MAPI_DEFERRED_ACTION_NOTIFICATIONS);
 			eb.consumer(Topic.MAPI_DEFERRED_ACTION_NOTIFICATIONS,
 					(Message<JsonObject> msg) -> vertx.executeBlocking(() -> {
+						if (StateContext.getState() != SystemState.CORE_STATE_RUNNING) {
+							return null;
+						}
+
 						daProducer.send(msg.body());
 						return null;
 					}, false));
