@@ -26,7 +26,7 @@ import net.bluemind.mailbox.api.IMailboxAclUids;
 
 public class ContainerAclSanitizer implements ISanitizer<ContainerAcl> {
 
-	public class ContainerAclSanitizerFactory implements ISanitizerFactory<ContainerAcl> {
+	public static class ContainerAclSanitizerFactory implements ISanitizerFactory<ContainerAcl> {
 
 		@Override
 		public Class<ContainerAcl> support() {
@@ -40,8 +40,8 @@ public class ContainerAclSanitizer implements ISanitizer<ContainerAcl> {
 
 	}
 
-	private BmContext context;
-	private Container container;
+	private final BmContext context;
+	private final Container container;
 
 	public ContainerAclSanitizer(BmContext context, Container container) {
 		this.context = context;
@@ -50,6 +50,7 @@ public class ContainerAclSanitizer implements ISanitizer<ContainerAcl> {
 
 	@Override
 	public void create(ContainerAcl obj) {
+		// OK
 	}
 
 	@Override

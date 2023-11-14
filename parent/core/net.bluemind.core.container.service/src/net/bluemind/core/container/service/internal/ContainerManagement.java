@@ -104,7 +104,7 @@ public class ContainerManagement implements IInternalContainerManagement {
 				container);
 		containerSettingsStore = new ContainerSettingsStore(ds, container);
 		aclService = new AclService(context, context.getSecurityContext(), ds, container);
-		sanitizer = new Sanitizer(context);
+		sanitizer = new Sanitizer(context, container);
 		validator = new Validator(context);
 
 		rbacManager = new RBACManager(context).forContainer(container);
@@ -137,7 +137,6 @@ public class ContainerManagement implements IInternalContainerManagement {
 
 		ContainerDescriptor descriptor = ContainerDescriptor.create(container.uid, container.name, container.owner,
 				container.type, container.domainUid, false);
-
 		List<AccessControlEntry> previous = aclService.get();
 		ContainerAcl currentContainerAcl = new ContainerAcl(new HashSet<>(entries));
 		sanitizer.update(new ContainerAcl(previous.stream().collect(Collectors.toSet())), currentContainerAcl);
