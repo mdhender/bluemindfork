@@ -6,6 +6,9 @@
       <acl_hook
             impl="net.bluemind.calendar.hook.acl.CalendarEmailHook">
       </acl_hook>
+      <acl_hook
+            impl="net.bluemind.calendar.hook.acl.FreebusyAclHook">
+      </acl_hook>
    </extension>
 
 </plugin>

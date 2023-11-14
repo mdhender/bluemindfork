@@ -13,11 +13,10 @@ export const CalendarRight = {
     CAN_MANAGE_SHARES: 6
 };
 
-const HANDLED_VERBS = [Verb.All, Verb.Manage, Verb.Write, Verb.Read, Verb.Invitation];
+const HANDLED_VERBS = [Verb.All, Verb.Manage, Verb.Freebusy, Verb.Write, Verb.Read, Verb.Invitation];
 
 // do not lose Access Controls with other verbs than HANDLED_VERBS
 let otherAcl = [];
-let otherFreebusyAcl = [];
 
 export default {
     matchingIcon: () => "calendar",
@@ -60,6 +59,7 @@ export default {
         }
         return options;
     },
+
     async loadRights(container) {
         const allAcl = await inject("ContainerManagementPersistence", container.uid).getAccessControlList();
         const aclReducer = (res, ac) => {
@@ -69,18 +69,11 @@ export default {
         const [acl, other] = allAcl.reduce(aclReducer, [[], []]);
         otherAcl = other;
 
-        const allFreebusyAcl = await inject(
-            "ContainerManagementPersistence",
-            "freebusy:" + container.owner
-        ).getAccessControlList();
-        const [freebusyAcl, otherFreebusy] = allFreebusyAcl.reduce(aclReducer, [[], []]);
-        otherFreebusyAcl = otherFreebusy;
-
         const { domain: domainUid, userId } = inject("UserSession");
-        const domain = aclToRight(domainUid, acl, freebusyAcl, this.defaultDomainRight);
+        const domain = aclToRight(domainUid, acl, this.defaultDomainRight);
 
         const userUids = new Set(
-            [...acl, ...freebusyAcl].flatMap(({ subject }) =>
+            acl.flatMap(({ subject }) =>
                 subject !== domainUid &&
                 subject !== userId &&
                 subject !== container.owner &&
@@ -91,7 +84,7 @@ export default {
         );
         const users = {};
         userUids.forEach(userUid => {
-            users[userUid] = aclToRight(userUid, acl, freebusyAcl, this.defaultUserRight);
+            users[userUid] = aclToRight(userUid, acl, this.defaultUserRight);
         });
 
         const external = await loadCalendarUrls(container.uid);
@@ -99,36 +92,30 @@ export default {
         return { users, domain, external };
     },
     saveRights(rightBySubject, container) {
-        return Promise.all(
-            rightsToAcls(rightBySubject, container).map(({ containerUid, acl }) => {
-                inject("ContainerManagementPersistence", containerUid).setAccessControlList(acl);
-            })
+        return inject("ContainerManagementPersistence", container.uid).setAccessControlList(
+            rightsToAcls(rightBySubject)
         );
     }
 };
 
-function aclToRight(subjectUid, acl, freebusyAcl, defaultRight) {
+function aclToRight(subjectUid, acl, defaultRight) {
     const extractVerbs = acl => acl.flatMap(({ subject, verb }) => (subject === subjectUid ? verb : []));
     const verbs = extractVerbs(acl);
-    const freebusyVerbs = extractVerbs(freebusyAcl);
-    return verbsToRight(verbs, freebusyVerbs, defaultRight);
+    return verbsToRight(verbs, defaultRight);
 }
 
-function verbsToRight(verbs, freebusyVerbs, defaultRight) {
+function verbsToRight(verbs, defaultRight) {
     if (verbs.includes(Verb.All) || (verbs.includes(Verb.Write) && verbs.includes(Verb.Manage))) {
         return CalendarRight.CAN_MANAGE_SHARES;
     }
     if (verbs.includes(Verb.Write)) {
         return CalendarRight.CAN_EDIT_MY_EVENTS;
     }
-    if (
-        freebusyVerbs.includes(Verb.Read) &&
-        !verbs.some(v => [Verb.Invitation, Verb.Read, Verb.Write, Verb.Manage, Verb.All].includes(v))
-    ) {
-        return CalendarRight.CAN_SEE_MY_AVAILABILITY;
-    }
     if (verbs.includes(Verb.Read)) {
         return CalendarRight.CAN_SEE_MY_EVENTS;
+    }
+    if (verbs.includes(Verb.Freebusy)) {
+        return CalendarRight.CAN_SEE_MY_AVAILABILITY;
     }
     if (verbs.includes(Verb.Invitation)) {
         return CalendarRight.CAN_INVITE_ME;
@@ -136,9 +123,8 @@ function verbsToRight(verbs, freebusyVerbs, defaultRight) {
     return defaultRight;
 }
 
-function rightsToAcls(rightBySubject, container) {
+function rightsToAcls(rightBySubject) {
     const acl = [];
-    const freebusyAcl = [];
 
     Object.entries(rightBySubject).forEach(([subject, right]) => {
         switch (right) {
@@ -146,22 +132,18 @@ function rightsToAcls(rightBySubject, container) {
                 acl.push({ subject, verb: Verb.Invitation });
                 break;
             case CalendarRight.CAN_SEE_MY_AVAILABILITY:
+                acl.push({ subject, verb: Verb.Freebusy });
                 acl.push({ subject, verb: Verb.Invitation });
-                freebusyAcl.push({ subject, verb: Verb.Read });
                 break;
             case CalendarRight.CAN_SEE_MY_EVENTS:
                 acl.push({ subject, verb: Verb.Read });
-                freebusyAcl.push({ subject, verb: Verb.Read });
                 break;
             case CalendarRight.CAN_EDIT_MY_EVENTS:
                 acl.push({ subject, verb: Verb.Write });
-                freebusyAcl.push({ subject, verb: Verb.Read });
                 break;
             case CalendarRight.CAN_MANAGE_SHARES:
                 acl.push({ subject, verb: Verb.Write });
                 acl.push({ subject, verb: Verb.Manage });
-                freebusyAcl.push({ subject, verb: Verb.Write });
-                freebusyAcl.push({ subject, verb: Verb.Manage });
                 break;
             case CalendarRight.CANT_INVITE_ME:
             default:
@@ -169,8 +151,5 @@ function rightsToAcls(rightBySubject, container) {
         }
     });
 
-    return [
-        { containerUid: container.uid, acl: acl.concat(otherAcl) },
-        { containerUid: "freebusy:" + container.owner, acl: freebusyAcl.concat(otherFreebusyAcl) }
-    ];
+    return acl.concat(otherAcl);
 }
