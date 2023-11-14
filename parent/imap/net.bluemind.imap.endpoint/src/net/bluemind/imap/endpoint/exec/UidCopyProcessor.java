@@ -49,7 +49,7 @@ public class UidCopyProcessor extends SelectedStateCommandProcessor<UidCopyComma
 			CopyResult allocatedIds = con.copyTo(ctx.selected(), targetFolder, command.idset());
 			if (allocatedIds.sourceSet.isBlank()) {
 				// source uids are not available
-				ctx.write(command.raw().tag() + " OK Source uids not found").onComplete(completed);
+				ctx.write(command.raw().tag() + " OK Source uids not found\r\n").onComplete(completed);
 			} else {
 				ctx.write(command.raw().tag() + " OK [COPYUID " + allocatedIds.targetUidValidity + " "
 						+ allocatedIds.sourceSet + " " + allocatedIds.set() + "] Done\r\n").onComplete(completed);
