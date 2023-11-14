@@ -26,7 +26,7 @@ import net.bluemind.mailbox.api.IMailboxAclUids;
 
 public class ContainerAclSanitizer implements ISanitizer<ContainerAcl> {
 
-	public static class ContainerAclSanitizerFactory implements ISanitizerFactory<ContainerAcl> {
+	public class ContainerAclSanitizerFactory implements ISanitizerFactory<ContainerAcl> {
 
 		@Override
 		public Class<ContainerAcl> support() {
