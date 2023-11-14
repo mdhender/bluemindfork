@@ -35,6 +35,12 @@ describe("Event Insert Body", () => {
             "toutes les 2 semaines, le lundi, mardi, mercredi, jeudi et vendredi jusqu’au jeu. 11/08/22"
         );
     });
+
+    it("does not show repetition rule when having a specific occurrence of a serie", () => {
+        const wrapper = EventDetailComponent().Occurrence().mount();
+
+        expect(wrapper.find(".occurence").exists()).not.toBeTruthy();
+    });
 });
 
 function EventDetailComponent(currentEvent) {
@@ -62,6 +68,11 @@ function EventDetailComponent(currentEvent) {
         withEventDate({ start, end }) {
             CURRENT_EVENT._dtstart = start;
             CURRENT_EVENT._dtend = end;
+            return EventDetailComponent(CURRENT_EVENT);
+        },
+        Occurrence(recuridIsoDate) {
+            CURRENT_EVENT.recuridIsoDate = recuridIsoDate ?? new Date(2023, 0, 2, 9, 0).toISOString();
+            CURRENT_EVENT.serverEvent.value.occurrences = [];
             return EventDetailComponent(CURRENT_EVENT);
         },
         mount() {

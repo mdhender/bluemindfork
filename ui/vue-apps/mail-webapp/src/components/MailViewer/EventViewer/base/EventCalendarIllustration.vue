@@ -9,6 +9,7 @@ const { MessageHeader } = messageUtils;
 const props = defineProps({
     date: { type: String, default: null },
     isRecurring: { type: Boolean, default: false },
+    onlyOccurrence: { type: Boolean, default: false },
     status: {
         type: String,
         default: null,
@@ -35,6 +36,13 @@ const iconStatus = {
 };
 
 const dateStart = computed(() => (props.date ? new Date(props.date) : null));
+const repeatIcon = computed(() => {
+    let exceptionIconSuffix = "";
+    if (props.onlyOccurrence) {
+        exceptionIconSuffix = "-exclamation";
+    }
+    return "repeat" + exceptionIconSuffix;
+});
 </script>
 
 <template>
@@ -55,7 +63,7 @@ const dateStart = computed(() => (props.date ? new Date(props.date) : null));
                     'event-calendar-illustration-countered': ['countered', REPLY_ACTIONS.NEEDS_ACTION].includes(status)
                 }"
             />
-            <bm-icon v-if="isRecurring" icon="repeat" class="event-calendar-illustration-icon-repeat" />
+            <bm-icon v-if="isRecurring" :icon="repeatIcon" class="event-calendar-illustration-icon-repeat" />
         </div>
     </div>
 </template>

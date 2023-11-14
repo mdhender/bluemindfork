@@ -155,7 +155,7 @@
     "alert.mail.disposition_notification.info.pref": "Meine Einstellungen ändern",
     "alert.mail.forward_eml.fetch.error": "Fehler beim Abrufen der Nachricht im EML-Format. Kann nicht weitergeleitet werden.",
     "alert.mail.forwarded_event.info": "Diese von {sender} gesendete Einladung bezieht sich auf eine Veranstaltung, die von {organizer} organisiert wird.",
-    "alert.mail.notify_organizer.info": "{organizer} swird benachrichtigt, wenn neue Teilnehmer hinzugefügt werden.",
+    "alert.mail.notify_organizer.info": "{organizer} wird benachrichtigt, wenn neue Teilnehmer hinzugefügt werden.",
     "alert.mail.mdn_sent.success": "Lesebestätigung an {recipient} gesendet",
     "alert.mail.mdn_sent.error": "Senden der Lesebestätigung fehlgeschlagen",
     "alert.mail.message.draft.attach.error": "Fehler beim Anhängen. Bitte erneut versuchen.",

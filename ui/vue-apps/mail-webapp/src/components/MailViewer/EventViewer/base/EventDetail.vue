@@ -16,6 +16,7 @@ const props = defineProps({
 const eventValue = computed(
     () => props.event.serverEvent && EventHelper.eventInfos(props.event.serverEvent, props.event.recuridIsoDate)
 );
+
 const eventTimeRange = computed(() => {
     const dtstart = eventValue.value?.dtstart;
     const dtend = eventValue.value?.dtend;
@@ -25,6 +26,7 @@ const eventTimeRange = computed(() => {
     ]);
     return endDate ? `${startDate} - ${endDate}` : startDate;
 });
+
 const counterTimeRange = computed(() => {
     const dtstart = props.event.counter?.dtstart;
     const dtend = props.event.counter?.dtend;
@@ -36,6 +38,7 @@ const counterTimeRange = computed(() => {
 });
 
 const hasHeader = header => props.message?.headers?.some(({ name }) => name.toUpperCase() === header.toUpperCase());
+
 const calendarStatus = computed(() => {
     if (counterTimeRange.value) {
         return "countered";
@@ -53,11 +56,18 @@ const calendarStatus = computed(() => {
 });
 const isReply = computed(() => hasHeader(MessageHeader.X_BM_EVENT_REPLIED));
 const isRecurring = computed(() => Boolean(props.event.serverEvent?.value?.main?.rrule));
-const withDetails = computed(
-    () =>
-        !!(isRecurring.value || eventValue.value?.location || eventValue.value?.url) &&
-        (!isReply.value || isRecurring.value)
-);
+const withDetails = computed(() => {
+    if (isReply.value) {
+        return false;
+    }
+    if (isRecurring.value) {
+        if (props.event.recuridIsoDate) {
+            return Boolean(eventValue.value?.location) || Boolean(eventValue.value?.url);
+        }
+        return true;
+    }
+    return Boolean(eventValue.value?.location) || Boolean(eventValue.value?.url);
+});
 </script>
 
 <template>
@@ -66,6 +76,7 @@ const withDetails = computed(
             :status="calendarStatus"
             :date="eventValue?.counter?.dtstart.iso8601 ?? eventValue?.dtstart.iso8601"
             :is-recurring="isRecurring"
+            :only-occurrence="Boolean(event.recuridIsoDate)"
         />
         <div class="event-row-icon summary">
             <bm-icon v-if="event.private" icon="lock-fill" />
@@ -84,7 +95,7 @@ const withDetails = computed(
             </div>
         </div>
         <div v-if="withDetails" class="details d-flex flex-column">
-            <div v-if="isRecurring" class="event-row-icon occurence">
+            <div v-if="isRecurring && !event.recuridIsoDate" class="event-row-icon occurence">
                 <bm-icon icon="repeat" />
                 <span>{{ event.date }}</span>
             </div>

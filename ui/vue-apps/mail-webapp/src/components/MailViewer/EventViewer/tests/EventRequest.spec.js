@@ -93,6 +93,6 @@ describe("Event request insert", () => {
                 $tc: path => path.split(".").pop()
             }
         });
-        expect(eventRequestUnwritable.findAll('[type="button"]').length === 0);
+        expect(eventRequestUnwritable.find(".reply-buttons").exists()).not.toBeTruthy();
     });
 });

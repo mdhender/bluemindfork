@@ -61,7 +61,8 @@ export default {
                     )
                 );
                 this.error = false;
-            } catch {
+            } catch (err) {
+                console.error(err);
                 this.$store.commit(`mail/${SET_CURRENT_EVENT}`, {});
                 this.error = true;
             }
@@ -80,14 +81,11 @@ export default {
             const text = await blob.text();
 
             const event = await this.retreiveCalendarEvent(message, this.retreiveUid(text));
-            const textRecurid = this.retreiveRecurid(text);
+            const recurid = event.value.occurrences?.find(occ =>
+                occ.recurid.iso8601.startsWith(this.retreiveRecurid(text))
+            )?.recurid?.iso8601;
 
-            return [
-                event,
-                textRecurid
-                    ? event.value.occurrences.find(occ => occ.recurid.iso8601.startsWith(textRecurid)).recurid.iso8601
-                    : null
-            ];
+            return [event, recurid];
         },
 
         async retreiveCalendarEvent(message, icsUid) {
