@@ -12,6 +12,13 @@
 		<module>net.bluemind.announcement.api</module>
 		<module>net.bluemind.announcement.provider</module>
 		<module>net.bluemind.announcement.service</module>
-		<module>net.bluemind.announcement.service.tests</module>
 	</modules>
+	<profiles>
+		<profile>
+			<id>tests</id>
+			<modules>
+				<module>net.bluemind.announcement.service.tests</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>

@@ -10,11 +10,17 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>net.bluemind.mailindex</module>
-		<module>net.bluemind.mailindex.tests</module>
 		<module>net.bluemind.mailindex.hook</module>
 		<module>net.bluemind.mailindex.schema</module>
 	</modules>
 	<profiles>
+		<profile>
+			<id>tests</id>
+			<modules>
+				<module>net.bluemind.mailindex.tests</module>
+			</modules>
+		</profile>
+
 		<profile>
 			<id>performance-testing</id>
 			<modules>

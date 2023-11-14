@@ -11,6 +11,13 @@
 	<modules>
 		<module>net.bluemind.authentication.mgmt.api</module>
 		<module>net.bluemind.authentication.mgmt.service</module>
-		<module>net.bluemind.authentication.mgmt.service.tests</module>
 	</modules>
+	<profiles>
+		<profile>
+			<id>tests</id>
+			<modules>
+				<module>net.bluemind.authentication.mgmt.service.tests</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>

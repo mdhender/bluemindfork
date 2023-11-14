@@ -12,10 +12,17 @@
 		<module>net.bluemind.role.api</module>
 		<module>net.bluemind.role.sqlschema</module>
 		<module>net.bluemind.role.persistence</module>
-		<module>net.bluemind.role.persistence.tests</module>
 		<module>net.bluemind.role.provider</module>
 		<module>net.bluemind.role.service</module>
-		<module>net.bluemind.role.service.tests</module>
 		<module>net.bluemind.role.hook</module>
 	</modules>
+	<profiles>
+		<profile>
+			<id>tests</id>
+			<modules>
+				<module>net.bluemind.role.persistence.tests</module>
+				<module>net.bluemind.role.service.tests</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>

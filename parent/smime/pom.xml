@@ -9,11 +9,18 @@
 	<artifactId>net.bluemind.smime.plugins</artifactId>
 	<packaging>pom</packaging>
 	<modules>
-        	<module>net.bluemind.smime.cacerts.api</module>
+		<module>net.bluemind.smime.cacerts.api</module>
 		<module>net.bluemind.smime.cacerts.sqlschema</module>
 		<module>net.bluemind.smime.cacerts.persistence</module>
-		<module>net.bluemind.smime.cacerts.persistence.tests</module>
 		<module>net.bluemind.smime.cacerts.service</module>
-		<module>net.bluemind.smime.cacerts.service.tests</module>
 	</modules>
+	<profiles>
+		<profile>
+			<id>tests</id>
+			<modules>
+				<module>net.bluemind.smime.cacerts.persistence.tests</module>
+				<module>net.bluemind.smime.cacerts.service.tests</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>

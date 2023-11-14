@@ -11,8 +11,15 @@
 	<modules>
 		<module>net.bluemind.keycloak.api</module>
 		<module>net.bluemind.keycloak.service</module>
-		<module>net.bluemind.keycloak.service.tests</module>
 		<module>net.bluemind.keycloak.utils</module>
 		<module>net.bluemind.keycloak.utils.endpoints</module>
 	</modules>
+	<profiles>
+		<profile>
+			<id>tests</id>
+			<modules>
+				<module>net.bluemind.keycloak.service.tests</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>

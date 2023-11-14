@@ -9,35 +9,42 @@
 	<artifactId>net.bluemind.mailbackend.plugins</artifactId>
 	<packaging>pom</packaging>
 	<modules>
-		<module>net.bluemind.backend.cyrus.partitions</module>
-		<module>net.bluemind.backend.cyrus.partitions.tests</module>
-		<module>net.bluemind.backend.cyrus.mailboxesdb</module>
-		<module>net.bluemind.backend.cyrus.mailboxesdb.tests</module>
 		<module>net.bluemind.backend.cyrus.index</module>
-		<module>net.bluemind.backend.cyrus.index.tests</module>
+		<module>net.bluemind.backend.cyrus.mailboxesdb</module>
+		<module>net.bluemind.backend.cyrus.partitions</module>
+		<module>net.bluemind.backend.mail.api</module>
+		<module>net.bluemind.backend.mail.dataprotect</module>
+		<module>net.bluemind.backend.mail.parsing</module>
+		<module>net.bluemind.backend.mail.replica.api</module>
+		<module>net.bluemind.backend.mail.replica.hook</module>
+		<module>net.bluemind.backend.mail.replica.indexing</module>
+		<module>net.bluemind.backend.mail.replica.persistence</module>
+		<module>net.bluemind.backend.mail.replica.service</module>
+		<module>net.bluemind.backend.mail.replica.sqlschema</module>
+		<module>net.bluemind.backend.mail.replica.utils</module>
+		<module>net.bluemind.backend.mailapi.testhelper</module>
+		<module>net.bluemind.backend.postfix</module>
+		<module>net.bluemind.backend.systemconf</module>
+		<module>net.bluemind.imap.vertx</module>
 		<module>net.bluemind.lmtp.filter.tnef</module>
 		<module>net.bluemind.lmtp.testhelper</module>
-		<module>net.bluemind.backend.postfix</module>
-		<module>net.bluemind.backend.postfix.tests</module>
-		<module>net.bluemind.backend.systemconf</module>
-		<module>net.bluemind.backend.systemconf.tests</module>
-		<module>net.bluemind.imap.vertx</module>
-		<module>net.bluemind.imap.vertx.tests</module>
-		<module>net.bluemind.backend.mailapi.testhelper</module>
-		<module>net.bluemind.backend.mail.api</module>
-		<module>net.bluemind.backend.mail.conversation.service.tests</module>
-		<module>net.bluemind.backend.mail.dataprotect</module>
-		<module>net.bluemind.backend.mail.replica.api</module>
-		<module>net.bluemind.backend.mail.replica.utils</module>
-		<module>net.bluemind.backend.mail.replica.persistence</module>
-		<module>net.bluemind.backend.mail.replica.persistence.tests</module>
-		<module>net.bluemind.backend.mail.replica.service</module>
-		<module>net.bluemind.backend.mail.replica.indexing</module>
-		<module>net.bluemind.backend.mail.replica.hook</module>
-		<module>net.bluemind.backend.mail.replica.indexing.tests</module>
-		<module>net.bluemind.backend.mail.parsing</module>
-		<module>net.bluemind.backend.mail.parsing.tests</module>
-		<module>net.bluemind.backend.mail.replica.service.tests</module>
-		<module>net.bluemind.backend.mail.replica.sqlschema</module>
 	</modules>
+	<profiles>
+		<profile>
+			<id>tests</id>
+			<modules>
+				<module>net.bluemind.backend.cyrus.index.tests</module>
+				<module>net.bluemind.backend.cyrus.mailboxesdb.tests</module>
+				<module>net.bluemind.backend.cyrus.partitions.tests</module>
+				<module>net.bluemind.backend.mail.conversation.service.tests</module>
+				<module>net.bluemind.backend.mail.parsing.tests</module>
+				<module>net.bluemind.backend.mail.replica.indexing.tests</module>
+				<module>net.bluemind.backend.mail.replica.persistence.tests</module>
+				<module>net.bluemind.backend.mail.replica.service.tests</module>
+				<module>net.bluemind.backend.postfix.tests</module>
+				<module>net.bluemind.backend.systemconf.tests</module>
+				<module>net.bluemind.imap.vertx.tests</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>

@@ -12,12 +12,19 @@
 		<module>mgmt</module>
 		<module>net.bluemind.authentication.api</module>
 		<module>net.bluemind.authentication.handler</module>
-		<module>net.bluemind.authentication.handler.tests</module>
 		<module>net.bluemind.authentication.persistence</module>
-		<module>net.bluemind.authentication.persistence.tests</module>
 		<module>net.bluemind.authentication.service</module>
 		<module>net.bluemind.authentication.provider</module>
-		<module>net.bluemind.authentication.service.tests</module>
 		<module>net.bluemind.authentication.sqlschema</module>
 	</modules>
+	<profiles>
+		<profile>
+			<id>tests</id>
+			<modules>
+				<module>net.bluemind.authentication.handler.tests</module>
+				<module>net.bluemind.authentication.persistence.tests</module>
+				<module>net.bluemind.authentication.service.tests</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>

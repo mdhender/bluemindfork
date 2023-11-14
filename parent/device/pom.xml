@@ -11,10 +11,17 @@
 	<modules>
 		<module>net.bluemind.device.api</module>
 		<module>net.bluemind.device.persistence</module>
-		<module>net.bluemind.device.persistence.tests</module>
 		<module>net.bluemind.device.service</module>
-		<module>net.bluemind.device.service.tests</module>
 		<module>net.bluemind.device.sqlschema</module>
 		<module>net.bluemind.device.userdevice</module>
 	</modules>
+	<profiles>
+		<profile>
+			<id>tests</id>
+			<modules>
+				<module>net.bluemind.device.persistence.tests</module>
+				<module>net.bluemind.device.service.tests</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>

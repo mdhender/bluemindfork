@@ -11,6 +11,13 @@
 	<modules>
 		<module>net.bluemind.mailmessage.api</module>
 		<module>net.bluemind.mailmessage.service</module>
-		<module>net.bluemind.mailmessage.service.tests</module>
 	</modules>
+	<profiles>
+		<profile>
+			<id>tests</id>
+			<modules>
+				<module>net.bluemind.mailmessage.service.tests</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>

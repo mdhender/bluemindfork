@@ -10,7 +10,14 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>net.bluemind.serialization.client</module>
-		<module>net.bluemind.serialization.client.tests</module>
 		<module>net.bluemind.core.serialization</module>
 	</modules>
+	<profiles>
+		<profile>
+			<id>tests</id>
+			<modules>
+				<module>net.bluemind.serialization.client.tests</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>

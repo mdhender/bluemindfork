@@ -13,116 +13,123 @@
 		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
 	<modules>
-		<module>net.bluemind.hornetq.client</module>
+		<module>net.bluemind.core.auditlogs.schema</module>
 		<module>net.bluemind.custom.password.bruteforce</module>
-		<!--<module>net.bluemind.dav.server.tests</module>-->
 		<module>net.bluemind.dav.server</module>
-		<module>net.bluemind.eclipse.common</module>
 		<module>net.bluemind.eas.backend.bm</module>
 		<module>net.bluemind.eas.busmods</module>
-		<module>net.bluemind.eas.client.tests</module>
 		<module>net.bluemind.eas.client</module>
 		<module>net.bluemind.eas.config.global</module>
 		<module>net.bluemind.eas.dto</module>
-		<module>net.bluemind.eas.endpoint.tests</module>
-		<module>net.bluemind.eas.http.tests</module>
 		<module>net.bluemind.eas.http.wbxml</module>
 		<module>net.bluemind.eas.http</module>
 		<module>net.bluemind.eas.partnership</module>
-		<module>net.bluemind.eas.protocol.tests</module>
 		<module>net.bluemind.eas.search.ldap</module>
 		<module>net.bluemind.eas.serdes</module>
 		<module>net.bluemind.eas.sift</module>
 		<module>net.bluemind.eas.storage.jdbc</module>
+		<module>net.bluemind.eas.testhelper</module>
 		<module>net.bluemind.eas.timezone</module>
-		<module>net.bluemind.eas.timezone.tests</module>
 		<module>net.bluemind.eas.utils</module>
 		<module>net.bluemind.eas.validation</module>
-		<module>net.bluemind.eas.wbxml.builder.tests</module>
 		<module>net.bluemind.eas.wbxml.builder</module>
 		<module>net.bluemind.eas.wbxml</module>
 		<module>net.bluemind.eas</module>
-		<module>net.bluemind.eas.testhelper</module>
-		<module>net.bluemind.elasticsearch.initializer.tests</module>
+		<module>net.bluemind.eclipse.common</module>
 		<module>net.bluemind.elasticsearch.initializer</module>
+		<module>net.bluemind.hornetq.client</module>
 		<module>net.bluemind.imap.translate</module>
 		<module>net.bluemind.imap</module>
-		<module>net.bluemind.imap.tests</module>
-		<module>net.bluemind.imip.parser.tests</module>
 		<module>net.bluemind.imip.parser</module>
 		<module>net.bluemind.jdbc.driver.pgsql</module>
 		<module>net.bluemind.jdbc.pgsql.provider</module>
 		<module>net.bluemind.jilter</module>
 		<module>net.bluemind.lib.elasticsearch</module>
-		<module>net.bluemind.lib.globalid.tests</module>
 		<module>net.bluemind.lib.globalid</module>
 		<module>net.bluemind.lib.ical4j</module>
 		<module>net.bluemind.lib.jackson</module>
 		<module>net.bluemind.lib.jutf7</module>
-		<module>net.bluemind.lib.ldap.tests</module>
 		<module>net.bluemind.lib.ldap</module>
-		<module>net.bluemind.lib.quartz.tests</module>
 		<module>net.bluemind.lib.ristretto</module>
 		<module>net.bluemind.lib.vertx</module>
-		<module>net.bluemind.lib.vertx.tests</module>
-		<module>net.bluemind.lmtp.filter.imip.tests</module>
 		<module>net.bluemind.lmtp.filter.imip</module>
 		<module>net.bluemind.milter</module>
-		<module>net.bluemind.mime4j.common</module>
 		<module>net.bluemind.mime4j.bodies</module>
+		<module>net.bluemind.mime4j.common</module>
 		<module>net.bluemind.node.client.build</module>
-		<module>net.bluemind.node.client.tests</module>
 		<module>net.bluemind.node.client</module>
 		<module>net.bluemind.node.server</module>
 		<module>net.bluemind.osgi.log</module>
 		<module>net.bluemind.pimp</module>
-		<module>net.bluemind.core.auditlogs.schema</module>
-		<module>net.bluemind.pool.tests</module>
 		<module>net.bluemind.pool</module>
-		<module>net.bluemind.sentry</module>
-		<module>net.bluemind.sentry.settings</module>
 		<module>net.bluemind.sentry.settings.upgrade</module>
-		<module>net.bluemind.slf4j</module>
+		<module>net.bluemind.sentry.settings</module>
+		<module>net.bluemind.sentry</module>
 		<module>net.bluemind.slf4j.configuration</module>
+		<module>net.bluemind.slf4j</module>
 		<module>net.bluemind.startup.dropins</module>
 		<module>net.bluemind.startup.services</module>
 		<module>net.bluemind.system.nginx</module>
 		<module>net.bluemind.tika.server</module>
 		<module>net.bluemind.utils</module>
-		<module>net.bluemind.utils.tests</module>
 		<module>net.bluemind.vertx.common</module>
 		<module>net.bluemind.xivo.bridge</module>
 		<module>net.bluemind.xivo.client</module>
 		<module>net.bluemind.xivo.common</module>
-		<module>net.bluemind.xivo.tests</module>
 		<module>net.bluemind.ysnp.bmcore</module>
-		<module>net.bluemind.ysnp.tests</module>
 		<module>net.bluemind.ysnp</module>
 		<module>net.freeutils.tnef</module>
-		<module>net.bluemind.milter.tests</module>
 	</modules>
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>net.bluemind</groupId>
-				<artifactId>bm-docker-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<goals>
-							<goal>start</goal>
-							<goal>stop</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.jacoco</groupId>
-				<artifactId>jacoco-maven-plugin</artifactId>
-			</plugin>
-		</plugins>
-	</build>
+	<profiles>
+		<profile>
+			<id>tests</id>
+			<modules>
+				<!--<module>net.bluemind.dav.server.tests</module>-->
+				<module>net.bluemind.eas.client.tests</module>
+				<module>net.bluemind.eas.endpoint.tests</module>
+				<module>net.bluemind.eas.http.tests</module>
+				<module>net.bluemind.eas.protocol.tests</module>
+				<module>net.bluemind.eas.timezone.tests</module>
+				<module>net.bluemind.eas.wbxml.builder.tests</module>
+				<module>net.bluemind.elasticsearch.initializer.tests</module>
+				<module>net.bluemind.imap.tests</module>
+				<module>net.bluemind.imip.parser.tests</module>
+				<module>net.bluemind.lib.globalid.tests</module>
+				<module>net.bluemind.lib.ldap.tests</module>
+				<module>net.bluemind.lib.quartz.tests</module>
+				<module>net.bluemind.lib.vertx.tests</module>
+				<module>net.bluemind.lmtp.filter.imip.tests</module>
+				<module>net.bluemind.milter.tests</module>
+				<module>net.bluemind.node.client.tests</module>
+				<module>net.bluemind.pool.tests</module>
+				<module>net.bluemind.utils.tests</module>
+				<module>net.bluemind.xivo.tests</module>
+				<module>net.bluemind.ysnp.tests</module>
+			</modules>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>net.bluemind</groupId>
+						<artifactId>bm-docker-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<goals>
+									<goal>start</goal>
+									<goal>stop</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-surefire-plugin</artifactId>
+					</plugin>
+					<plugin>
+						<groupId>org.jacoco</groupId>
+						<artifactId>jacoco-maven-plugin</artifactId>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>

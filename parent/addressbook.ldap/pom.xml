@@ -11,11 +11,18 @@
 	<modules>
 		<module>net.bluemind.addressbook.ldap.api</module>
 		<module>net.bluemind.addressbook.ldap.adapter</module>
-		<module>net.bluemind.addressbook.ldap.adapter.tests</module>
 		<module>net.bluemind.addressbook.ldap.service</module>
-		<module>net.bluemind.addressbook.ldap.service.tests</module>
 		<module>net.bluemind.addressbook.ldap.job</module>
 		<module>net.bluemind.addressbook.ldap.sync</module>
-		<module>net.bluemind.addressbook.ldap.sync.tests</module>
 	</modules>
+	<profiles>
+		<profile>
+			<id>tests</id>
+			<modules>
+				<module>net.bluemind.addressbook.ldap.adapter.tests</module>
+				<module>net.bluemind.addressbook.ldap.service.tests</module>
+				<module>net.bluemind.addressbook.ldap.sync.tests</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>

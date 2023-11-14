@@ -12,6 +12,13 @@
 		<module>net.bluemind.mailshare.api</module>
 		<module>net.bluemind.mailshare.hook</module>
 		<module>net.bluemind.mailshare.service</module>
-		<module>net.bluemind.mailshare.service.tests</module>
 	</modules>
+	<profiles>
+		<profile>
+			<id>tests</id>
+			<modules>
+				<module>net.bluemind.mailshare.service.tests</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>

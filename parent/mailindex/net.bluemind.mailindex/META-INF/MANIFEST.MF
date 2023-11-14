@@ -38,8 +38,7 @@ Require-Bundle: org.eclipse.core.runtime,
  com.sun.mail.jakarta.mail,
  net.bluemind.utils,
  net.bluemind.core.caches.registry,
- com.fasterxml.jackson.core.jackson-databind,
- net.bluemind.core.elasticsearch.testshelper;bundle-version="5.0.0"
+ com.fasterxml.jackson.core.jackson-databind
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.index,

@@ -9,39 +9,46 @@
 	<artifactId>net.bluemind.system.plugins</artifactId>
 	<packaging>pom</packaging>
 	<modules>
-		<module>net.bluemind.network.utils</module>
-		<module>net.bluemind.system.sqlschema</module>
-		<module>net.bluemind.system.api</module>
-		<module>net.bluemind.system.domaintemplate</module>
-		<module>net.bluemind.system.subscriptionprovider</module>
-		<module>net.bluemind.system.persistence</module>
-		<module>net.bluemind.system.persistence.tests</module>
-		<module>net.bluemind.system.schemaupgrader</module>
-		<module>net.bluemind.system.schemaupgrader.runner</module>
-		<module>net.bluemind.system.schemaupgrader.tests</module>
-		<module>net.bluemind.system.hook</module>
-		<module>net.bluemind.system.config</module>
-		<module>net.bluemind.system.sysconf.helper</module>
-		<module>net.bluemind.system.service</module>
-		<module>net.bluemind.system.service.tests</module>
-		<module>net.bluemind.system.webmail</module>
-		<module>net.bluemind.system.state</module>
-		<module>net.bluemind.system.config.tests</module>
-		<module>net.bluemind.system.iptables</module>
-		<module>net.bluemind.system.iptables.mq</module>
-		<module>net.bluemind.system.iptables.tests</module>
-		<module>net.bluemind.system.stateobserver</module>
-		<module>net.bluemind.system.stateobserver.testhelper</module>
-		<module>net.bluemind.system.pg</module>
-		<module>net.bluemind.system.pg.tests</module>
-		<module>net.bluemind.system.helper</module>
-		<module>net.bluemind.system.validation</module>
-		<module>net.bluemind.sentry.settings.core</module>
-		<module>net.bluemind.sentry.settings.tests</module>
 		<module>net.bluemind.core.bo.report.provider</module>
-		<module>net.bluemind.system.upgraders.sqlschema</module>
-		<module>net.bluemind.system.security.certificate</module>
-		<module>net.bluemind.system.systemcheck</module>
+		<module>net.bluemind.network.utils</module>
+		<module>net.bluemind.sentry.settings.core</module>
+		<module>net.bluemind.system.api</module>
 		<module>net.bluemind.system.application.registration</module>
+		<module>net.bluemind.system.config</module>
+		<module>net.bluemind.system.domaintemplate</module>
+		<module>net.bluemind.system.helper</module>
+		<module>net.bluemind.system.hook</module>
+		<module>net.bluemind.system.iptables.mq</module>
+		<module>net.bluemind.system.iptables</module>
+		<module>net.bluemind.system.persistence</module>
+		<module>net.bluemind.system.pg</module>
+		<module>net.bluemind.system.schemaupgrader.runner</module>
+		<module>net.bluemind.system.schemaupgrader</module>
+		<module>net.bluemind.system.security.certificate</module>
+		<module>net.bluemind.system.service</module>
+		<module>net.bluemind.system.sqlschema</module>
+		<module>net.bluemind.system.state</module>
+		<module>net.bluemind.system.stateobserver.testhelper</module>
+		<module>net.bluemind.system.stateobserver</module>
+		<module>net.bluemind.system.subscriptionprovider</module>
+		<module>net.bluemind.system.sysconf.helper</module>
+		<module>net.bluemind.system.systemcheck</module>
+		<module>net.bluemind.system.upgraders.sqlschema</module>
+		<module>net.bluemind.system.validation</module>
+		<module>net.bluemind.system.webmail</module>
 	</modules>
+	<profiles>
+		<profile>
+			<id>tests</id>
+			<modules>
+				<module>net.bluemind.system.persistence.tests</module>
+				<module>net.bluemind.system.schemaupgrader.tests</module>
+				<module>net.bluemind.system.service.tests</module>
+				<module>net.bluemind.system.config.tests</module>
+				<module>net.bluemind.system.iptables.tests</module>
+				<module>net.bluemind.system.pg.tests</module>
+				<module>net.bluemind.sentry.settings.tests</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>

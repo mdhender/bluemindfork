@@ -12,11 +12,18 @@
 		<module>net.bluemind.notes.api</module>
 		<module>net.bluemind.notes.sqlschema</module>
 		<module>net.bluemind.notes.persistence</module>
-		<module>net.bluemind.notes.persistence.tests</module>
 		<module>net.bluemind.notes.service</module>
-		<module>net.bluemind.notes.service.tests</module>
 		<module>net.bluemind.notes.hook</module>
 		<module>net.bluemind.notes.usernotes</module>
-		<module>net.bluemind.notes.usernotes.tests</module>
 	</modules>
+	<profiles>
+		<profile>
+			<id>tests</id>
+			<modules>
+				<module>net.bluemind.notes.persistence.tests</module>
+				<module>net.bluemind.notes.service.tests</module>
+				<module>net.bluemind.notes.usernotes.tests</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>

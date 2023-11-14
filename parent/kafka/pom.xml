@@ -11,6 +11,13 @@
 	<modules>
 		<module>net.bluemind.core.backup.continuous.mgmt.api</module>
 		<module>net.bluemind.core.backup.continuous.mgmt.service</module>
-		<module>net.bluemind.core.backup.continuous.mgmt.service.tests</module>
 	</modules>
+	<profiles>
+		<profile>
+			<id>tests</id>
+			<modules>
+				<module>net.bluemind.core.backup.continuous.mgmt.service.tests</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>

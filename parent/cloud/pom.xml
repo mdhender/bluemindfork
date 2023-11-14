@@ -9,35 +9,41 @@
 	<artifactId>net.bluemind.cloud.plugins</artifactId>
 	<packaging>pom</packaging>
 	<modules>
-		<module>net.bluemind.aws.s3.tests</module>
 		<module>net.bluemind.aws.s3.utils</module>
 		<module>net.bluemind.sds.store</module>
 		<module>net.bluemind.sds.store.loader</module>
 		<module>net.bluemind.sds.store.s3</module>
-		<module>net.bluemind.sds.store.s3.tests</module>
-		<module>net.bluemind.sds.store.scalityring.tests</module>
 		<module>net.bluemind.sds.store.scalityring</module>
 		<module>net.bluemind.sds.sync.api</module>
 		<module>net.bluemind.sds.sync.service</module>
-		<module>net.bluemind.sds.sync.service.tests</module>
 		<module>net.bluemind.cli.sds</module>
 		<module>net.bluemind.kafka.container</module>
-		<module>net.bluemind.kafka.client.tests</module>
 		<module>net.bluemind.kafka.configuration</module>
 		<module>net.bluemind.kafka.configuration.fs</module>
 		<module>net.bluemind.forest.instance.cli</module>
 		<module>net.bluemind.central.reverse.proxy</module>
 		<module>net.bluemind.central.reverse.proxy.common</module>
-		<module>net.bluemind.central.reverse.proxy.tests</module>
 		<module>net.bluemind.central.reverse.proxy.launcher</module>
 		<module>net.bluemind.central.reverse.proxy.model</module>
 		<module>net.bluemind.central.reverse.proxy.model.client</module>
 		<module>net.bluemind.central.reverse.proxy.model.common</module>
-		<module>net.bluemind.central.reverse.proxy.model.tests</module>
 		<module>net.bluemind.central.reverse.proxy.stream</module>
 		<module>net.bluemind.cloud.monitoring</module>
-		<module>net.bluemind.cloud.monitoring.tests</module>
 		<module>net.bluemind.lib.grafana</module>
-
 	</modules>
+	<profiles>
+		<profile>
+			<id>tests</id>
+			<modules>
+				<module>net.bluemind.aws.s3.tests</module>
+				<module>net.bluemind.sds.store.s3.tests</module>
+				<module>net.bluemind.sds.store.scalityring.tests</module>
+				<module>net.bluemind.sds.sync.service.tests</module>
+				<module>net.bluemind.kafka.client.tests</module>
+				<module>net.bluemind.central.reverse.proxy.tests</module>
+				<module>net.bluemind.central.reverse.proxy.model.tests</module>
+				<module>net.bluemind.cloud.monitoring.tests</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>

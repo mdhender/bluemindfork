@@ -12,13 +12,20 @@
 		<module>net.bluemind.server.api</module>
 		<module>net.bluemind.server.sqlschema</module>
 		<module>net.bluemind.server.persistence</module>
-		<module>net.bluemind.server.persistence.tests</module>
 		<module>net.bluemind.server.service</module>
-		<module>net.bluemind.server.service.tests</module>
 		<module>net.bluemind.server.hook</module>
 		<module>net.bluemind.ssl.hook</module>
 		<module>net.bluemind.server.node.hook</module>
-		<module>net.bluemind.server.hook.tests</module>
 		<module>net.bluemind.server.mcast.hook</module>
 	</modules>
+	<profiles>
+		<profile>
+			<id>tests</id>
+			<modules>
+				<module>net.bluemind.server.persistence.tests</module>
+				<module>net.bluemind.server.service.tests</module>
+				<module>net.bluemind.server.hook.tests</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>

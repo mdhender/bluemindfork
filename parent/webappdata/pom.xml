@@ -11,9 +11,16 @@
 	<modules>
 		<module>net.bluemind.webappdata.api</module>
 		<module>net.bluemind.webappdata.persistence</module>
-		<module>net.bluemind.webappdata.persistence.tests</module>
 		<module>net.bluemind.webappdata.service</module>
-		<module>net.bluemind.webappdata.service.tests</module>
 		<module>net.bluemind.webappdata.sqlschema</module>
 	</modules>
+	<profiles>
+		<profile>
+			<id>tests</id>
+			<modules>
+				<module>net.bluemind.webappdata.persistence.tests</module>
+				<module>net.bluemind.webappdata.service.tests</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>

@@ -13,13 +13,19 @@
 		<module>net.bluemind.todolist.api</module>
 		<module>net.bluemind.todolist.sqlschema</module>
 		<module>net.bluemind.todolist.persistence</module>
-		<module>net.bluemind.todolist.persistence.tests</module>
 		<module>net.bluemind.todolist.service</module>
-		<module>net.bluemind.todolist.service.tests</module>
-		<module>net.bluemind.todolist.feature</module>
 		<module>net.bluemind.todolist.hook</module>
 		<module>net.bluemind.todolist.hook.acl</module>
 		<module>net.bluemind.todolist.usertodolist</module>
-		<module>net.bluemind.todolist.usertodolist.tests</module>
 	</modules>
+	<profiles>
+		<profile>
+			<id>tests</id>
+			<modules>
+				<module>net.bluemind.todolist.persistence.tests</module>
+				<module>net.bluemind.todolist.service.tests</module>
+				<module>net.bluemind.todolist.usertodolist.tests</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>

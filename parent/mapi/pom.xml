@@ -12,13 +12,20 @@
 		<module>net.bluemind.exchange.mapi.api</module>
 		<module>net.bluemind.exchange.mapi.sqlschema</module>
 		<module>net.bluemind.exchange.mapi.persistence</module>
-		<module>net.bluemind.exchange.mapi.persistence.tests</module>
 		<module>net.bluemind.exchange.mapi.hook</module>
 		<module>net.bluemind.exchange.mapi.service</module>
-		<module>net.bluemind.exchange.mapi.service.tests</module>
 		<module>net.bluemind.exchange.mapi.notifications</module>
 		<module>net.bluemind.exchange.publicfolders.common</module>
 		<module>net.bluemind.exchange.publicfolders.hierarchy</module>
 		<module>net.bluemind.cli.mapi</module>
 	</modules>
+	<profiles>
+		<profile>
+			<id>tests</id>
+			<modules>
+				<module>net.bluemind.exchange.mapi.persistence.tests</module>
+				<module>net.bluemind.exchange.mapi.service.tests</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>

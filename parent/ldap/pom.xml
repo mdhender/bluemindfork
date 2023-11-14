@@ -9,14 +9,21 @@
 	<artifactId>net.bluemind.ldap.plugins</artifactId>
 	<packaging>pom</packaging>
 	<modules>
-		<module>net.bluemind.system.ldap.importation.api</module>
 		<module>net.bluemind.system.importation.commons</module>
-		<module>net.bluemind.system.importation.commons.tests</module>
-		<module>net.bluemind.system.ldap.importation</module>
-		<module>net.bluemind.system.ldap.importation.tests</module>
 		<module>net.bluemind.system.ldap.export</module>
-		<module>net.bluemind.system.ldap.export.tests</module>
-		<module>net.bluemind.system.ldap.tests.helpers</module>
+		<module>net.bluemind.system.ldap.importation.api</module>
 		<module>net.bluemind.system.ldap.importation.tests.enhancer</module>
+		<module>net.bluemind.system.ldap.importation</module>
+		<module>net.bluemind.system.ldap.tests.helpers</module>
 	</modules>
+	<profiles>
+		<profile>
+			<id>tests</id>
+			<modules>
+				<module>net.bluemind.system.importation.commons.tests</module>
+				<module>net.bluemind.system.ldap.export.tests</module>
+				<module>net.bluemind.system.ldap.importation.tests</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>

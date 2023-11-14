@@ -5,61 +5,6 @@
 	<artifactId>net.bluemind.global</artifactId>
 	<version>5.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	<profiles>
-		<profile>
-			<id>dev-mode</id>
-			<properties>
-				<l10n.list>"en", "fr"</l10n.list>
-			</properties>
-		</profile>
-		<profile>
-			<id>i18n</id>
-			<properties>
-				<l10n.list>"de", "en", "es", "fr", "hu", "it", "nl", "pl", "ru", "sk","uk", "zh"</l10n.list>
-			</properties>
-		</profile>
-		<profile>
-			<id>localp2</id>
-			<!-- artifacts built from profile p2 -->
-			<repositories>
-				<repository>
-					<id>bluemind-local-tp</id>
-					<layout>p2</layout>
-					<url>file://${localp2repository}</url>
-				</repository>
-				<repository>
-					<id>bluemind-local-tp-closed</id>
-					<layout>p2</layout>
-					<url>file://${localp2repositoryclosed}</url>
-				</repository>
-			</repositories>
-		</profile>
-		<profile>
-			<id>gwt-default</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-			<properties>
-				<gwt.draft>false</gwt.draft>
-				<gwt.style>OBFUSCATED</gwt.style>
-				<gwt.optimize>6</gwt.optimize>
-			</properties>
-		</profile>
-		<profile>
-			<id>gwt-draft</id>
-			<activation>
-				<property>
-					<name>env.DRAFT</name>
-					<value>true</value>
-				</property>
-			</activation>
-			<properties>
-				<gwt.draft>true</gwt.draft>
-				<gwt.style>PRETTY</gwt.style>
-				<gwt.optimize>0</gwt.optimize>
-			</properties>
-		</profile>
-	</profiles>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
@@ -140,6 +85,161 @@
 			</snapshots>
 		</pluginRepository>
 	</pluginRepositories>
+
+	<profiles>
+		<profile>
+			<id>dev-mode</id>
+			<properties>
+				<l10n.list>"en", "fr"</l10n.list>
+			</properties>
+		</profile>
+		<profile>
+			<id>i18n</id>
+			<properties>
+				<l10n.list>"de", "en", "es", "fr", "hu", "it", "nl", "pl", "ru", "sk","uk", "zh"</l10n.list>
+			</properties>
+		</profile>
+		<profile>
+			<id>localp2</id>
+			<!-- artifacts built from profile p2 -->
+			<repositories>
+				<repository>
+					<id>bluemind-local-tp</id>
+					<layout>p2</layout>
+					<url>file://${localp2repository}</url>
+				</repository>
+				<repository>
+					<id>bluemind-local-tp-closed</id>
+					<layout>p2</layout>
+					<url>file://${localp2repositoryclosed}</url>
+				</repository>
+			</repositories>
+		</profile>
+		<profile>
+			<id>gwt-default</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<gwt.draft>false</gwt.draft>
+				<gwt.style>OBFUSCATED</gwt.style>
+				<gwt.optimize>6</gwt.optimize>
+			</properties>
+		</profile>
+        <profile>
+            <id>tests</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <skip-tests>true</skip-tests>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>prepare-agent</id>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>report</id>
+                                <goals>
+                                    <goal>report</goal>
+                                </goals>
+                                <configuration>
+                                    <formats>
+                                        <format>XML</format>
+                                    </formats>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+					<plugin>
+						<groupId>org.eclipse.tycho</groupId>
+						<artifactId>tycho-surefire-plugin</artifactId>
+						<version>${tycho-version}</version>
+						<inherited>true</inherited>
+						<configuration>
+							<includes>
+								<include>**/*TestCase.java</include>
+								<include>**/Test*.java</include>
+								<include>**/*Tests.java</include>
+							</includes>
+							<!-- required for junit5 tests to be discovered by tycho surefire plugins -->
+							<providerHint>junit5</providerHint>
+							<showEclipseLog>true</showEclipseLog>
+							<useUIHarness>false</useUIHarness>
+							<useUIThread>false</useUIThread>
+							<failIfNoTests>false</failIfNoTests>
+							<product>org.eclipse.platform.ide</product>
+							<argLine>${bm.test.argline}</argLine>
+							<forkedProcessTimeoutInSeconds>2400</forkedProcessTimeoutInSeconds>
+							<systemPropertyVariables>
+								<net.fortuna.ical4j.timezone.cache.impl>net.fortuna.ical4j.util.MapTimeZoneCache</net.fortuna.ical4j.timezone.cache.impl>
+							</systemPropertyVariables>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<version>${maven-surefire-plugin-version}</version>
+						<executions>
+							<execution>
+								<id>test</id>
+								<phase>test</phase>
+								<configuration>
+									<includes>
+										<include>**/*Test.java</include>
+									</includes>
+									<testClassesDirectory>${basedir}/target/classes</testClassesDirectory>
+									<argLine>${bm.test.argline}</argLine>
+									<forkedProcessTimeoutInSeconds>2400</forkedProcessTimeoutInSeconds>
+									<systemPropertyVariables>
+										<net.fortuna.ical4j.timezone.cache.impl>net.fortuna.ical4j.util.MapTimeZoneCache</net.fortuna.ical4j.timezone.cache.impl>
+									</systemPropertyVariables>
+								</configuration>
+								<goals>
+									<goal>test</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>net.bluemind</groupId>
+						<artifactId>bm-docker-maven-plugin</artifactId>
+						<version>${bm-plugins-version}</version>
+						<executions>
+							<execution>
+								<goals>
+									<goal>start</goal>
+									<goal>stop</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+		        </plugins>
+            </build>
+        </profile>
+		<profile>
+			<id>gwt-draft</id>
+			<activation>
+				<property>
+					<name>env.DRAFT</name>
+					<value>true</value>
+				</property>
+			</activation>
+			<properties>
+				<gwt.draft>true</gwt.draft>
+				<gwt.style>PRETTY</gwt.style>
+				<gwt.optimize>0</gwt.optimize>
+			</properties>
+		</profile>
+	</profiles>
 	<build>
 		<plugins>
 			<plugin>
@@ -170,29 +270,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.jacoco</groupId>
-				<artifactId>jacoco-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>prepare-agent</id>
-						<goals>
-							<goal>prepare-agent</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>report</id>
-						<goals>
-							<goal>report</goal>
-						</goals>
-						<configuration>
-							<formats>
-								<format>XML</format>
-							</formats>
-						</configuration>
-					</execution>
-				</executions>
 			</plugin>
 		</plugins>
 		<pluginManagement>
@@ -318,56 +395,6 @@
 					<version>${tycho-version}</version>
 				</plugin>
 				<plugin>
-					<groupId>org.eclipse.tycho</groupId>
-					<artifactId>tycho-surefire-plugin</artifactId>
-					<version>${tycho-version}</version>
-					<inherited>true</inherited>
-					<configuration>
-						<includes>
-							<include>**/*TestCase.java</include>
-							<include>**/Test*.java</include>
-							<include>**/*Tests.java</include>
-						</includes>
-						<!-- required for junit5 tests to be discovered by tycho surefire plugins -->
-						<providerHint>junit5</providerHint>
-						<showEclipseLog>true</showEclipseLog>
-						<useUIHarness>false</useUIHarness>
-						<useUIThread>false</useUIThread>
-						<failIfNoTests>false</failIfNoTests>
-						<product>org.eclipse.platform.ide</product>
-						<argLine>${bm.test.argline}</argLine>
-						<forkedProcessTimeoutInSeconds>2400</forkedProcessTimeoutInSeconds>
-						<systemPropertyVariables>
-							<net.fortuna.ical4j.timezone.cache.impl>net.fortuna.ical4j.util.MapTimeZoneCache</net.fortuna.ical4j.timezone.cache.impl>
-						</systemPropertyVariables>
-					</configuration>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-surefire-plugin</artifactId>
-					<version>${maven-surefire-plugin-version}</version>
-					<executions>
-						<execution>
-							<id>test</id>
-							<phase>test</phase>
-							<configuration>
-								<includes>
-									<include>**/*Test.java</include>
-								</includes>
-								<testClassesDirectory>${basedir}/target/classes</testClassesDirectory>
-								<argLine>${bm.test.argline}</argLine>
-								<forkedProcessTimeoutInSeconds>2400</forkedProcessTimeoutInSeconds>
-								<systemPropertyVariables>
-									<net.fortuna.ical4j.timezone.cache.impl>net.fortuna.ical4j.util.MapTimeZoneCache</net.fortuna.ical4j.timezone.cache.impl>
-								</systemPropertyVariables>
-							</configuration>
-							<goals>
-								<goal>test</goal>
-							</goals>
-						</execution>
-					</executions>
-				</plugin>
-				<plugin>
 					<groupId>org.jacoco</groupId>
 					<artifactId>jacoco-maven-plugin</artifactId>
 					<version>${jacoco-maven-plugin-version}</version>
@@ -438,19 +465,6 @@
 						<sourceDirectory>web-resources</sourceDirectory>
 						<webappDirectory>web-resources</webappDirectory>
 					</configuration>
-				</plugin>
-				<plugin>
-					<groupId>net.bluemind</groupId>
-					<artifactId>bm-docker-maven-plugin</artifactId>
-					<version>${bm-plugins-version}</version>
-					<executions>
-						<execution>
-							<goals>
-								<goal>start</goal>
-								<goal>stop</goal>
-							</goals>
-						</execution>
-					</executions>
 				</plugin>
 				<plugin>
 					<groupId>net.bluemind</groupId>

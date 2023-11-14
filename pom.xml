@@ -19,19 +19,19 @@
 			<id>full</id>
 			<modules>
 				<module>clients</module>
-				<module>ui</module>
+				<module>i18n</module>
 				<module>mozilla</module>
 				<module>p2</module>
-				<module>i18n</module>
+				<module>ui</module>
 			</modules>
 		</profile>
 		<profile>
 			<id>fast</id>
 			<modules>
 				<module>clients</module>
-				<module>ui</module>
-				<module>mozilla</module>
 				<module>i18n</module>
+				<module>mozilla</module>
+				<module>ui</module>
 			</modules>
 		</profile>
 		<profile>

@@ -12,11 +12,18 @@
 		<module>net.bluemind.group.api</module>
 		<module>net.bluemind.group.sqlschema</module>
 		<module>net.bluemind.group.persistence</module>
-		<module>net.bluemind.group.persistence.tests</module>
 		<module>net.bluemind.group.service</module>
-		<module>net.bluemind.group.service.tests</module>
 		<module>net.bluemind.group.hook</module>
-		<module>net.bluemind.group.hook.tests</module>
 		<module>net.bluemind.group.member</module>
 	</modules>
+	<profiles>
+		<profile>
+			<id>tests</id>
+			<modules>
+				<module>net.bluemind.group.persistence.tests</module>
+				<module>net.bluemind.group.service.tests</module>
+				<module>net.bluemind.group.hook.tests</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>

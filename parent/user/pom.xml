@@ -12,16 +12,23 @@
 		<module>net.bluemind.user.api</module>
 		<module>net.bluemind.user.sqlschema</module>
 		<module>net.bluemind.user.persistence</module>
-		<module>net.bluemind.user.persistence.tests</module>
 		<module>net.bluemind.user.service</module>
-		<module>net.bluemind.user.service.tests</module>
 		<module>net.bluemind.user.hook</module>
-		<module>net.bluemind.user.hook.tests</module>
 		<module>net.bluemind.user.accounts.hook</module>
 		<module>net.bluemind.user.accounts.service</module>
-		<module>net.bluemind.user.accounts.service.tests</module>
 		<module>net.bluemind.user.accounts.persistence</module>
-		<module>net.bluemind.user.accounts.persistence.tests</module>
 		<module>net.bluemind.user.accounts.sqlschema</module>
 	</modules>
+	<profiles>
+		<profile>
+			<id>tests</id>
+			<modules>
+				<module>net.bluemind.user.persistence.tests</module>
+				<module>net.bluemind.user.service.tests</module>
+				<module>net.bluemind.user.hook.tests</module>
+				<module>net.bluemind.user.accounts.service.tests</module>
+				<module>net.bluemind.user.accounts.persistence.tests</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>

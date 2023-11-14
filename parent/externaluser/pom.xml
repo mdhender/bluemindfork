@@ -11,6 +11,13 @@
 	<modules>
 		<module>net.bluemind.externaluser.api</module>
 		<module>net.bluemind.externaluser.service</module>
-		<module>net.bluemind.externaluser.service.tests</module>
 	</modules>
+	<profiles>
+		<profile>
+			<id>tests</id>
+			<modules>
+				<module>net.bluemind.externaluser.service.tests</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>

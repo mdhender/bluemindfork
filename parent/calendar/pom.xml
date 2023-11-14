@@ -12,26 +12,32 @@
 		<module>net.bluemind.calendar.api</module>
 		<module>net.bluemind.calendar.hook</module>
 		<module>net.bluemind.calendar.hook.ics</module>
-		<module>net.bluemind.calendar.hook.ics.tests</module>
 		<module>net.bluemind.calendar.hook.acl</module>
 		<module>net.bluemind.calendar.sqlschema</module>
 		<module>net.bluemind.calendar.persistence</module>
-		<module>net.bluemind.calendar.persistence.tests</module>
 		<module>net.bluemind.calendar.occurrence</module>
-		<module>net.bluemind.calendar.occurrence.tests</module>
 		<module>net.bluemind.calendar.service</module>
-		<module>net.bluemind.calendar.service.tests</module>
 		<module>net.bluemind.calendar.helper</module>
-		<module>net.bluemind.calendar.helper.tests</module>
 		<module>net.bluemind.calendar.usercalendar</module>
-		<module>net.bluemind.calendar.usercalendar.tests</module>
 		<module>net.bluemind.calendar.pdf</module>
-		<module>net.bluemind.calendar.pdf.tests</module>
-		<module>net.bluemind.calendar.feature</module>
 		<module>net.bluemind.calendar.sync</module>
-		<module>net.bluemind.calendar.sync.tests</module>
 		<module>net.bluemind.calendar.auditlog</module>
 		<module>net.bluemind.calendar.history.renderer</module>
-		<module>net.bluemind.calendar.history.renderer.tests</module>
 	</modules>
+	<profiles>
+		<profile>
+			<id>tests</id>
+			<modules>
+				<module>net.bluemind.calendar.hook.ics.tests</module>
+				<module>net.bluemind.calendar.persistence.tests</module>
+				<module>net.bluemind.calendar.occurrence.tests</module>
+				<module>net.bluemind.calendar.service.tests</module>
+				<module>net.bluemind.calendar.helper.tests</module>
+				<module>net.bluemind.calendar.usercalendar.tests</module>
+				<module>net.bluemind.calendar.pdf.tests</module>
+				<module>net.bluemind.calendar.sync.tests</module>
+				<module>net.bluemind.calendar.history.renderer.tests</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>

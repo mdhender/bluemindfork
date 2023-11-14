@@ -12,15 +12,22 @@
 		<module>net.bluemind.filehosting.api</module>
 		<module>net.bluemind.attachment.api</module>
 		<module>net.bluemind.attachment.service</module>
-		<module>net.bluemind.attachment.service.tests</module>
 		<module>net.bluemind.filehosting.service</module>
-		<module>net.bluemind.filehosting.service.tests</module>
 		<module>net.bluemind.filehosting.webdav.service</module>
-		<module>net.bluemind.filehosting.webdav.service.tests</module>
 		<module>net.bluemind.filehosting.filesystem.job</module>
 		<module>net.bluemind.filehosting.filesystem.sqlschema</module>
 		<module>net.bluemind.filehosting.sds.service</module>
 		<module>net.bluemind.filehosting.filesystem.service</module>
-		<module>net.bluemind.filehosting.filesystem.service.tests</module>
 	</modules>
+	<profiles>
+		<profile>
+			<id>tests</id>
+			<modules>
+				<module>net.bluemind.attachment.service.tests</module>
+				<module>net.bluemind.filehosting.service.tests</module>
+				<module>net.bluemind.filehosting.webdav.service.tests</module>
+				<module>net.bluemind.filehosting.filesystem.service.tests</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>

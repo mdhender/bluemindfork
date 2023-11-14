@@ -10,13 +10,20 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>net.bluemind.metrics.alerts.api</module>
-		<module>net.bluemind.metrics.transport</module>
-		<module>net.bluemind.metrics.core</module>
-		<module>net.bluemind.metrics.core.tests</module>
-		<module>net.bluemind.metrics.registry</module>
 		<module>net.bluemind.metrics.annotations</module>
+		<module>net.bluemind.metrics.core</module>
+		<module>net.bluemind.metrics.registry</module>
 		<module>net.bluemind.metrics.testhelper</module>
-		<module>net.bluemind.metrics.registry.tests</module>
+		<module>net.bluemind.metrics.transport</module>
 		<module>net.bluemind.metrics.ui.role</module>
 	</modules>
+	<profiles>
+		<profile>
+			<id>tests</id>
+			<modules>
+				<module>net.bluemind.metrics.core.tests</module>
+				<module>net.bluemind.metrics.registry.tests</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>

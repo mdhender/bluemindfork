@@ -12,10 +12,17 @@
 		<module>net.bluemind.tag.api</module>
 		<module>net.bluemind.tag.sqlschema</module>
 		<module>net.bluemind.tag.persistence</module>
-		<module>net.bluemind.tag.persistence.tests</module>
 		<module>net.bluemind.tag.service</module>
-		<module>net.bluemind.tag.service.tests</module>
 		<module>net.bluemind.tag.hooks</module>
-		<module>net.bluemind.tag.hooks.tests</module>
 	</modules>
+	<profiles>
+		<profile>
+			<id>tests</id>
+			<modules>
+				<module>net.bluemind.tag.persistence.tests</module>
+				<module>net.bluemind.tag.service.tests</module>
+				<module>net.bluemind.tag.hooks.tests</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>

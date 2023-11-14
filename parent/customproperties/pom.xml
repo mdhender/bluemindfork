@@ -11,6 +11,13 @@
 	<modules>
 		<module>net.bluemind.customproperties.api</module>
 		<module>net.bluemind.customproperties.service</module>
-		<module>net.bluemind.customproperties.service.tests</module>
 	</modules>
+	<profiles>
+		<profile>
+			<id>tests</id>
+			<modules>
+				<module>net.bluemind.customproperties.service.tests</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>

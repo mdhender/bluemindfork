@@ -13,11 +13,18 @@
 		<module>net.bluemind.domain.hook</module>
 		<module>net.bluemind.domain.persistence</module>
 		<module>net.bluemind.domain.sqlschema</module>
-		<module>net.bluemind.domain.persistence.tests</module>
 		<module>net.bluemind.domain.service</module>
-		<module>net.bluemind.domain.service.tests</module>
-		<module>net.bluemind.domain.validator.tests</module>
 		<module>net.bluemind.domain.settings.config</module>
-		<module>net.bluemind.domain.settings.config.tests</module>
 	</modules>
+	<profiles>
+		<profile>
+			<id>tests</id>
+			<modules>
+				<module>net.bluemind.domain.persistence.tests</module>
+				<module>net.bluemind.domain.service.tests</module>
+				<module>net.bluemind.domain.validator.tests</module>
+				<module>net.bluemind.domain.settings.config.tests</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>

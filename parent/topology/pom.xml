@@ -11,7 +11,14 @@
 	<modules>
 		<module>net.bluemind.network.topology</module>
 		<module>net.bluemind.network.topology.producer</module>
-		<module>net.bluemind.network.topology.producer.tests</module>
 		<module>net.bluemind.network.topology.consumer</module>
 	</modules>
+	<profiles>
+		<profile>
+			<id>tests</id>
+			<modules>
+				<module>net.bluemind.network.topology.producer.tests</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>

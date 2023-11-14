@@ -14,7 +14,6 @@
 		<module>addressbook</module>
 		<module>announcement</module>
 		<module>authentication</module>
-		<module>base</module>
 		<module>calendar</module>
 		<module>ci</module>
 		<module>cli</module>
@@ -38,6 +37,9 @@
 		<module>filehosting</module>
 		<module>group</module>
 		<module>icalendar</module>
+		<module>imap</module>
+		<module>kafka</module>
+		<module>keycloak</module>
 		<module>ldap</module>
 		<module>mailbackend</module>
 		<module>mailbox</module>
@@ -49,6 +51,8 @@
 		<module>metrics</module>
 		<module>milter</module>
 		<module>node</module>
+		<module>notes</module>
+		<module>openid</module>
 		<module>outlook</module>
 		<module>pop</module>
 		<module>proxy</module>
@@ -59,42 +63,51 @@
 		<module>serialization</module>
 		<module>server</module>
 		<module>settings</module>
+		<module>smime</module>
 		<module>system</module>
 		<module>tag</module>
 		<module>testhelpers</module>
 		<module>todolist</module>
-		<module>notes</module>
 		<module>topology</module>
 		<module>user</module>
+		<module>videoconferencing</module>
+		<module>webappdata</module>
 		<module>webmail</module>
 		<module>webmodules</module>
 		<module>xivo</module>
-		<module>videoconferencing</module>
-		<module>kafka</module>
-		<module>webappdata</module>
-		<module>imap</module>
-		<module>smime</module>
-		<module>keycloak</module>
-		<module>openid</module>
 	</modules>
+
+	<profiles>
+		<profile>
+			<id>tests</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>net.bluemind</groupId>
+						<artifactId>bm-docker-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<goals>
+									<goal>start</goal>
+									<goal>stop</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-surefire-plugin</artifactId>
+					</plugin>
+					<plugin>
+						<groupId>org.jacoco</groupId>
+						<artifactId>jacoco-maven-plugin</artifactId>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>net.bluemind</groupId>
-				<artifactId>bm-docker-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<goals>
-							<goal>start</goal>
-							<goal>stop</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-			</plugin>
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-packaging-plugin</artifactId>
@@ -114,10 +127,6 @@
 						</fileSet>
 					</additionalFileSets>
 				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.jacoco</groupId>
-				<artifactId>jacoco-maven-plugin</artifactId>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

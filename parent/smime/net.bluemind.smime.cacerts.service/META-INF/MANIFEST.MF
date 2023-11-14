@@ -25,7 +25,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.system.service,
  net.bluemind.scheduledjob.service,
  net.bluemind.scheduledjob.scheduler,
- net.bluemind.core.elasticsearch.testshelper,
  bcprov;bundle-version="1.76.0",
  bcpkix;bundle-version="1.76.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-21

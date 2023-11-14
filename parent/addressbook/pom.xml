@@ -14,14 +14,20 @@
 		<module>net.bluemind.addressbook.hook.acl</module>
 		<module>net.bluemind.addressbook.sqlschema</module>
 		<module>net.bluemind.addressbook.persistence</module>
-		<module>net.bluemind.addressbook.persistence.tests</module>
 		<module>net.bluemind.addressbook.adapter</module>
 		<module>net.bluemind.addressbook.service</module>
-		<module>net.bluemind.addressbook.service.tests</module>
 		<module>net.bluemind.addressbook.userbook</module>
-		<module>net.bluemind.addressbook.userbook.tests</module>
 		<module>net.bluemind.addressbook.domainbook</module>
-		<module>net.bluemind.addressbook.domainbook.tests</module>
-		<module>net.bluemind.addressbook.feature</module>
 	</modules>
+	<profiles>
+		<profile>
+			<id>tests</id>
+			<modules>
+				<module>net.bluemind.addressbook.persistence.tests</module>
+				<module>net.bluemind.addressbook.service.tests</module>
+				<module>net.bluemind.addressbook.userbook.tests</module>
+				<module>net.bluemind.addressbook.domainbook.tests</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>

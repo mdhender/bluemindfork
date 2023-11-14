@@ -11,6 +11,13 @@
 	<modules>
 		<module>net.bluemind.globalsettings.sqlschema</module>
 		<module>net.bluemind.globalsettings.persistence</module>
-		<module>net.bluemind.globalsettings.persistence.tests</module>
 	</modules>
+	<profiles>
+		<profile>
+			<id>tests</id>
+			<modules>
+				<module>net.bluemind.globalsettings.persistence.tests</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>

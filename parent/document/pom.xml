@@ -12,11 +12,18 @@
 		<module>net.bluemind.document.api</module>
 		<module>net.bluemind.document.persistence</module>
 		<module>net.bluemind.document.persistence.fs</module>
-		<module>net.bluemind.document.persistence.fs.tests</module>
-		<module>net.bluemind.document.persistence.tests</module>
 		<module>net.bluemind.document.service</module>
-		<module>net.bluemind.document.service.tests</module>
 		<module>net.bluemind.document.sqlschema</module>
 		<module>net.bluemind.document.storage</module>
 	</modules>
+	<profiles>
+		<profile>
+			<id>tests</id>
+			<modules>
+				<module>net.bluemind.document.persistence.fs.tests</module>
+				<module>net.bluemind.document.persistence.tests</module>
+				<module>net.bluemind.document.service.tests</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>

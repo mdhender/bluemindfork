@@ -12,6 +12,13 @@
 		<module>net.bluemind.documentfolder.api</module>
 		<module>net.bluemind.documentfolder.domainfolder</module>
 		<module>net.bluemind.documentfolder.service</module>
-		<module>net.bluemind.documentfolder.service.tests</module>
 	</modules>
+	<profiles>
+		<profile>
+			<id>tests</id>
+			<modules>
+				<module>net.bluemind.documentfolder.service.tests</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>

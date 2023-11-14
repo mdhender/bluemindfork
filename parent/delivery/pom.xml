@@ -13,17 +13,23 @@
 		<module>net.bluemind.delivery.lmtp</module>
 		<module>net.bluemind.delivery.lmtp.common</module>
 		<module>net.bluemind.delivery.lmtp.filters</module>
-		<module>net.bluemind.delivery.lmtp.hooks</module>
 		<module>net.bluemind.delivery.lmtp.filter.testhelper</module>
-		<module>net.bluemind.delivery.lmtp.tests</module>
-		<module>net.bluemind.delivery.lmtp.quota.tests</module>
+		<module>net.bluemind.delivery.lmtp.hooks</module>
 		<module>net.bluemind.delivery.conversationreference.api</module>
 		<module>net.bluemind.delivery.conversationreference.sqlschema</module>
 		<module>net.bluemind.delivery.conversationreference.persistence</module>
 		<module>net.bluemind.delivery.conversationreference.service</module>
-		<module>net.bluemind.delivery.conversationreference.tests</module>
 		<module>net.bluemind.delivery.rules</module>
-		<module>net.bluemind.delivery.rules.tests</module>
 	</modules>
-
+	<profiles>
+		<profile>
+			<id>tests</id>
+			<modules>
+				<module>net.bluemind.delivery.lmtp.tests</module>
+				<module>net.bluemind.delivery.lmtp.quota.tests</module>
+				<module>net.bluemind.delivery.conversationreference.tests</module>
+				<module>net.bluemind.delivery.rules.tests</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>

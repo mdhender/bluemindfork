@@ -10,8 +10,14 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>net.bluemind.pop3.endpoint</module>
-		<module>net.bluemind.pop3.endpoint.tests</module>
 		<module>net.bluemind.pop3.driver</module>
 	</modules>
-
+	<profiles>
+		<profile>
+			<id>tests</id>
+			<modules>
+				<module>net.bluemind.pop3.endpoint.tests</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>

@@ -13,7 +13,14 @@
 		<module>net.bluemind.deferredaction.service</module>
 		<module>net.bluemind.deferredaction.persistence</module>
 		<module>net.bluemind.deferredaction.sqlschema</module>
-		<module>net.bluemind.deferredaction.service.tests</module>
 		<module>net.bluemind.deferredaction.registry</module>
 	</modules>
+	<profiles>
+		<profile>
+			<id>tests</id>
+			<modules>
+				<module>net.bluemind.deferredaction.service.tests</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>

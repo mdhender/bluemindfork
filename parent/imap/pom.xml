@@ -11,15 +11,21 @@
 
 	<modules>
 		<module>net.bluemind.imap.endpoint</module>
-		<module>net.bluemind.imap.endpoint.tests</module>
 		<module>net.bluemind.imap.endpoint.notifications</module>
 		<module>net.bluemind.imap.docker.imaptest</module>
-		<module>net.bluemind.imap.endpoint.imaptest.tests</module>
 		<module>net.bluemind.imap.driver.mailapi</module>
 		<module>net.bluemind.sds.store.cyrusspool</module>
 		<module>net.bluemind.backend.mailapi.storage</module>
-		<module>net.bluemind.imap.fullstack.tests</module>
-		<module>net.bluemind.backend.mailapi.storage.tests</module>
 	</modules>
-
+	<profiles>
+		<profile>
+			<id>tests</id>
+			<modules>
+				<module>net.bluemind.imap.endpoint.tests</module>
+				<module>net.bluemind.imap.endpoint.imaptest.tests</module>
+				<module>net.bluemind.imap.fullstack.tests</module>
+				<module>net.bluemind.backend.mailapi.storage.tests</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>
