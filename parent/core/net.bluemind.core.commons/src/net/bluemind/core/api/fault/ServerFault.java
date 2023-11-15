@@ -59,8 +59,14 @@ public class ServerFault extends RuntimeException {
 		this.code = code;
 	}
 
-	public static ServerFault sqlFault(Exception t) {
+	public static ServerFault sqlFault(Throwable t) {
 		ServerFault sf = new ServerFault(t);
+		sf.setCode(ErrorCode.SQL_ERROR);
+		return sf;
+	}
+
+	public static ServerFault sqlFault(String message, Throwable t) {
+		ServerFault sf = new ServerFault(message, t);
 		sf.setCode(ErrorCode.SQL_ERROR);
 		return sf;
 	}
@@ -79,6 +85,12 @@ public class ServerFault extends RuntimeException {
 
 	public static ServerFault alreadyExists(String message) {
 		ServerFault sf = new ServerFault(message);
+		sf.setCode(ErrorCode.ALREADY_EXISTS);
+		return sf;
+	}
+
+	public static ServerFault alreadyExists(Throwable t) {
+		ServerFault sf = new ServerFault(t.getMessage(), t);
 		sf.setCode(ErrorCode.ALREADY_EXISTS);
 		return sf;
 	}

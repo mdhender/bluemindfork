@@ -560,28 +560,36 @@ public class JdbcAbstractStore {
 
 	public static <R> R retryOnDeadlock(SqlOperation<R> op) throws SQLException {
 		SQLException lastException = null;
-		for (int i = 0; i < MAX_RETRY_DEADLOCK; i++) {
-			try {
-				return op.execute();
-			} catch (PSQLException e) {
-				logger.info("postgresql exception", e);
-				lastException = e;
-				if (PSQLState.DEADLOCK_DETECTED.getState().equals(e.getSQLState())) {
-					logger.info("deadlock detected: retry {}/{}", i + 1, MAX_RETRY_DEADLOCK);
-					try {
-						Thread.sleep(50);
-					} catch (InterruptedException ie) {
-						Thread.currentThread().interrupt();
+		try {
+			for (int i = 0; i < MAX_RETRY_DEADLOCK; i++) {
+				try {
+					return op.execute();
+				} catch (PSQLException e) {
+					lastException = e;
+					if (PSQLState.DEADLOCK_DETECTED.getState().equals(e.getSQLState())) {
+						logger.info("deadlock detected: retry {}/{}", i + 1, MAX_RETRY_DEADLOCK);
+						try {
+							Thread.sleep(50);
+						} catch (InterruptedException ie) {
+							Thread.currentThread().interrupt();
+						}
+					} else {
+						break;
 					}
-				} else {
-					break;
 				}
 			}
-		}
-		if (lastException != null) {
-			throw lastException;
-		} else {
-			throw new SQLException("retryOnDeadlock failed, without any exception");
+			if (lastException != null) {
+				throw lastException;
+			} else {
+				throw new SQLException("retryOnDeadlock failed, without any exception");
+			}
+		} catch (PSQLException e) {
+			if (PSQLState.UNDEFINED_OBJECT.getState().equals(e.getSQLState())) {
+				throw ServerFault.alreadyExists(e);
+			}
+			throw ServerFault.sqlFault(e.getSQLState() + ":" + e.getMessage(), e);
+		} catch (SQLException e) {
+			throw ServerFault.sqlFault(e);
 		}
 	}
 
