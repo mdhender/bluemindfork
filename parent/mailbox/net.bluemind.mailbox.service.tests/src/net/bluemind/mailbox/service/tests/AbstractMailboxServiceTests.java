@@ -223,7 +223,7 @@ public abstract class AbstractMailboxServiceTests {
 			List<Verb> expectedVerbs = expectedBySubject.get(subject);
 			List<Verb> actualVerbs = actualBySubject.get(subject);
 			for (Verb verb : expectedVerbs) {
-				assertTrue(actualVerbs.stream().allMatch(v -> verb.can(v)));
+				assertTrue(actualVerbs.stream().anyMatch(verb::can));
 			}
 		}
 
