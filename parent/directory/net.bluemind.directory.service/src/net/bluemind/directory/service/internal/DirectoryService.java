@@ -98,6 +98,9 @@ public class DirectoryService implements IDirectory {
 
 	@Override
 	public DirEntry findByEntryUid(String entryUid) throws ServerFault {
+		if ("system".equals(entryUid)) {
+			return null;
+		}
 		ItemValue<DirEntry> decorated = decorate(directory.findByEntryUid(entryUid));
 		if (decorated == null) {
 			return null;
