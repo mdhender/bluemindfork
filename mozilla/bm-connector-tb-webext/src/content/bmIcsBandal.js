@@ -459,18 +459,15 @@ var gBMIcsBandal = {
     _getOtherUser: function(aLogin) {
         let dir = new DirectoryClient(this._srv.value, this._authKey, this._user.domainUid);
         let self = this;
-        let query = {
-            emailFilter: aLogin + "@" + this._user.domainUid,
-            kindsFilter: ["USER"]
-        }
-        let res = dir.search(query);
+        let email = aLogin + "@" + this._user.domainUid;
+        let res = dir.getByEmail(email);
         let dirEntry;
-        return res.then(function(dirEntries) {
-            if (dirEntries.total == 0) {
-                this._logger.debug("user: " + query.emailFilter + " not found");
+        return res.then(function(aDirEntry) {
+            if (!aDirEntry || aDirEntry.kind != "USER") {
+                self._logger.debug("user: " + email + " not found");
                 return Promise.reject();
             } else {
-                return dirEntries.values[0].value;
+                return aDirEntry;
             }
         }).then(function(aDirEntry) {
             dirEntry = aDirEntry; 
@@ -498,6 +495,8 @@ var gBMIcsBandal = {
                 }
                 self._otherUserDisplayName = dirEntry.displayName;
                 self._userUid = dirEntry.entryUid;
+                self._containerUid = otherCal.uid;
+                self._attendeeDir = "bm://" + dirEntry.path;
                 return Promise.resolve();
             } 
         });
