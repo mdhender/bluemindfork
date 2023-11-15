@@ -87,7 +87,6 @@ import net.bluemind.core.backup.continuous.restore.CloneState;
 import net.bluemind.core.backup.continuous.restore.InstallFromBackupTask;
 import net.bluemind.core.backup.continuous.restore.SysconfOverride;
 import net.bluemind.core.backup.continuous.restore.TopologyMapping;
-import net.bluemind.core.backup.continuous.restore.mbox.DefaultSdsStoreLoader;
 import net.bluemind.core.backup.continuous.store.TopicNames;
 import net.bluemind.core.container.api.IFlatHierarchyUids;
 import net.bluemind.core.container.api.IOwnerSubscriptionUids;
@@ -411,7 +410,6 @@ public class PopulateKafkaTests {
 		conf.cloneWorkers = 1;
 		conf.mode = Mode.FORK;
 
-		DefaultSdsStoreLoader sds = new DefaultSdsStoreLoader();
 		Collection<String> installs = store.installations();
 		System.err.println("installations: " + installs);
 		assertTrue(new HashSet<>(installs).contains(conf.sourceInstallationId));
@@ -421,7 +419,7 @@ public class PopulateKafkaTests {
 
 		try {
 			InstallFromBackupTask tsk = new InstallFromBackupTask(conf, store,
-					new SysconfOverride(Collections.emptyMap()), topo, sds, prov);
+					new SysconfOverride(Collections.emptyMap()), topo, prov);
 			TestTaskMonitor mon = new TestTaskMonitor();
 			tsk.run(mon);
 		} catch (Exception e) {

@@ -50,8 +50,6 @@ import net.bluemind.core.backup.continuous.IRecordStarvationStrategy.ExpectedBeh
 import net.bluemind.core.backup.continuous.api.CloneDefaults;
 import net.bluemind.core.backup.continuous.restore.domains.DomainRestorationHandler;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreState;
-import net.bluemind.core.backup.continuous.restore.mbox.DefaultSdsStoreLoader;
-import net.bluemind.core.backup.continuous.restore.mbox.ISdsStoreLoader;
 import net.bluemind.core.backup.continuous.restore.orphans.RestoreContainerItemIdSeq;
 import net.bluemind.core.backup.continuous.restore.orphans.RestoreDomains;
 import net.bluemind.core.backup.continuous.restore.orphans.RestoreJobPlans;
@@ -78,27 +76,20 @@ public class InstallFromBackupTask extends BlockingServerTask implements IServer
 	private final TopologyMapping topologyMapping;
 	private final IServiceProvider target;
 	private final Map<String, IResumeToken> processedStreams;
-	private final ISdsStoreLoader sdsAccess;
 
 	private final SysconfOverride confOver;
 
 	private final CloneConfiguration cloneConf;
 
-	public InstallFromBackupTask(CloneConfiguration conf, IBackupReader store, SysconfOverride over,
-			TopologyMapping map, IServiceProvider target) {
-		this(conf, store, over, map, new DefaultSdsStoreLoader(), target);
-	}
-
 	@VisibleForTesting
 	public InstallFromBackupTask(CloneConfiguration conf, IBackupReader store, SysconfOverride over,
-			TopologyMapping map, ISdsStoreLoader sdsAccess, IServiceProvider target) {
+			TopologyMapping map, IServiceProvider target) {
 		this.sourceMcastId = conf.sourceInstallationId;
 		this.cloneConf = conf;
 		this.target = target;
 		this.processedStreams = new HashMap<>();
 		this.topologyMapping = map;
 		this.backupStore = store;
-		this.sdsAccess = sdsAccess;
 		this.confOver = over;
 	}
 
