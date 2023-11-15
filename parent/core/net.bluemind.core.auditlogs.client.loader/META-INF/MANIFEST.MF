@@ -3,12 +3,14 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.core.auditlogs.client.loader
 Bundle-SymbolicName: net.bluemind.core.auditlogs.client.loader
 Bundle-Version: 5.0.0.qualifier
-Export-Package: net.bluemind.core.auditlogs.client.loader
+Export-Package: net.bluemind.core.auditlogs.client.loader,
+ net.bluemind.core.auditlogs.client.loader.config
 Require-Bundle: slf4j.api;bundle-version="1.7.36",
  net.bluemind.core.auditlogs,
  net.bluemind.eclipse.common,
  net.bluemind.network.topology,
- net.bluemind.core.container.persistence
+ net.bluemind.core.container.persistence,
+ com.typesafe.config
 Bundle-Vendor: net.bluemind
 Automatic-Module-Name: net.bluemind.core.auditlogs.client.loader
 Bundle-RequiredExecutionEnvironment: JavaSE-21
