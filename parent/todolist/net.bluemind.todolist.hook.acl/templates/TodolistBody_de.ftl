@@ -1,1 +1,0 @@
-${user} hat die Todo-Liste "${entity}" mit Ihnen geteilt.

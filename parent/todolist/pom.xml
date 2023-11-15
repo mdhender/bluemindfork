@@ -15,7 +15,6 @@
 		<module>net.bluemind.todolist.persistence</module>
 		<module>net.bluemind.todolist.service</module>
 		<module>net.bluemind.todolist.hook</module>
-		<module>net.bluemind.todolist.hook.acl</module>
 		<module>net.bluemind.todolist.usertodolist</module>
 	</modules>
 	<profiles>

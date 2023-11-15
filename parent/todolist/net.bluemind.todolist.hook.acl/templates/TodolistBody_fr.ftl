@@ -1,1 +1,0 @@
-${user} vous a partagé la liste de tâches "${entity}".

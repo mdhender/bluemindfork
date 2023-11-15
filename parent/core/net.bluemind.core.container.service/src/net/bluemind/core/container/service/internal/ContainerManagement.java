@@ -37,7 +37,6 @@ import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.Count;
 import net.bluemind.core.container.api.IInternalContainerManagement;
-import net.bluemind.core.container.hooks.AbstractEmailHook;
 import net.bluemind.core.container.hooks.IAclHook;
 import net.bluemind.core.container.hooks.IContainersHook;
 import net.bluemind.core.container.model.Container;
@@ -136,7 +135,7 @@ public class ContainerManagement implements IInternalContainerManagement {
 		aceValidator.validate(container, entries);
 
 		ContainerDescriptor descriptor = ContainerDescriptor.create(container.uid, container.name, container.owner,
-				container.type, container.domainUid, false);
+				container.type, container.domainUid, container.defaultContainer);
 		List<AccessControlEntry> previous = aclService.get();
 		ContainerAcl currentContainerAcl = new ContainerAcl(new HashSet<>(entries));
 		sanitizer.update(new ContainerAcl(previous.stream().collect(Collectors.toSet())), currentContainerAcl);
@@ -150,7 +149,9 @@ public class ContainerManagement implements IInternalContainerManagement {
 	private void hookAfterUpdate(List<AccessControlEntry> entries, boolean sendNotification,
 			ContainerDescriptor descriptor, List<AccessControlEntry> previous) {
 		hooks.stream() //
-				.filter(hook -> sendNotification || !(hook instanceof AbstractEmailHook)) //
+				.filter(hook -> sendNotification /* || !(hook instanceof AbstractEmailHook) */) // FIXME use
+																								// AclChangedNotificationHook
+																								// ?
 				.forEach(hook -> {
 					try {
 						hook.onAclChanged(context, descriptor, Collections.unmodifiableList(previous),

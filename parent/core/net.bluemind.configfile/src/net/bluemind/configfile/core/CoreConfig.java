@@ -53,6 +53,14 @@ public class CoreConfig {
 		public static final String IDLE_TIMEOUT = "core.sessions.idle-timeout";
 	}
 
+	public static class AclChangedNotification {
+		private AclChangedNotification() {
+		}
+
+		public static final String QUEUE_SIZE = "core.aclChangedNotification.queue-size";
+		public static final String DELAY = "core.aclChangedNotification.delay";
+	}
+
 	private static final Logger logger = LoggerFactory.getLogger(CoreConfig.class);
 	private static Config instance = load();
 

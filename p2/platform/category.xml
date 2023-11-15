@@ -13,7 +13,6 @@
    <bundle id="net.bluemind.addressbook.closure" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.addressbook.domainbook" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.addressbook.hook" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.addressbook.hook.acl" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.addressbook.ldap.adapter" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.addressbook.ldap.api" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.addressbook.ldap.api.gwt" version="5.0.0.qualifier"/>
@@ -75,7 +74,6 @@
    <bundle id="net.bluemind.calendar.helper" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.calendar.history.renderer" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.calendar.hook" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.calendar.hook.acl" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.calendar.hook.ics" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.calendar.occurrence" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.calendar.pdf" version="5.0.0.qualifier"/>
@@ -405,7 +403,6 @@
    <bundle id="net.bluemind.mailbox.api.gwt" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.mailbox.api.php" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.mailbox.hook" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.mailbox.hook.acl" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.mailbox.identity.api" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.mailbox.identity.api.gwt" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.mailbox.identity.api.php" version="5.0.0.qualifier"/>
@@ -611,7 +608,6 @@
    <bundle id="net.bluemind.todolist.api.php" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.todolist.closure" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.todolist.hook" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.todolist.hook.acl" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.todolist.persistence" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.todolist.service" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.todolist.sqlschema" version="5.0.0.qualifier"/>

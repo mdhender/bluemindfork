@@ -1,1 +1,0 @@
-Activation du service visioconférence ${entity}

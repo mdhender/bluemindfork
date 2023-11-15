@@ -4,4 +4,15 @@
    <extension-point id="net.bluemind.core.container.hooks.aclhook" name="aclhook" schema="schema/net.bluemind.core.container.hooks.aclhook.exsd"/>
    <extension-point id="net.bluemind.core.container.hooks.container" name="container" schema="schema/net.bluemind.core.container.hooks.container.exsd"/>
 
+   <extension point="net.bluemind.core.container.hooks.aclhook">
+      <acl_hook impl="net.bluemind.core.container.hooks.aclchangednotification.AclChangedNotificationHook" />
+   </extension>
+   
+   <extension point="net.bluemind.system.state">
+      <state-listener class="net.bluemind.core.container.hooks.aclchangednotification.AclChangedNotificationStateListener" />
+   </extension>
+   
+   <extension point="net.bluemind.lib.vertx.verticles">
+      <verticle impl="net.bluemind.core.container.hooks.aclchangednotification.AclChangedNotificationVerticle$Factory" />
+   </extension>
 </plugin>

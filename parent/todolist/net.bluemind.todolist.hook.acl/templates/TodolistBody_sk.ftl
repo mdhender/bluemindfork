@@ -1,1 +1,0 @@
-${user} has shared the todolist "${entity}" with you.

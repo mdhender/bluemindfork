@@ -1,1 +1,0 @@
-${user} vous a partagé un calendrier

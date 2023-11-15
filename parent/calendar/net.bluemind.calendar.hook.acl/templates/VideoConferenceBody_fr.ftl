@@ -1,2 +1,0 @@
-Vous avez désormais la possibilité d'ajouter une salle de visioconférence à vos réunions<br/>
-Pour plus d'informations vous pouvez vous référer à la <a href="${videoconfdocumentation}" target="_blank">documentation en ligne</a>

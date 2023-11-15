@@ -1,1 +1,0 @@
- ${user} <#if types?seq_contains("sharing")>vous a partagé une boîte aux lettres</#if><#if types?seq_contains("sharing") && types?seq_contains("delegation")> et </#if><#if types?seq_contains("delegation")>vous a nommé délégué</#if>.

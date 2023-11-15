@@ -1,1 +1,0 @@
-${user} has shared the calendar "${entity}" with you.

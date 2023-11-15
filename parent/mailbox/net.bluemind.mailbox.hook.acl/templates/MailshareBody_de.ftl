@@ -1,1 +1,0 @@
-${user} <#if types?seq_contains("sharing")>hat folgendes Mailkonto mit Ihnen geteilt: "${entity}"</#if><#if types?seq_contains("sharing") && types?seq_contains("delegation")> und </#if><#if types?seq_contains("delegation")>Sie als Stellvertreter konfiguriert</#if>.

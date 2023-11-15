@@ -37,7 +37,7 @@ import org.apache.james.mime4j.message.HeaderImpl;
 import org.apache.james.mime4j.message.MessageImpl;
 import org.apache.james.mime4j.stream.RawField;
 
-public class Mail {
+public final class Mail implements Cloneable {
 
 	public Mailbox from;
 	public Mailbox sender;
@@ -81,5 +81,10 @@ public class Mail {
 		BodyPart bodyPart = new BodyPart();
 		bodyPart.setText(body);
 		return bodyPart;
+	}
+
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		return super.clone();
 	}
 }

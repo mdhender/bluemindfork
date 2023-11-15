@@ -12,7 +12,6 @@
 		<module>net.bluemind.mailbox.api</module>
 		<module>net.bluemind.mailbox.identity.api</module>
 		<module>net.bluemind.mailbox.hook</module>
-		<module>net.bluemind.mailbox.hook.acl</module>
 		<module>net.bluemind.mailbox.identity.hook</module>
 		<module>net.bluemind.mailbox.sqlschema</module>
 		<module>net.bluemind.mailbox.identity.sqlschema</module>

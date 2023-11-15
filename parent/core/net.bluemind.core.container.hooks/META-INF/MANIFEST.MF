@@ -19,7 +19,11 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.i18n.labels,
  net.bluemind.group.api,
  net.bluemind.domain.api,
- net.bluemind.eclipse.common
+ net.bluemind.eclipse.common,
+ net.bluemind.system.stateobserver;bundle-version="5.0.0",
+ net.bluemind.system.api;bundle-version="5.0.0",
+ net.bluemind.configfile;bundle-version="5.0.0",
+ net.bluemind.common.freemarker;bundle-version="5.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.core.container.hooks
