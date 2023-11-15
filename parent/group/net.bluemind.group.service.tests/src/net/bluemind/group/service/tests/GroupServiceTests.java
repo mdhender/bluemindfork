@@ -38,14 +38,16 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import org.awaitility.Awaitility;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 
+import io.vertx.core.DeploymentOptions;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Identification.Name;
 import net.bluemind.addressbook.domainbook.verticle.DomainBookVerticle;
@@ -99,25 +101,22 @@ public class GroupServiceTests {
 	private static final String FAKE_IP = "fake";
 	private static final String NOTASSIGNED_IP = "notassigned";
 
-	private ItemValue<User> adminItem;
-	private User admin;
 	private SecurityContext adminSecurityContext;
-
-	private ItemValue<User> user1Item;
-	private User user1;
 	private SecurityContext user1SecurityContext;
-
-	private Container userContainer;
 	protected Container domainContainer;
 	private ContainerStore containerHome;
 	protected String domainUid;
-
 	private BmContext testContext;
 	private ItemValue<Domain> domain;
 
+	@BeforeClass
+	public static void beforeClass() {
+		VertxPlatform.getVertx().deployVerticle(new GroupServiceNotificationVerticle(),
+				new DeploymentOptions().setInstances(1));
+	}
+
 	@Before
 	public void before() throws Exception {
-
 		DomainBookVerticle.suspended = true;
 		domainUid = "bm.lan";
 
@@ -152,14 +151,14 @@ public class GroupServiceTests {
 						AccessControlEntry.create(user1SecurityContext.getSubject(), Verb.Read)));
 
 		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
+		GroupServiceNotificationVerticle.clear();
 	}
 
 	private ItemValue<Domain> initDomain(ContainerStore containerHome, String domainUid, Server... servers)
 			throws Exception {
+		ItemValue<Domain> ret = PopulateHelper.createTestDomain(domainUid, servers);
 
-		ItemValue<Domain> domain = PopulateHelper.createTestDomain(domainUid, servers);
-
-		userContainer = containerHome.get(domainUid);
+		Container userContainer = containerHome.get(domainUid);
 		assertNotNull(userContainer);
 
 		UserStore userStore = new UserStore(JdbcTestHelper.getInstance().getDataSource(), userContainer);
@@ -168,23 +167,24 @@ public class GroupServiceTests {
 
 		String nt = "" + System.nanoTime();
 		String adm = "adm" + nt;
-		adminItem = defaultUser(adm, adm);
-		admin = adminItem.value;
+		ItemValue<User> adminItem = defaultUser(adm, adm);
+		User admin = adminItem.value;
 		userStoreService.create(adminItem.uid, adm, admin);
 		adminSecurityContext = BmTestContext.contextWithSession(adm, adm, domainUid, SecurityContext.ROLE_ADMIN)
 				.getSecurityContext();
 
 		String u1 = "u1." + nt;
-		user1Item = defaultUser(u1, u1);
-		user1 = user1Item.value;
+		ItemValue<User> user1Item = defaultUser(u1, u1);
+		User user1 = user1Item.value;
 		userStoreService.create(user1Item.uid, u1, user1);
 		user1SecurityContext = BmTestContext.contextWithSession(u1, u1, domainUid).getSecurityContext();
-		return domain;
+		return ret;
 	}
 
 	@After
 	public void after() throws Exception {
 		JdbcTestHelper.getInstance().afterTest();
+		GroupServiceNotificationVerticle.clear();
 	}
 
 	protected IGroup getGroupService(SecurityContext context) throws ServerFault {
@@ -218,7 +218,6 @@ public class GroupServiceTests {
 		group = defaultGroup();
 		group.hidden = true;
 		getGroupService(adminSecurityContext).create(uid, group);
-
 		assertNotNull(dir.getVCard(uid));
 	}
 
@@ -532,7 +531,7 @@ public class GroupServiceTests {
 	@Test
 	public void testRemoveMembersInexistantGroup() throws ServerFault {
 		try {
-			getGroupService(adminSecurityContext).remove(UUID.randomUUID().toString(), new ArrayList<Member>());
+			getGroupService(adminSecurityContext).remove(UUID.randomUUID().toString(), new ArrayList<>());
 			fail("Testmust thrown an exception");
 		} catch (ServerFault sf) {
 			assertEquals(ErrorCode.NOT_FOUND, sf.getCode());
@@ -580,7 +579,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testRestoreCreate() throws ServerFault, InterruptedException, SQLException, ParseException {
+	public void testRestoreCreate() throws ServerFault, ParseException {
 		String uid = UUID.randomUUID().toString();
 		Group group = defaultGroup();
 		ItemValue<Group> groupItem = ItemValue.create(uid, group);
@@ -620,7 +619,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testUpdateGroupAsAdmin() throws ServerFault, InterruptedException, SQLException {
+	public void testUpdateGroupAsAdmin() throws ServerFault {
 		Group group = defaultGroup("testUpdateGroupAsAdmin");
 		String uid = UUID.randomUUID().toString();
 		getGroupService(adminSecurityContext).create(uid, group);
@@ -678,7 +677,6 @@ public class GroupServiceTests {
 
 		group.name = "checkthat" + System.nanoTime();
 		getGroupService(adminSecurityContext).update(uid, group);
-
 		ItemValue<VCard> dirVCard = testContext.provider().instance(IDirectory.class, domainUid).getVCard(uid);
 		assertNotNull(dirVCard);
 		assertEquals(group.name, dirVCard.value.identification.formatedName.value);
@@ -688,7 +686,7 @@ public class GroupServiceTests {
 
 		group.hiddenMembers = false;
 		getGroupService(adminSecurityContext).update(uid, group);
-
+		waitForGroupVcard(domainUid, uid);
 		dirVCard = testContext.provider().instance(IDirectory.class, domainUid).getVCard(uid);
 		assertNotNull(dirVCard);
 		assertEquals(3, dirVCard.value.organizational.member.size());
@@ -736,7 +734,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testDeleteGroupAsAdmin() throws ServerFault, InterruptedException, SQLException {
+	public void testDeleteGroupAsAdmin() throws ServerFault, SQLException {
 		ItemValue<Group> group = createGroup();
 
 		TaskRef tr = getGroupService(adminSecurityContext).delete(group.uid);
@@ -747,7 +745,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testDeleteGroupAsUser() throws ServerFault, InterruptedException, SQLException {
+	public void testDeleteGroupAsUser() throws ServerFault, SQLException {
 		try {
 			ItemValue<Group> group = createGroup();
 			getGroupService(user1SecurityContext).delete(group.uid);
@@ -758,20 +756,18 @@ public class GroupServiceTests {
 
 	@Test
 	public void testAddMembersAsAdmin() throws ServerFault, SQLException {
-
 		DomainBookVerticle.suspended = true;
 		ItemValue<Group> group = createGroup();
 
 		List<Member> membersToAdd = getMembers(3);
 
 		getGroupService(adminSecurityContext).add(group.uid, membersToAdd);
-
 		List<Member> members = getGroupService(adminSecurityContext).getMembers(group.uid);
-
 		assertEquals(ImmutableSet.copyOf(membersToAdd), ImmutableSet.copyOf(members));
 
-		IDirectory dir = testContext.provider().instance(IDirectory.class, domainUid);
+		waitForGroupVcard(domainUid, group.uid);
 
+		IDirectory dir = testContext.provider().instance(IDirectory.class, domainUid);
 		ItemValue<VCard> vcard = dir.getVCard(group.uid);
 		assertNotNull(vcard);
 		assertEquals(3, vcard.value.organizational.member.size());
@@ -790,6 +786,8 @@ public class GroupServiceTests {
 		List<Member> membersToReAdd = membersToAdd.subList(0, 1);
 		membersToReAdd.addAll(getMembers(1));
 		service.add(group.uid, membersToReAdd);
+
+		waitForGroupVcard(domainUid, group.uid);
 
 		IDirectory dir = testContext.provider().instance(IDirectory.class, domainUid);
 
@@ -829,6 +827,7 @@ public class GroupServiceTests {
 				}
 			}
 		}
+		waitForGroupVcard(domainUid, group.uid);
 
 		assertEquals(membersToAdd.size(), found);
 		IDirectory dirAb = testContext.provider().instance(IDirectory.class, domainUid);
@@ -838,6 +837,7 @@ public class GroupServiceTests {
 		assertEquals(2, vcard.value.communications.emails.size());
 
 		getGroupService(adminSecurityContext).remove(group.uid, members);
+		waitForGroupVcard(domainUid, group.uid);
 
 		vcard = dirAb.getVCard(group.uid);
 		assertNotNull(vcard);
@@ -958,7 +958,7 @@ public class GroupServiceTests {
 
 	private List<Member> getUsersMembers(int nb) throws ServerFault {
 
-		ArrayList<Member> members = new ArrayList<Member>(nb);
+		ArrayList<Member> members = new ArrayList<>(nb);
 		for (int i = 0; i < nb; i++) {
 			ItemValue<User> user = defaultUser();
 			if (i == 1) {
@@ -977,7 +977,7 @@ public class GroupServiceTests {
 
 	private List<Member> getExternalUsersMembers(int nb) throws ServerFault {
 
-		ArrayList<Member> members = new ArrayList<Member>(nb);
+		ArrayList<Member> members = new ArrayList<>(nb);
 		for (int i = 0; i < nb; i++) {
 			ItemValue<ExternalUser> externalUser = defaultExternalUser();
 			testContext.provider().instance(IExternalUser.class, domainUid).create(externalUser.uid,
@@ -1013,9 +1013,8 @@ public class GroupServiceTests {
 		List<Member> membersToRemove = getMembers(1);
 
 		getGroupService(adminSecurityContext).add(group.uid, membersToAdd);
-
 		getGroupService(adminSecurityContext).add(group.uid, membersToRemove);
-
+		waitForGroupVcard(domainUid, group.uid);
 		ItemValue<VCard> vcard = dir.getVCard(group.uid);
 		assertNotNull(vcard);
 		assertEquals(4, vcard.value.organizational.member.size());
@@ -1032,6 +1031,7 @@ public class GroupServiceTests {
 				}
 			}
 		}
+		waitForGroupVcard(domainUid, group.uid);
 
 		assertEquals(membersToAdd.size(), count);
 
@@ -1101,7 +1101,7 @@ public class GroupServiceTests {
 		compareMember(userMembers, users);
 	}
 
-	private ItemValue<Group> createGroup() throws ServerFault, SQLException {
+	private ItemValue<Group> createGroup() throws ServerFault {
 		return createGroup(null);
 	}
 
@@ -1174,7 +1174,7 @@ public class GroupServiceTests {
 	public void testAddMembersToProfileGroup() throws Exception {
 		String uid = UUID.randomUUID().toString();
 		Group group = defaultGroup(null);
-		group.properties = ImmutableMap.of("is_profile", "true");
+		group.properties = Map.of("is_profile", "true");
 		try {
 			testContext.provider().instance(IGroup.class, domainUid).create(uid, group);
 		} catch (Exception e) {
@@ -1224,7 +1224,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testCreateWithSameName() throws ServerFault, SQLException {
+	public void testCreateWithSameName() throws ServerFault {
 		ItemValue<Group> group1 = createGroup();
 
 		String uid = UUID.randomUUID().toString();
@@ -1271,7 +1271,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testByName() throws ServerFault, SQLException {
+	public void testByName() throws ServerFault {
 		ItemValue<Group> group = createGroup();
 
 		ItemValue<Group> created = getGroupService(adminSecurityContext).getComplete(group.uid);
@@ -1331,7 +1331,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testAddMemberInvalidMember2() throws ServerFault, SQLException {
+	public void testAddMemberInvalidMember2() throws ServerFault {
 		ItemValue<Group> group = createGroup();
 
 		Member member = new Member();
@@ -1343,12 +1343,12 @@ public class GroupServiceTests {
 			fail("Test must thrown an exception");
 		} catch (ServerFault sf) {
 			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
-			assertTrue(sf.getMessage().toLowerCase().equals("invalid member"));
+			assertTrue(sf.getMessage().equalsIgnoreCase("invalid member"));
 		}
 	}
 
 	@Test
-	public void testAddMemberInvalidMember3() throws ServerFault, SQLException {
+	public void testAddMemberInvalidMember3() throws ServerFault {
 		ItemValue<Group> group = createGroup();
 
 		Member member = new Member();
@@ -1361,7 +1361,7 @@ public class GroupServiceTests {
 		} catch (ServerFault sf) {
 			System.out.println(sf.getMessage());
 			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
-			assertTrue(sf.getMessage().toLowerCase().equals("invalid member"));
+			assertTrue(sf.getMessage().equalsIgnoreCase("invalid member"));
 		}
 	}
 
@@ -1432,7 +1432,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testCreateGroupsWithSameEmail() throws ServerFault, SQLException {
+	public void testCreateGroupsWithSameEmail() throws ServerFault {
 		String uid = UUID.randomUUID().toString();
 		Group group = defaultGroup();
 		getGroupService(adminSecurityContext).create(uid, group);
@@ -1452,7 +1452,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testCreateGroupsWithEmailToSanitize() throws ServerFault, SQLException {
+	public void testCreateGroupsWithEmailToSanitize() throws ServerFault {
 		String uid = UUID.randomUUID().toString();
 		Group group = defaultGroup();
 
@@ -1465,7 +1465,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testCreateGroupsWithInvalidEmail() throws ServerFault, SQLException {
+	public void testCreateGroupsWithInvalidEmail() throws ServerFault {
 		String uid = UUID.randomUUID().toString();
 		Group group = defaultGroup();
 
@@ -1747,7 +1747,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testUpdateGroupsWithEmailToSanitize() throws ServerFault, SQLException {
+	public void testUpdateGroupsWithEmailToSanitize() throws ServerFault {
 		ItemValue<Group> group = createGroup();
 		String address = "  sanitize-" + group.value.emails.iterator().next().address + "   ";
 		group.value.emails.iterator().next().address = address;
@@ -1760,7 +1760,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testUpdateGroupsWithInvalidEmail() throws ServerFault, SQLException {
+	public void testUpdateGroupsWithInvalidEmail() throws ServerFault {
 		ItemValue<Group> group = createGroup();
 
 		String address = "  sanitize-" + group.value.emails.iterator().next().address + "   ";
@@ -1778,7 +1778,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testUpdateGroupsWithSameEmail() throws ServerFault, SQLException {
+	public void testUpdateGroupsWithSameEmail() throws ServerFault {
 		String uid = UUID.randomUUID().toString();
 		Group group = defaultGroup();
 		getGroupService(adminSecurityContext).create(uid, group);
@@ -1810,7 +1810,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testGetParentsEmptyUid() throws ServerFault, InterruptedException, SQLException {
+	public void testGetParentsEmptyUid() throws ServerFault {
 		try {
 			getGroupService(adminSecurityContext).getParents("");
 			fail("Test must thrown an exception");
@@ -1830,7 +1830,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testGetParentsExistantGroup() throws ServerFault, SQLException {
+	public void testGetParentsExistantGroup() throws ServerFault {
 		ItemValue<Group> group1 = createGroup();
 
 		List<ItemValue<Group>> parents = getGroupService(adminSecurityContext).getParents(group1.uid);
@@ -1839,7 +1839,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testGetParents() throws ServerFault, SQLException {
+	public void testGetParents() throws ServerFault {
 		ItemValue<Group> group1 = createGroup();
 
 		ItemValue<Group> group2 = createGroup();
@@ -1902,7 +1902,7 @@ public class GroupServiceTests {
 		ItemValue<Group> created = service.getComplete(uid);
 		assertEquals(0, created.value.properties.size());
 
-		Map<String, String> properties = new HashMap<String, String>();
+		Map<String, String> properties = new HashMap<>();
 		group.properties = properties;
 		service.update(uid, group);
 		created = service.getComplete(uid);
@@ -1934,13 +1934,13 @@ public class GroupServiceTests {
 		assertTrue(roles.contains(BasicRoles.ROLE_MANAGE_USER));
 
 		try {
-			getGroupService(SecurityContext.ANONYMOUS).setRoles(uid, new HashSet<String>());
+			getGroupService(SecurityContext.ANONYMOUS).setRoles(uid, new HashSet<>());
 			fail("only admin should be able to call setRoles");
 		} catch (ServerFault e) {
 			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
 		}
 		try {
-			getGroupService(user1SecurityContext).setRoles(uid, new HashSet<String>());
+			getGroupService(user1SecurityContext).setRoles(uid, new HashSet<>());
 			fail("only admin should be able to call setRoles");
 		} catch (ServerFault e) {
 			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
@@ -1955,7 +1955,7 @@ public class GroupServiceTests {
 		}
 
 		try {
-			getGroupService(adminSecurityContext).setRoles("fakeUid", new HashSet<String>());
+			getGroupService(adminSecurityContext).setRoles("fakeUid", new HashSet<>());
 			fail("should failed because user does not exist");
 		} catch (ServerFault e) {
 			assertEquals(ErrorCode.NOT_FOUND, e.getCode());
@@ -1963,7 +1963,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testVCardWithArchivedMember() throws ServerFault, InterruptedException, SQLException {
+	public void testVCardWithArchivedMember() throws ServerFault, SQLException {
 		String uid = UUID.randomUUID().toString();
 		Group group = defaultGroup();
 		getGroupService(adminSecurityContext).create(uid, group);
@@ -1971,6 +1971,7 @@ public class GroupServiceTests {
 		List<Member> membersToAdd = getMembers(6);
 		assertEquals(6, membersToAdd.size());
 		getGroupService(adminSecurityContext).add(uid, membersToAdd);
+		waitForGroupVcard(domainUid, uid);
 
 		ItemValue<VCard> vcard = testContext.provider().instance(IDirectory.class, domainUid).getVCard(uid);
 		assertNotNull(vcard);
@@ -2023,6 +2024,11 @@ public class GroupServiceTests {
 			assertTrue("true".equals(g.value.properties.get("is_profile")));
 		});
 
+	}
+
+	public void waitForGroupVcard(String domainUid, String groupUid) {
+		Awaitility.await().atMost(10, TimeUnit.SECONDS)
+				.until(() -> GroupServiceNotificationVerticle.contains(groupUid));
 	}
 
 	private TaskStatus waitTaskEnd(TaskRef taskRef) throws ServerFault {

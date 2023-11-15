@@ -98,7 +98,7 @@ public class GroupVCardAdapter extends AbstractVCardAdapter<Group> {
 				// create
 				return Collections.emptyList();
 			}
-			return groupStore.getMembers(item);
+			return groupStore.getMembers(item, true);
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}

@@ -280,9 +280,39 @@ public class GroupStore extends AbstractItemValueStore<Group> {
 			ORDER BY 1, 2
 			""";
 
-	public List<Member> getMembers(Item item) throws SQLException {
-		return select(SELECT_MEMBERS, MEMBER_CREATOR, MemberColumns.populator(),
+	private static final String SELECT_MEMBERS_LIMITED = """
+			(SELECT 'user', t_container_item.uid AS uid
+			    FROM t_group_usermember
+			    JOIN t_container_item ON t_container_item.id = user_id
+			    WHERE group_id = ?
+			UNION
+			SELECT 'external_user', t_container_item.uid AS uid
+			    FROM t_group_externalusermember
+			    JOIN t_container_item ON t_container_item.id = external_user_id
+			    WHERE group_id = ?
+			UNION
+			SELECT 'group', t_container_item.uid AS uid
+			    FROM t_group_groupmember
+			    INNER JOIN t_container_item ON t_container_item.id = group_child_id
+			    WHERE group_parent_id = ?
+			)
+			ORDER BY 1, 2
+			LIMIT 512
+			""";
+
+	/**
+	 * @param item
+	 * @param limitResults will return at most 3x512 members
+	 * @return
+	 * @throws SQLException
+	 */
+	public List<Member> getMembers(Item item, boolean limitResults) throws SQLException {
+		return select(limitResults ? SELECT_MEMBERS_LIMITED : SELECT_MEMBERS, MEMBER_CREATOR, MemberColumns.populator(),
 				new Object[] { item.id, item.id, item.id });
+	}
+
+	public List<Member> getMembers(Item item) throws SQLException {
+		return getMembers(item, false);
 	}
 
 	/**

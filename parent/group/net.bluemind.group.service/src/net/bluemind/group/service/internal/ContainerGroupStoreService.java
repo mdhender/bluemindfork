@@ -26,6 +26,8 @@ import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
+import io.vertx.core.eventbus.MessageProducer;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -46,9 +48,9 @@ import net.bluemind.group.api.Group;
 import net.bluemind.group.api.GroupSearchQuery;
 import net.bluemind.group.api.Member;
 import net.bluemind.group.persistence.GroupStore;
+import net.bluemind.lib.vertx.VertxPlatform;
 
 public class ContainerGroupStoreService extends DirValueStoreService<Group> {
-
 	public static class GroupDirEntryAdapter implements DirEntryAdapter<Group> {
 
 		@Override
@@ -63,6 +65,7 @@ public class ContainerGroupStoreService extends DirValueStoreService<Group> {
 
 	private GroupStore groupStore;
 	private ItemStore realItemStore;
+	private MessageProducer<JsonObject> updateVcardPublisher;
 
 	public ContainerGroupStoreService(BmContext context, Container container, ItemValue<Domain> domain) {
 		this(context, context.getDataSource(), context.getSecurityContext(), container, domain);
@@ -75,6 +78,8 @@ public class ContainerGroupStoreService extends DirValueStoreService<Group> {
 				new GroupVCardAdapter(dataSource, securityContext, container, domain.uid), new GroupMailboxAdapter());
 		this.groupStore = new GroupStore(dataSource, container);
 		this.realItemStore = new ItemStore(dataSource, container, securityContext);
+		this.updateVcardPublisher = VertxPlatform.eventBus()
+				.publisher(UpdateGroupVcardVerticle.VCARD_UPDATE_BUS_ADDRESS);
 	}
 
 	public Set<String> getGroupsWithRoles(List<String> roles) throws ServerFault {
@@ -142,8 +147,7 @@ public class ContainerGroupStoreService extends DirValueStoreService<Group> {
 				groupStore.addExternalUsersMembers(item, realItemStore.getMultiple(externalUserMembers.stream()
 						.map(m -> m.uid).sorted(Comparable::compareTo).collect(Collectors.toList())));
 			}
-
-			vcardStore.update(item, vcardAdapter.asVCard(domain, item.uid, getItemValue(item).value.value));
+			requestGroupVCardUpdate(domain.uid, item.uid);
 			return null;
 		});
 		return addedMembers;
@@ -180,7 +184,7 @@ public class ContainerGroupStoreService extends DirValueStoreService<Group> {
 				groupStore.removeExternalUsersMembers(item, realItemStore.getMultiple(externalUserMembersUid).stream()
 						.map(i -> i.id).sorted(Comparable::compareTo).collect(Collectors.toList()));
 			}
-			vcardStore.update(item, vcardAdapter.asVCard(domain, item.uid, getItemValue(item).value.value));
+			requestGroupVCardUpdate(domain.uid, item.uid);
 			return null;
 		});
 
@@ -277,4 +281,12 @@ public class ContainerGroupStoreService extends DirValueStoreService<Group> {
 			return groupStore.getGroupGroups(item);
 		});
 	}
+
+	private void requestGroupVCardUpdate(String domainUid, String groupUid) {
+		JsonObject updateVcardOrder = new JsonObject();
+		updateVcardOrder.put("domain_uid", domainUid);
+		updateVcardOrder.put("group_uid", groupUid);
+		updateVcardPublisher.write(updateVcardOrder);
+	}
+
 }

@@ -25,5 +25,6 @@ Require-Bundle: org.junit,
  net.bluemind.group.persistence,
  net.bluemind.role.api,
  net.bluemind.group.member,
- net.bluemind.group.service
+ net.bluemind.group.service,
+ org.awaitility
 Automatic-Module-Name: net.bluemind.group.service.tests

@@ -32,5 +32,11 @@
       <sanitizerfactory
             implementation="net.bluemind.group.service.internal.GroupSearchQuerySanitizer$Factory"></sanitizerfactory>
    </extension>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.group.service.internal.UpdateGroupVcardVerticle$Factory">
+      </verticle>
+   </extension>
 
 </plugin>
