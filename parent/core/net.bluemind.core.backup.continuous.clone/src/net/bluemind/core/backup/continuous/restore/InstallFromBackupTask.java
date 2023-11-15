@@ -243,7 +243,7 @@ public class InstallFromBackupTask extends BlockingServerTask implements IServer
 					monitor.log("prevState for " + domainStream + " => " + prevState);
 
 					// sync with __presync topic first (repair)
-					streams.preSyncForDomain(domain.uid).ifPresent(preSyncStream -> {
+					streams.preSyncForDomain(domain.uid).ifPresentOrElse(preSyncStream -> {
 						monitor.log("presync stream available for {}: launching presync first", domain.uid);
 						logger.info("presync stream available for {}: launching presync first", domain.uid);
 						if (prevState == null) {
@@ -252,7 +252,7 @@ public class InstallFromBackupTask extends BlockingServerTask implements IServer
 							monitor.log("presync available, but previous state is non null: no presync needed");
 							logger.info("presync available, but previous state is non null: no presync needed");
 						}
-					});
+					}, () -> logger.info("presync stream *NOT* available for {}", domain.uid));
 
 					domainStreamIndex = domainStream.subscribe(prevState, restoration::handle, starvation); // , false
 				} catch (IOException e) {
