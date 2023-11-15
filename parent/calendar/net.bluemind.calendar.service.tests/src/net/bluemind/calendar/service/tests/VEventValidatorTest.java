@@ -30,13 +30,20 @@ import java.util.Arrays;
 import org.junit.Test;
 
 import net.bluemind.calendar.api.VEvent;
+import net.bluemind.calendar.api.VEventCounter;
+import net.bluemind.calendar.api.VEventCounter.CounterOriginator;
+import net.bluemind.calendar.api.VEventOccurrence;
+import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.service.internal.VEventValidator;
 import net.bluemind.core.api.date.BmDateTime.Precision;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.icalendar.api.ICalendarElement.Attendee;
+import net.bluemind.icalendar.api.ICalendarElement.Organizer;
 import net.bluemind.icalendar.api.ICalendarElement.RRule.Frequency;
 import net.bluemind.icalendar.api.ICalendarElement.RRule.WeekDay;
+import net.bluemind.icalendar.api.ICalendarElement.Role;
 
 public class VEventValidatorTest {
 
@@ -249,5 +256,46 @@ public class VEventValidatorTest {
 		} catch (ServerFault e) {
 			fail();
 		}
+	}
+
+	@Test
+	public void testCounterPropositionValidation() {
+		VEvent vevent = new VEvent();
+		vevent.summary = "bang";
+
+		// DtEnd < DtStart
+		vevent.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2017, 05, 17, 8, 0, 0, 0, defaultTz),
+				Precision.DateTime);
+		vevent.dtend = BmDateTimeWrapper.create(ZonedDateTime.of(2017, 05, 17, 9, 0, 0, 0, defaultTz),
+				Precision.DateTime);
+		VEventSeries series = new VEventSeries();
+		VEventCounter counter = new VEventCounter();
+		counter.originator = new CounterOriginator();
+		counter.counter = VEventOccurrence.fromEvent(vevent, null);
+		Attendee attendee = new Attendee();
+		attendee.role = Role.RequiredParticipant;
+		attendee.mailto = "part@test.loc";
+		counter.counter.attendees = Arrays.asList(attendee);
+		counter.counter.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2017, 05, 17, 9, 0, 0, 0, defaultTz),
+				Precision.DateTime);
+		vevent.dtend = BmDateTimeWrapper.create(ZonedDateTime.of(2017, 05, 17, 10, 0, 0, 0, defaultTz),
+				Precision.DateTime);
+		vevent.organizer = new Organizer("test@test.loc");
+
+		series.main = vevent;
+		series.counters = Arrays.asList(counter);
+		series.acceptCounters = true;
+
+		validator.validate(series);
+
+		series.acceptCounters = false;
+		try {
+			validator.validate(series);
+			fail();
+		} catch (Exception e) {
+		}
+
+		counter.counter.attendees.get(0).role = Role.NonParticipant; // added attendee, does not trigger counter check
+		validator.validate(series);
 	}
 }

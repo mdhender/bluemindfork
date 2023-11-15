@@ -40,6 +40,7 @@ import net.bluemind.core.validator.IValidator;
 import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.icalendar.api.ICalendarElement.RRule.Frequency;
 import net.bluemind.icalendar.api.ICalendarElement.RRule.WeekDay;
+import net.bluemind.icalendar.api.ICalendarElement.Role;
 
 public class VEventValidator implements IValidator<VEventSeries> {
 
@@ -195,7 +196,7 @@ public class VEventValidator implements IValidator<VEventSeries> {
 			vevent.counters = new ArrayList<>();
 		}
 
-		if (!vevent.counters.isEmpty() && !vevent.acceptCounters) {
+		if (!vevent.acceptCounters && eventHasDateCounter(vevent)) {
 			throw new ServerFault("Event accepts no counter propositions", ErrorCode.EVENT_ACCEPTS_NO_COUNTERS);
 		}
 
@@ -207,6 +208,14 @@ public class VEventValidator implements IValidator<VEventSeries> {
 			}
 			seen.add(counter);
 		}
+	}
+
+	private boolean eventHasDateCounter(VEventSeries vevent) {
+		return vevent.counters.stream().anyMatch(this::isDateCounter);
+	}
+
+	private boolean isDateCounter(VEventCounter counter) {
+		return counter.counter.attendees.stream().noneMatch(att -> att.role == Role.NonParticipant);
 	}
 
 	private void checkIntegerList(List<Integer> intList, int min, int max) throws ServerFault {
