@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.typesafe.config.Config;
+import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValue;
 import com.typesafe.config.ConfigValueFactory;
@@ -18,6 +19,7 @@ public class CrpConfig {
 	private static final String APPLICATION_RESOURCE = "resources/application.conf";
 	private static final String VERTICLE_RESOURCE = "resources/reference.conf";
 	private static final String KAFKA_CONFIG = "/etc/bm/kafka.properties";
+	private static final String OVERRIDE_PATH = "/etc/bm/crp.conf";
 
 	public static class Kafka {
 		private Kafka() {
@@ -114,6 +116,16 @@ public class CrpConfig {
 
 		if (!applicationConfig.hasPath(CrpConfig.Kafka.BOOTSTRAP_SERVERS)) {
 			applicationConfig = applicationConfig.withFallback(kafkaBootstrapServersConfig());
+		}
+
+		File override = new File(OVERRIDE_PATH);
+		if (override.exists()) {
+			try {
+				Config fromDisk = ConfigFactory.parseFile(override);
+				applicationConfig = fromDisk.withFallback(applicationConfig);
+			} catch (ConfigException e) {
+				logger.error("Invalid crp configuration override '{}', ignored: {}", override, e.getMessage());
+			}
 		}
 
 		return applicationConfig;
