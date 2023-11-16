@@ -26,7 +26,7 @@
                 {{ $t("preferences.account.delegates.delegate") }}
             </bm-label-icon>
         </contact-input>
-        <bm-form-radio-group v-model="delegationRight" class="py-4" :disabled="!selectedDelegate">
+        <bm-form-radio-group v-model="delegationRight" class="radio-group" :disabled="!selectedDelegate">
             <bm-form-radio :value="Verb.SendOnBehalf">
                 {{ $t("preferences.account.delegates.edit.send_on_behalf") }}
             </bm-form-radio>
@@ -38,12 +38,12 @@
             <div class="delegation-notice-label">
                 {{ $t("preferences.account.delegates.edit.notice.label") }}
             </div>
-            <div class="d-flex align-items-center my-4">
-                <contact :contact="userAsContact" transparent bold-dn />
+            <div class="d-flex align-items-center pt-1 px-2">
+                <contact :contact="userAsContact" transparent bold-dn avatar-size="md" />
                 <span v-if="delegationRight === Verb.SendOnBehalf" class="ml-3">
                     <i18n path="preferences.account.delegates.edit.notice.send_by">
                         <template #delegate>
-                            <span class="font-weight-bold">{{
+                            <span class="bold">{{
                                 selectedDelegate
                                     ? selectedContacts[0].dn
                                     : $t("preferences.account.delegates.edit.notice.send_by.placeholder")
@@ -396,12 +396,16 @@ export default {
 </script>
 
 <style lang="scss">
+@import "@bluemind/ui-components/src/css/utils/typography";
 @import "@bluemind/ui-components/src/css/utils/variables";
 
 .pref-delegates-modal {
     .modal-content {
         .delete-autocomplete {
             display: none;
+        }
+        .radio-group {
+            padding: $sp-5 0 $sp-3 $sp-4;
         }
         .bm-form-radio,
         .bm-form-checkbox {
@@ -434,11 +438,18 @@ export default {
         }
         .delegation-notice {
             margin-top: $sp-2;
-            margin-bottom: base-px-to-rem(30);
+            margin-bottom: $sp-6 - $sp-2;
+            padding: $sp-4 0 $sp-4 $sp-6;
+            background-color: $neutral-bg-lo1;
+
             .delegation-notice-label {
                 color: $neutral-fg-lo1;
-                font-weight: $font-weight-bold;
-                font-size: $font-size-sm;
+                @include caption-bold;
+                margin-bottom: $sp-3;
+            }
+
+            .contact .contact-main-part {
+                margin-left: $sp-5 + $sp-2;
             }
         }
     }
