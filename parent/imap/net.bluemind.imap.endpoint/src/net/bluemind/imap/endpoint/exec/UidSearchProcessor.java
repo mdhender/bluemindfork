@@ -19,6 +19,7 @@
 package net.bluemind.imap.endpoint.exec;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -58,6 +59,8 @@ public class UidSearchProcessor extends SelectedStateCommandProcessor<UidSearchC
 			ctx.write(command.raw().tag() + " BAD Invalid Search criteria\r\n").onComplete(completed);
 			return;
 		}
+		Map<Long, Integer> visibleUids = ctx.selected().imapUidToSeqNum();
+		imapUids = imapUids.stream().filter(visibleUids::containsKey).toList();
 		if (imapUids.isEmpty()) {
 			long ms = chrono.elapsed(TimeUnit.MILLISECONDS);
 			ctx.write(forCheckpoint.toString() + "* SEARCH\r\n" + command.raw().tag() + " OK Completed (took " + ms

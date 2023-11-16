@@ -24,6 +24,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
@@ -397,6 +398,40 @@ public class UserMailboxTests {
 			sq.setNotDeleted(false);
 			Collection<Integer> basicSearch = sc.uidSearch(sq);
 			assertEquals(3, basicSearch.size());
+		}
+	}
+
+	@Test
+	public void testSearchUnseenVersusUidsearchUnseen() throws Exception {
+		try (StoreClient sc = new StoreClient("127.0.0.1", 1143, "john@devenv.blue", "john")) {
+			assertTrue(sc.login());
+			String fn = "unseen" + System.nanoTime();
+			sc.create(fn);
+			assertTrue(sc.select(fn));
+			FlagsList fl = new FlagsList();
+			int one = sc.append(fn, eml(), fl);
+			assertEquals(1, one);
+			int two = sc.append(fn, eml(), fl);
+			assertEquals(2, two);
+			int three = sc.append(fn, eml(), fl);
+			assertEquals(3, three);
+
+			FlagsList del = new FlagsList();
+			del.add(Flag.DELETED);
+			sc.uidStore("2", del, true);
+			sc.expunge();
+
+			TaggedResult unseenRes = sc.tagged("search unseen");
+			String searchUnseen = Arrays.stream(unseenRes.getOutput()).filter(s -> s.startsWith("* SEARCH")).findFirst()
+					.orElseThrow();
+			System.err.println("searchUnseen: " + searchUnseen);
+			assertEquals("* SEARCH 1 2", searchUnseen);
+
+			TaggedResult uidUnseenRes = sc.tagged("uid search unseen");
+			String searchUidUnseen = Arrays.stream(uidUnseenRes.getOutput()).filter(s -> s.startsWith("* SEARCH"))
+					.findFirst().orElseThrow();
+			System.err.println("uidUnseen: " + searchUidUnseen);
+			assertEquals("* SEARCH 1 3", searchUidUnseen);
 		}
 	}
 
