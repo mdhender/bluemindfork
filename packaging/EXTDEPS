@@ -5,7 +5,7 @@ BMES="7.17.13-bluemind107"
 
 BMKEYCLOAK="22.0.5-bluemind415"
 
-KAFKA_REPL="0.1.0-bluemind451"
+KAFKA_REPL="0.1.0-bluemind513"
 KAFKA="3.6.0-bluemind412"
 MINIO="2023.11.01-bluemind412"
 WEED="3.58-bluemind412"
