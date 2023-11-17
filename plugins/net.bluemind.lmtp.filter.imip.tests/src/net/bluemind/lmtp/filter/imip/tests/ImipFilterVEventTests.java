@@ -581,8 +581,13 @@ public class ImipFilterVEventTests {
 		for (Field f : headerFields) {
 			if (f.getName().equalsIgnoreCase("X-BM-EVENT")) {
 				checked = true;
-				assertEquals(String.format("%s; recurid=\"%s\"; rsvp=\"true\"", event.uid, now.iso8601), f.getBody());
+				long start = new BmDateTimeWrapper(occurrence.dtstart).toDate().getTime();
+				long end = new BmDateTimeWrapper(occurrence.dtend).toDate().getTime();
+				String expected = String.format("%s; recurid=\"%s\"; rsvp=\"true\"; loc=\"%s\"; std=\"%s\"; major=\"false\"; end=\"%s\"; seq=\"%s\"", 
+						event.uid, now.iso8601, occurrence.location, start, end, occurrence.sequence);
+				assertEquals(expected, f.getBody());
 			}
+			
 			if (f.getName().equalsIgnoreCase("X-BM-Calendar")) {
 				checked = true;
                 assertEquals(calendarUid, f.getBody());
