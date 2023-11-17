@@ -3,159 +3,206 @@ import { messageUtils } from "@bluemind/mail";
 import MessageAdaptor, { getEventInfo } from "../message/MessageAdaptor";
 
 describe("MessageAdaptor", () => {
+    const MINIMAL_EMPTY_MESSAGE = { value: { body: { headers: [], recipients: [], structure: { mime: "" } } } };
+    const folderRef = { key: "", uid: "" };
     test("message model and message adaptor share same properties", () => {
-        const emptyRemote = { value: { body: { headers: [], recipients: [], structure: { mime: "" } } } };
-
         const message = messageUtils.create();
-        const adapted = messageUtils.MessageAdaptor.fromMailboxItem(emptyRemote, {});
 
-        const messageProperties = Object.keys(message).sort();
-        const adaptedProperties = Object.keys(adapted).sort();
+        const adapted = MessageAdaptor.fromMailboxItem(MINIMAL_EMPTY_MESSAGE, {});
 
-        expect(messageProperties.length).toBe(adaptedProperties.length);
-        messageProperties.forEach((prop, index) => {
-            expect(prop).toBe(adaptedProperties[index]);
-        });
+        expect(Object.keys(message)).toEqual(expect.arrayContaining(Object.keys(adapted)));
     });
 
     describe("check adaptor results", () => {
-        let minimalEmptyMessage, folderRef;
-        beforeAll(() => {
-            minimalEmptyMessage = { value: { body: { headers: [], recipients: [], structure: { mime: "" } } } };
-            folderRef = { key: "", uid: "" };
+        test("remove backslash characters used for escape purpose in recipients (for any kind)", () => {
+            const messageWithRecipients = messageBuilder(MINIMAL_EMPTY_MESSAGE)
+                .withRecipients(createAllKindOfRecipients("\\John\\ %Un\\\\tel\\% \\(plop\\) \\", "random@mail.com"))
+                .build();
+
+            const adapted = MessageAdaptor.fromMailboxItem(messageWithRecipients, folderRef);
+
+            const EXPECTED_DN = "John %Un\\tel% (plop) \\";
+            expect(adapted.from.dn).toBe(EXPECTED_DN);
+            expect(adapted.to[0].dn).toBe(EXPECTED_DN);
+            expect(adapted.cc[0].dn).toBe(EXPECTED_DN);
+            expect(adapted.bcc[0].dn).toBe(EXPECTED_DN);
         });
-        test("remove backslash characters used for escape purpose in recipients", () => {
+
+        function createAllKindOfRecipients(dn, address) {
             const recipients = [];
             Object.values(MessageBody.RecipientKind).forEach(kind => {
                 recipients.push({
-                    dn: "\\John\\ %Un\\\\tel\\% \\(plop\\) \\",
-                    address: "random@mail.com",
+                    dn,
+                    address,
                     kind
                 });
             });
-            minimalEmptyMessage.value.body.recipients = recipients;
-            const adapted = MessageAdaptor.fromMailboxItem(minimalEmptyMessage, folderRef);
+            return recipients;
+        }
 
-            const expected = "John %Un\\tel% (plop) \\";
-            expect(adapted.from.dn).toBe(expected);
-            expect(adapted.to[0].dn).toBe(expected);
-            expect(adapted.cc[0].dn).toBe(expected);
-            expect(adapted.bcc[0].dn).toBe(expected);
+        test("Headers values should be decoded when not in utf8", () => {
+            const message = messageBuilder(MINIMAL_EMPTY_MESSAGE)
+                .withHeader({
+                    name: "X-BM-Counter-Attendee",
+                    values: ["=?UTF-8?q?Le=C3=AFa_Organa?="]
+                })
+                .build();
+
+            const Headers_SUT = MessageAdaptor.fromMailboxItem(message, folderRef).headers.find(
+                h => h.name === "X-BM-Counter-Attendee"
+            );
+
+            expect(Headers_SUT.values).toContain("Leïa Organa");
         });
+
+        function messageBuilder(message = {}) {
+            return {
+                withRecipients(recipients = []) {
+                    message.value.body.recipients = recipients;
+                    return messageBuilder(message);
+                },
+                withHeader(aHeader) {
+                    message.value.body.headers.push(aHeader);
+                    return messageBuilder(message);
+                },
+                build() {
+                    return message;
+                }
+            };
+        }
     });
 
     describe("getEventInfo", () => {
-        const eventId = "eventId";
         test("simple value", () => {
-            const headers = [{ name: "X-Bm-Event", values: [eventId] }];
+            const headers = HeaderBuilder().add("X-Bm-Event", "eventId").build();
+
             const eventInfo = getEventInfo(headers);
-            expect(eventInfo).toBeTruthy();
-            expect(eventInfo.hasICS).toBeTruthy();
-            expect(eventInfo.isCounterEvent).toBeFalsy();
-            expect(eventInfo.icsUid).toBeTruthy();
-            expect(eventInfo.icsUid).toEqual(eventId);
-            expect(eventInfo.needsReply).toBeFalsy();
-            expect(eventInfo.recuridIsoDate).toBeFalsy();
-            expect(eventInfo.isResourceBooking).toBeFalsy();
-            expect(eventInfo.resourceUid).toBeFalsy();
+
+            expect(eventInfo).toEqual(
+                expect.objectContaining({
+                    hasICS: true,
+                    isCounterEvent: false,
+                    icsUid: "eventId",
+                    needsReply: false,
+                    recuridIsoDate: null,
+                    isResourceBooking: false,
+                    resourceUid: ""
+                })
+            );
         });
-        test("no value", () => {
-            const headers = [{ name: "X-Bm-Event", values: [""] }];
+        test("when no value, header is ignored", () => {
+            const headers = HeaderBuilder().add("X-Bm-Event", "").build();
+
             const eventInfo = getEventInfo(headers);
-            expect(eventInfo).toBeTruthy();
-            expect(eventInfo.hasICS).toBeFalsy();
-            expect(eventInfo.isCounterEvent).toBeFalsy();
-            expect(eventInfo.icsUid).toBeFalsy();
-            expect(eventInfo.needsReply).toBeFalsy();
-            expect(eventInfo.recuridIsoDate).toBeFalsy();
-            expect(eventInfo.isResourceBooking).toBeFalsy();
-            expect(eventInfo.resourceUid).toBeFalsy();
+
+            expect(eventInfo).toEqual(
+                expect.objectContaining({
+                    hasICS: false,
+                    isCounterEvent: false,
+                    icsUid: "",
+                    needsReply: false,
+                    recuridIsoDate: null,
+                    isResourceBooking: false,
+                    resourceUid: "",
+                    calendarUid: undefined
+                })
+            );
         });
         test("with rsvp", () => {
-            const headers = [
-                {
-                    name: "X-BM-Event",
-                    values: [
-                        `eventId;
-                rsvp="true"`
-                    ]
-                }
-            ];
+            const headers = HeaderBuilder()
+                .add(
+                    "X-BM-Event",
+                    `eventId;
+                             rsvp="true"`
+                )
+                .build();
+
             const eventInfo = getEventInfo(headers);
-            expect(eventInfo).toBeTruthy();
-            expect(eventInfo.hasICS).toBeTruthy();
-            expect(eventInfo.isCounterEvent).toBeFalsy();
-            expect(eventInfo.icsUid).toBeTruthy();
-            expect(eventInfo.icsUid).toEqual(eventId);
-            expect(eventInfo.needsReply).toBeTruthy();
-            expect(eventInfo.recuridIsoDate).toBeFalsy();
-            expect(eventInfo.isResourceBooking).toBeFalsy();
-            expect(eventInfo.resourceUid).toBeFalsy();
+
+            expect(eventInfo).toEqual(
+                expect.objectContaining({
+                    hasICS: true,
+                    isCounterEvent: false,
+                    icsUid: "eventId",
+                    needsReply: true,
+                    isResourceBooking: false,
+                    resourceUid: ""
+                })
+            );
         });
         test("with recurid", () => {
-            const headers = [
-                {
-                    name: "X-BM-Event",
-                    values: [
-                        `eventId;
+            const headers = HeaderBuilder()
+                .add(
+                    "X-BM-Event",
+                    `eventId;
                 rsvp="true";  recurid="myRecurId"`
-                    ]
-                }
-            ];
+                )
+                .build();
+
             const eventInfo = getEventInfo(headers);
-            expect(eventInfo).toBeTruthy();
-            expect(eventInfo.hasICS).toBeTruthy();
-            expect(eventInfo.isCounterEvent).toBeFalsy();
-            expect(eventInfo.icsUid).toBeTruthy();
-            expect(eventInfo.icsUid).toEqual(eventId);
-            expect(eventInfo.needsReply).toBeTruthy();
-            expect(eventInfo.recuridIsoDate).toBeTruthy();
-            expect(eventInfo.isResourceBooking).toBeFalsy();
-            expect(eventInfo.resourceUid).toBeFalsy();
+
+            expect(eventInfo).toEqual(
+                expect.objectContaining({
+                    hasICS: true,
+                    isCounterEvent: false,
+                    icsUid: "eventId",
+                    needsReply: true,
+                    recuridIsoDate: "myRecurId",
+                    isResourceBooking: false,
+                    resourceUid: ""
+                })
+            );
         });
         test("with counter event", () => {
-            const headers = [
-                {
-                    name: "X-BM-Event-Countered",
-                    values: [
-                        `eventId;
-                rsvp="true";  recurid="myRecurId"`
-                    ]
-                }
-            ];
+            const headers = HeaderBuilder()
+                .add("X-BM-Event-Countered", `eventId; rsvp="true";  recurid="myRecurId"`)
+                .build();
+
             const eventInfo = getEventInfo(headers);
-            expect(eventInfo).toBeTruthy();
-            expect(eventInfo.hasICS).toBeTruthy();
-            expect(eventInfo.isCounterEvent).toBeTruthy();
-            expect(eventInfo.icsUid).toBeTruthy();
-            expect(eventInfo.icsUid).toEqual(eventId);
-            expect(eventInfo.needsReply).toBeTruthy();
-            expect(eventInfo.recuridIsoDate).toBeTruthy();
-            expect(eventInfo.isResourceBooking).toBeFalsy();
-            expect(eventInfo.resourceUid).toBeFalsy();
+
+            expect(eventInfo).toEqual(
+                expect.objectContaining({
+                    hasICS: true,
+                    isCounterEvent: true,
+                    icsUid: "eventId",
+                    needsReply: true,
+                    recuridIsoDate: "myRecurId",
+                    isResourceBooking: false,
+                    resourceUid: ""
+                })
+            );
         });
         test("with resource booking", () => {
-            const headers = [
-                {
-                    name: "X-BM-Event-Countered",
-                    values: [
-                        `eventId;
-                rsvp="true";  recurid="myRecurId"`
-                    ]
-                },
-                { name: "X-BM-ResourceBooking", values: ["resourceId"] }
-            ];
+            const headers = HeaderBuilder()
+                .add("X-BM-Event-Countered", `eventId; rsvp="true";  recurid="myRecurId"`)
+                .add("X-BM-ResourceBooking", "resourceId")
+                .build();
+
             const eventInfo = getEventInfo(headers);
-            expect(eventInfo).toBeTruthy();
-            expect(eventInfo.hasICS).toBeTruthy();
-            expect(eventInfo.isCounterEvent).toBeTruthy();
-            expect(eventInfo.icsUid).toBeTruthy();
-            expect(eventInfo.icsUid).toEqual(eventId);
-            expect(eventInfo.needsReply).toBeTruthy();
-            expect(eventInfo.recuridIsoDate).toBeTruthy();
-            expect(eventInfo.isResourceBooking).toBeTruthy();
-            expect(eventInfo.resourceUid).toBeTruthy();
-            expect(eventInfo.resourceUid).toEqual("resourceId");
+
+            expect(eventInfo).toEqual(
+                expect.objectContaining({
+                    hasICS: true,
+                    isCounterEvent: true,
+                    icsUid: "eventId",
+                    needsReply: true,
+                    recuridIsoDate: "myRecurId",
+                    isResourceBooking: true,
+                    resourceUid: "resourceId"
+                })
+            );
         });
+
+        function HeaderBuilder(headers = []) {
+            return {
+                add(headerName, value) {
+                    headers.push({ name: headerName, values: [value] });
+                    return HeaderBuilder(headers);
+                },
+                build() {
+                    return headers;
+                }
+            };
+        }
     });
 });

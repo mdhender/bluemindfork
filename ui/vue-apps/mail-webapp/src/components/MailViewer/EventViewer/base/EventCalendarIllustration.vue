@@ -63,7 +63,11 @@ const repeatIcon = computed(() => {
                     'event-calendar-illustration-countered': ['countered', REPLY_ACTIONS.NEEDS_ACTION].includes(status)
                 }"
             />
-            <bm-icon v-if="isRecurring" :icon="repeatIcon" class="event-calendar-illustration-icon-repeat" />
+            <bm-icon
+                v-if="isRecurring || onlyOccurrence"
+                :icon="repeatIcon"
+                class="event-calendar-illustration-icon-repeat"
+            />
         </div>
     </div>
 </template>

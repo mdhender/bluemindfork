@@ -5,6 +5,7 @@ import { MessageBody } from "@bluemind/backend.mail.api";
 import { createWithMetadata, hasXbmImipEvent, MessageHeader, MessageStatus } from "./index";
 import { LoadingStatus } from "../loading-status";
 import { hasAttachment } from "./structureParsers";
+import { mimeWordsDecode } from "emailjs-mime-codec";
 
 export default {
     fromMailboxItem(remote, { key, uid }) {
@@ -19,7 +20,7 @@ export default {
             messageId: remote.value.body.messageId,
             version: remote.version,
             conversationId: remote.value.conversationId,
-            headers: remote.value.body.headers,
+            headers: normalizedHeaders(remote.value.body.headers),
             size: remote.value.body.size / 1.33, // take into account the email base64 encoding : 33% more space
             subject: remote.value.body.subject,
             status: MessageStatus.IDLE,
@@ -47,6 +48,13 @@ export default {
         };
     }
 };
+
+function normalizedHeaders(headers) {
+    return headers.map(aHeader => ({
+        ...aHeader,
+        values: aHeader.values.map(v => mimeWordsDecode(v))
+    }));
+}
 
 function computeRecipients(remoteRecipients) {
     const from = remoteRecipients.find(rcpt => rcpt.kind === MessageBody.RecipientKind.Originator) || {
@@ -123,8 +131,7 @@ export function getEventInfo(headers) {
     const calendarUid = calendarHeader
         ? calendarHeader.values[0].trim()
         : (icsHeaderValue.match(/calendar_uid="(.*?)"/i) ?? [])[1];
-    let recuridIsoDate = icsHeaderValue.match(/recurid="(.*?)"/i);
-    recuridIsoDate = recuridIsoDate && recuridIsoDate[1];
+    const recuridIsoDate = icsHeaderValue.match(/recurid="(.*?)"/i)?.[1] ?? null;
 
     const hasICS = !!uid;
     const needsReply = isCounterEvent || Boolean(icsHeaderValue.match(/rsvp=["']true["']/i));

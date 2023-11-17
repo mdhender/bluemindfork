@@ -178,7 +178,7 @@ const XBM_EVENTS_HEADERS = [
 /** Extract multi-valued / whitespace separated values from given header. */
 export function extractHeaderValues(message, headerName) {
     const header = message.headers?.find(h => h.name.toUpperCase() === headerName.toUpperCase());
-    return header && header.values && header.values.length
+    return header?.values?.length
         ? header.values.reduce((a, b) => (a.length ? a + " " + b : b), "").split(/\s+/)
         : undefined;
 }

@@ -1,7 +1,7 @@
-import Vuex from "vuex";
-
-import router from "@bluemind/router";
 import { mount, createLocalVue } from "@vue/test-utils";
+
+import Vuex from "vuex";
+import router from "@bluemind/router";
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
@@ -9,10 +9,10 @@ localVue.use(Vuex);
 export default {
     createWrapper(component, store, propsData = {}) {
         const defaultMountingOptions = {
-            localVue,
+            router,
             store: new Vuex.Store(store),
             propsData,
-            router,
+            localVue,
             mocks: {
                 $i18n: {
                     t: () => {},
