@@ -119,7 +119,9 @@ public class DirEntriesStreamVerticle extends AbstractVerticle {
 		StreamsBuilder topology = new StreamsBuilder();
 		topology //
 				.<byte[], byte[]>stream(inputTopicNames) //
-				.filter((key, value) -> keyMapper.map(key).map(recordKey -> recordKey.type.equals("dir")).orElse(false))
+				.filter((key, value) -> keyMapper.map(key)
+						.map(recordKey -> recordKey.type.equals("dir") || recordKey.type.equals("memberships"))
+						.orElse(false))
 				.to(ouputTopicName, withProducer());
 		KafkaStreams stream = new KafkaStreams(topology.build(), props);
 		stream.setUncaughtExceptionHandler((Throwable throwable) -> {
