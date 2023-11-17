@@ -47,8 +47,8 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Sets;
 
 import freemarker.template.TemplateException;
+import net.bluemind.calendar.EventChanges;
 import net.bluemind.calendar.VEventUtil;
-import net.bluemind.calendar.VEventUtil.EventChanges;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventCounter;
 import net.bluemind.calendar.api.VEventOccurrence;
@@ -266,10 +266,8 @@ public class IcsHook implements ICalendarHook {
 		List<ICalendarElement.Attendee> updatedAttendees = ICalendarElement.same(updatedEventAttendees,
 				oldEventAttendees);
 
-		EnumSet<EventChanges> changes = VEventUtil.eventChanges(oldEvent, evt);
-		boolean changed = !changes.isEmpty();
-		changes.remove(EventChanges.EVENT);
-		if (!updatedAttendees.isEmpty() && changed) {
+		EventChanges changes = VEventUtil.eventChanges(oldEvent, evt);
+		if (!updatedAttendees.isEmpty() && changes.isSignificantChange()) {
 			updatedAttendees = updatedAttendees.stream().filter(a -> !userAttendingToSeries.contains(a))
 					.collect(Collectors.toList());
 			if (!evt.exception()) {
@@ -667,10 +665,10 @@ public class IcsHook implements ICalendarHook {
 	 * @param addedAttendees
 	 * @throws ServerFault
 	 */
-	private void sendUpdateToAttendees(VEventMessage message, VEvent event, EnumSet<EventChanges> changes,
+	private void sendUpdateToAttendees(VEventMessage message, VEvent event, EventChanges changes,
 			List<ICalendarElement.Attendee> attendees) {
-		MailData md = MailData.update(message, event, changes);
-		md.data.put("attendeeChanges", changes.contains(EventChanges.ATTENDEES));
+		MailData md = MailData.update(message, event, changes.getChanges());
+		md.data.put("attendeeChanges", changes.contains(EventChanges.Type.ATTENDEES));
 		boolean inPast = occursInThePast(event);
 		String ics = !event.exception() ? getIcsPart(message.vevent.icsUid, Method.REQUEST, message.vevent, null)
 				: getIcsPart(Optional.of(message.vevent.acceptCounters), message.vevent.icsUid, Method.REQUEST, event);
@@ -1308,7 +1306,7 @@ public class IcsHook implements ICalendarHook {
 			return get(message, event, subject, body);
 		}
 
-		private static MailData update(VEventMessage message, VEvent event, EnumSet<EventChanges> changes) {
+		private static MailData update(VEventMessage message, VEvent event, EnumSet<EventChanges.Type> changes) {
 			String subject = "EventUpdateSubject.ftl";
 			String body = "EventUpdate.ftl";
 			MailData mailData = get(message, event, subject, body);

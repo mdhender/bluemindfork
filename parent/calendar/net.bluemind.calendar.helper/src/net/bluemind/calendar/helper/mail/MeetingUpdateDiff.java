@@ -1,11 +1,10 @@
 package net.bluemind.calendar.helper.mail;
 
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.bluemind.calendar.EventChanges;
 import net.bluemind.calendar.VEventUtil;
-import net.bluemind.calendar.VEventUtil.EventChanges;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.utils.HeaderUtil;
@@ -27,9 +26,9 @@ public class MeetingUpdateDiff {
 		this.startDate = new BmDateTimeWrapper(oldEvent.dtstart).toDate().getTime();
 		this.endDate = new BmDateTimeWrapper(oldEvent.dtend).toDate().getTime();
 		this.location = oldEvent.location;
-		EnumSet<EventChanges> changes = VEventUtil.eventChanges(oldEvent, newEvent);
-		this.majorChange = changes.contains(EventChanges.DTSTART) || changes.contains(EventChanges.DTEND)
-				|| changes.contains(EventChanges.RRULE);
+		EventChanges changes = VEventUtil.eventChanges(oldEvent, newEvent);
+		this.majorChange = changes.contains(EventChanges.Type.DTSTART) || changes.contains(EventChanges.Type.DTEND)
+				|| changes.contains(EventChanges.Type.RRULE);
 	}
 
 	public boolean isUpdate() {

@@ -44,91 +44,88 @@ import net.bluemind.icalendar.api.ICalendarElement.RRule;
 public class VEventUtil {
 	private static Logger logger = LoggerFactory.getLogger(VEventUtil.class);
 
-	public static enum EventChanges {
-		EVENT, URL, CONFERENCE, SUMMARY, RRULE, PRIORITY, LOCATION, DESCRIPTION, DTSTART, DTEND, TRANSPARENCY,
-		CLASSIFICATION, ATTACHMENTS, ATTENDEES
-	}
+
+
 
 	public static <T extends VEvent> boolean eventChanged(T oldEvent, T newEvent) {
-		return !eventChanges(oldEvent, newEvent).isEmpty();
+		return eventChanges(oldEvent, newEvent).hasChanged();
 	}
 
-	public static <T extends VEvent> EnumSet<EventChanges> eventChanges(T oldEvent, T newEvent) {
-		EnumSet<EventChanges> changes = EnumSet.noneOf(EventChanges.class);
+	public static <T extends VEvent> EventChanges eventChanges(T oldEvent, T newEvent) {
+		EnumSet<EventChanges.Type> changes = EnumSet.noneOf(EventChanges.Type.class);
 		if (oldEvent == null && newEvent != null || oldEvent != null && newEvent == null) {
-			LoggerFactory.getLogger(VEventUtil.class).info("CH 1");
-			changes.add(EventChanges.EVENT);
-			return changes;
+			changes.add(EventChanges.Type.EVENT);
+			return new EventChanges(changes);
 		}
 		if (oldEvent == null && newEvent == null) {
-			changes.add(EventChanges.EVENT);
-			return changes;
+			changes.add(EventChanges.Type.EVENT);
+			return new EventChanges(changes);
 		}
 
 		if (changed(oldEvent.sequence, newEvent.sequence)) {
-			changes.add(EventChanges.EVENT);
+			changes.add(EventChanges.Type.EVENT);
 		}
 
 		Set<ICalendarElement.Attendee> attendeesDiff = new HashSet<>(
 				ICalendarElement.diff(oldEvent.attendees, newEvent.attendees));
 		if (!attendeesDiff.isEmpty()) {
-			changes.add(EventChanges.ATTENDEES);
+			changes.add(EventChanges.Type.ATTENDEES);
 		}
 
 		attendeesDiff = new HashSet<>(ICalendarElement.diff(newEvent.attendees, oldEvent.attendees));
 		if (!attendeesDiff.isEmpty()) {
-			changes.add(EventChanges.ATTENDEES);
+			changes.add(EventChanges.Type.ATTENDEES);
 		}
 
 		if (changed(oldEvent.url, newEvent.url)) {
-			changes.add(EventChanges.URL);
+			changes.add(EventChanges.Type.URL);
 		}
 
 		if (changed(oldEvent.conference, newEvent.conference)) {
-			changes.add(EventChanges.CONFERENCE);
+			changes.add(EventChanges.Type.CONFERENCE);
 		}
 
 		if (changed(oldEvent.summary, newEvent.summary)) {
-			changes.add(EventChanges.SUMMARY);
+			changes.add(EventChanges.Type.SUMMARY);
 		}
 
 		if (rRuleChanged(oldEvent.rrule, newEvent.rrule)) {
-			changes.add(EventChanges.RRULE);
+			changes.add(EventChanges.Type.RRULE);
 		}
 
 		if (changed(oldEvent.priority, newEvent.priority)) {
-			changes.add(EventChanges.PRIORITY);
+			changes.add(EventChanges.Type.PRIORITY);
 		}
 
 		if (changed(oldEvent.location, newEvent.location)) {
-			changes.add(EventChanges.LOCATION);
+			changes.add(EventChanges.Type.LOCATION);
 		}
 
 		if (changed(oldEvent.description, newEvent.description)) {
-			changes.add(EventChanges.DESCRIPTION);
+			changes.add(EventChanges.Type.DESCRIPTION);
 		}
 
 		if (changed(oldEvent.dtstart, newEvent.dtstart)) {
-			changes.add(EventChanges.DTSTART);
+			changes.add(EventChanges.Type.DTSTART);
 		}
 
 		if (changed(oldEvent.dtend, newEvent.dtend)) {
-			changes.add(EventChanges.DTEND);
+			changes.add(EventChanges.Type.DTEND);
 		}
 
 		if (changed(oldEvent.transparency, newEvent.transparency)) {
-			changes.add(EventChanges.TRANSPARENCY);
+			changes.add(EventChanges.Type.TRANSPARENCY);
 		}
 
 		if (changed(oldEvent.classification, newEvent.classification)) {
-			changes.add(EventChanges.CLASSIFICATION);
+			changes.add(EventChanges.Type.CLASSIFICATION);
 		}
 
 		if (listChanged(oldEvent.attachments, newEvent.attachments)) {
-			changes.add(EventChanges.ATTACHMENTS);
+			changes.add(EventChanges.Type.ATTACHMENTS);
 		}
 
-		return changes;
+		return new EventChanges(changes);
 	}
 
 	private static boolean rRuleChanged(RRule rule1, RRule rule2) {
