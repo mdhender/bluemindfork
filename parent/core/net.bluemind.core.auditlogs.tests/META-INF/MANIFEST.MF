@@ -16,7 +16,21 @@ Require-Bundle: org.eclipse.osgi,
  net.bluemind.dockerclient,
  net.bluemind.pool,
  net.bluemind.tests.defaultdata,
- com.typesafe.config
+ com.typesafe.config,
+ net.bluemind.core.auditlogs.client.es,
+ net.bluemind.core.container.persistence,
+ net.bluemind.core.tests.testshelper,
+ net.bluemind.user.service,
+ net.bluemind.core.sessions,
+ net.bluemind.calendar.api,
+ net.bluemind.attachment.api,
+ net.bluemind.calendar.persistence,
+ net.bluemind.calendar.service,
+ net.bluemind.core.container.service,
+ net.bluemind.calendar.auditlog,
+ net.bluemind.core.auditlog,
+ net.bluemind.deferredaction.service,
+ net.bluemind.system.state
 Bundle-Vendor: net.bluemind
 Automatic-Module-Name: net.bluemind.core.auditlogs.config.tests
 Bundle-RequiredExecutionEnvironment: JavaSE-21

@@ -109,17 +109,6 @@ public class AuditLogGetTests extends AbstractCliAuditLogServiceTests {
 		}).toList();
 		assertEquals(4, auditLogEntries.size());
 
-//		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
-//			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-//					.index(AUDIT_LOG_DATASTREAM) //
-//					.query(q -> q.bool(b -> b
-//							.must(TermQuery.of(t -> t.field("container.uid").value("mbox_records_" + mboxUniqueId))
-//									._toQuery())
-//							.must(TermQuery.of(t -> t.field("logtype").value("mailbox_records"))._toQuery())
-//							.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
-//					AuditLogEntry.class);
-//			return 4L == response.hits().total().value();
-//		});
 		assertEquals(event04.main.summary, auditLogEntries.get(0).content.description());
 		assertEquals(event03.main.summary, auditLogEntries.get(1).content.description());
 		assertEquals(event02.main.summary, auditLogEntries.get(2).content.description());

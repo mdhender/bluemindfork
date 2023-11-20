@@ -54,6 +54,7 @@ import co.elastic.clients.transport.ElasticsearchTransport;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.core.auditlogs.IAuditLogMgmt;
+import net.bluemind.core.auditlogs.client.es.AudiLogEsClientActivator;
 import net.bluemind.core.auditlogs.exception.AuditLogCreationException;
 import net.bluemind.core.auditlogs.exception.AuditLogRemovalException;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
@@ -156,7 +157,7 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 
 	@Override
 	public void setupAuditBackingStore() throws AuditLogCreationException {
-		ElasticsearchClient esClient = ESearchActivator.getClient();
+		ElasticsearchClient esClient = AudiLogEsClientActivator.get();
 		List<String> currentDataStreams = dataStreamNames(esClient);
 		Optional<IndexTemplateDefinition> optSchema = indexTemplates.values().stream()
 				.filter(d -> d.datastreamName.equals(AUDIT_LOG_PREFIX)).findFirst();
@@ -175,7 +176,7 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 
 	@Override
 	public void setupAuditBackingStoreForDomain(String domainUid) throws AuditLogCreationException {
-		ElasticsearchClient esClient = ESearchActivator.getClient();
+		ElasticsearchClient esClient = AudiLogEsClientActivator.get();
 		String dataStreamFullName = AUDIT_LOG_PREFIX + SEPARATOR + domainUid;
 		List<String> currentDataStreams = dataStreamNames(esClient);
 		Optional<IndexTemplateDefinition> optSchema = indexTemplates.values().stream()
@@ -246,7 +247,20 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 	public void removeAuditBackingStore() {
 		indexTemplates.values().stream().filter(d -> d.datastreamName.equals(AUDIT_LOG_PREFIX)).forEach(v -> {
 			ESearchActivator.waitForElasticsearchHosts();
-			ElasticsearchClient esClient = ESearchActivator.getClient();
+			ElasticsearchClient esClient = AudiLogEsClientActivator.get();
+			try {
+				deleteDataStream(esClient, v.datastreamName, null);
+				deleteIndexTemplate(esClient, v.indexTemplateName, null);
+			} catch (AuditLogRemovalException e) {
+				logger.error("Error on audit log store removal: {}", e.getMessage());
+			}
+		});
+	}
+
+	@VisibleForTesting
+	public static void removeAuditBackingStore(ElasticsearchClient esClient) {
+		indexTemplates.values().stream().filter(d -> d.datastreamName.equals(AUDIT_LOG_PREFIX)).forEach(v -> {
+			ESearchActivator.waitForElasticsearchHosts();
 			try {
 				deleteDataStream(esClient, v.datastreamName, null);
 				deleteIndexTemplate(esClient, v.indexTemplateName, null);
@@ -260,7 +274,7 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 	public void removeAuditBackingStoreForDomain(String domainUid) {
 		indexTemplates.values().stream().filter(d -> d.datastreamName.equals(AUDIT_LOG_PREFIX)).forEach(v -> {
 			ESearchActivator.waitForElasticsearchHosts();
-			ElasticsearchClient esClient = ESearchActivator.getClient();
+			ElasticsearchClient esClient = AudiLogEsClientActivator.get();
 			try {
 				deleteDataStream(esClient, v.datastreamName, domainUid);
 				deleteIndexTemplate(esClient, v.indexTemplateName, domainUid);
@@ -273,7 +287,7 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 
 	@Override
 	public boolean hasAuditBackingStoreForDomain(String domainUid) {
-		ElasticsearchClient esClient = ESearchActivator.getClient();
+		ElasticsearchClient esClient = AudiLogEsClientActivator.get();
 		try {
 			return !esClient.indices().resolveIndex(i -> i.name(AUDIT_LOG_PREFIX + "_" + domainUid)).dataStreams()
 					.isEmpty();
@@ -285,7 +299,7 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 
 	@Override
 	public boolean hasAuditBackingStore() {
-		ElasticsearchClient esClient = ESearchActivator.getClient();
+		ElasticsearchClient esClient = AudiLogEsClientActivator.get();
 		try {
 			return !esClient.indices().resolveIndex(i -> i.name(AUDIT_LOG_PREFIX)).dataStreams().isEmpty();
 		} catch (ElasticsearchException | IOException e) {

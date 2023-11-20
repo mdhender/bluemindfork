@@ -45,7 +45,6 @@ import net.bluemind.core.auditlogs.IItemChangeLogClient;
 import net.bluemind.core.container.model.ChangeLogEntry.Type;
 import net.bluemind.core.container.model.ItemChangeLogEntry;
 import net.bluemind.core.container.model.ItemChangelog;
-import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.lib.elasticsearch.Pit;
 import net.bluemind.lib.elasticsearch.Pit.PaginableSearchQueryBuilder;
 import net.bluemind.lib.elasticsearch.Pit.PaginationParams;
@@ -60,7 +59,7 @@ public class ElasticSearchItemChangeLogClient implements IItemChangeLogClient {
 
 	@Override
 	public ItemChangelog getItemChangeLog(String domainUid, String containerUid, String itemUid, Long from) {
-		ElasticsearchClient esClient = ESearchActivator.getClient();
+		ElasticsearchClient esClient = AudiLogEsClientActivator.get();
 
 		final Long since = null == from ? 0L : from;
 		SortOptions sort = new SortOptions.Builder().field(f -> f.field("@timestamp").order(SortOrder.Asc)).build();
@@ -165,7 +164,7 @@ public class ElasticSearchItemChangeLogClient implements IItemChangeLogClient {
 
 	private List<AuditLogEntry> simpleSearch(String indexName, PaginableSearchQueryBuilder paginableSearch,
 			AuditLogQuery query) throws ElasticsearchException, IOException {
-		ElasticsearchClient esClient = ESearchActivator.getClient();
+		ElasticsearchClient esClient = AudiLogEsClientActivator.get();
 
 		SearchResponse<AuditLogEntry> response = esClient.search(paginableSearch.andThen(s -> {
 			s.index(indexName);
@@ -176,7 +175,7 @@ public class ElasticSearchItemChangeLogClient implements IItemChangeLogClient {
 
 	private List<AuditLogEntry> paginatedSearch(String indexName, PaginableSearchQueryBuilder paginableSearch,
 			AuditLogQuery query) throws ElasticsearchException, IOException {
-		ElasticsearchClient esClient = ESearchActivator.getClient();
+		ElasticsearchClient esClient = AudiLogEsClientActivator.get();
 		SortOptions sort = new SortOptions.Builder().field(f -> f.field("@timestamp").order(SortOrder.Desc)).build();
 		try (Pit<AuditLogEntry> pit = Pit.allocate(esClient, indexName, 60, AuditLogEntry.class)) {
 			return pit.allPages(paginableSearch, new PaginationParams(0, query.size, sort), Hit::source);

@@ -40,15 +40,11 @@ import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class AuditLogConfigTests {
 
-	private String domainUid;
 	private File confFile;
-//	private SecurityContext defaultSecurityContext;
 	private static final String CONF_FILE_PATH = "/etc/bm/auditlog-store.conf";
-//	private static ElasticContainer esContainer = new ElasticContainer();
 
 	@Before
 	public void before() throws Exception {
-//		esContainer.start();
 		confFile = new File(CONF_FILE_PATH);
 		if (confFile.exists()) {
 			confFile.delete();
@@ -67,7 +63,6 @@ public class AuditLogConfigTests {
 
 	@After
 	public void after() throws Exception {
-//		esContainer.stop();
 		AuditLogStoreConfig.clear();
 		JdbcTestHelper.getInstance().afterTest();
 		ElasticsearchTestHelper.getInstance().afterTest();
@@ -76,7 +71,13 @@ public class AuditLogConfigTests {
 	@Test
 	public void testDefaultAuditLogStoreConfiguration() throws Exception {
 //		Integer mappedPort = esContainer.getMappedPort(9200);
-
+		AuditLogStoreConfig.clear();
+		File file = new File(CONF_FILE_PATH);
+		try (FileOutputStream fos = new FileOutputStream(file)) {
+			String toWrite = "auditlog {\n activate = true\n }";
+			fos.write(toWrite.getBytes());
+		}
+		AuditLogStoreConfig.get();
 		assertTrue(AuditLogStoreConfig.isActivated());
 	}
 

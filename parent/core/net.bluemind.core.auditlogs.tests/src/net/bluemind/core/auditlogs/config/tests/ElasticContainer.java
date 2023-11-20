@@ -41,8 +41,6 @@ public class ElasticContainer extends GenericContainer<ElasticContainer> {
 	public ElasticContainer() {
 		super("bitnami/elasticsearch");
 		withExposedPorts(9200);
-		System.err.println("Hello");
-//		this.getMapperPort(9200);
 		withReuse(false);
 		withLogConsumer(new LogConsumer());
 		waitingFor(new org.testcontainers.containers.wait.strategy.AbstractWaitStrategy() {

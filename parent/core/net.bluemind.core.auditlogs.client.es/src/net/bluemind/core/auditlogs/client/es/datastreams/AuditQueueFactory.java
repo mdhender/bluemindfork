@@ -18,6 +18,7 @@
 package net.bluemind.core.auditlogs.client.es.datastreams;
 
 import java.io.ByteArrayInputStream;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +27,7 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import io.vertx.core.Verticle;
 import io.vertx.core.json.JsonObject;
-import net.bluemind.lib.elasticsearch.ESearchActivator;
+import net.bluemind.core.auditlogs.client.es.AudiLogEsClientActivator;
 import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 import net.bluemind.retry.support.RetryQueueVerticle;
@@ -38,9 +39,15 @@ public class AuditQueueFactory implements IVerticleFactory, IUniqueVerticleFacto
 
 	private static class RetryIndexing implements RetryProcessor {
 
+		private Supplier<ElasticsearchClient> esClientHandler;
+
+		public RetryIndexing(Supplier<ElasticsearchClient> handler) {
+			esClientHandler = handler;
+		}
+
 		@Override
 		public void retry(JsonObject js) throws Exception {
-			ElasticsearchClient esClient = ESearchActivator.getClient();
+			ElasticsearchClient esClient = esClientHandler.get();
 			if (!js.containsKey("domainUid")) {
 				return;
 			}
@@ -76,7 +83,7 @@ public class AuditQueueFactory implements IVerticleFactory, IUniqueVerticleFacto
 	private final AuditQueue auditQueue;
 
 	public AuditQueueFactory() {
-		RetryIndexing ri = new RetryIndexing();
+		RetryIndexing ri = new RetryIndexing(AudiLogEsClientActivator::get);
 		this.auditQueue = new AuditQueue(ri);
 	}
 

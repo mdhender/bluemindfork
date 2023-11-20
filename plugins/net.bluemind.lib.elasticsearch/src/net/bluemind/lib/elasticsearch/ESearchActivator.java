@@ -246,7 +246,6 @@ public final class ESearchActivator implements BundleActivator {
 		if (logger.isInfoEnabled()) {
 			logger.info("[es] Created client with {} nodes:{}", hosts.size(), hosts.stream().collect(joining(" ")));
 		}
-
 		return transport;
 	}
 

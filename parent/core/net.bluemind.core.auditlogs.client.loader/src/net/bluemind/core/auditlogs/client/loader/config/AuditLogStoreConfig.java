@@ -41,6 +41,8 @@ public class AuditLogStoreConfig {
 		}
 
 		public static final String ACTIVATED = "auditlog.activate";
+		public static final String EXTERNAL_ES_HOST = "auditlog.store.server";
+		public static final String EXTERNAL_ES_PORT = "auditlog.store.port";
 	}
 
 	private static Config loadConfig() {
@@ -56,7 +58,6 @@ public class AuditLogStoreConfig {
 		}
 
 		Config systemPropertyConfig = ConfigFactory.defaultApplication();
-		System.err.println(systemPropertyConfig.withFallback(conf));
 		return systemPropertyConfig.withFallback(conf);
 	}
 
@@ -64,28 +65,49 @@ public class AuditLogStoreConfig {
 		if (INSTANCE == null) {
 			INSTANCE = loadConfig();
 		}
+
 		return INSTANCE;
 	}
 
 	public static boolean getOrDefaultBool(String key) {
-		System.err.println("key: " + key);
 		try {
-			System.err.println(AuditLogStoreConfig.get().getBoolean(key));
 			return AuditLogStoreConfig.get().getBoolean(key);
 		} catch (Exception e) {
 			return false;
 		}
 	}
 
-//	public class AuditLogStoreConf {
-//		public static boolean ACTIVATED = AuditLogStoreConfig.getOrDefaultBool(AuditLogStore.ACTIVATED);
-//
-//		private AuditLogStoreConf() {
-//		}
-//	}
+	public static String getOrDefaultStr(String key) {
+		try {
+			return AuditLogStoreConfig.get().getString(key);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	public static int getOrDefaultInt(String key) {
+		try {
+			return AuditLogStoreConfig.get().getInt(key);
+		} catch (Exception e) {
+			return 0;
+		}
+	}
 
 	public static boolean isActivated() {
 		return AuditLogStoreConfig.getOrDefaultBool(AuditLogStore.ACTIVATED);
+	}
+
+	public static ExternalESConfig getExternalEsConfig() {
+		String host = getOrDefaultStr(AuditLogStore.EXTERNAL_ES_HOST);
+		int port = getOrDefaultInt(AuditLogStore.EXTERNAL_ES_PORT);
+		if (host == null && port == 0) {
+			return null;
+		}
+		return new ExternalESConfig(host, port);
+	}
+
+	public record ExternalESConfig(String ip, int port) {
+
 	}
 
 	@VisibleForTesting
