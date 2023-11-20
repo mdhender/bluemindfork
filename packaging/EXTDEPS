@@ -1,7 +1,7 @@
 BMCYRUS="5.0.0-bluemind370"
 BMSDS="5.0.0-370"
 
-BMES="7.17.13-bluemind107"
+BMES="7.17.15-bluemind109"
 
 BMKEYCLOAK="22.0.5-bluemind415"
 
@@ -9,6 +9,7 @@ KAFKA_REPL="0.1.0-bluemind513"
 KAFKA="3.6.0-bluemind412"
 MINIO="2023.11.01-bluemind412"
 WEED="3.58-bluemind412"
+CASS="5.0-alpha1-bluemind412"
 
 BMJDK="21.0.1+12-bluemind409"
 BMSNZIP="1.0.4-bluemind4"
@@ -222,6 +223,7 @@ BMKAFKAREPLDEB="bm-kafka-replicator=${KAFKA_REPL}"
 BMKAFKADEB="bm-kafka=${KAFKA}"
 BMMINIODEB="bm-sds-storage-s3-minio=${MINIO}"
 BMWEEDDEB="bm-sds-storage-s3-seaweedfs=${WEED}"
+BMCASSDEB="bm-cassandra=${CASS}"
 
 # OpenTelemetry
 BM_TELEMETRY_DEB="bm-opentelemetry-agent=${TELEMETRY}"
@@ -341,6 +343,7 @@ DEB="${BMCYRUSDEB} \
 		${GRAFANA_AGENT_DEB} \
 		${BMMINIODEB} \
 		${BMWEEDDEB} \
+		${BMCASSDEB} \
 		${BMSNZIPDEB} \
 		${BMNGINXDEB} \
 		${BMPHPDEB} ${BMPHPMEMCACHEDEB} \
