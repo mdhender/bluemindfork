@@ -12,12 +12,14 @@
 		<module>net.bluemind.network.topology</module>
 		<module>net.bluemind.network.topology.producer</module>
 		<module>net.bluemind.network.topology.consumer</module>
+		<module>net.bluemind.elastic.topology.service</module>
 	</modules>
 	<profiles>
 		<profile>
 			<id>tests</id>
 			<modules>
 				<module>net.bluemind.network.topology.producer.tests</module>
+				<module>net.bluemind.elastic.topology.service.tests</module>
 			</modules>
 		</profile>
 	</profiles>

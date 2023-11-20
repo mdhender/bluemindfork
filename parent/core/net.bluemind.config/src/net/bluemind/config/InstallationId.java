@@ -30,11 +30,13 @@ public class InstallationId {
 
 	private static final Logger logger = LoggerFactory.getLogger(InstallationId.class);
 
-	protected static String identifier;
-
 	private static final String ID_PREFIX = "bluemind-";
-
 	private static final String NO_ID = ID_PREFIX + "noid";
+
+	private InstallationId() {
+	}
+
+	protected static String identifier;
 
 	public static String getIdentifier() {
 		return identifier;
@@ -48,8 +50,7 @@ public class InstallationId {
 		File mcastIdFile = new File("/etc/bm/mcast.id");
 		if (mcastIdFile.exists()) {
 			try {
-				identifier = "bluemind-"
-						+ new String(Files.readAllBytes(mcastIdFile.toPath()), Charset.defaultCharset());
+				identifier = ID_PREFIX + new String(Files.readAllBytes(mcastIdFile.toPath()), Charset.defaultCharset());
 			} catch (IOException e) {
 				logger.error("error during reading mcast.id {}", e.getMessage(), e);
 			}

@@ -59,4 +59,27 @@ public class NetworkHelper {
 
 	}
 
+	public void waitForClosedPort(int port, long delay, TimeUnit unit) {
+		logger.info("Checking port {}:{}", address, port);
+
+		long exitAt = System.nanoTime() + unit.toNanos(delay);
+		long time = 0;
+		InetSocketAddress sockAddress = new InetSocketAddress(address, port);
+		while ((time = System.nanoTime()) < exitAt) {
+			try (Socket socket = new Socket()) {
+				socket.connect(sockAddress, 100);
+			} catch (Exception ste) {
+				break;
+			}
+			try {
+				Thread.sleep(20);
+			} catch (InterruptedException e) {
+			}
+		}
+		if (time > exitAt) {
+			throw new ServerFault("Port " + address + ":" + port + " is still listening");
+		}
+
+	}
+
 }

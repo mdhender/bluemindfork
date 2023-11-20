@@ -25,6 +25,7 @@ public enum TagDescriptor {
 	bm_calendar("bm/cal"), //
 	mail_smtp("mail/smtp"), //
 	bm_es("bm/es"), //
+	bm_es_data("bm/es-data"), //
 	mail_imap("mail/imap"), //
 	bm_core("bm/core"), bm_ac("bm/ac"), //
 	bm_hps("bm/hps"), //

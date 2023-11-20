@@ -39,8 +39,12 @@
 			</helpText>
 
 			<tag value="bm/es" multival="true" mandatory="true" autoAssign="true">
-				<desc lang="fr">Serveur d'indexation</desc>
-				<desc lang="en">Indexing server</desc>
+				<desc lang="fr">Serveur d'indexation (maître)</desc>
+				<desc lang="en">Indexing server (maître)</desc>
+			</tag>
+			<tag value="bm/es-data" multival="true" mandatory="true" autoAssign="true">
+				<desc lang="fr">Serveur d'indexation (données)</desc>
+				<desc lang="en">Indexing server (data)</desc>
 			</tag>
 		</kind>
 

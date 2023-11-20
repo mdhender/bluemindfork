@@ -73,6 +73,7 @@ import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.ElasticsearchTransport;
 import net.bluemind.configfile.elastic.ElasticsearchConfig;
 import net.bluemind.lib.elasticsearch.exception.ElasticIndexException;
+import net.bluemind.network.topology.IServiceTopology;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.network.utils.NetworkHelper;
 
@@ -211,8 +212,11 @@ public final class ESearchActivator implements BundleActivator {
 	}
 
 	private static List<String> hosts(String tag) {
-		return Topology.get().nodes().stream().filter(iv -> iv.value.tags.contains(tag)).map(iv -> iv.value.address())
-				.toList();
+		return Topology.getIfAvailable().map(t -> topoHots(t, tag)).orElse(Collections.emptyList());
+	}
+
+	private static List<String> topoHots(IServiceTopology topo, String tag) {
+		return topo.nodes().stream().filter(iv -> iv.value.tags.contains(tag)).map(iv -> iv.value.address()).toList();
 	}
 
 	public static ElasticsearchTransport createTansport(List<String> hosts) {
