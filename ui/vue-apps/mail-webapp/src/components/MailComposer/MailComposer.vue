@@ -5,7 +5,7 @@
             :href="{ name: 'mail:popup:message', params: { messagepath } }"
             :next="$router.relative('mail:home')"
         >
-            <div class="d-none d-lg-flex card-header regular px-4 py-0 align-items-center">
+            <div class="desktop-only d-flex card-header regular px-4 py-0 align-items-center">
                 <span class="text-nowrap text-truncate">{{ panelTitle }}</span>
                 <bm-icon-button
                     :title="action.label"

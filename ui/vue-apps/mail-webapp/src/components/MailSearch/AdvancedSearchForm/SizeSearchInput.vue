@@ -3,19 +3,19 @@
         <bm-form-select
             v-model="selectedComparison"
             variant="underline"
-            class="d-none d-lg-block"
+            class="desktop-only"
             :options="comparisonOptions"
         />
-        <bm-form-select v-model="selectedComparison" variant="outline" class="d-lg-none" :options="comparisonOptions" />
-        <bm-form-input-number v-model="value" class="d-lg-none" min="0" variant="outline" type="number" />
-        <bm-form-input-number v-model="value" class="d-none d-lg-block" min="0" variant="underline" type="number" />
-        <bm-form-select v-model="selectedUnit" variant="outline" class="d-lg-none unit" :options="unitOptions" />
         <bm-form-select
-            v-model="selectedUnit"
-            variant="underline"
-            class="d-none d-lg-block unit"
-            :options="unitOptions"
+            v-model="selectedComparison"
+            variant="outline"
+            class="mobile-only"
+            :options="comparisonOptions"
         />
+        <bm-form-input-number v-model="value" class="mobile-only" min="0" variant="outline" type="number" />
+        <bm-form-input-number v-model="value" class="desktop-only" min="0" variant="underline" type="number" />
+        <bm-form-select v-model="selectedUnit" variant="outline" class="mobile-only unit" :options="unitOptions" />
+        <bm-form-select v-model="selectedUnit" variant="underline" class="desktop-only unit" :options="unitOptions" />
     </div>
 </template>
 

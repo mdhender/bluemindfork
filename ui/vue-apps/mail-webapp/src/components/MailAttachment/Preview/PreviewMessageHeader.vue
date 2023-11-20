@@ -1,5 +1,5 @@
 <template>
-    <bm-button class="preview-message-header px-5 d-none d-lg-flex" variant="text" :icon="icon"> Message </bm-button>
+    <bm-button class="preview-message-header px-5" variant="text" :icon="icon"> Message </bm-button>
 </template>
 <script>
 import { BmButton } from "@bluemind/ui-components";

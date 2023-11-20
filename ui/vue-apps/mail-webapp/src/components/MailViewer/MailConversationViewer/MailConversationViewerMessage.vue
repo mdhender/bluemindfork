@@ -14,7 +14,7 @@
                         @click.native.stop="$emit('collapse')"
                     />
                 </div>
-                <div class="d-lg-none d-flex align-items-center h-100 text-nowrap">
+                <div class="mobile-only d-flex align-items-center h-100 text-nowrap">
                     <mail-conversation-viewer-flags
                         class="z-index-250"
                         :class="{ 'pr-3': !isMessageExpanded }"
@@ -30,7 +30,7 @@
                     />
                 </div>
                 <div
-                    class="d-none d-lg-flex justify-content-end align-items-center text-neutral text-nowrap h-100 pr-6"
+                    class="desktop-only d-flex justify-content-end align-items-center text-neutral text-nowrap h-100 pr-6"
                 >
                     <mail-conversation-viewer-flags class="pr-2" :message="message" />
                     <div class="align-items-end pr-6" @click.stop="$emit('collapse')">

@@ -19,7 +19,7 @@
                     v-if="showMobileSearchInput"
                     ref="mobile-search-input"
                     v-model="search"
-                    class="mobile-search-input d-lg-none"
+                    class="mobile-search-input mobile-only"
                     autofocus
                     icon="search"
                     left-icon
@@ -34,14 +34,14 @@
                 />
                 <template v-else>
                     <address-book-mobile-dropdown
-                        class="d-lg-none"
+                        class="mobile-only"
                         :address-books="addressBooks"
                         :selected-address-book="selectedAddressBook"
                         :user-id="userId"
                         @selected="selectedAddressBookId = $event"
                     />
                     <bm-icon-button
-                        class="d-lg-none mx-3"
+                        class="mobile-only mx-3"
                         variant="compact-on-fill-primary"
                         size="lg"
                         icon="search"
@@ -56,7 +56,7 @@
 
         <div class="d-flex flex-fill">
             <address-book-list
-                class="d-none d-lg-flex"
+                class="desktop-only"
                 :addressbooks="addressBooks"
                 :user-id="userId"
                 :selected-addressbook="selectedAddressBookId"
@@ -66,7 +66,7 @@
                 <bm-form-input
                     ref="desktop-search-input"
                     v-model="search"
-                    class="desktop-search-input d-none d-lg-block"
+                    class="desktop-search-input desktop-only"
                     :icon="!resettable ? 'search' : 'cancel'"
                     left-icon
                     :resettable="resettable"

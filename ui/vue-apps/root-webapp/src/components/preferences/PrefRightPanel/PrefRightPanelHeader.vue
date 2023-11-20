@@ -1,6 +1,6 @@
 <template>
     <div class="pref-right-panel-header">
-        <bm-navbar class="d-lg-none">
+        <bm-navbar class="mobile-only">
             <template v-if="showMobileSearchInput">
                 <bm-navbar-back @click="showMobileSearchInput = false" />
                 <pref-search-input class="flex-fill ml-5 mr-3" variant="inline-on-fill-primary" />
@@ -17,7 +17,7 @@
                 />
             </template>
         </bm-navbar>
-        <div class="d-none d-lg-flex align-items-center large-panel-header">
+        <div class="desktop-only d-flex align-items-center large-panel-header">
             <pref-search-input class="my-4 w-50" resettable />
             <bm-button-close size="lg" class="ml-auto mr-5" @click="$emit('close')" />
         </div>

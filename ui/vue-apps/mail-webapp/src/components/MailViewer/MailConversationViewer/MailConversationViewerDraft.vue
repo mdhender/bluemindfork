@@ -11,22 +11,22 @@
                     [<span class="font-italic">{{ $t("common.folder.draft") }}</span
                     >]
                 </span>
-                <span class="draft-save-date d-none d-lg-inline-block">{{ formattedDraftSaveDate }}</span>
+                <span class="draft-save-date desktop-only">{{ formattedDraftSaveDate }}</span>
             </div>
             <div class="d-flex flex-fill d-flex justify-content-end align-items-center text-neutral pr-5">
                 <mail-viewer-draft-toolbar-for-mobile
-                    class="d-lg-none"
+                    class="mobile-only"
                     :conversation="conversation"
                     :message="message"
                     @shown="$emit('darken', true)"
                     @hidden="$emit('darken', false)"
                     @edit="$emit('darken', false)"
                 />
-                <mail-viewer-draft-toolbar class="d-none d-lg-flex" :conversation="conversation" :message="message" />
+                <mail-viewer-draft-toolbar class="desktop-only" :conversation="conversation" :message="message" />
             </div>
         </template>
         <template slot="subhead">
-            <div class="d-flex d-lg-none conversation-viewer-row">
+            <div class="mobile-only conversation-viewer-row">
                 <div
                     class="vertical-line vertical-line-after-avatar"
                     :class="{ invisible: index === conversation.messages.length - 1 }"

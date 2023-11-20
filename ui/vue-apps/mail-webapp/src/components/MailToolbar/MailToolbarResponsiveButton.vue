@@ -10,7 +10,7 @@
         />
         <template v-else>
             <bm-icon-button
-                class="d-lg-none"
+                class="mobile-only"
                 variant="compact-on-fill-primary"
                 size="lg"
                 v-bind="[$attrs, $props]"
@@ -18,7 +18,7 @@
                 v-on="$listeners"
             />
             <bm-captioned-icon-button
-                class="d-none d-lg-inline-flex"
+                class="desktop-only"
                 v-bind="[$attrs, $props]"
                 :caption="label"
                 v-on="$listeners"

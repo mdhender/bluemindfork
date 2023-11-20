@@ -12,8 +12,8 @@
         <template v-if="modalStatus === 'LOADED'">
             <div class="head-part">
                 <div class="avatar-part">
-                    <bm-avatar size="md" class="d-block d-lg-none" :alt="identity.name || '?'" />
-                    <bm-avatar size="xl" class="d-none d-lg-block" :alt="identity.name || '?'" />
+                    <bm-avatar size="md" class="mobile-only" :alt="identity.name || '?'" />
+                    <bm-avatar size="xl" class="desktop-only" :alt="identity.name || '?'" />
                     <template v-if="originalIdentity.isDefault">
                         <div><bm-icon icon="star-fill" size="xl" /></div>
                         <div class="caption">{{ $t("preferences.mail.identities.default") }}</div>
@@ -105,7 +105,7 @@
                     v-if="!isNewIdentity"
                     variant="compact"
                     icon="trash"
-                    class="mr-auto d-lg-none"
+                    class="mr-auto mobile-only"
                     :disabled="identity.isDefault"
                     @click="remove"
                 />
@@ -113,7 +113,7 @@
                     v-if="!isNewIdentity"
                     variant="outline"
                     icon="trash"
-                    class="mr-auto d-none d-lg-flex"
+                    class="mr-auto desktop-only"
                     :disabled="identity.isDefault"
                     @click="remove"
                 >

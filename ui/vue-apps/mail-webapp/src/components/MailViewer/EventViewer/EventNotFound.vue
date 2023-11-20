@@ -1,11 +1,10 @@
 <script setup>
-import { BmIllustration } from "@bluemind/ui-components";
+import { BmResponsiveIllustration } from "@bluemind/ui-components";
 </script>
 
 <template>
     <div class="event-not-found">
-        <bm-illustration class="d-flex d-lg-none flex-shrink-0" over-background value="calendar-error" size="xxs" />
-        <bm-illustration class="d-none d-lg-flex mx-5" over-background value="calendar-error" size="xs" />
+        <bm-responsive-illustration class="flex-shrink-0" over-background value="calendar-error" />
         <div>
             <div class="bold mb-4">{{ $t("mail.viewer.invitation.not_found.title") }}</div>
             <div class="regular">{{ $t("mail.viewer.invitation.not_found.description") }}</div>

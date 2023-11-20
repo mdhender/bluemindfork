@@ -6,7 +6,7 @@
             :class="{ 'search-typing': IS_TYPING_IN_SEARCH }"
         >
             <mail-conversation-list-header id="mail-conversation-list-header" />
-            <search-input-mobile v-if="HAS_PATTERN" class="d-lg-none" />
+            <search-input-mobile v-if="HAS_PATTERN" class="mobile-only" />
             <search-result v-if="CONVERSATION_LIST_IS_FILTERED" class="flex-fill" />
             <folder-result v-else class="flex-fill" />
         </section>

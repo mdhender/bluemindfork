@@ -1,5 +1,5 @@
 <template>
-    <bm-navbar :aria-label="$t('banner.label')" variant="primary" class="bm-banner align-items-center d-none d-lg-flex">
+    <bm-navbar :aria-label="$t('banner.label')" variant="primary" class="bm-banner align-items-center desktop-only">
         <bm-icon-button
             id="all-apps-popover"
             variant="regular-on-fill-primary"

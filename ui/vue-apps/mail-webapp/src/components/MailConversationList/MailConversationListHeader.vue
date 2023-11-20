@@ -1,5 +1,5 @@
 <template>
-    <div class="mail-conversation-list-header d-none d-lg-flex">
+    <div class="mail-conversation-list-header desktop-only">
         <bm-check
             :checked="ALL_CONVERSATIONS_ARE_SELECTED"
             :indeterminate="!ALL_CONVERSATIONS_ARE_SELECTED && !SELECTION_IS_EMPTY"
@@ -136,6 +136,7 @@ export default {
 @import "../ConversationList/variables.scss";
 
 .mail-conversation-list-header {
+    display: flex;
     background-color: $surface;
     border-bottom: 1px solid $neutral-fg-lo2;
     height: $input-height-sm;

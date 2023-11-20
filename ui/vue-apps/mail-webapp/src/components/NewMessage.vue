@@ -2,7 +2,7 @@
     <mail-open-in-popup-with-shift v-slot="action" :href="{ name: 'mail:popup:message', params: { messagepath } }">
         <bm-floating-action-button
             v-if="mobile"
-            class="new-message d-lg-none"
+            class="new-message mobile-only"
             :icon="icon"
             :title="action.label()"
             @click="openComposer"
@@ -10,7 +10,7 @@
         <bm-button
             v-else
             variant="fill-accent"
-            class="new-message text-nowrap d-none d-lg-inline-flex"
+            class="new-message text-nowrap desktop-only"
             :size="full ? 'lg' : 'md'"
             :title="action.label()"
             :icon="action.icon(icon)"

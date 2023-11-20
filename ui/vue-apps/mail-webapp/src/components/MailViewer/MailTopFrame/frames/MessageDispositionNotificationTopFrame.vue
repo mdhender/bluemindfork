@@ -5,7 +5,7 @@
             <template v-else>
                 <div class="main d-flex flex-row align-items-center">
                     <bm-responsive-illustration over-background value="read" class="mr-5" />
-                    <div class="spacer d-none d-lg-block ml-5"></div>
+                    <div class="spacer desktop-only ml-5"></div>
                     <div class="details flex-fill">
                         <i18n
                             :path="
@@ -43,12 +43,12 @@
                                 $t("mail.topframe.mdn.opened_date", { date: $d(message.date, "short_date_time") })
                             }}</span>
                         </div>
-                        <em class="d-none d-lg-block disclaimer">
+                        <em class="d-block desktop-only disclaimer">
                             {{ $t("mail.topframe.mdn.notice") }}
                         </em>
                     </div>
                 </div>
-                <em class="d-block d-lg-none flex-fill disclaimer mt-4">
+                <em class="d-block mobile-only flex-fill disclaimer mt-4">
                     {{ $t("mail.topframe.mdn.notice") }}
                 </em>
             </template>

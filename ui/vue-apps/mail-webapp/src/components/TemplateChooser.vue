@@ -53,7 +53,7 @@
                 />
                 <bm-icon-button
                     v-else
-                    class="d-lg-none search-button"
+                    class="mobile-only search-button"
                     variant="compact-on-fill-primary"
                     size="lg"
                     icon="search"

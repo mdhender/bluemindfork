@@ -49,9 +49,9 @@
             <size-search-input :min.sync="sizeMin" :max.sync="sizeMax" class="search-input" />
         </div>
         <div class="item checkbox-item">
-            <label :for="uniqueAttachmentId" class="d-none d-lg-block">{{ $t("common.attachment") }}</label>
-            <bm-form-checkbox :id="uniqueAttachmentId" v-model="hasAttachment" class="search-input d-none d-lg-block" />
-            <bm-form-checkbox v-model="hasAttachment" class="search-input d-lg-none">
+            <label :for="uniqueAttachmentId" class="desktop-only">{{ $t("common.attachment") }}</label>
+            <bm-form-checkbox :id="uniqueAttachmentId" v-model="hasAttachment" class="search-input desktop-only" />
+            <bm-form-checkbox v-model="hasAttachment" class="search-input mobile-only">
                 {{ $t("common.attachment") }}
             </bm-form-checkbox>
         </div>

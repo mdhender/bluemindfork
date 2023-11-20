@@ -52,10 +52,10 @@
             </template>
 
             <template #cell(name)="{ value, item }">
-                <div v-highlight="search" class="name d-none d-lg-flex align-items-center position-relative">
+                <div v-highlight="search" class="name desktop-only d-flex align-items-center position-relative">
                     <span class="text-truncate text-nowrap position-absolute w-100">{{ value }}</span>
                 </div>
-                <div v-highlight="search" class="mobile-name-and-email d-lg-none">
+                <div v-highlight="search" class="mobile-name-and-email mobile-only">
                     <div class="name d-flex align-items-center position-relative h-50">
                         <span class="text-truncate text-nowrap position-absolute w-100">{{ value }}</span>
                     </div>

@@ -1,10 +1,10 @@
 <template>
     <bm-col class="pref-left-panel d-lg-flex flex-column" cols="12" lg="2">
         <div class="p-6">
-            <div class="d-none d-lg-block bold">
+            <div class="desktop-only bold">
                 <bm-label-icon icon="preferences">{{ $t("common.preference") }}</bm-label-icon>
             </div>
-            <div class="d-lg-none">
+            <div class="mobile-only">
                 <bm-icon-button
                     variant="compact-on-fill-primary"
                     size="lg"

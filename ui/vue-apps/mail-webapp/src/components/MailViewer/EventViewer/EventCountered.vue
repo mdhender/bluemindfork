@@ -60,8 +60,8 @@ const attendeeHeader = computed(() =>
                         {{ $t("mail.viewer.invitation.counter.accept") }}
                     </bm-toggleable-button>
                     <bm-toggleable-button icon="cross" @click="declineCounterEvent">
-                        <span class="d-lg-none">{{ $t("mail.viewer.invitation.counter.decline_short") }}</span>
-                        <span class="d-none d-lg-inline">{{ $t("mail.viewer.invitation.counter.decline") }}</span>
+                        <span class="mobile-only">{{ $t("mail.viewer.invitation.counter.decline_short") }}</span>
+                        <span class="desktop-only">{{ $t("mail.viewer.invitation.counter.decline") }}</span>
                     </bm-toggleable-button>
                 </div>
             </template>

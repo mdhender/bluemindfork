@@ -11,8 +11,8 @@
         }"
     >
         <template #modal-header>
-            <bm-modal-header class="d-lg-none" :title="modalTitle" @close="back()" />
-            <bm-modal-header class="d-none d-lg-block" @close="close()">
+            <bm-modal-header class="mobile-only" :title="modalTitle" @close="back()" />
+            <bm-modal-header class="desktop-only" @close="close()">
                 <template #title>
                     <bm-icon-button
                         v-if="showAvailabilitiesManagement"

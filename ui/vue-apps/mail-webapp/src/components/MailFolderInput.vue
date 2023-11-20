@@ -1,5 +1,5 @@
 <template>
-    <div class="mail-folder-input flex-fill d-none d-lg-flex align-items-center position-relative">
+    <div class="mail-folder-input flex-fill desktop-only align-items-center position-relative">
         <bm-form-input
             ref="input"
             v-model="newFolderName"
@@ -153,7 +153,10 @@ export default {
 
 <style lang="scss">
 @import "~@bluemind/ui-components/src/css/utils/variables";
+
 .mail-folder-input {
+    display: flex;
+
     .bm-form-input input:not(:focus) {
         border-bottom-color: $neutral-fg-lo3;
     }

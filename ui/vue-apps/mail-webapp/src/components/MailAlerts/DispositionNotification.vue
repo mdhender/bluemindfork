@@ -9,7 +9,7 @@
             <br />
             <span>{{ $t("alert.mail.disposition_notification.info.action") }}</span>
             <router-link
-                class="d-none d-lg-inline-block"
+                class="d-inline-block desktop-only"
                 :to="`${$route.path}${prefPath}`"
                 @click.native="$store.commit('preferences/TOGGLE_PREFERENCES')"
             >
@@ -20,7 +20,7 @@
             <bm-button variant="text" class="mx-4" @click="send">{{ $t("common.send") }}</bm-button>
             <bm-button variant="text" class="mx-4" @click="ignore">{{ $t("common.ignore") }}</bm-button>
             <bm-icon-button
-                class="d-lg-none"
+                class="mobile-only"
                 icon="preferences"
                 variant="compact"
                 @click.native="

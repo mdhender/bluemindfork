@@ -9,7 +9,7 @@
                         :value="success ? 'delivered-true' : 'delivered-false'"
                         class="mr-5"
                     />
-                    <div class="spacer d-none d-lg-block ml-5"></div>
+                    <div class="spacer desktop-only ml-5"></div>
                     <div class="details flex-fill">
                         <i18n :path="summaryI18nPath">
                             <template v-if="originalMessage" #subject>
@@ -48,12 +48,12 @@
                                 $t("mail.topframe.dsn.delivery_date", { dates: deliveryDates.join(", ") })
                             }}</span>
                         </div>
-                        <span v-if="!success" class="d-none d-lg-block text-neutral">
+                        <div v-if="!success" class="desktop-only text-neutral">
                             {{ $t("mail.topframe.dsn.failed.notice") }}
-                        </span>
+                        </div>
                     </div>
                 </div>
-                <span v-if="!success" class="d-lg-none flex-fill text-neutral mt-4">
+                <span v-if="!success" class="mobile-only flex-fill text-neutral mt-4">
                     {{ $t("mail.topframe.dsn.failed.notice") }}
                 </span>
             </template>

@@ -1,7 +1,7 @@
 <template>
     <div class="bm-responsive-illustration">
-        <bm-illustration class="d-flex d-lg-none" v-bind="[$attrs, $props]" size="xxs" v-on="$listeners" />
-        <bm-illustration class="d-none d-lg-flex mx-5" v-bind="[$attrs, $props]" size="xs" v-on="$listeners" />
+        <bm-illustration class="mobile-only" v-bind="[$attrs, $props]" size="xxs" v-on="$listeners" />
+        <bm-illustration class="desktop-only mx-5" v-bind="[$attrs, $props]" size="xs" v-on="$listeners" />
     </div>
 </template>
 

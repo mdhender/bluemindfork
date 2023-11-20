@@ -1,9 +1,12 @@
 <template>
     <div class="topbar">
-        <topbar-desktop class="d-none d-lg-flex shadow" />
-        <topbar-actions-message-mobile v-if="hasMessageDisplayed || SEVERAL_CONVERSATIONS_SELECTED" class="d-lg-none" />
-        <topbar-search-mobile v-else-if="HAS_PATTERN" class="d-lg-none" />
-        <topbar-conversation-list-mobile v-else class="d-lg-none" @showFolders="$emit('showFolders')" />
+        <topbar-desktop class="desktop-only shadow" />
+        <topbar-actions-message-mobile
+            v-if="hasMessageDisplayed || SEVERAL_CONVERSATIONS_SELECTED"
+            class="mobile-only"
+        />
+        <topbar-search-mobile v-else-if="HAS_PATTERN" class="mobile-only" />
+        <topbar-conversation-list-mobile v-else class="mobile-only" @showFolders="$emit('showFolders')" />
         <advanced-search-modal />
     </div>
 </template>

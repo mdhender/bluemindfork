@@ -3,7 +3,7 @@
         <global-events v-if="focusIn" @click="shrinkBox" @keydown.enter="shrinkBox" @keydown.escape="blur" />
         <div
             ref="search-box-lg"
-            class="d-none d-lg-flex flex-fill"
+            class="desktop-only d-flex flex-fill"
             @keydown.enter="currentSearch.pattern ? search() : null"
         >
             <div class="d-flex flex-fill align-items-center box" :class="{ active }">
@@ -35,7 +35,7 @@
                 </bm-button>
             </div>
         </div>
-        <div class="d-lg-none">
+        <div class="mobile-only">
             <bm-icon-button
                 size="lg"
                 variant="compact-on-fill-primary"

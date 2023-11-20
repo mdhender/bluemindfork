@@ -1,14 +1,10 @@
 <template>
     <section class="mail-viewer d-flex flex-column flex-grow-1 bg-surface">
         <bm-extension id="webapp.mail" path="viewer.header" :message="message" />
-        <mail-viewer-toolbar
-            class="d-none d-lg-flex justify-content-end"
-            :message="message"
-            :conversation="conversation"
-        />
+        <mail-viewer-toolbar class="desktop-only justify-content-end" :message="message" :conversation="conversation" />
         <mail-viewer-content :message="message" @remote-content="setBlockRemote" />
         <mail-viewer-toolbar
-            class="d-flex d-lg-none justify-content-around"
+            class="mobile-only justify-content-around"
             :message="message"
             :conversation="conversation"
         />

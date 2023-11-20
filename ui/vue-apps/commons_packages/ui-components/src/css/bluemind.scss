@@ -1,5 +1,6 @@
 // Import SASS utils first
 @import "utils/variables";
+@import "utils/responsiveness";
 @import "utils/scroller";
 @import "utils/text";
 
@@ -165,5 +166,17 @@ a.nav-link:focus {
                 position: $value !important;
             }
         }
+    }
+}
+
+.desktop-only {
+    @include until-lg {
+        display: none !important;
+    }
+}
+
+.mobile-only {
+    @include from-lg {
+        display: none !important;
     }
 }

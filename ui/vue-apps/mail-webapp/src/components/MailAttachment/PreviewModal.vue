@@ -25,7 +25,7 @@
         </template>
 
         <div class="content">
-            <bm-collapse v-model="expanded" class="scroller-y" :class="{ 'd-none': true, 'd-lg-block': expanded }">
+            <bm-collapse v-model="expanded" class="scroller-y desktop-only" :class="{ 'd-none': !expanded }">
                 <preview-message :message="message" :active-file="file" />
             </bm-collapse>
             <div class="main-part">

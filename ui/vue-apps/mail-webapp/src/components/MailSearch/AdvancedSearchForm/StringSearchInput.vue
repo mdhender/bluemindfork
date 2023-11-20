@@ -1,7 +1,7 @@
 <template>
     <div class="string-search-input">
-        <bm-form-input class="input d-none d-lg-flex" variant="underline" :value="value" @input="update" />
-        <bm-form-input class="input d-lg-none" variant="outline" :value="value" @input="update" />
+        <bm-form-input class="input desktop-only" variant="underline" :value="value" @input="update" />
+        <bm-form-input class="input mobile-only" variant="outline" :value="value" @input="update" />
     </div>
 </template>
 

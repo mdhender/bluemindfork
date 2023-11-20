@@ -33,12 +33,12 @@
                 </span>
             </div>
             <div v-if="!isMessageListStyleFull" class="displayed-date">
-                <span class="d-none d-lg-block">
+                <div class="desktop-only">
                     {{ displayedDate }}
-                </span>
-                <span class="d-block d-lg-none">
+                </div>
+                <div class="mobile-only">
                     {{ smallerDisplayedDate }}
-                </span>
+                </div>
             </div>
         </div>
         <div v-if="isMessageListStyleFull" class="preview-row">
@@ -46,12 +46,12 @@
                 {{ displayedPreview }}
             </div>
             <div class="displayed-date">
-                <span class="d-none d-lg-block">
+                <div class="desktop-only">
                     {{ displayedDate }}
-                </span>
-                <span class="d-block d-lg-none">
+                </div>
+                <div class="mobile-only">
                     {{ smallerDisplayedDate }}
-                </span>
+                </div>
             </div>
         </div>
     </div>

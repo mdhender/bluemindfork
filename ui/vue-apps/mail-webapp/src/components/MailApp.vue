@@ -16,7 +16,7 @@
             </section>
             <bm-multipane class="flex-fill" layout="vertical" @paneResizeStop="onPanelResize">
                 <mail-conversation-list :class="{ 'd-none': hideListInResponsiveMode }" />
-                <bm-multipane-resizer class="d-none d-lg-flex" />
+                <bm-multipane-resizer class="desktop-only" />
                 <div class="flex-grow-1 flex-basis-0 scroller-y-stable right-panel">
                     <router-view />
                 </div>

@@ -7,12 +7,8 @@
         type="renderless"
         :file="file"
     >
-        <div class="preview-header-desktop">
-            <preview-message-header
-                class="d-none d-lg-flex"
-                :expanded="expanded"
-                @click.native="$emit('update:expanded', !expanded)"
-            />
+        <div class="preview-header-desktop desktop-only">
+            <preview-message-header :expanded="expanded" @click.native="$emit('update:expanded', !expanded)" />
             <div class="main-part">
                 <bm-button-toolbar class="px-5">
                     <bm-icon-button
@@ -71,7 +67,7 @@
             </div>
         </div>
 
-        <bm-navbar class="preview-header-mobile">
+        <bm-navbar class="preview-header-mobile mobile-only">
             <bm-navbar-back @click="$emit('close')" />
             <preview-file-header :file="context.file" />
             <bm-button-toolbar class="pl-3">
@@ -189,14 +185,9 @@ export default {
 </script>
 
 <style lang="scss">
-@import "@bluemind/ui-components/src/css/utils/responsiveness.scss";
 @import "~@bluemind/ui-components/src/css/utils/variables";
 
 .preview-header .preview-header-desktop {
-    @include until-lg {
-        display: none !important;
-    }
-
     height: base-px-to-rem(40);
     background-color: $surface;
     display: flex;
@@ -225,10 +216,6 @@ export default {
 }
 
 .preview-header .preview-header-mobile {
-    @include from-lg {
-        display: none !important;
-    }
-
     .btn-toolbar {
         flex: none;
     }
