@@ -11,6 +11,7 @@ Type=notify
 Restart=on-failure
 OOMPolicy=kill
 LimitNOFILE=1073741824
+LimitMEMLOCK=infinity
 WorkingDirectory=/var/log
 TimeoutStartSec=90s
 GuessMainPID=no

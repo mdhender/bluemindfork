@@ -24,6 +24,7 @@ import org.eclipse.equinox.app.IApplicationContext;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
+import net.bluemind.jna.utils.MemlockSupport;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.systemd.notify.Startup;
 
@@ -37,6 +38,7 @@ public class Launcher implements IApplication {
 			@Override
 			public void handle(AsyncResult<Void> event) {
 				Startup.notifyReady();
+				MemlockSupport.mlockallOrWarn();
 			}
 		};
 		VertxPlatform.spawnVerticles(done);
@@ -45,7 +47,7 @@ public class Launcher implements IApplication {
 
 	@Override
 	public void stop() {
-		// TODO Auto-generated method stub
+		// ok
 
 	}
 

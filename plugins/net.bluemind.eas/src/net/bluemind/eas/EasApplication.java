@@ -33,6 +33,7 @@ import com.google.common.util.concurrent.MoreExecutors;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import net.bluemind.eas.command.provision.WipedDevices;
+import net.bluemind.jna.utils.MemlockSupport;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.network.topology.IServiceTopology;
 import net.bluemind.network.topology.Topology;
@@ -62,6 +63,7 @@ public class EasApplication implements IApplication {
 				logger.info("EAS vertx deployement complete.");
 				cdl.countDown();
 				Startup.notifyReady();
+				MemlockSupport.mlockallOrWarn();
 			}
 		};
 		VertxPlatform.spawnVerticles(doneHandler);

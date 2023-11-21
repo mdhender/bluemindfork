@@ -48,6 +48,7 @@ import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.Topic;
+import net.bluemind.jna.utils.MemlockSupport;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.metrics.annotations.TimeRangeAnnotation;
 import net.bluemind.pool.BMPoolActivator;
@@ -129,6 +130,7 @@ public class ApplicationLauncher implements IApplication {
 			logger.info("Verticles deployement complete for {}, starting product checks...", BMVersion.getVersion());
 			ProductChecks.asyncValidate().whenComplete((v, ex) -> {
 				Startup.notifyReady();
+				MemlockSupport.mlockallOrWarn();
 				notifyCoreStatus("core.started");
 				TimeRangeAnnotation.annotate("CORE Start", new Date(), Optional.empty(),
 						ImmutableMap.of("kind", "start", "product", "bm-core"));

@@ -19,7 +19,8 @@ Require-Bundle: org.eclipse.core.runtime,
  jul.to.slf4j,
  net.bluemind.core.caches.registry,
  net.bluemind.configfile,
- net.bluemind.system.application.registration
+ net.bluemind.system.application.registration,
+ net.bluemind.jna.utils
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Export-Package: net.bluemind.application.launcher
 Automatic-Module-Name: net.bluemind.application.launcher
