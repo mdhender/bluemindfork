@@ -19,6 +19,7 @@
 		<module>net.bluemind.common.task</module>
 		<module>net.bluemind.common.vertx.contextlogging</module>
 		<module>net.bluemind.common.vertx.msgpack</module>
+		<module>net.bluemind.jna.utils</module>
 		<module>net.bluemind.retry.support</module>
 		<module>net.bluemind.serviceprovider</module>
 		<module>net.bluemind.serviceprovider.incore</module>

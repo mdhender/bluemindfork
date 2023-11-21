@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.jna.utils
+Bundle-SymbolicName: net.bluemind.jna.utils
+Bundle-Version: 5.0.0.qualifier
+Export-Package: net.bluemind.jna.utils
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ net.java.dev.jna;bundle-version="5.13.0",
+ slf4j.api;bundle-version="1.7.36"
+Bundle-RequiredExecutionEnvironment: JavaSE-21
+Automatic-Module-Name: net.bluemind.jna.utils
+Bundle-ActivationPolicy: lazy
