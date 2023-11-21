@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="imap-endpoint" uid="imap-endpoint" id="net.bluemind.imap.endpoint.imap_endpoint" application="net.bluemind.imap.endpoint.standalone" version="4.1.0.qualifier" useFeatures="false" includeLaunchers="true" autoIncludeRequirements="true">
+<product name="imap-endpoint" uid="imap-endpoint" id="net.bluemind.imap.endpoint.imap_endpoint" application="net.bluemind.imap.endpoint.standalone" version="4.1.0.qualifier" type="bundles" includeLaunchers="true" autoIncludeRequirements="true">
 
    <configIni use="default">
    </configIni>
@@ -9,7 +9,7 @@
    <launcherArgs>
       <programArgs>-consoleLog -debug
       </programArgs>
-      <vmArgs>-Dosgi.noShutdown=true -Djava.awt.headless=true -Dnet.bluemind.property.product=imap -Xmx256m -XX:+HeapDumpOnOutOfMemoryError -XX:+ExitOnOutOfMemoryError
+      <vmArgs>-Dio.netty.allocator.maxOrder=8 -XX:+UseCompressedOops -XX:+UseTransparentHugePages -XX:+AlwaysPreTouch -XX:-OmitStackTraceInFastThrow -Dosgi.noShutdown=true -Djava.awt.headless=true -Dnet.bluemind.property.product=imap -Xmx256m -XX:+HeapDumpOnOutOfMemoryError -XX:+ExitOnOutOfMemoryError
       </vmArgs>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
       </vmArgsMac>

@@ -23,6 +23,7 @@ import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 
 import net.bluemind.hornetq.client.MQ;
+import net.bluemind.jna.utils.MemlockSupport;
 import net.bluemind.lib.vertx.VertxPlatform;
 
 public class ImapEndpointStandalone implements IApplication {
@@ -33,12 +34,16 @@ public class ImapEndpointStandalone implements IApplication {
 
 	@Override
 	public Object start(IApplicationContext context) throws Exception {
-		MQ.init(() -> VertxPlatform.spawnBlocking(10, TimeUnit.SECONDS));
+		MQ.init(() -> {
+			VertxPlatform.spawnBlocking(10, TimeUnit.SECONDS);
+			MemlockSupport.mlockallOrWarn();
+		});
 		return IApplication.EXIT_OK;
 	}
 
 	@Override
 	public void stop() {
+		// ok
 	}
 
 }

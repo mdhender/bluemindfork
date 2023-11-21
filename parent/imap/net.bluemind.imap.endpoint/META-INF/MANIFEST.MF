@@ -20,7 +20,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.metrics.registry,
  com.typesafe.config;visibility:=reexport,
  com.github.ben-manes.caffeine,
- it.unimi.dsi.fastutil
+ it.unimi.dsi.fastutil,
+ net.bluemind.jna.utils;bundle-version="5.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.imap.endpoint
 Bundle-ActivationPolicy: lazy
