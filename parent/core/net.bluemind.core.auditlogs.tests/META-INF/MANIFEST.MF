@@ -30,7 +30,8 @@ Require-Bundle: org.eclipse.osgi,
  net.bluemind.calendar.auditlog,
  net.bluemind.core.auditlog,
  net.bluemind.deferredaction.service,
- net.bluemind.system.state
+ net.bluemind.system.state,
+ net.bluemind.domain.service
 Bundle-Vendor: net.bluemind
 Automatic-Module-Name: net.bluemind.core.auditlogs.config.tests
 Bundle-RequiredExecutionEnvironment: JavaSE-21

@@ -26,6 +26,7 @@ Require-Bundle: org.junit,
  net.bluemind.core.auditlogs,
  net.bluemind.core.auditlogs.client.es,
  org.awaitility;bundle-version="4.2.0",
- org.hamcrest;bundle-version="2.2.0"
+ org.hamcrest;bundle-version="2.2.0",
+ net.bluemind.core.auditlogs.client.loader
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.authentication.service.tests

@@ -35,6 +35,7 @@ import org.junit.Test;
 
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.auditlogs.client.loader.config.AuditLogStoreConfig;
 import net.bluemind.core.container.model.ChangeLogEntry;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.Item;
@@ -50,6 +51,8 @@ import net.bluemind.smime.cacerts.api.SmimeCacert;
 public class SmimeCacertServiceTests extends AbstractServiceTests {
 
 	private static final String CA_FILE_PATH = "data/trust-ca.crt.cer";
+
+	private final String dataStreamName = AuditLogStoreConfig.resolveDataStreamName(domainUid);
 
 	@Test
 	public void testCreate() throws Exception {
@@ -408,7 +411,7 @@ public class SmimeCacertServiceTests extends AbstractServiceTests {
 		getServiceCacert(defaultSecurityContext, container.uid).create("test2", defaultSmimeCacert(CA_FILE_PATH));
 		getServiceCacert(defaultSecurityContext, container.uid).delete("test1");
 		getServiceCacert(defaultSecurityContext, container.uid).update("test2", defaultSmimeCacert(CA_FILE_PATH));
-		ESearchActivator.refreshIndex("audit_log_" + domainUid);
+		ESearchActivator.refreshIndex(dataStreamName);
 
 		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
 			ItemChangelog itemChangeLog = getServiceCacert(defaultSecurityContext, container.uid).itemChangelog("test1",

@@ -61,6 +61,7 @@ import net.bluemind.core.auditlog.IAuditManager;
 import net.bluemind.core.auditlogs.AuditLogEntry;
 import net.bluemind.core.auditlogs.AuditLogQuery;
 import net.bluemind.core.auditlogs.api.ILogRequestService;
+import net.bluemind.core.auditlogs.client.loader.config.AuditLogStoreConfig;
 import net.bluemind.core.container.api.ContainerSubscription;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.Container;
@@ -95,7 +96,9 @@ import net.bluemind.user.service.internal.ContainerUserStoreService;
 public class CalendarLogServiceQueryTests {
 
 	private static final String CALENDAR_LOGTYPE = "calendar";
-	private String domainUid;
+	private static final String domainUid = "bm.lan";;
+	private static final String AUDIT_LOG_DATASTREAM = AuditLogStoreConfig.resolveDataStreamName(domainUid);
+
 	private String datalocation;
 	private DataSource dataDataSource;
 	private DataSource systemDataSource;
@@ -151,7 +154,6 @@ public class CalendarLogServiceQueryTests {
 
 		PopulateHelper.initGlobalVirt(esServer, nodeServer);
 
-		domainUid = "bm.lan";
 		datalocation = PopulateHelper.FAKE_CYRUS_IP;
 		dataDataSource = JdbcActivator.getInstance().getMailboxDataSource(datalocation);
 		systemDataSource = JdbcTestHelper.getInstance().getDataSource();
@@ -237,7 +239,7 @@ public class CalendarLogServiceQueryTests {
 			List<AuditLogEntry> list = logRequestService.queryAuditLog(logQuery);
 			return 1 == list.size();
 		});
-		ESearchActivator.refreshIndex("audit_log_" + domainUid);
+		ESearchActivator.refreshIndex(AUDIT_LOG_DATASTREAM);
 	}
 
 	@After
@@ -277,12 +279,6 @@ public class CalendarLogServiceQueryTests {
 			List<AuditLogEntry> list = logRequestService.queryAuditLog(logQuery);
 			return 20 == list.size();
 		});
-//		AuditLogQuery logQuery = new AuditLogQuery();
-//		logQuery.logtype = CALENDAR_LOGTYPE;
-//
-//		ILogRequestService logRequestService = getLogQueryService(user01SecurityContext);
-//		List<AuditLogEntry> list = logRequestService.queryAuditLog(logQuery);
-//		assertEquals(20, list.size());
 	}
 
 	@Test

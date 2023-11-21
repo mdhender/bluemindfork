@@ -50,6 +50,7 @@ import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.auditlogs.AuditLogEntry;
 import net.bluemind.core.auditlogs.AuditLogUpdateStatus.MessageCriticity;
+import net.bluemind.core.auditlogs.client.loader.config.AuditLogStoreConfig;
 import net.bluemind.core.container.model.ChangeLogEntry.Type;
 import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemFlagFilter;
@@ -62,7 +63,7 @@ import net.bluemind.lib.elasticsearch.ESearchActivator;
 
 public class DbMailboxRecordsServiceLogTests extends AbstractMailboxRecordsServiceTests<IDbMailboxRecords> {
 
-	private final String AUDIT_LOG_DATASTREAM = "audit_log_" + domainUid;
+	private final String dataStreamName = AuditLogStoreConfig.resolveDataStreamName(domainUid);
 
 	private ItemValue<MailboxRecord> createBodyAndRecord(int imapUid, Date internalDate, String eml) {
 		IDbMessageBodies mboxes = getBodies(SecurityContext.SYSTEM);
@@ -74,14 +75,14 @@ public class DbMailboxRecordsServiceLogTests extends AbstractMailboxRecordsServi
 
 		IDbMailboxRecords records = getService(SecurityContext.SYSTEM);
 		assertNotNull(records);
-		MailboxRecord record = new MailboxRecord();
-		record.imapUid = imapUid;
-		record.internalDate = internalDate;
-		record.lastUpdated = record.internalDate;
-		record.messageBody = bodyUid;
-		record.flags = Arrays.asList(MailboxItemFlag.System.Draft.value());
+		MailboxRecord mailboxRecord = new MailboxRecord();
+		mailboxRecord.imapUid = imapUid;
+		mailboxRecord.internalDate = internalDate;
+		mailboxRecord.lastUpdated = mailboxRecord.internalDate;
+		mailboxRecord.messageBody = bodyUid;
+		mailboxRecord.flags = Arrays.asList(MailboxItemFlag.System.Draft.value());
 		String mailUid = "uid." + imapUid;
-		records.create(mailUid, record);
+		records.create(mailUid, mailboxRecord);
 
 		return records.getComplete(mailUid);
 	}
@@ -97,14 +98,14 @@ public class DbMailboxRecordsServiceLogTests extends AbstractMailboxRecordsServi
 
 		IDbMailboxRecords records = getService(SecurityContext.SYSTEM);
 		assertNotNull(records);
-		MailboxRecord record = new MailboxRecord();
-		record.imapUid = imapUid;
-		record.internalDate = internalDate;
-		record.lastUpdated = record.internalDate;
-		record.messageBody = bodyUid;
-		record.flags = flags;
+		MailboxRecord mailboxRecord = new MailboxRecord();
+		mailboxRecord.imapUid = imapUid;
+		mailboxRecord.internalDate = internalDate;
+		mailboxRecord.lastUpdated = mailboxRecord.internalDate;
+		mailboxRecord.messageBody = bodyUid;
+		mailboxRecord.flags = flags;
 		String mailUid = "uid." + imapUid;
-		records.create(mailUid, record);
+		records.create(mailUid, mailboxRecord);
 
 		return records.getComplete(mailUid);
 	}
@@ -146,11 +147,11 @@ public class DbMailboxRecordsServiceLogTests extends AbstractMailboxRecordsServi
 		records.update(mailRecord2.uid, mailRecord2.value);
 		records.update(mailRecord3.uid, mailRecord3.value);
 
-		ESearchActivator.refreshIndex(AUDIT_LOG_DATASTREAM);
+		ESearchActivator.refreshIndex(dataStreamName);
 
 		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
 			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-					.index(AUDIT_LOG_DATASTREAM) //
+					.index(dataStreamName) //
 					.query(q -> q.bool(b -> b
 							.must(TermQuery.of(t -> t.field("container.uid").value("mbox_records_" + mboxUniqueId))
 									._toQuery())
@@ -160,7 +161,7 @@ public class DbMailboxRecordsServiceLogTests extends AbstractMailboxRecordsServi
 			return 3L == response.hits().total().value();
 		});
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-				.index(AUDIT_LOG_DATASTREAM) //
+				.index(dataStreamName) //
 				.query(q -> q.bool(b -> b
 						.must(TermQuery.of(t -> t.field("container.uid").value("mbox_records_" + mboxUniqueId))
 								._toQuery())
@@ -181,7 +182,7 @@ public class DbMailboxRecordsServiceLogTests extends AbstractMailboxRecordsServi
 		assertEquals(MessageCriticity.MINOR, secondAuditLogEntry.criticity);
 
 		response = esClient.search(s -> s //
-				.index(AUDIT_LOG_DATASTREAM) //
+				.index(dataStreamName) //
 				.query(q -> q.bool(b -> b
 						.must(TermQuery.of(t -> t.field("container.uid").value("mbox_records_" + mboxUniqueId))
 								._toQuery())
@@ -212,11 +213,11 @@ public class DbMailboxRecordsServiceLogTests extends AbstractMailboxRecordsServi
 		mailRecord1.value.flags = Arrays.asList();
 		records.update(mailRecord1.uid, mailRecord1.value);
 
-		ESearchActivator.refreshIndex(AUDIT_LOG_DATASTREAM);
+		ESearchActivator.refreshIndex(dataStreamName);
 
 		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
 			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-					.index(AUDIT_LOG_DATASTREAM) //
+					.index(dataStreamName) //
 					.query(q -> q.bool(b -> b
 							.must(TermQuery.of(t -> t.field("container.uid").value("mbox_records_" + mboxUniqueId))
 									._toQuery())
@@ -228,7 +229,7 @@ public class DbMailboxRecordsServiceLogTests extends AbstractMailboxRecordsServi
 
 		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
 			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-					.index(AUDIT_LOG_DATASTREAM) //
+					.index(dataStreamName) //
 					.query(q -> q.bool(b -> b
 							.must(TermQuery.of(t -> t.field("container.uid").value("mbox_records_" + mboxUniqueId))
 									._toQuery())
@@ -239,7 +240,7 @@ public class DbMailboxRecordsServiceLogTests extends AbstractMailboxRecordsServi
 		});
 
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-				.index(AUDIT_LOG_DATASTREAM) //
+				.index(dataStreamName) //
 				.query(q -> q.bool(b -> b
 						.must(TermQuery.of(t -> t.field("container.uid").value("mbox_records_" + mboxUniqueId))
 								._toQuery())
@@ -251,7 +252,6 @@ public class DbMailboxRecordsServiceLogTests extends AbstractMailboxRecordsServi
 		AuditLogEntry firstAuditLogEntry = response.hits().hits().get(0).source();
 
 		assertEquals("first subject", firstAuditLogEntry.content.description());
-		System.err.println(firstAuditLogEntry.updatemessage);
 		assertEquals("Removed Flags:\n\\Seen\n", firstAuditLogEntry.updatemessage);
 		assertEquals(MessageCriticity.MINOR, firstAuditLogEntry.criticity);
 	}
@@ -262,11 +262,11 @@ public class DbMailboxRecordsServiceLogTests extends AbstractMailboxRecordsServi
 		createBodyAndRecord(1, adaptDate(5), "data/with_voicemail.eml");
 
 		ElasticsearchClient esClient = ESearchActivator.getClient();
-		ESearchActivator.refreshIndex(AUDIT_LOG_DATASTREAM);
+		ESearchActivator.refreshIndex(dataStreamName);
 
 		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
 			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-					.index(AUDIT_LOG_DATASTREAM) //
+					.index(dataStreamName) //
 					.query(q -> q.bool(b -> b
 							.must(TermQuery.of(t -> t.field("container.uid").value("mbox_records_" + mboxUniqueId))
 									._toQuery())
@@ -277,7 +277,7 @@ public class DbMailboxRecordsServiceLogTests extends AbstractMailboxRecordsServi
 		});
 
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-				.index(AUDIT_LOG_DATASTREAM) //
+				.index(dataStreamName) //
 				.query(q -> q.bool(b -> b
 						.must(TermQuery.of(t -> t.field("container.uid").value("mbox_records_" + mboxUniqueId))
 								._toQuery())

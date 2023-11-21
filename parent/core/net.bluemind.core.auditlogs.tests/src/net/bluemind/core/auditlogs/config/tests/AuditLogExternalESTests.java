@@ -99,7 +99,10 @@ import net.bluemind.user.service.internal.ContainerUserStoreService;
 
 public class AuditLogExternalESTests {
 
-	private String domainUid;
+	private static final String domainUid = "bm.lan";;
+	private static final String DATASTREAM_PATTERN = AuditLogStoreConfig.getDataStreamName();
+	private static final String AUDIT_LOG_DATASTREAM = DATASTREAM_PATTERN.replace("%d", domainUid);
+
 	private String datalocation;
 	private DataSource dataDataSource;
 	private DataSource systemDataSource;
@@ -130,6 +133,7 @@ public class AuditLogExternalESTests {
 	private VEventSeries event04;
 	private ElasticsearchClient esClient;
 	protected boolean sendNotifications = false;
+	private File confFile;
 	private static ElasticContainer esContainer = new ElasticContainer();
 
 	@BeforeClass
@@ -144,8 +148,8 @@ public class AuditLogExternalESTests {
 		AuditLogStoreConfig.clear();
 		esContainer.start();
 		String externalEsAddress = esContainer.inspectAddress();
-		File file = new File(CONF_FILE_PATH);
-		try (FileOutputStream fos = new FileOutputStream(file)) {
+		confFile = new File(CONF_FILE_PATH);
+		try (FileOutputStream fos = new FileOutputStream(confFile)) {
 			String toWrite = "auditlog {\n activate = true\n \n store {\n server = " + externalEsAddress
 					+ "\n port = 9200\n }\n\n}\n";
 			fos.write(toWrite.getBytes());
@@ -167,7 +171,6 @@ public class AuditLogExternalESTests {
 
 		PopulateHelper.initGlobalVirt(esServer, nodeServer);
 
-		domainUid = "bm.lan";
 		datalocation = PopulateHelper.FAKE_CYRUS_IP;
 		dataDataSource = JdbcActivator.getInstance().getMailboxDataSource(datalocation);
 		systemDataSource = JdbcTestHelper.getInstance().getDataSource();
@@ -258,6 +261,9 @@ public class AuditLogExternalESTests {
 
 	@After
 	public void after() throws Exception {
+		if (confFile.exists()) {
+			confFile.delete();
+		}
 		AuditLogStoreConfig.clear();
 		JdbcTestHelper.getInstance().afterTest();
 		ElasticsearchTestHelper.getInstance().afterTest();
@@ -289,9 +295,9 @@ public class AuditLogExternalESTests {
 		ElasticsearchClient esClient = AudiLogEsClientActivator.get();
 
 		ElasticsearchClient esInternalClient = ESearchActivator.getClient();
-		boolean isExternalESDataStream = !esClient.indices().resolveIndex(r -> r.name("audit_log_" + domainUid))
+		boolean isExternalESDataStream = !esClient.indices().resolveIndex(r -> r.name(AUDIT_LOG_DATASTREAM))
 				.dataStreams().isEmpty();
-		boolean isInternalESDataStream = !esInternalClient.indices().resolveIndex(r -> r.name("audit_log_" + domainUid))
+		boolean isInternalESDataStream = !esInternalClient.indices().resolveIndex(r -> r.name(AUDIT_LOG_DATASTREAM))
 				.dataStreams().isEmpty();
 		assertTrue(isExternalESDataStream);
 		assertFalse(isInternalESDataStream);

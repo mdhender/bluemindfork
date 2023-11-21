@@ -27,6 +27,7 @@ Require-Bundle: net.bluemind.core.jdbc;bundle-version="1.0.0",
  org.awaitility;bundle-version="4.2.0",
  org.hamcrest;bundle-version="2.2.0",
  net.bluemind.addressbook.api,
- net.bluemind.calendar.api
+ net.bluemind.calendar.api,
+ net.bluemind.core.auditlogs.client.loader
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.core.container.service.tests

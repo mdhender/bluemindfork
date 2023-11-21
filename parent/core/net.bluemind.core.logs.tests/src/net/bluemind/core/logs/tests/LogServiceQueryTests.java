@@ -35,7 +35,6 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 
 import javax.sql.DataSource;
 
@@ -64,6 +63,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.auditlogs.AuditLogEntry;
 import net.bluemind.core.auditlogs.AuditLogQuery;
 import net.bluemind.core.auditlogs.api.ILogRequestService;
+import net.bluemind.core.auditlogs.client.loader.config.AuditLogStoreConfig;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.persistence.ContainerStore;
@@ -87,6 +87,7 @@ import net.bluemind.todolist.api.ITodoUids;
 import net.bluemind.todolist.api.VTodo;
 
 public class LogServiceQueryTests {
+
 	private String domainUid;
 	private String user1;
 	private SecurityContext userSecurityContext1;
@@ -95,7 +96,6 @@ public class LogServiceQueryTests {
 	private Container container;
 	private String partition;
 	private String mboxUniqueId;
-	private static final AtomicReference<Long> timerId = new AtomicReference<>();
 
 	@AfterClass
 	public static void afterClass() {
@@ -155,7 +155,7 @@ public class LogServiceQueryTests {
 		createBodyAndRecord(1, adaptDate(5), "data/sort_1.eml");
 		createBodyAndRecord(2, adaptDate(10), "data/sort_2.eml");
 		createBodyAndRecord(3, adaptDate(12), "data/sort_3.eml");
-		ESearchActivator.refreshIndex("audit_log_" + domainUid);
+		ESearchActivator.refreshIndex(AuditLogStoreConfig.resolveDataStreamName(domainUid));
 
 		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
 			AuditLogQuery logQuery = new AuditLogQuery();

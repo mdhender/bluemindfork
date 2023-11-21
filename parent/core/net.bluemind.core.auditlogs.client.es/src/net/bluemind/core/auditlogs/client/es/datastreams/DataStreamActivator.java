@@ -84,6 +84,7 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 				}
 			}
 		}
+
 	}
 
 	@Override

@@ -41,6 +41,7 @@ Require-Bundle: org.junit,
  org.hamcrest;bundle-version="2.2.0",
  net.bluemind.core.auditlogs,
  net.bluemind.core.auditlogs.client.es,
- net.bluemind.system.state
+ net.bluemind.system.state,
+ net.bluemind.core.auditlogs.client.loader
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.imap.tests

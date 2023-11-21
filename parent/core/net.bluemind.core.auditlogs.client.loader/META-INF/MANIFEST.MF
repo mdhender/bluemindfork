@@ -10,7 +10,8 @@ Require-Bundle: slf4j.api;bundle-version="1.7.36",
  net.bluemind.eclipse.common,
  net.bluemind.network.topology,
  net.bluemind.core.container.persistence,
- com.typesafe.config
+ com.typesafe.config;visibility:=reexport,
+ net.bluemind.domain.api
 Bundle-Vendor: net.bluemind
 Automatic-Module-Name: net.bluemind.core.auditlogs.client.loader
 Bundle-RequiredExecutionEnvironment: JavaSE-21

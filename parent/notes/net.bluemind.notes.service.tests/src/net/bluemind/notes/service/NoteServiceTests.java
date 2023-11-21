@@ -41,6 +41,7 @@ import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.auditlogs.client.loader.config.AuditLogStoreConfig;
 import net.bluemind.core.container.model.ChangeLogEntry;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.Item;
@@ -63,7 +64,7 @@ import net.bluemind.tag.api.TagRef;
 import net.bluemind.tag.persistence.ItemTagRef;
 
 public class NoteServiceTests extends AbstractServiceTests {
-	private final String DATASTREAM_NAME = "audit_log_" + domainUid;
+	private final String dataStreamName = AuditLogStoreConfig.resolveDataStreamName(domainUid);
 
 	@Test
 	public void testCreate() throws ServerFault, SQLException {
@@ -488,7 +489,7 @@ public class NoteServiceTests extends AbstractServiceTests {
 		getServiceNote(defaultSecurityContext, container.uid).create("test2", defaultVNote());
 		getServiceNote(defaultSecurityContext, container.uid).delete("test1");
 		getServiceNote(defaultSecurityContext, container.uid).update("test2", defaultVNote());
-		ESearchActivator.refreshIndex(DATASTREAM_NAME);
+		ESearchActivator.refreshIndex(dataStreamName);
 		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
 			ItemChangelog itemChangeLog = getServiceNote(defaultSecurityContext, container.uid).itemChangelog("test1",
 					0L);
@@ -515,7 +516,7 @@ public class NoteServiceTests extends AbstractServiceTests {
 		getServiceNote(defaultSecurityContext, container.uid).update("test1", defaultVNote());
 		getServiceNote(defaultSecurityContext, container.uid).update("test1", defaultVNote());
 		getServiceNote(defaultSecurityContext, container.uid).update("test1", defaultVNote());
-		ESearchActivator.refreshIndex(DATASTREAM_NAME);
+		ESearchActivator.refreshIndex(dataStreamName);
 		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
 			ItemChangelog itemChangeLog = getServiceNote(defaultSecurityContext, container.uid).itemChangelog("test1",
 					0L);

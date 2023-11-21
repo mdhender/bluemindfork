@@ -40,6 +40,7 @@ import co.elastic.clients.elasticsearch.core.SearchResponse;
 import net.bluemind.authentication.api.IAuthentication;
 import net.bluemind.authentication.api.LoginResponse;
 import net.bluemind.core.auditlogs.AuditLogEntry;
+import net.bluemind.core.auditlogs.client.loader.config.AuditLogStoreConfig;
 import net.bluemind.core.container.model.ChangeLogEntry.Type;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
@@ -58,7 +59,7 @@ public class LoginAuditLogTests {
 	private final int PORT = 1143;
 	private String loginUid;
 	private static final String domainUid = "test.devenv";
-	private static final String DATASTREAM_NAME = "audit_log_" + domainUid;
+	private static final String DATASTREAM_NAME = AuditLogStoreConfig.resolveDataStreamName(domainUid);
 
 	@AfterClass
 	public static void afterClass() {

@@ -50,6 +50,7 @@ import net.bluemind.authentication.api.LoginResponse;
 import net.bluemind.authentication.api.LoginResponse.Status;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.auditlogs.AuditLogEntry;
+import net.bluemind.core.auditlogs.client.loader.config.AuditLogStoreConfig;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcHelper;
@@ -71,8 +72,9 @@ public class AuthenticationAuditLogTests {
 	private ElasticsearchClient esClient;
 	private static final String domainUid = "bm.lan";
 	private static final String domainGlobalUid = "global.virt";
-	private static final String AUDIT_LOG_NAME_BM_LAN = "audit_log_" + domainUid;
-	private static final String AUDIT_LOG_NAME_GLOBAL = "audit_log_" + domainGlobalUid;
+
+	private static final String AUDIT_LOG_NAME_BM_LAN = AuditLogStoreConfig.resolveDataStreamName(domainUid);
+	private static final String AUDIT_LOG_NAME_GLOBAL = AuditLogStoreConfig.resolveDataStreamName(domainGlobalUid);
 
 	private static final String TEST_API_KEY = "testApiKey";
 

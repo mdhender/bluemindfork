@@ -37,9 +37,8 @@ import com.google.common.collect.Lists;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.ElasticsearchException;
-import net.bluemind.calendar.api.CalendarDescriptor;
-import net.bluemind.calendar.api.ICalendarsMgmt;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.auditlogs.client.loader.config.AuditLogStoreConfig;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.context.SecurityContext;
@@ -52,8 +51,6 @@ import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.core.task.service.TaskUtils;
 import net.bluemind.core.tests.BmTestContext;
-import net.bluemind.directory.api.IOrgUnits;
-import net.bluemind.directory.api.OrgUnit;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.domain.service.DomainsContainerIdentifier;
@@ -61,17 +58,13 @@ import net.bluemind.domain.service.internal.DomainStoreService;
 import net.bluemind.domain.service.tests.FakeDomainHook;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.lib.vertx.VertxPlatform;
-import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
-import net.bluemind.user.api.User;
 
 public class DomainsServiceAuditLogTests {
 
-	private static final String AUDIT_LOG_PREFIX = "audit_log_";
 	private Container domainsContainer;
 	private BmContext testContext;
-	private DomainStoreService storeService;
 	ElasticsearchClient esClient;
 
 	@BeforeClass
@@ -100,8 +93,6 @@ public class DomainsServiceAuditLogTests {
 		domainsContainer = containerStore.get(DomainsContainerIdentifier.getIdentifier());
 		assertNotNull(domainsContainer);
 
-		storeService = new DomainStoreService(JdbcActivator.getInstance().getDataSource(), SecurityContext.SYSTEM,
-				domainsContainer);
 		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
 		FakeDomainHook.initFlags();
@@ -124,7 +115,8 @@ public class DomainsServiceAuditLogTests {
 		assertNotNull(domainStoreService.get(domainUid, null));
 
 		assertTrue(FakeDomainHook.created);
-		boolean isDataStream = !esClient.indices().resolveIndex(r -> r.name(AUDIT_LOG_PREFIX + domainUid)).dataStreams()
+		String AUDIT_LOG_DATASTREAM = AuditLogStoreConfig.resolveDataStreamName(domainUid);
+		boolean isDataStream = !esClient.indices().resolveIndex(r -> r.name(AUDIT_LOG_DATASTREAM)).dataStreams()
 				.isEmpty();
 		assertTrue(isDataStream);
 	}
@@ -134,10 +126,6 @@ public class DomainsServiceAuditLogTests {
 		String domainUid = "test" + System.currentTimeMillis() + ".lan";
 		PopulateHelper.createTestDomain(domainUid);
 
-		User user = PopulateHelper.getUser("test", domainUid, Routing.none);
-		String userUid = PopulateHelper.addUser(domainUid, user);
-		String orgUnitUid = createOrgUnit(domainUid, "organisation");
-		String calendarUid = createCalendar(domainUid, "calendar", domainUid, orgUnitUid);
 		try {
 			getService().delete(domainUid);
 			fail("should fail");
@@ -155,7 +143,8 @@ public class DomainsServiceAuditLogTests {
 
 		// now we can delete domain
 		getService().delete(domainUid);
-		boolean isDataStream = !esClient.indices().resolveIndex(r -> r.name(AUDIT_LOG_PREFIX + domainUid)).dataStreams()
+		String AUDIT_LOG_DATASTREAM = AuditLogStoreConfig.resolveDataStreamName(domainUid);
+		boolean isDataStream = !esClient.indices().resolveIndex(r -> r.name(AUDIT_LOG_DATASTREAM)).dataStreams()
 				.isEmpty();
 		assertFalse(isDataStream);
 	}
@@ -172,25 +161,6 @@ public class DomainsServiceAuditLogTests {
 		Domain d = domain(name, aliases);
 		getService().create(d.name, d);
 		return d;
-	}
-
-	private String createOrgUnit(String domainUid, String name) {
-		IOrgUnits orgUnitService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IOrgUnits.class, domainUid);
-		OrgUnit orgUnit = OrgUnit.create(name, null);
-		String uid = "test-created:" + name;
-		orgUnitService.create(uid, orgUnit);
-		return uid;
-	}
-
-	private String createCalendar(String domainUid, String name, String ownerUid, String orgUnitUid) {
-		ICalendarsMgmt calendarsService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(ICalendarsMgmt.class, domainUid);
-		CalendarDescriptor calendarDescriptor = CalendarDescriptor.create(name, ownerUid, domainUid);
-		calendarDescriptor.orgUnitUid = orgUnitUid;
-		String uid = "test-created:" + name;
-		calendarsService.create(uid, calendarDescriptor);
-		return uid;
 	}
 
 	private IDomains getService() throws ServerFault {

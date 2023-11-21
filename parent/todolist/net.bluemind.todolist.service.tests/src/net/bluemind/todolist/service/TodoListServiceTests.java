@@ -50,6 +50,7 @@ import net.bluemind.core.api.date.BmDateTime.Precision;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.auditlogs.client.loader.config.AuditLogStoreConfig;
 import net.bluemind.core.container.model.ChangeLogEntry;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.Item;
@@ -60,6 +61,10 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.tests.vertx.VertxEventChecker;
 import net.bluemind.icalendar.api.ICalendarElement;
+import net.bluemind.icalendar.api.ICalendarElement.Attendee;
+import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;
+import net.bluemind.icalendar.api.ICalendarElement.RRule;
+import net.bluemind.icalendar.api.ICalendarElement.Role;
 import net.bluemind.icalendar.api.ICalendarElement.VAlarm;
 import net.bluemind.icalendar.api.ICalendarElement.VAlarm.Action;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
@@ -75,7 +80,7 @@ import net.bluemind.todolist.hook.TodoListHookAddress;
 
 public class TodoListServiceTests extends AbstractServiceTests {
 
-	private final String DATASTREAM_NAME = "audit_log_" + domainUid;
+	private final String dataStreamName = AuditLogStoreConfig.resolveDataStreamName(domainUid);
 
 	@Test
 	public void testCreate() throws Exception, SQLException {
@@ -177,9 +182,8 @@ public class TodoListServiceTests extends AbstractServiceTests {
 		String externalEmail = "external@attendee" + System.currentTimeMillis() + ".lan";
 		String externalDisplayName = "External Attendee";
 
-		VTodo.Attendee external = VTodo.Attendee.create(VTodo.CUType.Individual, "", VTodo.Role.RequiredParticipant,
-				VTodo.ParticipationStatus.NeedsAction, false, "", "", "", externalDisplayName, "", "", null,
-				externalEmail);
+		Attendee external = Attendee.create(VTodo.CUType.Individual, "", Role.RequiredParticipant,
+				ParticipationStatus.NeedsAction, false, "", "", "", externalDisplayName, "", "", null, externalEmail);
 
 		todo.attendees.add(external);
 
@@ -450,7 +454,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 		getService(defaultSecurityContext).create("test2", defaultVTodo());
 		getService(defaultSecurityContext).delete("test1");
 		getService(defaultSecurityContext).update("test2", defaultVTodo());
-		ESearchActivator.refreshIndex(DATASTREAM_NAME);
+		ESearchActivator.refreshIndex(dataStreamName);
 		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
 			ItemChangelog itemChangeLog = getService(defaultSecurityContext).itemChangelog("test1", 0L);
 			return 3 == itemChangeLog.entries.size();
@@ -485,7 +489,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 		getService(defaultSecurityContext).update("test1", defaultVTodo());
 		getService(defaultSecurityContext).update("test1", defaultVTodo());
 		getService(defaultSecurityContext).update("test1", defaultVTodo());
-		ESearchActivator.refreshIndex(DATASTREAM_NAME);
+		ESearchActivator.refreshIndex(dataStreamName);
 		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
 			ItemChangelog itemChangeLog = getService(defaultSecurityContext).itemChangelog("test1", 0L);
 			return 4 == itemChangeLog.entries.size();
@@ -1036,12 +1040,12 @@ public class TodoListServiceTests extends AbstractServiceTests {
 		todo.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 1, 1, 8, 0, 0, 0, tz), Precision.DateTime);
 		todo.due = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 1, 1, 8, 0, 0, 0, tz), Precision.DateTime);
 
-		VTodo.RRule rrule = new VTodo.RRule();
-		rrule.frequency = VTodo.RRule.Frequency.MONTHLY;
+		RRule rrule = new VTodo.RRule();
+		rrule.frequency = RRule.Frequency.MONTHLY;
 		rrule.interval = 1;
 		todo.rrule = rrule;
 
-		Set<net.bluemind.core.api.date.BmDateTime> exdate = new HashSet<>(1);
+		Set<net.bluemind.core.api.date.BmDateTime> exdate = new HashSet<net.bluemind.core.api.date.BmDateTime>(1);
 		BmDateTime exDate = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 6, 1, 8, 0, 0, 0, tz), Precision.DateTime);
 		exdate.add(exDate);
 		todo.exdate = exdate;
@@ -1079,8 +1083,8 @@ public class TodoListServiceTests extends AbstractServiceTests {
 
 		todo.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2000, 12, 25, 19, 0, 0, 0, tz), Precision.DateTime);
 		todo.due = BmDateTimeWrapper.create(ZonedDateTime.of(2000, 12, 25, 20, 0, 0, 0, tz), Precision.DateTime);
-		VTodo.RRule rrule = new VTodo.RRule();
-		rrule.frequency = VTodo.RRule.Frequency.YEARLY;
+		RRule rrule = new RRule();
+		rrule.frequency = RRule.Frequency.YEARLY;
 		rrule.interval = 1;
 		todo.rrule = rrule;
 
@@ -1096,7 +1100,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 		ListResult<ItemValue<VTodo>> res = service.search(query);
 		assertEquals(22, res.values.size());
 
-		List<ZonedDateTime> found = new ArrayList<ZonedDateTime>(12);
+		List<ZonedDateTime> found = new ArrayList<>(12);
 		for (ItemValue<VTodo> item : res.values) {
 			assertEquals(uid, item.uid);
 			found.add(new BmDateTimeWrapper(item.value.dtstart).toDateTime());
@@ -1116,8 +1120,8 @@ public class TodoListServiceTests extends AbstractServiceTests {
 		todo.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 1, 1, 8, 0, 0, 0, tz), Precision.DateTime);
 		todo.due = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 1, 1, 8, 0, 0, 0, tz), Precision.DateTime);
 
-		VTodo.RRule rrule = new VTodo.RRule();
-		rrule.frequency = VTodo.RRule.Frequency.MONTHLY;
+		RRule rrule = new RRule();
+		rrule.frequency = RRule.Frequency.MONTHLY;
 		rrule.interval = 1;
 		todo.rrule = rrule;
 
@@ -1277,7 +1281,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 		return ItemValue.create(item, defaultVTodo());
 	}
 
-	private static <T> void assertItemEquals(Item expected, Item actual) {
+	private static void assertItemEquals(Item expected, Item actual) {
 		assertNotNull(actual);
 		assertEquals(expected.id, actual.id);
 		assertEquals(expected.uid, actual.uid);

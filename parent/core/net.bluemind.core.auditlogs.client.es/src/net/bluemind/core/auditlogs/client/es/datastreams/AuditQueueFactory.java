@@ -28,6 +28,7 @@ import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import io.vertx.core.Verticle;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.core.auditlogs.client.es.AudiLogEsClientActivator;
+import net.bluemind.core.auditlogs.client.loader.config.AuditLogStoreConfig;
 import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 import net.bluemind.retry.support.RetryQueueVerticle;
@@ -35,7 +36,6 @@ import net.bluemind.retry.support.RetryQueueVerticle.RetryProcessor;
 
 public class AuditQueueFactory implements IVerticleFactory, IUniqueVerticleFactory {
 	private static final Logger logger = LoggerFactory.getLogger(AuditQueueFactory.class);
-	private static final String AUDIT_LOG_PREFIX = "audit_log_";
 
 	private static class RetryIndexing implements RetryProcessor {
 
@@ -58,12 +58,12 @@ public class AuditQueueFactory implements IVerticleFactory, IUniqueVerticleFacto
 			byte[] jsBytes = js.encode().getBytes();
 
 			if (domainUid != null) {
+				String dataStreamName = AuditLogStoreConfig.resolveDataStreamName(domainUid);
 				try {
-					esClient.index(
-							i -> i.index(AUDIT_LOG_PREFIX + domainUid).withJson(new ByteArrayInputStream(jsBytes)));
+					esClient.index(i -> i.index(dataStreamName).withJson(new ByteArrayInputStream(jsBytes)));
 				} catch (ElasticsearchException e) {
 					if (e.error() != null && "index_not_found_exception".equals(e.error().type())) {
-						logger.warn("datastream '{}' not found", AUDIT_LOG_PREFIX + domainUid);
+						logger.warn("datastream '{}' not found", dataStreamName);
 						return;
 					}
 					throw new Exception(e);

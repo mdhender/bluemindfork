@@ -27,8 +27,12 @@ import com.google.common.annotations.VisibleForTesting;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
+import net.bluemind.core.api.BMApi;
+
+@BMApi(version = "3")
 public class AuditLogStoreConfig {
 	private static final Logger logger = LoggerFactory.getLogger(AuditLogStoreConfig.class);
+	public static final String AUDITLOG_DATASTREAM_NAME = "audit_log_%s";
 	private static Config INSTANCE = loadConfig();
 
 	private AuditLogStoreConfig() {
@@ -41,6 +45,7 @@ public class AuditLogStoreConfig {
 		}
 
 		public static final String ACTIVATED = "auditlog.activate";
+		public static final String MULTIDOMAIN_DATASTREAMS = "auditlog.domain_datastream";
 		public static final String EXTERNAL_ES_HOST = "auditlog.store.server";
 		public static final String EXTERNAL_ES_PORT = "auditlog.store.port";
 	}
@@ -69,7 +74,7 @@ public class AuditLogStoreConfig {
 		return INSTANCE;
 	}
 
-	public static boolean getOrDefaultBool(String key) {
+	private static boolean getOrDefaultBool(String key) {
 		try {
 			return AuditLogStoreConfig.get().getBoolean(key);
 		} catch (Exception e) {
@@ -77,7 +82,7 @@ public class AuditLogStoreConfig {
 		}
 	}
 
-	public static String getOrDefaultStr(String key) {
+	private static String getOrDefaultStr(String key) {
 		try {
 			return AuditLogStoreConfig.get().getString(key);
 		} catch (Exception e) {
@@ -85,7 +90,7 @@ public class AuditLogStoreConfig {
 		}
 	}
 
-	public static int getOrDefaultInt(String key) {
+	private static int getOrDefaultInt(String key) {
 		try {
 			return AuditLogStoreConfig.get().getInt(key);
 		} catch (Exception e) {
@@ -95,6 +100,27 @@ public class AuditLogStoreConfig {
 
 	public static boolean isActivated() {
 		return AuditLogStoreConfig.getOrDefaultBool(AuditLogStore.ACTIVATED);
+	}
+
+	public static String getDataStreamName() {
+		String dataStreamPattern = AuditLogStoreConfig.getOrDefaultStr(AuditLogStore.MULTIDOMAIN_DATASTREAMS);
+		if (dataStreamPattern == null) {
+			return AUDITLOG_DATASTREAM_NAME;
+		}
+		return dataStreamPattern;
+	}
+
+	public static String resolveDataStreamName(String domainUid) {
+
+		String dataStreamPattern = AuditLogStoreConfig.getOrDefaultStr(AuditLogStore.MULTIDOMAIN_DATASTREAMS);
+		if (dataStreamPattern == null) {
+			return String.format(AUDITLOG_DATASTREAM_NAME, domainUid);
+		}
+
+		if (dataStreamPattern.contains("%d")) {
+			return dataStreamPattern.replace("%d", domainUid);
+		}
+		return dataStreamPattern;
 	}
 
 	public static ExternalESConfig getExternalEsConfig() {

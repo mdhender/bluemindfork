@@ -26,7 +26,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -53,15 +52,18 @@ import net.bluemind.core.api.date.BmDateTime.Precision;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.auditlogs.AuditLogEntry;
+import net.bluemind.core.auditlogs.client.loader.config.AuditLogStoreConfig;
 import net.bluemind.core.container.model.ChangeLogEntry.Type;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
 import net.bluemind.icalendar.api.ICalendarElement.CUType;
+import net.bluemind.icalendar.api.ICalendarElement.Classification;
 import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;
 import net.bluemind.icalendar.api.ICalendarElement.RRule;
 import net.bluemind.icalendar.api.ICalendarElement.RRule.Frequency;
 import net.bluemind.icalendar.api.ICalendarElement.RRule.WeekDay;
 import net.bluemind.icalendar.api.ICalendarElement.Role;
+import net.bluemind.icalendar.api.ICalendarElement.Status;
 import net.bluemind.icalendar.api.ICalendarElement.VAlarm;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.tag.api.TagRef;
@@ -69,7 +71,8 @@ import net.bluemind.tests.defaultdata.BmDateTimeHelper;
 
 public class CalendarServiceLogTests extends AbstractCalendarTests {
 	private static final String CRLF = "\r\n";
-	private final String AUDIT_LOG_DATASTREAM_FULL = "audit_log_" + domainUid;
+
+	private final String dataStreamName = AuditLogStoreConfig.resolveDataStreamName(domainUid);
 
 	@Test
 	public void testCreate() throws ServerFault, ElasticsearchException, IOException {
@@ -84,11 +87,11 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 		assertEquals(CREATE, CalendarTestSyncHook.action());
 		assertEquals(CREATE, CalendarTestAsyncHook.action());
 		assertNotNull(CalendarTestSyncHook.message());
-		ESearchActivator.refreshIndex(AUDIT_LOG_DATASTREAM_FULL);
+		ESearchActivator.refreshIndex(dataStreamName);
 
 		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
 			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-					.index(AUDIT_LOG_DATASTREAM_FULL) //
+					.index(dataStreamName) //
 					.query(q -> q.bool(b -> b
 							.must(TermQuery.of(t -> t.field("logtype").value(userCalendarContainer.type))._toQuery())
 							.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
@@ -96,7 +99,7 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 			return 1L == response.hits().total().value();
 		});
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-				.index(AUDIT_LOG_DATASTREAM_FULL) //
+				.index(dataStreamName) //
 				.query(q -> q.bool(
 						b -> b.must(TermQuery.of(t -> t.field("logtype").value(userCalendarContainer.type))._toQuery())
 								.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
@@ -135,11 +138,11 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 
 		event.main.dtend.iso8601 = "2022-02-13T02:00:00.000+07:00";
 		getCalendarService(userSecurityContext, userCalendarContainer).update(uid, event, sendNotifications);
-		ESearchActivator.refreshIndex(AUDIT_LOG_DATASTREAM_FULL);
+		ESearchActivator.refreshIndex(dataStreamName);
 
 		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
 			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-					.index(AUDIT_LOG_DATASTREAM_FULL) //
+					.index(dataStreamName) //
 					.query(q -> q.bool(b -> b
 							.must(TermQuery.of(t -> t.field("logtype").value(userCalendarContainer.type))._toQuery())
 							.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
@@ -147,7 +150,7 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 			return 1L == response.hits().total().value();
 		});
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-				.index(AUDIT_LOG_DATASTREAM_FULL) //
+				.index(dataStreamName) //
 				.query(q -> q.bool(
 						b -> b.must(TermQuery.of(t -> t.field("logtype").value(userCalendarContainer.type))._toQuery())
 								.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
@@ -177,7 +180,7 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 	}
 
 	@Test
-	public void testUpdateRemoveAttendee() throws ServerFault, ElasticsearchException, IOException, ParseException {
+	public void testUpdateRemoveAttendee() throws ServerFault, ElasticsearchException, IOException {
 
 		ElasticsearchClient esClient = ESearchActivator.getClient();
 		VEventSeries event = defaultVEvent();
@@ -186,11 +189,11 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 
 		event.main.attendees = new ArrayList<>(1);
 		getCalendarService(userSecurityContext, userCalendarContainer).update(uid, event, sendNotifications);
-		ESearchActivator.refreshIndex(AUDIT_LOG_DATASTREAM_FULL);
+		ESearchActivator.refreshIndex(dataStreamName);
 
 		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
 			SearchResponse<AuditLogEntry> response = esClient.search(s -> s//
-					.index(AUDIT_LOG_DATASTREAM_FULL) //
+					.index(dataStreamName) //
 					.query(q -> q.bool(b -> b
 							.must(TermQuery.of(t -> t.field("logtype").value(userCalendarContainer.type))._toQuery())
 							.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
@@ -199,7 +202,7 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 		});
 
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s//
-				.index(AUDIT_LOG_DATASTREAM_FULL) //
+				.index(dataStreamName) //
 				.query(q -> q.bool(
 						b -> b.must(TermQuery.of(t -> t.field("logtype").value(userCalendarContainer.type))._toQuery())
 								.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
@@ -227,26 +230,24 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 	}
 
 	@Test
-	public void testUpdateAddedAttendee()
-			throws ServerFault, ElasticsearchException, IOException, ParseException, InterruptedException {
+	public void testUpdateAddedAttendee() throws ServerFault, ElasticsearchException, IOException {
 
 		ElasticsearchClient esClient = ESearchActivator.getClient();
 		VEventSeries event = defaultVEvent();
 		String uid = "test_" + System.nanoTime();
 		getCalendarService(userSecurityContext, userCalendarContainer).create(uid, event, sendNotifications);
 
-		VEvent.Attendee sylvain = VEvent.Attendee.create(VEvent.CUType.Individual, "", VEvent.Role.Chair,
-				VEvent.ParticipationStatus.Accepted, true, "", "", "", "sylvain", null, null, null,
-				"sylvain@attendee.lan");
-		VEvent.Attendee nico = VEvent.Attendee.create(VEvent.CUType.Individual, "", VEvent.Role.Chair,
-				VEvent.ParticipationStatus.Accepted, true, "", "", "", "nico", null, null, null, "nico@attendee.lan");
+		Attendee sylvain = Attendee.create(CUType.Individual, "", Role.Chair, ParticipationStatus.Accepted, true, "",
+				"", "", "sylvain", null, null, null, "sylvain@attendee.lan");
+		Attendee nico = Attendee.create(CUType.Individual, "", Role.Chair, ParticipationStatus.Accepted, true, "", "",
+				"", "nico", null, null, null, "nico@attendee.lan");
 		event.main.attendees.addAll(Arrays.asList(sylvain, nico));
 		getCalendarService(userSecurityContext, userCalendarContainer).update(uid, event, sendNotifications);
-		ESearchActivator.refreshIndex(AUDIT_LOG_DATASTREAM_FULL);
+		ESearchActivator.refreshIndex(dataStreamName);
 
 		Awaitility.await().atMost(3, TimeUnit.SECONDS).until(() -> {
 			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-					.index(AUDIT_LOG_DATASTREAM_FULL) //
+					.index(dataStreamName) //
 					.query(q -> q.bool(b -> b
 							.must(TermQuery.of(t -> t.field("logtype").value(userCalendarContainer.type))._toQuery())
 							.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
@@ -255,7 +256,7 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 		});
 
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-				.index(AUDIT_LOG_DATASTREAM_FULL) //
+				.index(dataStreamName) //
 				.query(q -> q.bool(
 						b -> b.must(TermQuery.of(t -> t.field("logtype").value(userCalendarContainer.type))._toQuery())
 								.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
@@ -286,17 +287,15 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 	}
 
 	@Test
-	public void testUpdateAttendeesStatus() throws ServerFault, ElasticsearchException, IOException, ParseException {
+	public void testUpdateAttendeesStatus() throws ServerFault, ElasticsearchException, IOException {
 
 		ElasticsearchClient esClient = ESearchActivator.getClient();
 		VEventSeries event = defaultVEvent();
 		String uid = "test_" + System.nanoTime();
-		VEvent.Attendee sylvain = VEvent.Attendee.create(VEvent.CUType.Individual, "", VEvent.Role.Chair,
-				VEvent.ParticipationStatus.NeedsAction, true, "", "", "", "sylvain", null, null, null,
-				"sylvain@attendee.lan");
-		VEvent.Attendee nico = VEvent.Attendee.create(VEvent.CUType.Individual, "", VEvent.Role.Chair,
-				VEvent.ParticipationStatus.NeedsAction, true, "", "", "", "nico", null, null, null,
-				"nico@attendee.lan");
+		Attendee sylvain = Attendee.create(CUType.Individual, "", Role.Chair, ParticipationStatus.NeedsAction, true, "",
+				"", "", "sylvain", null, null, null, "sylvain@attendee.lan");
+		Attendee nico = Attendee.create(CUType.Individual, "", Role.Chair, ParticipationStatus.NeedsAction, true, "",
+				"", "", "nico", null, null, null, "nico@attendee.lan");
 		event.main.attendees.addAll(Arrays.asList(sylvain, nico));
 		getCalendarService(userSecurityContext, userCalendarContainer).create(uid, event, sendNotifications);
 
@@ -304,14 +303,14 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 		OptionalInt matchInt = IntStream.range(0, event.main.attendees.size())
 				.filter(i -> "sylvain@attendee.lan".equals(event.main.attendees.get(i).mailto)).findFirst();
 		assertTrue(matchInt.isPresent());
-		event.main.attendees.get(matchInt.getAsInt()).partStatus = VEvent.ParticipationStatus.Accepted;
+		event.main.attendees.get(matchInt.getAsInt()).partStatus = ParticipationStatus.Accepted;
 
 		getCalendarService(userSecurityContext, userCalendarContainer).update(uid, event, sendNotifications);
-		ESearchActivator.refreshIndex(AUDIT_LOG_DATASTREAM_FULL);
+		ESearchActivator.refreshIndex(dataStreamName);
 
 		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
 			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-					.index(AUDIT_LOG_DATASTREAM_FULL) //
+					.index(dataStreamName) //
 					.query(q -> q.bool(b -> b
 							.must(TermQuery.of(t -> t.field("logtype").value(userCalendarContainer.type))._toQuery())
 							.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
@@ -320,7 +319,7 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 		});
 
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-				.index(AUDIT_LOG_DATASTREAM_FULL) //
+				.index(dataStreamName) //
 				.query(q -> q.bool(
 						b -> b.must(TermQuery.of(t -> t.field("logtype").value(userCalendarContainer.type))._toQuery())
 								.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
@@ -331,7 +330,7 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 	}
 
 	@Test
-	public void testUpdateChangedLocation() throws ServerFault, ElasticsearchException, IOException, ParseException {
+	public void testUpdateChangedLocation() throws ServerFault, ElasticsearchException, IOException {
 
 		ElasticsearchClient esClient = ESearchActivator.getClient();
 		VEventSeries event = defaultVEvent();
@@ -340,11 +339,11 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 
 		event.main.location = "Marseillette";
 		getCalendarService(userSecurityContext, userCalendarContainer).update(uid, event, sendNotifications);
-		ESearchActivator.refreshIndex(AUDIT_LOG_DATASTREAM_FULL);
+		ESearchActivator.refreshIndex(dataStreamName);
 
 		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
 			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-					.index(AUDIT_LOG_DATASTREAM_FULL) //
+					.index(dataStreamName) //
 					.query(q -> q.bool(b -> b
 							.must(TermQuery.of(t -> t.field("logtype").value(userCalendarContainer.type))._toQuery())
 							.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
@@ -353,7 +352,7 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 		});
 
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-				.index(AUDIT_LOG_DATASTREAM_FULL) //
+				.index(dataStreamName) //
 				.query(q -> q.bool(
 						b -> b.must(TermQuery.of(t -> t.field("logtype").value(userCalendarContainer.type))._toQuery())
 								.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
@@ -383,7 +382,7 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 	}
 
 	@Test
-	public void testUpdateChangedEndDate() throws ServerFault, ElasticsearchException, IOException, ParseException {
+	public void testUpdateChangedEndDate() throws ServerFault, ElasticsearchException, IOException {
 		ElasticsearchClient esClient = ESearchActivator.getClient();
 		VEventSeries event = defaultVEvent();
 		String uid = "test_" + System.nanoTime();
@@ -394,11 +393,11 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 		BmDateTime oldDate = event.main.dtend;
 		event.main.dtend = newDate;
 		getCalendarService(userSecurityContext, userCalendarContainer).update(uid, event, sendNotifications);
-		ESearchActivator.refreshIndex(AUDIT_LOG_DATASTREAM_FULL);
+		ESearchActivator.refreshIndex(dataStreamName);
 
 		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
 			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-					.index(AUDIT_LOG_DATASTREAM_FULL) //
+					.index(dataStreamName) //
 					.query(q -> q.bool(b -> b
 							.must(TermQuery.of(t -> t.field("logtype").value(userCalendarContainer.type))._toQuery())
 							.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
@@ -407,7 +406,7 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 		});
 
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-				.index(AUDIT_LOG_DATASTREAM_FULL) //
+				.index(dataStreamName) //
 				.query(q -> q.bool(
 						b -> b.must(TermQuery.of(t -> t.field("logtype").value(userCalendarContainer.type))._toQuery())
 								.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
@@ -418,7 +417,7 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 	}
 
 	@Test
-	public void testUpdateChangedStartDate() throws ServerFault, ElasticsearchException, IOException, ParseException {
+	public void testUpdateChangedStartDate() throws ServerFault, ElasticsearchException, IOException {
 		ElasticsearchClient esClient = ESearchActivator.getClient();
 		VEventSeries event = defaultVEvent();
 		String uid = "test_" + System.nanoTime();
@@ -429,11 +428,11 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 		BmDateTime oldDate = event.main.dtend;
 		event.main.dtstart = newDate;
 		getCalendarService(userSecurityContext, userCalendarContainer).update(uid, event, sendNotifications);
-		ESearchActivator.refreshIndex(AUDIT_LOG_DATASTREAM_FULL);
+		ESearchActivator.refreshIndex(dataStreamName);
 
 		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
 			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-					.index(AUDIT_LOG_DATASTREAM_FULL) //
+					.index(dataStreamName) //
 					.query(q -> q.bool(b -> b
 							.must(TermQuery.of(t -> t.field("logtype").value(userCalendarContainer.type))._toQuery())
 							.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
@@ -442,7 +441,7 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 		});
 
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-				.index(AUDIT_LOG_DATASTREAM_FULL) //
+				.index(dataStreamName) //
 				.query(q -> q.bool(
 						b -> b.must(TermQuery.of(t -> t.field("logtype").value(userCalendarContainer.type))._toQuery())
 								.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
@@ -453,7 +452,7 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 	}
 
 	@Test
-	public void testUpdateAddedReccurence() throws ServerFault, ElasticsearchException, IOException, ParseException {
+	public void testUpdateAddedReccurence() throws ServerFault, ElasticsearchException, IOException {
 		ElasticsearchClient esClient = ESearchActivator.getClient();
 		VEventSeries event = defaultVEvent();
 		String uid = "test_" + System.nanoTime();
@@ -464,11 +463,11 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 		event.main.rrule.interval = 10;
 		event.main.rrule.byDay = Arrays.asList(WeekDay.tu(), WeekDay.fr());
 		getCalendarService(userSecurityContext, userCalendarContainer).update(uid, event, sendNotifications);
-		ESearchActivator.refreshIndex(AUDIT_LOG_DATASTREAM_FULL);
+		ESearchActivator.refreshIndex(dataStreamName);
 
 		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
 			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-					.index(AUDIT_LOG_DATASTREAM_FULL) //
+					.index(dataStreamName) //
 					.query(q -> q.bool(b -> b
 							.must(TermQuery.of(t -> t.field("logtype").value(userCalendarContainer.type))._toQuery())
 							.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
@@ -477,7 +476,7 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 		});
 
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-				.index(AUDIT_LOG_DATASTREAM_FULL) //
+				.index(dataStreamName) //
 				.query(q -> q.bool(
 						b -> b.must(TermQuery.of(t -> t.field("logtype").value(userCalendarContainer.type))._toQuery())
 								.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
@@ -487,8 +486,7 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 	}
 
 	@Test
-	public void testUpdateChangedReccurenceFrequency()
-			throws ServerFault, ElasticsearchException, IOException, ParseException {
+	public void testUpdateChangedReccurenceFrequency() throws ServerFault, ElasticsearchException, IOException {
 		ElasticsearchClient esClient = ESearchActivator.getClient();
 		VEventSeries event = defaultVEvent();
 		String uid = "test_" + System.nanoTime();
@@ -500,11 +498,11 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 
 		event.main.rrule.frequency = Frequency.MONTHLY;
 		getCalendarService(userSecurityContext, userCalendarContainer).update(uid, event, sendNotifications);
-		ESearchActivator.refreshIndex(AUDIT_LOG_DATASTREAM_FULL);
+		ESearchActivator.refreshIndex(dataStreamName);
 
 		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
 			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-					.index(AUDIT_LOG_DATASTREAM_FULL) //
+					.index(dataStreamName) //
 					.query(q -> q.bool(b -> b
 							.must(TermQuery.of(t -> t.field("logtype").value(userCalendarContainer.type))._toQuery())
 							.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
@@ -513,7 +511,7 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 		});
 
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-				.index(AUDIT_LOG_DATASTREAM_FULL) //
+				.index(dataStreamName) //
 				.query(q -> q.bool(
 						b -> b.must(TermQuery.of(t -> t.field("logtype").value(userCalendarContainer.type))._toQuery())
 								.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
@@ -523,8 +521,7 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 	}
 
 	@Test
-	public void testUpdateChangedReccurenceDays()
-			throws ServerFault, ElasticsearchException, IOException, ParseException {
+	public void testUpdateChangedReccurenceDays() throws ServerFault, ElasticsearchException, IOException {
 		ElasticsearchClient esClient = ESearchActivator.getClient();
 		VEventSeries event = defaultVEvent();
 		String uid = "test_" + System.nanoTime();
@@ -536,11 +533,11 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 
 		event.main.rrule.byDay = Arrays.asList(WeekDay.tu(), WeekDay.sa());
 		getCalendarService(userSecurityContext, userCalendarContainer).update(uid, event, sendNotifications);
-		ESearchActivator.refreshIndex(AUDIT_LOG_DATASTREAM_FULL);
+		ESearchActivator.refreshIndex(dataStreamName);
 
 		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
 			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-					.index(AUDIT_LOG_DATASTREAM_FULL) //
+					.index(dataStreamName) //
 					.query(q -> q.bool(b -> b
 							.must(TermQuery.of(t -> t.field("logtype").value(userCalendarContainer.type))._toQuery())
 							.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
@@ -549,7 +546,7 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 		});
 
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-				.index(AUDIT_LOG_DATASTREAM_FULL) //
+				.index(dataStreamName) //
 				.query(q -> q.bool(
 						b -> b.must(TermQuery.of(t -> t.field("logtype").value(userCalendarContainer.type))._toQuery())
 								.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
@@ -559,8 +556,7 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 	}
 
 	@Test
-	public void testUpdateChangedReccurenceMinutes()
-			throws ServerFault, ElasticsearchException, IOException, ParseException {
+	public void testUpdateChangedReccurenceMinutes() throws ServerFault, ElasticsearchException, IOException {
 		ElasticsearchClient esClient = ESearchActivator.getClient();
 		VEventSeries event = defaultVEvent();
 		String uid = "test_" + System.nanoTime();
@@ -573,11 +569,11 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 
 		event.main.rrule.byMinute = Arrays.asList(0, 40);
 		getCalendarService(userSecurityContext, userCalendarContainer).update(uid, event, sendNotifications);
-		ESearchActivator.refreshIndex(AUDIT_LOG_DATASTREAM_FULL);
+		ESearchActivator.refreshIndex(dataStreamName);
 
 		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
 			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-					.index(AUDIT_LOG_DATASTREAM_FULL) //
+					.index(dataStreamName) //
 					.query(q -> q.bool(b -> b
 							.must(TermQuery.of(t -> t.field("logtype").value(userCalendarContainer.type))._toQuery())
 							.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
@@ -586,7 +582,7 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 		});
 
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-				.index(AUDIT_LOG_DATASTREAM_FULL) //
+				.index(dataStreamName) //
 				.query(q -> q.bool(
 						b -> b.must(TermQuery.of(t -> t.field("logtype").value(userCalendarContainer.type))._toQuery())
 								.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
@@ -621,11 +617,11 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 		assertEquals(DELETE, CalendarTestSyncHook.action());
 		assertEquals(DELETE, CalendarTestAsyncHook.action());
 		assertNotNull(CalendarTestSyncHook.message());
-		ESearchActivator.refreshIndex(AUDIT_LOG_DATASTREAM_FULL);
+		ESearchActivator.refreshIndex(dataStreamName);
 
 		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
 			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-					.index(AUDIT_LOG_DATASTREAM_FULL) //
+					.index(dataStreamName) //
 					.query(q -> q.bool(b -> b
 							.must(TermQuery.of(t -> t.field("logtype").value(userCalendarContainer.type))._toQuery())
 							.must(TermQuery.of(t -> t.field("action").value(Type.Deleted.toString()))._toQuery()))),
@@ -634,7 +630,7 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 		});
 
 		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-				.index(AUDIT_LOG_DATASTREAM_FULL) //
+				.index(dataStreamName) //
 				.query(q -> q.bool(
 						b -> b.must(TermQuery.of(t -> t.field("logtype").value(userCalendarContainer.type))._toQuery())
 								.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
@@ -642,7 +638,7 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 		assertEquals(1L, response.hits().total().value());
 
 		response = esClient.search(s -> s //
-				.index(AUDIT_LOG_DATASTREAM_FULL) //
+				.index(dataStreamName) //
 				.query(q -> q.bool(
 						b -> b.must(TermQuery.of(t -> t.field("logtype").value(userCalendarContainer.type))._toQuery())
 								.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
@@ -650,7 +646,7 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 		assertEquals(0L, response.hits().total().value());
 
 		response = esClient.search(s -> s //
-				.index(AUDIT_LOG_DATASTREAM_FULL) //
+				.index(dataStreamName) //
 				.query(q -> q.bool(
 						b -> b.must(TermQuery.of(t -> t.field("logtype").value(userCalendarContainer.type))._toQuery())
 								.must(TermQuery.of(t -> t.field("action").value(Type.Deleted.toString()))._toQuery()))),
@@ -683,6 +679,7 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 		CalendarTestAsyncHook.reset();
 	}
 
+	@Override
 	protected VEventSeries defaultVEvent() {
 		ZoneId tz = ZoneId.of("Asia/Ho_Chi_Minh");
 		return defaultVEvent(ZonedDateTime.of(2022, 2, 13, 1, 0, 0, 0, tz));
@@ -691,6 +688,7 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 	/**
 	 * @return
 	 */
+	@Override
 	protected VEventSeries defaultVEvent(ZonedDateTime start) {
 		VEventSeries series = new VEventSeries();
 		VEvent event = new VEvent();
@@ -699,8 +697,8 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 		event.location = "Toulouse";
 		event.description = "Lorem ipsum";
 		event.transparency = VEvent.Transparency.Opaque;
-		event.classification = VEvent.Classification.Private;
-		event.status = VEvent.Status.Confirmed;
+		event.classification = Classification.Private;
+		event.status = Status.Confirmed;
 		event.priority = 3;
 		event.url = "https://www.bluemind.net";
 		event.conference = "https//vi.sio.com/xxx";
@@ -720,12 +718,11 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 
 		event.organizer = new VEvent.Organizer(testUser.value.login + "@bm.lan");
 
-		List<VEvent.Attendee> attendees = new ArrayList<>(1);
-		VEvent.Attendee me = VEvent.Attendee.create(VEvent.CUType.Individual, "", VEvent.Role.Chair,
-				VEvent.ParticipationStatus.Accepted, true, "", "", "", "osef", null, null, null,
-				"external@attendee.lan");
-		VEvent.Attendee david = VEvent.Attendee.create(VEvent.CUType.Individual, "", VEvent.Role.Chair,
-				VEvent.ParticipationStatus.Accepted, true, "", "", "", "david", null, null, null, "david@attendee.lan");
+		List<Attendee> attendees = new ArrayList<>(1);
+		Attendee me = Attendee.create(CUType.Individual, "", Role.Chair, ParticipationStatus.Accepted, true, "", "", "",
+				"osef", null, null, null, "external@attendee.lan");
+		Attendee david = Attendee.create(CUType.Individual, "", Role.Chair, ParticipationStatus.Accepted, true, "", "",
+				"", "david", null, null, null, "david@attendee.lan");
 		attendees.addAll(Arrays.asList(me, david));
 
 		event.attendees = attendees;

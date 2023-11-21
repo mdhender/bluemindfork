@@ -14,7 +14,7 @@
 		<module>net.bluemind.configfile</module>
 		<module>net.bluemind.core.annotationvalidator</module>
 		<module>net.bluemind.core.auditlog</module>
-		<module>net.bluemind.core.auditlogs.client.es</module>
+                <module>net.bluemind.core.auditlogs.client.es</module>
 		<module>net.bluemind.core.auditlogs.client.loader</module>
 		<module>net.bluemind.core.auditlogs</module>
 		<module>net.bluemind.core.backup.continuous.api</module>
@@ -58,12 +58,6 @@
 		<module>net.bluemind.core.sessions.deletion.hz</module>
 		<module>net.bluemind.core.sessions</module>
 		<module>net.bluemind.core.sqlschema</module>
-		<module>net.bluemind.core.logs.tests</module>
-		<module>net.bluemind.core.auditlogs</module>
-		<module>net.bluemind.core.auditlogs.tests</module>
-		<module>net.bluemind.core.auditlogs.client.loader</module>
-		<module>net.bluemind.core.auditlogs.client.es</module>
-		<module>net.bluemind.core.auditlogs.client.es.tests</module>
 		<module>net.bluemind.core.task.api</module>
 		<module>net.bluemind.core.task.service</module>
 		<module>net.bluemind.core.task.spi</module>
@@ -76,6 +70,7 @@
 			<id>tests</id>
 			<modules>
 				<module>net.bluemind.core.auditlogs.client.es.tests</module>
+		                <module>net.bluemind.core.auditlogs.tests</module>
 				<module>net.bluemind.core.annotationvalidator.tests</module>
 				<module>net.bluemind.core.backup.continuous.events.tests</module>
 				<module>net.bluemind.core.backup.continuous.tests</module>

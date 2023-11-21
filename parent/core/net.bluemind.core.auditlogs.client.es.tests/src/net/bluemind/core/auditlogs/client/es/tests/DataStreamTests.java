@@ -52,6 +52,7 @@ public class DataStreamTests {
 	private static final String domainUid = "bm" + System.currentTimeMillis() + ".lan";
 	private static final String domainUid01 = "bm01" + System.currentTimeMillis() + ".lan";
 	private DataStreamActivator dataStreamActivator;
+
 	private static final String AUDIT_LOG_DATASTREAM_PREFIX = "audit_log";
 	private ElasticsearchClient esClient;
 	private Container domainsContainer;

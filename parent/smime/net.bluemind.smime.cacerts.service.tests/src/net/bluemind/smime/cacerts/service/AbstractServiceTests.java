@@ -86,7 +86,7 @@ public abstract class AbstractServiceTests {
 
 	protected String datalocation;
 	protected DataSource dataDataSource;
-	protected String domainUid;
+	protected String domainUid = "bm.lan";
 	protected String owner;
 
 	ContainerStoreService<SmimeCacert> smimeContainerStoreService;
@@ -104,7 +104,6 @@ public abstract class AbstractServiceTests {
 		JdbcTestHelper.getInstance().beforeTest();
 		PopulateHelper.initGlobalVirt(esServer);
 
-		domainUid = "bm.lan";
 		datalocation = PopulateHelper.FAKE_CYRUS_IP;
 		dataDataSource = JdbcActivator.getInstance().getMailboxDataSource(datalocation);
 

@@ -36,6 +36,7 @@ import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.auditlogs.AuditLogEntry;
+import net.bluemind.core.auditlogs.client.loader.config.AuditLogStoreConfig;
 import net.bluemind.core.container.model.ChangeLogEntry.Type;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
@@ -48,10 +49,10 @@ import net.bluemind.todolist.hook.TodoListHookAddress;
 
 public class TodoListLogTests extends AbstractServiceTests {
 
-	private final String DATASTREAM_NAME = "audit_log_" + domainUid;
+	private final String dataStreamName = AuditLogStoreConfig.resolveDataStreamName(domainUid);
 
 	@Test
-	public void testCreate() throws ServerFault, ElasticsearchException, IOException {
+	public void testCreate() throws ServerFault, ElasticsearchException {
 
 		VertxEventChecker<JsonObject> createdMessageChecker = new VertxEventChecker<>(TodoListHookAddress.CREATED);
 
@@ -60,7 +61,7 @@ public class TodoListLogTests extends AbstractServiceTests {
 
 		getService(defaultSecurityContext).create(uid, todo);
 
-		ESearchActivator.refreshIndex(DATASTREAM_NAME);
+		ESearchActivator.refreshIndex(dataStreamName);
 		ElasticsearchClient esClient = ESearchActivator.getClient();
 
 		Message<JsonObject> message = createdMessageChecker.shouldSuccess();
@@ -68,7 +69,7 @@ public class TodoListLogTests extends AbstractServiceTests {
 
 		Awaitility.await().atMost(3, TimeUnit.SECONDS).until(() -> {
 			SearchResponse<AuditLogEntry> response = esClient.search(
-					s -> s.index(DATASTREAM_NAME).query(q -> q.bool(b -> b
+					s -> s.index(dataStreamName).query(q -> q.bool(b -> b
 							.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
 							.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
 							.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
@@ -87,13 +88,13 @@ public class TodoListLogTests extends AbstractServiceTests {
 		todo.summary = "Coucou";
 
 		getService(defaultSecurityContext).update(uid, todo);
-		ESearchActivator.refreshIndex(DATASTREAM_NAME);
+		ESearchActivator.refreshIndex(dataStreamName);
 
 		ElasticsearchClient esClient = ESearchActivator.getClient();
 
 		Awaitility.await().atMost(3, TimeUnit.SECONDS).until(() -> {
 			SearchResponse<AuditLogEntry> response = esClient.search(
-					s -> s.index(DATASTREAM_NAME).query(q -> q.bool(b -> b
+					s -> s.index(dataStreamName).query(q -> q.bool(b -> b
 							.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
 							.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
 							.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
@@ -102,7 +103,7 @@ public class TodoListLogTests extends AbstractServiceTests {
 		});
 
 		SearchResponse<AuditLogEntry> response = esClient.search(
-				s -> s.index(DATASTREAM_NAME)
+				s -> s.index(dataStreamName)
 						.query(q -> q.bool(b -> b
 								.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
 								.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
@@ -112,7 +113,7 @@ public class TodoListLogTests extends AbstractServiceTests {
 		assertEquals(1L, response.hits().total().value());
 
 		response = esClient.search(
-				s -> s.index(DATASTREAM_NAME)
+				s -> s.index(dataStreamName)
 						.query(q -> q.bool(b -> b
 								.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
 								.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
@@ -138,12 +139,12 @@ public class TodoListLogTests extends AbstractServiceTests {
 
 		Message<JsonObject> message = deletedMessageChecker.shouldSuccess();
 		assertNotNull(message);
-		ESearchActivator.refreshIndex(DATASTREAM_NAME);
+		ESearchActivator.refreshIndex(dataStreamName);
 
 		ElasticsearchClient esClient = ESearchActivator.getClient();
 		Awaitility.await().atMost(3, TimeUnit.SECONDS).until(() -> {
 			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-					.index(DATASTREAM_NAME) //
+					.index(dataStreamName) //
 					.query(q -> q.bool(b -> b
 							.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
 							.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
@@ -154,7 +155,7 @@ public class TodoListLogTests extends AbstractServiceTests {
 
 		Awaitility.await().atMost(3, TimeUnit.SECONDS).until(() -> {
 			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-					.index(DATASTREAM_NAME) //
+					.index(dataStreamName) //
 					.query(q -> q.bool(b -> b
 							.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
 							.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
@@ -164,7 +165,7 @@ public class TodoListLogTests extends AbstractServiceTests {
 		});
 
 		SearchResponse<AuditLogEntry> response = esClient.search(
-				s -> s.index(DATASTREAM_NAME)
+				s -> s.index(dataStreamName)
 						.query(q -> q.bool(b -> b
 								.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
 								.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
@@ -173,7 +174,7 @@ public class TodoListLogTests extends AbstractServiceTests {
 		assertEquals(1L, response.hits().total().value());
 
 		response = esClient.search(
-				s -> s.index(DATASTREAM_NAME)
+				s -> s.index(dataStreamName)
 						.query(q -> q.bool(b -> b
 								.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
 								.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())

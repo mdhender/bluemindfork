@@ -51,13 +51,14 @@ import net.bluemind.cli.auditlog.tests.utils.CliTestHelper;
 import net.bluemind.cli.launcher.CLIManager;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.auditlogs.AuditLogEntry;
+import net.bluemind.core.auditlogs.client.loader.config.AuditLogStoreConfig;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.system.state.StateContext;
 
 public class AuditLogGetTests extends AbstractCliAuditLogServiceTests {
 	private static final Logger logger = LoggerFactory.getLogger(AuditLogGetTests.class);
-	protected static final String AUDIT_LOG_INDEX = "audit_log_" + domainUid;
+	private static final String AUDIT_LOG_INDEX = AuditLogStoreConfig.resolveDataStreamName(domainUid);
 	private static CliTestHelper testHelper;
 	private static CLIManager cli;
 	private ObjectMapper mapper = new ObjectMapper();

@@ -34,10 +34,8 @@ public class AudiLogEsClientActivator {
 	public static ElasticsearchClient get() {
 		ExternalESConfig externalESConfig = AuditLogStoreConfig.getExternalEsConfig();
 		if (externalESConfig == null) {
-			System.err.println("Internal ES");
 			return ESearchActivator.getClient();
 		}
-		System.err.println("external ES");
 		return ESearchActivator.getClient(List.of(externalESConfig.ip()));
 	}
 }

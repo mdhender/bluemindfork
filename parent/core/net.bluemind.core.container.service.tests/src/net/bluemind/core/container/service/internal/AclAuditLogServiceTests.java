@@ -49,6 +49,7 @@ import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.auditlogs.AuditLogEntry;
+import net.bluemind.core.auditlogs.client.loader.config.AuditLogStoreConfig;
 import net.bluemind.core.container.api.ContainerSubscription;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.ChangeLogEntry.Type;
@@ -82,18 +83,16 @@ public class AclAuditLogServiceTests {
 	private AclStore aclStore;
 
 	private ElasticsearchClient esClient;
-	private static final String domainUid = "bm.lan";
+	private static final String DOMAIN_UID = "bm.lan";
 	private ItemValue<User> user01;
-	private SecurityContext user01SecurityContext;
 	private String datalocation;
-	private DataSource dataDataSource;
 	private DataSource systemDataSource;
 	private Container user01CalendarContainer;
 	private BaseContainerDescriptor user01CalendarDesc;
 	private ItemValue<User> user02;
 	private ItemValue<User> user03;
 	private static final String ACL_AUDITLOG_TYPE = "containeracl";
-	private static final String AUDIT_LOG_DATASTREAM = "audit_log_" + domainUid;
+	private static final String AUDIT_LOG_DATASTREAM = AuditLogStoreConfig.resolveDataStreamName(DOMAIN_UID);
 
 	@Before
 	public void before() throws Exception {
@@ -113,11 +112,11 @@ public class AclAuditLogServiceTests {
 		PopulateHelper.initGlobalVirt(esServer, pipo);
 
 		datalocation = PopulateHelper.FAKE_CYRUS_IP;
-		dataDataSource = JdbcActivator.getInstance().getMailboxDataSource(datalocation);
+		DataSource dataDataSource = JdbcActivator.getInstance().getMailboxDataSource(datalocation);
 		systemDataSource = JdbcTestHelper.getInstance().getDataSource();
-		PopulateHelper.addDomain(domainUid);
+		PopulateHelper.addDomain(DOMAIN_UID);
 
-		SecurityContext defaultSecurityContext = BmTestContext.contextWithSession("testUser", "test", domainUid)
+		SecurityContext defaultSecurityContext = BmTestContext.contextWithSession("testUser", "test", DOMAIN_UID)
 				.getSecurityContext();
 		BmContext context = new BmTestContext(defaultSecurityContext);
 
@@ -128,14 +127,14 @@ public class AclAuditLogServiceTests {
 
 		// Create users
 		IUser userService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IUser.class,
-				domainUid);
+				DOMAIN_UID);
 		userService.create(user01.uid, user01.value);
 		userService.create(user02.uid, user02.value);
 		userService.create(user03.uid, user03.value);
 
 		// Create security contexts and sessions
-		user01SecurityContext = new SecurityContext("user01", user01.uid, Arrays.<String>asList(),
-				Arrays.<String>asList("hasSimpleVideoconferencing"), domainUid);
+		SecurityContext user01SecurityContext = new SecurityContext("user01", user01.uid, Arrays.<String>asList(),
+				Arrays.<String>asList("hasSimpleVideoconferencing"), DOMAIN_UID);
 		Sessions.get().put(user01SecurityContext.getSessionId(), user01SecurityContext);
 
 		// Create containers
@@ -264,7 +263,6 @@ public class AclAuditLogServiceTests {
 
 		assertEquals(user01CalendarDesc.name, entry.container.name());
 
-
 		assertEquals(user01.uid, entry.content.key());
 		assertTrue(!entry.content.newValue().isBlank());
 		assertTrue(entry.content.is().isEmpty());
@@ -352,7 +350,6 @@ public class AclAuditLogServiceTests {
 						.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
 				AuditLogEntry.class);
 
-
 		AuditLogEntry entry = response.hits().hits().stream().map(hit -> hit.source())
 				.filter(log -> log.content.key().equals(user02Acl.subject)).findAny().get();
 
@@ -360,7 +357,6 @@ public class AclAuditLogServiceTests {
 		assertEquals(2L, entry.content.with().size());
 		assertTrue(entry.content.newValue() != null);
 		assertEquals(user01CalendarDesc.name, entry.container.name());
-
 
 		assertEquals(user02Acl.subject, entry.content.key());
 		assertTrue(!entry.content.newValue().isBlank());
@@ -381,13 +377,13 @@ public class AclAuditLogServiceTests {
 			String uid, String owner) throws SQLException {
 		BmContext ctx = new BmTestContext(context);
 		ContainerStore containerHome = new ContainerStore(ctx, datasource, context);
-		Container container = Container.create(uid, type, name, owner, domainUid, true);
+		Container container = Container.create(uid, type, name, owner, DOMAIN_UID, true);
 		container = containerHome.create(container);
 		if (datasource != systemDataSource) {
 			ContainerStore directoryStore = new ContainerStore(ctx, ctx.getDataSource(), context);
 			directoryStore.createOrUpdateContainerLocation(container, datalocation);
 		}
-		IUserSubscription subApi = ctx.provider().instance(IUserSubscription.class, domainUid);
+		IUserSubscription subApi = ctx.provider().instance(IUserSubscription.class, DOMAIN_UID);
 		subApi.subscribe(context.getSubject(), Arrays.asList(ContainerSubscription.create(container.uid, true)));
 		return container;
 	}
@@ -397,7 +393,7 @@ public class AclAuditLogServiceTests {
 		login = login.toLowerCase();
 		user.login = login;
 		Email em = new Email();
-		em.address = login + "@" + domainUid;
+		em.address = login + "@" + DOMAIN_UID;
 		em.isDefault = true;
 		em.allAliases = false;
 		user.emails = Arrays.asList(em);
@@ -409,7 +405,7 @@ public class AclAuditLogServiceTests {
 		card.identification.formatedName = VCard.Identification.FormatedName.create(firstname + " " + lastname,
 				Arrays.<VCard.Parameter>asList());
 		user.contactInfos = card;
-		ItemValue<User> ret = ItemValue.create(login + "_" + domainUid, user);
+		ItemValue<User> ret = ItemValue.create(login + "_" + DOMAIN_UID, user);
 		ret.displayName = card.identification.formatedName.value;
 		return ret;
 	}
