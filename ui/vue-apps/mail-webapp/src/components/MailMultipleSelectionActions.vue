@@ -9,11 +9,7 @@
             <div class="starter-text-and-actions">
                 <div class="starter-main">
                     <h1 id="text-1">{{ mainText }}</h1>
-                    <bm-button variant="text" size="sm" icon="cross" @click="cancelSelection">
-                        {{ $t("common.cancel.selection") }}
-                    </bm-button>
                 </div>
-                <div class="starter-links"></div>
             </div>
             <div class="illustration-and-actions">
                 <div class="actions">
@@ -69,6 +65,11 @@
                     </bm-button>
                 </div>
                 <bm-illustration :value="illustration" size="lg" over-background />
+            </div>
+            <div class="cancel-selection-btn-wrapper">
+                <bm-button variant="text" size="sm" icon="cross" @click="cancelSelection">
+                    {{ $t("common.cancel.selection") }}
+                </bm-button>
             </div>
         </section>
         <choose-folder-modal
@@ -210,35 +211,57 @@ export default {
     display: flex;
     flex-direction: column;
 
-    .mail-home-screen .illustration-and-actions {
-        align-self: flex-start;
-        margin: 0 auto;
+    .mail-home-screen {
+        .starter-text-and-actions {
+            flex: 0 1 base-px-to-rem(80);
+        }
 
-        display: flex;
-        gap: $sp-7;
-
-        .actions {
+        .cancel-selection-btn-wrapper {
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
-            gap: $sp-2;
-            padding-top: base-px-to-rem(44);
-            padding-left: $sp-6;
+            flex: 0 1 auto;
+            min-height: base-px-to-rem(24) + $sp-6;
 
-            .mark-as-flagged-button .fa-flag-fill {
-                color: $warning-fg;
+            &:before {
+                flex: 0 1 $sp-7;
+                content: "";
+            }
+            &:after {
+                flex: 0 1 base-px-to-rem(136);
+                content: "";
             }
         }
 
-        .bm-illustration {
-            position: relative;
-            width: 334px;
-            height: 310px;
+        .illustration-and-actions {
+            align-self: flex-start;
+            margin: 0 auto;
 
-            & > svg {
-                position: absolute;
-                left: -96px;
-                top: -62px;
+            display: flex;
+            gap: $sp-7;
+
+            .actions {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: $sp-2;
+                padding-top: base-px-to-rem(44);
+                padding-left: $sp-6;
+
+                .mark-as-flagged-button .fa-flag-fill {
+                    color: $warning-fg;
+                }
+            }
+
+            .bm-illustration {
+                position: relative;
+                width: 334px;
+                height: 310px;
+
+                & > svg {
+                    position: absolute;
+                    left: -96px;
+                    top: -62px;
+                }
             }
         }
     }

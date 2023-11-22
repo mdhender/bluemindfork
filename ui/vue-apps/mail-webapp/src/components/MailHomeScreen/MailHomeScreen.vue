@@ -50,9 +50,10 @@ export default {
     align-items: center;
     height: 100%;
     width: 100%;
-    padding: $sp-6 0 $sp-5;
+    padding: $sp-6 0 $sp-7;
 
-    $text-and-actions-base-height: base-px-to-rem(260);
+    $text-and-actions-base-height: base-px-to-rem(230);
+    $illustration-height: 360px;
 
     .starter-text-and-actions {
         flex: 0 1 $text-and-actions-base-height;
@@ -80,6 +81,7 @@ export default {
 
             .bm-button {
                 margin-top: $sp-4;
+                margin-bottom: $sp-6;
             }
 
             .description {
@@ -99,11 +101,12 @@ export default {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: $sp-3 $sp-7;
-            margin: $sp-6 0 $sp-5 0;
-            align-items: flex-end;
+            align-items: center;
+            gap: 0 $sp-7;
 
             .starter-link {
+                margin-top: $sp-6;
+                margin-bottom: $sp-5;
                 display: flex;
                 gap: $sp-4;
                 .bm-icon {
@@ -113,8 +116,15 @@ export default {
         }
     }
 
-    .bm-illustration {
+    .bm-illustration.illustration-lg {
         flex: none;
+        height: $illustration-height;
+        position: relative;
+
+        & > svg {
+            position: absolute;
+            top: -40px;
+        }
     }
 
     &.minimalist {
@@ -127,8 +137,8 @@ export default {
         }
 
         .bm-illustration {
-            flex: 0 1 map-get($illustration-heights, "lg") + $space-saved;
-            min-height: map-get($illustration-heights, "lg");
+            flex: 0 1 $illustration-height + $space-saved;
+            min-height: $illustration-height;
             flex-direction: column;
 
             &:before {
