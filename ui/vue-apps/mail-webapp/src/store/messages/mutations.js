@@ -101,10 +101,12 @@ export default {
         state[messageKey].from = from;
     },
     [SET_MESSAGE_HEADERS]: (state, { messageKey, headers }) => {
-        state[messageKey].headers = headers;
+        if (state[messageKey]) {
+            state[messageKey].headers = headers;
+        }
     },
     [REMOVE_MESSAGE_HEADER]: (state, { messageKey, headerName }) => {
-        const index = state[messageKey].headers.findIndex(({ name }) => headerName === name);
+        const index = state[messageKey]?.headers.findIndex(({ name }) => headerName === name);
         if (index > -1) {
             state[messageKey].headers.splice(index, 1);
         }

@@ -11,7 +11,7 @@
                 <mail-composer-sender
                     v-if="isSenderShown"
                     label-class="font-weight-bold text-neutral"
-                    :message="message"
+                    :identity-id="identityId"
                     @update="
                         identity => {
                             setFrom(identity, message);
@@ -165,6 +165,7 @@ export default {
         const content = ref(); // DOM ref="content"
         const {
             draggedFilesCount,
+            identityId,
             isSignatureInserted,
             isSenderShown,
             isDeliveryStatusRequested,
@@ -179,6 +180,7 @@ export default {
         );
         return {
             draggedFilesCount,
+            identityId,
             isSignatureInserted,
             isSenderShown,
             isDeliveryStatusRequested,

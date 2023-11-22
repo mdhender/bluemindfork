@@ -22,7 +22,7 @@
             v-if="isSenderShown"
             class="mx-4"
             label-class="ml-3 bold"
-            :message="message"
+            :identity-id="identityId"
             @update="
                 identity => {
                     setFrom(identity, message);
@@ -149,6 +149,7 @@ export default {
         const { execAddAttachments } = useAddAttachmentsCommand();
         const {
             draggedFilesCount,
+            identityId,
             isSignatureInserted,
             isSenderShown,
             isDeliveryStatusRequested,
@@ -164,6 +165,7 @@ export default {
         );
         return {
             draggedFilesCount,
+            identityId,
             isSignatureInserted,
             isSenderShown,
             isDeliveryStatusRequested,

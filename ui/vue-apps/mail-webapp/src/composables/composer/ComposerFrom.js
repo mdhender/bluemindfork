@@ -13,9 +13,9 @@ const { MessageHeader } = messageUtils;
 export async function setFrom(identity, message) {
     store.commit("mail/" + SET_MESSAGE_FROM, {
         messageKey: message.key,
-        from: { address: identity.email, dn: identity.displayname, id: identity.id }
+        from: { address: identity.email, dn: identity.displayname }
     });
-    const fullIdentity = setIdentity(identity);
+    const fullIdentity = setIdentity(identity, message);
     const rawIdentity = await inject("UserMailIdentitiesPersistence").get(fullIdentity.id);
 
     const mailboxes = store.state.mail.mailboxes;
@@ -54,6 +54,10 @@ export function getIdentityForNewMessage() {
     return defaultIdentity;
 }
 
+export function getIdentityId(headers = []) {
+    return headers.find(({ name }) => name === MessageHeader.X_BM_DRAFT_IDENTITY)?.values?.[0];
+}
+
 export function getIdentityForReplyOrForward(previousMessage) {
     const currentMailbox = store.getters["mail/" + CURRENT_MAILBOX];
     const identities = store.state["root-app"].identities;
@@ -65,12 +69,24 @@ export function getIdentityForReplyOrForward(previousMessage) {
     return getIdentityForNewMessage();
 }
 
-export function setIdentity(identity) {
-    const fullIdentity = store.state["root-app"].identities.find(
-        i => i.email === identity.email && i.displayname === identity.displayname
-    );
+export function setIdentity(identity, message) {
+    const fullIdentity = store.state["root-app"].identities.find(i => i.id === identity.id);
+    setIdentityHeader(fullIdentity.id, message);
     store.commit("mail/" + SET_PERSONAL_SIGNATURE, { html: fullIdentity.signature, id: fullIdentity.id });
     return fullIdentity;
+}
+
+function setIdentityHeader(identityId, message) {
+    store.commit(`mail/${REMOVE_MESSAGE_HEADER}`, {
+        messageKey: message.key,
+        headerName: MessageHeader.X_BM_DRAFT_IDENTITY
+    });
+    const identityHeader = {
+        name: MessageHeader.X_BM_DRAFT_IDENTITY,
+        values: [identityId]
+    };
+    const headers = message.headers?.length ? [...message.headers, identityHeader] : [identityHeader];
+    store.commit(`mail/${SET_MESSAGE_HEADERS}`, { messageKey: message.key, headers });
 }
 
 async function computeDestinationMailbox(rawIdentity, mailboxes) {

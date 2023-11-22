@@ -7,7 +7,7 @@ import { IS_SENDER_SHOWN } from "~/getters";
 import { Flag } from "@bluemind/email";
 import store from "@bluemind/store";
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
-import { setFrom, setIdentity } from "./ComposerFrom";
+import { setFrom, getIdentityId } from "./ComposerFrom";
 
 const maxMessageSizeExceededAlert = {
     alert: { name: "mail.DRAFT_EXCEEDS_MAX_MESSAGE_SIZE", uid: "DRAFT_EXCEEDS_MAX_MESSAGE_SIZE" },
@@ -26,6 +26,9 @@ export function useComposer(message, contentRef) {
         () => messageUtils.findDispositionNotificationHeaderIndex(message.value.headers) >= 0
     );
     const messageCompose = computed(() => store.state.mail.messageCompose);
+    const identityId = computed(() => getIdentityId(message.value.headers));
+    const identities = computed(() => store.state["root-app"].identities);
+    const defaultIdentity = computed(() => store.getters["root-app/DEFAULT_IDENTITY"]);
 
     watch(
         () => store.state.mail.messageCompose.maxMessageSizeExceeded,
@@ -52,8 +55,8 @@ export function useComposer(message, contentRef) {
     onMounted(async () => {
         store.commit("mail/" + SET_SAVE_ERROR, {});
         if (message.value.from) {
-            await checkAndRepairFrom();
-            setIdentity({ email: message.value.from.address, displayname: message.value.from.dn });
+            const draftIdentityId = getIdentityId(message.value.headers);
+            await checkAndRepairFrom(draftIdentityId);
         }
         if (draftUtils.isNewMessage(message.value)) {
             if (store.state.settings.always_ask_read_receipt === "true") {
@@ -89,15 +92,29 @@ export function useComposer(message, contentRef) {
         store.dispatch(`mail/${DEBOUNCED_SAVE_MESSAGE}`, { draft: message.value });
     }
 
-    async function checkAndRepairFrom() {
-        const matchingIdentity = store.state["root-app"].identities.find(
-            i => i.email === message.value.from.address && i.displayname === message.value.from.dn
+    async function checkAndRepairFrom(identityId) {
+        const identity = resolveIdentity(identityId);
+        setFrom(identity, message.value);
+    }
+
+    function resolveIdentity(identityId) {
+        console.log(
+            findIdentityById(identityId) || findIdentityByOriginator(message.value.from) || defaultIdentity.value
         );
-        if (!matchingIdentity) {
-            // eslint-disable-next-line no-console
-            console.warn("identity changed because no identity matched message.from");
-            const defaultIdentity = store.getters["root-app/DEFAULT_IDENTITY"];
-            await setFrom(defaultIdentity, message.value);
+        return findIdentityById(identityId) || findIdentityByOriginator(message.value.from) || defaultIdentity.value;
+    }
+
+    function findIdentityById(id) {
+        return identities.value.find(i => i.id === id);
+    }
+
+    function findIdentityByOriginator(originator) {
+        if (defaultIdentity.value.email === originator.address && defaultIdentity.value.displayname && originator.dn) {
+            return defaultIdentity.value;
+        } else {
+            return identities.value.find(
+                identity => identity.email === originator.address && identity.displayname && originator.dn
+            );
         }
     }
 
@@ -110,13 +127,14 @@ export function useComposer(message, contentRef) {
     return {
         draggedFilesCount,
         isSignatureInserted,
+        identityId,
         isSenderShown,
         isDeliveryStatusRequested,
         isDispositionNotificationRequested,
+        checkAndRepairFrom,
         toggleSignature,
         toggleDeliveryStatus,
         toggleDispositionNotification,
-        checkAndRepairFrom,
         execGetMailTipsCommand,
         messageCompose
     };

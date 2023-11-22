@@ -4,7 +4,7 @@
             <div class="label ml-4" :class="labelClass">{{ $t("common.from") }}</div>
             <bm-form-select
                 ref="identity-chooser"
-                :value="message.from.id || 'default'"
+                :value="identityId"
                 :options="options"
                 :auto-min-width="false"
                 class="flex-fill"
@@ -24,9 +24,9 @@ export default {
     name: "MailComposerSender",
     components: { BmFormSelect },
     props: {
-        message: {
-            type: Object,
-            required: true
+        identityId: {
+            type: String,
+            default: ""
         },
         labelClass: {
             type: String,
