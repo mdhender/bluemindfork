@@ -77,4 +77,12 @@ public class NodeActivator implements BundleActivator {
 		}
 	}
 
+	public static void forget(String host) throws ServerFault {
+		if (ncf != null) {
+			ncf.delete(host);
+		} else {
+			throw new ServerFault("No node factory loaded.");
+		}
+	}
+
 }
