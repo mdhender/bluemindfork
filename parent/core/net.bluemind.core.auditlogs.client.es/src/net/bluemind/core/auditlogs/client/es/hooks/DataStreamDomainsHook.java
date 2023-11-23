@@ -21,7 +21,9 @@ package net.bluemind.core.auditlogs.client.es.hooks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bluemind.core.auditlogs.client.es.DataStreamCache;
 import net.bluemind.core.auditlogs.client.loader.AuditLogLoader;
+import net.bluemind.core.auditlogs.client.loader.config.AuditLogStoreConfig;
 import net.bluemind.core.auditlogs.exception.AuditLogCreationException;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
@@ -33,10 +35,14 @@ public class DataStreamDomainsHook extends DomainHookAdapter {
 
 	@Override
 	public void onCreated(BmContext context, ItemValue<Domain> domain) {
+		DataStreamCache dataStreamCache = DataStreamCache.get(context);
 		AuditLogLoader auditLogProvider = new AuditLogLoader();
 		logger.info("Create auditlog store for domain: '{}'", domain.uid);
 		try {
+
+			String dataStreamName = AuditLogStoreConfig.resolveDataStreamName(domain.uid);
 			auditLogProvider.getManager().setupAuditBackingStoreForDomain(domain.uid);
+			dataStreamCache.put(dataStreamName, dataStreamName);
 		} catch (AuditLogCreationException e) {
 			logger.error("Failed to create auditlog store for domain '{}': {}", domain.uid, e.getMessage());
 		}
@@ -44,8 +50,11 @@ public class DataStreamDomainsHook extends DomainHookAdapter {
 
 	@Override
 	public void onDeleted(BmContext context, ItemValue<Domain> domain) {
+		DataStreamCache dataStreamCache = DataStreamCache.get(context);
+		String dataStreamName = AuditLogStoreConfig.resolveDataStreamName(domain.uid);
 		AuditLogLoader auditLogProvider = new AuditLogLoader();
 		logger.info("Remove auditlog store for domain: '{}'", domain.uid);
 		auditLogProvider.getManager().removeAuditBackingStoreForDomain(domain.uid);
+		dataStreamCache.invalidate(dataStreamName);
 	}
 }

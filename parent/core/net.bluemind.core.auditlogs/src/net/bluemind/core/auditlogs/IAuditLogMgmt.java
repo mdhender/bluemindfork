@@ -31,7 +31,5 @@ public interface IAuditLogMgmt {
 
 	public void removeAuditBackingStoreForDomain(String domainUid);
 
-	public boolean hasAuditBackingStore();
-
 	public boolean hasAuditBackingStoreForDomain(String domainUid);
 }

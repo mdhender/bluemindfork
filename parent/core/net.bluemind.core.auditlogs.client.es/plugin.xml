@@ -27,5 +27,11 @@
             priority="100">
       </java>
    </extension>
+   <extension
+         point="net.bluemind.core.caches.registry.registration">
+      <reg
+            impl="net.bluemind.core.auditlogs.client.es.DataStreamCache$Registration">
+      </reg>
+   </extension>
 
 </plugin>

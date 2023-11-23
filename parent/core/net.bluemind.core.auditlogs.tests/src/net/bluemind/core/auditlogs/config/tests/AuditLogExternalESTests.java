@@ -64,7 +64,6 @@ import net.bluemind.core.auditlogs.AuditLogEntry;
 import net.bluemind.core.auditlogs.AuditLogQuery;
 import net.bluemind.core.auditlogs.api.ILogRequestService;
 import net.bluemind.core.auditlogs.client.es.AudiLogEsClientActivator;
-import net.bluemind.core.auditlogs.client.es.datastreams.DataStreamActivator;
 import net.bluemind.core.auditlogs.client.loader.config.AuditLogStoreConfig;
 import net.bluemind.core.container.api.ContainerSubscription;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
@@ -100,8 +99,7 @@ import net.bluemind.user.service.internal.ContainerUserStoreService;
 public class AuditLogExternalESTests {
 
 	private static final String domainUid = "bm.lan";;
-	private static final String DATASTREAM_PATTERN = AuditLogStoreConfig.getDataStreamName();
-	private static final String AUDIT_LOG_DATASTREAM = DATASTREAM_PATTERN.replace("%d", domainUid);
+	private static final String AUDIT_LOG_DATASTREAM = AuditLogStoreConfig.resolveDataStreamName(domainUid);
 
 	private String datalocation;
 	private DataSource dataDataSource;
@@ -149,12 +147,12 @@ public class AuditLogExternalESTests {
 		esContainer.start();
 		String externalEsAddress = esContainer.inspectAddress();
 		confFile = new File(CONF_FILE_PATH);
+		confFile.getParentFile().mkdirs();
 		try (FileOutputStream fos = new FileOutputStream(confFile)) {
 			String toWrite = "auditlog {\n activate = true\n \n store {\n server = " + externalEsAddress
 					+ "\n port = 9200\n }\n\n}\n";
 			fos.write(toWrite.getBytes());
 		}
-		AuditLogStoreConfig.get();
 		TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
 		JdbcTestHelper.getInstance().beforeTest();
 
@@ -256,7 +254,6 @@ public class AuditLogExternalESTests {
 			List<AuditLogEntry> list = logRequestService.queryAuditLog(logQuery);
 			return 1 == list.size();
 		});
-		DataStreamActivator.removeAuditBackingStore(ESearchActivator.getClient());
 	}
 
 	@After

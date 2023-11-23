@@ -55,9 +55,4 @@ public final class NoopAuditLogManager implements IAuditLogMgmt {
 		return false;
 	}
 
-	@Override
-	public boolean hasAuditBackingStore() {
-		return false;
-	}
-
 }

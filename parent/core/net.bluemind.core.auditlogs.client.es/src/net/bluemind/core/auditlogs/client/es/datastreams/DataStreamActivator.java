@@ -25,9 +25,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -55,89 +53,48 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.core.auditlogs.IAuditLogMgmt;
 import net.bluemind.core.auditlogs.client.es.AudiLogEsClientActivator;
+import net.bluemind.core.auditlogs.client.loader.config.AuditLogStoreConfig;
 import net.bluemind.core.auditlogs.exception.AuditLogCreationException;
 import net.bluemind.core.auditlogs.exception.AuditLogRemovalException;
-import net.bluemind.lib.elasticsearch.ESearchActivator;
 
 public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 
-	private static final Map<String, IndexTemplateDefinition> indexTemplates = new HashMap<>();
-	private static final String AUDIT_LOG_PREFIX = "audit_log";
-	private static final String SEPARATOR = "_";
+	private static final IndexTemplateDefinition indexTemplateDefinition = loadIndexTemplateDefinition();
+	private static final String DEFAULT_AUDIT_LOG_DATASTREAM_NAME = "audit_log";
 	private static Logger logger = LoggerFactory.getLogger(DataStreamActivator.class);
 
 	@Override
 	public void start(BundleContext arg0) throws Exception {
-
-		IExtensionPoint ep = Platform.getExtensionRegistry()
-				.getExtensionPoint("net.bluemind.core.auditlogs.client.es.datastreams", "indextemplate");
-		for (IExtension ext : ep.getExtensions()) {
-			for (IConfigurationElement ce : ext.getConfigurationElements()) {
-				String index = ce.getAttribute("name");
-				String schema = ce.getAttribute("resource");
-				String dataStreamName = ce.getAttribute("datastream_name");
-				Bundle bundle = Platform.getBundle(ext.getContributor().getName());
-				URL url = bundle.getResource(schema);
-				try (InputStream in = url.openStream()) {
-					indexTemplates.put(dataStreamName,
-							new IndexTemplateDefinition(index, ByteStreams.toByteArray(in), dataStreamName));
-				}
-			}
-		}
-
+		/// Nothing to do
 	}
 
 	@Override
 	public void stop(BundleContext arg0) throws Exception {
 		/// Nothing to do
-
 	}
 
-	private static void deleteDataStream(ElasticsearchClient esClient, String dataStreamName, String domainUid)
-			throws AuditLogRemovalException {
-		String fullDataStreamName = (domainUid != null) ? dataStreamName + SEPARATOR + domainUid : dataStreamName + "*";
-		try {
-
-			esClient.indices().deleteDataStream(d -> d.name(Arrays.asList(fullDataStreamName)));
-			logger.info("datastream '{}' deleted.", fullDataStreamName);
-		} catch (ElasticsearchException e) {
-			if (e.error() != null && "index_not_found_exception".equals(e.error().type())) {
-				logger.warn("dataStream '{}' not found, can't be delete", fullDataStreamName);
-				return;
+	private static IndexTemplateDefinition loadIndexTemplateDefinition() {
+		IExtensionPoint ep = Platform.getExtensionRegistry()
+				.getExtensionPoint("net.bluemind.core.auditlogs.client.es.datastreams", "indextemplate");
+		for (IExtension ext : ep.getExtensions()) {
+			for (IConfigurationElement ce : ext.getConfigurationElements()) {
+				String indexTemplateName = ce.getAttribute("indextemplatename");
+				String schema = ce.getAttribute("resource");
+				Bundle bundle = Platform.getBundle(ext.getContributor().getName());
+				URL url = bundle.getResource(schema);
+				try (InputStream in = url.openStream()) {
+					return new IndexTemplateDefinition(indexTemplateName, ByteStreams.toByteArray(in));
+				} catch (IOException e) {
+					logger.error("Cannot open audit log configuration file '{}'", url.getFile());
+					return null;
+				}
 			}
-			throw new AuditLogRemovalException(e);
-		} catch (IOException e) {
-			throw new AuditLogRemovalException(e);
 		}
+		return null;
 	}
 
-	private static void deleteIndexTemplate(ElasticsearchClient esClient, String indexTemplateName, String domainUid)
-			throws AuditLogRemovalException {
-		String fullIndexTemplateName = (domainUid != null) ? indexTemplateName + SEPARATOR + domainUid
-				: indexTemplateName + "*";
-		try {
-			esClient.indices().deleteIndexTemplate(it -> it.name(Arrays.asList(fullIndexTemplateName)));
-			logger.info("index template '{}' deleted.", fullIndexTemplateName);
+	private record IndexTemplateDefinition(String indexTemplateName, byte[] schema) {
 
-		} catch (ElasticsearchException e) {
-			if (e.error() != null && "index_template_missing_exception".equals(e.error().type())) {
-				logger.warn("index template '{}' not found, can't be delete", fullIndexTemplateName);
-				return;
-			}
-			throw new AuditLogRemovalException(e);
-		} catch (IOException e) {
-			throw new AuditLogRemovalException(e);
-		}
-	}
-
-	private record IndexTemplateDefinition(String indexTemplateName, byte[] schema, String datastreamName) {
-		boolean supportsIndex(String name) {
-			return name.equals(indexTemplateName);
-		}
-
-		boolean supportsDataStream(String name) {
-			return name.equals(datastreamName);
-		}
 	}
 
 	private static Optional<IndexTemplateItem> indexTemplateDefinitionOf(ElasticsearchClient esClient,
@@ -156,19 +113,22 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 		}
 	}
 
+	/*
+	 * This method is still used for uprades for 5.0.X pacthes. Must be removed in
+	 * the future
+	 */
+	// TODO SCL : remove
 	@Override
 	public void setupAuditBackingStore() throws AuditLogCreationException {
 		ElasticsearchClient esClient = AudiLogEsClientActivator.get();
+		Optional<IndexTemplateDefinition> optSchema = Optional.ofNullable(indexTemplateDefinition);
 		List<String> currentDataStreams = dataStreamNames(esClient);
-		Optional<IndexTemplateDefinition> optSchema = indexTemplates.values().stream()
-				.filter(d -> d.datastreamName.equals(AUDIT_LOG_PREFIX)).findFirst();
 		try {
-			if (!currentDataStreams.contains(AUDIT_LOG_PREFIX) && optSchema.isPresent()) {
-				initOrUpdateIndexTemplate(esClient, optSchema.get(), AUDIT_LOG_PREFIX);
+			if (!currentDataStreams.contains(DEFAULT_AUDIT_LOG_DATASTREAM_NAME) && optSchema.isPresent()) {
+				initOrUpdateIndexTemplate(esClient, optSchema.get(), DEFAULT_AUDIT_LOG_DATASTREAM_NAME);
 				if (!hasAuditBackingStore()) {
-					initDataStream(esClient, AUDIT_LOG_PREFIX);
+					initDataStream(esClient, DEFAULT_AUDIT_LOG_DATASTREAM_NAME);
 				}
-
 			}
 		} catch (ElasticsearchException | IOException e) {
 			throw new AuditLogCreationException(e);
@@ -177,11 +137,11 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 
 	@Override
 	public void setupAuditBackingStoreForDomain(String domainUid) throws AuditLogCreationException {
+
 		ElasticsearchClient esClient = AudiLogEsClientActivator.get();
-		String dataStreamFullName = AUDIT_LOG_PREFIX + SEPARATOR + domainUid;
+		String dataStreamFullName = AuditLogStoreConfig.resolveDataStreamName(domainUid);
 		List<String> currentDataStreams = dataStreamNames(esClient);
-		Optional<IndexTemplateDefinition> optSchema = indexTemplates.values().stream()
-				.filter(d -> d.datastreamName.equals(AUDIT_LOG_PREFIX)).findFirst();
+		Optional<IndexTemplateDefinition> optSchema = Optional.ofNullable(indexTemplateDefinition);
 		try {
 			if (!currentDataStreams.contains(dataStreamFullName) && optSchema.isPresent()) {
 				initOrUpdateIndexTemplate(esClient, optSchema.get(), dataStreamFullName);
@@ -216,15 +176,14 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 	private static void initOrUpdateIndexTemplate(ElasticsearchClient esClient,
 			IndexTemplateDefinition indexTemplateDefinition, String indexPattern)
 			throws ElasticsearchException, IOException {
-		String indexPatternField = "index_patterns";
+		final String indexPatternField = "index_patterns";
 		JsonObject jsonSchema = new JsonObject(new String(indexTemplateDefinition.schema));
 
 		// We need to change the index_patterns for the index_template definition, to
 		// allow datastream association
 		JsonArray indexPatternsSchemaArray = (!jsonSchema.containsKey(indexPatternField)) ? new JsonArray()
 				: jsonSchema.getJsonArray(indexPatternField);
-		logger.info("Update index_patterns field with '{}' for index template '{}' ", indexPattern,
-				indexTemplateDefinition.indexTemplateName);
+		logger.info("Update index_patterns field with '{}' for audit log index template", indexPattern);
 		indexPatternsSchemaArray.add(indexPattern + "*");
 
 		indexTemplateDefinitionOf(esClient, indexTemplateDefinition.indexTemplateName).ifPresent(indexTemplate -> {
@@ -246,51 +205,54 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 	@VisibleForTesting
 	@Override
 	public void removeAuditBackingStore() {
-		indexTemplates.values().stream().filter(d -> d.datastreamName.equals(AUDIT_LOG_PREFIX)).forEach(v -> {
-			ESearchActivator.waitForElasticsearchHosts();
-			ElasticsearchClient esClient = AudiLogEsClientActivator.get();
+		ElasticsearchClient esClient = AudiLogEsClientActivator.get();
+		Optional<IndexTemplateDefinition> optSchema = Optional.ofNullable(indexTemplateDefinition);
+		// domainUId is not present, removes datastream root (e.g. audit_log*)
+		String dataStreamName = String.format(AuditLogStoreConfig.getDataStreamName(), "*");
+		if (optSchema.isPresent()) {
 			try {
-				deleteDataStream(esClient, v.datastreamName, null);
-				deleteIndexTemplate(esClient, v.indexTemplateName, null);
+				removeDataStream(esClient, dataStreamName);
+				removeIndexTemplate(esClient, optSchema.get().indexTemplateName);
 			} catch (AuditLogRemovalException e) {
 				logger.error("Error on audit log store removal: {}", e.getMessage());
 			}
-		});
-	}
-
-	@VisibleForTesting
-	public static void removeAuditBackingStore(ElasticsearchClient esClient) {
-		indexTemplates.values().stream().filter(d -> d.datastreamName.equals(AUDIT_LOG_PREFIX)).forEach(v -> {
-			ESearchActivator.waitForElasticsearchHosts();
-			try {
-				deleteDataStream(esClient, v.datastreamName, null);
-				deleteIndexTemplate(esClient, v.indexTemplateName, null);
-			} catch (AuditLogRemovalException e) {
-				logger.error("Error on audit log store removal: {}", e.getMessage());
-			}
-		});
+		}
 	}
 
 	@Override
 	public void removeAuditBackingStoreForDomain(String domainUid) {
-		indexTemplates.values().stream().filter(d -> d.datastreamName.equals(AUDIT_LOG_PREFIX)).forEach(v -> {
-			ESearchActivator.waitForElasticsearchHosts();
-			ElasticsearchClient esClient = AudiLogEsClientActivator.get();
+		String dataStreamName = AuditLogStoreConfig.resolveDataStreamName(domainUid);
+		// TODO SCL : revoir : pas super elegant
+		Optional<IndexTemplateDefinition> optSchema = Optional.ofNullable(indexTemplateDefinition);
+		ElasticsearchClient esClient = AudiLogEsClientActivator.get();
+		if (optSchema.isPresent()) {
+			String indexTemplateName = optSchema.get().indexTemplateName + "_" + domainUid;
 			try {
-				deleteDataStream(esClient, v.datastreamName, domainUid);
-				deleteIndexTemplate(esClient, v.indexTemplateName, domainUid);
+				// domainUId is present, removes datastream (e.g. audit_log_devenv.blue)
+				removeDataStream(esClient, dataStreamName);
+				removeIndexTemplate(esClient, indexTemplateName);
 			} catch (AuditLogRemovalException e) {
 				logger.error("Error on audit log store removal for domainUid '{}': {}", domainUid, e.getMessage());
 			}
-		});
-
+		}
 	}
 
 	@Override
 	public boolean hasAuditBackingStoreForDomain(String domainUid) {
 		ElasticsearchClient esClient = AudiLogEsClientActivator.get();
+		String dataStreamName = AuditLogStoreConfig.resolveDataStreamName(domainUid);
 		try {
-			return !esClient.indices().resolveIndex(i -> i.name(AUDIT_LOG_PREFIX + "_" + domainUid)).dataStreams()
+			return !esClient.indices().resolveIndex(i -> i.name(dataStreamName)).dataStreams().isEmpty();
+		} catch (ElasticsearchException | IOException e) {
+			logger.error(e.getMessage());
+			return false;
+		}
+	}
+
+	private boolean hasAuditBackingStore() {
+		ElasticsearchClient esClient = AudiLogEsClientActivator.get();
+		try {
+			return !esClient.indices().resolveIndex(i -> i.name(DEFAULT_AUDIT_LOG_DATASTREAM_NAME)).dataStreams()
 					.isEmpty();
 		} catch (ElasticsearchException | IOException e) {
 			logger.error(e.getMessage());
@@ -298,14 +260,37 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 		}
 	}
 
-	@Override
-	public boolean hasAuditBackingStore() {
-		ElasticsearchClient esClient = AudiLogEsClientActivator.get();
+	private static void removeDataStream(ElasticsearchClient esClient, String dataStreamName)
+			throws AuditLogRemovalException {
 		try {
-			return !esClient.indices().resolveIndex(i -> i.name(AUDIT_LOG_PREFIX)).dataStreams().isEmpty();
-		} catch (ElasticsearchException | IOException e) {
-			logger.error(e.getMessage());
-			return false;
+
+			esClient.indices().deleteDataStream(d -> d.name(Arrays.asList(dataStreamName)));
+			logger.info("datastream '{}' deleted.", dataStreamName);
+		} catch (ElasticsearchException e) {
+			if (e.error() != null && "index_not_found_exception".equals(e.error().type())) {
+				logger.warn("dataStream '{}' not found, can't be delete", dataStreamName);
+				return;
+			}
+			throw new AuditLogRemovalException(e);
+		} catch (IOException e) {
+			throw new AuditLogRemovalException(e);
+		}
+	}
+
+	private static void removeIndexTemplate(ElasticsearchClient esClient, String indexTemplateName)
+			throws AuditLogRemovalException {
+		try {
+			esClient.indices().deleteIndexTemplate(it -> it.name(Arrays.asList(indexTemplateName)));
+			logger.info("index template '{}' deleted.", indexTemplateName);
+
+		} catch (ElasticsearchException e) {
+			if (e.error() != null && "index_template_missing_exception".equals(e.error().type())) {
+				logger.warn("index template '{}' not found, can't be delete", indexTemplateName);
+				return;
+			}
+			throw new AuditLogRemovalException(e);
+		} catch (IOException e) {
+			throw new AuditLogRemovalException(e);
 		}
 	}
 

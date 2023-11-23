@@ -24,7 +24,9 @@ Require-Bundle: net.bluemind.core.auditlogs,
  net.bluemind.core.auditlogs.client.loader,
  net.bluemind.scheduledjob.scheduler,
  net.bluemind.maintenance,
- net.bluemind.core.task.spi
+ net.bluemind.core.task.spi,
+ net.bluemind.core.caches.registry,
+ com.github.ben-manes.caffeine
 Bundle-Vendor: net.bluemind
 Automatic-Module-Name: net.bluemind.core.auditlogs.client.es
 Bundle-ActivationPolicy: lazy

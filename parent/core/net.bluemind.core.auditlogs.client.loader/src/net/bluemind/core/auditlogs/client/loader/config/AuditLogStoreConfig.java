@@ -117,8 +117,8 @@ public class AuditLogStoreConfig {
 			return String.format(AUDITLOG_DATASTREAM_NAME, domainUid);
 		}
 
-		if (dataStreamPattern.contains("%d")) {
-			return dataStreamPattern.replace("%d", domainUid);
+		if (dataStreamPattern.contains("%s")) {
+			return String.format(dataStreamPattern, domainUid);
 		}
 		return dataStreamPattern;
 	}
