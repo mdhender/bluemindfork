@@ -9,7 +9,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     style="display: none;"
   >
     <button
-      class="btn bm-icon-button d-lg-none btn-icon-compact-on-fill-primary btn-lg compact on-fill-primary"
+      class="btn bm-icon-button mobile-only btn-icon-compact-on-fill-primary btn-lg compact on-fill-primary"
       icon="plus-enveloppe"
       label=""
       title=""
@@ -17,10 +17,9 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     >
       <svg
         aria-hidden="true"
-        class="bm-icon svg-inline--fa fa-plus-enveloppe fa-md"
+        class="bm-icon svg-inline--fa fa-plus-enveloppe fa-w-16 fa-md"
         data-icon="plus-enveloppe"
         data-prefix="fas"
-        focusable="false"
         role="img"
         viewBox="0 0 12 12"
         xmlns="http://www.w3.org/2000/svg"
@@ -35,7 +34,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
      
     <button
       caption=""
-      class="btn bm-captioned-icon-button d-none d-lg-inline-flex btn-captioned-icon"
+      class="btn bm-captioned-icon-button desktop-only btn-captioned-icon"
       icon="plus-enveloppe"
       label=""
       title=""
@@ -43,10 +42,9 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     >
       <svg
         aria-hidden="true"
-        class="bm-icon svg-inline--fa fa-plus-enveloppe fa-md"
+        class="bm-icon svg-inline--fa fa-plus-enveloppe fa-w-16 fa-md"
         data-icon="plus-enveloppe"
         data-prefix="fas"
-        focusable="false"
         role="img"
         viewBox="0 0 12 12"
         xmlns="http://www.w3.org/2000/svg"
@@ -71,7 +69,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     style="display: none;"
   >
     <button
-      class="btn bm-icon-button d-lg-none btn-icon-compact-on-fill-primary btn-lg compact on-fill-primary"
+      class="btn bm-icon-button mobile-only btn-icon-compact-on-fill-primary btn-lg compact on-fill-primary"
       icon="read"
       label=""
       title=""
@@ -79,10 +77,9 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     >
       <svg
         aria-hidden="true"
-        class="bm-icon svg-inline--fa fa-read fa-md"
+        class="bm-icon svg-inline--fa fa-read fa-w-16 fa-md"
         data-icon="read"
         data-prefix="fas"
-        focusable="false"
         role="img"
         viewBox="0 0 12 12"
         xmlns="http://www.w3.org/2000/svg"
@@ -97,7 +94,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
      
     <button
       caption=""
-      class="btn bm-captioned-icon-button d-none d-lg-inline-flex btn-captioned-icon"
+      class="btn bm-captioned-icon-button desktop-only btn-captioned-icon"
       icon="read"
       label=""
       title=""
@@ -105,10 +102,9 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     >
       <svg
         aria-hidden="true"
-        class="bm-icon svg-inline--fa fa-read fa-md"
+        class="bm-icon svg-inline--fa fa-read fa-w-16 fa-md"
         data-icon="read"
         data-prefix="fas"
-        focusable="false"
         role="img"
         viewBox="0 0 12 12"
         xmlns="http://www.w3.org/2000/svg"
@@ -132,7 +128,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     class="mail-toolbar-responsive-button mail-toolbar-item"
   >
     <button
-      class="btn bm-icon-button d-lg-none btn-icon-compact-on-fill-primary btn-lg compact on-fill-primary"
+      class="btn bm-icon-button mobile-only btn-icon-compact-on-fill-primary btn-lg compact on-fill-primary"
       icon="unread"
       label=""
       title=""
@@ -140,10 +136,9 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     >
       <svg
         aria-hidden="true"
-        class="bm-icon svg-inline--fa fa-unread fa-md"
+        class="bm-icon svg-inline--fa fa-unread fa-w-16 fa-md"
         data-icon="unread"
         data-prefix="fas"
-        focusable="false"
         role="img"
         viewBox="0 0 12 12"
         xmlns="http://www.w3.org/2000/svg"
@@ -158,7 +153,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
      
     <button
       caption=""
-      class="btn bm-captioned-icon-button d-none d-lg-inline-flex btn-captioned-icon"
+      class="btn bm-captioned-icon-button desktop-only btn-captioned-icon"
       icon="unread"
       label=""
       title=""
@@ -166,10 +161,9 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     >
       <svg
         aria-hidden="true"
-        class="bm-icon svg-inline--fa fa-unread fa-md"
+        class="bm-icon svg-inline--fa fa-unread fa-w-16 fa-md"
         data-icon="unread"
         data-prefix="fas"
-        focusable="false"
         role="img"
         viewBox="0 0 12 12"
         xmlns="http://www.w3.org/2000/svg"
@@ -210,10 +204,9 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
       >
         <svg
           aria-hidden="true"
-          class="bm-icon svg-inline--fa fa-folder fa-md"
+          class="bm-icon svg-inline--fa fa-folder fa-w-16 fa-md"
           data-icon="folder"
           data-prefix="fas"
-          focusable="false"
           role="img"
           viewBox="0 0 12 12"
           xmlns="http://www.w3.org/2000/svg"
@@ -266,10 +259,9 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
                   >
                     <svg
                       aria-hidden="true"
-                      class="bm-icon ornament-icon svg-inline--fa fa-search fa-md"
+                      class="bm-icon ornament-icon svg-inline--fa fa-search fa-w-16 fa-md"
                       data-icon="search"
                       data-prefix="fas"
-                      focusable="false"
                       role="img"
                       viewBox="0 0 12 12"
                       xmlns="http://www.w3.org/2000/svg"
@@ -298,10 +290,9 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
               >
                 <svg
                   aria-hidden="true"
-                  class="bm-icon mail-folder-icon svg-inline--fa fa-trash fa-fw fa-md"
+                  class="bm-icon mail-folder-icon svg-inline--fa fa-trash fa-w-16 fa-fw fa-md"
                   data-icon="trash"
                   data-prefix="fas"
-                  focusable="false"
                   role="img"
                   viewBox="0 0 12 12"
                   xmlns="http://www.w3.org/2000/svg"
@@ -382,10 +373,9 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
               >
                 <svg
                   aria-hidden="true"
-                  class="bm-icon mail-folder-icon svg-inline--fa fa-inbox fa-fw fa-md"
+                  class="bm-icon mail-folder-icon svg-inline--fa fa-inbox fa-w-16 fa-fw fa-md"
                   data-icon="inbox"
                   data-prefix="fas"
-                  focusable="false"
                   role="img"
                   viewBox="0 0 12 12"
                   xmlns="http://www.w3.org/2000/svg"
@@ -484,7 +474,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
               class="d-flex align-items-center"
             >
               <div
-                class="mail-folder-input flex-fill d-none d-lg-flex align-items-center position-relative pl-2 pr-1 flex-fill"
+                class="mail-folder-input flex-fill desktop-only align-items-center position-relative pl-2 pr-1 flex-fill"
               >
                 <div
                   class="bm-form-input form-input position-relative d-inline-block flex-fill underline form-input-md"
@@ -505,10 +495,9 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
                   >
                     <svg
                       aria-hidden="true"
-                      class="bm-icon ornament-icon svg-inline--fa fa-plus fa-md"
+                      class="bm-icon ornament-icon svg-inline--fa fa-plus fa-w-16 fa-md"
                       data-icon="plus"
                       data-prefix="fas"
-                      focusable="false"
                       role="img"
                       viewBox="0 0 12 12"
                       xmlns="http://www.w3.org/2000/svg"
@@ -588,10 +577,9 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
       >
         <svg
           aria-hidden="true"
-          class="bm-icon svg-inline--fa fa-folder fa-md"
+          class="bm-icon svg-inline--fa fa-folder fa-w-16 fa-md"
           data-icon="folder"
           data-prefix="fas"
-          focusable="false"
           role="img"
           viewBox="0 0 12 12"
           xmlns="http://www.w3.org/2000/svg"
@@ -650,10 +638,9 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
                   >
                     <svg
                       aria-hidden="true"
-                      class="bm-icon ornament-icon svg-inline--fa fa-search fa-md"
+                      class="bm-icon ornament-icon svg-inline--fa fa-search fa-w-16 fa-md"
                       data-icon="search"
                       data-prefix="fas"
-                      focusable="false"
                       role="img"
                       viewBox="0 0 12 12"
                       xmlns="http://www.w3.org/2000/svg"
@@ -682,10 +669,9 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
               >
                 <svg
                   aria-hidden="true"
-                  class="bm-icon mail-folder-icon svg-inline--fa fa-trash fa-fw fa-md"
+                  class="bm-icon mail-folder-icon svg-inline--fa fa-trash fa-w-16 fa-fw fa-md"
                   data-icon="trash"
                   data-prefix="fas"
-                  focusable="false"
                   role="img"
                   viewBox="0 0 12 12"
                   xmlns="http://www.w3.org/2000/svg"
@@ -766,10 +752,9 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
               >
                 <svg
                   aria-hidden="true"
-                  class="bm-icon mail-folder-icon svg-inline--fa fa-inbox fa-fw fa-md"
+                  class="bm-icon mail-folder-icon svg-inline--fa fa-inbox fa-w-16 fa-fw fa-md"
                   data-icon="inbox"
                   data-prefix="fas"
-                  focusable="false"
                   role="img"
                   viewBox="0 0 12 12"
                   xmlns="http://www.w3.org/2000/svg"
@@ -868,7 +853,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
               class="d-flex align-items-center"
             >
               <div
-                class="mail-folder-input flex-fill d-none d-lg-flex align-items-center position-relative pl-2 pr-1 flex-fill"
+                class="mail-folder-input flex-fill desktop-only align-items-center position-relative pl-2 pr-1 flex-fill"
               >
                 <div
                   class="bm-form-input form-input position-relative d-inline-block flex-fill underline form-input-md"
@@ -889,10 +874,9 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
                   >
                     <svg
                       aria-hidden="true"
-                      class="bm-icon ornament-icon svg-inline--fa fa-plus fa-md"
+                      class="bm-icon ornament-icon svg-inline--fa fa-plus fa-w-16 fa-md"
                       data-icon="plus"
                       data-prefix="fas"
-                      focusable="false"
                       role="img"
                       viewBox="0 0 12 12"
                       xmlns="http://www.w3.org/2000/svg"
@@ -959,7 +943,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     class="mail-toolbar-responsive-button mail-toolbar-item"
   >
     <button
-      class="btn bm-icon-button d-lg-none btn-icon-compact-on-fill-primary btn-lg compact on-fill-primary"
+      class="btn bm-icon-button mobile-only btn-icon-compact-on-fill-primary btn-lg compact on-fill-primary"
       icon="trash"
       label=""
       title=""
@@ -967,10 +951,9 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     >
       <svg
         aria-hidden="true"
-        class="bm-icon svg-inline--fa fa-trash fa-md"
+        class="bm-icon svg-inline--fa fa-trash fa-w-16 fa-md"
         data-icon="trash"
         data-prefix="fas"
-        focusable="false"
         role="img"
         viewBox="0 0 12 12"
         xmlns="http://www.w3.org/2000/svg"
@@ -985,7 +968,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
      
     <button
       caption=""
-      class="btn bm-captioned-icon-button d-none d-lg-inline-flex btn-captioned-icon"
+      class="btn bm-captioned-icon-button desktop-only btn-captioned-icon"
       icon="trash"
       label=""
       title=""
@@ -993,10 +976,9 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     >
       <svg
         aria-hidden="true"
-        class="bm-icon svg-inline--fa fa-trash fa-md"
+        class="bm-icon svg-inline--fa fa-trash fa-w-16 fa-md"
         data-icon="trash"
         data-prefix="fas"
-        focusable="false"
         role="img"
         viewBox="0 0 12 12"
         xmlns="http://www.w3.org/2000/svg"
@@ -1020,7 +1002,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     class="mail-toolbar-responsive-button mail-toolbar-item"
   >
     <button
-      class="btn bm-icon-button d-lg-none btn-icon-compact-on-fill-primary btn-lg compact on-fill-primary"
+      class="btn bm-icon-button mobile-only btn-icon-compact-on-fill-primary btn-lg compact on-fill-primary"
       icon="flag-outline"
       label=""
       title=""
@@ -1028,10 +1010,9 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     >
       <svg
         aria-hidden="true"
-        class="bm-icon svg-inline--fa fa-flag-outline fa-md"
+        class="bm-icon svg-inline--fa fa-flag-outline fa-w-16 fa-md"
         data-icon="flag-outline"
         data-prefix="fas"
-        focusable="false"
         role="img"
         viewBox="0 0 12 12"
         xmlns="http://www.w3.org/2000/svg"
@@ -1046,7 +1027,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
      
     <button
       caption=""
-      class="btn bm-captioned-icon-button d-none d-lg-inline-flex btn-captioned-icon"
+      class="btn bm-captioned-icon-button desktop-only btn-captioned-icon"
       icon="flag-outline"
       label=""
       title=""
@@ -1054,10 +1035,9 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     >
       <svg
         aria-hidden="true"
-        class="bm-icon svg-inline--fa fa-flag-outline fa-md"
+        class="bm-icon svg-inline--fa fa-flag-outline fa-w-16 fa-md"
         data-icon="flag-outline"
         data-prefix="fas"
-        focusable="false"
         role="img"
         viewBox="0 0 12 12"
         xmlns="http://www.w3.org/2000/svg"
@@ -1082,7 +1062,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     style="display: none;"
   >
     <button
-      class="btn bm-icon-button d-lg-none btn-icon-compact-on-fill-primary btn-lg compact on-fill-primary"
+      class="btn bm-icon-button mobile-only btn-icon-compact-on-fill-primary btn-lg compact on-fill-primary"
       icon="flag-fill"
       label=""
       title=""
@@ -1090,10 +1070,9 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     >
       <svg
         aria-hidden="true"
-        class="bm-icon svg-inline--fa fa-flag-fill fa-md"
+        class="bm-icon svg-inline--fa fa-flag-fill fa-w-16 fa-md"
         data-icon="flag-fill"
         data-prefix="fas"
-        focusable="false"
         role="img"
         viewBox="0 0 12 12"
         xmlns="http://www.w3.org/2000/svg"
@@ -1108,7 +1087,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
      
     <button
       caption=""
-      class="btn bm-captioned-icon-button d-none d-lg-inline-flex btn-captioned-icon"
+      class="btn bm-captioned-icon-button desktop-only btn-captioned-icon"
       icon="flag-fill"
       label=""
       title=""
@@ -1116,10 +1095,9 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     >
       <svg
         aria-hidden="true"
-        class="bm-icon svg-inline--fa fa-flag-fill fa-md"
+        class="bm-icon svg-inline--fa fa-flag-fill fa-w-16 fa-md"
         data-icon="flag-fill"
         data-prefix="fas"
-        focusable="false"
         role="img"
         viewBox="0 0 12 12"
         xmlns="http://www.w3.org/2000/svg"
@@ -1164,10 +1142,9 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
       >
         <svg
           aria-hidden="true"
-          class="bm-icon svg-inline--fa fa-3dots fa-md"
+          class="bm-icon svg-inline--fa fa-3dots fa-w-16 fa-md"
           data-icon="3dots"
           data-prefix="fas"
-          focusable="false"
           role="img"
           viewBox="0 0 12 12"
           xmlns="http://www.w3.org/2000/svg"
@@ -1197,10 +1174,9 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
           >
             <svg
               aria-hidden="true"
-              class="bm-icon svg-inline--fa fa-pencil fa-fw fa-md"
+              class="bm-icon svg-inline--fa fa-pencil fa-w-16 fa-fw fa-md"
               data-icon="pencil"
               data-prefix="fas"
-              focusable="false"
               role="img"
               viewBox="0 0 12 12"
               xmlns="http://www.w3.org/2000/svg"
@@ -1247,10 +1223,9 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
           >
             <svg
               aria-hidden="true"
-              class="bm-icon svg-inline--fa fa-printer fa-fw fa-md"
+              class="bm-icon svg-inline--fa fa-printer fa-w-16 fa-fw fa-md"
               data-icon="printer"
               data-prefix="fas"
-              focusable="false"
               role="img"
               viewBox="0 0 12 12"
               xmlns="http://www.w3.org/2000/svg"
@@ -1311,10 +1286,9 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
           >
             <svg
               aria-hidden="true"
-              class="bm-icon svg-inline--fa fa-code fa-fw fa-md"
+              class="bm-icon svg-inline--fa fa-code fa-w-16 fa-fw fa-md"
               data-icon="code"
               data-prefix="fas"
-              focusable="false"
               role="img"
               viewBox="0 0 12 12"
               xmlns="http://www.w3.org/2000/svg"
@@ -1350,10 +1324,9 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
           >
             <svg
               aria-hidden="true"
-              class="bm-icon svg-inline--fa fa-download fa-fw fa-md"
+              class="bm-icon svg-inline--fa fa-download fa-w-16 fa-fw fa-md"
               data-icon="download"
               data-prefix="fas"
-              focusable="false"
               role="img"
               viewBox="0 0 12 12"
               xmlns="http://www.w3.org/2000/svg"
@@ -1389,10 +1362,9 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
           >
             <svg
               aria-hidden="true"
-              class="bm-icon svg-inline--fa fa-with-attachment fa-fw fa-md"
+              class="bm-icon svg-inline--fa fa-with-attachment fa-w-16 fa-fw fa-md"
               data-icon="with-attachment"
               data-prefix="fas"
-              focusable="false"
               role="img"
               viewBox="0 0 12 12"
               xmlns="http://www.w3.org/2000/svg"
@@ -1438,10 +1410,9 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
       >
         <svg
           aria-hidden="true"
-          class="bm-icon svg-inline--fa fa-3dots fa-md"
+          class="bm-icon svg-inline--fa fa-3dots fa-w-16 fa-md"
           data-icon="3dots"
           data-prefix="fas"
-          focusable="false"
           role="img"
           viewBox="0 0 12 12"
           xmlns="http://www.w3.org/2000/svg"
@@ -1477,10 +1448,9 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
           >
             <svg
               aria-hidden="true"
-              class="bm-icon svg-inline--fa fa-pencil fa-fw fa-md"
+              class="bm-icon svg-inline--fa fa-pencil fa-w-16 fa-fw fa-md"
               data-icon="pencil"
               data-prefix="fas"
-              focusable="false"
               role="img"
               viewBox="0 0 12 12"
               xmlns="http://www.w3.org/2000/svg"
@@ -1527,10 +1497,9 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
           >
             <svg
               aria-hidden="true"
-              class="bm-icon svg-inline--fa fa-printer fa-fw fa-md"
+              class="bm-icon svg-inline--fa fa-printer fa-w-16 fa-fw fa-md"
               data-icon="printer"
               data-prefix="fas"
-              focusable="false"
               role="img"
               viewBox="0 0 12 12"
               xmlns="http://www.w3.org/2000/svg"
@@ -1591,10 +1560,9 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
           >
             <svg
               aria-hidden="true"
-              class="bm-icon svg-inline--fa fa-code fa-fw fa-md"
+              class="bm-icon svg-inline--fa fa-code fa-w-16 fa-fw fa-md"
               data-icon="code"
               data-prefix="fas"
-              focusable="false"
               role="img"
               viewBox="0 0 12 12"
               xmlns="http://www.w3.org/2000/svg"
@@ -1630,10 +1598,9 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
           >
             <svg
               aria-hidden="true"
-              class="bm-icon svg-inline--fa fa-download fa-fw fa-md"
+              class="bm-icon svg-inline--fa fa-download fa-w-16 fa-fw fa-md"
               data-icon="download"
               data-prefix="fas"
-              focusable="false"
               role="img"
               viewBox="0 0 12 12"
               xmlns="http://www.w3.org/2000/svg"
@@ -1669,10 +1636,9 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
           >
             <svg
               aria-hidden="true"
-              class="bm-icon svg-inline--fa fa-with-attachment fa-fw fa-md"
+              class="bm-icon svg-inline--fa fa-with-attachment fa-w-16 fa-fw fa-md"
               data-icon="with-attachment"
               data-prefix="fas"
-              focusable="false"
               role="img"
               viewBox="0 0 12 12"
               xmlns="http://www.w3.org/2000/svg"
