@@ -380,6 +380,13 @@ export function useDelegation() {
     const matchCopyImipActionForDelegate = ({ clientProperties: { type, delegate } }, delegateUid) =>
         type === "delegation" && delegate === delegateUid;
 
+    const hasIncoherentCopyImipOption = (delegate, hasCopyImip, calendarRight) => {
+        hasCopyImip = hasCopyImip !== undefined ? hasCopyImip : hasCopyImipMailboxRuleAction(delegate);
+        const calendarVerbs =
+            calendarRight !== undefined ? calendarRight.verbs : delegates.value[delegate][calendarUid.value];
+        return hasCopyImip && !calendarVerbs?.some(verb => [Verb.All, Verb.Manage, Verb.Write].includes(verb));
+    };
+
     return {
         aclToRight,
         addDelegateToCopyImipMailboxRule,
@@ -398,6 +405,7 @@ export function useDelegation() {
         getTodoListAcl,
         getTodoListRight,
         hasCopyImipMailboxRuleAction,
+        hasIncoherentCopyImipOption,
         highestRight,
         receiveImipOptions,
         removeDelegate,

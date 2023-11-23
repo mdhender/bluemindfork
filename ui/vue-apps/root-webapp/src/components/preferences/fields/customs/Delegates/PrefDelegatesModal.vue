@@ -66,18 +66,36 @@
                 :auto-min-width="false"
                 class="my-4"
                 :options="rights(Container.CALENDAR)"
-                @input="
-                    calendarRightSufficientForCopyImipOption ? undefined : (copyImipToDelegate = false);
-                    containerRightsChanged = true;
-                "
+                @input="onCalendarRightChanged"
             />
             <bm-form-checkbox
                 v-model="copyImipToDelegate"
-                :disabled="!selectedDelegate || !calendarRightSufficientForCopyImipOption"
+                :disabled="copyImipToDelegateDisabled"
                 @change="copyImipToDelegateChanged = true"
             >
-                {{ $t("preferences.account.delegates.calendar.invitations") }}
-                <bm-icon class="pl-4" icon="open-envelope" />
+                <div
+                    class="d-flex align-items-center"
+                    :title="
+                        copyImipToDelegateDisabled
+                            ? $t('preferences.account.delegates.calendar.invitations.title', {
+                                  right: $t('preferences.account.delegates.right.calendar.can_edit')
+                              })
+                            : undefined
+                    "
+                >
+                    {{ $t("preferences.account.delegates.calendar.invitations") }}
+                    <bm-icon class="pl-3" icon="open-envelope" />
+                    <bm-icon
+                        v-if="incoherentCopyImipToDelegate"
+                        class="pl-3 text-warning"
+                        icon="exclamation-circle"
+                        :title="
+                            $t('preferences.account.delegates.calendar.invitations.incoherent.in_modal', {
+                                right: $t('preferences.account.delegates.right.calendar.can_edit')
+                            })
+                        "
+                    />
+                </div>
             </bm-form-checkbox>
             <!--  TODO: uncomment once implemented
             <bm-form-checkbox>{{ $t("preferences.account.delegates.calendar.private") }}</bm-form-checkbox> -->
@@ -211,6 +229,7 @@ export default {
             getMailboxAcl,
             getTodoListAcl,
             hasCopyImipMailboxRuleAction,
+            hasIncoherentCopyImipOption,
             removeDelegateFromCopyImipMailboxRule,
             Right,
             rightToAcl,
@@ -231,6 +250,7 @@ export default {
             getMailboxAcl,
             getTodoListAcl,
             hasCopyImipMailboxRuleAction,
+            hasIncoherentCopyImipOption,
             removeDelegateFromCopyImipMailboxRule,
             Right,
             rightToAcl,
@@ -283,6 +303,15 @@ export default {
                 dn: this.$store.state.preferences.containers.myMailboxContainer.ownerDisplayname,
                 address: inject("UserSession").defaultEmail
             };
+        },
+        incoherentCopyImipToDelegate() {
+            return this.hasIncoherentCopyImipOption(this.selectedDelegate, this.copyImipToDelegate, this.calendarRight);
+        },
+        copyImipToDelegateDisabled() {
+            return (
+                !this.incoherentCopyImipToDelegate &&
+                (!this.selectedDelegate || !this.calendarRightSufficientForCopyImipOption)
+            );
         }
     },
     watch: {
@@ -390,6 +419,13 @@ export default {
                 { value: this.Right.CAN_EDIT, text: this.Right.CAN_EDIT.text(container) },
                 { value: this.Right.CAN_MANAGE_SHARES, text: this.Right.CAN_MANAGE_SHARES.text(container) }
             ];
+        },
+        onCalendarRightChanged() {
+            if (!this.calendarRightSufficientForCopyImipOption && this.copyImipToDelegate) {
+                this.copyImipToDelegate = false;
+                this.copyImipToDelegateChanged = true;
+            }
+            this.containerRightsChanged = true;
         }
     }
 };

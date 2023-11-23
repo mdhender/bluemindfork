@@ -22,6 +22,7 @@ const {
     getMessageRight,
     getTodoListRight,
     hasCopyImipMailboxRuleAction,
+    hasIncoherentCopyImipOption,
     removeDelegate
 } = useDelegation();
 
@@ -76,7 +77,8 @@ watchEffect(async () => {
         messageRight: getMessageRight(uid),
         contactsRight: getContactsRight(uid),
         hasCopyImip: hasCopyImipMailboxRuleAction(uid),
-        isSendAs: delegationTypes.value[uid] === Verb.SendAs
+        isSendAs: delegationTypes.value[uid] === Verb.SendAs,
+        incoherentCopyImip: hasIncoherentCopyImipOption(uid)
     }));
 
     items.value = await Promise.all(promises);
@@ -126,6 +128,12 @@ const remove = async contact => {
                 <div class="d-flex align-items-center pr-5">
                     <div class="text-truncate">{{ cell.value.shortText(Container.CALENDAR) }}</div>
                     <bm-icon v-if="cell.item.hasCopyImip" icon="open-envelope" class="ml-4" />
+                    <bm-icon
+                        v-if="cell.item.incoherentCopyImip"
+                        class="pl-4 text-warning"
+                        icon="exclamation-circle"
+                        :title="$t('preferences.account.delegates.calendar.invitations.incoherent.in_table')"
+                    />
                 </div>
             </template>
             <template #cell(todoListRight)="cell">
