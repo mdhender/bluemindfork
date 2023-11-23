@@ -68,7 +68,7 @@ public final class StdoutPump implements Runnable {
 			Integer exit = null;
 			// process smaller than OutputSplitter#DEFAULT_MAX_FRAME_SIZE
 			byte[] buf = new byte[4096];
-			while (true) {
+			while (proc.isAlive() || in.available() > 0) {
 				int read = in.read(buf);
 				if (read == -1) {
 					break;
