@@ -31,6 +31,7 @@ import com.typesafe.config.ConfigFactory;
 
 import net.bluemind.configfile.ConfigChangeListener;
 import net.bluemind.configfile.ReloadableConfig;
+import net.bluemind.configfile.elastic.ElasticsearchConfig;
 import net.bluemind.lib.vertx.VertxPlatform;
 
 public class ElasticsearchClientConfig {
@@ -66,5 +67,10 @@ public class ElasticsearchClientConfig {
 
 	public static Config get() {
 		return instance.config();
+	}
+
+	public static int getMaxAliasMultiplier() {
+		return Integer
+				.highestOneBit(get().getInt(ElasticsearchConfig.Indexation.ALIAS_RING_MODE_ALIAS_COUNT_MULTIPLICATOR));
 	}
 }

@@ -571,7 +571,7 @@ public class MailIndexService implements IMailIndexService {
 	}
 
 	@Override
-	public void repairMailbox(String entityId, IServerTaskMonitor monitor) {
+	public void repairMailbox(String mailboxUid, IServerTaskMonitor monitor) {
 		monitor.begin(3, "Check index state for mailbox");
 		final ElasticsearchClient esClient = getIndexClient();
 		if (esClient == null) {
@@ -585,7 +585,7 @@ public class MailIndexService implements IMailIndexService {
 			return;
 		}
 
-		String boxAlias = getIndexAliasName(entityId);
+		String boxAlias = getIndexAliasName(mailboxUid);
 		boolean aliasExists = getUserAliasIndex(boxAlias, esClient).isPresent();
 		try {
 			if (!aliasExists && esClient.indices().exists(e -> e.index(boxAlias)).value()) {
@@ -598,11 +598,11 @@ public class MailIndexService implements IMailIndexService {
 			if (!aliasExists) {
 				monitor.progress(1, "no alias, check mailspool index");
 				monitor.progress(1, String.format("create alias %s from mailspool ", boxAlias));
-				String indexName = MailIndexActivator.getMailIndexHook().getMailspoolIndexName(shards, entityId);
+				String indexName = MailIndexActivator.getMailIndexHook().getMailspoolIndexName(shards, mailboxUid);
 
 				logger.info("create alias {} from {} ", boxAlias, indexName);
 				esClient.indices().updateAliases(u -> u.actions(a -> a.add(ad -> ad //
-						.index(indexName).alias(boxAlias).filter(f -> f.term(t -> t.field("owner").value(entityId))))));
+						.index(indexName).alias(boxAlias).filter(f -> f.term(t -> t.field("owner").value(mailboxUid))))));
 			}
 		} catch (ElasticsearchException | IOException e) {
 			throw new ElasticIndexException(boxAlias, e);

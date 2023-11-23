@@ -351,18 +351,20 @@ public final class ESearchActivator implements BundleActivator {
 	}
 
 	public static void initIndex(ElasticsearchClient esClient, String index) {
+		IndexAliasCreator mailspoolCreator = IndexAliasCreator.get();
 		indexDefinitionOf(index).ifPresentOrElse(definition -> {
 			int count = definition.index.equals(index) ? definition.count() : 1;
 			byte[] schema = definition.schema;
 			try {
 				for (int i = 1; i <= count; i++) {
-					String indexName = (count == 1) ? index : index + "_" + i;
+					String indexName = mailspoolCreator.getIndexName(index, count, i);
 					logger.info("init index '{}' with settings & schema", indexName);
 					esClient.indices().create(c -> c.index(indexName).withJson(new ByteArrayInputStream(schema)));
 					logger.info("index '{}' created, waiting for green...", indexName);
 					esClient.cluster().health(h -> h.index(indexName).waitForStatus(HealthStatus.Green));
 					definition.rewritableIndex().ifPresent(
 							rewritableIndex -> addRewritableIndexAliases(esClient, indexName, rewritableIndex));
+					mailspoolCreator.addAliases(index, indexName, count, i);
 					logger.info("added index '{}' aliases", indexName);
 				}
 			} catch (Exception e) {

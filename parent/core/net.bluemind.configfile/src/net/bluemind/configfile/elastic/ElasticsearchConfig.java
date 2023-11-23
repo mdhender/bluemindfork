@@ -30,6 +30,12 @@ public class ElasticsearchConfig {
 
 	public static final String OVERRIDE_PATH = "/etc/bm/elasticsearch.conf";
 
+	public static class Indexation {
+
+		public static final String ACTIVATE_ALIAS_RING_MODE = "elasticsearch.indexation.alias_mode.ring";
+		public static final String ALIAS_RING_MODE_ALIAS_COUNT_MULTIPLICATOR = "elasticsearch.indexation.alias_mode.mode_ring.alias_count_multiplicator";
+	}
+
 	public static class Maintenance {
 		public static final String DELETED_DOC_THRESHOLD = "elasticsearch.maintenance.deleted-doc-threshold";
 
