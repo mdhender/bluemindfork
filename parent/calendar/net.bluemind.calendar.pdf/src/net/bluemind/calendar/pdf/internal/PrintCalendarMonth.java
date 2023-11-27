@@ -56,6 +56,7 @@ public class PrintCalendarMonth extends PrintCalendar {
 
 	private void setGrid() {
 		Calendar start = Calendar.getInstance(timezone);
+		start.setFirstDayOfWeek(firstDayOfWeek);
 		start.setTimeInMillis(new BmDateTimeWrapper(options.dateBegin).toTimestamp(timezone.getID()));
 
 		Calendar end = Calendar.getInstance(timezone);
@@ -266,6 +267,7 @@ public class PrintCalendarMonth extends PrintCalendar {
 		int posX;
 		Map<Integer, Map<Integer, String>> fixedPosY = new HashMap<>();
 		Calendar dtstart = Calendar.getInstance(timezone);
+		dtstart.setFirstDayOfWeek(firstDayOfWeek);
 		Calendar dtend = (Calendar) dtstart.clone();
 
 		for (Entry<Integer, List<ItemContainerValue<VEvent>>> entry : adays.entrySet()) {
