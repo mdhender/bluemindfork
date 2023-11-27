@@ -95,6 +95,11 @@ public abstract class ReminderMailHelper<T extends ICalendarElement> {
 	 */
 	public BodyPart buildBody(String templateName, String locale, MessagesResolver messagesResolver,
 			Map<String, Object> data) throws IOException, TemplateException {
+		return buildBody(templateName, locale, messagesResolver, data, false);
+	}
+	
+	public BodyPart buildBody(String templateName, String locale, MessagesResolver messagesResolver,
+			Map<String, Object> data, boolean crlf) throws IOException, TemplateException {
 		if (null == locale) {
 			locale = "fr";
 		}
@@ -115,7 +120,8 @@ public abstract class ReminderMailHelper<T extends ICalendarElement> {
 		t.process(data, sw);
 		sw.flush();
 
-		return createTextPart(sw.toString());
+		String text = (crlf) ? sw.toString().replace("\r", "").replace("\n", "\r\n") : sw.toString();
+		return createTextPart(text);
 	}
 
 	/**
