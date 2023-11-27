@@ -57,6 +57,7 @@ import net.bluemind.core.api.fault.ServerFault;
  * 
  */
 public final class DOMUtils {
+	private static final Logger logger = LoggerFactory.getLogger(DOMUtils.class);
 
 	private static TransformerFactory fac;
 	private static DocumentBuilderFactory dbf;
@@ -114,14 +115,12 @@ public final class DOMUtils {
 				ret = dbf.newDocumentBuilder();
 				ret.setErrorHandler(errorHandler);
 			} catch (ParserConfigurationException e) {
-				e.printStackTrace();
+				logger.error("document builder failed: {}", e.getMessage());
 			}
 			builder.set(ret);
 		}
 		return ret;
 	}
-
-	private static final Logger logger = LoggerFactory.getLogger(DOMUtils.class);
 
 	public static String getElementTextInChildren(Element root, String elementName) {
 		NodeList list = root.getChildNodes();

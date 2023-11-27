@@ -38,6 +38,8 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.xerces.jaxp.DocumentBuilderFactoryImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -52,6 +54,7 @@ import org.xml.sax.SAXException;
  * 
  */
 public final class DOMUtils {
+	private static final Logger logger = LoggerFactory.getLogger(DOMUtils.class);
 
 	private static TransformerFactory fac;
 	private static DocumentBuilderFactory dbf;
@@ -303,7 +306,7 @@ public final class DOMUtils {
 		try {
 			ret = di.createDocument(namespace, rootElement, null);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("document creation failed", e);
 		} finally {
 			unlock();
 		}

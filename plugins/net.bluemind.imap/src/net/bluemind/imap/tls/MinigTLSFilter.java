@@ -21,16 +21,19 @@ package net.bluemind.imap.tls;
 import javax.net.ssl.SSLContext;
 
 import org.apache.mina.filter.ssl.SslFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MinigTLSFilter extends SslFilter {
+	private static final Logger logger = LoggerFactory.getLogger(MinigTLSFilter.class);
 
 	private static SSLContext CTX;
 
 	static {
 		try {
 			CTX = BogusSSLContextFactory.getInstance();
-		} catch (Exception t) {
-			t.printStackTrace();
+		} catch (Exception e) {
+			logger.error("ssl context initialization failed", e);
 		}
 	}
 

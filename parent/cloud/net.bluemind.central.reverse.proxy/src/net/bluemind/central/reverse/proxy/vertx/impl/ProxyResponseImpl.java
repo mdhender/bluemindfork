@@ -204,7 +204,7 @@ class ProxyResponseImpl implements ProxyResponse {
 		try {
 			outboundResponse.putHeader("date", ParseUtils.formatHttpDate(date));
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("send error: {}", e.getMessage());
 		}
 
 		// Warning header

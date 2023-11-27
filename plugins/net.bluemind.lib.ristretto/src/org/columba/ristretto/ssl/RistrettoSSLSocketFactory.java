@@ -46,6 +46,9 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Factory to create a new SSL socket or on top of an existing plain socket.
  * 
@@ -54,7 +57,7 @@ import javax.net.ssl.TrustManager;
  */
 
 public class RistrettoSSLSocketFactory {
-
+	private static final Logger logger = LoggerFactory.getLogger(RistrettoSSLSocketFactory.class);
 	private static RistrettoSSLSocketFactory myInstance;
 
 	private SSLSocketFactory socketFactory;
@@ -79,10 +82,8 @@ public class RistrettoSSLSocketFactory {
 			sslContext.init(null, new TrustManager[] { new DefaultTrustManager() }, new java.security.SecureRandom());
 
 			socketFactory = sslContext.getSocketFactory();
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace(System.out);
-		} catch (KeyManagementException e) {
-			e.printStackTrace(System.out);
+		} catch (NoSuchAlgorithmException | KeyManagementException e) {
+			logger.error("SSLContext initialization failed", e);
 		}
 	}
 
@@ -99,10 +100,8 @@ public class RistrettoSSLSocketFactory {
 			sslContext.init(null, new TrustManager[] { tm }, new java.security.SecureRandom());
 
 			socketFactory = sslContext.getSocketFactory();
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace(System.out);
-		} catch (KeyManagementException e) {
-			e.printStackTrace(System.out);
+		} catch (NoSuchAlgorithmException | KeyManagementException e) {
+			logger.error("SSLContext initialization failed", e);
 		}
 	}
 
@@ -119,10 +118,8 @@ public class RistrettoSSLSocketFactory {
 			sslContext.init(new KeyManager[] { km }, null, new java.security.SecureRandom());
 
 			socketFactory = sslContext.getSocketFactory();
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace(System.out);
-		} catch (KeyManagementException e) {
-			e.printStackTrace(System.out);
+		} catch (NoSuchAlgorithmException | KeyManagementException e) {
+			logger.error("SSLContext initialization failed", e);
 		}
 	}
 

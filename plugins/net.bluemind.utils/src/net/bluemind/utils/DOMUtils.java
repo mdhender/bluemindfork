@@ -41,6 +41,8 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -57,6 +59,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * 
  */
 public final class DOMUtils {
+	private static final Logger logger = LoggerFactory.getLogger(DOMUtils.class);
 
 	private static TransformerFactory fac;
 	private static DocumentBuilderFactory dbf;
@@ -107,8 +110,7 @@ public final class DOMUtils {
 	public static String getElementText(Element root, String elementName) {
 		NodeList list = root.getElementsByTagName(elementName);
 		if (list.getLength() == 0) {
-			System.err.println("No element named '" + elementName + "' under '" //$NON-NLS-1$ //$NON-NLS-2$
-					+ root.getNodeName() + "'"); //$NON-NLS-1$
+			logger.error("No element named '{}' under '{}'", elementName, root.getNodeName());
 			return null;
 		}
 		return getElementText((Element) list.item(0));
@@ -284,7 +286,6 @@ public final class DOMUtils {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		serialise(doc, out, true);
 		String ret = out.toString();
-		System.out.println(ret);
 		return ret;
 	}
 

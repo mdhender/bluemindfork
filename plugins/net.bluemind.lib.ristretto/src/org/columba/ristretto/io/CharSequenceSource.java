@@ -129,7 +129,6 @@ public class CharSequenceSource implements Source, Serializable {
 			pos = arg0;
 			return next();
 		} catch (IOException e) {
-			e.printStackTrace();
 			return 0;
 		}
 	}

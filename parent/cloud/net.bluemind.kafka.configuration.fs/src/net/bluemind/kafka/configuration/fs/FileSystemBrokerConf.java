@@ -23,10 +23,14 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.bluemind.kafka.configuration.IBrokerFactory;
 import net.bluemind.kafka.configuration.IKafkaBroker;
 
 public class FileSystemBrokerConf implements IBrokerFactory {
+	private static Logger logger = LoggerFactory.getLogger(FileSystemBrokerConf.class);
 
 	private IKafkaBroker brok;
 
@@ -59,7 +63,7 @@ public class FileSystemBrokerConf implements IBrokerFactory {
 
 				};
 			} catch (IOException e) {
-				e.printStackTrace();
+				logger.error("unable to write {}: {}", f.getAbsolutePath(), e.getMessage());
 				this.brok = null;
 			}
 		}

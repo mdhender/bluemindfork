@@ -83,7 +83,7 @@ public class ReadCyrusIndex implements ICmdLet, Runnable {
 							try {
 								mapper.writeValue(json, rec);
 							} catch (IOException e) {
-								e.printStackTrace();
+								ctx.error("unable to write json value: {}", e.getMessage());
 							}
 						});
 						json.writeEndArray();
