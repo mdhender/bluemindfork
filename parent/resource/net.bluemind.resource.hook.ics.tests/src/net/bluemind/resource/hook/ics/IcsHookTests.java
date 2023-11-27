@@ -18,7 +18,9 @@
   */
 package net.bluemind.resource.hook.ics;
 
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -30,9 +32,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.james.mime4j.dom.Header;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -275,12 +279,45 @@ public class IcsHookTests {
 
 		VEventSeries series = new VEventSeries();
 		series.main = event;
+		series.icsUid = UUID.randomUUID().toString();
 		return ItemValue.create(UUID.randomUUID().toString(), series);
 	}
 
 	@After
 	public void after() throws Exception {
 		JdbcTestHelper.getInstance().afterTest();
+	}
+
+	@Test
+	public void ResourceBookingShouldContainEventIcsUIdInXBmEventHeaderValue() {
+		ItemValue<VEventSeries> event = defaultVEvent("createHook");
+		event.value.main.status = ICalendarElement.Status.NeedsAction;
+
+		VEventMessage veventMessage = new VEventMessage();
+		veventMessage.itemUid = event.uid;
+		veventMessage.vevent = event.value;
+		veventMessage.sendNotifications = true;
+		veventMessage.container = resourceCalendarContainer;
+
+		FakeSendmail fakeSendmail = new FakeSendmail();
+		new ResourceIcsHook(fakeSendmail).onEventCreated(veventMessage);
+
+		Header headers = fakeSendmail.messages.get(0).message.getHeader();
+		assertTrue(headers.getField("X-Bm-Event").toString().contains(event.value.icsUid));
+	}
+
+	@Test
+	public void ShouldContainHeaderXBmResourceBooking() {
+		ItemValue<VEventSeries> event = defaultVEvent("createHook");
+		VEventMessage veventMessage = new VEventMessage();
+		veventMessage.vevent = event.value;
+		veventMessage.container = resourceCalendarContainer;
+		FakeSendmail messageSUT = new FakeSendmail();
+
+		new ResourceIcsHook(messageSUT).onEventCreated(veventMessage);
+
+		Header headers = messageSUT.messages.get(0).message.getHeader();
+		assertNotNull(headers.getField("X-Bm-ResourceBooking").toString());
 	}
 
 	@Test

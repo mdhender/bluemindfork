@@ -126,7 +126,7 @@ public class ResourceIcsHook implements ICalendarHook {
 
 			boolean rsvp = needResponse(message.container.domainUid, event.attendees);
 
-			StringBuilder header = new StringBuilder(message.itemUid);
+			StringBuilder header = new StringBuilder(message.vevent.icsUid);
 			if (event instanceof VEventOccurrence) {
 				header.append("; recurid=\"" + ((VEventOccurrence) event).recurid.iso8601 + "\"");
 			}
