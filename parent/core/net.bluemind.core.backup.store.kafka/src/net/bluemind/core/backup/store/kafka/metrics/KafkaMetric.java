@@ -17,11 +17,48 @@
   */
 package net.bluemind.core.backup.store.kafka.metrics;
 
-import net.bluemind.core.utils.JsonUtils;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-public record KafkaMetric(String id, String key, long value, String client) {
+import io.vertx.core.json.JsonObject;
+
+@JsonSerialize
+public class KafkaMetric {
+
+	public final String id;
+	public final String key;
+	public long value;
+	public final String client;
+	public int increment = 1;
+
+	public KafkaMetric(String id, String key, long value, String client) {
+		this.id = id;
+		this.key = key;
+		this.value = value;
+		this.client = client;
+	}
+
+	public JsonObject toJsonObj() {
+		JsonObject dashObj = new JsonObject();
+		dashObj.put("id", id);
+		dashObj.put("key", key);
+		dashObj.put("value", value);
+		dashObj.put("client", client);
+		return dashObj;
+	}
 
 	public String toJson() {
-		return JsonUtils.asString(this);
+		return toJsonObj().encode();
 	}
+
+	public KafkaMetric addValue(long newValue) {
+		value += newValue;
+		return this;
+	}
+
+	public KafkaMetric avgValue(long newValue) {
+		value = (value * increment + newValue) / (increment + 1);
+		increment += 1;
+		return this;
+	}
+
 }

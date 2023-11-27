@@ -18,7 +18,10 @@ import com.typesafe.config.Config;
 
 import net.bluemind.core.backup.continuous.store.TopicPublisher;
 import net.bluemind.core.backup.store.kafka.config.KafkaStoreConfig;
+import net.bluemind.core.backup.store.kafka.metrics.KafkaMetric;
 import net.bluemind.core.backup.store.kafka.metrics.KafkaTopicMetrics;
+import net.bluemind.core.backup.store.kafka.metrics.KafkaTopicMetrics.ClientEnum;
+import net.bluemind.lib.vertx.VertxPlatform;
 
 public class KafkaTopicPublisher implements TopicPublisher {
 
@@ -56,8 +59,10 @@ public class KafkaTopicPublisher implements TopicPublisher {
 		long sendRate = producer.metrics().entrySet().stream()
 				.filter(m -> KafkaTopicMetrics.SEND_RATE.equals(m.getKey().name()))
 				.map(e -> (double) e.getValue().metricValue()).reduce(0d, (sum, val) -> sum + val).longValue();
-		KafkaTopicMetrics.get().addProducerMetric(new String(key), KafkaTopicMetrics.SEND_RATE, sendRate);
 
+		KafkaMetric metric = new KafkaMetric(new String(key), KafkaTopicMetrics.SEND_RATE, sendRate,
+				ClientEnum.PRODUCER.name());
+		VertxPlatform.eventBus().publish("bm.monitoring.fw.kafka.metrics", metric.toJsonObj());
 		return comp;
 	}
 

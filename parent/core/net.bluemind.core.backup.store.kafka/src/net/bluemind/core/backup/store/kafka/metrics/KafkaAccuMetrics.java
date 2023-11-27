@@ -21,23 +21,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Promise;
+import io.vertx.core.json.JsonObject;
 
-public class KafkaPublishMetrics extends AbstractVerticle {
-	private static final Logger logger = LoggerFactory.getLogger(KafkaPublishMetrics.class);
+public class KafkaAccuMetrics extends AbstractVerticle {
+	private static final Logger logger = LoggerFactory.getLogger(KafkaAccuMetrics.class);
 
 	@Override
-	public void start(Promise<Void> startPromise) throws Exception {
-		vertx.setPeriodic(3000, id -> {
-			try {
-				KafkaTopicMetrics.get().clearAllPublishMetrics();
-				KafkaTopicMetrics.get().publish();
-				vertx.eventBus().publish("bm.monitoring.kafka.metrics", KafkaTopicMetrics.get().toJson());
-			} catch (Exception e) {
-				logger.error(e.getMessage());
+	public void start() {
+		vertx.eventBus().consumer("bm.monitoring.fw.kafka.metrics", metric -> {
+			JsonObject body = (JsonObject) metric.body();
+			if (KafkaTopicMetrics.SEND_RATE.equals(body.getString("key"))) {
+				KafkaTopicMetrics.get().avgOnSendRate(body.getString("id"), body.getLong("value"));
+			} else if (KafkaTopicMetrics.LAG.equals(body.getString("key"))) {
+				KafkaTopicMetrics.get().sumOnLag(body.getString("id"), body.getLong("value"));
 			}
 		});
-		startPromise.complete();
 	}
-
 }

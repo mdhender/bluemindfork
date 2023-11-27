@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.core.backup.store.kafka.tests
-Bundle-SymbolicName: net.bluemind.core.backup.store.kafka.tests
+Bundle-SymbolicName: net.bluemind.core.backup.store.kafka.tests;singleton:=true
 Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
@@ -9,7 +9,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.kafka.container,
  net.bluemind.core.backup.store.kafka,
  net.bluemind.core.backup.continuous,
- net.bluemind.config
+ net.bluemind.config,
+ net.bluemind.lib.vertx
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.core.backup.store.kafka.tests
 Bundle-ActivationPolicy: lazy

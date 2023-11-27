@@ -14,9 +14,11 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.utils,
  com.typesafe.config;bundle-version="1.4.2",
  net.bluemind.lib.vertx,
- com.fasterxml.jackson.core.jackson-annotations
+ com.fasterxml.jackson.core.jackson-annotations,
+ com.fasterxml.jackson.core.jackson-databind
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.core.backup.store.kafka
 Bundle-ActivationPolicy: lazy
-Export-Package: net.bluemind.core.backup.store.kafka
+Export-Package: net.bluemind.core.backup.store.kafka,
+ net.bluemind.core.backup.store.kafka.metrics
 Eclipse-RegisterBuddy: net.bluemind.kafka.client

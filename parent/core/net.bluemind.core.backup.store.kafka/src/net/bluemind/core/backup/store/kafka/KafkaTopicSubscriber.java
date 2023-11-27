@@ -48,7 +48,10 @@ import net.bluemind.core.backup.continuous.store.RecordHandler;
 import net.bluemind.core.backup.continuous.store.TopicSubscriber;
 import net.bluemind.core.backup.store.kafka.config.KafkaStoreConfig;
 import net.bluemind.core.backup.store.kafka.config.KafkaStoreConfig.PoisonPillStrategy;
+import net.bluemind.core.backup.store.kafka.metrics.KafkaMetric;
 import net.bluemind.core.backup.store.kafka.metrics.KafkaTopicMetrics;
+import net.bluemind.core.backup.store.kafka.metrics.KafkaTopicMetrics.ClientEnum;
+import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.metrics.registry.IdFactory;
 
 public class KafkaTopicSubscriber implements TopicSubscriber {
@@ -239,7 +242,9 @@ public class KafkaTopicSubscriber implements TopicSubscriber {
 			sum.add(lag);
 		}));
 		gauge.set(sum.doubleValue());
-		KafkaTopicMetrics.get().addConsumerMetric(id, KafkaTopicMetrics.LAG, sum.sum());
+
+		KafkaMetric metric = new KafkaMetric(id, KafkaTopicMetrics.LAG, sum.sum(), ClientEnum.CONSUMER.name());
+		VertxPlatform.eventBus().publish("bm.monitoring.fw.kafka.metrics", metric.toJsonObj());
 	}
 
 	@Override

@@ -23,11 +23,13 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -41,7 +43,10 @@ import net.bluemind.core.backup.continuous.store.ITopicStore.TopicDescriptor;
 import net.bluemind.core.backup.continuous.store.TopicPublisher;
 import net.bluemind.core.backup.continuous.store.TopicSubscriber;
 import net.bluemind.core.backup.store.kafka.KafkaTopicStore;
+import net.bluemind.core.backup.store.kafka.metrics.KafkaMetric;
+import net.bluemind.core.backup.store.kafka.metrics.KafkaTopicMetrics;
 import net.bluemind.kafka.container.ZkKafkaContainer;
+import net.bluemind.lib.vertx.VertxPlatform;
 
 public class KafkaTopicStoreTests {
 
@@ -55,6 +60,9 @@ public class KafkaTopicStoreTests {
 		System.setProperty("bm.kafka.bootstrap.servers", ip + ":9093");
 		System.setProperty("bm.zk.servers", ip + ":2181");
 		System.err.println("Container started on " + ip);
+
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
+
 	}
 
 	@After
@@ -62,10 +70,12 @@ public class KafkaTopicStoreTests {
 		if (container != null) {
 			container.close();
 		}
+
+		KafkaTopicMetrics.get().clearAllPublishMetrics();
 	}
 
 	@Test
-	public void testStartStore() throws InterruptedException, ExecutionException, TimeoutException {
+	public void testStartStore() throws Exception {
 		KafkaTopicStore store = new KafkaTopicStore();
 		assertNotNull(store);
 		assertTrue(store.isEnabled());
@@ -126,7 +136,6 @@ public class KafkaTopicStoreTests {
 			called.set(true);
 		});
 		assertTrue(called.get());
-
 	}
 
 	@Test
@@ -165,6 +174,79 @@ public class KafkaTopicStoreTests {
 			called.set(true);
 		});
 		assertTrue(called.get());
+	}
+
+	@Test
+	public void testMetrics_producer() throws Exception {
+
+		KafkaTopicStore store = new KafkaTopicStore();
+		assertNotNull(store);
+		assertTrue(store.isEnabled());
+
+		TopicDescriptor descriptor = DefaultTopicDescriptor.of("bluemind-toto/dom.com/owner/calendar/a_cal_uid");
+		TopicPublisher another = store.getPublisher(descriptor);
+		assertNotNull(another);
+
+		int cnt = 1000;
+		ExecutorService executor = Executors.newFixedThreadPool(cnt);
+		CompletableFuture<?>[] comps = new CompletableFuture<?>[cnt];
+		CompletableFuture<?>[] compss = new CompletableFuture<?>[cnt];
+		for (int i = 0; i < cnt; i++) {
+			comps[i] = CompletableFuture.supplyAsync(() -> publishMessage("any", ("key").getBytes(), another),
+					executor);
+			compss[i] = CompletableFuture.supplyAsync(() -> publishMessage("any" + UUID.randomUUID().toString(),
+					("key" + UUID.randomUUID().toString()).getBytes(), another), executor);
+		}
+		CompletableFuture.allOf(comps).orTimeout(10, TimeUnit.MINUTES).join();
+		CompletableFuture.allOf(compss).orTimeout(10, TimeUnit.MINUTES).join();
+
+		Thread.sleep(3000);
+
+		KafkaTopicMetrics.get().publish();
+		List<KafkaMetric> publishMetrics = KafkaTopicMetrics.get().getPublishMetrics();
+		assertNotNull(publishMetrics);
+		assertFalse(publishMetrics.isEmpty());
+		assertTrue(publishMetrics.size() > cnt - 100 && publishMetrics.size() < cnt + 100);
+		assertTrue(publishMetrics.stream().allMatch(m -> m.client.equals("PRODUCER")));
+	}
+
+	private CompletableFuture<Void> publishMessage(String partitionKey, byte[] bs, TopicPublisher another) {
+		return another.store(partitionKey, bs, ("yeah " + UUID.randomUUID().toString()).getBytes());
+	}
+
+	@Test
+	public void testMetrics_consumer() throws Exception {
+
+		KafkaTopicStore store = new KafkaTopicStore();
+		assertNotNull(store);
+		assertTrue(store.isEnabled());
+
+		TopicDescriptor descriptor = DefaultTopicDescriptor.of("bluemind-toto/dom.com/owner/calendar/a_cal_uid");
+		TopicPublisher another = store.getPublisher(descriptor);
+		assertNotNull(another);
+
+		int cnt = 1000;
+		ExecutorService executor = Executors.newFixedThreadPool(cnt);
+		CompletableFuture<?>[] comps = new CompletableFuture<?>[cnt];
+		for (int i = 0; i < cnt; i++) {
+			comps[i] = CompletableFuture.supplyAsync(() -> publishMessage("any" + UUID.randomUUID().toString(),
+					("key" + UUID.randomUUID().toString()).getBytes(), another), executor);
+		}
+		CompletableFuture.allOf(comps).orTimeout(10, TimeUnit.MINUTES).join();
+
+		TopicSubscriber subscriber = store.getSubscriber("toto-dom.com");
+		AtomicBoolean called = new AtomicBoolean();
+		subscriber.subscribe((key, value, p, o) -> {
+			called.set(true);
+		});
+		assertTrue(called.get());
+
+		KafkaTopicMetrics.get().publish();
+		List<KafkaMetric> publishMetrics = KafkaTopicMetrics.get().getPublishMetrics();
+		assertNotNull(publishMetrics);
+		assertFalse(publishMetrics.isEmpty());
+		assertTrue(publishMetrics.stream().anyMatch(m -> m.client.equals("CONSUMER")));
+
 	}
 
 //	@Test
