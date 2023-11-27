@@ -46,8 +46,8 @@ public class SentryProperties {
 	private static final Path SENTRY_TEMP_PATH = Paths.get(String.format("%s/%s", SENTRY_TEMP_PARENT_DIR,
 			System.getProperty("net.bluemind.property.product", "unknown")));
 
-	public static final String PERMISSIONS_SENTRY_SETTINGS_FOLDER = "rwxrwxrwx";
-	public static final String PERMISSIONS_SENTRY_TEMP_PARENT_FOLDER = "rwxrwxrwx";
+	public static final String PERMISSIONS_SENTRY_SETTINGS_FOLDER = "rwxrwx---";
+	public static final String PERMISSIONS_SENTRY_TEMP_PARENT_FOLDER = "rwxrwx---";
 	public static final String PERMISSIONS_PROPERTIES = "rw-r-----";
 	public static final String PERMISSIONS_TEMPEVENTS = "rwxrwx---";
 
