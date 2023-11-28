@@ -4,6 +4,7 @@ import {
     ContainerChangeset,
     ContainerSubscriptionModel,
     ItemFlag,
+    ItemFlagFilter,
     ItemValue,
     ItemVersion,
     OwnerSubscriptionsClient
@@ -14,6 +15,7 @@ import { default as db, SyncOptions, SyncOptionsType } from "./MailDB";
 import logger from "@bluemind/logger";
 
 const limits: { [uid: string]: Limit } = {};
+const SYNC_FILTER: ItemFlagFilter = { must: [], mustNot: [ItemFlag.Deleted] };
 
 export async function syncMailFolders(): Promise<string[]> {
     session.revalidate();
@@ -53,8 +55,8 @@ export async function syncOwnerSubscriptions(): Promise<ItemValue<ContainerSubsc
     }
     return [];
 }
-export async function isSubscribedAndSynced(uid: string) {
-    if (await db.isSubscribed(uid)) {
+export async function isSubscribedAndSynced(uid: string, filter?: ItemFlagFilter) {
+    if (isRequestFilterSynced(filter) && (await db.isSubscribed(uid))) {
         const syncOptions = await db.getSyncOptions(uid);
         if (syncOptions?.pending) {
             await syncMailFolder(uid);
@@ -76,8 +78,7 @@ export async function syncMailFolder(uid: string, pushedVersion?: number): Promi
 async function syncMailFolderToVersion(uid: string, syncOptions: SyncOptions): Promise<boolean> {
     try {
         const client = new MailboxItemsClient(await session.sid, uid);
-        const filter = { must: [], mustNot: [ItemFlag.Deleted] };
-        const changeset = await client.filteredChangesetById(syncOptions.version, filter);
+        const changeset = await client.filteredChangesetById(syncOptions.version, SYNC_FILTER);
         const { created, updated, deleted, version } = changeset as Required<ContainerChangeset<ItemVersion>>;
         const versionUpdated = changeset.version !== syncOptions.version;
         if (versionUpdated) {
@@ -197,4 +198,16 @@ const markFolderSyncAsPending = async (folderUid: string): Promise<string> => {
 
 async function getMailboxFullPath(): Promise<string> {
     return `user.${await session.userId}@${(await session.domain).replace(/\./g, "_")}`;
+}
+
+function isRequestFilterSynced(filter: ItemFlagFilter | undefined) {
+    // All flag excluded from sync are also excluded for request
+    // And all flag included for request are also included for sync.
+    if (filter) {
+        return (
+            SYNC_FILTER.mustNot?.every(flag => filter.mustNot?.includes(flag)) &&
+            SYNC_FILTER.must?.every(flag => filter.must?.includes(flag))
+        );
+    }
+    return true;
 }
