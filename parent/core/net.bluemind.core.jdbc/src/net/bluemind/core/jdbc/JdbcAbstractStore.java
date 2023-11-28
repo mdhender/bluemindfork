@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import javax.sql.DataSource;
 
@@ -558,6 +559,9 @@ public class JdbcAbstractStore {
 		}
 	}
 
+	private static final Set<String> ALREADY_EXISTS_STATES = Set.of(PSQLState.UNDEFINED_OBJECT.getState(),
+			PSQLState.UNIQUE_VIOLATION.getState());
+
 	public static <R> R retryOnDeadlock(SqlOperation<R> op) throws SQLException {
 		SQLException lastException = null;
 		try {
@@ -584,7 +588,7 @@ public class JdbcAbstractStore {
 				throw new SQLException("retryOnDeadlock failed, without any exception");
 			}
 		} catch (PSQLException e) {
-			if (PSQLState.UNDEFINED_OBJECT.getState().equals(e.getSQLState())) {
+			if (ALREADY_EXISTS_STATES.contains(e.getSQLState())) {
 				throw ServerFault.alreadyExists(e);
 			}
 			throw ServerFault.sqlFault(e.getSQLState() + ":" + e.getMessage(), e);
