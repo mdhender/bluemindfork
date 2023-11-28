@@ -2,6 +2,7 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension-point id="net.bluemind.core.auditlogs.client.es.datastreams.indextemplate" name="indextemplate" schema="schema/net.bluemind.core.auditlogs.client.es.datastreams.indextemplate.exsd"/>
+   <extension-point id="net.bluemind.core.auditlogs.client.es.datastreams.ilmpolicy" name="ilmpolicy" schema="schema/net.bluemind.core.auditlogs.client.es.datastreams.ilmpolicy.exsd"/>
    <extension
          point="net.bluemind.core.auditlogs">
       <store
@@ -26,12 +27,6 @@
             code="net.bluemind.core.auditlogs.client.es.maintenance.DataStreamConsistency"
             priority="100">
       </java>
-   </extension>
-   <extension
-         point="net.bluemind.core.caches.registry.registration">
-      <reg
-            impl="net.bluemind.core.auditlogs.client.es.DataStreamCache$Registration">
-      </reg>
    </extension>
 
 </plugin>

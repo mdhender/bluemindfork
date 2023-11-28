@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.core.auditlogs.tests
-Bundle-SymbolicName: net.bluemind.core.auditlogs.tests
+Bundle-SymbolicName: net.bluemind.core.auditlogs.tests;singleton:=true
 Bundle-Version: 5.0.0.qualifier
 Require-Bundle: org.eclipse.osgi,
  org.junit,
@@ -9,7 +9,7 @@ Require-Bundle: org.eclipse.osgi,
  net.bluemind.core.jdbc.testshelper,
  net.bluemind.core.auditlogs.client.loader,
  net.bluemind.core.auditlogs.schema,
- net.bluemind.testcontainers,
+ net.bluemind.testcontainers;visibility:=reexport,
  net.bluemind.network.utils,
  net.bluemind.server.api,
  net.bluemind.lib.vertx,
@@ -34,4 +34,6 @@ Require-Bundle: org.eclipse.osgi,
  net.bluemind.domain.service
 Bundle-Vendor: net.bluemind
 Automatic-Module-Name: net.bluemind.core.auditlogs.config.tests
+Bundle-ActivationPolicy: lazy
+Bundle-Activator: net.bluemind.core.auditlogs.config.tests.AuditLogTestActivator
 Bundle-RequiredExecutionEnvironment: JavaSE-21

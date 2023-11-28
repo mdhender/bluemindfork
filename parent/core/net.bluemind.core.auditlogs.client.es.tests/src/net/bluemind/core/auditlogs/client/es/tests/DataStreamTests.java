@@ -18,6 +18,7 @@
 
 package net.bluemind.core.auditlogs.client.es.tests;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -32,6 +33,8 @@ import org.junit.Test;
 import com.google.common.collect.Lists;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch.ilm.Phase;
+import co.elastic.clients.elasticsearch.ilm.get_lifecycle.Lifecycle;
 import net.bluemind.core.auditlogs.client.es.datastreams.DataStreamActivator;
 import net.bluemind.core.auditlogs.exception.AuditLogCreationException;
 import net.bluemind.core.container.model.Container;
@@ -99,6 +102,16 @@ public class DataStreamTests {
 		boolean isDataStream = !esClient.indices()
 				.resolveIndex(r -> r.name(AUDIT_LOG_DATASTREAM_PREFIX + "_" + domainUid)).dataStreams().isEmpty();
 		assertTrue(isDataStream);
+	}
+
+	@Test
+	public void checkILMPolicy() throws AuditLogCreationException, IOException {
+		dataStreamActivator = new DataStreamActivator();
+		dataStreamActivator.setupAuditBackingStoreForDomain(domainUid);
+		Lifecycle lifeCycle = esClient.ilm().getLifecycle(b -> b.name("logs")).result().get("logs");
+		assertNotNull(lifeCycle);
+		Phase deletePhase = lifeCycle.policy().phases().delete();
+		assertEquals("3d", deletePhase.minAge().time());
 	}
 
 	@Test

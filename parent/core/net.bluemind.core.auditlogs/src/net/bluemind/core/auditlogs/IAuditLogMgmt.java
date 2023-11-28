@@ -23,8 +23,6 @@ import net.bluemind.core.auditlogs.exception.AuditLogCreationException;
 
 public interface IAuditLogMgmt {
 
-	public void setupAuditBackingStore() throws AuditLogCreationException;
-
 	public void setupAuditBackingStoreForDomain(String domainUid) throws AuditLogCreationException;
 
 	public void removeAuditBackingStore();

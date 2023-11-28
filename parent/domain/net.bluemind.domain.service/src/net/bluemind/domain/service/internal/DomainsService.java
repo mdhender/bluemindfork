@@ -27,10 +27,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Suppliers;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
 
@@ -94,7 +96,7 @@ public class DomainsService implements IInCoreDomains, IDomains {
 
 	private DomainsCache domainsCache;
 
-	private static final List<IDomainHook> hooks = getHooks();
+	private static final Supplier<List<IDomainHook>> hooks = Suppliers.memoize(() -> getHooks());
 
 	public DomainsService(BmContext context, Container installationContainer) {
 		this.context = context;
@@ -142,7 +144,7 @@ public class DomainsService implements IInCoreDomains, IDomains {
 			return store.get(uid, null);
 		});
 
-		for (IDomainHook hook : hooks) {
+		for (IDomainHook hook : hooks.get()) {
 			hook.onCreated(context, value);
 		}
 
@@ -223,7 +225,7 @@ public class DomainsService implements IInCoreDomains, IDomains {
 			return updated;
 		});
 
-		for (IDomainHook hook : hooks) {
+		for (IDomainHook hook : hooks.get()) {
 			hook.onUpdated(context, currentDomain, value);
 		}
 
@@ -246,7 +248,7 @@ public class DomainsService implements IInCoreDomains, IDomains {
 			throw new ServerFault("Domain is not empty, use deleteDomainItems before call delete");
 		}
 
-		for (IDomainHook hook : hooks) {
+		for (IDomainHook hook : hooks.get()) {
 			hook.onBeforeDelete(context, domainItem);
 		}
 		store.doOrFail(() -> {
@@ -257,7 +259,7 @@ public class DomainsService implements IInCoreDomains, IDomains {
 			domainsCache.invalidate(uid);
 			return null;
 		});
-		for (IDomainHook hook : hooks) {
+		for (IDomainHook hook : hooks.get()) {
 			hook.onDeleted(context, domainItem);
 		}
 
@@ -279,7 +281,7 @@ public class DomainsService implements IInCoreDomains, IDomains {
 			@Override
 			public void run(IServerTaskMonitor monitor) throws Exception {
 				deepDelete(domain);
-				for (IDomainHook hook : hooks) {
+				for (IDomainHook hook : hooks.get()) {
 					hook.onDomainItemsDeleted(context, domain);
 				}
 			}
@@ -407,7 +409,7 @@ public class DomainsService implements IInCoreDomains, IDomains {
 
 	protected void doSetAliases(ItemValue<Domain> domainItem, Set<String> previousAliases, IServerTaskMonitor monitor) {
 
-		monitor.begin(1d + hooks.size(), "update domain " + domainItem.uid + " aliases");
+		monitor.begin(1d + hooks.get().size(), "update domain " + domainItem.uid + " aliases");
 
 		boolean update = !previousAliases.equals(domainItem.value.aliases);
 		if (update) {
@@ -439,9 +441,9 @@ public class DomainsService implements IInCoreDomains, IDomains {
 			return;
 		}
 		int i = 0;
-		for (IDomainHook hook : hooks) {
+		for (IDomainHook hook : hooks.get()) {
 			hook.onAliasesUpdated(context, domainItem, previousAliases);
-			monitor.progress(1, "calling hook (" + (i + 1) + " on " + hooks.size() + ")");
+			monitor.progress(1, "calling hook (" + (i + 1) + " on " + hooks.get().size() + ")");
 			i++;
 		}
 	}
@@ -470,7 +472,7 @@ public class DomainsService implements IInCoreDomains, IDomains {
 			return updated;
 		});
 
-		for (IDomainHook hook : hooks) {
+		for (IDomainHook hook : hooks.get()) {
 			hook.onUpdated(context, currentDomainItem, updatedDomainItem);
 		}
 		// TODO change topic name
@@ -586,7 +588,7 @@ public class DomainsService implements IInCoreDomains, IDomains {
 
 		store.update(domainItem.uid, domainItem.value.label, domainItem.value);
 
-		for (IDomainHook hook : hooks) {
+		for (IDomainHook hook : hooks.get()) {
 			hook.onPropertiesUpdated(context, domainItem, oldProps, properties);
 		}
 		domainsCache.invalidate(domainItem.uid);

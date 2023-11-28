@@ -24,9 +24,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Suppliers;
 
 import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.fault.ServerFault;
@@ -64,7 +67,7 @@ public class DomainSettingsService implements IDomainSettings, IInCoreDomainSett
 	private final RBACManager rbac;
 	private final DomainSettingsCache cache;
 
-	private static final List<IDomainHook> hooks = getHooks();
+	private static final Supplier<List<IDomainHook>> hooks = Suppliers.memoize(() -> getHooks());
 
 	public DomainSettingsService(BmContext context, Container domainSettingsContainer, String domainUid) {
 		this.context = context;
@@ -109,7 +112,7 @@ public class DomainSettingsService implements IDomainSettings, IInCoreDomainSett
 		IDomains domainService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomains.class);
 		ItemValue<Domain> domain = domainService.get(domainUid);
 
-		for (IDomainHook hook : hooks) {
+		for (IDomainHook hook : hooks.get()) {
 			hook.onSettingsUpdated(context, domain, prev, settings);
 		}
 

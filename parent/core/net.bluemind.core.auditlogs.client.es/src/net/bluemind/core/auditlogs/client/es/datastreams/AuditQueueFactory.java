@@ -28,12 +28,7 @@ import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import io.vertx.core.Verticle;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.core.auditlogs.client.es.AudiLogEsClientActivator;
-import net.bluemind.core.auditlogs.client.es.DataStreamCache;
-import net.bluemind.core.auditlogs.client.loader.AuditLogLoader;
 import net.bluemind.core.auditlogs.client.loader.config.AuditLogStoreConfig;
-import net.bluemind.core.context.SecurityContext;
-import net.bluemind.core.rest.BmContext;
-import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 import net.bluemind.retry.support.RetryQueueVerticle;
@@ -61,21 +56,9 @@ public class AuditQueueFactory implements IVerticleFactory, IUniqueVerticleFacto
 			}
 			String domainUid = js.getString("domainUid");
 			byte[] jsBytes = js.encode().getBytes();
-			BmContext context = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).getContext();
-			DataStreamCache dataStreamCache = DataStreamCache.get(context);
 			if (domainUid != null) {
 				String dataStreamName = AuditLogStoreConfig.resolveDataStreamName(domainUid);
-				String foundInCache = dataStreamCache.getIfPresent(dataStreamName);
 				try {
-					if (foundInCache == null) {
-						boolean foundInElastic = !esClient.indices().resolveIndex(i -> i.name(dataStreamName))
-								.dataStreams().isEmpty();
-						if (!foundInElastic) {
-							AuditLogLoader auditLogProvider = new AuditLogLoader();
-							auditLogProvider.getManager().setupAuditBackingStoreForDomain(domainUid);
-							dataStreamCache.put(dataStreamName, dataStreamName);
-						}
-					}
 					esClient.index(i -> i.index(dataStreamName).withJson(new ByteArrayInputStream(jsBytes)));
 				} catch (ElasticsearchException e) {
 					if (e.error() != null && "index_not_found_exception".equals(e.error().type())) {

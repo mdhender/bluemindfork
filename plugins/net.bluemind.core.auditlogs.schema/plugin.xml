@@ -7,8 +7,15 @@
             datastream_name="audit_log"
             indextemplatename="auditlogs_template"
             name="auditlogs_template"
-            resource="auditlog_index_template.json"
+            resource="resources/auditlog_index_template.json"
             rewritable="false">
+      </schema>
+   </extension>
+   <extension
+         point="net.bluemind.core.auditlogs.client.es.datastreams.ilmpolicy">
+      <schema
+            name="logs"
+            resource="resources/log_ilm_policy.json">
       </schema>
    </extension>
 

@@ -60,6 +60,8 @@ import net.bluemind.core.auditlogs.exception.AuditLogRemovalException;
 public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 
 	private static final IndexTemplateDefinition indexTemplateDefinition = loadIndexTemplateDefinition();
+	private static final ILMPolicyDefinition ilmPolicyDefinition = loadILMPolicyDefinition();
+
 	private static final String DEFAULT_AUDIT_LOG_DATASTREAM_NAME = "audit_log";
 	private static Logger logger = LoggerFactory.getLogger(DataStreamActivator.class);
 
@@ -93,7 +95,31 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 		return null;
 	}
 
+	private static ILMPolicyDefinition loadILMPolicyDefinition() {
+		IExtensionPoint ep = Platform.getExtensionRegistry()
+				.getExtensionPoint("net.bluemind.core.auditlogs.client.es.datastreams", "ilmpolicy");
+		for (IExtension ext : ep.getExtensions()) {
+			for (IConfigurationElement ce : ext.getConfigurationElements()) {
+				String ilmPolicyName = ce.getAttribute("name");
+				String schema = ce.getAttribute("resource");
+				Bundle bundle = Platform.getBundle(ext.getContributor().getName());
+				URL url = bundle.getResource(schema);
+				try (InputStream in = url.openStream()) {
+					return new ILMPolicyDefinition(ilmPolicyName, ByteStreams.toByteArray(in));
+				} catch (IOException e) {
+					logger.error("Cannot open audit log ILM policy file '{}'", url.getFile());
+					return null;
+				}
+			}
+		}
+		return null;
+	}
+
 	private record IndexTemplateDefinition(String indexTemplateName, byte[] schema) {
+
+	}
+
+	private record ILMPolicyDefinition(String name, byte[] schema) {
 
 	}
 
@@ -113,37 +139,15 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 		}
 	}
 
-	/*
-	 * This method is still used for uprades for 5.0.X pacthes. Must be removed in
-	 * the future
-	 */
-	// TODO SCL : remove
-	@Override
-	public void setupAuditBackingStore() throws AuditLogCreationException {
-		ElasticsearchClient esClient = AudiLogEsClientActivator.get();
-		Optional<IndexTemplateDefinition> optSchema = Optional.ofNullable(indexTemplateDefinition);
-		List<String> currentDataStreams = dataStreamNames(esClient);
-		try {
-			if (!currentDataStreams.contains(DEFAULT_AUDIT_LOG_DATASTREAM_NAME) && optSchema.isPresent()) {
-				initOrUpdateIndexTemplate(esClient, optSchema.get(), DEFAULT_AUDIT_LOG_DATASTREAM_NAME);
-				if (!hasAuditBackingStore()) {
-					initDataStream(esClient, DEFAULT_AUDIT_LOG_DATASTREAM_NAME);
-				}
-			}
-		} catch (ElasticsearchException | IOException e) {
-			throw new AuditLogCreationException(e);
-		}
-	}
-
 	@Override
 	public void setupAuditBackingStoreForDomain(String domainUid) throws AuditLogCreationException {
-
 		ElasticsearchClient esClient = AudiLogEsClientActivator.get();
 		String dataStreamFullName = AuditLogStoreConfig.resolveDataStreamName(domainUid);
 		List<String> currentDataStreams = dataStreamNames(esClient);
 		Optional<IndexTemplateDefinition> optSchema = Optional.ofNullable(indexTemplateDefinition);
 		try {
 			if (!currentDataStreams.contains(dataStreamFullName) && optSchema.isPresent()) {
+				updateILMPolicy(esClient, ilmPolicyDefinition);
 				initOrUpdateIndexTemplate(esClient, optSchema.get(), dataStreamFullName);
 				initDataStream(esClient, dataStreamFullName);
 			}
@@ -200,6 +204,14 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 		byte[] enhancedSchema = jsonSchema.toString().getBytes();
 		esClient.indices().putIndexTemplate(it -> it.name(indexTemplateDefinition.indexTemplateName)
 				.withJson(new ByteArrayInputStream(enhancedSchema)));
+	}
+
+	private static void updateILMPolicy(ElasticsearchClient esClient, ILMPolicyDefinition ilmPolicyDefinition)
+			throws ElasticsearchException, IOException {
+		if (ilmPolicyDefinition != null) {
+			esClient.ilm().putLifecycle(r -> r.name(ilmPolicyDefinition.name)
+					.withJson(new ByteArrayInputStream(ilmPolicyDefinition.schema)));
+		}
 	}
 
 	@VisibleForTesting
