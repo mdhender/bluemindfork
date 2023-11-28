@@ -19,6 +19,7 @@
 package net.bluemind.cti.wazo.system;
 
 import java.io.InputStream;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,8 +36,8 @@ public class WazoSystem extends RegisteredExternalSystem {
 	public static final Logger logger = LoggerFactory.getLogger(WazoSystem.class);
 
 	public WazoSystem() {
-		super("Wazo", "Wazo, An Open Source project to build your own IP telecom platform",
-				AuthKind.SIMPLE_CREDENTIALS);
+		super("Wazo", "Wazo, An Open Source project to build your own IP telecom platform", AuthKind.SIMPLE_CREDENTIALS,
+				Map.of("name", "Wazo"));
 	}
 
 	@Override

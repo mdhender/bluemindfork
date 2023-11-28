@@ -45,7 +45,7 @@
     "preferences.account.external_accounts": "Comptes externes",
     "preferences.account.external_accounts.creation": "Création de comptes externes",
     "preferences.account.external_accounts.creation.desc": "Configurez la connexion à vos services tiers.",
-    "preferences.account.external_accounts.creation.add": "Ajoutez un compte :",
+    "preferences.account.external_accounts.creation.add": "Ajoutez un compte",
     "preferences.account.external_accounts.creation.none": "Aucun compte externe ne peut être configuré.",
     "preferences.account.external_accounts.modal.title.create": "Configurer un compte",
     "preferences.account.external_accounts.modal.title.edit": "Modifier un compte",

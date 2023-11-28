@@ -7,27 +7,21 @@
                 :external-account="editingExternalAccount"
                 @updateExternalAccount="addExternalAccount"
             />
-            <p>{{ $t("preferences.account.external_accounts.creation.desc") }}</p>
-            <p>{{ $t("preferences.account.external_accounts.creation.add") }}</p>
-            <div class="d-flex">
-                <button
+            <p class="regular-medium mb-5">{{ $t("preferences.account.external_accounts.creation.desc") }}</p>
+            <p class="bold mb-5">{{ $t("preferences.account.external_accounts.creation.add") }}</p>
+            <div class="buttons">
+                <bm-button
                     v-for="(externalSystem, index) in externalSystems"
                     :key="index"
                     :disabled="externalAccounts.some(ea => ea.identifier === externalSystem.identifier)"
-                    class="pref-ext-account-creation-button px-3 p-3 m-1 d-flex flex-column justify-content-between"
+                    variant="outline"
                     @click="createExternalAccount(externalSystem)"
                 >
-                    <div class="flex-grow-1 d-flex align-items-center">
-                        <img
-                            :src="externalSystem.logo.src"
-                            :alt="externalSystem.identifier"
-                            :title="externalSystem.description"
-                        />
-                    </div>
-                    <h2 class="mt-3">
-                        {{ externalSystem.identifier }}
-                    </h2>
-                </button>
+                    <template #icon>
+                        <img :src="externalSystem.logo.src" alt="" :title="externalSystem.description" />
+                    </template>
+                    {{ externalSystem.properties["name"] || externalSystem.identifier }}
+                </bm-button>
             </div>
         </template>
         <em v-else>
@@ -38,13 +32,14 @@
 
 <script>
 import { inject } from "@bluemind/inject";
+import { BmButton } from "@bluemind/ui-components";
 import { BaseField } from "@bluemind/preferences";
 import PrefExtAccountModal from "./PrefExtAccountModal";
 import { mapMutations } from "vuex";
 
 export default {
     name: "PrefExtAccountCreation",
-    components: { PrefExtAccountModal },
+    components: { BmButton, PrefExtAccountModal },
     mixins: [BaseField],
     data() {
         return {
@@ -93,7 +88,7 @@ async function fetchExternalSystems() {
                 ...externalSystem,
                 logo: {
                     src: `data:image/png;base64,${logoImageData}`,
-                    alt: externalSystem.identifier,
+                    alt: externalSystem.properties["name"] || externalSystem.identifier,
                     title: externalSystem.description
                 }
             };
@@ -113,7 +108,8 @@ async function fetchAndConsolidateExternalAccounts(externalSystems) {
                       logo: externalSystem.logo,
                       identifier,
                       login: rawExternalAccount.login,
-                      auth: externalSystem.authKind
+                      auth: externalSystem.authKind,
+                      name: externalSystem.properties["name"] || externalSystem.identifier
                   }
                 : undefined;
         })
@@ -121,24 +117,40 @@ async function fetchAndConsolidateExternalAccounts(externalSystems) {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
+@import "~@bluemind/ui-components/src/css/utils/responsiveness";
 @import "~@bluemind/ui-components/src/css/utils/variables";
 
 .pref-ext-account-creation {
-    .pref-ext-account-creation-button {
-        background-color: rgba($blue-500, 0.16);
-        &:focus {
-            outline: 1px $neutral-fg dashed;
-        }
-        &:disabled {
-            background-color: $neutral-bg-lo1;
+    .buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: $sp-5;
+        @include from-lg {
+            gap: $sp-6;
         }
 
-        h2 {
-            color: $neutral-fg-hi1;
-        }
-        &:disabled h2 {
-            color: $neutral-fg-disabled;
+        > .bm-button {
+            width: base-px-to-rem(160);
+            flex: none;
+
+            flex-direction: column;
+            gap: $sp-5 + $sp-3 !important;
+            padding: calc(#{$sp-5 + $sp-3} - 1px) !important;
+            padding-top: calc(#{$sp-6} - 1px) !important;
+
+            .slot-wrapper {
+                width: 100%;
+            }
+
+            img {
+                width: base-px-to-rem(70);
+                height: base-px-to-rem(44);
+            }
+
+            &:disabled img {
+                opacity: 0.5;
+            }
         }
     }
 }

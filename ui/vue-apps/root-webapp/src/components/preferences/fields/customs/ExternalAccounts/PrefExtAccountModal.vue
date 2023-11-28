@@ -14,12 +14,17 @@
         @ok="save"
         @shown="init"
     >
-        <div v-if="externalAccount.identifier" class="d-flex justify-content-center">
+        <div v-if="externalAccount.identifier" class="heading">
             <img
                 :src="externalAccount_.logo && externalAccount_.logo.src"
-                :alt="externalAccount_.identifier"
+                alt=""
                 :title="externalAccount_.description"
             />
+            <h3 class="text-truncate">
+                {{
+                    (externalAccount_.properties && externalAccount_.properties["name"]) || externalAccount_.identifier
+                }}
+            </h3>
         </div>
         <bm-form class="mt-4" @submit.prevent="submit">
             <bm-form-group
@@ -203,6 +208,22 @@ async function testAccount(externalAccount) {
 @import "~@bluemind/ui-components/src/css/utils/variables";
 
 .pref-ext-account-modal-content {
+    .heading {
+        display: flex;
+        gap: $sp-5;
+        align-items: center;
+        padding-bottom: $sp-6;
+
+        > img {
+            flex: none;
+            width: base-px-to-rem(70);
+            height: base-px-to-rem(44);
+        }
+        > h3 {
+            margin: 0;
+        }
+    }
+
     .form-group#authentication-test-group {
         > label {
             margin-bottom: $sp-5;

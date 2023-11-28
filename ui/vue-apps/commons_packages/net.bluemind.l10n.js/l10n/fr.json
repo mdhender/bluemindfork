@@ -131,6 +131,7 @@
     "common.label": "Libellé",
     "common.login": "Identifiant",
     "common.test": "Tester",
+    "common.type": "Type",
     "common.signature": "Signature",
     "common.localisation": "Localisation",
     "common.reload_now": "Recharger maintenant",

@@ -131,6 +131,7 @@
     "common.label": "Bezeichnung",
     "common.login": "Login",
     "common.test": "Test",
+    "common.type": "Art",
     "common.signature": "Signatur",
     "common.localisation": "Lokalisierung",
     "common.reload_now": "Jetzt neu laden",
@@ -388,5 +389,4 @@
     "event": {
         "forward": "Einladung weiterleiten"
     }
-    
 }

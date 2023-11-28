@@ -30,7 +30,8 @@ public class WebexSystem extends RegisteredExternalSystem {
 	private static final String openIdScope = "spark:kms meeting:schedules_read meeting:participants_read meeting:preferences_read meeting:participants_write meeting:schedules_write";
 
 	public WebexSystem() {
-		super(WebexProvider.ID, "WEBEX Video Conferencing", AuthKind.OPEN_ID_PKCE, Map.of("scope", openIdScope));
+		super(WebexProvider.ID, "Webex", AuthKind.OPEN_ID_PKCE,
+				Map.of("scope", openIdScope, "name", WebexProvider.PROVIDER_NAME));
 	}
 
 	@Override

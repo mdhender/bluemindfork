@@ -7,18 +7,18 @@
             @updateExternalAccount="update"
         />
         <template v-if="value && value.length > 0">
-            <bm-table :items="value" :fields="fields" :per-page="5" :current-page="currentPage" sort-by="label">
-                <template #cell(logo)="cell">
-                    <img :src="cell.value.src" :alt="cell.value.identifier" :title="cell.value.description" />
-                </template>
-                <template #cell(identifier)="cell">
-                    <span class="text-neutral">{{ cell.value }}</span>
+            <bm-table :items="value" :fields="fields" :per-page="5" :current-page="currentPage">
+                <template #cell(type)="cell">
+                    <div class="image-and-name">
+                        <img :src="cell.item.logo.src" alt="" :title="cell.item.logo.description" />
+                        <div>{{ cell.item.name }}</div>
+                    </div>
                 </template>
                 <template #cell(login)="cell">
-                    <strong>{{ cell.value }}</strong>
+                    <div class="text-truncate">{{ cell.value }}</div>
                 </template>
                 <template #cell(actions)="cell">
-                    <div class="actions-cell">
+                    <div class="actions">
                         <bm-icon-button variant="compact" icon="pencil" @click="editExternalAccount(cell.item)" />
                         <bm-icon-button variant="compact" icon="trash" @click="confirmRemove(cell.item)" />
                     </div>
@@ -46,10 +46,9 @@ export default {
         return {
             currentPage: 1,
             fields: [
-                { key: "logo", label: "", class: "col-1" },
-                { key: "identifier", label: "", class: "col-3 text-left align-middle" },
-                { key: "login", label: "", class: "col-6 text-left align-middle" },
-                { key: "actions", label: "", class: "col-2" }
+                { key: "type", label: this.$t("common.type"), class: "type-cell" },
+                { key: "login", label: this.$t("common.login"), class: "login-cell" },
+                { key: "actions", label: "", class: "actions-cell" }
             ],
             editingExternalAccount: {}
         };
@@ -150,17 +149,54 @@ function removeExternalAccount(externalAccount) {
 </script>
 
 <style lang="scss">
+@import "~@bluemind/ui-components/src/css/utils/responsiveness";
+@import "~@bluemind/ui-components/src/css/utils/text";
 @import "~@bluemind/ui-components/src/css/utils/variables";
 
 .pref-ext-account-list {
-    img {
-        height: 2.25em;
+    .b-table {
+        max-width: base-px-to-rem(610);
+        table-layout: fixed;
+    }
+
+    .type-cell {
+        width: base-px-to-rem(56);
+        @include from-lg {
+            width: 35%;
+        }
+
+        .image-and-name {
+            display: flex;
+            gap: $sp-4;
+
+            > img {
+                flex: none;
+                width: base-px-to-rem(35);
+                height: base-px-to-rem(22);
+            }
+            > div {
+                @include text-overflow;
+                @include until-lg {
+                    display: none;
+                }
+            }
+        }
+    }
+
+    .login-cell {
+        width: 100%;
+        @include from-lg {
+            width: 65%;
+        }
     }
 
     .actions-cell {
-        display: flex;
-        justify-content: end;
-        gap: $sp-5;
+        width: base-px-to-rem(80);
+
+        .actions {
+            display: flex;
+            gap: $sp-5;
+        }
     }
 }
 </style>

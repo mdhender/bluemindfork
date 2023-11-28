@@ -45,7 +45,7 @@
     "preferences.account.external_accounts": "External accounts",
     "preferences.account.external_accounts.creation": "External account creation",
     "preferences.account.external_accounts.creation.desc": "Manage the connection to your third-party services.",
-    "preferences.account.external_accounts.creation.add": "Add an account:",
+    "preferences.account.external_accounts.creation.add": "Add an account",
     "preferences.account.external_accounts.creation.none": "No external account can be added.",
     "preferences.account.external_accounts.modal.title.create": "Configure an account",
     "preferences.account.external_accounts.modal.title.edit": "Modify an account",

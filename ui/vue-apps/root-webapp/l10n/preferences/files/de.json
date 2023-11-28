@@ -45,7 +45,7 @@
     "preferences.account.external_accounts": "Externe Benutzerkonten",
     "preferences.account.external_accounts.creation": "Externes Benutzerkonto erstellen",
     "preferences.account.external_accounts.creation.desc": "Verbindung zu externen Diensten verwalten.",
-    "preferences.account.external_accounts.creation.add": "Konto hinzufügen:",
+    "preferences.account.external_accounts.creation.add": "Konto hinzufügen",
     "preferences.account.external_accounts.creation.none": "Es kann kein externes Konto hinzugefügt werden.",
     "preferences.account.external_accounts.modal.title.create": "Benutzerkonto konfigurieren",
     "preferences.account.external_accounts.modal.title.edit": "Benutzerkonto bearbeiten",

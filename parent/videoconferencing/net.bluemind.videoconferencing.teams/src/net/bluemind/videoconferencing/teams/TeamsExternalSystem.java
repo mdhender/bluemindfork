@@ -18,6 +18,7 @@
 package net.bluemind.videoconferencing.teams;
 
 import java.io.InputStream;
+import java.util.Map;
 
 import com.google.common.io.ByteStreams;
 
@@ -28,7 +29,8 @@ import net.bluemind.user.api.UserAccount;
 public class TeamsExternalSystem extends RegisteredExternalSystem {
 
 	public TeamsExternalSystem() {
-		super(TeamsProvider.ID, "Video Conferencing, Meetings, Calling", AuthKind.NONE);
+		super(TeamsProvider.ID, "Video Conferencing, Meetings, Calling", AuthKind.NONE,
+				Map.of("name", TeamsProvider.PROVIDER_NAME));
 	}
 
 	@Override

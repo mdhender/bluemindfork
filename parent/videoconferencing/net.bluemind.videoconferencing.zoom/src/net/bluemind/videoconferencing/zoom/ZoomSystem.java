@@ -30,7 +30,7 @@ public class ZoomSystem extends RegisteredExternalSystem {
 	private static final String openIdScope = "meeting:write";
 
 	public ZoomSystem() {
-		super(ZoomProvider.ID, "Zoom Video Conferencing", AuthKind.OPEN_ID_PKCE, Map.of("scope", openIdScope));
+		super(ZoomProvider.ID, "Zoom", AuthKind.OPEN_ID_PKCE, Map.of("scope", openIdScope, "name", "Zoom"));
 	}
 
 	@Override
