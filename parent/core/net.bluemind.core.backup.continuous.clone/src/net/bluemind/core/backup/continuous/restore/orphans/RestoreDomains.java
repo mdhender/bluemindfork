@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import net.bluemind.core.api.auth.AuthDomainProperties;
-import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.backup.continuous.DataElement;
 import net.bluemind.core.backup.continuous.restore.orphans.RestoreTopology.PromotingServer;
 import net.bluemind.core.container.model.ItemValue;
@@ -113,8 +112,7 @@ public class RestoreDomains {
 			TaskRef taskRef = target.instance(IKeycloakAdmin.class).initForDomain("global.virt");
 			ExtendedTaskStatus taskStatus = TaskUtils.wait(target, taskRef);
 			if (!taskStatus.state.succeed) {
-				logger.error("Unable to setup keycloak for {}: task ended in status {}", domain, taskStatus.state);
-				throw new ServerFault("Unable to setup keycloak for domain uid=" + domain.uid + " . Can't continue");
+				logger.warn("Unable to setup keycloak for {}: task ended in status {}", domain, taskStatus.state);
 			}
 			return;
 		}
