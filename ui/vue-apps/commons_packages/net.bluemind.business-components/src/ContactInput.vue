@@ -577,10 +577,14 @@ function isVisible(element) {
         padding-bottom: 0 !important;
     }
 
-    input,
-    input:focus {
-        border: unset;
-        box-shadow: none;
+    .bm-form-input.form-input.outline .form-control {
+        &,
+        &.focus,
+        &:focus {
+            border: unset;
+            box-shadow: none;
+            padding: 0 $sp-5 !important;
+        }
     }
     & > div,
     & > div > span:not(.bm-badge) {
