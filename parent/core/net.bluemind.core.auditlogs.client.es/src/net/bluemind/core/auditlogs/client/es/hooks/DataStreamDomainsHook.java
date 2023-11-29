@@ -36,7 +36,7 @@ public class DataStreamDomainsHook extends DomainHookAdapter {
 		AuditLogLoader auditLogProvider = new AuditLogLoader();
 		logger.info("Create auditlog store for domain: '{}'", domain.uid);
 		try {
-			auditLogProvider.getManager().setupAuditBackingStoreForDomain(domain.uid);
+			auditLogProvider.getManager().setupAuditLogBackingStore(domain.uid);
 		} catch (AuditLogCreationException e) {
 			logger.error("Failed to create auditlog store for domain '{}': {}", domain.uid, e.getMessage());
 		}
@@ -46,6 +46,6 @@ public class DataStreamDomainsHook extends DomainHookAdapter {
 	public void onDeleted(BmContext context, ItemValue<Domain> domain) {
 		AuditLogLoader auditLogProvider = new AuditLogLoader();
 		logger.info("Remove auditlog store for domain: '{}'", domain.uid);
-		auditLogProvider.getManager().removeAuditBackingStoreForDomain(domain.uid);
+		auditLogProvider.getManager().removeAuditLogBackingStore(domain.uid);
 	}
 }

@@ -62,7 +62,6 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 	private static final IndexTemplateDefinition indexTemplateDefinition = loadIndexTemplateDefinition();
 	private static final ILMPolicyDefinition ilmPolicyDefinition = loadILMPolicyDefinition();
 
-	private static final String DEFAULT_AUDIT_LOG_DATASTREAM_NAME = "audit_log";
 	private static Logger logger = LoggerFactory.getLogger(DataStreamActivator.class);
 
 	@Override
@@ -139,18 +138,15 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 		}
 	}
 
+	/*
+	 * Creates datastream and corresponding index template using audit log pattern
+	 * name defined in configuration file auditlog-store.conf
+	 */
 	@Override
-	public void setupAuditBackingStoreForDomain(String domainUid) throws AuditLogCreationException {
-		ElasticsearchClient esClient = AudiLogEsClientActivator.get();
+	public void setupAuditLogBackingStore(String domainUid) throws AuditLogCreationException {
 		String dataStreamFullName = AuditLogStoreConfig.resolveDataStreamName(domainUid);
-		List<String> currentDataStreams = dataStreamNames(esClient);
-		Optional<IndexTemplateDefinition> optSchema = Optional.ofNullable(indexTemplateDefinition);
 		try {
-			if (!currentDataStreams.contains(dataStreamFullName) && optSchema.isPresent()) {
-				updateILMPolicy(esClient, ilmPolicyDefinition);
-				initOrUpdateIndexTemplate(esClient, optSchema.get(), dataStreamFullName);
-				initDataStream(esClient, dataStreamFullName);
-			}
+			createDataStream(dataStreamFullName);
 		} catch (ElasticsearchException | IOException e) {
 			throw new AuditLogCreationException(e);
 		}
@@ -166,15 +162,11 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 		}
 	}
 
-	private static void initDataStream(ElasticsearchClient esClient, String dataStreamName) {
-		try {
-			esClient.indices().createDataStream(d -> d.name(dataStreamName));
-			logger.info("datastream '{}' created, waiting for green...", dataStreamName);
-			esClient.cluster().health(h -> h.index(dataStreamName).waitForStatus(HealthStatus.Green));
-		} catch (Exception e) {
-			logger.error("Cannot init '{}' datastream: {}", dataStreamName, e.getMessage());
-		}
-
+	private static void initDataStream(ElasticsearchClient esClient, String dataStreamName)
+			throws ElasticsearchException, IOException {
+		esClient.indices().createDataStream(d -> d.name(dataStreamName));
+		logger.info("datastream '{}' created, waiting for green...", dataStreamName);
+		esClient.cluster().health(h -> h.index(dataStreamName).waitForStatus(HealthStatus.Green));
 	}
 
 	private static void initOrUpdateIndexTemplate(ElasticsearchClient esClient,
@@ -214,13 +206,16 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 		}
 	}
 
+	/*
+	 * Removes all datastreams and index templates
+	 */
 	@VisibleForTesting
 	@Override
-	public void removeAuditBackingStore() {
+	public void removeAuditLogBackingStores() {
 		ElasticsearchClient esClient = AudiLogEsClientActivator.get();
 		Optional<IndexTemplateDefinition> optSchema = Optional.ofNullable(indexTemplateDefinition);
 		// domainUId is not present, removes datastream root (e.g. audit_log*)
-		String dataStreamName = String.format(AuditLogStoreConfig.getDataStreamName(), "*");
+		String dataStreamName = "*";
 		if (optSchema.isPresent()) {
 			try {
 				removeDataStream(esClient, dataStreamName);
@@ -232,60 +227,74 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 	}
 
 	@Override
-	public void removeAuditBackingStoreForDomain(String domainUid) {
-		String dataStreamName = AuditLogStoreConfig.resolveDataStreamName(domainUid);
-		// TODO SCL : revoir : pas super elegant
-		Optional<IndexTemplateDefinition> optSchema = Optional.ofNullable(indexTemplateDefinition);
-		ElasticsearchClient esClient = AudiLogEsClientActivator.get();
-		if (optSchema.isPresent()) {
-			String indexTemplateName = optSchema.get().indexTemplateName + "_" + domainUid;
-			try {
-				// domainUId is present, removes datastream (e.g. audit_log_devenv.blue)
-				removeDataStream(esClient, dataStreamName);
-				removeIndexTemplate(esClient, indexTemplateName);
-			} catch (AuditLogRemovalException e) {
-				logger.error("Error on audit log store removal for domainUid '{}': {}", domainUid, e.getMessage());
-			}
+	public void removeAuditLogBackingStore(String domainUid) {
+		String dataStreamFullName = AuditLogStoreConfig.resolveDataStreamName(domainUid);
+		try {
+			removeDataStream(dataStreamFullName);
+		} catch (AuditLogRemovalException e) {
+			logger.error("Failed to delete audit log store '{}': {}", dataStreamFullName, e.getMessage());
 		}
 	}
 
 	@Override
-	public boolean hasAuditBackingStoreForDomain(String domainUid) {
-		ElasticsearchClient esClient = AudiLogEsClientActivator.get();
+	public boolean hasAuditLogBackingStore(String domainUid) {
 		String dataStreamName = AuditLogStoreConfig.resolveDataStreamName(domainUid);
 		try {
-			return !esClient.indices().resolveIndex(i -> i.name(dataStreamName)).dataStreams().isEmpty();
+			return hasDataStream(dataStreamName);
 		} catch (ElasticsearchException | IOException e) {
 			logger.error(e.getMessage());
 			return false;
 		}
 	}
 
-	private boolean hasAuditBackingStore() {
+	/*
+	 * Creates datastream and index template using datastream full name defined as
+	 * method argument
+	 */
+	public void createDataStream(String dataStreamFullName) throws ElasticsearchException, IOException {
 		ElasticsearchClient esClient = AudiLogEsClientActivator.get();
-		try {
-			return !esClient.indices().resolveIndex(i -> i.name(DEFAULT_AUDIT_LOG_DATASTREAM_NAME)).dataStreams()
-					.isEmpty();
-		} catch (ElasticsearchException | IOException e) {
-			logger.error(e.getMessage());
-			return false;
+		List<String> currentDataStreams = dataStreamNames(esClient);
+		Optional<IndexTemplateDefinition> optSchema = Optional.ofNullable(indexTemplateDefinition);
+		if (!currentDataStreams.contains(dataStreamFullName) && optSchema.isPresent()) {
+			updateILMPolicy(esClient, ilmPolicyDefinition);
+			initOrUpdateIndexTemplate(esClient, optSchema.get(), dataStreamFullName);
+			initDataStream(esClient, dataStreamFullName);
 		}
+	}
+
+	@VisibleForTesting
+	public void removeDataStream(String dataStreamFullName) throws AuditLogRemovalException {
+		ElasticsearchClient esClient = AudiLogEsClientActivator.get();
+		Optional<IndexTemplateDefinition> optSchema = Optional.ofNullable(indexTemplateDefinition);
+		// domainUId is not present, removes datastream root (e.g. audit_log*)
+		String dataStreamName = String.format(AuditLogStoreConfig.getDataStreamName(), "*");
+		if (optSchema.isPresent()) {
+			removeDataStream(esClient, dataStreamName);
+			removeIndexTemplate(esClient, optSchema.get().indexTemplateName);
+		}
+	}
+
+	public boolean hasDataStream(String dataStreamFullName) throws ElasticsearchException, IOException {
+		ElasticsearchClient esClient = AudiLogEsClientActivator.get();
+		return !esClient.indices().resolveIndex(i -> i.name(dataStreamFullName)).dataStreams().isEmpty();
 	}
 
 	private static void removeDataStream(ElasticsearchClient esClient, String dataStreamName)
 			throws AuditLogRemovalException {
-		try {
-
-			esClient.indices().deleteDataStream(d -> d.name(Arrays.asList(dataStreamName)));
-			logger.info("datastream '{}' deleted.", dataStreamName);
-		} catch (ElasticsearchException e) {
-			if (e.error() != null && "index_not_found_exception".equals(e.error().type())) {
-				logger.warn("dataStream '{}' not found, can't be delete", dataStreamName);
-				return;
+		Optional<IndexTemplateDefinition> optSchema = Optional.ofNullable(indexTemplateDefinition);
+		if (optSchema.isPresent()) {
+			try {
+				esClient.indices().deleteDataStream(d -> d.name(Arrays.asList(dataStreamName)));
+				logger.info("datastream '{}' deleted.", dataStreamName);
+			} catch (ElasticsearchException e) {
+				if (e.error() != null && "index_not_found_exception".equals(e.error().type())) {
+					logger.warn("dataStream '{}' not found, can't be delete", dataStreamName);
+					return;
+				}
+				throw new AuditLogRemovalException(e);
+			} catch (IOException e) {
+				throw new AuditLogRemovalException(e);
 			}
-			throw new AuditLogRemovalException(e);
-		} catch (IOException e) {
-			throw new AuditLogRemovalException(e);
 		}
 	}
 
@@ -294,7 +303,6 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 		try {
 			esClient.indices().deleteIndexTemplate(it -> it.name(Arrays.asList(indexTemplateName)));
 			logger.info("index template '{}' deleted.", indexTemplateName);
-
 		} catch (ElasticsearchException e) {
 			if (e.error() != null && "index_template_missing_exception".equals(e.error().type())) {
 				logger.warn("index template '{}' not found, can't be delete", indexTemplateName);

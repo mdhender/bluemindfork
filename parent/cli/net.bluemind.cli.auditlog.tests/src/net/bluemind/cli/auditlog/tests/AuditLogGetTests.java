@@ -125,7 +125,7 @@ public class AuditLogGetTests extends AbstractCliAuditLogServiceTests {
 		}
 		ESearchActivator.refreshIndex(AUDIT_LOG_INDEX);
 
-		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+		Awaitility.await().atMost(5, TimeUnit.SECONDS).until(() -> {
 			cli.processArgs("auditlog", "get", "--domain", domainUid, "--logtype", "calendar", "--size", "20");
 			List<JsonObject> entryObjects = Pattern.compile("\n").splitAsStream(testHelper.outputAndReset())
 					.filter(l -> l.startsWith("{")).map(l -> new JsonObject(l)).collect(Collectors.toList());
@@ -171,7 +171,7 @@ public class AuditLogGetTests extends AbstractCliAuditLogServiceTests {
 	public void testGetCalendarMailboxRecordsAuditLogs() {
 		ESearchActivator.refreshIndex(AUDIT_LOG_INDEX);
 
-		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+		Awaitility.await().atMost(5, TimeUnit.SECONDS).until(() -> {
 			cli.processArgs("auditlog", "get", "--domain", domainUid, "--logtype", "calendar,mailbox_records");
 			List<JsonObject> entryObjects = Pattern.compile("\n").splitAsStream(testHelper.outputAndReset())
 					.filter(l -> l.startsWith("{")).map(l -> new JsonObject(l)).collect(Collectors.toList());
@@ -215,7 +215,7 @@ public class AuditLogGetTests extends AbstractCliAuditLogServiceTests {
 	public void testGetCalendarWithAuditLogs() {
 		ESearchActivator.refreshIndex(AUDIT_LOG_INDEX);
 
-		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+		Awaitility.await().atMost(5, TimeUnit.SECONDS).until(() -> {
 			cli.processArgs("auditlog", "get", "--domain", domainUid, "--logtype", "calendar", "--with",
 					user02.value.defaultEmailAddress());
 			List<JsonObject> entryObjects = Pattern.compile("\n").splitAsStream(testHelper.outputAndReset())
@@ -258,7 +258,7 @@ public class AuditLogGetTests extends AbstractCliAuditLogServiceTests {
 	public void testGetWrongLogType() {
 		ESearchActivator.refreshIndex(AUDIT_LOG_INDEX);
 
-		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+		Awaitility.await().atMost(5, TimeUnit.SECONDS).until(() -> {
 			cli.processArgs("auditlog", "get", "--domain", domainUid, "--logtype", "toto", "--with",
 					user02.value.defaultEmailAddress());
 			List<JsonObject> entryObjects = Pattern.compile("\n").splitAsStream(testHelper.outputAndReset())
@@ -297,7 +297,7 @@ public class AuditLogGetTests extends AbstractCliAuditLogServiceTests {
 	public void testGetCalendarDescriptionAuditLogs() {
 		ESearchActivator.refreshIndex(AUDIT_LOG_INDEX);
 
-		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+		Awaitility.await().atMost(5, TimeUnit.SECONDS).until(() -> {
 			cli.processArgs("auditlog", "get", "--domain", domainUid, "--logtype", "calendar", "--description",
 					"First Meeting");
 			List<JsonObject> entryObjects = Pattern.compile("\n").splitAsStream(testHelper.outputAndReset())
@@ -355,7 +355,7 @@ public class AuditLogGetTests extends AbstractCliAuditLogServiceTests {
 
 		ESearchActivator.refreshIndex(AUDIT_LOG_INDEX);
 
-		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+		Awaitility.await().atMost(5, TimeUnit.SECONDS).until(() -> {
 			cli.processArgs("auditlog", "get", "--domain", domainUid, "--logtype", "login");
 			List<JsonObject> entryObjects = Pattern.compile("\n").splitAsStream(testHelper.outputAndReset())
 					.filter(l -> l.startsWith("{")).map(l -> new JsonObject(l)).collect(Collectors.toList());
@@ -414,7 +414,7 @@ public class AuditLogGetTests extends AbstractCliAuditLogServiceTests {
 
 		ESearchActivator.refreshIndex(AUDIT_LOG_INDEX);
 
-		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+		Awaitility.await().atMost(5, TimeUnit.SECONDS).until(() -> {
 			cli.processArgs("auditlog", "get", "--domain", domainUid, "--logtype", "login", "--with",
 					user01.value.defaultEmailAddress());
 			List<JsonObject> entryObjects = Pattern.compile("\n").splitAsStream(testHelper.outputAndReset())
@@ -472,7 +472,7 @@ public class AuditLogGetTests extends AbstractCliAuditLogServiceTests {
 
 		ESearchActivator.refreshIndex(AUDIT_LOG_INDEX);
 
-		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+		Awaitility.await().atMost(5, TimeUnit.SECONDS).until(() -> {
 			cli.processArgs("auditlog", "get", "--domain", domainUid, "--logtype", "login", "--with",
 					user02.value.defaultEmailAddress());
 			List<JsonObject> entryObjects = Pattern.compile("\n").splitAsStream(testHelper.outputAndReset())

@@ -32,7 +32,6 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
-import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.auditlogs.IAuditLogMgmt;
 import net.bluemind.core.auditlogs.client.loader.AuditLogLoader;
 import net.bluemind.core.context.SecurityContext;
@@ -88,13 +87,13 @@ public class DataStreamConsistencyMaintenanceTests {
 	}
 
 	@Test
-	public void testMaintenanceDataStreamConsistency() throws ServerFault {
+	public void testMaintenanceDataStreamConsistency() throws Exception {
 
 		// Remove datastream for domainUid1
-		auditLogManager.removeAuditBackingStoreForDomain(domainUid1);
+		auditLogManager.removeAuditLogBackingStore(domainUid1);
 
 		// Asserts datastream has been removed
-		assertFalse(auditLogManager.hasAuditBackingStoreForDomain(domainUid1));
+		assertFalse(auditLogManager.hasAuditLogBackingStore(domainUid1));
 
 		List<IMaintenanceScript> scripts = MaintenanceScripts.getMaintenanceScripts();
 		scripts.stream().forEach(s -> System.err.println(s.getClass().getSimpleName()));
@@ -112,7 +111,7 @@ public class DataStreamConsistencyMaintenanceTests {
 		}
 		assertEquals(analyzeRuns, 1);
 
-		assertTrue(auditLogManager.hasAuditBackingStoreForDomain(domainUid1));
+		assertTrue(auditLogManager.hasAuditLogBackingStore(domainUid1));
 	}
 
 }

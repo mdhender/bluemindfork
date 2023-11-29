@@ -108,7 +108,7 @@ public class ElasticsearchTestHelper implements BundleActivator {
 		}
 		try {
 			AuditLogLoader auditLogProvider = new AuditLogLoader();
-			auditLogProvider.getManager().removeAuditBackingStore();
+			auditLogProvider.getManager().removeAuditLogBackingStores();
 		} catch (Exception e) {
 		}
 	}
@@ -120,7 +120,7 @@ public class ElasticsearchTestHelper implements BundleActivator {
 			deleteAll();
 			ESearchActivator.resetIndexes();
 			AuditLogLoader auditLogProvider = new AuditLogLoader();
-			auditLogProvider.getManager().removeAuditBackingStore();
+			auditLogProvider.getManager().removeAuditLogBackingStores();
 			// Force elasticsearch to go on the edge
 			ESearchActivator.getClient().cluster()
 					.putSettings(sb -> sb

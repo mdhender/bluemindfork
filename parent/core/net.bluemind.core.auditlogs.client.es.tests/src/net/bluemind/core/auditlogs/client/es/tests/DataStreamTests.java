@@ -37,6 +37,7 @@ import co.elastic.clients.elasticsearch.ilm.Phase;
 import co.elastic.clients.elasticsearch.ilm.get_lifecycle.Lifecycle;
 import net.bluemind.core.auditlogs.client.es.datastreams.DataStreamActivator;
 import net.bluemind.core.auditlogs.exception.AuditLogCreationException;
+import net.bluemind.core.auditlogs.exception.AuditLogRemovalException;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.context.SecurityContext;
@@ -98,7 +99,7 @@ public class DataStreamTests {
 	@Test
 	public void createDataStream() throws AuditLogCreationException, IOException {
 		dataStreamActivator = new DataStreamActivator();
-		dataStreamActivator.setupAuditBackingStoreForDomain(domainUid);
+		dataStreamActivator.setupAuditLogBackingStore(domainUid);
 		boolean isDataStream = !esClient.indices()
 				.resolveIndex(r -> r.name(AUDIT_LOG_DATASTREAM_PREFIX + "_" + domainUid)).dataStreams().isEmpty();
 		assertTrue(isDataStream);
@@ -107,7 +108,7 @@ public class DataStreamTests {
 	@Test
 	public void checkILMPolicy() throws AuditLogCreationException, IOException {
 		dataStreamActivator = new DataStreamActivator();
-		dataStreamActivator.setupAuditBackingStoreForDomain(domainUid);
+		dataStreamActivator.setupAuditLogBackingStore(domainUid);
 		Lifecycle lifeCycle = esClient.ilm().getLifecycle(b -> b.name("logs")).result().get("logs");
 		assertNotNull(lifeCycle);
 		Phase deletePhase = lifeCycle.policy().phases().delete();
@@ -115,10 +116,11 @@ public class DataStreamTests {
 	}
 
 	@Test
-	public void removeDataStreamForNameAndDomain() throws AuditLogCreationException, IOException {
+	public void removeDataStreamForNameAndDomain()
+			throws AuditLogCreationException, IOException, AuditLogRemovalException {
 		dataStreamActivator = new DataStreamActivator();
-		dataStreamActivator.setupAuditBackingStoreForDomain(domainUid);
-		dataStreamActivator.setupAuditBackingStoreForDomain(domainUid01);
+		dataStreamActivator.setupAuditLogBackingStore(domainUid);
+		dataStreamActivator.setupAuditLogBackingStore(domainUid01);
 		boolean isDataStream = !esClient.indices()
 				.resolveIndex(r -> r.name(AUDIT_LOG_DATASTREAM_PREFIX + "_" + domainUid)).dataStreams().isEmpty();
 		boolean isDataStream01 = !esClient.indices()
@@ -126,7 +128,7 @@ public class DataStreamTests {
 		assertTrue(isDataStream);
 		assertTrue(isDataStream01);
 
-		dataStreamActivator.removeAuditBackingStoreForDomain(domainUid);
+		dataStreamActivator.removeAuditLogBackingStore(domainUid);
 		isDataStream = !esClient.indices().resolveIndex(r -> r.name(AUDIT_LOG_DATASTREAM_PREFIX + "_" + domainUid))
 				.dataStreams().isEmpty();
 		assertFalse(isDataStream);
@@ -136,8 +138,8 @@ public class DataStreamTests {
 	@Test
 	public void removeDataStreamForName() throws AuditLogCreationException, IOException {
 		dataStreamActivator = new DataStreamActivator();
-		dataStreamActivator.setupAuditBackingStoreForDomain(domainUid);
-		dataStreamActivator.setupAuditBackingStoreForDomain(domainUid01);
+		dataStreamActivator.setupAuditLogBackingStore(domainUid);
+		dataStreamActivator.setupAuditLogBackingStore(domainUid01);
 		boolean isDataStream = !esClient.indices()
 				.resolveIndex(r -> r.name(AUDIT_LOG_DATASTREAM_PREFIX + "_" + domainUid)).dataStreams().isEmpty();
 		boolean isDataStream01 = !esClient.indices()
@@ -145,7 +147,7 @@ public class DataStreamTests {
 		assertTrue(isDataStream);
 		assertTrue(isDataStream01);
 
-		dataStreamActivator.removeAuditBackingStore();
+		dataStreamActivator.removeAuditLogBackingStores();
 		isDataStream = !esClient.indices().resolveIndex(r -> r.name(AUDIT_LOG_DATASTREAM_PREFIX + "_" + domainUid))
 				.dataStreams().isEmpty();
 		isDataStream01 = !esClient.indices().resolveIndex(r -> r.name(AUDIT_LOG_DATASTREAM_PREFIX + "_" + domainUid01))

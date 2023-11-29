@@ -27,25 +27,25 @@ public final class NoopAuditLogManager implements IAuditLogMgmt {
 	public static final IAuditLogMgmt INSTANCE = new NoopAuditLogManager();
 
 	@Override
-	public void setupAuditBackingStoreForDomain(String domainUid) throws AuditLogCreationException {
+	public void setupAuditLogBackingStore(String domainUid) throws AuditLogCreationException {
 		//
 
 	}
 
 	@Override
-	public void removeAuditBackingStore() {
+	public void removeAuditLogBackingStores() {
 		//
 
 	}
 
 	@Override
-	public void removeAuditBackingStoreForDomain(String domainUid) {
+	public void removeAuditLogBackingStore(String domainUid) {
 		//
 
 	}
 
 	@Override
-	public boolean hasAuditBackingStoreForDomain(String domainUid) {
+	public boolean hasAuditLogBackingStore(String domainUid) {
 		return false;
 	}
 

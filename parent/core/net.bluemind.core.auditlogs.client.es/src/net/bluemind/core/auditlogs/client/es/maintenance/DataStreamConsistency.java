@@ -44,11 +44,11 @@ public class DataStreamConsistency implements IMaintenanceScript {
 		AuditLogLoader auditLogProvider = new AuditLogLoader();
 		domainsService.all().forEach(d -> {
 			String dataStreamFullName = AUDIT_LOG_PREFIX + SEPARATOR + d.uid;
-			boolean isDataStream = auditLogProvider.getManager().hasAuditBackingStoreForDomain(d.uid);
+			boolean isDataStream = auditLogProvider.getManager().hasAuditLogBackingStore(d.uid);
 			if (!isDataStream) {
 				logger.info("Datastream '{}' does not exist : must be created", dataStreamFullName);
 				try {
-					auditLogProvider.getManager().setupAuditBackingStoreForDomain(d.uid);
+					auditLogProvider.getManager().setupAuditLogBackingStore(d.uid);
 				} catch (AuditLogCreationException e) {
 					monitor.log("error exexuting " + name() + ": " + e);
 					monitor.end(false, null, e.getMessage());

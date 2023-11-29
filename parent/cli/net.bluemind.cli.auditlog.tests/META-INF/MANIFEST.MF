@@ -43,7 +43,8 @@ Require-Bundle: org.eclipse.osgi,
  net.bluemind.calendar.auditlog,
  net.bluemind.core.auditlog,
  net.bluemind.attachment.api,
- net.bluemind.core.auditlogs.client.loader
+ net.bluemind.core.auditlogs.client.loader,
+ net.bluemind.core.auditlogs.client.es
 Bundle-Vendor: net.bluemind
 Automatic-Module-Name: net.bluemind.cli.auditlog.tests
 Bundle-ActivationPolicy: lazy

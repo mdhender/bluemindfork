@@ -23,11 +23,15 @@ import net.bluemind.core.auditlogs.exception.AuditLogCreationException;
 
 public interface IAuditLogMgmt {
 
-	public void setupAuditBackingStoreForDomain(String domainUid) throws AuditLogCreationException;
+	/*
+	 * Creates a datastream using datastream name pattern defined in
+	 * auditlog-store.conf file
+	 */
+	public void setupAuditLogBackingStore(String domainUid) throws AuditLogCreationException;
 
-	public void removeAuditBackingStore();
+	public void removeAuditLogBackingStores();
 
-	public void removeAuditBackingStoreForDomain(String domainUid);
+	public void removeAuditLogBackingStore(String domainUid);
 
-	public boolean hasAuditBackingStoreForDomain(String domainUid);
+	public boolean hasAuditLogBackingStore(String domainUid);
 }
