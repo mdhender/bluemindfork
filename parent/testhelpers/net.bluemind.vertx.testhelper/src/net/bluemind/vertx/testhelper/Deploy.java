@@ -57,7 +57,7 @@ public class Deploy {
 	 */
 	@SafeVarargs
 	public static CompletableFuture<Set<String>> verticles(boolean worker, Supplier<Verticle>... classes) {
-		return verticles(worker, Arrays.asList(classes));
+		return verticles(worker, Arrays.asList(classes), 1);
 	}
 
 	/**
@@ -67,15 +67,16 @@ public class Deploy {
 	 * @param classes
 	 * @return
 	 */
-	public static CompletableFuture<Set<String>> verticles(boolean worker, Collection<Supplier<Verticle>> classes) {
+	public static CompletableFuture<Set<String>> verticles(boolean worker, Collection<Supplier<Verticle>> classes,
+			int instances) {
 		DoneHandler<String> done = new DoneHandler<>(classes.size());
 
 		for (Supplier<Verticle> sup : classes) {
 			if (worker) {
-				VertxPlatform.getVertx().deployVerticle(sup, new DeploymentOptions().setWorker(true).setInstances(1),
-						done);
+				VertxPlatform.getVertx().deployVerticle(sup,
+						new DeploymentOptions().setWorker(true).setInstances(instances), done);
 			} else {
-				VertxPlatform.getVertx().deployVerticle(sup, new DeploymentOptions().setInstances(1), done);
+				VertxPlatform.getVertx().deployVerticle(sup, new DeploymentOptions().setInstances(instances), done);
 			}
 		}
 		return done.promise();

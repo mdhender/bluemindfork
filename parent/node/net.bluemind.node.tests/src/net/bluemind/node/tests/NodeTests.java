@@ -38,6 +38,7 @@ import java.nio.file.attribute.PosixFilePermissions;
 import java.nio.file.attribute.UserPrincipal;
 import java.nio.file.attribute.UserPrincipalLookupService;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -46,6 +47,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -87,7 +90,7 @@ public class NodeTests {
 
 	@BeforeClass
 	public static void beforeClass() throws Exception {
-		Deploy.verticles(false, BlueMindUnsecureNode::new).get(5, TimeUnit.SECONDS);
+		Deploy.verticles(false, Collections.singletonList(BlueMindUnsecureNode::new), 8).get(5, TimeUnit.SECONDS);
 		Deploy.verticles(true, SysCommand::new).get(5, TimeUnit.SECONDS);
 		factory = new OkHttpNodeClientFactory();
 	}
@@ -144,6 +147,27 @@ public class NodeTests {
 	public void testExist() throws ServerFault, IOException {
 		assertTrue(nc.exists("/etc/resolv.conf"));
 		assertFalse(nc.exists("/etc/commando.dans.ton.q.sj.conf"));
+	}
+
+	@Test
+	public void testManyReadStream() throws ServerFault {
+		try (ExecutorService pool = Executors.newFixedThreadPool(4)) {
+
+			CompletableFuture<?>[] concurrent = new CompletableFuture<?>[65535];
+			for (int i = 0; i < concurrent.length; i++) {
+				concurrent[i] = CompletableFuture.supplyAsync(() -> {
+					try (InputStream resolv = nc.openStream("/etc/resolv.conf")) {
+						assertNotNull(resolv);
+						byte[] content = ByteStreams.toByteArray(resolv);
+						assertTrue(content.length > 0);
+						return content.length;
+					} catch (Exception e) {
+						throw new ServerFault(e);
+					}
+				}, pool);
+			}
+			CompletableFuture.allOf(concurrent).orTimeout(5, TimeUnit.SECONDS).join();
+		}
 	}
 
 	@Test

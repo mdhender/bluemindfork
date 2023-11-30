@@ -42,6 +42,8 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.INodeClientFactory;
 import net.bluemind.node.client.impl.okhttp.OkHttpNodeClient;
+import okhttp3.ConnectionPool;
+import okhttp3.Dispatcher;
 import okhttp3.OkHttpClient;
 import okhttp3.OkHttpClient.Builder;
 import okhttp3.Request;
@@ -89,6 +91,15 @@ public class OkHttpNodeClientFactory implements INodeClientFactory {
 		}
 		builder.followRedirects(false);
 		builder.callTimeout(1, TimeUnit.HOURS);
+
+		ConnectionPool pool = new ConnectionPool(8, 30, TimeUnit.SECONDS);
+		builder.connectionPool(pool);
+
+		Dispatcher dispatcher = new Dispatcher();
+		dispatcher.setMaxRequests(256);
+		dispatcher.setMaxRequestsPerHost(16);
+		builder.dispatcher(dispatcher);
+
 		builder.retryOnConnectionFailure(false);
 		builder.hostnameVerifier((h, s) -> true);// NOSONAR
 		OkHttpClient client = builder.build();
