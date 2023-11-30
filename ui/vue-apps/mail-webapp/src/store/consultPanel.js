@@ -153,7 +153,7 @@ function getCalendarUid(owner, isRessource) {
 async function isCalendarWritable(calendarUid) {
     const { userId } = inject("UserSession");
     if (calendarUid === getCalendarUid(userId)) {
-        return [Verb.Read, Verb.Write];
+        return true;
     }
     return inject("ContainerManagementPersistence", calendarUid).canAccess([Verb.Write]);
 }

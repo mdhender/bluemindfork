@@ -14,7 +14,6 @@ public class TestMail {
 	public Set<String> to = new HashSet<>();
 
 	public static TestMail fromMessage(Message m) {
-//		m.getHeader().get
 		TestMail testMail = new TestMail();
 		testMail.message = m;
 		testMail.from = m.getFrom().get(0).getAddress();

@@ -17,6 +17,7 @@ describe("Event request insert", () => {
         eventRequest = mount(EventRequest, {
             propsData: {
                 event: {
+                    attendee: { commonName: "any attendee" },
                     isWritable: true,
                     status: "NO STATUS YET"
                 },
@@ -43,9 +44,6 @@ describe("Event request insert", () => {
     const getDetail = () => eventRequest.find(".event-detail");
     const getFooter = () => eventRequest.find(".event-footer");
 
-    it("is a vue Instance", () => {
-        expect(eventRequest.vm).toBeDefined();
-    });
     it("should have a button to accept the event", () => {
         expect(getAcceptButton().text()).toEqual("accept");
     });
@@ -93,6 +91,24 @@ describe("Event request insert", () => {
                 $tc: path => path.split(".").pop()
             }
         });
+
         expect(eventRequestUnwritable.find(".reply-buttons").exists()).not.toBeTruthy();
+    });
+
+    describe("Resource Booking", () => {
+        it("should not have header when event Request has no attendee ", () => {
+            const wrapper = mount(EventRequest, {
+                propsData: {
+                    message: {},
+                    event: {
+                        isWritable: true,
+                        status: "",
+                        attendee: undefined
+                    }
+                },
+                mocks: { $t: () => "", $tc: () => "" }
+            });
+            expect(wrapper.find(".event-header").exists()).not.toBeTruthy();
+        });
     });
 });
