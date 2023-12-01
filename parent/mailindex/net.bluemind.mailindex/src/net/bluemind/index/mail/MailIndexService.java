@@ -127,13 +127,19 @@ public class MailIndexService implements IMailIndexService {
 
 	private Registry metricRegistry;
 	private IdFactory idFactory;
+	private final IndexAliasMapping indexAliasMapping;
 
-	public String getIndexAliasName(String entityId) {
-		return "mailspool_alias_" + entityId;
+	public String getReadIndexAliasName(String entityId) {
+		return indexAliasMapping.getReadAliasByMailboxUid(entityId);
+	}
+
+	public String getWriteIndexAliasName(String entityId) {
+		return indexAliasMapping.getWriteAliasByMailboxUid(entityId);
 	}
 
 	public MailIndexService() {
 		metricRegistry = MetricsRegistry.get();
+		indexAliasMapping = IndexAliasMapping.get();
 		idFactory = new IdFactory("mailindex-service", metricRegistry, MailIndexService.class);
 
 		VertxPlatform.executeBlockingPeriodic(TimeUnit.HOURS.toMillis(1), i -> getStats());
@@ -199,14 +205,14 @@ public class MailIndexService implements IMailIndexService {
 
 	@Override
 	public long resetMailboxIndex(String mailboxUid) {
-		String index = getIndexAliasName(mailboxUid);
+		String index = getWriteIndexAliasName(mailboxUid);
 		return bulkDelete(index, q -> q.term(t -> t.field("owner").value(mailboxUid)));
 	}
 
 	@Override
 	public void deleteBox(ItemValue<Mailbox> box, String folderUid) {
 		ElasticsearchClient esClient = getIndexClient();
-		String boxAlias = getIndexAliasName(box.uid);
+		String boxAlias = getWriteIndexAliasName(box.uid);
 		getUserAliasIndex(boxAlias, esClient).ifPresentOrElse(boxIndex -> {
 			long count = bulkDelete(boxAlias, q -> q.term(t -> t.field("in").value(folderUid)));
 			logger.info("deleteBox {}:{} :  {} deleted", box.uid, folderUid, count);
@@ -218,7 +224,7 @@ public class MailIndexService implements IMailIndexService {
 
 	private long deleteSet(ItemValue<Mailbox> box, ItemValue<MailboxFolder> f, IDSet set) {
 		ElasticsearchClient esClient = getIndexClient();
-		String boxAlias = getIndexAliasName(box.uid);
+		String boxAlias = getWriteIndexAliasName(box.uid);
 		return getUserAliasIndex(boxAlias, esClient).map(boxIndex -> {
 			long deletedCount = 0;
 			Iterator<IDRange> iter = set.iterator();
@@ -312,7 +318,7 @@ public class MailIndexService implements IMailIndexService {
 		MailboxRecord mail = item.value;
 		String parentUid = mail.messageBody;
 		String id = mailboxUniqueId + ":" + item.internalId;
-		String userAlias = getIndexAliasName(user);
+		String userAlias = getWriteIndexAliasName(user);
 		Set<String> is = MessageFlagsHelper.asFlags(mail.flags);
 
 		Map<String, Object> parentDoc = Optional //
@@ -458,7 +464,7 @@ public class MailIndexService implements IMailIndexService {
 	private List<MailSummary> fetchSummary(Query query, String entityId) {
 		final ElasticsearchClient esClient = getIndexClient();
 
-		String index = getIndexAliasName(entityId);
+		String index = getReadIndexAliasName(entityId);
 		QueryBuilders.bool().must( //
 				QueryBuilders.exists(e -> e.field("uid")), //
 				QueryBuilders.exists(e -> e.field("is")), //
@@ -510,7 +516,7 @@ public class MailIndexService implements IMailIndexService {
 			return;
 		}
 		ElasticsearchClient esClient = getIndexClient();
-		String boxAlias = getIndexAliasName(box.uid);
+		String boxAlias = getWriteIndexAliasName(box.uid);
 		new EsBulk(esClient).commitAll(mails, (mail, b) -> b.update(u -> u //
 				.index(boxAlias) //
 				.routing(mail.parentId) //
@@ -521,7 +527,7 @@ public class MailIndexService implements IMailIndexService {
 	@Override
 	public long getMailboxConsumedStorage(String userEntityId, ByteSizeUnit bsu) {
 		final ElasticsearchClient esClient = getIndexClient();
-		String index = getIndexAliasName(userEntityId);
+		String index = getReadIndexAliasName(userEntityId);
 		try {
 			SearchResponse<Void> response = esClient.search(s -> s //
 					.index(index) //
@@ -546,7 +552,7 @@ public class MailIndexService implements IMailIndexService {
 			return new MailspoolStats(esClient).countAllFolders(entityId, 100, query) //
 					.stream().map(FolderCount::folderUid).collect(Collectors.toSet());
 		} catch (ElasticsearchException | IOException e) {
-			throw new ElasticDocumentException(getIndexAliasName(entityId), e);
+			throw new ElasticDocumentException(getReadIndexAliasName(entityId), e);
 		}
 	}
 
@@ -559,7 +565,7 @@ public class MailIndexService implements IMailIndexService {
 	public void deleteMailbox(String entityId) {
 		final ElasticsearchClient esClient = getIndexClient();
 		resetMailboxIndex(entityId);
-		String boxAlias = getIndexAliasName(entityId);
+		String boxAlias = getWriteIndexAliasName(entityId);
 		try {
 			esClient.indices().updateAliases(u -> u //
 					.actions(a -> a.remove(r -> r.index("mailspool*").alias(boxAlias))));
@@ -585,7 +591,7 @@ public class MailIndexService implements IMailIndexService {
 			return;
 		}
 
-		String boxAlias = getIndexAliasName(mailboxUid);
+		String boxAlias = getWriteIndexAliasName(mailboxUid);
 		boolean aliasExists = getUserAliasIndex(boxAlias, esClient).isPresent();
 		try {
 			if (!aliasExists && esClient.indices().exists(e -> e.index(boxAlias)).value()) {
@@ -602,7 +608,8 @@ public class MailIndexService implements IMailIndexService {
 
 				logger.info("create alias {} from {} ", boxAlias, indexName);
 				esClient.indices().updateAliases(u -> u.actions(a -> a.add(ad -> ad //
-						.index(indexName).alias(boxAlias).filter(f -> f.term(t -> t.field("owner").value(mailboxUid))))));
+						.index(indexName).alias(boxAlias)
+						.filter(f -> f.term(t -> t.field("owner").value(mailboxUid))))));
 			}
 		} catch (ElasticsearchException | IOException e) {
 			throw new ElasticIndexException(boxAlias, e);
@@ -617,7 +624,7 @@ public class MailIndexService implements IMailIndexService {
 			return true;
 		}
 
-		return getUserAliasIndex(getIndexAliasName(entityId), esClient).isPresent();
+		return getUserAliasIndex(getReadIndexAliasName(entityId), esClient).isPresent();
 	}
 
 	@Override
@@ -626,7 +633,7 @@ public class MailIndexService implements IMailIndexService {
 		createMailspoolIfNotExists(indexName, esClient);
 
 		// retrieve "from" indexName
-		getUserAliasIndex(getIndexAliasName(mailboxUid), esClient).ifPresentOrElse(fromIndex -> {
+		getUserAliasIndex(getWriteIndexAliasName(mailboxUid), esClient).ifPresentOrElse(fromIndex -> {
 			// bulk copy mails
 			moveMailspoolBox(esClient, mailboxUid, fromIndex, indexName);
 			// move alias
@@ -706,7 +713,7 @@ public class MailIndexService implements IMailIndexService {
 	}
 
 	private void moveBoxAlias(ElasticsearchClient esClient, String mailboxUid, String fromIndex, String indexName) {
-		String boxAlias = getIndexAliasName(mailboxUid);
+		String boxAlias = getWriteIndexAliasName(mailboxUid);
 		try {
 			esClient.indices().updateAliases(u -> u //
 					.actions(a -> a.remove(r -> r.index(fromIndex).alias(boxAlias))) //
@@ -795,7 +802,7 @@ public class MailIndexService implements IMailIndexService {
 		try {
 			String randomToken = Long.toHexString(Double.doubleToLongBits(Math.random()));
 			SearchResponse<Void> results = esClient.search(s -> s //
-					.index(getIndexAliasName(mailboxUid)) //
+					.index(getReadIndexAliasName(mailboxUid)) //
 					.source(so -> so.fetch(false)) //
 					.query(q -> q.bool(b -> b.must(m -> m.hasParent(p -> p //
 							.parentType(PARENT_TYPE) //
@@ -804,7 +811,7 @@ public class MailIndexService implements IMailIndexService {
 					Void.class);
 			return results.took();
 		} catch (ElasticsearchException | IOException e) {
-			throw new ElasticDocumentException(getIndexAliasName(mailboxUid), e);
+			throw new ElasticDocumentException(getReadIndexAliasName(mailboxUid), e);
 		}
 	}
 
@@ -828,7 +835,7 @@ public class MailIndexService implements IMailIndexService {
 	@Override
 	public SearchResult searchItems(String domainUid, String dirEntryUid, MailIndexQuery searchQuery) {
 		ElasticsearchClient esClient = ESearchActivator.getClient();
-		String index = getIndexAliasName(dirEntryUid);
+		String index = getReadIndexAliasName(dirEntryUid);
 
 		List<SortOptions> sortOptions = (searchQuery.sort != null && searchQuery.sort.hasCriterias())
 				? searchQuery.sort.criteria.stream() //

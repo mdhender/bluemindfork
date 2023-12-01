@@ -71,6 +71,6 @@ public class ElasticsearchClientConfig {
 
 	public static int getMaxAliasMultiplier() {
 		return Integer
-				.highestOneBit(get().getInt(ElasticsearchConfig.Indexation.ALIAS_RING_MODE_ALIAS_COUNT_MULTIPLICATOR));
+				.highestOneBit(get().getInt(ElasticsearchConfig.Indexation.ALIAS_RING_MODE_ALIAS_COUNT_MULTIPLIER));
 	}
 }

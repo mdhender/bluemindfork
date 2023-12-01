@@ -33,7 +33,7 @@ public class ElasticsearchConfig {
 	public static class Indexation {
 
 		public static final String ACTIVATE_ALIAS_RING_MODE = "elasticsearch.indexation.alias_mode.ring";
-		public static final String ALIAS_RING_MODE_ALIAS_COUNT_MULTIPLICATOR = "elasticsearch.indexation.alias_mode.mode_ring.alias_count_multiplicator";
+		public static final String ALIAS_RING_MODE_ALIAS_COUNT_MULTIPLIER = "elasticsearch.indexation.alias_mode.mode_ring.alias_count_multiplier";
 	}
 
 	public static class Maintenance {

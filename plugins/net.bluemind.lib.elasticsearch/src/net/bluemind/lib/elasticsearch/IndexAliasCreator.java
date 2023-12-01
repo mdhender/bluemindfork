@@ -46,7 +46,7 @@ public abstract class IndexAliasCreator {
 
 		@Override
 		protected void addAliases(String index, String indexName, int count, int loopIndex) {
-			// TODO one to one has no post-create
+			// TODO one to one does create aliases on the fly
 		}
 
 	}

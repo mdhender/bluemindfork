@@ -408,6 +408,10 @@ public final class ESearchActivator implements BundleActivator {
 		return indexes.get(indexName).schema;
 	}
 
+	public static int getIndexCount(String index) {
+		return indexDefinitionOf(index).map(definition -> definition.count()).orElse(0);
+	}
+
 	public static RewritableIndex getRewritableIndex(String indexName) {
 		return indexes.get(indexName).rewritableIndex;
 	}
@@ -469,4 +473,5 @@ public final class ESearchActivator implements BundleActivator {
 			}
 		}
 	}
+
 }

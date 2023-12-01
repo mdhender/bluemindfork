@@ -18,9 +18,62 @@
  */
 package net.bluemind.index.mail;
 
+import net.bluemind.lib.elasticsearch.ESearchActivator;
+import net.bluemind.lib.elasticsearch.ElasticsearchClientConfig;
+import net.bluemind.lib.elasticsearch.IndexAliasMode;
+import net.bluemind.lib.elasticsearch.IndexAliasMode.Mode;
+
 public abstract class IndexAliasMapping {
 
-	public abstract String getAliasByMailboxUid(String mailboxUid);
+	public abstract String getReadAliasByMailboxUid(String mailboxUid);
 
-	public abstract String getIndexByAlias(String alias);
+	public abstract String getWriteAliasByMailboxUid(String mailboxUid);
+
+	protected static IndexAliasMapping get() {
+		return IndexAliasMode.getMode() == Mode.ONE_TO_ONE ? new OneToOneIndexAliasMapping()
+				: new RingIndexAliasMapping();
+	}
+
+	public static class OneToOneIndexAliasMapping extends IndexAliasMapping {
+
+		@Override
+		public String getReadAliasByMailboxUid(String mailboxUid) {
+			return getAlias(mailboxUid);
+		}
+
+		@Override
+		public String getWriteAliasByMailboxUid(String mailboxUid) {
+			return getAlias(mailboxUid);
+		}
+
+		private String getAlias(String mailboxUid) {
+			return "mailspool_alias_" + mailboxUid;
+		}
+
+	}
+
+	public static class RingIndexAliasMapping extends IndexAliasMapping {
+
+		@Override
+		public String getReadAliasByMailboxUid(String mailboxUid) {
+			return "mailspool_ring_alias_read" + aliasPosition(mailboxUid);
+		}
+
+		@Override
+		public String getWriteAliasByMailboxUid(String mailboxUid) {
+			return "mailspool_ring_alias_write" + aliasPosition(mailboxUid);
+		}
+
+		private int aliasPosition(String mailboxUid) {
+			int count = getMaxAliasCount();
+			return mailboxUid.hashCode() % count;
+		}
+
+		private int getMaxAliasCount() {
+			int initialTotalNumberOfIndexes = ESearchActivator.getIndexCount("mailspool");
+			int aliasMultiplicator = ElasticsearchClientConfig.getMaxAliasMultiplier();
+			return initialTotalNumberOfIndexes * aliasMultiplicator;
+		}
+
+	}
 }
