@@ -78,7 +78,8 @@ function EventDetailComponent(currentEvent) {
         mount() {
             return mount(EventDetail, {
                 propsData: {
-                    event: currentEvent ?? CURRENT_EVENT
+                    event: currentEvent ?? CURRENT_EVENT,
+                    message: {}
                 },
                 mocks: {
                     $d: () => {}

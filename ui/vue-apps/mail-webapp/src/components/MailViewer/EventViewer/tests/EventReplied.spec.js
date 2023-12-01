@@ -84,9 +84,5 @@ function mountEventReplied(status) {
                 eventInfo: {}
             }
         }
-        // mocks: {
-        //     $t: path => path.split(".").pop(),
-        //     $tc: path => path.split(".").pop()
-        // }
     });
 }

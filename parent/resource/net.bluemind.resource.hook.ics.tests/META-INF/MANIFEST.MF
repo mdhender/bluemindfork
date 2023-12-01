@@ -41,5 +41,5 @@ Require-Bundle: org.junit,
  net.bluemind.calendar.hook.ics,
  net.bluemind.resource.hook.ics,
  net.bluemind.core.sendmail,
- org.apache.james.apache-mime4j-core;bundle-version="0.7.3"
+ org.apache.james.apache-mime4j-core
 Automatic-Module-Name: net.bluemind.resource.hook.ics.tests

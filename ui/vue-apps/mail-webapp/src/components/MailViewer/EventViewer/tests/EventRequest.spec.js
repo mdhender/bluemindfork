@@ -18,6 +18,7 @@ describe("Event request insert", () => {
             propsData: {
                 event: {
                     attendee: { commonName: "any attendee" },
+                    isMeeting: false,
                     isWritable: true,
                     status: "NO STATUS YET"
                 },
@@ -82,6 +83,7 @@ describe("Event request insert", () => {
             propsData: {
                 event: {
                     isWritable: false,
+                    isMeeting: false,
                     status: "NO STATUS YET"
                 },
                 message: {}
@@ -102,6 +104,7 @@ describe("Event request insert", () => {
                     message: {},
                     event: {
                         isWritable: true,
+                        isMeeting: true,
                         status: "",
                         attendee: undefined
                     }
