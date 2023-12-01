@@ -105,7 +105,9 @@ public abstract class BaseSharingModelHandler implements IGwtModelHandler {
 						for (AccessControlEntry accessControlEntry : value) {
 							if (accessControlEntry.subject.startsWith("x-calendar-p")) {
 								acl.add(accessControlEntry);
-							}
+							} else if (!AclComparator.isPermanentAcl(accessControlEntry)) {
+								acl.add(accessControlEntry);
+ 							}
 						}
 
 						cm.setAccessControlList(acl, handler);

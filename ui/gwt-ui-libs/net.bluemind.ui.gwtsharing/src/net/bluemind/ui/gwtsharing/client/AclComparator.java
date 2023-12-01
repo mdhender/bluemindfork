@@ -55,7 +55,7 @@ public class AclComparator {
 		}
 	}
 
-	private static boolean isPermanentAcl(AccessControlEntry acl) {
+	public static boolean isPermanentAcl(AccessControlEntry acl) {
 		return acl.verb == Verb.Freebusy || acl.verb == Verb.Invitation || acl.verb == Verb.Read || acl.verb == Verb.Write|| acl.verb == Verb.Manage || acl.verb == Verb.All;
 	}
 
