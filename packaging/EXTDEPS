@@ -14,8 +14,8 @@ CASS="5.0-alpha1-bluemind412"
 BMJDK="21.0.1+12-bluemind409"
 BMSNZIP="1.0.4-bluemind4"
 BMNGINX="1.24.0-bluemind109"
-BMPHP="5.6.40-bluemind117"
-BMPHPMEMCACHE="3.0.8-bluemind117"
+BMPHP="5.6.40-bluemind123"
+BMPHPMEMCACHE="3.0.8-bluemind123"
 
 # tick
 TELEGRAF="1.26.1-0"
