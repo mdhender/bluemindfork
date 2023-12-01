@@ -352,6 +352,7 @@ public final class ESearchActivator implements BundleActivator {
 
 	public static void initIndex(ElasticsearchClient esClient, String index) {
 		IndexAliasCreator mailspoolCreator = IndexAliasCreator.get();
+		logger.info("Initialising indices using mode {}", IndexAliasMode.getMode());
 		indexDefinitionOf(index).ifPresentOrElse(definition -> {
 			int count = definition.index.equals(index) ? definition.count() : 1;
 			byte[] schema = definition.schema;

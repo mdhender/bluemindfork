@@ -32,6 +32,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
+import net.bluemind.lib.elasticsearch.IndexAliasMapping;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.MailboxQuota;
 import picocli.CommandLine.Command;
@@ -85,7 +86,8 @@ public class MailboxInfoCommand extends SingleOrDomainOperation {
 			response = ESearchActivator.getClient().search(s -> s //
 					.size(0) //
 					.index(getMailboxAlias(mailboxId)) //
-					.query(q -> q.bool(b -> b.mustNot(mn -> mn.term(t -> t.field("is").value("deleted"))))) //
+					.query(q -> q.bool(b -> b.must(m -> m.term(t -> t.field("owner").value(mailboxId)))
+							.mustNot(mn -> mn.term(t -> t.field("is").value("deleted"))))) //
 					.aggregations("used_quota", a -> a.sum(sum -> sum.field("size"))), Void.class);
 
 			double sum = response.aggregations().get("used_quota").sum().value();
@@ -96,7 +98,7 @@ public class MailboxInfoCommand extends SingleOrDomainOperation {
 	}
 
 	private String getMailboxAlias(String mailboxId) {
-		return "mailspool_alias_" + mailboxId;
+		return IndexAliasMapping.get().getReadAliasByMailboxUid(mailboxId);
 	}
 
 	private long getImapQuota(String domainUid, ItemValue<DirEntry> de) {

@@ -16,11 +16,8 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.index.mail;
+package net.bluemind.lib.elasticsearch;
 
-import net.bluemind.lib.elasticsearch.ESearchActivator;
-import net.bluemind.lib.elasticsearch.ElasticsearchClientConfig;
-import net.bluemind.lib.elasticsearch.IndexAliasMode;
 import net.bluemind.lib.elasticsearch.IndexAliasMode.Mode;
 
 public abstract class IndexAliasMapping {
@@ -29,7 +26,7 @@ public abstract class IndexAliasMapping {
 
 	public abstract String getWriteAliasByMailboxUid(String mailboxUid);
 
-	protected static IndexAliasMapping get() {
+	public static IndexAliasMapping get() {
 		return IndexAliasMode.getMode() == Mode.ONE_TO_ONE ? new OneToOneIndexAliasMapping()
 				: new RingIndexAliasMapping();
 	}
@@ -66,7 +63,7 @@ public abstract class IndexAliasMapping {
 
 		private int aliasPosition(String mailboxUid) {
 			int count = getMaxAliasCount();
-			return mailboxUid.hashCode() % count;
+			return (mailboxUid.hashCode() & 0xfffffff) % count;
 		}
 
 		private int getMaxAliasCount() {

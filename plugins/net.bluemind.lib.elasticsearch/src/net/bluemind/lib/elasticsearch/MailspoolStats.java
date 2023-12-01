@@ -62,7 +62,8 @@ public class MailspoolStats {
 			throws ElasticsearchException, IOException {
 		Query query = (parameters.includeDeleted) //
 				? MatchAllQuery.of(q -> q)._toQuery() //
-				: BoolQuery.of(b -> b.mustNot(mn -> mn.term(t -> t.field("is").value("deleted"))))._toQuery();
+				: BoolQuery.of(b -> b.must(m -> m.term(t -> t.field("owner").value(mailboxUid)))
+						.mustNot(mn -> mn.term(t -> t.field("is").value("deleted"))))._toQuery();
 		return (parameters.allFolders()) //
 				? countAllFolders(mailboxUid, parameters.sampleSize(), query) //
 				: countSampleFolders(mailboxUid, parameters, query);
@@ -147,7 +148,7 @@ public class MailspoolStats {
 	}
 
 	private String getMailboxAlias(String mailboxId) {
-		return "mailspool_alias_" + mailboxId;
+		return IndexAliasMapping.get().getReadAliasByMailboxUid(mailboxId);
 	}
 
 }

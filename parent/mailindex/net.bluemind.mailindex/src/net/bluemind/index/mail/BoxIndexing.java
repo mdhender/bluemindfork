@@ -65,6 +65,7 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.index.MailIndexActivator;
+import net.bluemind.lib.elasticsearch.IndexAliasMapping;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 
@@ -203,6 +204,7 @@ public class BoxIndexing {
 		for (List<Integer> part : partition) {
 			Query toDelete = BoolQuery.of(bq -> bq //
 					.filter(f -> f.term(t -> t.field("in").value(folder.uid))) //
+					.must(m -> m.term(t -> t.field("owner").value(mailbox.uid))) //
 					.filter(f -> f.terms(t -> t //
 							.field("uid").terms(v -> v.value(part.stream().map(FieldValue::of).toList())))))
 					._toQuery();
@@ -296,6 +298,7 @@ public class BoxIndexing {
 	private void deleteRemainingOrphans(ElasticsearchClient esClient, String mailboxUid, String folderUid) {
 		Query toDelete = BoolQuery.of(bq -> bq //
 				.filter(f -> f.term(t -> t.field("in").value(folderUid)))
+				.must(m -> m.term(t -> t.field("owner").value(mailboxUid))) //
 				.mustNot(mn -> mn.hasParent(p -> p.parentType("body").query(q -> q.matchAll(a -> a)).score(false)))
 				.mustNot(mn -> mn.term(t -> t.field("body_msg_link").value("body"))))._toQuery();
 		delete(esClient, mailboxUid, toDelete);
@@ -303,7 +306,10 @@ public class BoxIndexing {
 
 	private void delete(ElasticsearchClient esClient, String mailboxUid, Query query) {
 		try {
-			esClient.deleteByQuery(d -> d.index("mailspool_alias_" + mailboxUid).query(query));
+			esClient.deleteByQuery(d -> {
+				String alias = IndexAliasMapping.get().getWriteAliasByMailboxUid(mailboxUid);
+				return d.index(alias).query(query);
+			});
 		} catch (ElasticsearchException | IOException e) {
 			logger.error("[es][resync] Unable to delete document in {}, query:{}", mailboxUid, query, e);
 		}

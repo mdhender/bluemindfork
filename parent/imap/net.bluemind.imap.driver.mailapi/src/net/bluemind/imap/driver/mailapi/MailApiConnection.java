@@ -113,6 +113,7 @@ import net.bluemind.imap.endpoint.driver.SelectedMessage;
 import net.bluemind.imap.endpoint.driver.UpdateMode;
 import net.bluemind.imap.endpoint.parsing.MailboxGlob;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
+import net.bluemind.lib.elasticsearch.IndexAliasMapping;
 import net.bluemind.lib.elasticsearch.Pit;
 import net.bluemind.lib.elasticsearch.Pit.PaginableSearchQueryBuilder;
 import net.bluemind.lib.elasticsearch.Pit.PaginationParams;
@@ -808,7 +809,7 @@ public class MailApiConnection implements MailboxConnection {
 
 	@Override
 	public List<Long> uids(SelectedFolder sel, String query) {
-		String index = "mailspool_alias_" + sel.mailbox.owner.uid;
+		String index = IndexAliasMapping.get().getReadAliasByMailboxUid(sel.mailbox.owner.uid);
 		// Really ?!
 		try {
 			ESearchActivator.refreshIndex(index);
@@ -834,7 +835,8 @@ public class MailApiConnection implements MailboxConnection {
 				// Gets document with highest uid for keywords with sequences management
 				Aggregate aggregate = esClient.search(s -> s.index(index) //
 						.size(0) //
-						.query(q -> q.bool(b -> b.must(m -> m.term(t -> t.field("in").value(sel.folder.uid)))))
+						.query(q -> q.bool(b -> b.must(m -> m.term(t -> t.field("owner").value(sel.mailbox.owner.uid)))
+								.must(m -> m.term(t -> t.field("in").value(sel.folder.uid)))))
 						.aggregations("uid_max", a -> a.max(m -> m.field("uid"))), Void.class) //
 						.aggregations().get("uid_max");
 				long maxUid = (aggregate != null) ? (long) aggregate.max().value() : 0l;

@@ -50,11 +50,13 @@ import net.bluemind.core.rest.base.GenericStream;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.index.MailIndexActivator;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
+import net.bluemind.lib.elasticsearch.IndexAliasMode;
+import net.bluemind.lib.elasticsearch.IndexAliasMode.Mode;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
-public class AbstractSearchTests {
+public abstract class AbstractSearchTests {
 
 	protected String bodyUid = UUID.randomUUID().toString();
 	protected String bodyUid1 = UUID.randomUUID().toString();
@@ -87,12 +89,14 @@ public class AbstractSearchTests {
 		System.out.println("Ensuring index exists....");
 		ElasticsearchClient esClient = ESearchActivator.getClient();
 
-		esClient.indices().putAlias(a -> a //
-				.index(INDEX_NAME).name(ALIAS).filter(f -> f.term(t -> t.field("owner").value(userUid))));
-		esClient.indices().putAlias(a -> a //
-				.index(INDEX_NAME).name(ALIAS2).filter(f -> f.term(t -> t.field("owner").value(userUid2))));
-		esClient.deleteByQuery(d -> d //
-				.index(INDEX_NAME).query(QueryBuilders.queryString(q -> q.query("in:" + folderUid))));
+		if (IndexAliasMode.getMode() == Mode.ONE_TO_ONE) {
+			esClient.indices().putAlias(a -> a //
+					.index(INDEX_NAME).name(ALIAS).filter(f -> f.term(t -> t.field("owner").value(userUid))));
+			esClient.indices().putAlias(a -> a //
+					.index(INDEX_NAME).name(ALIAS2).filter(f -> f.term(t -> t.field("owner").value(userUid2))));
+			esClient.deleteByQuery(d -> d //
+					.index(INDEX_NAME).query(QueryBuilders.queryString(q -> q.query("in:" + folderUid))));
+		}
 
 		System.out.println("Bootstrap finished....");
 	}
@@ -159,7 +163,7 @@ public class AbstractSearchTests {
 			List<MailboxItemFlag> flags) {
 		return bulkMessage(mailboxUniqueId, userUid, bodyUid, imapUid, flags, 44l);
 	}
-	
+
 	protected List<BulkOp> bulkMessage(String mailboxUniqueId, String userUid, String bodyUid, long imapUid,
 			List<MailboxItemFlag> flags, long itemId) {
 		MailboxRecord mail = new MailboxRecord();

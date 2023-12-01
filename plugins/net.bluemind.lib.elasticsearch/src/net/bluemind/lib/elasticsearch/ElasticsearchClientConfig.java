@@ -25,6 +25,7 @@ import java.io.File;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
@@ -72,5 +73,11 @@ public class ElasticsearchClientConfig {
 	public static int getMaxAliasMultiplier() {
 		return Integer
 				.highestOneBit(get().getInt(ElasticsearchConfig.Indexation.ALIAS_RING_MODE_ALIAS_COUNT_MULTIPLIER));
+	}
+
+	@VisibleForTesting
+	public static void reload() {
+		ConfigFactory.invalidateCaches();
+		instance = load();
 	}
 }

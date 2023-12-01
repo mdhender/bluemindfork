@@ -25,6 +25,7 @@ import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.json.JsonData;
 import net.bluemind.imap.endpoint.driver.ImapIdSet;
 import net.bluemind.imap.endpoint.driver.SelectedFolder;
+import net.bluemind.lib.elasticsearch.IndexAliasMapping;
 
 public class UidSearchAnalyzer {
 
@@ -91,10 +92,14 @@ public class UidSearchAnalyzer {
 
 		SearchResponse<Void> response;
 		try {
-			response = esClient.search(s -> s.index("mailspool_alias_" + meUid).size(0) //
-					.query(q -> q.bool(b -> b //
-							.must(m -> m.term(t -> t.field("in").value(folderUid))))) //
-					.aggregations("uid_max", a -> a.max(m -> m.field("uid"))), Void.class);
+			response = esClient.search(s -> {
+				String alias = IndexAliasMapping.get().getReadAliasByMailboxUid(meUid);
+				return s.index(alias).size(0) //
+						.query(q -> q.bool(b -> b //
+								.must(m -> m.term(t -> t.field("owner").value(meUid)))
+								.must(m -> m.term(t -> t.field("in").value(folderUid))))) //
+						.aggregations("uid_max", a -> a.max(m -> m.field("uid")));
+			}, Void.class);
 
 		} catch (ElasticsearchException | IOException e) {
 			throw new UidSearchException("Unable to search max uid in 'mailspool_alias_" + meUid + "'");

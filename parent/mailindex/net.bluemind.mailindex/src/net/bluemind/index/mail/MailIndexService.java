@@ -92,6 +92,9 @@ import net.bluemind.core.task.service.NullTaskMonitor;
 import net.bluemind.index.MailIndexActivator;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.lib.elasticsearch.EsBulk;
+import net.bluemind.lib.elasticsearch.IndexAliasMapping;
+import net.bluemind.lib.elasticsearch.IndexAliasMode;
+import net.bluemind.lib.elasticsearch.IndexAliasMode.Mode;
 import net.bluemind.lib.elasticsearch.MailspoolStats;
 import net.bluemind.lib.elasticsearch.MailspoolStats.FolderCount;
 import net.bluemind.lib.elasticsearch.Pit;
@@ -127,19 +130,17 @@ public class MailIndexService implements IMailIndexService {
 
 	private Registry metricRegistry;
 	private IdFactory idFactory;
-	private final IndexAliasMapping indexAliasMapping;
 
 	public String getReadIndexAliasName(String entityId) {
-		return indexAliasMapping.getReadAliasByMailboxUid(entityId);
+		return IndexAliasMapping.get().getReadAliasByMailboxUid(entityId);
 	}
 
 	public String getWriteIndexAliasName(String entityId) {
-		return indexAliasMapping.getWriteAliasByMailboxUid(entityId);
+		return IndexAliasMapping.get().getWriteAliasByMailboxUid(entityId);
 	}
 
 	public MailIndexService() {
 		metricRegistry = MetricsRegistry.get();
-		indexAliasMapping = IndexAliasMapping.get();
 		idFactory = new IdFactory("mailindex-service", metricRegistry, MailIndexService.class);
 
 		VertxPlatform.executeBlockingPeriodic(TimeUnit.HOURS.toMillis(1), i -> getStats());
@@ -214,7 +215,9 @@ public class MailIndexService implements IMailIndexService {
 		ElasticsearchClient esClient = getIndexClient();
 		String boxAlias = getWriteIndexAliasName(box.uid);
 		getUserAliasIndex(boxAlias, esClient).ifPresentOrElse(boxIndex -> {
-			long count = bulkDelete(boxAlias, q -> q.term(t -> t.field("in").value(folderUid)));
+			long count = bulkDelete(boxAlias, q -> q.bool(b -> b //
+					.must(m -> m.term(t -> t.field("owner").value(box.uid)))
+					.must(m -> m.term(t -> t.field("in").value(folderUid)))));
 			logger.info("deleteBox {}:{} :  {} deleted", box.uid, folderUid, count);
 			cleanupParents(boxAlias, boxIndex);
 		}, () -> logger.error("Unable to delete mails in elasticsearch, alias not found (mailbox:{}, folder:{})",
@@ -230,6 +233,7 @@ public class MailIndexService implements IMailIndexService {
 			Iterator<IDRange> iter = set.iterator();
 			while (iter.hasNext()) {
 				deletedCount += bulkDelete(boxAlias, q -> q.bool(b -> b //
+						.must(m -> m.term(t -> t.field("owner").value(box.uid)))
 						.must(m -> m.term(t -> t.field("in").value(f.uid))) //
 						.must(asFilter(iter, 1000))));
 			}
@@ -455,6 +459,7 @@ public class MailIndexService implements IMailIndexService {
 		ConstantScoreQuery.Builder builder = QueryBuilders.constantScore().filter(f -> f.bool(b -> b //
 				.must(m -> m.hasParent(p -> p.parentType(PARENT_TYPE).query(q -> q.matchAll(a -> a)).score(false))) //
 				.must(m -> m.term(t -> t.field("in").value(folderItem.uid))) //
+				.must(m -> m.term(t -> t.field("owner").value(box.uid))) //
 				.filter(asFilter(set)) //
 		));
 		return fetchSummary(builder.build()._toQuery(), box.uid);
@@ -578,41 +583,43 @@ public class MailIndexService implements IMailIndexService {
 
 	@Override
 	public void repairMailbox(String mailboxUid, IServerTaskMonitor monitor) {
-		monitor.begin(3, "Check index state for mailbox");
-		final ElasticsearchClient esClient = getIndexClient();
-		if (esClient == null) {
-			logger.warn("elasticsearch in not (yet) available");
-			return;
-		}
-
-		List<String> shards = filteredMailspoolIndexNames(esClient);
-		if (shards.isEmpty()) {
-			logger.warn("no shards found");
-			return;
-		}
-
-		String boxAlias = getWriteIndexAliasName(mailboxUid);
-		boolean aliasExists = getUserAliasIndex(boxAlias, esClient).isPresent();
-		try {
-			if (!aliasExists && esClient.indices().exists(e -> e.index(boxAlias)).value()) {
-				// an index has been created, we need an alias here
-				logger.info("indice {} is not an alias, delete it ", boxAlias);
-				esClient.indices().delete(d -> d.index(boxAlias));
-				monitor.log(String.format("indice %s is not an alias, delete it ", boxAlias));
+		if (IndexAliasMode.getMode() == Mode.ONE_TO_ONE) {
+			monitor.begin(3, "Check index state for mailbox");
+			final ElasticsearchClient esClient = getIndexClient();
+			if (esClient == null) {
+				logger.warn("elasticsearch in not (yet) available");
+				return;
 			}
 
-			if (!aliasExists) {
-				monitor.progress(1, "no alias, check mailspool index");
-				monitor.progress(1, String.format("create alias %s from mailspool ", boxAlias));
-				String indexName = MailIndexActivator.getMailIndexHook().getMailspoolIndexName(shards, mailboxUid);
-
-				logger.info("create alias {} from {} ", boxAlias, indexName);
-				esClient.indices().updateAliases(u -> u.actions(a -> a.add(ad -> ad //
-						.index(indexName).alias(boxAlias)
-						.filter(f -> f.term(t -> t.field("owner").value(mailboxUid))))));
+			List<String> shards = filteredMailspoolIndexNames(esClient);
+			if (shards.isEmpty()) {
+				logger.warn("no shards found");
+				return;
 			}
-		} catch (ElasticsearchException | IOException e) {
-			throw new ElasticIndexException(boxAlias, e);
+
+			String boxAlias = getWriteIndexAliasName(mailboxUid);
+			boolean aliasExists = getUserAliasIndex(boxAlias, esClient).isPresent();
+			try {
+				if (!aliasExists && esClient.indices().exists(e -> e.index(boxAlias)).value()) {
+					// an index has been created, we need an alias here
+					logger.info("indice {} is not an alias, delete it ", boxAlias);
+					esClient.indices().delete(d -> d.index(boxAlias));
+					monitor.log(String.format("indice %s is not an alias, delete it ", boxAlias));
+				}
+
+				if (!aliasExists) {
+					monitor.progress(1, "no alias, check mailspool index");
+					monitor.progress(1, String.format("create alias %s from mailspool ", boxAlias));
+					String indexName = MailIndexActivator.getMailIndexHook().getMailspoolIndexName(shards, mailboxUid);
+
+					logger.info("create alias {} from {} ", boxAlias, indexName);
+					esClient.indices().updateAliases(u -> u.actions(a -> a.add(ad -> ad //
+							.index(indexName).alias(boxAlias)
+							.filter(f -> f.term(t -> t.field("owner").value(mailboxUid))))));
+				}
+			} catch (ElasticsearchException | IOException e) {
+				throw new ElasticIndexException(boxAlias, e);
+			}
 		}
 	}
 
@@ -807,7 +814,8 @@ public class MailIndexService implements IMailIndexService {
 					.query(q -> q.bool(b -> b.must(m -> m.hasParent(p -> p //
 							.parentType(PARENT_TYPE) //
 							.score(false) //
-							.query(f -> f.queryString(qs -> qs.query("content:\"" + randomToken + "\""))))))),
+							.query(f -> f.queryString(qs -> qs.query("content:\"" + randomToken + "\"")))))
+							.must(m -> m.term(t -> t.field("owner").value(mailboxUid))))),
 					Void.class);
 			return results.took();
 		} catch (ElasticsearchException | IOException e) {
@@ -842,7 +850,7 @@ public class MailIndexService implements IMailIndexService {
 						.map(c -> SortOptions.of(so -> so.field(f -> f.field(c.field).order(toSortOrder(c.order)))))
 						.toList()
 				: singletonList(SortOptions.of(so -> so.field(f -> f.field("date").order(SortOrder.Desc))));
-		Query query = buildEsQuery(searchQuery);
+		Query query = buildEsQuery(searchQuery, dirEntryUid);
 		PaginableSearchQueryBuilder paginable = s -> s //
 				.source(so -> so.fetch(true)) //
 				.trackTotalHits(t -> t.enabled(true)) //
@@ -924,7 +932,7 @@ public class MailIndexService implements IMailIndexService {
 		return result;
 	}
 
-	private Query buildEsQuery(MailIndexQuery query) {
+	private Query buildEsQuery(MailIndexQuery query, String entryUid) {
 		BoolQuery.Builder bq = QueryBuilders.bool();
 		if (query.query.scope.folderScope != null && query.query.scope.folderScope.folderUid != null) {
 			if (query.folderUids != null && !query.folderUids.isEmpty()) {
@@ -939,6 +947,7 @@ public class MailIndexService implements IMailIndexService {
 			}
 		}
 
+		bq.must(m -> m.term(t -> t.field("owner").value(entryUid)));
 		bq.mustNot(n -> n.term(t -> t.field("is").value("deleted")));
 		Operator defaultOperator = query.query.logicalOperator.toString().equals("AND") ? Operator.And : Operator.Or;
 		bq = addSearchQuery(bq, query.query.query, defaultOperator);
