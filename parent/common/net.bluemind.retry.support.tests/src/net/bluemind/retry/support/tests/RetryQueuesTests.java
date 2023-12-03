@@ -70,8 +70,8 @@ public class RetryQueuesTests {
 		Retry retry = new Retry();
 
 		TestQueueVerticle verticle = new TestQueueVerticle(retry);
-		vertx.deployVerticle(() -> verticle, new DeploymentOptions().setInstances(1)).toCompletionStage()
-				.toCompletableFuture().orTimeout(2, TimeUnit.SECONDS).join();
+		vertx.deployVerticle(() -> verticle, new DeploymentOptions().setInstances(1).setWorker(true))
+				.toCompletionStage().toCompletableFuture().orTimeout(2, TimeUnit.SECONDS).join();
 
 		RetryRequester req = new RetryRequester(vertx.eventBus(), verticle.topic());
 		int i = 0;

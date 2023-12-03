@@ -10,7 +10,8 @@ Require-Bundle: org.eclipse.core.runtime,
  io.vertx.core,
  com.google.guava,
  net.bluemind.lib.vertx,
- org.rocksdb.jni
+ org.rocksdb.jni,
+ net.bluemind.metrics.registry
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.retry.support
 Bundle-ActivationPolicy: lazy
