@@ -340,6 +340,8 @@
     "mail.list.range.this_week": "Diese Woche",
     "mail.list.range.today": "Heute",
     "mail.list.range.yesterday": "Gestern",
+    "mail.list.recoverable.header": "Aus dem Papierkorb gelöschte Nachrichten können wiederhergestellt werden.",
+    "mail.list.recoverable.link": "Abrufbare Nachrichten anzeigen ({count})",
     "mail.list.replied.aria": "Geantwortet",
     "mail.list.search.no_result": "Es wurde keine E-Mails gefunden, die {pattern} enthalten.",
     "mail.list.search.no_result.folder": "In {folder}{sub} wurden keine E-Mails gefunden, die {pattern} enthielten.",

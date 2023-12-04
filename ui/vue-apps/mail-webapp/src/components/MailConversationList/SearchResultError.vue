@@ -4,9 +4,3 @@
         {{ $t("common.check.connection") }}
     </div>
 </template>
-
-<script>
-export default {
-    name: "SearchResultError"
-};
-</script>

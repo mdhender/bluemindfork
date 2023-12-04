@@ -1,24 +1,21 @@
 <template>
-    <div class="px-0 d-lg-block mail-conversation-list-wrapper" :style="mailConversationListWidth">
-        <section
-            :aria-label="$t('mail.application.region.messagelist')"
-            class="mail-conversation-list d-flex flex-column h-100"
-            :class="{ 'search-typing': IS_TYPING_IN_SEARCH }"
-        >
-            <mail-conversation-list-header id="mail-conversation-list-header" />
-            <search-input-mobile v-if="HAS_PATTERN" class="mobile-only" />
-            <search-result v-if="CONVERSATION_LIST_IS_FILTERED" class="flex-fill" />
-            <folder-result v-else class="flex-fill" />
-        </section>
-    </div>
+    <section
+        :aria-label="$t('mail.application.region.messagelist')"
+        :class="{ 'search-typing': IS_TYPING_IN_SEARCH, 'mail-conversation-list': true }"
+        :style="mailConversationListWidth"
+    >
+        <search-result-header v-if="CONVERSATION_LIST_IS_FILTERED" />
+        <folder-result-header v-else />
+        <search-input-mobile v-if="HAS_PATTERN" class="mobile-only" />
+        <search-result v-if="CONVERSATION_LIST_IS_FILTERED" class="mail-conversation-list-content" />
+        <folder-result v-else class="mail-conversation-list-content" />
+    </section>
 </template>
 
 <script>
 import { mapGetters, mapState, mapActions, mapMutations } from "vuex";
 import debounce from "lodash.debounce";
-import MailConversationListHeader from "./MailConversationListHeader";
-import SearchResult from "./SearchResult";
-import FolderResult from "./FolderResult";
+
 import {
     CONVERSATION_LIST_COUNT,
     CONVERSATION_LIST_IS_FILTERED,
@@ -30,18 +27,23 @@ import {
 } from "~/getters";
 import { SET_CONVERSATION_LIST_STATUS } from "~/mutations";
 import { FETCH_CONVERSATIONS, FETCH_MESSAGE_METADATA, REFRESH_CONVERSATION_LIST_KEYS } from "~/actions";
-import { PUSHED_FOLDER_CHANGES } from "../VueBusEventTypes";
-import SearchInputMobile from "./SearchInputMobile";
 import { MAX_CHUNK_SIZE } from "~/store/api/apiMessages";
 import { ConversationListStatus } from "~/store/conversationList";
+import FolderResult from "./FolderResult";
+import FolderResultHeader from "./FolderResultHeader";
+import SearchInputMobile from "./SearchInputMobile";
+import SearchResult from "./SearchResult";
+import SearchResultHeader from "./SearchResultHeader";
+import { PUSHED_FOLDER_CHANGES } from "../VueBusEventTypes";
 
 export default {
     name: "MailConversationList",
     components: {
-        MailConversationListHeader,
-        SearchResult,
         FolderResult,
-        SearchInputMobile
+        FolderResultHeader,
+        SearchInputMobile,
+        SearchResult,
+        SearchResultHeader
     },
     data() {
         return {
@@ -121,8 +123,26 @@ export default {
 @import "~@bluemind/ui-components/src/css/utils/responsiveness";
 
 .mail-conversation-list {
-    background-color: $surface;
+    width: 100%;
+    height: 100%;
+    min-width: 100%;
+
+    @include from-lg {
+        min-width: 20%;
+        max-width: 70%;
+        width: 30%;
+    }
+
+    display: flex;
+    flex-direction: column;
+
     outline: none;
+    background-color: $surface;
+
+    .mail-conversation-list-content {
+        flex: 1 1 auto !important;
+        background-color: $backdrop;
+    }
     @include until-lg {
         &.search-typing {
             background-color: $neutral-bg;

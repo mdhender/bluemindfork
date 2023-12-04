@@ -46,10 +46,11 @@ export default {
 @import "~@bluemind/ui-components/src/css/utils/variables.scss";
 
 .folder-result-content-empty-folder {
-    display: flex;
     flex-wrap: wrap;
     gap: 0 base-px-to-rem(5);
     padding: $sp-8 $sp-5;
+    display: inline-flex;
     justify-content: center;
+    align-content: start;
 }
 </style>

@@ -1,25 +1,16 @@
-<template>
-    <div class="h-100">
-        <folder-result-content-empty v-if="CONVERSATION_LIST_COUNT === 0" />
-        <mail-conversation-list-wrapper v-if="CONVERSATION_LIST_COUNT > 0" class="h-100" />
-    </div>
-</template>
+<script setup>
+import { computed } from "vue";
+import store from "@bluemind/store";
 
-<script>
-import { mapGetters } from "vuex";
-import FolderResultContentEmpty from "./FolderResultContentEmpty";
-import MailConversationListWrapper from "./MailConversationListWrapper";
 import { CONVERSATION_LIST_COUNT } from "~/getters";
 
-export default {
-    components: {
-        FolderResultContentEmpty,
-        MailConversationListWrapper
-    },
-    computed: {
-        ...mapGetters("mail", { CONVERSATION_LIST_COUNT })
-    }
-};
+import FolderResultContentEmpty from "./FolderResultContentEmpty";
+import MailConversationListWrapper from "./MailConversationListWrapper";
+
+const count = computed(() => store.getters[`mail/${CONVERSATION_LIST_COUNT}`]);
 </script>
 
-<style></style>
+<template>
+    <folder-result-content-empty v-if="count === 0" />
+    <mail-conversation-list-wrapper v-else-if="count > 0" class="flex-fill" />
+</template>

@@ -1,32 +1,17 @@
-<template>
-    <div class="folder-result h-100">
-        <folder-result-content v-if="CONVERSATION_LIST_IS_RESOLVED" />
-        <folder-result-spinner v-if="CONVERSATION_LIST_IS_LOADING" />
-    </div>
-</template>
+<script setup>
+import { computed } from "vue";
+import store from "@bluemind/store";
 
-<script>
-import { mapGetters } from "vuex";
-import FolderResultContent from "./FolderResultContent";
-import FolderResultSpinner from "./FolderResultSpinner";
 import { CONVERSATION_LIST_IS_LOADING, CONVERSATION_LIST_IS_RESOLVED } from "~/getters";
 
-export default {
-    name: "FolderResult",
-    components: {
-        FolderResultContent,
-        FolderResultSpinner
-    },
-    computed: {
-        ...mapGetters("mail", { CONVERSATION_LIST_IS_LOADING, CONVERSATION_LIST_IS_RESOLVED })
-    }
-};
+import FolderResultContent from "./FolderResultContent";
+import FolderResultSpinner from "./FolderResultSpinner";
+
+const isLoading = computed(() => store.gettters[`mail/${CONVERSATION_LIST_IS_LOADING}`]);
+const isResolved = computed(() => store.gettters[`mail/${CONVERSATION_LIST_IS_RESOLVED}`]);
 </script>
 
-<style lang="scss">
-@import "~@bluemind/ui-components/src/css/utils/variables";
-
-.folder-result {
-    background-color: $backdrop;
-}
-</style>
+<template>
+    <folder-result-content v-if="CONVERSATION_LIST_IS_RESOLVED" />
+    <folder-result-spinner v-else-if="CONVERSATION_LIST_IS_LOADING" />
+</template>

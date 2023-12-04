@@ -1,9 +1,7 @@
 <template>
-    <div class="search-result h-100">
-        <search-result-content v-if="CONVERSATION_LIST_IS_RESOLVED" />
-        <search-result-spinner v-if="CONVERSATION_LIST_IS_LOADING" />
-        <search-result-error v-if="CONVERSATION_LIST_IS_REJECTED" />
-    </div>
+    <search-result-content v-if="CONVERSATION_LIST_IS_RESOLVED" />
+    <search-result-spinner v-else-if="CONVERSATION_LIST_IS_LOADING" />
+    <search-result-error v-else-if="CONVERSATION_LIST_IS_REJECTED" />
 </template>
 
 <script>

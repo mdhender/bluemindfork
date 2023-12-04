@@ -15,7 +15,7 @@
                 <mail-folder-sidebar />
             </section>
             <bm-multipane class="flex-fill" layout="vertical" @paneResizeStop="onPanelResize">
-                <mail-conversation-list :class="{ 'd-none': hideListInResponsiveMode }" />
+                <mail-conversation-list :class="{ 'desktop-only': hideListInResponsiveMode }" />
                 <bm-multipane-resizer class="desktop-only" />
                 <div class="flex-grow-1 flex-basis-0 scroller-y-stable right-panel">
                     <router-view />
@@ -136,18 +136,8 @@ export default {
         width: 4em;
     }
 
-    .mail-conversation-list-wrapper {
-        min-width: 100%;
-        width: 100%;
-    }
-
     @media only screen {
         @include from-lg {
-            .mail-conversation-list-wrapper {
-                min-width: 20%;
-                max-width: 70%;
-                width: 30%;
-            }
             .right-panel {
                 scroll-padding-bottom: base-px-to-rem(200);
             }
