@@ -14,7 +14,7 @@
 		<rollingPolicy
 			class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
 			<!-- daily rollover -->
-			<FileNamePattern>/var/log/bm/core.log.%d{yyyy-MM-dd}.%i.gz</FileNamePattern>
+			<FileNamePattern>/var/log/bm-xivobridge/xivobridge.log.%d{yyyy-MM-dd}.%i.gz</FileNamePattern>
 			<maxHistory>20</maxHistory>
 			<MaxFileSize>60MB</MaxFileSize>
 			<totalSizeCap>1GB</totalSizeCap>
