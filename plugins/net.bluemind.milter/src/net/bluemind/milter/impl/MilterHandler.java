@@ -156,7 +156,6 @@ public class MilterHandler implements JilterHandler {
 		MilterPreActionsRegistry.get().forEach(action -> applyPreAction(action, modifiedMail));
 		logger.debug("Applied {} milter pre-actions", MilterPreActionsRegistry.get().size());
 		modifiedMail.removeHeaders.add(MilterHeaders.SIEVE_REDIRECT);
-		modifiedMail.envelopSender = Optional.ofNullable(accumulator.getEnvelope().getSender().getEmailAddress());
 
 		if (messageHasNotBeenHandledByThisInstallation()) {
 			int appliedActions = applyActions(modifiedMail);
