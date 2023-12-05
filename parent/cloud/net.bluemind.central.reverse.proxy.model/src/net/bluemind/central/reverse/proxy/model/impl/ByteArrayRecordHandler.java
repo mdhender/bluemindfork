@@ -58,7 +58,7 @@ public class ByteArrayRecordHandler implements RecordHandler<byte[], byte[]> {
 	private Optional<Future<RecordKey>> store(ConsumerRecord<byte[], byte[]> rec, RecordKey key) {
 		switch (key.type) {
 		case "installation":
-			return valueMapper.mapInstallation(rec.value())
+			return valueMapper.mapInstallation(key.uid, rec.value())
 					.map(installation -> Future.all(proxyInfoStoreClient.addInstallation(installation).map(oldIp -> {
 						if (Objects.nonNull(oldIp)) {
 							publishInstallationIpChange(installation, oldIp);

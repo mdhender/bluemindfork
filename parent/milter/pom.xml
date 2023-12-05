@@ -26,6 +26,8 @@
 		<module>net.bluemind.milter.action.journaling</module>
 		<module>net.bluemind.milter.action.eventforwarding</module>
 		<module>net.bluemind.milter.srs</module>
+		<module>net.bluemind.lib.srs</module>
+		<module>net.bluemind.lib.srs.tests</module>
 		<module>net.bluemind.milter.action.delegation</module>
 	</modules>
 	<profiles>

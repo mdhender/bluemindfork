@@ -33,6 +33,8 @@ public interface PostfixMapsStorage {
 		return new HashMapPostfixMapsStorage();
 	}
 
+	void updateInstallationUid(String uid);
+
 	void updateDataLocation(String uid, String ip);
 
 	void removeDataLocation(String uid);
@@ -64,4 +66,6 @@ public interface PostfixMapsStorage {
 	void removeUid(String uid);
 
 	String mailboxRelay(String mailbox);
+
+	String srsRecipient(String recipient);
 }

@@ -26,7 +26,7 @@ public class ByteArrayRecordValueMapper implements RecordValueMapper<byte[]> {
 	private static final JsonArray EMPTY_ARRAY = new JsonArray();
 
 	@Override
-	public Optional<InstallationInfo> mapInstallation(byte[] value) {
+	public Optional<InstallationInfo> mapInstallation(String uid, byte[] value) {
 		JsonObject json = new JsonObject(new String(value));
 		JsonArray tags = json.getJsonObject("value", EMPTY).getJsonArray("tags", EMPTY_ARRAY);
 		boolean hasNginx = tags.getList().contains("bm/nginx");
@@ -35,7 +35,7 @@ public class ByteArrayRecordValueMapper implements RecordValueMapper<byte[]> {
 			String dataLocation = json.getString("uid");
 			String ip = json.getJsonObject("value", EMPTY).getString("ip");
 			if (dataLocation != null && ip != null) {
-				return Optional.of(new InstallationInfo(dataLocation, ip, hasNginx, hasCore));
+				return Optional.of(new InstallationInfo(uid, dataLocation, ip, hasNginx, hasCore));
 			}
 		}
 		return Optional.empty();

@@ -81,6 +81,7 @@
       <plugin id="net.bluemind.jilter"/>
       <plugin id="net.bluemind.lib.jackson"/>
       <plugin id="net.bluemind.lib.jutf7"/>
+      <plugin id="net.bluemind.lib.srs"/>
       <plugin id="net.bluemind.lib.vertx"/>
       <plugin id="net.bluemind.mailbox.api"/>
       <plugin id="net.bluemind.mailbox.hook"/>

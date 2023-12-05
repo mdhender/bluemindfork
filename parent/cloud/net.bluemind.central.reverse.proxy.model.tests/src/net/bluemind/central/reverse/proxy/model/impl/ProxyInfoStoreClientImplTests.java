@@ -118,7 +118,7 @@ public class ProxyInfoStoreClientImplTests {
 	public void addDataLocation() {
 		ProxyInfoStoreClient client = ProxyInfoStoreClient.create(vertx);
 		AsyncTestContext.asyncTest(context -> {
-			client.addInstallation(new InstallationInfo("here1", "elsewere", true, false))
+			client.addInstallation(new InstallationInfo(null, "here1", "elsewere", true, false))
 					.compose(v -> client.ip("one@alias1")).onComplete(ar -> {
 						context.assertions(() -> {
 							assertTrue(ar.succeeded());

@@ -44,13 +44,21 @@ import net.bluemind.central.reverse.proxy.model.impl.postfix.Emails.EmailParts;
 import net.bluemind.central.reverse.proxy.model.impl.postfix.Emails.EmailUid;
 import net.bluemind.central.reverse.proxy.model.impl.postfix.Mailboxes;
 import net.bluemind.central.reverse.proxy.model.impl.postfix.Mailboxes.Mailbox;
+import net.bluemind.lib.srs.SrsData;
+import net.bluemind.lib.srs.SrsHash;
 
 public class HashMapPostfixMapsStorage implements PostfixMapsStorage {
+	private String installationUid;
 	private final Domains domains = new Domains();
 	private final Map<String, String> dataLocationsUidIp = new HashMap<>();
 	private final Mailboxes mailboxes = new Mailboxes();
 	private final EmailRecipients emailUidRecipients = new EmailRecipients();
 	private final Emails emails = new Emails();
+
+	@Override
+	public void updateInstallationUid(String installationUid) {
+		this.installationUid = installationUid;
+	}
 
 	@Override
 	public void updateDataLocation(String uid, String ip) {
@@ -316,5 +324,20 @@ public class HashMapPostfixMapsStorage implements PostfixMapsStorage {
 		emails.remove(uid);
 		emailUidRecipients.remove(uid);
 		removeMailbox(uid);
+	}
+
+	@Override
+	public String srsRecipient(String recipient) {
+		if (Strings.isNullOrEmpty(recipient)) {
+			return null;
+		}
+
+		EmailParts emailParts = EmailParts.fromEmail(recipient).filter(ep -> domainManaged(ep.domain())).orElse(null);
+		if (emailParts == null) {
+			return null;
+		}
+
+		return SrsHash.build(installationUid).flatMap(srsHash -> SrsData.fromLeftPart(srsHash, emailParts.left()))
+				.map(SrsData::originalEmail).orElse(null);
 	}
 }

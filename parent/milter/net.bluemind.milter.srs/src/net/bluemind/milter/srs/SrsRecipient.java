@@ -23,10 +23,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.config.InstallationId;
+import net.bluemind.lib.srs.SrsData;
+import net.bluemind.lib.srs.SrsHash;
 import net.bluemind.milter.cache.DomainAliasCache;
 import net.bluemind.milter.map.RecipientCanonical;
 import net.bluemind.milter.map.RecipientCanonicalFactory;
-import net.bluemind.milter.srs.tools.SrsHash;
 
 public class SrsRecipient implements RecipientCanonical {
 	public static class SrsRecipientFactory implements RecipientCanonicalFactory {
@@ -56,7 +57,7 @@ public class SrsRecipient implements RecipientCanonical {
 
 	@Override
 	public Optional<String> execute(String email) {
-		if (SysconfHelper.srsDisabled.get()) {
+		if (Boolean.TRUE.equals(SysconfHelper.srsDisabled.get())) {
 			return Optional.empty();
 		}
 
@@ -70,7 +71,7 @@ public class SrsRecipient implements RecipientCanonical {
 	}
 
 	private Optional<String> recipientRewrite(String recipient) {
-		return DomainAliasCache.getLeftPartFromEmail(recipient).map(leftPart -> SrsData.fromLeftPart(srsHash, leftPart))
-				.filter(Optional::isPresent).map(Optional::get).map(SrsData::originalEmail);
+		return DomainAliasCache.getLeftPartFromEmail(recipient)
+				.flatMap(leftPart -> SrsData.fromLeftPart(srsHash, leftPart)).map(SrsData::originalEmail);
 	}
 }

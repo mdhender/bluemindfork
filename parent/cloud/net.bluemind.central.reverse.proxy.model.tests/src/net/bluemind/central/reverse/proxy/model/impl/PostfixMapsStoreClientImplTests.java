@@ -310,7 +310,7 @@ public class PostfixMapsStoreClientImplTests {
 	public void allMailboxQueries_noSplit() {
 		PostfixMapsStoreClient client = PostfixMapsStoreClient.create(vertx);
 		AsyncTestContext.asyncTest(context -> client
-				.addInstallation(new InstallationInfo("datalocation-uid", "datalocation-ip", false, true))
+				.addInstallation(new InstallationInfo(null, "datalocation-uid", "datalocation-ip", false, true))
 				.compose(
 						ar1 -> client.addDomain(new DomainInfo("domain-uid", Set.of("domain-alias1", "domain-alias2"))))
 				.compose(ar1 -> client.addDomainSettings(new DomainSettings("domain-uid", null, false)))
@@ -404,7 +404,7 @@ public class PostfixMapsStoreClientImplTests {
 	public void allMailboxQueries_splitNotForwardUnknown() {
 		PostfixMapsStoreClient client = PostfixMapsStoreClient.create(vertx);
 		AsyncTestContext.asyncTest(context -> client
-				.addInstallation(new InstallationInfo("datalocation-uid", "datalocation-ip", false, true))
+				.addInstallation(new InstallationInfo(null, "datalocation-uid", "datalocation-ip", false, true))
 				.compose(
 						ar1 -> client.addDomain(new DomainInfo("domain-uid", Set.of("domain-alias1", "domain-alias2"))))
 				.compose(ar1 -> client.addDomainSettings(new DomainSettings("domain-uid", "smtp-relay", false)))
@@ -511,7 +511,7 @@ public class PostfixMapsStoreClientImplTests {
 	public void allMailboxQueries_splitForwardUnknown() {
 		PostfixMapsStoreClient client = PostfixMapsStoreClient.create(vertx);
 		AsyncTestContext.asyncTest(context -> client
-				.addInstallation(new InstallationInfo("datalocation-uid", "datalocation-ip", false, true))
+				.addInstallation(new InstallationInfo(null, "datalocation-uid", "datalocation-ip", false, true))
 				.compose(
 						ar1 -> client.addDomain(new DomainInfo("domain-uid", Set.of("domain-alias1", "domain-alias2"))))
 				.compose(ar1 -> client.addDomainSettings(new DomainSettings("domain-uid", "smtp-relay", true)))

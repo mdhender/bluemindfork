@@ -113,6 +113,15 @@ public class PostfixMapsHandler implements Handler<Buffer> {
 			sendResponse(ResponseCode.OK, relay);
 		}).onFailure(t -> sendResponse(ResponseCode.TEMP, "transport map fail: " + t.getMessage()));
 
+		case "srsrecipient" -> client.srsRecipient(query.query).onSuccess(recipient -> {
+			if (recipient == null) {
+				sendResponse(ResponseCode.NOTFOUND);
+				return;
+			}
+
+			sendResponse(ResponseCode.OK, recipient);
+		}).onFailure(t -> sendResponse(ResponseCode.TEMP, "srs-recipient map fail: " + t.getMessage()));
+
 		default -> sendResponse(ResponseCode.PERM, "unsupported map name " + query.map);
 		}
 	}

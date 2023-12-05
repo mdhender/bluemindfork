@@ -18,6 +18,6 @@ Require-Bundle: com.google.guava,
  net.bluemind.core.container.api,
  net.bluemind.domain.api,
  org.eclipse.osgi,
- net.bluemind.system.hook;visibility:=reexport
-Export-Package: net.bluemind.milter.srs,
- net.bluemind.milter.srs.tools
+ net.bluemind.system.hook;visibility:=reexport,
+ net.bluemind.lib.srs
+Export-Package: net.bluemind.milter.srs

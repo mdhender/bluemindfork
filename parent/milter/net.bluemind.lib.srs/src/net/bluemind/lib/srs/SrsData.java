@@ -16,23 +16,22 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.milter.srs;
+package net.bluemind.lib.srs;
 
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 
-import net.bluemind.core.api.Regex;
-import net.bluemind.milter.srs.tools.SrsHash;
-import net.bluemind.milter.srs.tools.SrsTimestamp;
-
 public class SrsData {
 	private static final Logger logger = LoggerFactory.getLogger(SrsData.class);
 
+	private static final Pattern EMAIL = Pattern.compile(
+			"^[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+)*@([a-zA-Z0-9-]+\\.)+[a-zA-Z0-9-]{2,}$");
 	private static final String PREFIX = "SRS0";
 	private static final String SEP = "=";
 
@@ -51,7 +50,7 @@ public class SrsData {
 	public static Optional<SrsData> forEmail(SrsHash srsHash, String email) {
 		// SRS left part email must be lesser or equals to 64 chars
 		// prefix + hash + timestamp +separators use 13 chars
-		if (Strings.isNullOrEmpty(email) || !Regex.EMAIL.validate(email)) {
+		if (Strings.isNullOrEmpty(email) || !EMAIL.matcher(email).matches()) {
 			return Optional.empty();
 		}
 

@@ -12,4 +12,5 @@ CRP Postfix configuration:
 	virtual_mailbox_maps = socketmap:inet:127.0.0.1:25252:mailbox
 	virtual_alias_maps = socketmap:inet:127.0.0.1:25252:alias
 	transport_maps = socketmap:inet:127.0.0.1:25252:transport
+	recipient_canonical_maps = socketmap:inet:127.0.0.1:25252:srsrecipient
 ```

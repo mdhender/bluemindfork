@@ -30,12 +30,13 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Strings;
 
 import net.bluemind.config.InstallationId;
+import net.bluemind.lib.srs.SrsData;
+import net.bluemind.lib.srs.SrsHash;
 import net.bluemind.milter.MilterHeaders;
 import net.bluemind.milter.action.MilterPreAction;
 import net.bluemind.milter.action.MilterPreActionsFactory;
 import net.bluemind.milter.action.UpdatedMailMessage;
 import net.bluemind.milter.cache.DomainAliasCache;
-import net.bluemind.milter.srs.tools.SrsHash;
 
 public class SrsSender implements MilterPreAction {
 	private static final Logger logger = LoggerFactory.getLogger(SrsSender.class);
@@ -77,7 +78,7 @@ public class SrsSender implements MilterPreAction {
 
 	@Override
 	public boolean execute(UpdatedMailMessage modifiedMail) {
-		if (SysconfHelper.srsDisabled.get()) {
+		if (Boolean.TRUE.equals(SysconfHelper.srsDisabled.get())) {
 			return false;
 		}
 

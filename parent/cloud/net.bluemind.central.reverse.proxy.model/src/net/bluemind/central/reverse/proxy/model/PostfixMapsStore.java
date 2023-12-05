@@ -11,6 +11,7 @@ import static net.bluemind.central.reverse.proxy.model.common.PostfixMapsStoreEv
 import static net.bluemind.central.reverse.proxy.model.common.PostfixMapsStoreEventBusAddress.MAILBOX_EXISTS;
 import static net.bluemind.central.reverse.proxy.model.common.PostfixMapsStoreEventBusAddress.MAILBOX_STORE;
 import static net.bluemind.central.reverse.proxy.model.common.PostfixMapsStoreEventBusAddress.MANAGE_MEMBER_NAME;
+import static net.bluemind.central.reverse.proxy.model.common.PostfixMapsStoreEventBusAddress.SRS_RECIPIENT;
 import static net.bluemind.central.reverse.proxy.model.common.PostfixMapsStoreEventBusAddress.UPDATE_DOMAIN_SETTINGS_NAME;
 
 import java.util.concurrent.CompletableFuture;
@@ -85,6 +86,9 @@ public class PostfixMapsStore {
 			case MAILBOX_STORE:
 				mailboxRelay(event);
 				break;
+			case SRS_RECIPIENT:
+				srsRecipient(event);
+				break;
 			default:
 				event.fail(404, "Unknown action '" + action + "'");
 			}
@@ -100,6 +104,7 @@ public class PostfixMapsStore {
 				return;
 			}
 
+			storage.updateInstallationUid(installationInfo.uid);
 			storage.updateDataLocation(installationInfo.dataLocationUid, installationInfo.ip);
 			event.reply(null);
 		} catch (IllegalArgumentException e) {
@@ -215,6 +220,11 @@ public class PostfixMapsStore {
 	private void mailboxRelay(Message<JsonObject> event) {
 		String mailbox = event.body().getString("mailbox");
 		event.reply(new JsonObject().put("relay", storage.mailboxRelay(mailbox)));
+	}
+
+	private void srsRecipient(Message<JsonObject> event) {
+		String recipient = event.body().getString("recipient");
+		event.reply(new JsonObject().put("recipient", storage.srsRecipient(recipient)));
 	}
 
 	@VisibleForTesting

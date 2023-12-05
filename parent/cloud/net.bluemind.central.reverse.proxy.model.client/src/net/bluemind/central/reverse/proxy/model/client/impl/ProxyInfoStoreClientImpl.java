@@ -34,7 +34,7 @@ public class ProxyInfoStoreClientImpl implements ProxyInfoStoreClient {
 	@Override
 	public Future<String> addInstallation(InstallationInfo info) {
 		Promise<String> p = Promise.promise();
-		logger.info("[model] Adding dataLocation: {}", info);
+		logger.debug("[model] Adding dataLocation: {}", info);
 		vertx.eventBus().request(ADDRESS, JsonObject.mapFrom(info), ADD_INSTALLATION, ar -> {
 			if (ar.succeeded()) {
 				p.complete(ar.result().body() != null ? (String) ar.result().body() : null);
@@ -48,7 +48,7 @@ public class ProxyInfoStoreClientImpl implements ProxyInfoStoreClient {
 	@Override
 	public Future<Void> addDomain(DomainInfo info) {
 		Promise<Void> p = Promise.promise();
-		logger.info("[model] Adding domain: {}", info);
+		logger.debug("[model] Adding domain: {}", info);
 		vertx.eventBus().request(ADDRESS, JsonObject.mapFrom(info), ADD_DOMAIN, ar -> {
 			if (ar.succeeded()) {
 				p.complete();
@@ -62,7 +62,7 @@ public class ProxyInfoStoreClientImpl implements ProxyInfoStoreClient {
 	@Override
 	public Future<Void> addDir(DirInfo info) {
 		Promise<Void> p = Promise.promise();
-		logger.info("[model] Adding login: {}", info);
+		logger.debug("[model] Adding login: {}", info);
 		vertx.eventBus().request(ADDRESS, JsonObject.mapFrom(info), ADD_DIR, ar -> {
 			if (ar.succeeded()) {
 				p.complete();

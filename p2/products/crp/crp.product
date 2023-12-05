@@ -77,6 +77,7 @@
       <plugin id="net.bluemind.kafka.configuration"/>
       <plugin id="net.bluemind.lib.grafana"/>
       <plugin id="net.bluemind.lib.jackson"/>
+      <plugin id="net.bluemind.lib.srs"/>
       <plugin id="net.bluemind.lib.vertx"/>
       <plugin id="net.bluemind.mailbox.api"/>
       <plugin id="net.bluemind.mailbox.identity.api"/>

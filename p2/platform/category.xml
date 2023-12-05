@@ -394,6 +394,7 @@
    <bundle id="net.bluemind.lib.jutf7" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.lib.ldap" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.lib.ristretto" version="5.0.0.qualifier"/>
+   <bundle id="net.bluemind.lib.srs" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.lib.vertx" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.linkify" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.lmtp.filter.imip" version="5.0.0.qualifier"/>

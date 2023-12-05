@@ -16,7 +16,7 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.milter.srs.tools;
+package net.bluemind.lib.srs;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

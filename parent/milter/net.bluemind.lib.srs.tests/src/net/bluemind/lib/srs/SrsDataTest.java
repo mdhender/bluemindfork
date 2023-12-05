@@ -16,7 +16,7 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.milter.srs;
+package net.bluemind.lib.srs;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -28,9 +28,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import org.junit.Test;
-
-import net.bluemind.milter.srs.tools.SrsHash;
-import net.bluemind.milter.srs.tools.SrsTimestamp;
 
 public class SrsDataTest {
 	public static final SrsHash SRSHASH = SrsHash.build("681c4953-8203-4eec-abbc-e40055ce640b").orElse(null);

@@ -15,4 +15,5 @@ Require-Bundle: net.bluemind.milter.srs,
  net.bluemind.config,
  org.apache.james.apache-mime4j-core,
  net.bluemind.system.api,
- net.bluemind.hornetq.client
+ net.bluemind.hornetq.client,
+ net.bluemind.lib.srs

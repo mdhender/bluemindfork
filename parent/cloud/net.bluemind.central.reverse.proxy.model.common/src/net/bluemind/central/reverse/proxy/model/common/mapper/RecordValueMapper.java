@@ -11,7 +11,7 @@ import net.bluemind.central.reverse.proxy.model.common.mapper.impl.ByteArrayReco
 
 public interface RecordValueMapper<T> {
 
-	Optional<InstallationInfo> mapInstallation(T rec);
+	Optional<InstallationInfo> mapInstallation(String uid, T rec);
 
 	Optional<DomainInfo> mapDomain(T rec);
 

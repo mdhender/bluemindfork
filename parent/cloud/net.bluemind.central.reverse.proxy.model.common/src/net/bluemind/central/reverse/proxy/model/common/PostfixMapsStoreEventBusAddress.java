@@ -18,6 +18,7 @@ public class PostfixMapsStoreEventBusAddress {
 	public static final String MAILBOX_EXISTS = "mailboxExists";
 	public static final String MAILBOX_DOMAIN_MANAGED = "mailboxDomainManaged";
 	public static final String MAILBOX_STORE = "mailboxStore";
+	public static final String SRS_RECIPIENT = "srsRecipient";
 
 	public static final DeliveryOptions ADD_INSTALLATION = new DeliveryOptions().addHeader(ACTION_HEADER,
 			ADD_INSTALLATION_NAME);
@@ -36,6 +37,8 @@ public class PostfixMapsStoreEventBusAddress {
 			MAILBOX_DOMAIN_MANAGED);
 	public static final DeliveryOptions GET_MAILBOX_STORE = new DeliveryOptions().addHeader(ACTION_HEADER,
 			MAILBOX_STORE);
+	public static final DeliveryOptions GET_SRS_RECIPIENT = new DeliveryOptions().addHeader(ACTION_HEADER,
+			SRS_RECIPIENT);
 
 	private PostfixMapsStoreEventBusAddress() {
 	}

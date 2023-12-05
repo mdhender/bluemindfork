@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.lib.srs.tests
+Bundle-SymbolicName: net.bluemind.lib.srs.tests
+Bundle-Version: 5.0.0.qualifier
+Require-Bundle: org.junit,
+ net.bluemind.lib.srs
+Bundle-Vendor: bluemind.net
+Automatic-Module-Name: net.bluemind.lib.srs.tests
+Bundle-RequiredExecutionEnvironment: JavaSE-21

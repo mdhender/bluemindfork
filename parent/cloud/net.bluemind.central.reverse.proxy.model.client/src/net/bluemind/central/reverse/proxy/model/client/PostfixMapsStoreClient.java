@@ -36,4 +36,6 @@ public interface PostfixMapsStoreClient {
 	Future<Boolean> mailboxDomainsManaged(String mailboxDomain);
 
 	Future<String> getMailboxRelay(String mailbox);
+
+	Future<String> srsRecipient(String recipient);
 }
