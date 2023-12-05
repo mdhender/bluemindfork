@@ -18,6 +18,7 @@
  */
 package net.bluemind.mime4j.common;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayDeque;
@@ -40,15 +41,16 @@ import org.apache.james.mime4j.stream.Field;
 import org.apache.james.mime4j.stream.RawField;
 import org.apache.james.mime4j.util.ByteArrayBuffer;
 import org.apache.james.mime4j.util.ByteSequence;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Blue Mind class to extend default mime4j parsing
- * 
- * @author tom
+ * BlueMind class to extend default mime4j parsing
  * 
  */
 public class DefaultEntityBuilder implements ContentHandler {
 
+	private static final Logger logger = LoggerFactory.getLogger(DefaultEntityBuilder.class);
 	private final Entity entity;
 	private final BodyFactory bodyFactory;
 	private final Deque<Object> stack;
@@ -146,27 +148,23 @@ public class DefaultEntityBuilder implements ContentHandler {
 		// The parser has a "setContentDecoding" method. We should
 		// simply instantiate the MimeStreamParser with that method.
 
-		// final String enc = bd.getTransferEncoding();
-
-		final Body body;
-
-		/*
-		 * final InputStream decodedStream; if (MimeUtil.ENC_BASE64.equals(enc)) {
-		 * decodedStream = new Base64InputStream(is); } else if
-		 * (MimeUtil.ENC_QUOTED_PRINTABLE.equals(enc)) { decodedStream = new
-		 * QuotedPrintableInputStream(is); } else { decodedStream = is; }
-		 */
+		Body body;
 
 		if (bd.getMimeType().startsWith("text/")) {
 			body = bodyFactory.textBody(is, bd.getCharset());
 		} else {
-			body = bodyFactory.binaryBody(is);
+			try {
+				body = bodyFactory.binaryBody(is);
+			} catch (IOException ioe) {
+				logger.warn("Error processing {}, replacing with empty body", is, ioe);
+				body = bodyFactory.binaryBody(new ByteArrayInputStream(new byte[0]));
+			}
 		}
 
-		Entity entity = ((Entity) stack.peek());
-		entity.setBody(body);
+		Entity parentEntity = ((Entity) stack.peek());
+		parentEntity.setBody(body);
 
-		postBody(entity, bd, body);
+		postBody(parentEntity, bd, body);
 	}
 
 	/**
