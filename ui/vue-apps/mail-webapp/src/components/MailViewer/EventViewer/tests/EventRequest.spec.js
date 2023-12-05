@@ -1,6 +1,7 @@
 import { mount } from "@vue/test-utils";
 import EventRequest from "../EventRequest.vue";
 
+import { EventBuilder } from "./EventBuilder";
 import store from "@bluemind/store";
 jest.mock("@bluemind/store", () => ({
     dispatch: jest.fn(),
@@ -14,25 +15,7 @@ describe("Event request insert", () => {
     let eventRequest;
 
     beforeEach(() => {
-        eventRequest = mount(EventRequest, {
-            propsData: {
-                event: {
-                    attendee: { commonName: "any attendee" },
-                    isMeeting: false,
-                    isWritable: true,
-                    status: "NO STATUS YET"
-                },
-                message: {
-                    eventInfo: {
-                        needsReply: true
-                    }
-                }
-            },
-            mocks: {
-                $t: path => path.split(".").pop(),
-                $tc: path => path.split(".").pop()
-            }
-        });
+        eventRequest = mountEventRequest(EventBuilder().build());
     });
 
     afterEach(() => {
@@ -78,40 +61,36 @@ describe("Event request insert", () => {
     it("should contain a footer", () => {
         expect(getFooter()).toBeDefined();
     });
-    it("should not have reply buttons when the event is not writable", () => {
-        const eventRequestUnwritable = mount(EventRequest, {
-            propsData: {
-                event: {
-                    isWritable: false,
-                    isMeeting: false,
-                    status: "NO STATUS YET"
-                },
-                message: {}
-            },
-            mocks: {
-                $t: path => path.split(".").pop(),
-                $tc: path => path.split(".").pop()
-            }
-        });
+    it("should not have reply buttons when the event is not writable (=> needsResponse = false)", () => {
+        const unWritableEvent = EventBuilder().isWritable(false).build();
+        const eventRequestUnwritable = mountEventRequest(unWritableEvent);
 
         expect(eventRequestUnwritable.find(".reply-buttons").exists()).not.toBeTruthy();
     });
 
     describe("Resource Booking", () => {
         it("should not have header when event Request has no attendee ", () => {
-            const wrapper = mount(EventRequest, {
-                propsData: {
-                    message: {},
-                    event: {
-                        isWritable: true,
-                        isMeeting: true,
-                        status: "",
-                        attendee: undefined
-                    }
-                },
-                mocks: { $t: () => "", $tc: () => "" }
-            });
+            const wrapper = mountEventRequest(EventBuilder().removeCalendarOwnerFromAttendeesList().build());
+
             expect(wrapper.find(".event-header").exists()).not.toBeTruthy();
         });
     });
 });
+
+function mountEventRequest(event) {
+    return mount(EventRequest, {
+        propsData: {
+            event: event,
+            message: {
+                eventInfo: {
+                    needsReply: true
+                }
+            }
+        },
+        mocks: {
+            $t: path => path.split(".").pop(),
+            $tc: path => path.split(".").pop(),
+            $d: () => ""
+        }
+    });
+}

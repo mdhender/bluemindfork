@@ -38,7 +38,7 @@ export default {
             calendarOwner,
             private: infos.classification === CLASSIFICATIONS.PRIVATE,
             isWritable,
-            isMeeting: attendee == null
+            needsResponse: isWritable && attendee != null
         };
     },
     adaptAttendeeList(attendees) {
