@@ -33,6 +33,7 @@ import net.bluemind.core.container.api.IOwnerSubscriptionUids;
 import net.bluemind.core.container.api.internal.IInternalOwnerSubscriptions;
 import net.bluemind.core.container.api.internal.IInternalOwnerSubscriptionsMgmt;
 import net.bluemind.core.container.hooks.ContainersHooks;
+import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.persistence.ContainerStore;
@@ -108,7 +109,7 @@ public class InternalOwnerSubscriptionsMgmtService implements IInternalOwnerSubs
 		String subsUid = IOwnerSubscriptionUids.getIdentifier(ownerUid, domainUid);
 		IContainers contApi = context.provider().instance(IContainers.class);
 		try {
-			ContainerDescriptor cd = contApi.get(subsUid);
+			BaseContainerDescriptor cd = contApi.getLight(subsUid);
 			IInternalOwnerSubscriptions subsApi = context.provider().instance(IInternalOwnerSubscriptions.class,
 					cd.domainUid, cd.owner);
 			subsApi.reset();

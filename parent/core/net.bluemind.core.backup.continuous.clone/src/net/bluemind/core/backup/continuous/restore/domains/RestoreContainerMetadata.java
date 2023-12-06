@@ -69,7 +69,8 @@ public class RestoreContainerMetadata implements RestoreDomainType {
 
 		ContainerMetadata metadata = item.value;
 
-		Optional<ContainerDescriptor> maybeHere = Optional.ofNullable(contApi.getIfPresent(metadata.contDesc.uid));
+		Optional<BaseContainerDescriptor> maybeHere = Optional
+				.ofNullable(contApi.getLightIfPresent(metadata.contDesc.uid));
 		if (!maybeHere.isPresent()) {
 			BaseContainerDescriptor cd = metadata.contDesc;
 			ContainerDescriptor fullCd = ContainerDescriptor.create(cd.uid, cd.name, cd.owner, cd.type, cd.domainUid,

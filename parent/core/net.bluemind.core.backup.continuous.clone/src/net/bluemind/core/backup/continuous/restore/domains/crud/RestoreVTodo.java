@@ -65,7 +65,7 @@ public class RestoreVTodo extends CrudItemRestore<VTodo> {
 	protected ITodoList api(ItemValue<Domain> domain, RecordKey key) {
 		if (!validatedLists.contains(key.uid)) {
 			IContainers contApi = target.instance(IContainers.class);
-			if (contApi.getIfPresent(key.uid) == null) {
+			if (contApi.getLightIfPresent(key.uid) == null) {
 				ITodoLists mgmtApi = target.instance(ITodoLists.class);
 				mgmtApi.create(key.uid,
 						ContainerDescriptor.create(key.uid, "todo-" + key.uid, key.owner, key.type, domain.uid, false));

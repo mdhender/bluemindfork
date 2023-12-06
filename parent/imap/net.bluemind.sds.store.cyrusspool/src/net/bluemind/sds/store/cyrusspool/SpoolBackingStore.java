@@ -58,7 +58,7 @@ import net.bluemind.backend.mail.replica.api.Tier;
 import net.bluemind.backend.mail.replica.api.TierMove;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IContainers;
-import net.bluemind.core.container.model.ContainerDescriptor;
+import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.hornetq.client.MQ;
@@ -190,7 +190,7 @@ public class SpoolBackingStore implements ISdsBackingStore {
 		if (!refs.isEmpty()) {
 			MailboxRecordItemUri uri = refs.iterator().next();
 			IContainers contApi = serviceProvider.instance(IContainers.class);
-			ContainerDescriptor cont = contApi.getIfPresent(uri.containerUid);
+			BaseContainerDescriptor cont = contApi.getLightIfPresent(uri.containerUid);
 			IMailboxes mboxes = serviceProvider.instance(IMailboxes.class, cont.domainUid);
 			ItemValue<Mailbox> mbox = mboxes.getComplete(uri.owner);
 			IDbReplicatedMailboxes folderApi = serviceProvider.instance(IDbReplicatedMailboxes.class, cont.domainUid,

@@ -35,7 +35,7 @@ import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.streams.ReadStream;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.container.api.IContainers;
-import net.bluemind.core.container.model.ContainerDescriptor;
+import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.network.topology.Topology;
@@ -47,11 +47,11 @@ public class ExportHelper {
 	public static void export(Vertx vertx, String sessionId, HttpServerRequest request, String type,
 			String containerUid, Function<ClientSideServiceProvider, Stream> export) {
 		request.pause();
-		AtomicReference<ContainerDescriptor> containerDescriptor = new AtomicReference<>();
+		AtomicReference<BaseContainerDescriptor> containerDescriptor = new AtomicReference<>();
 		vertx.executeBlocking(() -> {
 			ClientSideServiceProvider clientProvider = core(sessionId);
 			IContainers icp = clientProvider.instance(IContainers.class);
-			containerDescriptor.set(icp.get(containerUid));
+			containerDescriptor.set(icp.getLight(containerUid));
 			ReadStream<Buffer> stream;
 			stream = VertxStream.read(export.apply(clientProvider));
 			return stream;

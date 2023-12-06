@@ -111,12 +111,8 @@ public class MapiFoldersMgmt implements IMapiFoldersMgmt {
 	public void repair(String containerUid) {
 		MapiFolder f = get(containerUid);
 		IContainers contApi = context.provider().instance(IContainers.class);
-		ContainerDescriptor existingContainer = null;
-		try {
-			existingContainer = contApi.get(f.containerUid);
-		} catch (ServerFault sf) {
-			logger.warn(sf.getMessage());
-		}
+		BaseContainerDescriptor existingContainer = null;
+		existingContainer = contApi.getLightIfPresent(f.containerUid);
 		if (existingContainer == null) {
 			setupContainer(contApi, f);
 		} else {
@@ -126,7 +122,7 @@ public class MapiFoldersMgmt implements IMapiFoldersMgmt {
 		}
 	}
 
-	private void repairName(IContainers contApi, ContainerDescriptor existingContainer, MapiFolder folder) {
+	private void repairName(IContainers contApi, BaseContainerDescriptor existingContainer, MapiFolder folder) {
 		if (existingContainer.defaultContainer || !existingContainer.name.equals(folder.displayName)) {
 			logger.info("Container {} exists but needs adjustments", folder.containerUid);
 			ContainerModifiableDescriptor cmd = new ContainerModifiableDescriptor();

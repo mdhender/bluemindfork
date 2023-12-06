@@ -26,7 +26,7 @@ import java.util.List;
 
 import net.bluemind.core.container.api.ContainerQuery;
 import net.bluemind.core.container.api.IContainers;
-import net.bluemind.core.container.model.ContainerDescriptor;
+import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
@@ -57,17 +57,17 @@ public abstract class ExportCommand extends SingleOrDomainOperation {
 			directory.mkdirs();
 		}
 
-		List<ContainerDescriptor> containers = new ArrayList<>();
+		List<BaseContainerDescriptor> containers = new ArrayList<>();
 		IContainers containersService = ctx.adminApi().instance(IContainers.class);
 		ContainerQuery q = ContainerQuery.ownerAndType(de.uid, getcontainerType());
 		if (getcontainerUid() == null) {
 			containersService.allForUser(domainUid, de.uid, q).forEach(containers::add);
 		} else {
-			containers.add(containersService.get(getcontainerUid()));
+			containers.add(containersService.getLight(getcontainerUid()));
 		}
 
 		if (!dry) {
-			for (ContainerDescriptor container : containers) {
+			for (BaseContainerDescriptor container : containers) {
 				String filename = outputDirectory + "/" + cliUtils.encodeFilename(container.name) + getFileExtension();
 				if (!dry) {
 					File file = new File(filename);

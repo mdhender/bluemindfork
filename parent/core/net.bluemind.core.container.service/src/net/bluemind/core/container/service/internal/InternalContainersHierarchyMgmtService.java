@@ -29,8 +29,8 @@ import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.api.IFlatHierarchyUids;
 import net.bluemind.core.container.api.internal.IInternalContainersFlatHierarchy;
 import net.bluemind.core.container.api.internal.IInternalContainersFlatHierarchyMgmt;
+import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.jdbc.JdbcAbstractStore;
@@ -115,7 +115,7 @@ public class InternalContainersHierarchyMgmtService implements IInternalContaine
 
 		IContainers contApi = context.provider().instance(IContainers.class);
 		String hierUid = IFlatHierarchyUids.getIdentifier(ownerUid, domainUid);
-		ContainerDescriptor cd = contApi.getIfPresent(hierUid);
+		BaseContainerDescriptor cd = contApi.getLightIfPresent(hierUid);
 		if (cd != null) {
 			IInternalContainersFlatHierarchy hierApi = context.provider()
 					.instance(IInternalContainersFlatHierarchy.class, cd.domainUid, cd.owner);

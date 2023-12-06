@@ -72,7 +72,7 @@ public class DomainAddressBookRepair implements ContainerRepairOp {
 
 		for (ItemValue<DirEntry> ab : abs.values) {
 			String uid = ab.value.entryUid;
-			if (containerService.getIfPresent(uid) == null) {
+			if (containerService.getLightIfPresent(uid) == null) {
 				monitor.notify("Domain addressbook {} is missing associated container", uid);
 				repairOp.accept(new AddressBookInfo(uid, ab.displayName));
 			}

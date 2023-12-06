@@ -51,7 +51,7 @@ public class DeferredActionUserHook extends DefaultUserHook {
 		IContainers containerService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IContainers.class);
 
-		if (containerService.getIfPresent(containerUid) != null) {
+		if (containerService.getLightIfPresent(containerUid) != null) {
 			try {
 				IDeferredActionMgmt service = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 						.instance(IDeferredActionMgmt.class, containerUid);

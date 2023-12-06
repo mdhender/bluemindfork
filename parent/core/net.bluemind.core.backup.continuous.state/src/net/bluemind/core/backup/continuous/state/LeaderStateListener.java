@@ -32,7 +32,7 @@ import net.bluemind.core.backup.continuous.api.IBackupStore;
 import net.bluemind.core.backup.continuous.api.InstallationWriteLeader;
 import net.bluemind.core.backup.continuous.dto.Seppuku;
 import net.bluemind.core.container.api.IContainers;
-import net.bluemind.core.container.model.ContainerDescriptor;
+import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -107,8 +107,7 @@ public class LeaderStateListener implements IStateListener {
 		}
 		logger.info("seppuku time, write Bye message for {}", userDom.uid);
 		IContainers contApi = prov.instance(IContainers.class);
-		ContainerDescriptor dirDesc = contApi.get(userDom.uid);
-		logger.info("Dir is {}", dirDesc);
+		BaseContainerDescriptor dirDesc = contApi.getLight(userDom.uid);
 		IBackupStore<Seppuku> store = DefaultBackupStore.store().forContainer(dirDesc);
 		Seppuku sep = new Seppuku();
 		sep.byeTime = new Date();

@@ -18,7 +18,7 @@
 package net.bluemind.mailbox.service.internal.repair;
 
 import net.bluemind.core.container.api.IContainers;
-import net.bluemind.core.container.model.ContainerDescriptor;
+import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.repair.ContainerRepairUtil;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
@@ -50,7 +50,7 @@ public class MailboxAclsContainerMaintenanceOperation extends MailboxMaintenance
 	private void checkAndRepair(boolean repair, String domainUid, RepairTaskMonitor monitor) {
 		monitor.begin(1, String.format("Check mailbox %s acls container exists", mailboxToString(domainUid)));
 		IContainers contApi = context.su().provider().instance(IContainers.class);
-		ContainerDescriptor existing = contApi.getIfPresent(IMailboxAclUids.uidForMailbox(mailbox.uid));
+		BaseContainerDescriptor existing = contApi.getLightIfPresent(IMailboxAclUids.uidForMailbox(mailbox.uid));
 
 		if (existing == null) {
 			monitor.notify("Mailbox {} acls container does not exist", mailboxToString(domainUid));

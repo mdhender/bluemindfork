@@ -66,7 +66,7 @@ public class RestoreVCard extends CrudItemRestore<VCard> {
 	protected IAddressBook api(ItemValue<Domain> domain, RecordKey key) {
 		if (!validatedBooks.contains(key.uid)) {
 			IContainers contApi = target.instance(IContainers.class);
-			if (contApi.getIfPresent(key.uid) == null) {
+			if (contApi.getLightIfPresent(key.uid) == null) {
 				IAddressBooksMgmt mgmtApi = target.instance(IAddressBooksMgmt.class);
 				mgmtApi.create(key.uid, AddressBookDescriptor.create("book-" + key.uid, key.owner, domain.uid), false);
 				validatedBooks.add(key.uid);

@@ -59,7 +59,7 @@ public class WebAppDataUserHook extends DefaultUserHook {
 		IContainers containerService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IContainers.class);
 
-		if (containerService.getIfPresent(containerUid) != null) {
+		if (containerService.getLightIfPresent(containerUid) != null) {
 			IWebAppData webAppDataService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 					.instance(IWebAppData.class, containerUid);
 			try {

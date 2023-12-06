@@ -70,8 +70,8 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.auditlog.IAuditManager;
 import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.api.IContainers;
+import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.context.SecurityContext;
@@ -982,7 +982,7 @@ public class IcsHook implements ICalendarHook {
 		ServerSideServiceProvider sp = ServerSideServiceProvider.getProvider(context);
 
 		IContainers ic = sp.instance(IContainers.class);
-		ContainerDescriptor container = ic.get(message.container.uid);
+		BaseContainerDescriptor container = ic.getLight(message.container.uid);
 
 		return sp.instance(IDirectory.class, message.container.domainUid).findByEntryUid(container.owner);
 	}

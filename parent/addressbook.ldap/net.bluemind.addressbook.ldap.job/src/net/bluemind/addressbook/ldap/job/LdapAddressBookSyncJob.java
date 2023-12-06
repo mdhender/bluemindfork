@@ -30,7 +30,7 @@ import net.bluemind.addressbook.api.IAddressBookUids;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.api.internal.IInternalContainerSync;
-import net.bluemind.core.container.model.ContainerDescriptor;
+import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.ContainerSyncResult;
 import net.bluemind.core.container.model.ContainerSyncStatus.Status;
 import net.bluemind.core.container.persistence.ContainersSyncStore;
@@ -94,11 +94,11 @@ public class LdapAddressBookSyncJob implements IScheduledJob {
 
 		boolean ret = true;
 
-		if (uids.size() > 0) {
+		if (!uids.isEmpty()) {
 			double total = 100d / uids.size();
 			int i = 0;
 			for (String uid : uids) {
-				ContainerDescriptor containerDescriptor = containerService.get(uid);
+				BaseContainerDescriptor containerDescriptor = containerService.getLight(uid);
 				String name = containerDescriptor.domainUid + ":" + containerDescriptor.name;
 				long start = System.currentTimeMillis();
 				try {

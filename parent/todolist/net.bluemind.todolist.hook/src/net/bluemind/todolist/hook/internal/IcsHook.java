@@ -40,7 +40,7 @@ import net.bluemind.common.freemarker.MessagesResolver;
 import net.bluemind.common.freemarker.MessagesResolverProvider;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IContainers;
-import net.bluemind.core.container.model.ContainerDescriptor;
+import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -133,8 +133,7 @@ public class IcsHook implements ITodoListHook {
 		ServerSideServiceProvider sp = ServerSideServiceProvider.getProvider(context);
 
 		IContainers ic = sp.instance(IContainers.class);
-		ContainerDescriptor container = ic.get(message.container.uid);
-
+		BaseContainerDescriptor container = ic.getLight(message.container.uid);
 		return sp.instance(IDirectory.class, message.container.domainUid).findByEntryUid(container.owner);
 	}
 

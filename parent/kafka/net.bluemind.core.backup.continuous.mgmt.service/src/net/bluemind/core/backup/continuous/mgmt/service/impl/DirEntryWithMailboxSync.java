@@ -48,7 +48,6 @@ import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.api.IContainersFlatHierarchy;
 import net.bluemind.core.container.api.IRestoreDirEntryWithMailboxSupport;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
-import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.service.IServerTaskMonitor;
@@ -199,7 +198,7 @@ public class DirEntryWithMailboxSync<T> {
 		ReservedIds reserved = new ReservedIds();
 		String subtree = IMailReplicaUids.subtreeUid(domainApis.domain.uid, mboxUser);
 		IContainers contApi = ctx.provider().instance(IContainers.class);
-		ContainerDescriptor existing = contApi.getIfPresent(subtree);
+		BaseContainerDescriptor existing = contApi.getLightIfPresent(subtree);
 		if (existing == null) {
 			mon.log("Subtree is missing for {}", Level.WARN, mboxUser);
 		} else {

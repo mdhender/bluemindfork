@@ -30,6 +30,7 @@ import net.bluemind.calendar.api.IFreebusyUids;
 import net.bluemind.calendar.service.UserCalendarServiceFactory;
 import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.api.IContainers;
+import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
@@ -158,7 +159,7 @@ public class UserCalendarRepair implements ContainerRepairOp {
 		String containerUid = IFreebusyUids.getFreebusyContainerUid(user.uid);
 		ServerSideServiceProvider provider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 		IContainers containerService = provider.instance(IContainers.class);
-		ContainerDescriptor container = containerService.getIfPresent(containerUid);
+		BaseContainerDescriptor container = containerService.getLightIfPresent(containerUid);
 		if (container != null) {
 			IFreebusyMgmt mgmt = provider.instance(IFreebusyMgmt.class, containerUid);
 			List<String> cals = mgmt.get();
@@ -172,7 +173,7 @@ public class UserCalendarRepair implements ContainerRepairOp {
 	}
 
 	private boolean verifyCalendar(IContainers containerService, String owner, String calendar) {
-		ContainerDescriptor calContainer = containerService.getIfPresent(calendar);
+		BaseContainerDescriptor calContainer = containerService.getLightIfPresent(calendar);
 		return calContainer != null && calContainer.owner.equals(owner);
 	}
 

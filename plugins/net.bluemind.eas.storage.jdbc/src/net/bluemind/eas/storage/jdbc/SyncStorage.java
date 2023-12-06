@@ -41,6 +41,7 @@ import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.api.IContainersFlatHierarchy;
 import net.bluemind.core.container.api.IOwnerSubscriptions;
+import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ContainerModifiableDescriptor;
 import net.bluemind.core.container.model.ItemValue;
@@ -290,7 +291,7 @@ public class SyncStorage implements ISyncStorage {
 		IContainers containers = cssp.instance(IContainers.class);
 
 		try {
-			ContainerDescriptor container = containers.get(node.containerUid);
+			BaseContainerDescriptor container = containers.getLight(node.containerUid);
 
 			if (type == ItemDataType.TASKS) {
 				if (container.defaultContainer) {
@@ -329,7 +330,7 @@ public class SyncStorage implements ISyncStorage {
 		try {
 			IContainers containers = provider(bs).instance(IContainers.class);
 			if (type == ItemDataType.CALENDAR || type == ItemDataType.TASKS) {
-				ContainerDescriptor container = containers.get(node.containerUid);
+				BaseContainerDescriptor container = containers.getLight(node.containerUid);
 				if (container.defaultContainer) {
 					logger.warn("Cannot update default {} {}", type, node.containerUid);
 					return true;

@@ -54,7 +54,6 @@ import net.bluemind.core.backup.continuous.mgmt.service.impl.ResourceSync;
 import net.bluemind.core.backup.continuous.mgmt.service.impl.UserSync;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
-import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
@@ -177,7 +176,7 @@ public class StreamCheckAndRepair {
 		IDomains domainApi = ctx.provider().instance(IDomains.class);
 		ItemValue<Domain> domain = domainApi.get(stream.domainUid());
 		IContainers contsApi = ctx.provider().instance(IContainers.class);
-		ContainerDescriptor dirContainer = contsApi.get(domain.uid);
+		BaseContainerDescriptor dirContainer = contsApi.getLight(domain.uid);
 		DomainApis domApi = new DomainApis(domain, //
 				ctx.provider().instance(IMailboxes.class, stream.domainUid()), //
 				ctx.provider().instance(IDirectory.class, stream.domainUid()));

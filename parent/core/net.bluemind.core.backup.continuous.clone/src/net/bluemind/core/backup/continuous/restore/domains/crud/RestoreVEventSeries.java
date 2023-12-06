@@ -66,7 +66,7 @@ public class RestoreVEventSeries extends CrudItemRestore<VEventSeries> {
 	protected ICalendar api(ItemValue<Domain> domain, RecordKey key) {
 		if (!validatedCalendars.contains(key.uid)) {
 			IContainers contApi = target.instance(IContainers.class);
-			if (contApi.getIfPresent(key.uid) == null) {
+			if (contApi.getLightIfPresent(key.uid) == null) {
 				ICalendarsMgmt mgmtApi = target.instance(ICalendarsMgmt.class);
 				CalendarDescriptor cd = CalendarDescriptor.create("usercal-" + key.uid, key.owner, domain.uid);
 				mgmtApi.create(key.uid, cd);

@@ -78,7 +78,7 @@ public class DomainSmimeCacertsRepair implements ContainerRepairOp {
 		IContainers containerService = context.getServiceProvider().instance(IContainers.class);
 
 		String uid = ISmimeCacertUids.domainCreatedCerts(domainUid);
-		if (containerService.getIfPresent(uid) == null) {
+		if (containerService.getLightIfPresent(uid) == null) {
 			logger.info("Domain smimecacerts {} is missing associated container", uid);
 			monitor.notify("Domain smimecacerts {} is missing associated container", uid);
 			repairOp.accept(uid);

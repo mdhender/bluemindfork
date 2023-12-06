@@ -190,17 +190,10 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 
 	private void deleteMailboxesAclsContainer(String uid) throws ServerFault {
 		String mailboxAclsContainerUid = IMailboxAclUids.uidForMailbox(uid);
-		try {
-			context.su().provider().instance(IContainers.class).get(mailboxAclsContainerUid);
-		} catch (ServerFault e) {
-			if (e.getCode() == ErrorCode.NOT_FOUND) {
-				logger.warn("no mailboxacl found for mailbox {}@{}", uid, domainUid);
-				return;
-			} else {
-				throw e;
-			}
+		if (context.su().provider().instance(IContainers.class).getLightIfPresent(mailboxAclsContainerUid) == null) {
+			logger.warn("no mailboxacl found for mailbox {}@{}", uid, domainUid);
+			return;
 		}
-
 		context.su().provider().instance(IContainers.class).delete(mailboxAclsContainerUid);
 
 	}

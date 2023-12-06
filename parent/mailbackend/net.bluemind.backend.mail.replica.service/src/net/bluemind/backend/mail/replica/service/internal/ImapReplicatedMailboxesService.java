@@ -71,20 +71,17 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 			MailboxReplicaStore store, ContainerStoreService<MailboxReplica> mboxReplicaStore,
 			ContainerStore contStore) {
 		super(root, cont, context, store, mboxReplicaStore, contStore);
-		logger.debug("Created.");
 	}
 
 	@Override
 	public ItemValue<MailboxFolder> getCompleteById(long id) {
 		rbac.check(Verb.Read.name());
-
 		return adapt(storeService.get(id, null));
 	}
 
 	@Override
 	public List<ItemValue<MailboxFolder>> multipleGetById(List<Long> ids) {
 		rbac.check(Verb.Read.name());
-
 		return storeService.getMultipleById(ids).stream().map(this::adapt).collect(Collectors.toList());
 	}
 

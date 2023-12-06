@@ -26,7 +26,7 @@ import javax.sql.DataSource;
 
 import net.bluemind.core.container.api.ContainerSubscription;
 import net.bluemind.core.container.api.IContainers;
-import net.bluemind.core.container.model.ContainerDescriptor;
+import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.context.SecurityContext;
@@ -38,8 +38,8 @@ import net.bluemind.user.api.IUserSubscription;
 public class ContainerRepairUtil {
 
 	public static void verifyContainerIsMarkedAsDefault(String containerUid, RepairTaskMonitor monitor, Runnable op) {
-		ContainerDescriptor container = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IContainers.class).getIfPresent(containerUid);
+		BaseContainerDescriptor container = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IContainers.class).getLightIfPresent(containerUid);
 		if (container != null && !container.defaultContainer) {
 			monitor.notify("Default container {} is not marked as default", containerUid);
 			op.run();
@@ -49,7 +49,7 @@ public class ContainerRepairUtil {
 	public static void setAsDefault(String containerUid, BmContext context, RepairTaskMonitor monitor) {
 
 		IContainers service = context.provider().instance(IContainers.class);
-		ContainerDescriptor container = service.getIfPresent(containerUid);
+		BaseContainerDescriptor container = service.getLightIfPresent(containerUid);
 
 		DataSource dataSource = DataSourceRouter.get(context, containerUid);
 		ContainerStore containerStore = new ContainerStore(context, dataSource, SecurityContext.SYSTEM);
@@ -67,14 +67,11 @@ public class ContainerRepairUtil {
 				.instance(IUserSubscription.class, domainUid);
 
 		for (String container : containers) {
-			ContainerDescriptor desc = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-					.instance(IContainers.class).getIfPresent(container);
-			if (desc != null) {
-				if (!userSubService.subscribers(container).contains(userUid)) {
-					monitor.notify("User {} is not subscribed to container {}", userUid, container);
-					op.accept(container);
-				}
-
+			BaseContainerDescriptor desc = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+					.instance(IContainers.class).getLightIfPresent(container);
+			if (desc != null && (!userSubService.subscribers(container).contains(userUid))) {
+				monitor.notify("User {} is not subscribed to container {}", userUid, container);
+				op.accept(container);
 			}
 		}
 

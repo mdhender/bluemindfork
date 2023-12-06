@@ -205,7 +205,7 @@ public class VFreebusyService implements IVFreebusy {
 		IContainers containerService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IContainers.class);
 		for (String calendar : calendarNames) {
-			if (containerService.getIfPresent(calendar) != null) {
+			if (containerService.getLightIfPresent(calendar) != null) {
 				calendars.add(calendar);
 			}
 		}

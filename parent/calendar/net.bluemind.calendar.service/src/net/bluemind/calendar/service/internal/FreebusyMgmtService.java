@@ -26,8 +26,8 @@ import net.bluemind.calendar.api.IFreebusyMgmt;
 import net.bluemind.calendar.persistence.FreebusyStore;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IContainers;
+import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
@@ -94,7 +94,7 @@ public class FreebusyMgmtService implements IFreebusyMgmt {
 
 	private boolean verifyCalendar(String calendar) {
 		String owner = container.owner;
-		ContainerDescriptor calContainer = containerService.getIfPresent(calendar);
+		BaseContainerDescriptor calContainer = containerService.getLightIfPresent(calendar);
 		return calContainer != null && calContainer.owner.equals(owner);
 	}
 

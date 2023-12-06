@@ -69,7 +69,7 @@ public class DomainCalendarRepair implements ContainerRepairOp {
 		ListResult<ItemValue<DirEntry>> cals = dir.search(DirEntryQuery.filterKind(Kind.CALENDAR));
 		for (ItemValue<DirEntry> cal : cals.values) {
 			String uid = cal.value.entryUid;
-			if (containerService.getIfPresent(uid) == null) {
+			if (containerService.getLightIfPresent(uid) == null) {
 				monitor.notify("Domain calendar {} is missing associated container", uid);
 				repairOp.accept(new CalendarInfo(uid, cal.displayName));
 			}

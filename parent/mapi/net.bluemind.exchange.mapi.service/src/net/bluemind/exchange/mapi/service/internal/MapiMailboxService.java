@@ -32,6 +32,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.ContainerQuery;
 import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.api.IContainers;
+import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ItemUri;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
@@ -98,7 +99,7 @@ public class MapiMailboxService implements IMapiMailbox {
 		ContainerDescriptor fais = ContainerDescriptor.create(faiContainerId, faiContainerId, mailboxUid,
 				MapiFAIContainer.TYPE, domainUid, true);
 		IContainers contApi = context.su().provider().instance(IContainers.class);
-		ContainerDescriptor current = contApi.getIfPresent(faiContainerId);
+		BaseContainerDescriptor current = contApi.getLightIfPresent(faiContainerId);
 		if (current != null && !current.owner.equals(fais.owner)) {
 			logger.warn("We should reset FAI container {} as owner is wrong (cur: {}, wanted: {})", faiContainerId,
 					current.owner, fais.owner);

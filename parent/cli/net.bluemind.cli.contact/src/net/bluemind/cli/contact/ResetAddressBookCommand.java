@@ -31,7 +31,7 @@ import net.bluemind.cli.utils.CliUtils;
 import net.bluemind.core.api.Regex;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IContainers;
-import net.bluemind.core.container.model.ContainerDescriptor;
+import net.bluemind.core.container.model.BaseContainerDescriptor;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -98,7 +98,7 @@ public class ResetAddressBookCommand implements ICmdLet, Runnable {
 		}
 
 		try {
-			ContainerDescriptor addressBook = ctx.adminApi().instance(IContainers.class).get(addressBookUid);
+			BaseContainerDescriptor addressBook = ctx.adminApi().instance(IContainers.class).getLight(addressBookUid);
 
 			if (!dry) {
 				ctx.adminApi().instance(IAddressBook.class, addressBookUid).reset();

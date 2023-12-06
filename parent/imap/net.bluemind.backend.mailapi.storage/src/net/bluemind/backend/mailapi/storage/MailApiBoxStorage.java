@@ -234,7 +234,7 @@ public class MailApiBoxStorage implements IMailboxesStorage {
 	public boolean mailboxExist(BmContext context, String domainUid, ItemValue<Mailbox> mailbox) throws ServerFault {
 		String uid = IMailReplicaUids.subtreeUid(domainUid, mailbox);
 		IContainers contApi = context.provider().instance(IContainers.class);
-		return contApi.getIfPresent(uid) != null;
+		return contApi.getLightIfPresent(uid) != null;
 	}
 
 	@Override

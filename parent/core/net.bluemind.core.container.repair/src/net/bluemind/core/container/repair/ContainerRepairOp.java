@@ -19,7 +19,7 @@
 package net.bluemind.core.container.repair;
 
 import net.bluemind.core.container.api.IContainers;
-import net.bluemind.core.container.model.ContainerDescriptor;
+import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -37,8 +37,8 @@ public interface ContainerRepairOp {
 	public default void verifyContainer(String domainUid, RepairTaskMonitor monitor, Runnable maintenance,
 			String containerUid) {
 
-		ContainerDescriptor container = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IContainers.class).getIfPresent(containerUid);
+		BaseContainerDescriptor container = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IContainers.class).getLightIfPresent(containerUid);
 
 		if (container == null) {
 			monitor.notify("Container {} is missing", containerUid);

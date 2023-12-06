@@ -88,7 +88,7 @@ public class ContainerSyncRegistry {
 			return NOOP;
 		}
 		IContainers contApi = ctx.provider().instance(IContainers.class);
-		if (contApi.getIfPresent(node.value.containerUid) == null) {
+		if (contApi.getLightIfPresent(node.value.containerUid) == null) {
 			logger.warn("Skip processing of missing container for {}. Owner {} might be archived.", node, owner);
 			return NOOP;
 		}
