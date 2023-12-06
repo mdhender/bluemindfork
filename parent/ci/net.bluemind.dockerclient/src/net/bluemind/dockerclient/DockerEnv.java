@@ -22,7 +22,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
+import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -47,7 +47,7 @@ public class DockerEnv {
 	private static List<Image> images;
 	private static Map<String, String> imageIp = new HashMap<>();
 	private static OkHttpClient httpClient;
-	private static URL dockerUrl;
+	private static URI dockerUrl;
 
 	static {
 		try {
@@ -71,7 +71,7 @@ public class DockerEnv {
 		File f = new File(home + "/.docker.io.properties");
 
 		String urlString = "unix:///var/run/docker.sock";
-		dockerUrl = new URL("http://localhost:21512/");
+		dockerUrl = URI.create("http://localhost:21512/");
 
 		if (f.exists()) {
 			logger.info("load docker conf from ~/.docker.io.properties");
@@ -88,7 +88,7 @@ public class DockerEnv {
 					.build();
 		} else {
 			httpClient = new OkHttpClient.Builder().build();
-			dockerUrl = new URL(urlString);
+			dockerUrl = URI.create(urlString);
 		}
 
 		images = loadImages(new File(""));
@@ -111,7 +111,7 @@ public class DockerEnv {
 
 		try {
 			var req = new Request.Builder().method("GET", null).addHeader("Accept", "application/json")
-					.url(dockerUrl.toURI().resolve("/containers/" + name + "/json").toURL()).build();
+					.url(dockerUrl.resolve("/containers/" + name + "/json").toURL()).build();
 
 			var x = httpClient.newCall(req).execute();
 			// NetworkSettings

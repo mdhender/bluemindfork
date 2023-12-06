@@ -323,7 +323,7 @@ public class ItemStore extends JdbcAbstractStore {
 				"SELECT " + COLUMN_NAMES + " FROM t_container_item WHERE container_id = ?");
 		if (!uids.isEmpty()) {
 			selectQuery.append(" AND id IN (");
-			selectQuery.append(uids.stream().map(uid -> uid.toString()).collect(Collectors.joining(",")));
+			selectQuery.append(uids.stream().map(Object::toString).collect(Collectors.joining(",")));
 			selectQuery.append(")");
 		}
 
