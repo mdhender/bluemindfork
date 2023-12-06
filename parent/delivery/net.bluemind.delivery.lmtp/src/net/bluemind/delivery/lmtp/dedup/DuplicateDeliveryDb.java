@@ -17,6 +17,8 @@
  */
 package net.bluemind.delivery.lmtp.dedup;
 
+import static net.bluemind.delivery.lmtp.dedup.DuplicateDeliveryDb.UniqueMessagePostAction.NO_POST_ACTION;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -51,6 +53,16 @@ public class DuplicateDeliveryDb {
 	public interface UniqueMessageAction {
 
 		void run() throws IOException;
+
+	}
+
+	@FunctionalInterface
+	public interface UniqueMessagePostAction {
+
+		static final UniqueMessagePostAction NO_POST_ACTION = () -> {
+		};
+
+		void run();
 
 	}
 
@@ -105,7 +117,9 @@ public class DuplicateDeliveryDb {
 	}
 
 	public boolean runIfUnique(FreezableDeliveryContent fc, UniqueMessageAction action) throws IOException {
-		return runIfUnique(fc.content().message().getMessageId(), fc.content().box(), action);
+		return (fc.content().message().getMessageId() != null)
+				? runIfUnique(fc.content().message().getMessageId(), fc.content().box(), action)
+				: runAction(action, NO_POST_ACTION, NO_POST_ACTION);
 	}
 
 	public boolean runIfUnique(String messageId, ResolvedBox target, UniqueMessageAction action) throws IOException {
@@ -116,17 +130,7 @@ public class DuplicateDeliveryDb {
 		byte[] keyBytes = serializedKey.getBytes();
 		byte[] value = getOrFail(keyBytes);
 		if (value == null) {
-			try {
-				action.run();
-				putOrFail(keyBytes);
-				return true;
-			} catch (IOException ioe) {
-				deleteOrFail(keyBytes);
-				throw ioe;
-			} catch (Exception e) {
-				deleteOrFail(keyBytes);
-				throw new IOException(e);
-			}
+			return runAction(action, () -> putOrFail(keyBytes), () -> deleteOrFail(keyBytes));
 		} else {
 			logger.warn("Message delivery {} skipped as message id was seen in the last {} day(s)", serializedKey,
 					window.toDays());
@@ -135,6 +139,21 @@ public class DuplicateDeliveryDb {
 			return false;
 		}
 
+	}
+
+	protected boolean runAction(UniqueMessageAction action, UniqueMessagePostAction onSuccess,
+			UniqueMessagePostAction onFailure) throws IOException {
+		try {
+			action.run();
+			onSuccess.run();
+			return true;
+		} catch (IOException ioe) {
+			onFailure.run();
+			throw ioe;
+		} catch (Exception e) {
+			onFailure.run();
+			throw new IOException(e);
+		}
 	}
 
 	private void putOrFail(byte[] keyBytes) {

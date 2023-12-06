@@ -240,6 +240,25 @@ public class LmtpMessageHandlerTests {
 	}
 
 	@Test
+	public void testNoDeduplicationWithNoMessageId() throws Exception {
+		ApiProv prov = k -> context.getServiceProvider();
+		long before = dedup.dedupCount();
+		LmtpMessageHandler messageHandler = new LmtpMessageHandler(prov, dedup);
+		MmapRewindStream stream = new MmapRewindStream(eml("emls/test_dedup_no_message_id.eml"), Integer.MAX_VALUE);
+		messageHandler.deliver(emailUser1, emailUser2, stream.byteBuffer());
+		long afterFirst = dedup.dedupCount();
+		assertEquals(before, afterFirst);
+
+		stream = new MmapRewindStream(eml("emls/test_dedup_no_message_id.eml"), Integer.MAX_VALUE);
+		for (int i = 0; i < 10; i++) {
+			messageHandler.deliver(emailUser1, emailUser2, stream.byteBufRewinded());
+			long duplicate = dedup.dedupCount();
+			System.err.println("duplicates: " + duplicate);
+		}
+		assertEquals(afterFirst, dedup.dedupCount());
+	}
+
+	@Test
 	public void testEncodedMessage() throws Exception {
 		ApiProv prov = k -> context.getServiceProvider();
 		long before = dedup.dedupCount();
