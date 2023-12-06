@@ -45,8 +45,8 @@ import net.bluemind.metrics.registry.MetricsRegistry;
 public class SpectatorMetricsOptions extends MetricsOptions implements VertxMetricsFactory, VertxMetrics {
 
 	private final SpectatorEventBusMetrics eventBusMetrics;
-	private final Map<Integer, SpectatorTcpMetrics> netServerMetricsByPort;
-	private final Map<Integer, SpectatorHttpMetrics> httpServerMetricsByPort;
+	private final Map<String, SpectatorTcpMetrics> netServerMetricsByPort;
+	private final Map<String, SpectatorHttpMetrics> httpServerMetricsByPort;
 
 	public SpectatorMetricsOptions() {
 		this.eventBusMetrics = new SpectatorEventBusMetrics();
@@ -71,13 +71,17 @@ public class SpectatorMetricsOptions extends MetricsOptions implements VertxMetr
 
 	@Override
 	public TCPMetrics<Void> createNetServerMetrics(NetServerOptions options, SocketAddress localAddress) {
-		return netServerMetricsByPort.computeIfAbsent(localAddress.port(), SpectatorTcpMetrics::new);
+		return netServerMetricsByPort.computeIfAbsent(port(localAddress), SpectatorTcpMetrics::new);
+	}
+
+	private String port(SocketAddress sa) {
+		return sa.isDomainSocket() ? sa.path().replace("/", ".") : "%d".formatted(sa.port());
 	}
 
 	@Override
 	public HttpServerMetrics<Stopwatch, Void, Void> createHttpServerMetrics(HttpServerOptions options,
 			SocketAddress localAddress) {
-		return httpServerMetricsByPort.computeIfAbsent(localAddress.port(), SpectatorHttpMetrics::new);
+		return httpServerMetricsByPort.computeIfAbsent(port(localAddress), SpectatorHttpMetrics::new);
 	}
 
 	public static class SpectatorEventBusMetrics implements EventBusMetrics<Void> {
@@ -120,9 +124,9 @@ public class SpectatorMetricsOptions extends MetricsOptions implements VertxMetr
 	public static class SpectatorHttpMetrics implements HttpServerMetrics<Stopwatch, Void, Void> {
 		private final Timer ttfb;
 
-		public SpectatorHttpMetrics(int port) {
+		public SpectatorHttpMetrics(String port) {
 			Registry reg = MetricsRegistry.get();
-			IdFactory idf = new IdFactory("httpserver-%d".formatted(port), reg, SpectatorEventBusMetrics.class);
+			IdFactory idf = new IdFactory("httpserver-%s".formatted(port), reg, SpectatorEventBusMetrics.class);
 			this.ttfb = reg.timer(idf.name("ttfb"));
 		}
 
@@ -143,9 +147,9 @@ public class SpectatorMetricsOptions extends MetricsOptions implements VertxMetr
 		private final Counter read;
 		private final Counter written;
 
-		public SpectatorTcpMetrics(int port) {
+		public SpectatorTcpMetrics(String port) {
 			Registry reg = MetricsRegistry.get();
-			IdFactory idf = new IdFactory("netserver-%d".formatted(port), reg, SpectatorEventBusMetrics.class);
+			IdFactory idf = new IdFactory("netserver-%s".formatted(port), reg, SpectatorEventBusMetrics.class);
 			active = new AtomicInteger();
 			PolledMeter.using(reg).withId(idf.name("connections")).monitorValue(active);
 			this.read = reg.counter(idf.name("readBytes"));
