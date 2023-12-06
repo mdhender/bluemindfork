@@ -24,6 +24,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
@@ -432,6 +433,41 @@ public class UserMailboxTests {
 					.findFirst().orElseThrow();
 			System.err.println("uidUnseen: " + searchUidUnseen);
 			assertEquals("* SEARCH 1 3", searchUidUnseen);
+		}
+	}
+
+	@Test
+	public void testFlagUpdatesExtraWork() throws IMAPException {
+		try (StoreClient sc = new StoreClient("127.0.0.1", 1143, "john@devenv.blue", "john")) {
+			assertTrue(sc.login());
+			int added = sc.append("INBOX", eml(), new FlagsList());
+			assertTrue(added > 0);
+			int addedTwo = sc.append("INBOX", eml(), new FlagsList());
+			assertTrue(addedTwo > 0);
+			int addedThree = sc.append("INBOX", eml(), new FlagsList());
+			assertTrue(addedThree > 0);
+			sc.select("INBOX");
+
+			int limit = 2500;
+			long time = System.nanoTime();
+			for (int i = 0; i < limit; i++) {
+				TaggedResult resUidStore = sc.tagged("uid store " + added + " +flags \\seen");
+				assertTrue(resUidStore.isOk());
+				TaggedResult resUidStore2 = sc.tagged("uid store " + addedTwo + " +flags \\seen");
+				assertTrue(resUidStore2.isOk());
+				TaggedResult resUidStore3 = sc.tagged("uid store " + addedThree + " +flags \\seen");
+				assertTrue(resUidStore3.isOk());
+				TaggedResult resStore = sc.tagged("store 1,2,3 -flags \\seen");
+				assertTrue(resStore.isOk());
+				if (i % 100 == 0) {
+					System.err.println((i + 1) + " / " + limit);
+				}
+			}
+			Duration spent = Duration.ofNanos(System.nanoTime() - time);
+			int changed = limit * 6;
+			long secs = spent.toSeconds();
+			System.err.println(
+					"Spent " + spent.toSeconds() + "s for " + changed + " updates " + (changed / secs) + " per sec.");
 		}
 	}
 
