@@ -123,14 +123,29 @@ const remove = async contact => {
             <template #cell(contact)="cell">
                 <div class="d-flex align-items-center">
                     <contact :contact="cell.value" transparent bold enable-card />
-                    <bm-icon v-if="cell.item.isSendAs" icon="user-outline" class="ml-4" />
+                    <bm-icon
+                        v-if="cell.item.isSendAs"
+                        icon="user-outline"
+                        class="ml-4"
+                        :title="$t('preferences.account.delegates.edit.send_as')"
+                    />
                 </div>
             </template>
             <template #cell(calendarRight)="cell">
                 <div class="d-flex align-items-center pr-5">
                     <div class="text-truncate">{{ cell.value.shortText(Container.CALENDAR) }}</div>
-                    <bm-icon v-if="cell.item.hasCopyImip" icon="open-envelope" class="ml-4" />
-                    <bm-icon v-if="cell.item.canSeePrivateEvents" icon="lock" class="ml-4" />
+                    <bm-icon
+                        v-if="cell.item.hasCopyImip"
+                        icon="open-envelope"
+                        class="ml-4"
+                        :title="$t('preferences.account.delegates.calendar.invitations')"
+                    />
+                    <bm-icon
+                        v-if="cell.item.canSeePrivateEvents"
+                        icon="lock-fill"
+                        class="ml-4"
+                        :title="$t('preferences.account.delegates.calendar.private')"
+                    />
                     <bm-icon
                         v-if="cell.item.incoherentCopyImip"
                         class="pl-4 text-warning"

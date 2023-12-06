@@ -11,7 +11,7 @@
                 invalid,
                 'text-truncate': textTruncate
             }"
-            tabindex="0"
+            :tabindex="enableCard ? 0 : false"
             @click="showContactCard = !showContactCard"
             @keypress.enter="showContactCard = !showContactCard"
             @keydown.tab.exact="showContactCard ? focusPopover() : undefined"

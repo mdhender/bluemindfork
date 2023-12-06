@@ -404,7 +404,9 @@ export function useDelegation() {
     const hasIncoherentCopyImipOption = (delegate, hasCopyImip, calendarRight) => {
         hasCopyImip = hasCopyImip !== undefined ? hasCopyImip : hasCopyImipMailboxRuleAction(delegate);
         const calendarVerbs =
-            calendarRight !== undefined ? calendarRight.verbs : delegates.value[delegate][calendarUid.value];
+            calendarRight !== undefined
+                ? calendarRight.verbs
+                : delegates.value[delegate] && delegates.value[delegate][calendarUid.value];
         return hasCopyImip && !calendarVerbs?.some(verb => [Verb.All, Verb.Manage, Verb.Write].includes(verb));
     };
 

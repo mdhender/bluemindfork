@@ -291,7 +291,7 @@ public class CalendarService implements IInternalCalendar {
 		if ((old.value != null && old.value.main != null
 				&& (old.value.main.classification == Classification.Confidential
 						|| old.value.main.classification == Classification.Private))
-				&& !rbacManager.can(Verb.All.name())) {
+				&& !rbacManager.can(Verb.Write.name(), Verb.ReadExtended.name())) {
 			throw new ServerFault("cannot modify private event", ErrorCode.PERMISSION_DENIED);
 		}
 

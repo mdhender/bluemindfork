@@ -102,7 +102,7 @@
                 :disabled="!selectedDelegate || !isSeePrivateEventsPossible"
             >
                 {{ $t("preferences.account.delegates.calendar.private") }}
-                <bm-icon class="pl-4" icon="lock" />
+                <bm-icon class="pl-3" icon="lock-fill" />
             </bm-form-checkbox>
         </div>
         <!-- TodoLists -->
@@ -300,7 +300,11 @@ export default {
             };
         },
         incoherentCopyImipToDelegate() {
-            return this.hasIncoherentCopyImipOption(this.selectedDelegate, this.copyImipToDelegate, this.calendarRight);
+            return this.hasIncoherentCopyImipOption(
+                this.selectedDelegate,
+                this.formData.copyImipToDelegate.current,
+                this.formData.calendarRight.current
+            );
         },
         copyImipToDelegateDisabled() {
             return !this.incoherentCopyImipToDelegate && (!this.selectedDelegate || !this.isCopyImipOptionPossible);

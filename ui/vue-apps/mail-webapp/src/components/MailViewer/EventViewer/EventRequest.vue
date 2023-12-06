@@ -26,7 +26,7 @@ const user = inject("UserSession").userId;
 
 <template>
     <div class="event-request">
-        <event-header v-if="event.needsResponse">
+        <event-header v-if="event.needsResponse && event.attendee">
             <template v-if="user !== event.calendarOwner">
                 <i18n path="mail.viewer.invitation.request.delegate">
                     <template #for>
