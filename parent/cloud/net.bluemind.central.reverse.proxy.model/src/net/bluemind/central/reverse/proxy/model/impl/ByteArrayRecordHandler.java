@@ -64,6 +64,10 @@ public class ByteArrayRecordHandler implements RecordHandler<byte[], byte[]> {
 							publishInstallationIpChange(installation, oldIp);
 						}
 
+						if (installation.hasCore) {
+							publishCoreIp(installation.ip);
+						}
+
 						return key;
 					}), postfixMapsStoreClient.addInstallation(installation)).map(v -> key));
 
@@ -110,6 +114,14 @@ public class ByteArrayRecordHandler implements RecordHandler<byte[], byte[]> {
 		}
 
 		return Optional.empty();
+	}
+
+	private void publishCoreIp(String ip) {
+		if (ip != null) {
+			logger.info("[model] Announcing new core ip change to {}", ip);
+			JsonObject jsonIp = new JsonObject().put("ip", ip);
+			vertx.eventBus().publish(ProxyEventBusAddress.ADDRESS, jsonIp, ProxyEventBusAddress.CORE_IP_UPDATE);
+		}
 	}
 
 	private void publishInstallationIpChange(InstallationInfo installation, String oldIp) {

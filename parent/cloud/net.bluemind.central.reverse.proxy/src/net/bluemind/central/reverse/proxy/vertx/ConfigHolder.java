@@ -29,4 +29,6 @@ public class ConfigHolder {
 	public static final Config config = CrpConfig.get("Proxy", ProxyVerticleFactory.class.getClassLoader());
 	public static final Config postfixMapsConfig = CrpConfig.get("PostfixMaps",
 			PostfixMapsVerticleFactory.class.getClassLoader());
+	public static final Config milterConfig = CrpConfig.get("Milter",
+			PostfixMapsVerticleFactory.class.getClassLoader());
 }

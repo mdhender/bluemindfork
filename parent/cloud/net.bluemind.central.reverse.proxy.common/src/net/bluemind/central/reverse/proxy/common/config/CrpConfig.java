@@ -100,6 +100,14 @@ public class CrpConfig {
 		public static final String PORT = "bm.crp.postfixmaps.port";
 	}
 
+	public static class Milter {
+		private Milter() {
+		}
+
+		public static final String PORT = "bm.crp.milter.port";
+		public static final String REMOTE_PORT = "bm.crp.milter.remotePort";
+	}
+
 	private static Config config;
 
 	private CrpConfig() {

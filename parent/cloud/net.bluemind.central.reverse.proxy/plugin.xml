@@ -13,4 +13,10 @@
             impl="net.bluemind.central.reverse.proxy.vertx.impl.postfix.PostfixMapsVerticleFactory">
       </verticle>
    </extension>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.central.reverse.proxy.vertx.impl.milter.MilterVerticleFactory">
+      </verticle>
+   </extension>
 </plugin>
