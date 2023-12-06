@@ -39,6 +39,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import net.bluemind.core.api.Email;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.ContainerQuery;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
@@ -114,7 +115,7 @@ public class ContainerStoreTests {
 		try {
 			home.create(container);
 			fail("should not be able to create 2 container with the same id");
-		} catch (SQLException e) {
+		} catch (ServerFault | SQLException e) {
 			e.printStackTrace();
 		}
 	}
@@ -144,7 +145,7 @@ public class ContainerStoreTests {
 		try {
 			home.create(container);
 			fail("should not be able to create 2 container with the same id");
-		} catch (SQLException e) {
+		} catch (SQLException | ServerFault e) {
 			e.printStackTrace();
 		}
 	}

@@ -35,6 +35,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerSyncStatus;
@@ -184,10 +185,13 @@ public class ContainersSyncStoreTests {
 		// request a synchronization (again)
 		calendar.set(2016, 1, 13, 3, 0, 0);
 		containerSyncStatus.nextSync = calendar.getTimeInMillis();
-		containerSyncStore.setSyncStatus(containerSyncStatus);
+		try {
+			containerSyncStore.setSyncStatus(containerSyncStatus);
+			Assert.assertNull("container does not exists, we should not get here");
+		} catch (ServerFault ignored) {
+			//
+		}
 
-		// check sync status does not exist
-		Assert.assertNull("Sync status should not exist", containerSyncStore.getSyncStatus());
 	}
 
 }
