@@ -29,6 +29,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
@@ -396,15 +397,15 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 			long[] uidArrays = records.stream().mapToLong(rec -> rec.imapUid).toArray();
 			List<RecordID> ids = recordStore.identifiers(uidArrays);
 			Map<Long, RecordID> dbByUid = ids.stream().collect(Collectors.toMap(r -> r.imapUid, r -> r));
-			Set<RecordID> toUpdateRecords = records.stream().map(mr -> new RecordID(mr.imapUid))
-					.collect(Collectors.toSet());
 			Map<Long, MailboxRecord> newRecsByUid = records.stream().collect(Collectors.toMap(r -> r.imapUid, r -> r));
 			Map<Long, MailboxRecord> toUpdate = new HashMap<>();
 			List<MailboxRecord> toCreate = new LinkedList<>();
 
-			for (RecordID createOrUpdate : toUpdateRecords) {
-				MailboxRecord touchedMailRecord = newRecsByUid.get(createOrUpdate.imapUid);
-				RecordID asRecID = dbByUid.get(createOrUpdate.imapUid);
+			AtomicReference<Long> updVers = new AtomicReference<>();
+
+			for (long createOrUpdateImapUid : uidArrays) {
+				MailboxRecord touchedMailRecord = newRecsByUid.get(createOrUpdateImapUid);
+				RecordID asRecID = dbByUid.get(createOrUpdateImapUid);
 				if (asRecID == null) {
 					toCreate.add(touchedMailRecord);
 				} else {
@@ -429,6 +430,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 				ItemValue<MailboxRecord> idxAndNotif = ItemValue.create(uid, mr);
 				idxAndNotif.internalId = upsert.version.id;
 				idxAndNotif.version = upsert.version.version;
+				updVers.set(upsert.version.version);
 
 				pushToIndex.add(idxAndNotif);
 				if (newMailNotificationCandidate(recordsLocation, idxAndNotif)) {
@@ -439,6 +441,8 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 			AtomicInteger softDelete = new AtomicInteger();
 			toUpdate.forEach((Long itemId, MailboxRecord mr) -> {
 				ItemVersion upd = storeService.update(itemId, "itemId:" + itemId, mr);
+				updVers.set(upd.version);
+
 				if (mr.flags.contains(MailboxItemFlag.System.Deleted.value())) {
 					softDelete.incrementAndGet();
 				}
@@ -452,7 +456,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 			int deletes = softDelete.get();
 			logger.info("[{}] Db CRUD op, cr: {}, upd: {}, del: {} in {}ms", mailboxUniqueId, toCreate.size(),
 					toUpdate.size() - deletes, deletes, System.currentTimeMillis() - time);
-			return storeService.getVersion();
+			return Optional.ofNullable(updVers.get()).map(Number::longValue).orElseGet(storeService::getVersion);
 		});
 
 		updateIndex(pushToIndex);
