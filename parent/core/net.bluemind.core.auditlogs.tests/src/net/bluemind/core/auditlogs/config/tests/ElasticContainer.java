@@ -39,9 +39,23 @@ public class ElasticContainer extends GenericContainer<ElasticContainer> {
 	}
 
 	public ElasticContainer() {
-		super("bitnami/elasticsearch");
+		super("elasticsearch:7.17.15");
+		startContainer();
+	}
+
+	public ElasticContainer(String user, String password) {
+		super("elasticsearch:7.17.15");
+		withEnv("ELASTIC_USERNAME", user);
+		withEnv("ELASTIC_PASSWORD", password);
+		withEnv("xpack.security.enabled", "true");
+		withEnv("xpack.security.http.ssl.enabled", "false");
+		startContainer();
+	}
+
+	private void startContainer() {
 		withExposedPorts(9200);
 		withReuse(false);
+		withEnv("discovery.type", "single-node");
 		withLogConsumer(new LogConsumer());
 		waitingFor(new org.testcontainers.containers.wait.strategy.AbstractWaitStrategy() {
 

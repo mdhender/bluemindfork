@@ -35,7 +35,7 @@ import org.junit.Test;
 
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.auditlogs.client.loader.config.AuditLogStoreConfig;
+import net.bluemind.core.auditlogs.client.loader.config.AuditLogConfig;
 import net.bluemind.core.container.model.ChangeLogEntry;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.Item;
@@ -52,7 +52,7 @@ public class SmimeCacertServiceTests extends AbstractServiceTests {
 
 	private static final String CA_FILE_PATH = "data/trust-ca.crt.cer";
 
-	private final String dataStreamName = AuditLogStoreConfig.resolveDataStreamName(domainUid);
+	private final String dataStreamName = AuditLogConfig.resolveDataStreamName(domainUid);
 
 	@Test
 	public void testCreate() throws Exception {

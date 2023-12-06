@@ -50,7 +50,7 @@ import net.bluemind.authentication.api.LoginResponse;
 import net.bluemind.authentication.api.LoginResponse.Status;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.auditlogs.AuditLogEntry;
-import net.bluemind.core.auditlogs.client.loader.config.AuditLogStoreConfig;
+import net.bluemind.core.auditlogs.client.loader.config.AuditLogConfig;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcHelper;
@@ -73,8 +73,8 @@ public class AuthenticationAuditLogTests {
 	private static final String domainUid = "bm.lan";
 	private static final String domainGlobalUid = "global.virt";
 
-	private static final String AUDIT_LOG_NAME_BM_LAN = AuditLogStoreConfig.resolveDataStreamName(domainUid);
-	private static final String AUDIT_LOG_NAME_GLOBAL = AuditLogStoreConfig.resolveDataStreamName(domainGlobalUid);
+	private static final String AUDIT_LOG_NAME_BM_LAN = AuditLogConfig.resolveDataStreamName(domainUid);
+	private static final String AUDIT_LOG_NAME_GLOBAL = AuditLogConfig.resolveDataStreamName(domainGlobalUid);
 
 	private static final String TEST_API_KEY = "testApiKey";
 

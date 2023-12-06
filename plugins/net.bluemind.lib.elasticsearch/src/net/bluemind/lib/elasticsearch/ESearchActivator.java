@@ -24,6 +24,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -36,10 +37,11 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 
+import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthSchemeProvider;
 import org.apache.http.config.RegistryBuilder;
-import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.message.BasicHeader;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
@@ -47,6 +49,7 @@ import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.InvalidRegistryObjectException;
 import org.eclipse.core.runtime.Platform;
 import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestClientBuilder;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -178,8 +181,8 @@ public final class ESearchActivator implements BundleActivator {
 		}
 	}
 
-	public static ElasticsearchClient getClient(List<String> hosts) {
-		ElasticsearchTransport transport = ESearchActivator.createTansport(hosts);
+	public static ElasticsearchClient getClient(List<String> hosts, AuthenticationCredential authCred) {
+		ElasticsearchTransport transport = ESearchActivator.createTansport(hosts, authCred);
 		return new ElasticsearchClient(transport);
 	}
 
@@ -209,7 +212,7 @@ public final class ESearchActivator implements BundleActivator {
 			logger.warn("Es host missing for tag {}", tag);
 			return null;
 		}
-		return createTansport(hosts);
+		return createTansport(hosts, new AuthenticationCredential(Authentication.NONE, null, null));
 	}
 
 	private static List<String> hosts(String tag) {
@@ -220,23 +223,33 @@ public final class ESearchActivator implements BundleActivator {
 		return topo.nodes().stream().filter(iv -> iv.value.tags.contains(tag)).map(iv -> iv.value.address()).toList();
 	}
 
-	public static ElasticsearchTransport createTansport(List<String> hosts) {
+	public static ElasticsearchTransport createTansport(List<String> hosts, AuthenticationCredential authCred) {
 		HttpHost[] httpHosts = hosts.stream().map(host -> new HttpHost(host, 9200)).toArray(l -> new HttpHost[l]);
 		RestClient restClient;
+
 		try {
 			ElasticsearchConfig.Client clientConfig = ElasticsearchConfig.Client.of(config);
-			restClient = RestClient.builder(httpHosts) //
+			RestClientBuilder restClientBuilder = RestClient.builder(httpHosts) //
 					.setRequestConfigCallback(builder -> builder //
 							.setConnectTimeout((int) clientConfig.timeout().connect().toMillis()) //
 							.setSocketTimeout((int) clientConfig.timeout().socket().toMillis()) //
 							.setConnectionRequestTimeout((int) clientConfig.timeout().request().toMillis()))
 					.setHttpClientConfigCallback(builder -> builder //
 							.setDefaultAuthSchemeRegistry(RegistryBuilder.<AuthSchemeProvider>create().build())//
-							.setDefaultCredentialsProvider(new BasicCredentialsProvider())//
-							.disableAuthCaching()//
+//							.setDefaultCredentialsProvider(credentialsProvider)//
+//							.setDefaultCredentialsProvider(new BasicCredentialsProvider())//
+//							.disableAuthCaching()//
 							.setMaxConnTotal(clientConfig.pool().maxConnTotal()) //
-							.setMaxConnPerRoute(clientConfig.pool().maxConnPerRoute())) //
-					.build();
+							.setMaxConnPerRoute(clientConfig.pool().maxConnPerRoute()));
+			if (authCred.auth.equals(Authentication.BASIC) || authCred.auth.equals(Authentication.API_KEY)) {
+				String credentials = authCred.user + ":" + authCred.password;
+				String encodedCredentials = Base64.getEncoder().encodeToString(credentials.getBytes());
+				Header[] defaultHeaders = new Header[] {
+						new BasicHeader("Authorization", authCred.auth.toString() + " " + encodedCredentials) };
+				restClientBuilder.setDefaultHeaders(defaultHeaders);
+			}
+			// TODO : revoir la gestion des disableAuthCaching
+			restClient = restClientBuilder.build();
 		} catch (ConfigException e) {
 			restClient = RestClient.builder(httpHosts).build();
 			logger.error("[es] Elasticsearch client configuration is invalid, using defaults: {}", e.getMessage());
@@ -485,6 +498,27 @@ public final class ESearchActivator implements BundleActivator {
 				new NetworkHelper(host).waitForListeningPort(9200, 30, TimeUnit.SECONDS);
 			}
 		}
+	}
+
+	public enum Authentication {
+		BASIC("Basic"), API_KEY("ApiKey"), NONE("none");
+
+		private String mode;
+
+		Authentication(String m) {
+			this.mode = m;
+		}
+
+		public String toString() {
+			return mode;
+		}
+	}
+
+	public record AuthenticationCredential(Authentication auth, String user, String password) {
+
+		public AuthenticationCredential(Authentication auth) {
+			this(auth, null, null);
+		};
 	}
 
 }

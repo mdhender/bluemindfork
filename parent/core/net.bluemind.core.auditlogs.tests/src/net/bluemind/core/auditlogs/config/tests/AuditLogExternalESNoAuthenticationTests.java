@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2023
+ * Copyright © Blue Mind SAS, 2012-2016
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -16,29 +16,30 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.core.logs.tests;
+package net.bluemind.core.auditlogs.config.tests;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.sql.SQLException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
 
-import org.awaitility.Awaitility;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.testcontainers.shaded.org.awaitility.Awaitility;
 
 import com.google.common.collect.Lists;
 
@@ -61,6 +62,7 @@ import net.bluemind.core.auditlog.IAuditManager;
 import net.bluemind.core.auditlogs.AuditLogEntry;
 import net.bluemind.core.auditlogs.AuditLogQuery;
 import net.bluemind.core.auditlogs.api.ILogRequestService;
+import net.bluemind.core.auditlogs.client.es.AudiLogEsClientActivator;
 import net.bluemind.core.auditlogs.client.loader.config.AuditLogConfig;
 import net.bluemind.core.container.api.ContainerSubscription;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
@@ -93,40 +95,44 @@ import net.bluemind.user.api.IUserSubscription;
 import net.bluemind.user.api.User;
 import net.bluemind.user.service.internal.ContainerUserStoreService;
 
-public class CalendarLogServiceQueryTests {
+public class AuditLogExternalESNoAuthenticationTests {
 
-	private static final String CALENDAR_LOGTYPE = "calendar";
 	private static final String domainUid = "bm.lan";;
 	private static final String AUDIT_LOG_DATASTREAM = AuditLogConfig.resolveDataStreamName(domainUid);
 
 	private String datalocation;
 	private DataSource dataDataSource;
 	private DataSource systemDataSource;
+	private static final String CONF_FILE_PATH = "/etc/bm/auditlog-store.conf";
 	protected BmTestContext testContext = new BmTestContext(SecurityContext.SYSTEM);
 	private Container domainContainer;
 	private ItemValue<User> user01;
+	private static final String CALENDAR_LOGTYPE = "calendar";
 	private ItemValue<User> user02;
 	private ItemValue<User> user03;
-	private ElasticsearchClient esClient;
-	protected boolean sendNotifications = false;
 	private ContainerUserStoreService userStore;
-	private Container user01CalendarContainer;
 	private SecurityContext user01SecurityContext;
 	private SecurityContext user02SecurityContext;
 	private SecurityContext user03SecurityContext;
+	private Container user01CalendarContainer;
 	private Container user02CalendarContainer;
 	private Container user03CalendarContainer;
-	private Organizer organizer01;
-	private Organizer organizer02;
-	private Organizer organizer03;
 	private String uid01;
+	private Organizer organizer01;
 	private String uid02;
+	private Organizer organizer02;
 	private String uid03;
+	private Organizer organizer03;
+	private String uid04;
 	private VEventSeries event01;
 	private VEventSeries event02;
 	private VEventSeries event03;
 	private VEventSeries event04;
-	private String uid04;
+	private ElasticsearchClient esClient;
+	protected boolean sendNotifications = false;
+	private File confFile;
+	private String externalEsAddress;
+	private static ElasticContainer esContainer = new ElasticContainer();
 
 	@BeforeClass
 	public static void beforeClass() throws Exception {
@@ -137,6 +143,23 @@ public class CalendarLogServiceQueryTests {
 
 	@Before
 	public void before() throws Exception {
+		esContainer.start();
+		externalEsAddress = esContainer.inspectAddress();
+
+		AuditLogConfig.clear();
+		confFile = new File(CONF_FILE_PATH);
+		confFile.getParentFile().mkdirs();
+		try (FileOutputStream fos = new FileOutputStream(confFile)) {
+			String toWrite = String.format("""
+						activate=true
+						store {
+							type=elastic
+							server=%s
+							port=9200
+						}
+					""", externalEsAddress);
+			fos.write(toWrite.getBytes());
+		}
 
 		TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
 		JdbcTestHelper.getInstance().beforeTest();
@@ -172,9 +195,9 @@ public class CalendarLogServiceQueryTests {
 		user03 = defaultUser("testUser03" + System.nanoTime(), "Test03", "User03");
 
 		// Create users
-		userStore.create(user01.uid, user01.value);
-		userStore.create(user02.uid, user02.value);
-		userStore.create(user03.uid, user03.value);
+		userStore.create(user01.uid, "testUser01", user01.value);
+		userStore.create(user02.uid, "testUser02", user02.value);
+		userStore.create(user03.uid, "testUser03", user03.value);
 
 		// Create security contexts and sessions
 		user01SecurityContext = new SecurityContext("user01", user01.uid, Arrays.<String>asList(),
@@ -239,144 +262,32 @@ public class CalendarLogServiceQueryTests {
 			List<AuditLogEntry> list = logRequestService.queryAuditLog(logQuery);
 			return 1 == list.size();
 		});
-		ESearchActivator.refreshIndex(AUDIT_LOG_DATASTREAM);
 	}
 
 	@After
 	public void after() throws Exception {
+		if (confFile.exists()) {
+			confFile.delete();
+		}
+		AuditLogConfig.clear();
 		JdbcTestHelper.getInstance().afterTest();
 		ElasticsearchTestHelper.getInstance().afterTest();
+		esContainer.stop();
 	}
 
 	@Test
-	public void getLogsForCalendarType() throws InterruptedException {
-		AuditLogQuery logQuery = new AuditLogQuery();
-		logQuery.logtype = CALENDAR_LOGTYPE;
-		logQuery.domainUid = domainUid;
+	public void testAuditLogStoreExternalES() throws Exception {
+		assertTrue(AuditLogConfig.isActivated());
 
-		ILogRequestService logRequestService = getLogQueryService(user01SecurityContext);
-		List<AuditLogEntry> list = logRequestService.queryAuditLog(logQuery);
-		assertEquals(4, list.size());
-		assertEquals(event04.main.summary, list.get(0).content.description());
-		assertEquals(event03.main.summary, list.get(1).content.description());
-		assertEquals(event02.main.summary, list.get(2).content.description());
-		assertEquals(event01.main.summary, list.get(3).content.description());
-	}
+		ElasticsearchClient esClient = AudiLogEsClientActivator.get();
+		ElasticsearchClient esInternalClient = ESearchActivator.getClient();
 
-	@Test
-	public void getLogsForCalendarTypeWith20Elements() throws InterruptedException {
-		for (int i = 0; i < 50; i++) {
-			getCalendarService(user01SecurityContext, user01CalendarContainer).create("test01_" + System.nanoTime(),
-					event01, sendNotifications);
-		}
-		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
-			AuditLogQuery logQuery = new AuditLogQuery();
-			logQuery.logtype = CALENDAR_LOGTYPE;
-			logQuery.size = 20;
-			logQuery.domainUid = domainUid;
-
-			ILogRequestService logRequestService = getLogQueryService(user01SecurityContext);
-			List<AuditLogEntry> list = logRequestService.queryAuditLog(logQuery);
-			return 20 == list.size();
-		});
-	}
-
-	@Test
-	public void getLogsForAuthorUser01() throws InterruptedException {
-		AuditLogQuery logQuery = new AuditLogQuery();
-		logQuery.logtype = CALENDAR_LOGTYPE;
-		logQuery.author = user01.value.defaultEmailAddress();
-		logQuery.domainUid = domainUid;
-
-		ILogRequestService logRequestService = getLogQueryService(user01SecurityContext);
-		List<AuditLogEntry> list = logRequestService.queryAuditLog(logQuery);
-		assertEquals(1, list.size());
-		assertEquals(event01.main.summary, list.get(0).content.description());
-		assertEquals(2L, list.get(0).content.author().size());
-		assertTrue(list.get(0).content.author().contains(user01.value.defaultEmailAddress()));
-		assertEquals(6L, list.get(0).content.with().size());
-		assertTrue(list.get(0).content.with().contains(user01.value.defaultEmailAddress()));
-		assertTrue(list.get(0).content.with().contains(user02.value.defaultEmailAddress()));
-		assertTrue(list.get(0).content.with().contains(user03.value.defaultEmailAddress()));
-	}
-
-	@Test
-	public void getLogsForWithUser02() throws InterruptedException {
-		AuditLogQuery logQuery = new AuditLogQuery();
-		logQuery.logtype = CALENDAR_LOGTYPE;
-		logQuery.with = user02.value.defaultEmailAddress();
-		logQuery.domainUid = domainUid;
-
-		ILogRequestService logRequestService = getLogQueryService(user01SecurityContext);
-		List<AuditLogEntry> list = logRequestService.queryAuditLog(logQuery);
-		assertEquals(2, list.size());
-		assertEquals(event02.main.summary, list.get(0).content.description());
-		assertEquals(event01.main.summary, list.get(1).content.description());
-	}
-
-	@Test
-	public void getLogsForSpecificDescription() throws InterruptedException {
-		AuditLogQuery logQuery = new AuditLogQuery();
-		logQuery.logtype = CALENDAR_LOGTYPE;
-		logQuery.description = "First Meeting";
-		logQuery.domainUid = domainUid;
-
-		ILogRequestService logRequestService = getLogQueryService(user01SecurityContext);
-		List<AuditLogEntry> list = logRequestService.queryAuditLog(logQuery);
-		assertEquals(3, list.size());
-		assertEquals(event03.main.summary, list.get(0).content.description());
-		assertEquals(event02.main.summary, list.get(1).content.description());
-		assertEquals(event01.main.summary, list.get(2).content.description());
-	}
-
-	@Test
-	public void getLogsForTimestampToOldDate() throws InterruptedException {
-		AuditLogQuery logQuery = new AuditLogQuery();
-		logQuery.logtype = CALENDAR_LOGTYPE;
-		// Sets date to 2022
-		Date to = new Date();
-		to.setYear(122);
-		logQuery.to = to;
-		logQuery.domainUid = domainUid;
-
-		ILogRequestService logRequestService = getLogQueryService(user01SecurityContext);
-		List<AuditLogEntry> list = logRequestService.queryAuditLog(logQuery);
-		assertEquals(0, list.size());
-	}
-
-	@Test
-	public void getLogsForTimestampFrom() throws InterruptedException {
-		AuditLogQuery logQuery = new AuditLogQuery();
-		logQuery.logtype = CALENDAR_LOGTYPE;
-		// Sets date to 2022
-		Date from = new Date();
-		from.setYear(122);
-		logQuery.from = from;
-		logQuery.domainUid = domainUid;
-
-		ILogRequestService logRequestService = getLogQueryService(user01SecurityContext);
-		List<AuditLogEntry> list = logRequestService.queryAuditLog(logQuery);
-		assertEquals(4, list.size());
-	}
-
-	@Test
-	public void getLogsForTimestampFromTo() throws InterruptedException {
-		AuditLogQuery logQuery = new AuditLogQuery();
-		logQuery.logtype = CALENDAR_LOGTYPE;
-		// Sets date to 2022
-		Date from = new Date();
-		from.setYear(122);
-		logQuery.from = from;
-		logQuery.domainUid = domainUid;
-		logQuery.to = new Date();
-
-		ILogRequestService logRequestService = getLogQueryService(user01SecurityContext);
-		List<AuditLogEntry> list = logRequestService.queryAuditLog(logQuery);
-		assertEquals(4, list.size());
-	}
-
-	private ILogRequestService getLogQueryService(SecurityContext ctx) {
-		return ServerSideServiceProvider.getProvider(ctx).instance(ILogRequestService.class);
+		boolean isExternalESDataStream = !esClient.indices().resolveIndex(r -> r.name(AUDIT_LOG_DATASTREAM))
+				.dataStreams().isEmpty();
+		boolean isInternalESDataStream = !esInternalClient.indices().resolveIndex(r -> r.name(AUDIT_LOG_DATASTREAM))
+				.dataStreams().isEmpty();
+		assertTrue(isExternalESDataStream);
+		assertFalse(isInternalESDataStream);
 	}
 
 	protected ItemValue<User> defaultUser(String login, String lastname, String firstname) {
@@ -416,6 +327,11 @@ public class CalendarLogServiceQueryTests {
 		return container;
 	}
 
+	protected VEventSeries createVevent(String summary, Organizer organizer, List<VEvent.Attendee> attendees) {
+		ZoneId tz = ZoneId.of("Europe/Paris");
+		return defaultVEvent(ZonedDateTime.of(2022, 2, 13, 1, 0, 0, 0, tz), summary, organizer, attendees);
+	}
+
 	protected ICalendar getCalendarService(SecurityContext context, Container container) throws ServerFault {
 		BmContext ctx = new BmTestContext(context);
 		DataSource ds = DataSourceRouter.get(ctx, container.uid);
@@ -434,14 +350,6 @@ public class CalendarLogServiceQueryTests {
 				CalendarAuditor.auditor(IAuditManager.instance(), ctx, container), storeService);
 	}
 
-	protected VEventSeries createVevent(String summary, Organizer organizer, List<VEvent.Attendee> attendees) {
-		ZoneId tz = ZoneId.of("Europe/Paris");
-		return defaultVEvent(ZonedDateTime.of(2022, 2, 13, 1, 0, 0, 0, tz), summary, organizer, attendees);
-	}
-
-	/**
-	 * @return
-	 */
 	protected VEventSeries defaultVEvent(ZonedDateTime start, String summary, Organizer organizer,
 			List<VEvent.Attendee> attendees) {
 		VEventSeries series = new VEventSeries();
@@ -485,6 +393,10 @@ public class CalendarLogServiceQueryTests {
 
 		series.main = event;
 		return series;
+	}
+
+	private ILogRequestService getLogQueryService(SecurityContext ctx) {
+		return ServerSideServiceProvider.getProvider(ctx).instance(ILogRequestService.class);
 	}
 
 }

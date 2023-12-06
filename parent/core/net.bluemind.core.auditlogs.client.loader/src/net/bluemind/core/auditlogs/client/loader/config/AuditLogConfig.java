@@ -30,12 +30,12 @@ import com.typesafe.config.ConfigFactory;
 import net.bluemind.core.api.BMApi;
 
 @BMApi(version = "3")
-public class AuditLogStoreConfig {
-	private static final Logger logger = LoggerFactory.getLogger(AuditLogStoreConfig.class);
+public class AuditLogConfig {
+	private static final Logger logger = LoggerFactory.getLogger(AuditLogConfig.class);
 	public static final String AUDITLOG_DATASTREAM_NAME = "audit_log_%s";
 	private static Config INSTANCE = loadConfig();
 
-	private AuditLogStoreConfig() {
+	protected AuditLogConfig() {
 
 	}
 
@@ -44,14 +44,12 @@ public class AuditLogStoreConfig {
 
 		}
 
-		public static final String ACTIVATED = "auditlog.activate";
-		public static final String MULTIDOMAIN_DATASTREAMS = "auditlog.domain_datastream";
-		public static final String EXTERNAL_ES_HOST = "auditlog.store.server";
-		public static final String EXTERNAL_ES_PORT = "auditlog.store.port";
+		public static final String ACTIVATED = "activate";
+		public static final String MULTIDOMAIN_DATASTREAMS = "domain_datastream";
 	}
 
 	private static Config loadConfig() {
-		Config conf = ConfigFactory.load(AuditLogStoreConfig.class.getClassLoader(), "resources/auditlog-store.conf");
+		Config conf = ConfigFactory.load(AuditLogConfig.class.getClassLoader(), "resources/auditlog-store.conf");
 		try {
 			File local = new File("/etc/bm/auditlog-store.conf"); // NOSONAR
 			if (local.exists()) {
@@ -70,40 +68,39 @@ public class AuditLogStoreConfig {
 		if (INSTANCE == null) {
 			INSTANCE = loadConfig();
 		}
-
 		return INSTANCE;
 	}
 
-	private static boolean getOrDefaultBool(String key) {
+	protected static boolean getOrDefaultBool(String key) {
 		try {
-			return AuditLogStoreConfig.get().getBoolean(key);
+			return AuditLogConfig.get().getBoolean(key);
 		} catch (Exception e) {
 			return false;
 		}
 	}
 
-	private static String getOrDefaultStr(String key) {
+	protected static String getOrDefaultStr(String key) {
 		try {
-			return AuditLogStoreConfig.get().getString(key);
+			return AuditLogConfig.get().getString(key);
 		} catch (Exception e) {
 			return null;
 		}
 	}
 
-	private static int getOrDefaultInt(String key) {
+	protected static int getOrDefaultInt(String key) {
 		try {
-			return AuditLogStoreConfig.get().getInt(key);
+			return AuditLogConfig.get().getInt(key);
 		} catch (Exception e) {
 			return 0;
 		}
 	}
 
 	public static boolean isActivated() {
-		return AuditLogStoreConfig.getOrDefaultBool(AuditLogStore.ACTIVATED);
+		return AuditLogConfig.getOrDefaultBool(AuditLogStore.ACTIVATED);
 	}
 
 	public static String getDataStreamName() {
-		String dataStreamPattern = AuditLogStoreConfig.getOrDefaultStr(AuditLogStore.MULTIDOMAIN_DATASTREAMS);
+		String dataStreamPattern = AuditLogConfig.getOrDefaultStr(AuditLogStore.MULTIDOMAIN_DATASTREAMS);
 		if (dataStreamPattern == null) {
 			return AUDITLOG_DATASTREAM_NAME;
 		}
@@ -112,7 +109,7 @@ public class AuditLogStoreConfig {
 
 	public static String resolveDataStreamName(String domainUid) {
 
-		String dataStreamPattern = AuditLogStoreConfig.getOrDefaultStr(AuditLogStore.MULTIDOMAIN_DATASTREAMS);
+		String dataStreamPattern = AuditLogConfig.getOrDefaultStr(AuditLogStore.MULTIDOMAIN_DATASTREAMS);
 		if (dataStreamPattern == null) {
 			return String.format(AUDITLOG_DATASTREAM_NAME, domainUid);
 		}
@@ -121,15 +118,6 @@ public class AuditLogStoreConfig {
 			return String.format(dataStreamPattern, domainUid);
 		}
 		return dataStreamPattern;
-	}
-
-	public static ExternalESConfig getExternalEsConfig() {
-		String host = getOrDefaultStr(AuditLogStore.EXTERNAL_ES_HOST);
-		int port = getOrDefaultInt(AuditLogStore.EXTERNAL_ES_PORT);
-		if (host == null && port == 0) {
-			return null;
-		}
-		return new ExternalESConfig(host, port);
 	}
 
 	public record ExternalESConfig(String ip, int port) {

@@ -53,7 +53,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.core.auditlogs.IAuditLogMgmt;
 import net.bluemind.core.auditlogs.client.es.AudiLogEsClientActivator;
-import net.bluemind.core.auditlogs.client.loader.config.AuditLogStoreConfig;
+import net.bluemind.core.auditlogs.client.loader.config.AuditLogConfig;
 import net.bluemind.core.auditlogs.exception.AuditLogCreationException;
 import net.bluemind.core.auditlogs.exception.AuditLogRemovalException;
 
@@ -144,7 +144,7 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 	 */
 	@Override
 	public void setupAuditLogBackingStore(String domainUid) throws AuditLogCreationException {
-		String dataStreamFullName = AuditLogStoreConfig.resolveDataStreamName(domainUid);
+		String dataStreamFullName = AuditLogConfig.resolveDataStreamName(domainUid);
 		try {
 			createDataStream(dataStreamFullName);
 		} catch (ElasticsearchException | IOException e) {
@@ -228,7 +228,7 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 
 	@Override
 	public void removeAuditLogBackingStore(String domainUid) {
-		String dataStreamFullName = AuditLogStoreConfig.resolveDataStreamName(domainUid);
+		String dataStreamFullName = AuditLogConfig.resolveDataStreamName(domainUid);
 		try {
 			removeDataStream(dataStreamFullName);
 		} catch (AuditLogRemovalException e) {
@@ -238,7 +238,7 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 
 	@Override
 	public boolean hasAuditLogBackingStore(String domainUid) {
-		String dataStreamName = AuditLogStoreConfig.resolveDataStreamName(domainUid);
+		String dataStreamName = AuditLogConfig.resolveDataStreamName(domainUid);
 		try {
 			return hasDataStream(dataStreamName);
 		} catch (ElasticsearchException | IOException e) {
@@ -267,7 +267,7 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 		ElasticsearchClient esClient = AudiLogEsClientActivator.get();
 		Optional<IndexTemplateDefinition> optSchema = Optional.ofNullable(indexTemplateDefinition);
 		// domainUId is not present, removes datastream root (e.g. audit_log*)
-		String dataStreamName = String.format(AuditLogStoreConfig.getDataStreamName(), "*");
+		String dataStreamName = String.format(AuditLogConfig.getDataStreamName(), "*");
 		if (optSchema.isPresent()) {
 			removeDataStream(esClient, dataStreamName);
 			removeIndexTemplate(esClient, optSchema.get().indexTemplateName);

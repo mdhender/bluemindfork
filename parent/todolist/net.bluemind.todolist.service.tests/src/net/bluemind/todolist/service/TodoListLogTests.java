@@ -36,7 +36,7 @@ import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.auditlogs.AuditLogEntry;
-import net.bluemind.core.auditlogs.client.loader.config.AuditLogStoreConfig;
+import net.bluemind.core.auditlogs.client.loader.config.AuditLogConfig;
 import net.bluemind.core.container.model.ChangeLogEntry.Type;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
@@ -49,7 +49,7 @@ import net.bluemind.todolist.hook.TodoListHookAddress;
 
 public class TodoListLogTests extends AbstractServiceTests {
 
-	private final String dataStreamName = AuditLogStoreConfig.resolveDataStreamName(domainUid);
+	private final String dataStreamName = AuditLogConfig.resolveDataStreamName(domainUid);
 
 	@Test
 	public void testCreate() throws ServerFault, ElasticsearchException {

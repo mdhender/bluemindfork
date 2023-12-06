@@ -50,7 +50,7 @@ import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.auditlogs.AuditLogEntry;
 import net.bluemind.core.auditlogs.AuditLogUpdateStatus.MessageCriticity;
-import net.bluemind.core.auditlogs.client.loader.config.AuditLogStoreConfig;
+import net.bluemind.core.auditlogs.client.loader.config.AuditLogConfig;
 import net.bluemind.core.container.model.ChangeLogEntry.Type;
 import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemFlagFilter;
@@ -63,7 +63,7 @@ import net.bluemind.lib.elasticsearch.ESearchActivator;
 
 public class DbMailboxRecordsServiceLogTests extends AbstractMailboxRecordsServiceTests<IDbMailboxRecords> {
 
-	private final String dataStreamName = AuditLogStoreConfig.resolveDataStreamName(domainUid);
+	private final String dataStreamName = AuditLogConfig.resolveDataStreamName(domainUid);
 
 	private ItemValue<MailboxRecord> createBodyAndRecord(int imapUid, Date internalDate, String eml) {
 		IDbMessageBodies mboxes = getBodies(SecurityContext.SYSTEM);

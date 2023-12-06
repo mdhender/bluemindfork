@@ -55,7 +55,7 @@ import net.bluemind.addressbook.api.VCardChanges;
 import net.bluemind.addressbook.hook.internal.VCardMessage;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.auditlogs.AuditLogEntry;
-import net.bluemind.core.auditlogs.client.loader.config.AuditLogStoreConfig;
+import net.bluemind.core.auditlogs.client.loader.config.AuditLogConfig;
 import net.bluemind.core.container.model.ChangeLogEntry.Type;
 import net.bluemind.core.container.model.ContainerUpdatesResult;
 import net.bluemind.core.container.model.Item;
@@ -67,7 +67,7 @@ import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.tag.persistence.ItemTagRef;
 
 public class AddressBookLogServiceTests extends AbstractServiceTests {
-	private static final String DATASTREAM_NAME = AuditLogStoreConfig.resolveDataStreamName(domainUid);
+	private static final String DATASTREAM_NAME = AuditLogConfig.resolveDataStreamName(domainUid);
 
 	protected IAddressBook getService(SecurityContext context) throws ServerFault {
 		return ServerSideServiceProvider.getProvider(context).instance(IAddressBook.class, container.uid);

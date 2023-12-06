@@ -63,7 +63,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.auditlogs.AuditLogEntry;
 import net.bluemind.core.auditlogs.AuditLogQuery;
 import net.bluemind.core.auditlogs.api.ILogRequestService;
-import net.bluemind.core.auditlogs.client.loader.config.AuditLogStoreConfig;
+import net.bluemind.core.auditlogs.client.loader.config.AuditLogConfig;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.persistence.ContainerStore;
@@ -155,7 +155,7 @@ public class LogServiceQueryTests {
 		createBodyAndRecord(1, adaptDate(5), "data/sort_1.eml");
 		createBodyAndRecord(2, adaptDate(10), "data/sort_2.eml");
 		createBodyAndRecord(3, adaptDate(12), "data/sort_3.eml");
-		ESearchActivator.refreshIndex(AuditLogStoreConfig.resolveDataStreamName(domainUid));
+		ESearchActivator.refreshIndex(AuditLogConfig.resolveDataStreamName(domainUid));
 
 		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
 			AuditLogQuery logQuery = new AuditLogQuery();

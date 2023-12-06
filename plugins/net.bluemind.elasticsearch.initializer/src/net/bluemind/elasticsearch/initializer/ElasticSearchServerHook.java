@@ -31,6 +31,8 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
+import net.bluemind.lib.elasticsearch.ESearchActivator.Authentication;
+import net.bluemind.lib.elasticsearch.ESearchActivator.AuthenticationCredential;
 import net.bluemind.server.api.Server;
 import net.bluemind.server.hook.DefaultServerHook;
 
@@ -58,7 +60,8 @@ public class ElasticSearchServerHook extends DefaultServerHook {
 		for (ISchemaInitializer initializer : initializers) {
 			if (tag.equals(initializer.getTag())) {
 				if (client == null) {
-					client = ESearchActivator.getClient(Arrays.asList(itemValue.value.address()));
+					client = ESearchActivator.getClient(Arrays.asList(itemValue.value.address()),
+							new AuthenticationCredential(Authentication.NONE));
 				}
 				initializer.initializeSchema(client);
 			}

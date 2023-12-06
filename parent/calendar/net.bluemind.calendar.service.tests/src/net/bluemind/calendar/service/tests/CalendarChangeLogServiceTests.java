@@ -28,14 +28,14 @@ import org.junit.Test;
 
 import net.bluemind.calendar.service.AbstractCalendarTests;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.auditlogs.client.loader.config.AuditLogStoreConfig;
+import net.bluemind.core.auditlogs.client.loader.config.AuditLogConfig;
 import net.bluemind.core.container.model.ChangeLogEntry;
 import net.bluemind.core.container.model.ItemChangelog;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 
 public class CalendarChangeLogServiceTests extends AbstractCalendarTests {
 
-	private final String dataStreamName = AuditLogStoreConfig.resolveDataStreamName(domainUid);
+	private final String dataStreamName = AuditLogConfig.resolveDataStreamName(domainUid);
 
 	@Test
 	public void testChangeLog() throws ServerFault {

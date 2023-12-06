@@ -41,7 +41,7 @@ import net.bluemind.cli.auditlog.tests.utils.AbstractCliAuditLogServiceTests;
 import net.bluemind.cli.auditlog.tests.utils.CliTestHelper;
 import net.bluemind.cli.launcher.CLIManager;
 import net.bluemind.core.auditlogs.client.es.datastreams.DataStreamActivator;
-import net.bluemind.core.auditlogs.client.loader.config.AuditLogStoreConfig;
+import net.bluemind.core.auditlogs.client.loader.config.AuditLogConfig;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.lib.vertx.VertxPlatform;
@@ -51,7 +51,7 @@ import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class AuditLogCreateTests extends AbstractCliAuditLogServiceTests {
 	private static final Logger logger = LoggerFactory.getLogger(AuditLogCreateTests.class);
-	private static final String AUDIT_LOG_INDEX = AuditLogStoreConfig.resolveDataStreamName(domainUid);
+	private static final String AUDIT_LOG_INDEX = AuditLogConfig.resolveDataStreamName(domainUid);
 	private static CliTestHelper testHelper;
 	private static CLIManager cli;
 	private ObjectMapper mapper = new ObjectMapper();

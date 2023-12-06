@@ -38,7 +38,7 @@ import com.google.common.collect.Lists;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.auditlogs.client.loader.config.AuditLogStoreConfig;
+import net.bluemind.core.auditlogs.client.loader.config.AuditLogConfig;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.context.SecurityContext;
@@ -115,7 +115,7 @@ public class DomainsServiceAuditLogTests {
 		assertNotNull(domainStoreService.get(domainUid, null));
 
 		assertTrue(FakeDomainHook.created);
-		String AUDIT_LOG_DATASTREAM = AuditLogStoreConfig.resolveDataStreamName(domainUid);
+		String AUDIT_LOG_DATASTREAM = AuditLogConfig.resolveDataStreamName(domainUid);
 		boolean isDataStream = !esClient.indices().resolveIndex(r -> r.name(AUDIT_LOG_DATASTREAM)).dataStreams()
 				.isEmpty();
 		assertTrue(isDataStream);
@@ -143,7 +143,7 @@ public class DomainsServiceAuditLogTests {
 
 		// now we can delete domain
 		getService().delete(domainUid);
-		String AUDIT_LOG_DATASTREAM = AuditLogStoreConfig.resolveDataStreamName(domainUid);
+		String AUDIT_LOG_DATASTREAM = AuditLogConfig.resolveDataStreamName(domainUid);
 		boolean isDataStream = !esClient.indices().resolveIndex(r -> r.name(AUDIT_LOG_DATASTREAM)).dataStreams()
 				.isEmpty();
 		assertFalse(isDataStream);

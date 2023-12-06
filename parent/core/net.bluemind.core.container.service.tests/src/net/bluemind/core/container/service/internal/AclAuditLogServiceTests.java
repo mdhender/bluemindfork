@@ -49,7 +49,7 @@ import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.auditlogs.AuditLogEntry;
-import net.bluemind.core.auditlogs.client.loader.config.AuditLogStoreConfig;
+import net.bluemind.core.auditlogs.client.loader.config.AuditLogConfig;
 import net.bluemind.core.container.api.ContainerSubscription;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.ChangeLogEntry.Type;
@@ -92,7 +92,7 @@ public class AclAuditLogServiceTests {
 	private ItemValue<User> user02;
 	private ItemValue<User> user03;
 	private static final String ACL_AUDITLOG_TYPE = "containeracl";
-	private static final String AUDIT_LOG_DATASTREAM = AuditLogStoreConfig.resolveDataStreamName(DOMAIN_UID);
+	private static final String AUDIT_LOG_DATASTREAM = AuditLogConfig.resolveDataStreamName(DOMAIN_UID);
 
 	@Before
 	public void before() throws Exception {

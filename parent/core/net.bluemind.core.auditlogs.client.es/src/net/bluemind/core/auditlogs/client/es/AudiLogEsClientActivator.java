@@ -21,8 +21,8 @@ package net.bluemind.core.auditlogs.client.es;
 import java.util.List;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import net.bluemind.core.auditlogs.client.loader.config.AuditLogStoreConfig;
-import net.bluemind.core.auditlogs.client.loader.config.AuditLogStoreConfig.ExternalESConfig;
+import net.bluemind.core.auditlogs.client.es.config.AuditLogElasticStoreConfig;
+import net.bluemind.core.auditlogs.client.loader.config.AuditLogConfig.ExternalESConfig;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 
 public class AudiLogEsClientActivator {
@@ -32,10 +32,12 @@ public class AudiLogEsClientActivator {
 	}
 
 	public static ElasticsearchClient get() {
-		ExternalESConfig externalESConfig = AuditLogStoreConfig.getExternalEsConfig();
+		ExternalESConfig externalESConfig = AuditLogElasticStoreConfig.getExternalEsConfig();
 		if (externalESConfig == null) {
 			return ESearchActivator.getClient();
 		}
-		return ESearchActivator.getClient(List.of(externalESConfig.ip()));
+
+		return ESearchActivator.getClient(List.of(externalESConfig.ip()),
+				AuditLogElasticStoreConfig.getAuthenticationMethod());
 	}
 }

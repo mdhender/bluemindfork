@@ -16,6 +16,8 @@ import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.elasticsearch.initializer.ElasticSearchServerHook;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
+import net.bluemind.lib.elasticsearch.ESearchActivator.Authentication;
+import net.bluemind.lib.elasticsearch.ESearchActivator.AuthenticationCredential;
 import net.bluemind.server.api.Server;
 import net.bluemind.server.hook.IServerHook;
 
@@ -46,7 +48,8 @@ public class InitializerTests {
 		hook.onServerTagged(null, iv, "tag/test");
 
 		// test index existance
-		ElasticsearchClient client = ESearchActivator.getClient(Arrays.asList(elasticSearchHost));
+		ElasticsearchClient client = ESearchActivator.getClient(Arrays.asList(elasticSearchHost),
+				new AuthenticationCredential(Authentication.NONE));
 		boolean exists = client.indices().exists(e -> e.index(TestInitializer.indexName)).value();
 		assertTrue(exists);
 	}

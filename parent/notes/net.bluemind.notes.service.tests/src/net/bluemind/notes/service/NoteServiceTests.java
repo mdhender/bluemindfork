@@ -41,7 +41,7 @@ import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.auditlogs.client.loader.config.AuditLogStoreConfig;
+import net.bluemind.core.auditlogs.client.loader.config.AuditLogConfig;
 import net.bluemind.core.container.model.ChangeLogEntry;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.Item;
@@ -64,7 +64,7 @@ import net.bluemind.tag.api.TagRef;
 import net.bluemind.tag.persistence.ItemTagRef;
 
 public class NoteServiceTests extends AbstractServiceTests {
-	private final String dataStreamName = AuditLogStoreConfig.resolveDataStreamName(domainUid);
+	private final String dataStreamName = AuditLogConfig.resolveDataStreamName(domainUid);
 
 	@Test
 	public void testCreate() throws ServerFault, SQLException {

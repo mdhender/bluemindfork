@@ -28,7 +28,7 @@ import net.bluemind.core.auditlogs.IAuditLogClient;
 import net.bluemind.core.auditlogs.IAuditLogFactory;
 import net.bluemind.core.auditlogs.IAuditLogMgmt;
 import net.bluemind.core.auditlogs.IItemChangeLogClient;
-import net.bluemind.core.auditlogs.client.loader.config.AuditLogStoreConfig;
+import net.bluemind.core.auditlogs.client.loader.config.AuditLogConfig;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.network.topology.Topology;
 
@@ -41,7 +41,7 @@ public class AuditLogLoader {
 		RunnableExtensionLoader<IAuditLogFactory> rel = new RunnableExtensionLoader<>();
 		List<IAuditLogFactory> plugins = rel.loadExtensions("net.bluemind.core", "auditlogs", "store", "factory");
 
-		if (!AuditLogStoreConfig.isActivated()) {
+		if (!AuditLogConfig.isActivated()) {
 			logger.warn("Audit log has been deactivated: no audit log data will be stored");
 			return noopAuditLogFactory();
 		}

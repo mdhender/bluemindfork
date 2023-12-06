@@ -52,7 +52,7 @@ import net.bluemind.core.api.date.BmDateTime.Precision;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.auditlogs.AuditLogEntry;
-import net.bluemind.core.auditlogs.client.loader.config.AuditLogStoreConfig;
+import net.bluemind.core.auditlogs.client.loader.config.AuditLogConfig;
 import net.bluemind.core.container.model.ChangeLogEntry.Type;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
@@ -72,7 +72,7 @@ import net.bluemind.tests.defaultdata.BmDateTimeHelper;
 public class CalendarServiceLogTests extends AbstractCalendarTests {
 	private static final String CRLF = "\r\n";
 
-	private final String dataStreamName = AuditLogStoreConfig.resolveDataStreamName(domainUid);
+	private final String dataStreamName = AuditLogConfig.resolveDataStreamName(domainUid);
 
 	@Test
 	public void testCreate() throws ServerFault, ElasticsearchException, IOException {

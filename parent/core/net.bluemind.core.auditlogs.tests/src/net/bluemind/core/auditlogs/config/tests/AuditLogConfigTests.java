@@ -32,7 +32,7 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
-import net.bluemind.core.auditlogs.client.loader.config.AuditLogStoreConfig;
+import net.bluemind.core.auditlogs.client.loader.config.AuditLogConfig;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.lib.vertx.VertxPlatform;
@@ -52,7 +52,7 @@ public class AuditLogConfigTests {
 		if (confFile.exists()) {
 			confFile.delete();
 		}
-		AuditLogStoreConfig.clear();
+		AuditLogConfig.clear();
 		JdbcTestHelper.getInstance().beforeTest();
 		ElasticsearchTestHelper.getInstance().beforeTest();
 
@@ -73,52 +73,55 @@ public class AuditLogConfigTests {
 		if (confFile.exists()) {
 			confFile.delete();
 		}
-		AuditLogStoreConfig.clear();
+		AuditLogConfig.clear();
 		JdbcTestHelper.getInstance().afterTest();
 		ElasticsearchTestHelper.getInstance().afterTest();
 	}
 
 	@Test
 	public void testDefaultAuditLogStoreConfiguration() throws Exception {
-		AuditLogStoreConfig.clear();
+		AuditLogConfig.clear();
 		File file = new File(CONF_FILE_PATH);
 		file.getParentFile().mkdirs();
 		try (FileOutputStream fos = new FileOutputStream(file)) {
-			String toWrite = "auditlog {\n activate = true\n }";
+			String toWrite = "activate = true";
 			fos.write(toWrite.getBytes());
 		}
-		AuditLogStoreConfig.get();
-		assertTrue(AuditLogStoreConfig.isActivated());
-		assertEquals(AuditLogStoreConfig.AUDITLOG_DATASTREAM_NAME, AuditLogStoreConfig.getDataStreamName());
+		AuditLogConfig.get();
+		assertTrue(AuditLogConfig.isActivated());
+		assertEquals(AuditLogConfig.AUDITLOG_DATASTREAM_NAME, AuditLogConfig.getDataStreamName());
 	}
 
 	@Test
 	public void testAuditLogStoreDeactivatedConfiguration() throws Exception {
-		AuditLogStoreConfig.clear();
+		AuditLogConfig.clear();
 		File file = new File(CONF_FILE_PATH);
 		file.getParentFile().mkdirs();
 		try (FileOutputStream fos = new FileOutputStream(file)) {
-			String toWrite = "auditlog {\n activate = false\n }";
+			String toWrite = "activate = false";
 			fos.write(toWrite.getBytes());
 		}
-		AuditLogStoreConfig.get();
-		assertFalse(AuditLogStoreConfig.isActivated());
-		assertEquals(AuditLogStoreConfig.AUDITLOG_DATASTREAM_NAME, AuditLogStoreConfig.getDataStreamName());
+		AuditLogConfig.get();
+		assertFalse(AuditLogConfig.isActivated());
+		assertEquals(AuditLogConfig.AUDITLOG_DATASTREAM_NAME, AuditLogConfig.getDataStreamName());
 	}
 
 	@Test
 	public void testMultipleDataStreamTotoForAuditLogStoreConfiguration() throws Exception {
-		AuditLogStoreConfig.clear();
+		AuditLogConfig.clear();
 		File file = new File(CONF_FILE_PATH);
 		file.getParentFile().mkdirs();
 		try (FileOutputStream fos = new FileOutputStream(file)) {
-			String toWrite = "auditlog {\n activate = true\n, domain_datastream = toto_%s \n }";
+			String toWrite = """
+							activate = true
+							domain_datastream = toto_%s
+					""";
 			fos.write(toWrite.getBytes());
 		}
-		AuditLogStoreConfig.get();
-		assertTrue(AuditLogStoreConfig.isActivated());
-		assertEquals("toto_%s", AuditLogStoreConfig.getDataStreamName());
-		assertEquals(String.format("toto_%s", domainUid1), AuditLogStoreConfig.resolveDataStreamName(domainUid1));
+		AuditLogConfig.get();
+		assertTrue(AuditLogConfig.isActivated());
+		assertEquals("toto_%s", AuditLogConfig.getDataStreamName());
+		assertEquals(String.format("toto_%s", domainUid1), AuditLogConfig.resolveDataStreamName(domainUid1));
 	}
 
 }

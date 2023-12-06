@@ -64,7 +64,7 @@ import net.bluemind.core.auditlogs.AuditLogEntry;
 import net.bluemind.core.auditlogs.AuditLogQuery;
 import net.bluemind.core.auditlogs.api.ILogRequestService;
 import net.bluemind.core.auditlogs.client.es.AudiLogEsClientActivator;
-import net.bluemind.core.auditlogs.client.loader.config.AuditLogStoreConfig;
+import net.bluemind.core.auditlogs.client.loader.config.AuditLogConfig;
 import net.bluemind.core.container.api.ContainerSubscription;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.Container;
@@ -96,10 +96,12 @@ import net.bluemind.user.api.IUserSubscription;
 import net.bluemind.user.api.User;
 import net.bluemind.user.service.internal.ContainerUserStoreService;
 
-public class AuditLogExternalESTests {
+public class AuditLogExternalESBasicAuthenticationTests {
 
 	private static final String domainUid = "bm.lan";;
-	private static final String AUDIT_LOG_DATASTREAM = AuditLogStoreConfig.resolveDataStreamName(domainUid);
+	private static final String AUDIT_LOG_DATASTREAM = AuditLogConfig.resolveDataStreamName(domainUid);
+	private static final String ES_USER = "elastic";
+	private static final String ES_PASSWORD = "DkIedPPSCb";
 
 	private String datalocation;
 	private DataSource dataDataSource;
@@ -132,7 +134,8 @@ public class AuditLogExternalESTests {
 	private ElasticsearchClient esClient;
 	protected boolean sendNotifications = false;
 	private File confFile;
-	private static ElasticContainer esContainer = new ElasticContainer();
+	private String externalEsAddress;
+	private static ElasticContainer esContainer = new ElasticContainer(ES_USER, ES_PASSWORD);
 
 	@BeforeClass
 	public static void beforeClass() throws Exception {
@@ -143,16 +146,29 @@ public class AuditLogExternalESTests {
 
 	@Before
 	public void before() throws Exception {
-		AuditLogStoreConfig.clear();
 		esContainer.start();
-		String externalEsAddress = esContainer.inspectAddress();
+		externalEsAddress = esContainer.inspectAddress();
+
+		AuditLogConfig.clear();
 		confFile = new File(CONF_FILE_PATH);
 		confFile.getParentFile().mkdirs();
 		try (FileOutputStream fos = new FileOutputStream(confFile)) {
-			String toWrite = "auditlog {\n activate = true\n \n store {\n server = " + externalEsAddress
-					+ "\n port = 9200\n }\n\n}\n";
+			String toWrite = String.format("""
+						activate=true
+						store {
+							type=elastic
+							server=%s
+							port=9200
+							authentication {
+								 	mode=basic
+									user=%s
+									password=%s
+							}
+						}
+					""", externalEsAddress, ES_USER, ES_PASSWORD);
 			fos.write(toWrite.getBytes());
 		}
+
 		TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
 		JdbcTestHelper.getInstance().beforeTest();
 
@@ -261,15 +277,15 @@ public class AuditLogExternalESTests {
 		if (confFile.exists()) {
 			confFile.delete();
 		}
-		AuditLogStoreConfig.clear();
+		AuditLogConfig.clear();
 		JdbcTestHelper.getInstance().afterTest();
 		ElasticsearchTestHelper.getInstance().afterTest();
 		esContainer.stop();
 	}
 
 	@Test
-	public void testAuditLogStoreExternalESConfiguration() throws Exception {
-		assertTrue(AuditLogStoreConfig.isActivated());
+	public void testAuditLogStoreExternalES() throws Exception {
+		assertTrue(AuditLogConfig.isActivated());
 
 		AuditLogQuery logQuery = new AuditLogQuery();
 		logQuery.logtype = CALENDAR_LOGTYPE;
@@ -296,6 +312,10 @@ public class AuditLogExternalESTests {
 				.dataStreams().isEmpty();
 		boolean isInternalESDataStream = !esInternalClient.indices().resolveIndex(r -> r.name(AUDIT_LOG_DATASTREAM))
 				.dataStreams().isEmpty();
+		esClient.indices().resolveIndex(r -> r.name(AUDIT_LOG_DATASTREAM)).dataStreams()
+				.forEach(d -> System.err.println("external datastream:" + d));
+		esInternalClient.indices().resolveIndex(r -> r.name(AUDIT_LOG_DATASTREAM)).dataStreams()
+				.forEach(d -> System.err.println("internal datastream:" + d));
 		assertTrue(isExternalESDataStream);
 		assertFalse(isInternalESDataStream);
 	}

@@ -34,6 +34,8 @@ import co.elastic.clients.json.JsonData;
 import co.elastic.clients.transport.ElasticsearchTransport;
 import net.bluemind.core.auditlogs.client.loader.AuditLogLoader;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
+import net.bluemind.lib.elasticsearch.ESearchActivator.Authentication;
+import net.bluemind.lib.elasticsearch.ESearchActivator.AuthenticationCredential;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NodeActivator;
 import net.bluemind.pool.impl.BmConfIni;
@@ -81,7 +83,8 @@ public class ElasticsearchTestHelper implements BundleActivator {
 		if (transport != null) {
 			return transport;
 		}
-		transport = ESearchActivator.createTansport(Arrays.asList(getHost()));
+		transport = ESearchActivator.createTansport(Arrays.asList(getHost()),
+				new AuthenticationCredential(Authentication.NONE));
 		return transport;
 	}
 
