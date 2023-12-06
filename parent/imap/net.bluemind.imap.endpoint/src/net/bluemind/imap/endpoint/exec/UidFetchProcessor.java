@@ -45,11 +45,15 @@ public class UidFetchProcessor extends SelectedStateCommandProcessor<UidFetchCom
 
 	@Override
 	protected void checkedOperation(UidFetchCommand command, ImapContext ctx, Handler<AsyncResult<Void>> completed) {
+		checkedOperation(command, ctx, Stopwatch.createStarted(), completed);
+	}
+
+	protected void checkedOperation(UidFetchCommand command, ImapContext ctx, Stopwatch chrono,
+			Handler<AsyncResult<Void>> completed) {
 		MailboxConnection con = ctx.mailbox();
 
 		FetchedItemStream output = new FetchedItemStream(ctx, command.raw().tag() + " uid fetch", command.fetchSpec());
 		logger.debug("Fetching to {}", output);
-		Stopwatch chrono = Stopwatch.createStarted();
 
 		StringBuilder sb = new StringBuilder();
 		checkpointSequences(logger, command.raw().tag() + " uid fetch", sb, ctx);

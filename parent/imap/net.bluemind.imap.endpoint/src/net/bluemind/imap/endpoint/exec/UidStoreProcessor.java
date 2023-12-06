@@ -22,6 +22,8 @@ import java.util.Collections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Stopwatch;
+
 import io.netty.buffer.Unpooled;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
@@ -45,6 +47,7 @@ public class UidStoreProcessor extends SelectedStateCommandProcessor<UidStoreCom
 
 	@Override
 	protected void checkedOperation(UidStoreCommand command, ImapContext ctx, Handler<AsyncResult<Void>> completed) {
+		Stopwatch chrono = Stopwatch.createStarted();
 		ctx.mailbox().updateFlags(ctx.selected(), command.idset(), command.mode(), command.flags());
 		if (command.silent()) {
 			StringBuilder resp = new StringBuilder();
@@ -56,7 +59,7 @@ public class UidStoreProcessor extends SelectedStateCommandProcessor<UidStoreCom
 					Collections.singletonList(Part.endOfCommand(Unpooled.wrappedBuffer(asFetch.getBytes()))));
 			UidFetchCommand fetch = new UidFetchCommand(raw);
 			UidFetchProcessor proc = new UidFetchProcessor();
-			proc.checkedOperation(fetch, ctx, completed);
+			proc.checkedOperation(fetch, ctx, chrono, completed);
 		}
 	}
 

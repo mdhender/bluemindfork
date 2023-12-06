@@ -45,13 +45,20 @@ public class FetchProcessor extends SelectedStateCommandProcessor<FetchCommand>
 
 	@Override
 	protected void checkedOperation(FetchCommand command, ImapContext ctx, Handler<AsyncResult<Void>> completed) {
+		checkedOperation(command, ctx, Stopwatch.createStarted(), completed);
+	}
+
+	protected void checkedOperation(FetchCommand command, ImapContext ctx, Stopwatch chrono,
+			Handler<AsyncResult<Void>> completed) {
 		MailboxConnection con = ctx.mailbox();
 
 		FetchedItemStream output = new FetchedItemStream(ctx, command.raw().tag(), command.fetchSpec());
-		logger.debug("{} Fetching to {}", command.raw().tag(), output);
-		logger.debug("{} knows {}: {}", command.raw().tag(), ctx.selected().sequences.length, ctx.selected().sequences);
-		logger.debug("{} knows labels {}", command.raw().tag(), ctx.selected().labels);
-		Stopwatch chrono = Stopwatch.createStarted();
+		if (logger.isDebugEnabled()) {
+			logger.debug("{} Fetching to {}", command.raw().tag(), output);
+			logger.debug("{} knows {}: {}", command.raw().tag(), ctx.selected().sequences.length,
+					ctx.selected().sequences);
+			logger.debug("{} knows labels {}", command.raw().tag(), ctx.selected().labels);
+		}
 
 		StringBuilder sb = new StringBuilder();
 		checkpointFlags(logger, command.raw().tag() + " fetch", ctx, sb);
