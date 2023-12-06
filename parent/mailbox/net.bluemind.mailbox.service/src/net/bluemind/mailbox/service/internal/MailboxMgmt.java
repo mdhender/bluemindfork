@@ -39,6 +39,8 @@ import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.index.mail.BoxIndexing;
+import net.bluemind.lib.elasticsearch.IndexAliasMode;
+import net.bluemind.lib.elasticsearch.IndexAliasMode.Mode;
 import net.bluemind.mailbox.api.IMailboxMgmt;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
@@ -147,6 +149,12 @@ public class MailboxMgmt implements IMailboxMgmt {
 
 	@Override
 	public TaskRef moveIndex(String mailboxUid, String indexName, boolean deleteSource) throws ServerFault {
+
+		if (IndexAliasMode.getMode() == Mode.RING) {
+			logger.info("Preventing moveIndex operation in ring alias mode");
+			throw new UnsupportedOperationException("Operation not permitted in ring alias mode");
+		}
+
 		rbacManager.forEntry(mailboxUid).check(BasicRoles.ROLE_MANAGE_MAILBOX);
 
 		if (Strings.isNullOrEmpty(indexName) || !indexName.startsWith("mailspool")) {

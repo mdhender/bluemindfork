@@ -51,6 +51,11 @@ public class ReconstructCommand implements ICmdLet, Runnable {
 			return;
 		}
 
+		if (index.contains("_ring_")) {
+			ctx.warn("Cannot reconstruct mailspool index of type ring");
+			return;
+		}
+
 		ElasticsearchClient esClient = ESearchActivator.getClient();
 
 		ctx.info("Checking existing alias on index: " + index);

@@ -570,6 +570,9 @@ public class MailIndexService implements IMailIndexService {
 	public void deleteMailbox(String entityId) {
 		final ElasticsearchClient esClient = getIndexClient();
 		resetMailboxIndex(entityId);
+		if (IndexAliasMode.getMode() == Mode.RING) {
+			return;
+		}
 		String boxAlias = getWriteIndexAliasName(entityId);
 		try {
 			esClient.indices().updateAliases(u -> u //
@@ -636,6 +639,11 @@ public class MailIndexService implements IMailIndexService {
 
 	@Override
 	public void moveMailbox(String mailboxUid, String indexName, boolean deleteSource) {
+		if (IndexAliasMode.getMode() == Mode.RING) {
+			logger.info("Preventing moveMailbox operation in ring alias mode");
+			throw new UnsupportedOperationException("Operation not permitted in ring alias mode");
+		}
+
 		ElasticsearchClient esClient = ESearchActivator.getClient();
 		createMailspoolIfNotExists(indexName, esClient);
 

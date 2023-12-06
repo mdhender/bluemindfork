@@ -53,7 +53,8 @@ Require-Bundle: net.bluemind.core.rest,
  net.bluemind.scheduledjob.scheduler,
  net.bluemind.backend.mail.replica.utils,
  net.bluemind.core.container.repair,
- net.bluemind.group.hook
+ net.bluemind.group.hook,
+ net.bluemind.lib.elasticsearch
 Export-Package: net.bluemind.mailbox.service,
  net.bluemind.mailbox.service.common,
  net.bluemind.mailbox.service.hook,

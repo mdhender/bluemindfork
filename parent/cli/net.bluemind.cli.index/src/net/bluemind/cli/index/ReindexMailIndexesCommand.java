@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -93,7 +94,9 @@ public class ReindexMailIndexesCommand implements ICmdLet, Runnable {
 
 		Optional<Script> code = loadScript();
 		int maxIndex = getMaxIndex(indexAliases.keySet());
-		for (String index : getIndexList(indexAliases.keySet())) {
+		Set<String> indexList = new HashSet<>(
+				getIndexList(indexAliases.keySet()).stream().filter(index -> !index.contains("_ring_")).toList());
+		for (String index : indexList) {
 			String targetIndex = "mailspool_" + ++maxIndex;
 			try {
 				reindex(esClient, index, indexAliases.get(index), targetIndex, code);
@@ -118,7 +121,8 @@ public class ReindexMailIndexesCommand implements ICmdLet, Runnable {
 
 	private int getMaxIndex(Set<String> indexNames) {
 		return indexNames.stream() //
-				.filter(indexName -> indexName.startsWith("mailspool") && !indexName.contains("pending"))
+				.filter(indexName -> indexName.startsWith("mailspool") && !indexName.contains("pending")
+						&& !indexName.contains("_ring_"))
 				.mapToInt(indexName -> Integer.valueOf(indexName.substring("mailspool_".length()))).max().orElse(0);
 	}
 
