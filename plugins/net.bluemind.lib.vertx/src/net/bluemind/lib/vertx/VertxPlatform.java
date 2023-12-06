@@ -48,6 +48,7 @@ import net.bluemind.common.vertx.contextlogging.ContextualData;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.lib.vertx.internal.BMModule;
 import net.bluemind.lib.vertx.internal.Result;
+import net.bluemind.lib.vertx.metrics.SpectatorMetricsOptions;
 
 public final class VertxPlatform implements BundleActivator {
 
@@ -87,6 +88,7 @@ public final class VertxPlatform implements BundleActivator {
 		// too!
 		vertx = Vertx.vertx(new VertxOptions() //
 				.setPreferNativeTransport(true) //
+				.setMetricsOptions(new SpectatorMetricsOptions().setEnabled(true))//
 				.setTracingOptions(new OpenTelemetryOptions(openTelemetry)));
 
 		vertx.exceptionHandler(t -> logger.error("Uncaught exception: {}", t.getMessage(), t));
