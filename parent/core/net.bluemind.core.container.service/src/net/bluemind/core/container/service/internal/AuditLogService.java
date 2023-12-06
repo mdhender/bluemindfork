@@ -90,10 +90,14 @@ public abstract class AuditLogService<T, U> {
 	}
 
 	public void logUpdate(T value, U oldValue) {
+		AuditLogUpdateStatus updateStatus = createUpdateStatus(value, oldValue);
+		if (updateStatus.crit == MessageCriticity.MINOR) {
+			// minor updates are skipped to prevent building a more expensive audit entry
+			return;
+		}
 		AuditLogEntry auditLogEntry = createAuditLogEntry(value);
 		auditLogEntry.action = Type.Updated.name();
 		auditLogEntry.domainUid = domainUid;
-		AuditLogUpdateStatus updateStatus = createUpdateStatus(value, oldValue);
 		auditLogEntry.updatemessage = updateStatus.updateMessage;
 		auditLogEntry.criticity = updateStatus.crit;
 		store(auditLogEntry);

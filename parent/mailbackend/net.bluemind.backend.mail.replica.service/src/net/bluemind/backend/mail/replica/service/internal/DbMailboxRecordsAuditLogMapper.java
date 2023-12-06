@@ -44,6 +44,9 @@ public class DbMailboxRecordsAuditLogMapper implements ILogMapperProvider<Mailbo
 	private static final String INVITATION = "invitation";
 	private static final String ATTACHMENTS = "attachments";
 
+	private static final AuditLogUpdateStatus SEEN_UPD = new AuditLogUpdateStatus("SeenChanged",
+			MessageCriticity.MINOR);
+
 	public DbMailboxRecordsAuditLogMapper(BaseContainerDescriptor bcd, IMailIndexService mis) {
 		mailIndexService = mis;
 		container = bcd;
@@ -64,10 +67,12 @@ public class DbMailboxRecordsAuditLogMapper implements ILogMapperProvider<Mailbo
 	public AuditLogUpdateStatus createUpdateMessage(MailboxRecord oldValue, MailboxRecord newValue) {
 		List<MailboxItemFlag> oldFlags = oldValue.flags;
 		List<MailboxItemFlag> newFlags = newValue.flags;
-		List<MailboxItemFlag> removedFlags = oldFlags.stream().filter(element -> !newFlags.contains(element))
-				.collect(Collectors.toList());
-		List<MailboxItemFlag> addedFlags = newFlags.stream().filter(element -> !oldFlags.contains(element))
-				.collect(Collectors.toList());
+		List<MailboxItemFlag> removedFlags = oldFlags.stream().filter(element -> !newFlags.contains(element)).toList();
+		List<MailboxItemFlag> addedFlags = newFlags.stream().filter(element -> !oldFlags.contains(element)).toList();
+		if (isMinorDifference(removedFlags, addedFlags)) {
+			return SEEN_UPD;
+		}
+
 		StringBuilder stringBuilder = new StringBuilder();
 		if (!removedFlags.isEmpty()) {
 			stringBuilder.append("Removed Flags:\n")
@@ -78,9 +83,6 @@ public class DbMailboxRecordsAuditLogMapper implements ILogMapperProvider<Mailbo
 			stringBuilder.append("Added Flags:\n")
 					.append(addedFlags.stream().map(MailboxItemFlag::toString).collect(Collectors.joining(",")))
 					.append("\n");
-		}
-		if (isMinorDifference(oldFlags, newFlags)) {
-			return new AuditLogUpdateStatus(stringBuilder.toString(), MessageCriticity.MINOR);
 		}
 		return new AuditLogUpdateStatus(stringBuilder.toString());
 	}
@@ -152,19 +154,17 @@ public class DbMailboxRecordsAuditLogMapper implements ILogMapperProvider<Mailbo
 		}
 		String[] toArray = recipients.split(",");
 		if (toArray.length > 0) {
-			return Arrays.asList(toArray).stream().map(s -> s.trim()).toList();
+			return Arrays.asList(toArray).stream().map(String::trim).toList();
 		}
 		return Collections.emptyList();
 	}
 
-	private boolean isMinorDifference(List<MailboxItemFlag> oldFlags, List<MailboxItemFlag> newFlags) {
-		if (newFlags.size() == 1 && newFlags.contains(MailboxItemFlag.System.Seen.value())) {
-			return true;
-		}
-		if (oldFlags.size() == 1 && oldFlags.contains(MailboxItemFlag.System.Seen.value()) && newFlags.isEmpty()) {
-			return true;
-		}
-		return false;
+	private boolean isMinorDifference(List<MailboxItemFlag> removed, List<MailboxItemFlag> added) {
+		return justSeenChanged(removed, added) || justSeenChanged(added, removed);
+	}
+
+	private boolean justSeenChanged(List<MailboxItemFlag> from, List<MailboxItemFlag> to) {
+		return from.size() == 1 && to.isEmpty() && from.contains(MailboxItemFlag.System.Seen.value());
 	}
 
 }
