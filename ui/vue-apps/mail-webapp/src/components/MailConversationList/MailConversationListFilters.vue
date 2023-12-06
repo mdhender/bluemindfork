@@ -137,7 +137,6 @@ export default {
 
 .mail-conversation-list-filters {
     height: $input-height-sm;
-    border-bottom: 1px solid $neutral-fg-lo2;
     .bm-check {
         $check-offset: math.div($avatar-width-sm - $custom-checkbox-size, 2);
         margin-left: calc(#{$not-seen-border-width} + #{$conversation-list-item-padding-left + $check-offset});

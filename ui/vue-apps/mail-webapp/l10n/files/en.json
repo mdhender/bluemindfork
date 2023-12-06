@@ -341,7 +341,7 @@
     "mail.list.range.today": "Today",
     "mail.list.range.yesterday": "Yesterday",
     "mail.list.recoverable.header": "Messages deleted from the trash can be recovered.",
-    "mail.list.recoverable.link": "View recoverable messages ({count})",
+    "mail.list.recoverable.link": "No recoverable messages |  View recoverable messages ({count}) | View recoverable messages ({count})",
     "mail.list.replied.aria": "Replied",
     "mail.list.search.no_result": "No message containing {pattern} has been found.",
     "mail.list.search.no_result.folder": "No message containing {pattern} has been found in {folder}{sub}.",

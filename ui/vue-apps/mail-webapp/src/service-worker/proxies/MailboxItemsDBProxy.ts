@@ -10,7 +10,7 @@ export default class extends MailboxItemsClient {
 
     async count(filter: ItemFlagFilter) {
         try {
-            if (await isSubscribedAndSynced(this.replicatedMailboxUid)) {
+            if (await isSubscribedAndSynced(this.replicatedMailboxUid, filter)) {
                 const allMailItems = await db.getAllMailItemLight(this.replicatedMailboxUid);
                 const total = allMailItems.filter(item => filterByFlags(filter, item.flags)).length;
                 return { total };
