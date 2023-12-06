@@ -67,7 +67,7 @@ public final class Nginx implements Handler<HttpServerRequest>, NeedVertxExecuto
 		public final String user;
 		public final String latd;
 		public final long time;
-		public int attempt;
+		public final int attempt;
 
 		private QueryParameters(String clientIp, String protocol, String user, String latd, String password,
 				String backendPort, long time, int attempt) {

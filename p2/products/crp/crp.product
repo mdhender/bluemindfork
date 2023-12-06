@@ -57,6 +57,7 @@
       <plugin id="net.bluemind.addressbook.api"/>
       <plugin id="net.bluemind.central.reverse.proxy"/>
       <plugin id="net.bluemind.central.reverse.proxy.common"/>
+      <plugin id="net.bluemind.central.reverse.proxy.imap"/>
       <plugin id="net.bluemind.central.reverse.proxy.launcher"/>
       <plugin id="net.bluemind.central.reverse.proxy.model"/>
       <plugin id="net.bluemind.central.reverse.proxy.model.client"/>

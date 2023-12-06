@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.central.reverse.proxy.imap
+Bundle-SymbolicName: net.bluemind.central.reverse.proxy.imap;singleton:=true
+Bundle-Version: 5.0.0.qualifier
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ slf4j.api;bundle-version="1.7.36",
+ io.vertx.core,
+ net.bluemind.lib.vertx,
+ net.bluemind.central.reverse.proxy.common;bundle-version="5.0.0",
+ net.bluemind.central.reverse.proxy.model.client
+Bundle-RequiredExecutionEnvironment: JavaSE-21
+Automatic-Module-Name: net.bluemind.central.reverse.proxy.imap
+Bundle-ActivationPolicy: lazy

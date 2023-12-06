@@ -23,6 +23,7 @@
 		<module>net.bluemind.forest.instance.cli</module>
 		<module>net.bluemind.central.reverse.proxy</module>
 		<module>net.bluemind.central.reverse.proxy.common</module>
+		<module>net.bluemind.central.reverse.proxy.imap</module>
 		<module>net.bluemind.central.reverse.proxy.launcher</module>
 		<module>net.bluemind.central.reverse.proxy.model</module>
 		<module>net.bluemind.central.reverse.proxy.model.client</module>
