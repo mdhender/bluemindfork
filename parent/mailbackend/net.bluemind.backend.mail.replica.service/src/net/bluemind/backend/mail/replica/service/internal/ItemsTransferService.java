@@ -42,7 +42,7 @@ import net.bluemind.backend.mail.replica.api.WithId;
 import net.bluemind.backend.mail.replica.service.sds.MessageBodyObjectStore;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IContainers;
-import net.bluemind.core.container.model.ContainerDescriptor;
+import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.ItemIdentifier;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.persistence.DataSourceRouter;
@@ -94,11 +94,11 @@ public class ItemsTransferService implements IItemsTransfer {
 
 	public ItemsTransferService(BmContext context, String fromUid, String toUid) {
 		IContainers contApi = context.provider().instance(IContainers.class);
-		ContainerDescriptor fromContainer = contApi.getIfPresent(IMailReplicaUids.mboxRecords(fromUid));
+		BaseContainerDescriptor fromContainer = contApi.getLightIfPresent(IMailReplicaUids.mboxRecords(fromUid));
 		if (fromContainer == null) {
 			throw ServerFault.notFound("container " + IMailReplicaUids.mboxRecords(fromUid) + " not found.");
 		}
-		ContainerDescriptor toContainer = contApi.getIfPresent(IMailReplicaUids.mboxRecords(toUid));
+		BaseContainerDescriptor toContainer = contApi.getLightIfPresent(IMailReplicaUids.mboxRecords(toUid));
 		if (toContainer == null) {
 			throw ServerFault.notFound("container " + IMailReplicaUids.mboxRecords(toUid) + " not found.");
 		}
