@@ -4,7 +4,7 @@ import { BmResponsiveIllustration } from "@bluemind/ui-components";
 
 <template>
     <div class="event-not-found">
-        <bm-responsive-illustration class="flex-shrink-0" over-background value="calendar-error" />
+        <bm-responsive-illustration over-background value="calendar-error" />
         <div>
             <div class="bold mb-4">{{ $t("mail.viewer.invitation.not_found.title") }}</div>
             <div class="regular">{{ $t("mail.viewer.invitation.not_found.description") }}</div>

@@ -18,6 +18,7 @@ const props = defineProps({
             [
                 "edited",
                 "countered",
+                "private",
                 REPLY_ACTIONS.ACCEPTED,
                 REPLY_ACTIONS.TENTATIVE,
                 REPLY_ACTIONS.DECLINED,
@@ -29,6 +30,7 @@ const props = defineProps({
 const iconStatus = {
     edited: "pencil",
     countered: "interrogation",
+    private: "lock-fill",
     [REPLY_ACTIONS.ACCEPTED]: "check",
     [REPLY_ACTIONS.TENTATIVE]: "interrogation",
     [REPLY_ACTIONS.DECLINED]: "cross",
@@ -47,7 +49,7 @@ const repeatIcon = computed(() => {
 
 <template>
     <div class="event-calendar-illustration">
-        <bm-responsive-illustration class="flex-shrink-0" over-background value="calendar" />
+        <bm-responsive-illustration over-background :value="status === 'private' ? 'calendar-disabled' : 'calendar'" />
         <div v-if="dateStart" class="event-calendar-illustration-text">
             <div class="event-calendar-illustration-year">{{ $d(dateStart, "year") }}</div>
             <div>
@@ -93,6 +95,7 @@ const repeatIcon = computed(() => {
         text-align: center;
         display: flex;
         flex-direction: column;
+        color: $neutral-fg;
 
         @include until-lg {
             gap: 3px;
@@ -175,6 +178,9 @@ const repeatIcon = computed(() => {
         .event-calendar-illustration-icon-status.bm-icon {
             &.fa-pencil {
                 color: $neutral-fg-lo1;
+            }
+            &.fa-lock-fill {
+                color: $neutral-fg;
             }
             &.fa-check {
                 color: $success-fg;

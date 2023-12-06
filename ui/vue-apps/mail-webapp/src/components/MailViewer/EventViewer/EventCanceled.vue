@@ -15,7 +15,7 @@ const statusKey = computed(() =>
 
 <template>
     <div class="event-canceled">
-        <bm-responsive-illustration class="flex-shrink-0" over-background value="calendar-removed" />
+        <bm-responsive-illustration over-background value="calendar-removed" />
         <i18n :path="eventKey" tag="span" class="bold event-canceled-text">
             <template #name>{{ message.from.dn }}</template>
             <template #status>
@@ -38,5 +38,8 @@ const statusKey = computed(() =>
     align-items: center;
     gap: $sp-6;
     padding: $sp-4 $sp-5 0 $sp-5;
+    .bm-illustration {
+        flex: none;
+    }
 }
 </style>
