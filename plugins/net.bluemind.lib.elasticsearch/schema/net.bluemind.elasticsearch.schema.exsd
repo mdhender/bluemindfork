@@ -90,6 +90,13 @@
                </documentation>
             </annotation>
          </attribute>
+         <attribute name="supportsAliasRing" type="boolean" use="default" value="false">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
       </complexType>
    </element>
 

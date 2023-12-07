@@ -22,22 +22,33 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.lib.elasticsearch.ESearchActivator.IndexDefinition;
 import net.bluemind.lib.elasticsearch.IndexAliasMode.Mode;
 
 public abstract class IndexAliasCreator {
 
+	protected final IndexDefinition definition;
+
 	private static final Logger logger = LoggerFactory.getLogger(IndexAliasCreator.class);
+
+	public IndexAliasCreator(IndexDefinition definition) {
+		this.definition = definition;
+	}
 
 	protected abstract String getIndexName(String index, int count, int loopIndex);
 
-	protected abstract void addAliases(String index, String indexName, int count, int loopIndex) throws ServerFault;
+	protected abstract void addAliases(String index, String indexName, int count) throws ServerFault;
 
-	protected static IndexAliasCreator get() {
-		return IndexAliasMode.getMode() == Mode.ONE_TO_ONE ? new OneToOneIndexAliasCreator()
-				: new RingIndexAliasCreator();
+	protected static IndexAliasCreator get(IndexDefinition definition) {
+		return IndexAliasMode.getMode() == Mode.ONE_TO_ONE ? new OneToOneIndexAliasCreator(definition)
+				: new RingIndexAliasCreator(definition);
 	}
 
 	public static class OneToOneIndexAliasCreator extends IndexAliasCreator {
+
+		public OneToOneIndexAliasCreator(IndexDefinition definition) {
+			super(definition);
+		}
 
 		@Override
 		protected String getIndexName(String index, int count, int loopIndex) {
@@ -45,7 +56,7 @@ public abstract class IndexAliasCreator {
 		}
 
 		@Override
-		protected void addAliases(String index, String indexName, int count, int loopIndex) {
+		protected void addAliases(String index, String indexName, int count) {
 			// TODO one to one does create aliases on the fly
 		}
 
@@ -53,16 +64,20 @@ public abstract class IndexAliasCreator {
 
 	public static class RingIndexAliasCreator extends IndexAliasCreator {
 
+		public RingIndexAliasCreator(IndexDefinition definition) {
+			super(definition);
+		}
+
 		@Override
 		protected String getIndexName(String index, int totalNumberOfIndexes, int loopIndex) {
-			if (totalNumberOfIndexes > 1) {
+			if (definition.supportsAliasRing) {
 				int maxAliasCount = getMaxAliasCount(totalNumberOfIndexes);
 				int steps = maxAliasCount / totalNumberOfIndexes;
 				int start = steps / 2;
 				int indexPosition = start + ((loopIndex - 1) * steps);
 				return index + "_ring_" + indexPosition;
 			} else {
-				return new OneToOneIndexAliasCreator().getIndexName(index, totalNumberOfIndexes, loopIndex);
+				return new OneToOneIndexAliasCreator(definition).getIndexName(index, totalNumberOfIndexes, loopIndex);
 			}
 		}
 
@@ -71,8 +86,11 @@ public abstract class IndexAliasCreator {
 		}
 
 		@Override
-		protected void addAliases(String index, String indexName, int totalNumberOfIndexes, int loopIndex) {
-			if (totalNumberOfIndexes > 1) {
+		protected void addAliases(String index, String indexName, int totalNumberOfIndexes) {
+			if (definition.supportsAliasRing) {
+				if (index.contains("_ring_")) {
+					index = index.substring(0, index.indexOf("_"));
+				}
 				int start = Integer.parseInt(indexName.substring(indexName.lastIndexOf("_") + 1));
 				int maxAliasCount = getMaxAliasCount(totalNumberOfIndexes);
 				int steps = maxAliasCount / totalNumberOfIndexes;

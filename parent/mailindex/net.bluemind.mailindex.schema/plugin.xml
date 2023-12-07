@@ -7,7 +7,8 @@
             count="25"
             index="mailspool"
             schema="mailspool.json"
-            schemamatcher="net.bluemind.index.schema.MailspoolSchemaMatcher">
+            schemamatcher="net.bluemind.index.schema.MailspoolSchemaMatcher"
+            supportsAliasRing="true">
       </schema>
    </extension>
    <extension

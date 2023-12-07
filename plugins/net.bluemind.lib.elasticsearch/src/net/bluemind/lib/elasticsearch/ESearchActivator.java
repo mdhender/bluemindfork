@@ -137,11 +137,12 @@ public final class ESearchActivator implements BundleActivator {
 						? (ISchemaMatcher) ce.createExecutableExtension("schemamatcher")
 						: null;
 				boolean rewritable = Boolean.parseBoolean(ce.getAttribute("rewritable"));
+				boolean supportsAliasRing = Boolean.parseBoolean(ce.getAttribute("supportsAliasRing"));
 				Bundle bundle = Platform.getBundle(ext.getContributor().getName());
 				URL url = bundle.getResource(schema);
 				try (InputStream in = url.openStream()) {
-					indexes.put(index,
-							new IndexDefinition(index, ByteStreams.toByteArray(in), matcher, count, rewritable));
+					indexes.put(index, new IndexDefinition(index, ByteStreams.toByteArray(in), matcher, count,
+							rewritable, supportsAliasRing));
 					refreshLocks.put(index, new ReentrantLock());
 				}
 
@@ -376,9 +377,9 @@ public final class ESearchActivator implements BundleActivator {
 	}
 
 	public static void initIndex(ElasticsearchClient esClient, String index) {
-		IndexAliasCreator mailspoolCreator = IndexAliasCreator.get();
 		logger.info("Initialising indices using mode {}", IndexAliasMode.getMode());
 		indexDefinitionOf(index).ifPresentOrElse(definition -> {
+			IndexAliasCreator mailspoolCreator = IndexAliasCreator.get(definition);
 			int count = definition.index.equals(index) ? definition.count() : 1;
 			byte[] schema = definition.schema;
 			try {
@@ -390,7 +391,7 @@ public final class ESearchActivator implements BundleActivator {
 					esClient.cluster().health(h -> h.index(indexName).waitForStatus(HealthStatus.Green));
 					definition.rewritableIndex().ifPresent(
 							rewritableIndex -> addRewritableIndexAliases(esClient, indexName, rewritableIndex));
-					mailspoolCreator.addAliases(index, indexName, count, i);
+					mailspoolCreator.addAliases(index, indexName, definition.count());
 					logger.info("added index '{}' aliases", indexName);
 				}
 			} catch (Exception e) {
@@ -450,19 +451,22 @@ public final class ESearchActivator implements BundleActivator {
 		return new MailspoolStats(getClient());
 	}
 
-	private static class IndexDefinition {
-		private final String index;
-		private final byte[] schema;
-		private final ISchemaMatcher matcher;
-		private final int cnt;
-		private final RewritableIndex rewritableIndex;
+	static class IndexDefinition {
+		final String index;
+		final byte[] schema;
+		final ISchemaMatcher matcher;
+		final int cnt;
+		final RewritableIndex rewritableIndex;
+		final boolean supportsAliasRing;
 
-		IndexDefinition(String index, byte[] schema, ISchemaMatcher matcher, int count, boolean rewritable) {
+		IndexDefinition(String index, byte[] schema, ISchemaMatcher matcher, int count, boolean rewritable,
+				boolean supportsAliasRing) {
 			this.index = index;
 			this.schema = schema;
 			this.matcher = matcher;
 			this.cnt = count;
 			this.rewritableIndex = rewritable ? RewritableIndex.fromPrefix(index) : null;
+			this.supportsAliasRing = supportsAliasRing;
 		}
 
 		public int count() {
