@@ -151,11 +151,13 @@ public class AuditLogExternalESNoAuthenticationTests {
 		confFile.getParentFile().mkdirs();
 		try (FileOutputStream fos = new FileOutputStream(confFile)) {
 			String toWrite = String.format("""
-						activate=true
-						store {
-							type=elastic
-							server=%s
-							port=9200
+					auditlog {
+							activate=true
+							store {
+								type=elastic
+								server=%s
+								port=9200
+							}
 						}
 					""", externalEsAddress);
 			fos.write(toWrite.getBytes());
@@ -266,13 +268,13 @@ public class AuditLogExternalESNoAuthenticationTests {
 
 	@After
 	public void after() throws Exception {
-		if (confFile.exists()) {
-			confFile.delete();
-		}
 		AuditLogConfig.clear();
 		JdbcTestHelper.getInstance().afterTest();
 		ElasticsearchTestHelper.getInstance().afterTest();
 		esContainer.stop();
+		if (confFile.exists()) {
+			confFile.delete();
+		}
 	}
 
 	@Test

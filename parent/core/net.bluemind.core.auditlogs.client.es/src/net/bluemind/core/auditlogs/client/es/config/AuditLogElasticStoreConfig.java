@@ -18,11 +18,6 @@
 
 package net.bluemind.core.auditlogs.client.es.config;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.typesafe.config.Config;
-
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.auditlogs.client.loader.config.AuditLogConfig;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
@@ -31,9 +26,6 @@ import net.bluemind.lib.elasticsearch.ESearchActivator.AuthenticationCredential;
 
 @BMApi(version = "3")
 public class AuditLogElasticStoreConfig extends AuditLogConfig {
-
-	private static final Logger logger = LoggerFactory.getLogger(AuditLogElasticStoreConfig.class);
-	private static final String ELASTIC_STORE = "elastic";
 
 	private AuditLogElasticStoreConfig() {
 		super();
@@ -44,18 +36,9 @@ public class AuditLogElasticStoreConfig extends AuditLogConfig {
 
 		}
 
-		public static final String STORE_TYPE = "store.type";
-		public static final String STORE_HOST = "store.server";
-		public static final String STORE_PORT = "store.port";
-	}
-
-	public static Config get() {
-		Config config = AuditLogConfig.get();
-
-		if (config.hasPath(AuditLogStore.STORE_TYPE)
-				&& config.getString(AuditLogStore.STORE_TYPE).equals(ELASTIC_STORE)) {
-		}
-		return null;
+		public static final String STORE_TYPE = "auditlog.store.type";
+		public static final String STORE_HOST = "auditlog.store.server";
+		public static final String STORE_PORT = "auditlog.store.port";
 	}
 
 	public static ExternalESConfig getExternalEsConfig() {
@@ -68,14 +51,14 @@ public class AuditLogElasticStoreConfig extends AuditLogConfig {
 	}
 
 	public static AuthenticationCredential getAuthenticationMethod() {
-		if (!AuditLogConfig.get().hasPath("store.authentication")) {
+		if (!AuditLogConfig.get().hasPath("auditlog.store.authentication")) {
 			return new AuthenticationCredential(ESearchActivator.Authentication.NONE, null, null);
 		}
 
-		if (AuditLogConfig.get().hasPath("store.authentication.mode")) {
-			String authMode = AuditLogConfig.get().getString("store.authentication.mode");
-			String user = AuditLogConfig.get().getString("store.authentication.user");
-			String password = AuditLogConfig.get().getString("store.authentication.password");
+		if (AuditLogConfig.get().hasPath("auditlog.store.authentication.mode")) {
+			String authMode = AuditLogConfig.get().getString("auditlog.store.authentication.mode");
+			String user = AuditLogConfig.get().getString("auditlog.store.authentication.user");
+			String password = AuditLogConfig.get().getString("auditlog.store.authentication.password");
 			switch (authMode.toLowerCase()) {
 			case "basic": {
 				return new AuthenticationCredential(ESearchActivator.Authentication.BASIC, user, password);
@@ -90,6 +73,10 @@ public class AuditLogElasticStoreConfig extends AuditLogConfig {
 	}
 
 	public record AuthConfig(Authentication auth, String user, String password) {
+
+	}
+
+	public record ExternalESConfig(String ip, int port) {
 
 	}
 }

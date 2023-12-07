@@ -154,6 +154,7 @@ public class AuditLogExternalESBasicAuthenticationTests {
 		confFile.getParentFile().mkdirs();
 		try (FileOutputStream fos = new FileOutputStream(confFile)) {
 			String toWrite = String.format("""
+					auditlog {
 						activate=true
 						store {
 							type=elastic
@@ -164,6 +165,7 @@ public class AuditLogExternalESBasicAuthenticationTests {
 									user=%s
 									password=%s
 							}
+						}
 						}
 					""", externalEsAddress, ES_USER, ES_PASSWORD);
 			fos.write(toWrite.getBytes());
@@ -274,13 +276,13 @@ public class AuditLogExternalESBasicAuthenticationTests {
 
 	@After
 	public void after() throws Exception {
+		JdbcTestHelper.getInstance().afterTest();
+		ElasticsearchTestHelper.getInstance().afterTest();
+		esContainer.stop();
 		if (confFile.exists()) {
 			confFile.delete();
 		}
 		AuditLogConfig.clear();
-		JdbcTestHelper.getInstance().afterTest();
-		ElasticsearchTestHelper.getInstance().afterTest();
-		esContainer.stop();
 	}
 
 	@Test

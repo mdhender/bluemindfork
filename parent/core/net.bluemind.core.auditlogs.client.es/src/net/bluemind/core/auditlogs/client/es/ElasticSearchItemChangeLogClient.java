@@ -42,6 +42,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.auditlogs.AuditLogEntry;
 import net.bluemind.core.auditlogs.AuditLogQuery;
 import net.bluemind.core.auditlogs.IItemChangeLogClient;
+import net.bluemind.core.auditlogs.client.loader.config.AuditLogConfig;
 import net.bluemind.core.container.model.ChangeLogEntry.Type;
 import net.bluemind.core.container.model.ItemChangeLogEntry;
 import net.bluemind.core.container.model.ItemChangelog;
@@ -51,7 +52,6 @@ import net.bluemind.lib.elasticsearch.Pit.PaginationParams;
 import net.bluemind.lib.elasticsearch.exception.ElasticDocumentException;
 
 public class ElasticSearchItemChangeLogClient implements IItemChangeLogClient {
-	private static final String INDEX_AUDIT_LOG_PREFIX = "audit_log";
 	private static final Logger logger = LoggerFactory.getLogger(ElasticSearchItemChangeLogClient.class);
 
 	public ElasticSearchItemChangeLogClient() {
@@ -63,7 +63,7 @@ public class ElasticSearchItemChangeLogClient implements IItemChangeLogClient {
 
 		final Long since = null == from ? 0L : from;
 		SortOptions sort = new SortOptions.Builder().field(f -> f.field("@timestamp").order(SortOrder.Asc)).build();
-		String indexName = INDEX_AUDIT_LOG_PREFIX + "_" + domainUid;
+		String indexName = AuditLogConfig.resolveDataStreamName(domainUid);
 		try {
 			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
 					.index(indexName).sort(sort) //
@@ -85,7 +85,7 @@ public class ElasticSearchItemChangeLogClient implements IItemChangeLogClient {
 		if (query.domainUid == null) {
 			throw new ServerFault("Domain uid not found for query " + query);
 		}
-		String indexName = INDEX_AUDIT_LOG_PREFIX + "_" + query.domainUid;
+		String indexName = AuditLogConfig.resolveDataStreamName(query.domainUid);
 		SortOptions sortOptions = new SortOptions.Builder().field(f -> f.field("@timestamp").order(SortOrder.Desc))
 				.build();
 		BoolQuery boolQuery = buildEsQuery(query);

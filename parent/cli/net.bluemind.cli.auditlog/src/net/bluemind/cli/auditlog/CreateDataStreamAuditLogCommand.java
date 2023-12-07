@@ -117,10 +117,7 @@ public class CreateDataStreamAuditLogCommand implements Runnable, ICmdLet {
 	}
 
 	private boolean isCompliantPattern(String pattern) {
-		if (!dataStreamField.pattern.contains("%s")) {
-			return false;
-		}
-		return true;
+		return dataStreamField.pattern.contains("%s");
 	}
 
 }

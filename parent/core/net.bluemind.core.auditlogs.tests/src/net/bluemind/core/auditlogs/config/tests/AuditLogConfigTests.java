@@ -84,12 +84,16 @@ public class AuditLogConfigTests {
 		File file = new File(CONF_FILE_PATH);
 		file.getParentFile().mkdirs();
 		try (FileOutputStream fos = new FileOutputStream(file)) {
-			String toWrite = "activate = true";
+			String toWrite = """
+							auditlog {
+									activate = true
+							}
+					""";
 			fos.write(toWrite.getBytes());
 		}
 		AuditLogConfig.get();
 		assertTrue(AuditLogConfig.isActivated());
-		assertEquals(AuditLogConfig.AUDITLOG_DATASTREAM_NAME, AuditLogConfig.getDataStreamName());
+		assertEquals("audit_log_%s", AuditLogConfig.getDataStreamName());
 	}
 
 	@Test
@@ -98,12 +102,16 @@ public class AuditLogConfigTests {
 		File file = new File(CONF_FILE_PATH);
 		file.getParentFile().mkdirs();
 		try (FileOutputStream fos = new FileOutputStream(file)) {
-			String toWrite = "activate = false";
+			String toWrite = """
+							auditlog {
+									activate = false
+							}
+					""";
 			fos.write(toWrite.getBytes());
 		}
 		AuditLogConfig.get();
 		assertFalse(AuditLogConfig.isActivated());
-		assertEquals(AuditLogConfig.AUDITLOG_DATASTREAM_NAME, AuditLogConfig.getDataStreamName());
+		assertEquals("audit_log_%s", AuditLogConfig.getDataStreamName());
 	}
 
 	@Test
@@ -113,8 +121,10 @@ public class AuditLogConfigTests {
 		file.getParentFile().mkdirs();
 		try (FileOutputStream fos = new FileOutputStream(file)) {
 			String toWrite = """
+					auditlog {
 							activate = true
 							domain_datastream = toto_%s
+							}
 					""";
 			fos.write(toWrite.getBytes());
 		}

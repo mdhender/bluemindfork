@@ -22,7 +22,7 @@ import java.util.List;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import net.bluemind.core.auditlogs.client.es.config.AuditLogElasticStoreConfig;
-import net.bluemind.core.auditlogs.client.loader.config.AuditLogConfig.ExternalESConfig;
+import net.bluemind.core.auditlogs.client.es.config.AuditLogElasticStoreConfig.ExternalESConfig;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 
 public class AudiLogEsClientActivator {

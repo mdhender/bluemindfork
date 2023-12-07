@@ -41,6 +41,8 @@ import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthSchemeProvider;
 import org.apache.http.config.RegistryBuilder;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.apache.http.message.BasicHeader;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -57,6 +59,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.hash.HashCode;
+import com.google.common.hash.HashFunction;
+import com.google.common.hash.Hashing;
 import com.google.common.io.ByteStreams;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
@@ -182,8 +187,12 @@ public final class ESearchActivator implements BundleActivator {
 	}
 
 	public static ElasticsearchClient getClient(List<String> hosts, AuthenticationCredential authCred) {
-		ElasticsearchTransport transport = ESearchActivator.createTansport(hosts, authCred);
-		return new ElasticsearchClient(transport);
+		String hshtxt = hash(hosts, authCred);
+		if (hshtxt == null) {
+			return null;
+		}
+		ElasticsearchTransport transport = transports.computeIfAbsent(hshtxt, k -> createTansport(hosts, authCred));
+		return buildClient(hshtxt, transport, ElasticsearchClient::new);
 	}
 
 	public static ElasticsearchClient getClient() {
@@ -226,29 +235,32 @@ public final class ESearchActivator implements BundleActivator {
 	public static ElasticsearchTransport createTansport(List<String> hosts, AuthenticationCredential authCred) {
 		HttpHost[] httpHosts = hosts.stream().map(host -> new HttpHost(host, 9200)).toArray(l -> new HttpHost[l]);
 		RestClient restClient;
-
 		try {
 			ElasticsearchConfig.Client clientConfig = ElasticsearchConfig.Client.of(config);
+
+			HttpAsyncClientBuilder httpAsyncClientBuilder = HttpAsyncClientBuilder.create()
+					.setDefaultAuthSchemeRegistry(RegistryBuilder.<AuthSchemeProvider>create().build())//
+					.setDefaultCredentialsProvider(new BasicCredentialsProvider())//
+					.disableAuthCaching()//
+					.setMaxConnTotal(clientConfig.pool().maxConnTotal()) //
+					.setMaxConnPerRoute(clientConfig.pool().maxConnPerRoute());
+
 			RestClientBuilder restClientBuilder = RestClient.builder(httpHosts) //
 					.setRequestConfigCallback(builder -> builder //
 							.setConnectTimeout((int) clientConfig.timeout().connect().toMillis()) //
 							.setSocketTimeout((int) clientConfig.timeout().socket().toMillis()) //
-							.setConnectionRequestTimeout((int) clientConfig.timeout().request().toMillis()))
-					.setHttpClientConfigCallback(builder -> builder //
-							.setDefaultAuthSchemeRegistry(RegistryBuilder.<AuthSchemeProvider>create().build())//
-//							.setDefaultCredentialsProvider(credentialsProvider)//
-//							.setDefaultCredentialsProvider(new BasicCredentialsProvider())//
-//							.disableAuthCaching()//
-							.setMaxConnTotal(clientConfig.pool().maxConnTotal()) //
-							.setMaxConnPerRoute(clientConfig.pool().maxConnPerRoute()));
+							.setConnectionRequestTimeout((int) clientConfig.timeout().request().toMillis()));
+
 			if (authCred.auth.equals(Authentication.BASIC) || authCred.auth.equals(Authentication.API_KEY)) {
 				String credentials = authCred.user + ":" + authCred.password;
 				String encodedCredentials = Base64.getEncoder().encodeToString(credentials.getBytes());
 				Header[] defaultHeaders = new Header[] {
 						new BasicHeader("Authorization", authCred.auth.toString() + " " + encodedCredentials) };
 				restClientBuilder.setDefaultHeaders(defaultHeaders);
+			} else {
+				httpAsyncClientBuilder.setDefaultCredentialsProvider(new BasicCredentialsProvider());
 			}
-			// TODO : revoir la gestion des disableAuthCaching
+			restClientBuilder.setHttpClientConfigCallback(builder -> httpAsyncClientBuilder);
 			restClient = restClientBuilder.build();
 		} catch (ConfigException e) {
 			restClient = RestClient.builder(httpHosts).build();
@@ -518,7 +530,15 @@ public final class ESearchActivator implements BundleActivator {
 
 		public AuthenticationCredential(Authentication auth) {
 			this(auth, null, null);
-		};
+		}
+	}
+
+	private static String hash(List<String> hosts, AuthenticationCredential authCred) {
+		HashFunction hf = Hashing.md5();
+		String compactHosts = hosts.stream().reduce("", (f, n) -> f + n);
+		HashCode hashCode = hf
+				.hashBytes((compactHosts + authCred.user + authCred.password + authCred.auth.toString()).getBytes());
+		return hashCode.toString();
 	}
 
 }

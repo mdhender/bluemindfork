@@ -266,10 +266,8 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 	public void removeDataStream(String dataStreamFullName) throws AuditLogRemovalException {
 		ElasticsearchClient esClient = AudiLogEsClientActivator.get();
 		Optional<IndexTemplateDefinition> optSchema = Optional.ofNullable(indexTemplateDefinition);
-		// domainUId is not present, removes datastream root (e.g. audit_log*)
-		String dataStreamName = String.format(AuditLogConfig.getDataStreamName(), "*");
 		if (optSchema.isPresent()) {
-			removeDataStream(esClient, dataStreamName);
+			removeDataStream(esClient, dataStreamFullName);
 			removeIndexTemplate(esClient, optSchema.get().indexTemplateName);
 		}
 	}

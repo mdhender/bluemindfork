@@ -32,7 +32,6 @@ import net.bluemind.core.api.BMApi;
 @BMApi(version = "3")
 public class AuditLogConfig {
 	private static final Logger logger = LoggerFactory.getLogger(AuditLogConfig.class);
-	public static final String AUDITLOG_DATASTREAM_NAME = "audit_log_%s";
 	private static Config INSTANCE = loadConfig();
 
 	protected AuditLogConfig() {
@@ -44,8 +43,8 @@ public class AuditLogConfig {
 
 		}
 
-		public static final String ACTIVATED = "activate";
-		public static final String MULTIDOMAIN_DATASTREAMS = "domain_datastream";
+		public static final String ACTIVATED = "auditlog.activate";
+		public static final String MULTIDOMAIN_DATASTREAMS = "auditlog.domain_datastream";
 	}
 
 	private static Config loadConfig() {
@@ -101,27 +100,17 @@ public class AuditLogConfig {
 
 	public static String getDataStreamName() {
 		String dataStreamPattern = AuditLogConfig.getOrDefaultStr(AuditLogStore.MULTIDOMAIN_DATASTREAMS);
-		if (dataStreamPattern == null) {
-			return AUDITLOG_DATASTREAM_NAME;
-		}
 		return dataStreamPattern;
 	}
 
 	public static String resolveDataStreamName(String domainUid) {
 
 		String dataStreamPattern = AuditLogConfig.getOrDefaultStr(AuditLogStore.MULTIDOMAIN_DATASTREAMS);
-		if (dataStreamPattern == null) {
-			return String.format(AUDITLOG_DATASTREAM_NAME, domainUid);
-		}
 
 		if (dataStreamPattern.contains("%s")) {
 			return String.format(dataStreamPattern, domainUid);
 		}
 		return dataStreamPattern;
-	}
-
-	public record ExternalESConfig(String ip, int port) {
-
 	}
 
 	@VisibleForTesting
