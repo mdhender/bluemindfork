@@ -22,6 +22,7 @@
   */
 package net.bluemind.central.reverse.proxy.vertx.impl.milter;
 
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -41,7 +42,7 @@ public class MilterHandler implements Handler<NetSocket> {
 	private final int clientPort;
 	private String deploymentId;
 
-	private String clientIp = "127.0.0.1";
+	private Optional<String> clientIp = null;
 
 	public MilterHandler(Vertx vertx, int clientPort) {
 		this.vertx = vertx;
@@ -54,16 +55,20 @@ public class MilterHandler implements Handler<NetSocket> {
 
 	public void setClientIp(String clientIp) {
 		logger.info("[milter:{}] set client IP to {}", deploymentId, clientIp);
-		this.clientIp = clientIp;
+		this.clientIp = Optional.of(clientIp);
 	}
 
 	@Override
 	public void handle(NetSocket serverSocket) {
 		serverSocket.pause();
-		connectClient(serverSocket);
+
+		clientIp.ifPresentOrElse(clientIp -> connectClient(serverSocket, clientIp), () -> {
+			logger.warn("[milter:{}] core server IP not set", deploymentId);
+			serverSocket.close();
+		});
 	}
 
-	private void connectClient(NetSocket serverSocket) {
+	private void connectClient(NetSocket serverSocket, String clientIp) {
 		NetClientOptions netOptions = new NetClientOptions().setIdleTimeout(10).setIdleTimeoutUnit(TimeUnit.MINUTES)
 				.setTcpFastOpen(true).setTcpNoDelay(true).setTcpQuickAck(true);
 		NetClient netClient = vertx.createNetClient(netOptions);

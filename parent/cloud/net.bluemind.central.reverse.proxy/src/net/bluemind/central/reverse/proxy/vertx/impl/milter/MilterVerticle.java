@@ -46,7 +46,6 @@ public class MilterVerticle extends AbstractVerticle {
 
 	private final Config config;
 	private final int port;
-	private String clientIp = "172.16.12.220";
 
 	private NetServer server;
 
@@ -82,7 +81,6 @@ public class MilterVerticle extends AbstractVerticle {
 		if (milterHandler == null) {
 			milterHandler = new MilterHandler(vertx, config.getInt(REMOTE_PORT));
 			milterHandler.setDeploymentId(deploymentID());
-			milterHandler.setClientIp(clientIp);
 		}
 
 		return milterHandler;
