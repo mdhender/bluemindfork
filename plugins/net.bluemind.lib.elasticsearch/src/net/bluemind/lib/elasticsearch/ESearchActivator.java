@@ -410,7 +410,7 @@ public final class ESearchActivator implements BundleActivator {
 	}
 
 	public static int getIndexCount(String index) {
-		return indexDefinitionOf(index).map(definition -> definition.count()).orElse(0);
+		return indexDefinitionOf(index).map(IndexDefinition::count).orElse(0);
 	}
 
 	public static RewritableIndex getRewritableIndex(String indexName) {

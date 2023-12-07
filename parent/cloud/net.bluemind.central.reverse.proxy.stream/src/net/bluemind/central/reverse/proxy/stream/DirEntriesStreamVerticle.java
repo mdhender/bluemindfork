@@ -129,7 +129,7 @@ public class DirEntriesStreamVerticle extends AbstractVerticle {
 								&& (recordKey.type.equals("dir") || recordKey.type.equals("memberships")))
 						.orElse(false))
 				.flatMap((key, value) -> {
-					Collection<KeyValue<byte[], byte[]>> keyValueList = new ArrayList<>();
+					Collection<KeyValue<byte[], byte[]>> keyValueList = new ArrayList<>(3);
 
 					keyMapper.map(key).filter(recordKey -> recordKey.operation.equals("DELETE"))
 							.ifPresent(recordKey -> {
@@ -146,7 +146,7 @@ public class DirEntriesStreamVerticle extends AbstractVerticle {
 								recordKey.operation = "DELETE";
 							});
 
-					keyValueList.add(new KeyValue<byte[], byte[]>(key, value));
+					keyValueList.add(new KeyValue<>(key, value));
 					return keyValueList;
 				}).to(ouputTopicName, withProducer());
 
