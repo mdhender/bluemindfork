@@ -42,7 +42,7 @@ public class MilterHandler implements Handler<NetSocket> {
 	private final int clientPort;
 	private String deploymentId;
 
-	private Optional<String> clientIp = null;
+	private Optional<String> clientIp = Optional.empty();
 
 	public MilterHandler(Vertx vertx, int clientPort) {
 		this.vertx = vertx;
