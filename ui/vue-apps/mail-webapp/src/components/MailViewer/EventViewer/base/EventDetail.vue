@@ -44,12 +44,16 @@ const calendarStatus = computed(() => {
         return "countered";
     }
 
-    if (hasHeader(MessageHeader.X_BM_EVENT)) {
-        return props.event?.status && props.event?.status !== REPLY_ACTIONS.NEEDS_ACTION ? props.event?.status : null;
+    if (props.event?.status && hasHeader(MessageHeader.X_BM_EVENT)) {
+        return props.event.status !== REPLY_ACTIONS.NEEDS_ACTION ? props.event.status : null;
     }
 
-    if (hasHeader(MessageHeader.X_BM_EVENT_REPLIED)) {
-        return props.event?.attendees?.find(attendee => attendee.mail === props.message.from.address)?.status ?? null;
+    if (props.event?.attendees?.length && hasHeader(MessageHeader.X_BM_EVENT_REPLIED)) {
+        return props.event.attendees.find(attendee => attendee.mail === props.message.from.address)?.status ?? null;
+    }
+
+    if (props.event?.private) {
+        return "private";
     }
 
     return null;

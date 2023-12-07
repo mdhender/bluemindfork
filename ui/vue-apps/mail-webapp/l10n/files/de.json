@@ -469,6 +469,7 @@
     "mail.viewer.invitation.counter.attendees": "Ihre Einladung ist weitergeleitet worden.",
     "mail.viewer.invitation.not_found.title": "Es ist nicht möglich, auf die Informationen dieses Termins zuzugreifen.",
     "mail.viewer.invitation.not_found.description": "Er könnte gelöscht worden sein, oder Sie haben keine Berechtigung, auf den Kalender zuzugreifen, in dem er sich befindet.",
+    "mail.viewer.invitation.private.restricted": "{user} hat Ihnen nicht das Recht gegeben, seine privaten Veranstaltungen zu verwalten.",
     "mail": {
         "actions": {
             "move_folder_to_trash": {
