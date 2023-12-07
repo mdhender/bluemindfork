@@ -19,15 +19,11 @@ public class BmApiVersionFilter extends RestFilterAdapter {
 	@Override
 	public AsyncHandler<RestResponse> preAuthorization(RestRequest request,
 			AsyncHandler<RestResponse> responseHandler) {
-
 		String clientVersion = request.headers.get(VERSION_HEADER);
 		if (!isDevMode(clientVersion) && clientVersion != null && !CORE_VERSION.equals(clientVersion)) {
 			String msg = String.format("CORE called with wrong version, clientVersion : %s, coreVersion %s",
 					clientVersion, CORE_VERSION);
-			logger.warn(msg);
-
 			return new AsyncHandler<RestResponse>() {
-
 				@Override
 				public void success(RestResponse value) {
 					value.headers.add("X-BM-WarnMessage", msg);
@@ -38,7 +34,6 @@ public class BmApiVersionFilter extends RestFilterAdapter {
 				public void failure(Throwable e) {
 					responseHandler.failure(e);
 				}
-
 			};
 		} else {
 			return responseHandler;
