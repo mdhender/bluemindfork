@@ -12,7 +12,10 @@
                 </div>
             </div>
             <div class="illustration-and-actions">
-                <div class="actions">
+                <div
+                    v-if="ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE && !CONVERSATION_LIST_DELETED_FILTER_ENABLED"
+                    class="actions"
+                >
                     <bm-button
                         variant="text"
                         :title="markAsUnreadAriaText()"
@@ -89,7 +92,14 @@
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 
 import { CLEAR, INFO, REMOVE } from "@bluemind/alert.store";
-import { CONVERSATIONS_ACTIVATED, MAILBOX_INBOX, MAILBOX_JUNK, SELECTION_KEYS } from "~/getters";
+import {
+    ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE,
+    CONVERSATIONS_ACTIVATED,
+    CONVERSATION_LIST_DELETED_FILTER_ENABLED,
+    MAILBOX_INBOX,
+    MAILBOX_JUNK,
+    SELECTION_KEYS
+} from "~/getters";
 import { UNSELECT_ALL_CONVERSATIONS } from "~/mutations";
 
 import { folderUtils } from "@bluemind/mail";
@@ -119,7 +129,9 @@ export default {
     computed: {
         ...mapState("mail", ["activeFolder", "folders", "mailboxes"]),
         ...mapGetters("mail", {
+            ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE,
             CONVERSATIONS_ACTIVATED,
+            CONVERSATION_LIST_DELETED_FILTER_ENABLED,
             MAILBOX_INBOX,
             MAILBOX_JUNK,
             SELECTION_KEYS

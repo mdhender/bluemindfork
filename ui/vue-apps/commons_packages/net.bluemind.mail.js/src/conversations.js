@@ -1,5 +1,5 @@
 import { Flag } from "@bluemind/email";
-import { isFlagged, isUnread, MessageCreationModes, messageKey } from "./message";
+import { isDeleted, isFlagged, isUnread, MessageCreationModes, messageKey } from "./message";
 import { LoadingStatus } from "./loading-status";
 import { draftInfoHeader } from "./draft";
 import { isDraftFolder } from "./folder";
@@ -120,7 +120,7 @@ function mergeMessagesMetadata(folderKey, messages) {
         cc = messages[0]?.cc,
         bcc = messages[0]?.bcc,
         unreadCount = 0,
-        flags = messages.length > 0 ? new Set([Flag.SEEN]) : new Set(),
+        flags = messages.length > 0 ? new Set([Flag.SEEN, Flag.DELETED]) : new Set(),
         loading = messages.length > 0 ? LoadingStatus.LOADING : LoadingStatus.ERROR,
         hasAttachment = false,
         hasICS = false,
@@ -133,6 +133,9 @@ function mergeMessagesMetadata(folderKey, messages) {
             if (isUnread(m)) {
                 unreadCount++;
                 flags.delete(Flag.SEEN);
+            }
+            if (!isDeleted(m)) {
+                flags.delete(Flag.DELETED);
             }
             if (isFlagged(m)) {
                 flags.add(Flag.FLAGGED);

@@ -1,5 +1,5 @@
 <template>
-    <bm-button-toolbar key-nav class="mail-viewer-toolbar bg-surface">
+    <bm-button-toolbar v-if="!CONVERSATION_LIST_DELETED_FILTER_ENABLED" key-nav class="mail-viewer-toolbar bg-surface">
         <mail-open-in-popup-with-shift v-slot="action" :href="replyRoute(message)">
             <bm-icon-button
                 variant="regular-accent"
@@ -48,10 +48,11 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { mapGetters, mapState } from "vuex";
 import { messageUtils, partUtils } from "@bluemind/mail";
 import { BmButtonToolbar, BmIconButton, BmIconDropdown, BmDropdownItem } from "@bluemind/ui-components";
 import { ReplyAndForwardRoutesMixin } from "~/mixins";
+import { CONVERSATION_LIST_DELETED_FILTER_ENABLED } from "~/getters";
 import MailViewerToolbarOtherActions from "./MailViewerToolbarOtherActions";
 import { useComposerInit } from "~/composables/composer/ComposerInit";
 import ForwardEventButton from "../../calendar/components/ForwardEventButton";
@@ -94,6 +95,7 @@ export default {
     },
     computed: {
         ...mapState("mail", { folders: "folders" }),
+        ...mapGetters("mail", { CONVERSATION_LIST_DELETED_FILTER_ENABLED }),
         isFolderReadOnly() {
             return !this.folders[this.message.folderRef.key].writable;
         },

@@ -2,21 +2,24 @@
 import { computed } from "vue";
 import store from "@bluemind/store";
 
-import { CURRENT_MAILBOX, MAILBOX_TRASH } from "~/getters";
+import { CONVERSATION_LIST_DELETED_FILTER_ENABLED, CURRENT_MAILBOX, MAILBOX_TRASH } from "~/getters";
 
-import TrashResultHeader from "./TrashResultHeader";
 import MailConversationListHeader from "./MailConversationListHeader";
+import RecoverableResultHeader from "./RecoverableResultHeader";
+import TrashResultHeader from "./TrashResultHeader";
 
 const { getters, state } = store;
+const mailbox = computed(() => getters[`mail/${CURRENT_MAILBOX}`]);
+const folder = computed(() => state.mail.folders[state.mail.activeFolder]);
 const isTrash = computed(
-    () =>
-        getters[`mail/${CURRENT_MAILBOX}`] &&
-        getters[`mail/${MAILBOX_TRASH}`](getters[`mail/${CURRENT_MAILBOX}`])?.key === state.mail.activeFolder
+    () => folder.value && getters[`mail/${MAILBOX_TRASH}`](folder.value.mailboxRef)?.key === folder.value.key
 );
+const isRecoverable = computed(() => isTrash.value && getters[`mail/${CONVERSATION_LIST_DELETED_FILTER_ENABLED}`]);
 </script>
 
 <template>
     <mail-conversation-list-header>
-        <trash-result-header v-if="isTrash" />
+        <recoverable-result-header v-if="isRecoverable && folder.writable" />
+        <trash-result-header v-else-if="isTrash && folder.writable" />
     </mail-conversation-list-header>
 </template>

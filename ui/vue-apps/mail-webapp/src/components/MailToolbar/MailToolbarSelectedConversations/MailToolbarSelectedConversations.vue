@@ -1,6 +1,6 @@
 <template>
     <div class="mail-toolbar-selected-conversations" :class="{ compact }">
-        <template v-if="ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE">
+        <template v-if="ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE && !CONVERSATION_LIST_DELETED_FILTER_ENABLED">
             <mail-toolbar-responsive-button
                 v-show="isTemplate"
                 :title="$t('mail.actions.edit_from_template.aria', { subject })"
@@ -65,6 +65,7 @@ import MailToolbarSelectedConversationsOtherActions from "./MailToolbarSelectedC
 import { ActionTextMixin, FlagMixin, RemoveMixin, SelectionMixin, MailRoutesMixin } from "~/mixins";
 import {
     ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE,
+    CONVERSATION_LIST_DELETED_FILTER_ENABLED,
     CURRENT_CONVERSATION_METADATA,
     MY_DRAFTS,
     MY_TEMPLATES
@@ -91,6 +92,7 @@ export default {
         ...mapState("mail", { messages: state => state.conversations.messages }),
         ...mapGetters("mail", {
             ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE,
+            CONVERSATION_LIST_DELETED_FILTER_ENABLED,
             CURRENT_CONVERSATION_METADATA,
             MY_DRAFTS,
             MY_TEMPLATES

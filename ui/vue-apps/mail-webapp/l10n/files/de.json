@@ -340,6 +340,7 @@
     "mail.list.range.this_week": "Diese Woche",
     "mail.list.range.today": "Heute",
     "mail.list.range.yesterday": "Gestern",
+    "mail.list.recoverable.back": "Zurück zu Papierkorb",
     "mail.list.recoverable.header": "Aus dem Papierkorb gelöschte Nachrichten können wiederhergestellt werden.",
     "mail.list.recoverable.link": "Keine wiederherstellbaren Nachrichten | Abrufbare Nachrichten anzeigen ({count}) | Abrufbare Nachrichten anzeigen ({count})",
     "mail.list.replied.aria": "Geantwortet",

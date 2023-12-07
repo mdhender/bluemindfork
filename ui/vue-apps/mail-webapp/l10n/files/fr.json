@@ -341,6 +341,7 @@
     "mail.list.range.today": "Aujourd'hui",
     "mail.list.range.yesterday": "Hier",
     "mail.list.replied.aria": "Répondu",
+    "mail.list.recoverable.back": "Retourner à la Corbeille",
     "mail.list.recoverable.header": "Les messages supprimés de la corbeille peuvent être récupérés.",
     "mail.list.recoverable.link": "Aucun message récupérable | Voir les messages récupérables ({count}) | Voir les messages récupérables ({count})",
     "mail.list.recoverable.loading": "Chargement des messages récupérables",

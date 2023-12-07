@@ -155,6 +155,10 @@ export function isFlagged(message) {
     return message.loading === LoadingStatus.LOADED && message.flags.includes(Flag.FLAGGED);
 }
 
+export function isDeleted(message) {
+    return message.loading === LoadingStatus.LOADED && message.flags.includes(Flag.DELETED);
+}
+
 export function isEventRequest(message) {
     return (
         message.loading === LoadingStatus.LOADED &&

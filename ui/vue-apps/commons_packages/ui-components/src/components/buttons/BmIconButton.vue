@@ -1,6 +1,6 @@
 <template>
     <b-button
-        v-bind="[$attrs, $props]"
+        v-bind="$props"
         class="bm-icon-button"
         :class="{
             regular: regular,
@@ -26,6 +26,7 @@ export default {
     name: "BmIconButton",
     components: { BButton, BmIcon },
     props: {
+        ...BButton.options.props,
         variant: {
             type: String,
             default: "regular",

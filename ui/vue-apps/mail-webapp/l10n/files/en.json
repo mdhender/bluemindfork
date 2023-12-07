@@ -340,6 +340,7 @@
     "mail.list.range.this_week": "This week",
     "mail.list.range.today": "Today",
     "mail.list.range.yesterday": "Yesterday",
+    "mail.list.recoverable.back": "Back to Trash",
     "mail.list.recoverable.header": "Messages deleted from the trash can be recovered.",
     "mail.list.recoverable.link": "No recoverable messages |  View recoverable messages ({count}) | View recoverable messages ({count})",
     "mail.list.replied.aria": "Replied",

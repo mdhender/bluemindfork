@@ -36,9 +36,7 @@ export default {
                     chunk(itemsId, MAX_CHUNK_SIZE).map(chunkedIds => api(folderUid).multipleGetById(chunkedIds))
                 )
             );
-            return items
-                .filter(item => !item.flags.includes(ItemFlag.Deleted))
-                .map(item => MessageAdaptor.fromMailboxItem(item, folderRef));
+            return items.map(item => MessageAdaptor.fromMailboxItem(item, folderRef));
         });
         return flatmap(await Promise.all(requests));
     },
@@ -187,14 +185,22 @@ function toSortDescriptor(filter, sort) {
                 dir: sort.order === SortOrder.ASC ? "Asc" : "Desc"
             }
         ],
-        filter: { must: [], mustNot: [ItemFlag.Deleted] }
+        filter: { must: [], mustNot: [] }
     };
     switch (filter) {
+        case ConversationListFilter.ALL:
+            sortDescriptor.filter.mustNot.push(ItemFlag.Deleted);
+            break;
         case ConversationListFilter.UNREAD:
             sortDescriptor.filter.mustNot.push(ItemFlag.Seen);
+            sortDescriptor.filter.mustNot.push(ItemFlag.Deleted);
             break;
         case ConversationListFilter.FLAGGED:
             sortDescriptor.filter.must.push(ItemFlag.Important);
+            sortDescriptor.filter.mustNot.push(ItemFlag.Deleted);
+            break;
+        case ConversationListFilter.DELETED:
+            sortDescriptor.filter.must.push(ItemFlag.Deleted);
             break;
     }
     return sortDescriptor;

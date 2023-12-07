@@ -1,5 +1,5 @@
 <template>
-    <b-button class="bm-button" v-bind="[$attrs, $props]" :disabled="disabled || loading" v-on="$listeners">
+    <b-button class="bm-button" v-bind="$props" :disabled="disabled || loading" v-on="$listeners">
         <bm-spinner v-if="loading" thick />
         <slot v-else name="icon">
             <bm-icon v-if="icon" :icon="icon" />

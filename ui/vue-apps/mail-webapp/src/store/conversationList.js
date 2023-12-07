@@ -5,6 +5,7 @@ import { FETCH_CONVERSATION_LIST_KEYS, CONVERSATION_LIST_NEXT_PAGE, REFRESH_CONV
 import {
     CONVERSATION_LIST_ALL_KEYS,
     CONVERSATION_LIST_COUNT,
+    CONVERSATION_LIST_DELETED_FILTER_ENABLED,
     CONVERSATION_LIST_FILTERED,
     CONVERSATION_LIST_FLAGGED_FILTER_ENABLED,
     CONVERSATION_LIST_HAS_NEXT,
@@ -42,7 +43,8 @@ export const ConversationListStatus = {
 export const ConversationListFilter = {
     ALL: "all",
     UNREAD: "unread",
-    FLAGGED: "flagged"
+    FLAGGED: "flagged",
+    DELETED: "deleted"
 };
 
 export const SortField = {
@@ -161,6 +163,7 @@ async function list(state, folder, conversationsActivated) {
 }
 
 const getters = {
+    [CONVERSATION_LIST_DELETED_FILTER_ENABLED]: ({ filter }) => filter === ConversationListFilter.DELETED,
     [CONVERSATION_LIST_FILTERED]: ({ filter }) => filter && filter !== ConversationListFilter.ALL,
     [CONVERSATION_LIST_FLAGGED_FILTER_ENABLED]: ({ filter }) => filter === ConversationListFilter.FLAGGED,
     [CONVERSATION_LIST_HAS_NEXT]: ({ currentPage }, { CONVERSATION_LIST_TOTAL_PAGES }) =>

@@ -5,10 +5,10 @@
         :all-conversation-keys="CONVERSATION_LIST_ALL_KEYS"
         :conversation-keys="CONVERSATION_LIST_KEYS"
         :conversations-activated="CONVERSATIONS_ACTIVATED"
-        :draggable="true"
+        :draggable="isWritable"
         :selected="SELECTION_IS_EMPTY ? currentConversationKey : SELECTION_KEYS"
-        @keyup.native.delete.exact.prevent="moveToTrash()"
-        @keyup.native.shift.delete.exact.prevent="remove()"
+        @keyup.native.delete.exact.prevent="isWritable && moveToTrash()"
+        @keyup.native.shift.delete.exact.prevent="isWritable && remove()"
         @next-page="CONVERSATION_LIST_NEXT_PAGE()"
         @set-selection="setSelection"
         @add-to-selection="addToSelection"
@@ -23,8 +23,9 @@
 import { RemoveMixin } from "~/mixins";
 import {
     CONVERSATIONS_ACTIVATED,
-    CONVERSATION_LIST_KEYS,
     CONVERSATION_LIST_ALL_KEYS,
+    CONVERSATION_LIST_DELETED_FILTER_ENABLED,
+    CONVERSATION_LIST_KEYS,
     SELECTION_IS_EMPTY,
     SELECTION_KEYS
 } from "~/getters";
@@ -42,6 +43,7 @@ export default {
         ...mapGetters("mail", {
             CONVERSATIONS_ACTIVATED,
             CONVERSATION_LIST_ALL_KEYS,
+            CONVERSATION_LIST_DELETED_FILTER_ENABLED,
             CONVERSATION_LIST_KEYS,
             SELECTION_KEYS,
             SELECTION_IS_EMPTY
@@ -52,6 +54,9 @@ export default {
         },
         currentConversationKey() {
             return this.$store.state.mail.conversations.currentConversation;
+        },
+        isWritable() {
+            return this.activeFolder.writable && !this.CONVERSATION_LIST_DELETED_FILTER_ENABLED;
         }
     },
     created() {

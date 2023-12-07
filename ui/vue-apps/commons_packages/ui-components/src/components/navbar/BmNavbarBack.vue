@@ -1,6 +1,13 @@
 <template>
     <div class="bm-navbar-back">
-        <bm-icon-button variant="compact-on-fill-primary" size="lg" icon="arrow-back" class="h-100" v-on="$listeners" />
+        <bm-icon-button
+            variant="compact-on-fill-primary"
+            size="lg"
+            icon="arrow-back"
+            class="h-100"
+            v-bind="$props"
+            v-on="$listeners"
+        />
         <div class="separator" />
     </div>
 </template>
@@ -10,7 +17,10 @@ import BmIconButton from "../buttons/BmIconButton";
 
 export default {
     name: "BmNavbarBack",
-    components: { BmIconButton }
+    components: { BmIconButton },
+    props: {
+        ...BmIconButton.props
+    }
 };
 </script>
 

@@ -1,6 +1,6 @@
 <template>
     <bm-button-group>
-        <template v-if="folder.writable">
+        <template v-if="isWritable && !isDeleted">
             <bm-icon-button
                 :aria-label="removeAriaText(1, subject)"
                 :title="removeAriaText(1, subject)"
@@ -58,6 +58,7 @@
 import { BmButtonGroup, BmIconButton } from "@bluemind/ui-components";
 import { mapState, mapGetters } from "vuex";
 import { messageUtils } from "@bluemind/mail";
+import { Flag } from "@bluemind/email";
 import { ActionTextMixin, FlagMixin, RemoveMixin, MailRoutesMixin } from "~/mixins";
 import { MY_DRAFTS, MY_TEMPLATES } from "~/getters";
 import MessagePathParam from "~/router/MessagePathParam";
@@ -88,6 +89,12 @@ export default {
         },
         folder() {
             return this.folders[this.conversation.folderRef.key];
+        },
+        isWritable() {
+            return this.folder.writable;
+        },
+        isDeleted() {
+            return this.conversation.flags.includes(Flag.DELETED);
         },
         isTemplate() {
             return this.folder.key === this.MY_TEMPLATES.key;

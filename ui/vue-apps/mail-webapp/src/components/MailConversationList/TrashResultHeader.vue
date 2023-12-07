@@ -1,13 +1,14 @@
 <script setup>
-import { onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import { ItemFlag } from "@bluemind/core.container.api";
 import { inject } from "@bluemind/inject";
+import router from "@bluemind/router";
 import store from "@bluemind/store";
 import { useBus } from "@bluemind/vue-bus";
 import { BmButton, BmSpinner } from "@bluemind/ui-components";
 
-const count = ref(0);
-const loading = ref(true);
+const count = ref();
+const loading = computed(() => count.value === undefined);
 const bus = useBus();
 const updateCount = async (address = "mail-webapp/pushed_folder_changes", uid = store.state.mail.activeFolder) => {
     if (uid === store.state.mail.activeFolder) {
@@ -16,17 +17,17 @@ const updateCount = async (address = "mail-webapp/pushed_folder_changes", uid = 
 };
 onMounted(async () => {
     await updateCount();
-    loading.value = false;
     bus.$on("mail-webapp/pushed_folder_changes", updateCount);
 });
 onUnmounted(() => bus.$off("mail-webapp/pushed_folder_changes", updateCount));
+const route = { name: "v:mail:home", params: { filter: "deleted" } };
 </script>
 
 <template>
     <div class="trash-result-header">
         <span>{{ $t("mail.list.recoverable.header") }}</span>
         <br />
-        <bm-button :disabled="count === 0" variant="text-accent" :loading="loading" to="/">
+        <bm-button :disabled="!count" variant="text-accent" :loading="loading" :to="$router.relative(route, $route)">
             <template v-if="loading">
                 {{ $t("mail.list.recoverable.loading") }}
             </template>
