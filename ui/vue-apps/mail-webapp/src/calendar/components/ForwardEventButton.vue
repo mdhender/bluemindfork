@@ -5,6 +5,7 @@
             variant="regular-accent"
             right
             split
+            :size="size"
             :title="action.label($t('event.forward'))"
             @click.stop="action.execute(() => gotToForwarEventMessage())"
         >

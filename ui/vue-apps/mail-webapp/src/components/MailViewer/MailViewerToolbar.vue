@@ -18,7 +18,7 @@
                 @click.stop="action.execute(() => replyAll(message, conversation))"
             />
         </mail-open-in-popup-with-shift>
-        <forward-event-button v-if="isEventRequest" :message="message">
+        <forward-event-button v-if="isEventRequest" :message="message" :size="size">
             <mail-open-in-popup-with-shift v-slot="action" :href="forwardRoute(message)">
                 <bm-dropdown-item
                     :icon="action.icon('forward')"
