@@ -80,6 +80,7 @@ const statusKey = computed(
     gap: $sp-4;
 
     .counter-buttons {
+        margin-top: $sp-4;
         display: flex;
         gap: $sp-4 ($sp-5 + $sp-3 + $sp-2);
         flex-wrap: wrap;
