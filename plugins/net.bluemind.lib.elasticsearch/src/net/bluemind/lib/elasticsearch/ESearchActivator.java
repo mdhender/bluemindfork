@@ -80,7 +80,6 @@ import co.elastic.clients.json.ObjectDeserializer;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.ElasticsearchTransport;
 import net.bluemind.configfile.elastic.ElasticsearchConfig;
-import net.bluemind.lib.elasticsearch.IndexAliasMode.Mode;
 import net.bluemind.lib.elasticsearch.exception.ElasticIndexException;
 import net.bluemind.network.topology.IServiceTopology;
 import net.bluemind.network.topology.Topology;
@@ -317,23 +316,12 @@ public final class ESearchActivator implements BundleActivator {
 	}
 
 	public static void resetIndexes() {
-		waitForElasticsearchHosts();
-		ElasticsearchClient esClient = ESearchActivator.getClient();
-		boolean checkForRingMode = !indexNames(esClient).isEmpty();
-		indexes.keySet().forEach(index -> ESearchActivator.resetIndex(index, checkForRingMode));
+		indexes.keySet().forEach(ESearchActivator::resetIndex);
 	}
 
 	public static void resetIndex(String index) {
-		resetIndex(index, true);
-	}
-
-	public static void resetIndex(String index, boolean checkForRingMode) {
 		waitForElasticsearchHosts();
 		ElasticsearchClient esClient = ESearchActivator.getClient();
-
-		if (checkForRingMode && index.contains("mailspool") && IndexAliasMode.getMode() == Mode.RING) {
-			throw new UnsupportedOperationException("Cannot reset index in ring mode");
-		}
 
 		logger.info("Resetting index {}", index);
 		deleteIndex(esClient, index);

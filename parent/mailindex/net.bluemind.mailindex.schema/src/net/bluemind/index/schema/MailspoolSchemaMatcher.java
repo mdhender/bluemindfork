@@ -27,6 +27,11 @@ public class MailspoolSchemaMatcher implements ISchemaMatcher {
 		if (indexName.equals("mailspool")) {
 			return true;
 		}
+		if (indexName.startsWith("mailspool_ring_")) {
+			String[] split = indexName.split("_");
+			String enumeration = split[split.length - 1];
+			return enumeration.matches("\\d+");
+		}
 		if (indexName.startsWith("mailspool_")) {
 			String enumeration = indexName.split("_")[1];
 			return enumeration.matches("\\d+");
