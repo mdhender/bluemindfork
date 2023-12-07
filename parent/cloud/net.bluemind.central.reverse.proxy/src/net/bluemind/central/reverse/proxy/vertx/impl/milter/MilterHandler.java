@@ -80,8 +80,7 @@ public class MilterHandler implements Handler<NetSocket> {
 				return;
 			}
 
-			logger.debug("[milter:{}] Proxy client connected to {}:{}", deploymentId, clientIp, clientPort,
-					asyncRemoteSocket.cause());
+			logger.debug("[milter:{}] Proxy client connected to {}:{}", deploymentId, clientIp, clientPort);
 			NetSocket clientSocket = asyncRemoteSocket.result();
 
 			serverSocket.closeHandler(ar -> {
