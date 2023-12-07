@@ -20,6 +20,8 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Iterables;
 
 import io.netty.buffer.ByteBufInputStream;
+import io.netty.buffer.ByteBufUtil;
+import io.netty.buffer.Unpooled;
 import net.bluemind.addressbook.api.IAddressBook;
 import net.bluemind.addressbook.api.IAddressBookUids;
 import net.bluemind.addressbook.api.IAddressBooks;
@@ -144,12 +146,19 @@ public class OutboxService implements IOutbox {
 		});
 	}
 
+	private static final byte[] END_OF_HEADERS = "\r\n\r\n".getBytes();
+
 	private CompletableFuture<FlushInfo> flushOne(FlushContext ctx, ItemValue<MailboxItem> item) {
 		return SyncStreamDownload.read(ctx.mailboxItemsService.fetchComplete(item.value.imapUid)).thenApply(buf -> {
-			InputStream in = new ByteBufInputStream(buf.duplicate());
+			var forParsing = buf.duplicate();
+			int endOfHeaders = ByteBufUtil.indexOf(Unpooled.wrappedBuffer(END_OF_HEADERS), forParsing);
+			if (endOfHeaders > 0) {
+				forParsing = forParsing.readSlice(endOfHeaders + 2);
+			}
+			InputStream in = new ByteBufInputStream(forParsing);
 			InputStream forSend = new ByteBufInputStream(buf);
 			FlushInfo ret = new FlushInfo();
-			try (Message msg = Mime4JHelper.parse(in)) {
+			try (Message msg = Mime4JHelper.parse(in, false)) {
 				if (msg.getFrom() == null) {
 					org.apache.james.mime4j.dom.address.Mailbox fromCtx = SendmailHelper
 							.formatAddress(ctx.user.displayName, ctx.user.value.defaultEmail().address);
