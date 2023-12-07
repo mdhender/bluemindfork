@@ -14,7 +14,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 import org.apache.curator.shaded.com.google.common.annotations.VisibleForTesting;
 
@@ -77,7 +76,6 @@ public class ProxyInfoStore {
 	private void addDir(Message<JsonObject> event) {
 		try {
 			DirInfo dir = event.body().mapTo(DirInfo.class);
-			System.err.println(dir);
 
 			if (dir.kind == null || !dir.kind.equalsIgnoreCase("user") || dir.emails.isEmpty()) {
 				event.reply(null);
@@ -88,8 +86,12 @@ public class ProxyInfoStore {
 					.forEach(email -> storage.addLogin(email, dir.dataLocation));
 			event.reply(null);
 		} catch (IllegalArgumentException e) {
-			event.fail(500, "unable to decode parameters '" + event.body().encode() + "'");
+			failToDecodeParams(event);
 		}
+	}
+
+	private void failToDecodeParams(Message<JsonObject> event) {
+		event.fail(500, "unable to decode parameters '" + event.body().encode() + "'");
 	}
 
 	private List<String> expand(DirEmail email, String domainUid) {
@@ -97,7 +99,7 @@ public class ProxyInfoStore {
 			Set<String> domainAliases = storage.domainAliases(domainUid);
 			domainAliases.add(domainUid);
 			String leftPart = email.address.split("@")[0];
-			return domainAliases.stream().map(alias -> leftPart + "@" + alias).collect(Collectors.toList());
+			return domainAliases.stream().map(alias -> leftPart + "@" + alias).toList();
 		} else {
 			return Collections.singletonList(email.address);
 		}
@@ -109,7 +111,7 @@ public class ProxyInfoStore {
 			storage.addDomain(domain.uid, domain.aliases);
 			event.reply(null);
 		} catch (IllegalArgumentException e) {
-			event.fail(500, "unable to decode parameters '" + event.body().encode() + "'");
+			failToDecodeParams(event);
 		}
 	}
 
@@ -123,14 +125,14 @@ public class ProxyInfoStore {
 			String oldIp = storage.addDataLocation(installation.dataLocationUid, installation.ip);
 			event.reply(oldIp);
 		} catch (IllegalArgumentException e) {
-			event.fail(500, "unable to decode parameters '" + event.body().encode() + "'");
+			failToDecodeParams(event);
 		}
 	}
 
 	private void ip(Message<JsonObject> event) {
 		String login = event.body().getString("login");
 		if (Objects.isNull(login)) {
-			event.fail(500, "unable to decode parameters '" + event.body().encode() + "'");
+			failToDecodeParams(event);
 		} else {
 			String ip = storage.ip(login);
 			if (!Objects.isNull(ip)) {
