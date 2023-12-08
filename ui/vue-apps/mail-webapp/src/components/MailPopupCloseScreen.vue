@@ -2,28 +2,34 @@
     <div class="bg-surface flex-fill h-100"></div>
 </template>
 <script>
-import { mapState } from "vuex";
+import { mapGetters, mapState } from "vuex";
+import { ACTIVE_MESSAGE } from "~/getters";
+
 export default {
     name: "MailPopupCloseScreen",
     data() {
         return { closer: undefined };
     },
     computed: {
-        ...mapState({ alerts: state => state.alert.filter(({ area }) => !area) })
+        ...mapState({ alerts: state => state.alert.filter(({ area }) => !area) }),
+        ...mapGetters("mail", { ACTIVE_MESSAGE }),
+        closable() {
+            return !this.ACTIVE_MESSAGE && this.alerts.length === 0;
+        }
     },
     watch: {
-        alerts: {
-            handler(alerts) {
-                if (alerts.length === 0) {
-                    this.close();
-                } else {
-                    this.cancelClose();
-                }
+        closable(isClosable) {
+            if (isClosable) {
+                this.close();
+            } else {
+                this.cancelClose();
             }
         }
     },
-    created() {
-        this.close(2500);
+    create() {
+        if (this.closable) {
+            this.close(2500);
+        }
     },
     destroyed() {
         this.cancelClose();
@@ -31,7 +37,7 @@ export default {
     methods: {
         close(timer = 1000) {
             if (!this.closer) {
-                setTimeout(() => window.close(), timer);
+                this.closer = setTimeout(() => window.close(), timer);
             }
         },
         cancelClose() {

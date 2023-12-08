@@ -14,8 +14,7 @@ const { MessageAdaptor, MessageStatus, MessageHeader, MessageCreationModes } = m
 /** Send draft: save it, move it to the Outbox then flush. */
 export default async function (context, { draft, myMailboxKey, outbox, myDraftsFolder, messageCompose }) {
     draft = context.state[draft.key];
-
-    await context.dispatch(SET_DRAFT_CONTENT, { draft, html: messageCompose.editorContent });
+    await context.dispatch(SET_DRAFT_CONTENT, { draft, html: messageCompose.editorContent, debounce: false });
     await context.dispatch(SAVE_MESSAGE, { draft, messageCompose });
 
     context.commit(SET_MESSAGES_STATUS, [{ key: draft.key, status: MessageStatus.SENDING }]);
@@ -27,8 +26,9 @@ export default async function (context, { draft, myMailboxKey, outbox, myDraftsF
         outbox.remoteRef.internalId,
         myDraftsFolder.remoteRef.internalId
     );
+    const flushPromise = flush(); // flush means send mail + move to sentbox
     context.commit(REMOVE_MESSAGES, { messages: [draft] });
-    const taskResult = await flush(); // flush means send mail + move to sentbox
+    const taskResult = await flushPromise;
 
     manageFlagOnPreviousMessage(context, draft);
     apiMessages.removeParts(draft);

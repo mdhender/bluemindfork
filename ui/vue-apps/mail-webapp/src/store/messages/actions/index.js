@@ -38,6 +38,7 @@ import {
     SAVE_AS_TEMPLATE,
     SAVE_MESSAGE,
     SEND_MESSAGE,
+    SET_MESSAGE_CONTENT,
     DEBOUNCED_SET_MESSAGE_CONTENT,
     UPDATE_MESSAGE_STRUCTURE
 } from "~/actions";
@@ -45,6 +46,7 @@ import {
 import { Flag } from "@bluemind/email";
 import updateMessageStructure from "./updateMessageStructure";
 import debouncedSetMessageContent from "./debouncedSetMessageContent";
+import setMessageContent from "./setMessageContent";
 
 const markAsUnread = ({ dispatch }, messages) => dispatch(DELETE_FLAG, { messages, flag: Flag.SEEN });
 const markAsRead = ({ dispatch }, messages) => dispatch(ADD_FLAG, { messages, flag: Flag.SEEN });
@@ -80,6 +82,7 @@ export default {
     [SAVE_AS_TEMPLATE]: withAlert(saveAs, SAVE_AS_TEMPLATE, "SaveMessageAs"),
     [SAVE_MESSAGE]: saveAsap,
     [SEND_MESSAGE]: withAlert(send, SEND_MESSAGE, "SendMessage"),
+    [SET_MESSAGE_CONTENT]: setMessageContent,
     [DEBOUNCED_SET_MESSAGE_CONTENT]: debouncedSetMessageContent,
     [TOGGLE_DSN_REQUEST]: toggleDSNRequest,
     [UPDATE_MESSAGE_STRUCTURE]: updateMessageStructure

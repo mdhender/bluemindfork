@@ -1,7 +1,13 @@
 import Vue from "vue";
 import { inject } from "@bluemind/inject";
 import { signatureUtils } from "@bluemind/mail";
-import { DEBOUNCED_SET_MESSAGE_CONTENT, LOAD_MAX_MESSAGE_SIZE, REMOVE_ATTACHMENT, SET_DRAFT_CONTENT } from "~/actions";
+import {
+    DEBOUNCED_SET_MESSAGE_CONTENT,
+    LOAD_MAX_MESSAGE_SIZE,
+    REMOVE_ATTACHMENT,
+    SET_DRAFT_CONTENT,
+    SET_MESSAGE_CONTENT
+} from "~/actions";
 import {
     ADD_FILE,
     RESET_COMPOSER,
@@ -105,10 +111,11 @@ export default {
             // take into account the email base64 encoding : 33% more space
             commit(SET_MAX_MESSAGE_SIZE, messageMaxSize / 1.33);
         },
-        [SET_DRAFT_CONTENT]: ({ commit, getters, dispatch }, { draft, html }) => {
+        [SET_DRAFT_CONTENT]: ({ commit, getters, dispatch }, { draft, html, debounce }) => {
             commit(SET_DRAFT_EDITOR_CONTENT, html);
             const content = getters[GET_DRAFT_CONTENT];
-            return dispatch(DEBOUNCED_SET_MESSAGE_CONTENT, { message: draft, content });
+            const action = debounce === false ? SET_MESSAGE_CONTENT : DEBOUNCED_SET_MESSAGE_CONTENT;
+            return dispatch(action, { message: draft, content });
         }
     },
 
