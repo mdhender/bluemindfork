@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import com.typesafe.config.Config;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.CompositeFuture;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
@@ -34,6 +33,8 @@ import net.bluemind.central.reverse.proxy.common.ProxyEventBusAddress;
 import net.bluemind.central.reverse.proxy.model.PostfixMapsStore;
 import net.bluemind.central.reverse.proxy.model.ProxyInfoStore;
 import net.bluemind.central.reverse.proxy.model.RecordHandler;
+import net.bluemind.central.reverse.proxy.model.client.PostfixMapsStoreClient;
+import net.bluemind.central.reverse.proxy.model.client.ProxyInfoStoreClient;
 import net.bluemind.central.reverse.proxy.model.common.kafka.InstallationTopics;
 import net.bluemind.central.reverse.proxy.model.common.kafka.KafkaConsumerClient;
 
@@ -43,24 +44,26 @@ public class ProxyInfoVerticle extends AbstractVerticle {
 
 	private final Config config;
 	private final String bootstrapServers;
-	private final ProxyInfoStore proxyInfoStore;
-	private final PostfixMapsStore postfixMapsStore;
-	private final RecordHandler<byte[], byte[]> recordHandler;
+	private RecordHandler<byte[], byte[]> recordHandler;
 
 	private MessageConsumer<JsonObject> vertxConsumer;
 	private List<KafkaConsumerClient<byte[], byte[]>> kafkaConsumers = new ArrayList<>();
 
-	public ProxyInfoVerticle(Config config, ProxyInfoStore proxyInfoStore, PostfixMapsStore postfixMapsStore,
-			RecordHandler<byte[], byte[]> recordHandler) {
+	public ProxyInfoVerticle(Config config) {
 		this.config = config;
 		this.bootstrapServers = config.getString(BOOTSTRAP_SERVERS);
-		this.proxyInfoStore = proxyInfoStore;
-		this.postfixMapsStore = postfixMapsStore;
-		this.recordHandler = recordHandler;
 	}
 
 	@Override
 	public void start(Promise<Void> p) {
+		ProxyInfoStore proxyInfoStore = ProxyInfoStore.create(vertx);
+		PostfixMapsStore postfixMapsStore = PostfixMapsStore.create(vertx);
+
+		ProxyInfoStoreClient proxyInfoStoreClient = ProxyInfoStoreClient.create(vertx);
+		PostfixMapsStoreClient postfixMapsStoreClient = PostfixMapsStoreClient.create(vertx);
+
+		recordHandler = RecordHandler.createByteHandler(proxyInfoStoreClient, postfixMapsStoreClient, vertx);
+
 		logger.info("[model] Starting");
 		vertx.eventBus().<JsonObject>consumer(ADDRESS).handler(event -> {
 			if (STREAM_READY_NAME.equals(event.headers().get("action"))) {
@@ -87,7 +90,7 @@ public class ProxyInfoVerticle extends AbstractVerticle {
 		Map<String, Promise<Void>> clientCompletionPromises = new HashMap<>();
 
 		String consumerGroupName = config.getString(CONSUMER_GROUP_PREFIX) + "-" + UUID.randomUUID();
-		vertx.deployVerticle(() -> new AbstractVerticle() {
+		Future<String> deploy = vertx.deployVerticle(() -> new AbstractVerticle() {
 			@Override
 			public void start() throws Exception {
 				String clientId = config.getString(CLIENT_ID_PREFIX) + "-" + cidAlloc.incrementAndGet();
@@ -100,17 +103,18 @@ public class ProxyInfoVerticle extends AbstractVerticle {
 						.onSuccess(v -> clientCompletionPromises.get(clientId).complete());
 			}
 		}, new DeploymentOptions().setInstances(config.getInt(NUMBER_OF_CONSUMER)));
-
-		List<Future> clientCompletionFutures = clientCompletionPromises.values().stream() //
-				.map(Promise::future) //
-				.collect(Collectors.toList());
-		return CompositeFuture.all(clientCompletionFutures).map(v -> installationTopics);
+		return deploy.flatMap(dep -> {
+			List<Future<Void>> clientCompletionFutures = clientCompletionPromises.values().stream() //
+					.map(Promise::future) //
+					.collect(Collectors.toList());
+			return Future.all(clientCompletionFutures).map(v -> installationTopics);
+		});
 	}
 
 	private InstallationTopics publishTopics(InstallationTopics installationTopics) {
 		logger.info("[model] Announcing model ready");
-		vertx.eventBus().publish(ProxyEventBusAddress.ADDRESS, JsonObject.mapFrom(installationTopics),
-				ProxyEventBusAddress.MODEL_READY);
+		vertx.setTimer(5000, tid -> vertx.eventBus().publish(ProxyEventBusAddress.ADDRESS,
+				JsonObject.mapFrom(installationTopics), ProxyEventBusAddress.MODEL_READY));
 		return installationTopics;
 	}
 

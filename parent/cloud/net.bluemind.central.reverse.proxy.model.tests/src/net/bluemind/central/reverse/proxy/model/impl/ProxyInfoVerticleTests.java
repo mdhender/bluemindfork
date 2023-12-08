@@ -37,9 +37,6 @@ import net.bluemind.central.reverse.proxy.model.PostfixMapsStorage;
 import net.bluemind.central.reverse.proxy.model.PostfixMapsStore;
 import net.bluemind.central.reverse.proxy.model.ProxyInfoStorage;
 import net.bluemind.central.reverse.proxy.model.ProxyInfoStore;
-import net.bluemind.central.reverse.proxy.model.RecordHandler;
-import net.bluemind.central.reverse.proxy.model.client.PostfixMapsStoreClient;
-import net.bluemind.central.reverse.proxy.model.client.ProxyInfoStoreClient;
 import net.bluemind.central.reverse.proxy.model.common.mapper.RecordKeyMapper;
 import net.bluemind.central.reverse.proxy.model.common.mapper.RecordValueMapper;
 import net.bluemind.central.reverse.proxy.stream.DirEntriesStreamVerticle;
@@ -152,15 +149,9 @@ public class ProxyInfoVerticleTests {
 
 	private ProxyInfoVerticle createModelVerticle(Vertx vertx, ProxyInfoStorage proxyInfoStorage,
 			PostfixMapsStorage postfixMapsStorage) {
-		proxyInfoStore = ProxyInfoStore.create(vertx, proxyInfoStorage);
-		postfixMapsStore = PostfixMapsStore.create(vertx, postfixMapsStorage);
-		ProxyInfoStoreClient storeClient = ProxyInfoStoreClient.create(vertx);
-		PostfixMapsStoreClient postfixMapsStoreClient = PostfixMapsStoreClient.create(vertx);
-		RecordHandler<byte[], byte[]> recordHandler = RecordHandler.createByteHandler(storeClient,
-				postfixMapsStoreClient, vertx);
 
 		Config config = CrpConfig.get("model", ProxyInfoVerticle.class.getClassLoader());
-		return new ProxyInfoVerticle(config, proxyInfoStore, postfixMapsStore, recordHandler);
+		return new ProxyInfoVerticle(config);
 	}
 
 	private DirEntriesStreamVerticle createStreamVerticle() {

@@ -177,7 +177,9 @@ public class DirEntriesStreamVerticle extends AbstractVerticle {
 
 	private InstallationTopics publishTopics(InstallationTopics installationTopics) {
 		logger.info("[stream] Announcing dir entries stream ready: {}", JsonObject.mapFrom(installationTopics));
-		vertx.eventBus().publish(ADDRESS, JsonObject.mapFrom(installationTopics), STREAM_READY);
+		// the consumers of this message might not be ready when crp starts
+		vertx.setTimer(5000,
+				tid -> vertx.eventBus().publish(ADDRESS, JsonObject.mapFrom(installationTopics), STREAM_READY));
 		return installationTopics;
 	}
 }
