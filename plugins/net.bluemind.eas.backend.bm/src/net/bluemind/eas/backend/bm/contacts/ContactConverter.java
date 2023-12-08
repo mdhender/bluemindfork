@@ -458,8 +458,12 @@ public class ContactConverter {
 
 		Joiner joiner = Joiner.on(" ").skipNulls();
 		String dn = joiner.join(item.value.identification.name.givenNames,
-				item.value.identification.name.additionalNames, item.value.identification.name.familyNames);
-		res.setDisplayName(dn.trim());
+				item.value.identification.name.additionalNames, item.value.identification.name.familyNames).trim();
+		if (dn.isEmpty()) {
+			dn = item.displayName;
+		}
+
+		res.setDisplayName(dn);
 
 		res.alias = item.value.identification.nickname.value;
 		res.company = item.value.organizational.org.company;
