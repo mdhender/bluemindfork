@@ -33,7 +33,6 @@ import io.vertx.core.Vertx;
 import io.vertx.core.net.NetClient;
 import io.vertx.core.net.NetClientOptions;
 import io.vertx.core.net.NetSocket;
-import io.vertx.core.streams.Pump;
 
 public class MilterHandler implements Handler<NetSocket> {
 	private static final Logger logger = LoggerFactory.getLogger(MilterHandler.class);
@@ -93,8 +92,8 @@ public class MilterHandler implements Handler<NetSocket> {
 				serverSocket.close();
 			});
 
-			Pump.pump(serverSocket, clientSocket).start();
-			Pump.pump(clientSocket, serverSocket).start();
+			serverSocket.pipeTo(clientSocket);
+			clientSocket.pipeTo(serverSocket);
 			serverSocket.resume();
 		});
 	}
