@@ -27,28 +27,19 @@ import net.bluemind.lib.elasticsearch.IndexAliasMode.Mode;
 
 public abstract class IndexAliasCreator {
 
-	protected final IndexDefinition definition;
-
 	private static final Logger logger = LoggerFactory.getLogger(IndexAliasCreator.class);
-
-	public IndexAliasCreator(IndexDefinition definition) {
-		this.definition = definition;
-	}
 
 	protected abstract String getIndexName(String index, int count, int loopIndex);
 
 	protected abstract void addAliases(String index, String indexName, int count) throws ServerFault;
 
 	protected static IndexAliasCreator get(IndexDefinition definition) {
-		return IndexAliasMode.getMode() == Mode.ONE_TO_ONE ? new OneToOneIndexAliasCreator(definition)
-				: new RingIndexAliasCreator(definition);
+		return !definition.supportsAliasRing || IndexAliasMode.getMode() == Mode.ONE_TO_ONE
+				? new OneToOneIndexAliasCreator()
+				: new RingIndexAliasCreator();
 	}
 
 	public static class OneToOneIndexAliasCreator extends IndexAliasCreator {
-
-		public OneToOneIndexAliasCreator(IndexDefinition definition) {
-			super(definition);
-		}
 
 		@Override
 		protected String getIndexName(String index, int count, int loopIndex) {
@@ -64,21 +55,13 @@ public abstract class IndexAliasCreator {
 
 	public static class RingIndexAliasCreator extends IndexAliasCreator {
 
-		public RingIndexAliasCreator(IndexDefinition definition) {
-			super(definition);
-		}
-
 		@Override
 		protected String getIndexName(String index, int totalNumberOfIndexes, int loopIndex) {
-			if (definition.supportsAliasRing) {
-				int maxAliasCount = getMaxAliasCount(totalNumberOfIndexes);
-				int steps = maxAliasCount / totalNumberOfIndexes;
-				int start = steps / 2;
-				int indexPosition = start + ((loopIndex - 1) * steps);
-				return index + "_ring_" + indexPosition;
-			} else {
-				return new OneToOneIndexAliasCreator(definition).getIndexName(index, totalNumberOfIndexes, loopIndex);
-			}
+			int maxAliasCount = getMaxAliasCount(totalNumberOfIndexes);
+			int steps = maxAliasCount / totalNumberOfIndexes;
+			int start = steps / 2;
+			int indexPosition = start + ((loopIndex - 1) * steps);
+			return index + "_ring_" + indexPosition;
 		}
 
 		private int getMaxAliasCount(int totalNumberOfIndexes) {
@@ -87,29 +70,27 @@ public abstract class IndexAliasCreator {
 
 		@Override
 		protected void addAliases(String index, String indexName, int totalNumberOfIndexes) {
-			if (definition.supportsAliasRing) {
-				if (index.contains("_ring_")) {
-					index = index.substring(0, index.indexOf("_"));
+			if (index.contains("_ring_")) {
+				index = index.substring(0, index.indexOf("_"));
+			}
+			int start = Integer.parseInt(indexName.substring(indexName.lastIndexOf("_") + 1));
+			int maxAliasCount = getMaxAliasCount(totalNumberOfIndexes);
+			int steps = maxAliasCount / totalNumberOfIndexes;
+			for (int i = 0; i < steps; i++) {
+				int aliasPosition = start--;
+				if (aliasPosition < 0) {
+					aliasPosition = maxAliasCount + aliasPosition;
 				}
-				int start = Integer.parseInt(indexName.substring(indexName.lastIndexOf("_") + 1));
-				int maxAliasCount = getMaxAliasCount(totalNumberOfIndexes);
-				int steps = maxAliasCount / totalNumberOfIndexes;
-				for (int i = 0; i < steps; i++) {
-					int aliasPosition = start--;
-					if (aliasPosition < 0) {
-						aliasPosition = maxAliasCount + aliasPosition;
-					}
-					String boxAliasRead = index + "_ring_alias_read" + aliasPosition;
-					String boxAliasWrite = index + "_ring_alias_write" + aliasPosition;
-					try {
-						logger.info("Creating alias {} targeting index {}", aliasPosition, indexName);
-						ESearchActivator.getClient().indices().updateAliases(u -> u.actions(a -> a.add(ad -> ad //
-								.index(indexName).alias(boxAliasRead))));
-						ESearchActivator.getClient().indices().updateAliases(u -> u.actions(a -> a.add(ad -> ad //
-								.index(indexName).alias(boxAliasWrite))));
-					} catch (Exception e) {
-						logger.warn("Cannot create alias {} of index {}", aliasPosition, indexName, e);
-					}
+				String boxAliasRead = index + "_ring_alias_read" + aliasPosition;
+				String boxAliasWrite = index + "_ring_alias_write" + aliasPosition;
+				try {
+					logger.info("Creating alias {} targeting index {}", aliasPosition, indexName);
+					ESearchActivator.getClient().indices().updateAliases(u -> u.actions(a -> a.add(ad -> ad //
+							.index(indexName).alias(boxAliasRead))));
+					ESearchActivator.getClient().indices().updateAliases(u -> u.actions(a -> a.add(ad -> ad //
+							.index(indexName).alias(boxAliasWrite))));
+				} catch (Exception e) {
+					logger.warn("Cannot create alias {} of index {}", aliasPosition, indexName, e);
 				}
 			}
 		}
