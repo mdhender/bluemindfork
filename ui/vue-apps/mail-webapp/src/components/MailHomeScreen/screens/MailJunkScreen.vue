@@ -13,8 +13,12 @@
                 </div>
                 <div class="starter-links">
                     <div class="starter-link">
-                        <bm-icon icon="inbox" />
-                        <bm-button :to="{ name: 'v:mail:home', params: { folder: MY_INBOX.path } }" variant="link">
+                        <bm-button
+                            size="lg"
+                            icon="inbox"
+                            :to="{ name: 'v:mail:home', params: { folder: MY_INBOX.path } }"
+                            variant="link"
+                        >
                             {{ $t("mail.message.starter.display.inbox") }}
                         </bm-button>
                     </div>
@@ -35,7 +39,7 @@ import ChainOfResponsibility from "../../ChainOfResponsibility";
 
 export default {
     name: "MailJunkScreen",
-    components: { ChainOfResponsibility, EmptyFolderAction, BmButton, BmIcon, BmIllustration },
+    components: { ChainOfResponsibility, EmptyFolderAction, BmButton, BmIllustration },
     computed: {
         ...mapState("mail", ["activeFolder"]),
         ...mapGetters("mail", { MY_INBOX, MY_JUNK })

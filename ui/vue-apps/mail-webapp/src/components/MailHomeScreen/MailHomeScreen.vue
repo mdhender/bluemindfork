@@ -92,6 +92,7 @@ export default {
                 color: $neutral-fg;
                 display: flex;
                 align-items: center;
+                justify-content: center;
             }
         }
 

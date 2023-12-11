@@ -6,7 +6,7 @@ const route = { name: "v:mail:home", params: { filter: null } };
 <template>
     <div class="recoverable-result-header d-none d-lg-block">
         <bm-button icon="arrow-back" variant="text" :to="$router.relative(route, $route)">
-            {{ $t("mail.list.recoverable.back") }}
+            {{ $t("mail.recoverable.back") }}
         </bm-button>
     </div>
 </template>

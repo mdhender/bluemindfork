@@ -8,14 +8,22 @@
                 </div>
                 <div class="starter-links">
                     <div class="starter-link">
-                        <bm-icon icon="inbox" />
-                        <bm-button :to="{ name: 'v:mail:home', params: { folder: MY_INBOX.path } }" variant="link">
+                        <bm-button
+                            size="lg"
+                            icon="inbox"
+                            :to="{ name: 'v:mail:home', params: { folder: MY_INBOX.path } }"
+                            variant="link"
+                        >
                             {{ $t("mail.message.starter.display.inbox") }}
                         </bm-button>
                     </div>
                     <div class="starter-link">
-                        <bm-icon icon="paper-plane" />
-                        <bm-button :to="{ name: 'v:mail:home', params: { folder: MY_SENT.path } }" variant="link">
+                        <bm-button
+                            size="lg"
+                            icon="paper-plane"
+                            :to="{ name: 'v:mail:home', params: { folder: MY_SENT.path } }"
+                            variant="link"
+                        >
                             {{ $t("mail.message.starter.display.sent") }}
                         </bm-button>
                     </div>
@@ -35,7 +43,7 @@ import ChainOfResponsibility from "../../ChainOfResponsibility";
 
 export default {
     name: "MailOutboxScreen",
-    components: { ChainOfResponsibility, BmButton, BmIcon, BmIllustration },
+    components: { ChainOfResponsibility, BmButton, BmIllustration },
     computed: {
         ...mapState("mail", ["activeFolder"]),
         ...mapGetters("mail", { MY_INBOX, MY_OUTBOX, MY_SENT })

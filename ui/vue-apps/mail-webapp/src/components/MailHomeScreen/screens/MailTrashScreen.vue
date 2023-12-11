@@ -19,11 +19,23 @@
                 </div>
                 <div class="starter-links">
                     <div class="starter-link">
-                        <bm-icon icon="inbox" />
-                        <bm-button :to="{ name: 'v:mail:home', params: { folder: MY_INBOX.path } }" variant="link">
+                        <bm-button
+                            size="lg"
+                            icon="inbox"
+                            :to="{ name: 'v:mail:home', params: { folder: MY_INBOX.path } }"
+                            variant="link"
+                        >
                             {{ $t("mail.message.starter.display.inbox") }}
                         </bm-button>
                     </div>
+                    <bm-button
+                        size="lg"
+                        icon="clock-rewind"
+                        :to="$router.relative({ name: 'v:mail:home', params: { filter: 'deleted' } }, $route)"
+                        variant="link"
+                    >
+                        {{ $t("mail.message.starter.display.recoverable") }}
+                    </bm-button>
                 </div>
             </div>
             <bm-illustration :value="isTrashEmpty ? 'trash-empty' : 'trash-filled'" size="lg" over-background />
@@ -41,7 +53,7 @@ import ChainOfResponsibility from "../../ChainOfResponsibility";
 
 export default {
     name: "MailTrashScreen",
-    components: { ChainOfResponsibility, EmptyFolderAction, BmButton, BmIcon, BmIllustration },
+    components: { ChainOfResponsibility, EmptyFolderAction, BmButton, BmIllustration },
     computed: {
         ...mapState("mail", ["activeFolder", "folders"]),
         ...mapGetters("mail", { CONVERSATION_LIST_COUNT, FOLDER_HAS_CHILDREN, MY_INBOX, MY_TRASH }),
