@@ -9,7 +9,7 @@
    <launcherArgs>
       <programArgs>-consoleLog -debug
       </programArgs>
-      <vmArgs>-Dio.netty.allocator.maxOrder=8 -XX:+UseCompressedOops -XX:+UseTransparentHugePages -XX:+AlwaysPreTouch -XX:-OmitStackTraceInFastThrow -Dosgi.noShutdown=true -Djava.awt.headless=true -Dnet.bluemind.property.product=imap -Xmx256m -XX:+HeapDumpOnOutOfMemoryError -XX:+ExitOnOutOfMemoryError
+      <vmArgs>-Dio.netty.allocator.maxOrder=8 -XX:+UseCompressedOops -XX:+AlwaysPreTouch -XX:-OmitStackTraceInFastThrow -Dosgi.noShutdown=true -Djava.awt.headless=true -Dnet.bluemind.property.product=imap -Xmx256m -XX:+HeapDumpOnOutOfMemoryError -XX:+ExitOnOutOfMemoryError
       </vmArgs>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
       </vmArgsMac>
@@ -39,7 +39,7 @@
       <plugin id="com.google.guava"/>
       <plugin id="com.google.guava.failureaccess"/>
       <plugin id="com.hazelcast"/>
-      <plugin id="com.hazelcast.client" fragment="true"/>
+      <plugin id="com.hazelcast.client"/>
       <plugin id="com.netflix.spectator.api"/>
       <plugin id="com.sun.mail.jakarta.mail"/>
       <plugin id="com.typesafe.config"/>
@@ -94,11 +94,11 @@
       <plugin id="net.bluemind.mime4j.common"/>
       <plugin id="net.bluemind.network.topology"/>
       <plugin id="net.bluemind.network.topology.consumer"/>
-      <plugin id="net.bluemind.sentry" fragment="true"/>
+      <plugin id="net.bluemind.sentry"/>
       <plugin id="net.bluemind.server.api"/>
       <plugin id="net.bluemind.serviceprovider"/>
       <plugin id="net.bluemind.serviceprovider.rest"/>
-      <plugin id="net.bluemind.slf4j.configuration" fragment="true"/>
+      <plugin id="net.bluemind.slf4j.configuration"/>
       <plugin id="net.bluemind.system.api"/>
       <plugin id="net.bluemind.tag.api"/>
       <plugin id="net.bluemind.user.api"/>
@@ -147,7 +147,7 @@
       <plugin id="org.eclipse.equinox.simpleconfigurator"/>
       <plugin id="org.eclipse.equinox.simpleconfigurator.manipulator"/>
       <plugin id="org.eclipse.osgi"/>
-      <plugin id="org.eclipse.osgi.compatibility.state" fragment="true"/>
+      <plugin id="org.eclipse.osgi.compatibility.state"/>
       <plugin id="org.eclipse.osgi.services"/>
       <plugin id="org.eclipse.osgi.util"/>
       <plugin id="org.jsoup"/>

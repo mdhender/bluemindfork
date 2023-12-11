@@ -878,6 +878,11 @@ public class MailApiConnection implements MailboxConnection {
 			return null;
 		}
 
+		if (toRename.mailbox.readOnly || isProtected(toRename)) {
+			logger.warn("[{}] prevent forbidden rename of {}.", this, fullName);
+			return null;
+		}
+
 		ItemValue<Mailbox> owner = myMailbox;
 		String absoluteNewName = newName;
 		if (newName.startsWith(sharedRootPrefix) || newName.startsWith(userRootPrefix)) {
