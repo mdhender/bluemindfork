@@ -257,6 +257,13 @@ public class MailApiConnection implements MailboxConnection {
 	public String create(String imapFolderName) {
 		String fName = imapFolderName;
 		ItemValue<Mailbox> owner = myMailbox;
+
+		if (fName.equals(DriverConfig.get().getString(DriverConfig.SHARED_VIRTUAL_ROOT))
+				|| fName.equals(DriverConfig.get().getString(DriverConfig.USER_VIRTUAL_ROOT))) {
+			logger.warn("[{}] virtual root should stay virtual, prevent create of {}", this, imapFolderName);
+			return null;
+		}
+
 		if (fName.startsWith(sharedRootPrefix) || fName.startsWith(userRootPrefix)) {
 			String shareParent = fName.substring(0, fName.lastIndexOf('/'));
 			ImapMailbox resolvedParent = folderResolver.resolveBox(shareParent);
