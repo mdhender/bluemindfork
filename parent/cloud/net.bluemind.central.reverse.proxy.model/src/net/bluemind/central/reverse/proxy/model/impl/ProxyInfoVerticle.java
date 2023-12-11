@@ -13,7 +13,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -27,7 +29,6 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
-import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.central.reverse.proxy.common.ProxyEventBusAddress;
 import net.bluemind.central.reverse.proxy.model.PostfixMapsStore;
@@ -46,19 +47,25 @@ public class ProxyInfoVerticle extends AbstractVerticle {
 	private final String bootstrapServers;
 	private RecordHandler<byte[], byte[]> recordHandler;
 
-	private MessageConsumer<JsonObject> vertxConsumer;
 	private List<KafkaConsumerClient<byte[], byte[]>> kafkaConsumers = new ArrayList<>();
 
-	public ProxyInfoVerticle(Config config) {
+	private ProxyInfoStore proxyInfoStore;
+	private PostfixMapsStore postfixMapsStore;
+
+	private final Supplier<PostfixMapsStore> postfixMapsStoreSupplier;
+	private final Supplier<ProxyInfoStore> proxyInfoStoreSupplier;
+
+	public ProxyInfoVerticle(Config config, Supplier<ProxyInfoStore> proxyInfoStoreSupplier,
+			Supplier<PostfixMapsStore> postfixMapsStoreSupplier) {
 		this.config = config;
 		this.bootstrapServers = config.getString(BOOTSTRAP_SERVERS);
+
+		this.proxyInfoStoreSupplier = proxyInfoStoreSupplier;
+		this.postfixMapsStoreSupplier = postfixMapsStoreSupplier;
 	}
 
 	@Override
 	public void start(Promise<Void> p) {
-		ProxyInfoStore proxyInfoStore = ProxyInfoStore.create(vertx);
-		PostfixMapsStore postfixMapsStore = PostfixMapsStore.create(vertx);
-
 		ProxyInfoStoreClient proxyInfoStoreClient = ProxyInfoStoreClient.create(vertx);
 		PostfixMapsStoreClient postfixMapsStoreClient = PostfixMapsStoreClient.create(vertx);
 
@@ -68,8 +75,8 @@ public class ProxyInfoVerticle extends AbstractVerticle {
 		vertx.eventBus().<JsonObject>consumer(ADDRESS).handler(event -> {
 			if (STREAM_READY_NAME.equals(event.headers().get("action"))) {
 				logger.info("[model] Dir entries stream ready, starting model");
-				proxyInfoStore.setupService();
-				postfixMapsStore.setupService();
+				proxyInfoStore = proxyInfoStoreSupplier.get().setupService(vertx);
+				postfixMapsStore = postfixMapsStoreSupplier.get().setupService(vertx);
 				InstallationTopics topics = event.body().mapTo(InstallationTopics.class);
 				startKafkaConsumption(topics) //
 						.onSuccess(v -> logger.info("[model] Started")) //
@@ -138,9 +145,13 @@ public class ProxyInfoVerticle extends AbstractVerticle {
 		return topicNames;
 	}
 
-	public void tearDown() {
-		if (vertxConsumer != null) {
-			vertxConsumer.unregister();
+	public void tearDown() throws InterruptedException, ExecutionException {
+		if (proxyInfoStore != null) {
+			proxyInfoStore.tearDown();
+		}
+
+		if (postfixMapsStore != null) {
+			postfixMapsStore.tearDown();
 		}
 	}
 }

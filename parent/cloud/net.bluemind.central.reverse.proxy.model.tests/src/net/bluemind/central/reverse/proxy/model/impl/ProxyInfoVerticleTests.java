@@ -54,6 +54,8 @@ public class ProxyInfoVerticleTests {
 	private ProxyInfoStore proxyInfoStore;
 	private PostfixMapsStore postfixMapsStore;
 
+	private ProxyInfoVerticle modelVerticle;
+
 	@Before
 	public void setup() {
 		this.kafka = new ZkKafkaContainer();
@@ -68,11 +70,8 @@ public class ProxyInfoVerticleTests {
 	@After
 	public void teardown() throws InterruptedException, ExecutionException {
 		kafka.stop();
-		if (proxyInfoStore != null) {
-			proxyInfoStore.tearDown();
-		}
-		if (postfixMapsStore != null) {
-			postfixMapsStore.tearDown();
+		if (modelVerticle != null) {
+			modelVerticle.tearDown();
 		}
 	}
 
@@ -88,8 +87,9 @@ public class ProxyInfoVerticleTests {
 			createTopics(orphansTopic, domainTopic).onSuccess(v -> {
 				ProxyInfoStorage proxyInfoStorage = spy(ProxyInfoStorage.create());
 				PostfixMapsStorage postfixMapsStorage = PostfixMapsStorage.create();
+
 				System.err.println("proxy storage: " + proxyInfoStorage);
-				ProxyInfoVerticle modelVerticle = createModelVerticle(vertx, proxyInfoStorage, postfixMapsStorage);
+				modelVerticle = createModelVerticle(proxyInfoStorage, postfixMapsStorage);
 				System.err.println("modelVerticle: " + modelVerticle);
 				DirEntriesStreamVerticle streamVerticle = createStreamVerticle();
 				vertx.deployVerticle(streamVerticle, new DeploymentOptions().setWorker(true), ar -> {
@@ -147,11 +147,13 @@ public class ProxyInfoVerticleTests {
 		return new KafkaProducer<>(props);
 	}
 
-	private ProxyInfoVerticle createModelVerticle(Vertx vertx, ProxyInfoStorage proxyInfoStorage,
+	private ProxyInfoVerticle createModelVerticle(ProxyInfoStorage proxyInfoStorage,
 			PostfixMapsStorage postfixMapsStorage) {
+		proxyInfoStore = ProxyInfoStore.create(proxyInfoStorage);
+		postfixMapsStore = PostfixMapsStore.create(postfixMapsStorage);
 
 		Config config = CrpConfig.get("model", ProxyInfoVerticle.class.getClassLoader());
-		return new ProxyInfoVerticle(config);
+		return new ProxyInfoVerticle(config, () -> proxyInfoStore, () -> postfixMapsStore);
 	}
 
 	private DirEntriesStreamVerticle createStreamVerticle() {

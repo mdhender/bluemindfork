@@ -27,25 +27,23 @@ import net.bluemind.central.reverse.proxy.model.common.DomainInfo;
 import net.bluemind.central.reverse.proxy.model.common.InstallationInfo;
 
 public class ProxyInfoStore {
-	private final Vertx vertx;
 	private final ProxyInfoStorage storage;
 
 	private MessageConsumer<JsonObject> consumer;
 
-	private ProxyInfoStore(Vertx vertx, ProxyInfoStorage storage) {
-		this.vertx = vertx;
+	private ProxyInfoStore(ProxyInfoStorage storage) {
 		this.storage = storage;
 	}
 
-	public static ProxyInfoStore create(Vertx vertx) {
-		return ProxyInfoStore.create(vertx, ProxyInfoStorage.create());
+	public static ProxyInfoStore create() {
+		return ProxyInfoStore.create(ProxyInfoStorage.create());
 	}
 
-	public static ProxyInfoStore create(Vertx vertx, ProxyInfoStorage storage) {
-		return new ProxyInfoStore(vertx, storage);
+	public static ProxyInfoStore create(ProxyInfoStorage storage) {
+		return new ProxyInfoStore(storage);
 	}
 
-	public void setupService() {
+	public ProxyInfoStore setupService(Vertx vertx) {
 		consumer = vertx.eventBus().<JsonObject>consumer(ADDRESS).handler(event -> {
 			String action = event.headers().get("action");
 			switch (action) {
@@ -71,6 +69,8 @@ public class ProxyInfoStore {
 				event.fail(404, "Unknown action '" + action + "'");
 			}
 		});
+
+		return this;
 	}
 
 	private void addDir(Message<JsonObject> event) {

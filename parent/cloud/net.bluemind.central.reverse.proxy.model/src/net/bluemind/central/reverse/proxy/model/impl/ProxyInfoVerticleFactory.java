@@ -22,6 +22,8 @@ import com.typesafe.config.Config;
 
 import io.vertx.core.Verticle;
 import net.bluemind.central.reverse.proxy.common.config.CrpConfig;
+import net.bluemind.central.reverse.proxy.model.PostfixMapsStore;
+import net.bluemind.central.reverse.proxy.model.ProxyInfoStore;
 import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 
@@ -36,7 +38,7 @@ public class ProxyInfoVerticleFactory implements IVerticleFactory, IUniqueVertic
 
 	@Override
 	public Verticle newInstance() {
-		return new ProxyInfoVerticle(config);
+		return new ProxyInfoVerticle(config, () -> ProxyInfoStore.create(), () -> PostfixMapsStore.create());
 	}
 
 }

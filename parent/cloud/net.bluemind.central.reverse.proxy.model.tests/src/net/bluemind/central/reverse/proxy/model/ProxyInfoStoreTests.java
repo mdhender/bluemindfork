@@ -40,8 +40,8 @@ public class ProxyInfoStoreTests {
 	public void setupTest() {
 		vertx = VertxPlatform.getVertx();
 		storage = Mockito.spy(ProxyInfoStorage.class);
-		store = ProxyInfoStore.create(vertx, storage);
-		store.setupService();
+		store = ProxyInfoStore.create(storage);
+		store.setupService(vertx);
 	}
 
 	@After

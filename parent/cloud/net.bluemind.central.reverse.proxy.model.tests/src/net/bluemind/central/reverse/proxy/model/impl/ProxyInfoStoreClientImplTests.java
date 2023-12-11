@@ -39,8 +39,8 @@ public class ProxyInfoStoreClientImplTests {
 		storage.addLogin("two@alias2", "here2");
 		storage.addDataLocation("here1", "ip1");
 		storage.addDataLocation("here2", "ip2");
-		store = ProxyInfoStore.create(vertx, storage);
-		store.setupService();
+		store = ProxyInfoStore.create(storage);
+		store.setupService(vertx);
 	}
 
 	@After

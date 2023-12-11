@@ -41,8 +41,8 @@ public class PostfixMapsStoreClientImplTests {
 		Set<String> domainAliases = new HashSet<>();
 		domainAliases.addAll(Arrays.asList("alias1", "alias2"));
 		storage = PostfixMapsStorage.create();
-		store = PostfixMapsStore.create(vertx, storage);
-		store.setupService();
+		store = PostfixMapsStore.create( storage);
+		store.setupService(vertx);
 	}
 
 	@After
@@ -405,12 +405,17 @@ public class PostfixMapsStoreClientImplTests {
 		PostfixMapsStoreClient client = PostfixMapsStoreClient.create(vertx);
 		AsyncTestContext.asyncTest(context -> client
 				.addInstallation(new InstallationInfo(null, "datalocation-uid", "datalocation-ip", false, true))
+				.compose(ar1 -> client.addDomain(new DomainInfo("domain-uid", Set.of("domain-alias1", "domain-alias2")))
+						.andThen(ar2 -> context.partialAssertions(() -> assertTrue(ar2.succeeded()))))
 				.compose(
-						ar1 -> client.addDomain(new DomainInfo("domain-uid", Set.of("domain-alias1", "domain-alias2"))))
-				.compose(ar1 -> client.addDomainSettings(new DomainSettings("domain-uid", "smtp-relay", false)))
-				.compose(ar1 -> client.addDir(new DirInfo("domain-uid", "entry-external-uid", "user", false,
-						"entry-external-mailboxname", "external",
-						Set.of(new DirEmail("user-external-email@domain-alias1", true)), "datalocation-uid")))
+						ar1 -> client
+								.addDomainSettings(new DomainSettings("domain-uid", "smtp-relay", false)).andThen(
+										ar2 -> context.partialAssertions(() -> assertTrue(ar2.succeeded()))))
+				.compose(ar1 -> client
+						.addDir(new DirInfo("domain-uid", "entry-external-uid", "user", false,
+								"entry-external-mailboxname", "external",
+								Set.of(new DirEmail("user-external-email@domain-alias1", true)), "datalocation-uid"))
+						.andThen(ar2 -> context.partialAssertions(() -> assertTrue(ar2.succeeded()))))
 				// Test domain managed
 				.compose(ar1 -> client.mailboxDomainsManaged("domain-uid")
 						.andThen(ar2 -> context.partialAssertions(() -> {

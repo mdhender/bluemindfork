@@ -31,25 +31,23 @@ import net.bluemind.central.reverse.proxy.model.common.InstallationInfo;
 import net.bluemind.central.reverse.proxy.model.common.MemberInfo;
 
 public class PostfixMapsStore {
-	private final Vertx vertx;
 	private final PostfixMapsStorage storage;
 
 	private MessageConsumer<JsonObject> consumer;
 
-	private PostfixMapsStore(Vertx vertx, PostfixMapsStorage storage) {
-		this.vertx = vertx;
+	private PostfixMapsStore(PostfixMapsStorage storage) {
 		this.storage = storage;
 	}
 
-	public static PostfixMapsStore create(Vertx vertx) {
-		return PostfixMapsStore.create(vertx, PostfixMapsStorage.create());
+	public static PostfixMapsStore create() {
+		return PostfixMapsStore.create(PostfixMapsStorage.create());
 	}
 
-	public static PostfixMapsStore create(Vertx vertx, PostfixMapsStorage storage) {
-		return new PostfixMapsStore(vertx, storage);
+	public static PostfixMapsStore create(PostfixMapsStorage storage) {
+		return new PostfixMapsStore(storage);
 	}
 
-	public void setupService() {
+	public PostfixMapsStore setupService(Vertx vertx) {
 		consumer = vertx.eventBus().<JsonObject>consumer(ADDRESS).handler(event -> {
 			String action = event.headers().get("action");
 			switch (action) {
@@ -93,6 +91,8 @@ public class PostfixMapsStore {
 				event.fail(404, "Unknown action '" + action + "'");
 			}
 		});
+
+		return this;
 	}
 
 	private void addInstallation(Message<JsonObject> event) {
