@@ -4,9 +4,7 @@
    <extension
          point="net.bluemind.core.auditlogs.client.es.datastreams.indextemplate">
       <schema
-            datastream_name="audit_log"
             indextemplatename="auditlogs_template"
-            name="auditlogs_template"
             resource="resources/auditlog_index_template.json"
             rewritable="false">
       </schema>
