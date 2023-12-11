@@ -16,7 +16,6 @@ import MailConversationListFilters from "./MailConversationListFilters";
 @import "../ConversationList/variables.scss";
 
 .mail-conversation-list-header {
-    display: flex;
     background-color: $surface;
     .mail-conversation-list-filters {
         border-bottom: 1px solid $neutral-fg-lo3;

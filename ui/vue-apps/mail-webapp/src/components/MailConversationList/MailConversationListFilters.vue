@@ -12,6 +12,7 @@
             :aria-label="$t('mail.list.filter.aria')"
             :title="$t('mail.list.filter.tooltip')"
             class="flex-fill"
+            :disabled="disabled"
         />
         <bm-dropdown
             variant="text"
@@ -71,6 +72,12 @@ export default {
         BmDropdownItemButton,
         BmSortControl
     },
+    props: {
+        disabled: {
+            type: Boolean,
+            default: false
+        }
+    },
     data() {
         return {
             sorts: Object.values(SortField).flatMap(field => Object.values(SortOrder).map(order => ({ field, order })))
@@ -82,16 +89,19 @@ export default {
         filters() {
             return [
                 {
+                    disabled: this.disabled,
                     text: this.$t("mail.list.filter.all"),
                     value: "all",
                     to: this.$router.relative({ name: "v:mail:home", params: { filter: null } }, this.$route)
                 },
                 {
+                    disabled: this.disabled,
                     text: this.$t("mail.list.filter.unread"),
                     value: "unread",
                     to: this.$router.relative({ name: "v:mail:home", params: { filter: "unread" } }, this.$route)
                 },
                 {
+                    disabled: this.disabled,
                     text: this.$t("mail.list.filter.flagged"),
                     value: "flagged",
                     to: this.$router.relative({ name: "v:mail:home", params: { filter: "flagged" } }, this.$route)
@@ -136,6 +146,7 @@ export default {
 @import "../ConversationList/variables.scss";
 
 .mail-conversation-list-filters {
+    display: flex;
     height: $input-height-sm;
     .bm-check {
         $check-offset: math.div($avatar-width-sm - $custom-checkbox-size, 2);

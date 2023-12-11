@@ -52,10 +52,13 @@ export default {
     },
     watch: {
         selected() {
-            if (this.selectedOption !== this.selected.value) {
+            if (this.selected.disabled) {
+                this.selectedOption = null;
+                this.bottomSelectorPosition = null;
+            } else if (this.selectedOption !== this.selected.value) {
                 this.handleBottomSelector(this.selectedOption, this.selected.value);
+                this.selectedOption = this.selected.value;
             }
-            this.selectedOption = !this.selected.disabled ? this.selected.value : this.selectedOption;
         }
     },
     methods: {

@@ -5,6 +5,7 @@ import store from "@bluemind/store";
 import { CONVERSATION_LIST_DELETED_FILTER_ENABLED, CURRENT_MAILBOX, MAILBOX_TRASH } from "~/getters";
 
 import MailConversationListHeader from "./MailConversationListHeader";
+import MailConversationListFilters from "./MailConversationListFilters";
 import RecoverableResultHeader from "./RecoverableResultHeader";
 import TrashResultHeader from "./TrashResultHeader";
 
@@ -19,7 +20,10 @@ const isRecoverable = computed(() => isTrash.value && getters[`mail/${CONVERSATI
 
 <template>
     <mail-conversation-list-header>
-        <recoverable-result-header v-if="isRecoverable && folder.writable" />
+        <template v-if="isRecoverable" #toolbar>
+            <mail-conversation-list-filters disabled />
+        </template>
+        <recoverable-result-header v-if="isRecoverable" />
         <trash-result-header v-else-if="isTrash && folder.writable" />
     </mail-conversation-list-header>
 </template>
