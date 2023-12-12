@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
@@ -293,6 +294,18 @@ public class IcsHook implements ICalendarHook {
 				userDeletedFromSeries.addAll(deletedAttendees);
 			}
 			sendCancelToAttendees(message, evt, deletedAttendees);
+			informReferencedAttendees(message, evt, deletedAttendees);
+		}
+	}
+
+	private void informReferencedAttendees(VEventMessage message, VEvent evt,
+			List<ICalendarElement.Attendee> deletedAttendees) {
+		List<Attendee> sentByReferences = deletedAttendees.stream().map(att -> att.sentBy).filter(Objects::nonNull)
+				.distinct().map(mailto -> evt.attendees.stream().filter(att -> att.mailto.equals(mailto)).findAny())
+				.filter(Optional::isPresent).map(Optional::get).toList();
+		if (!sentByReferences.isEmpty()) {
+			EventChanges changes = new EventChanges(EnumSet.of(EventChanges.Type.ATTENDEES));
+			sendUpdateToAttendees(message, evt, changes, sentByReferences);
 		}
 	}
 

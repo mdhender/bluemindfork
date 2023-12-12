@@ -67,7 +67,7 @@ public class EventCounterHandler extends AbstractLmtpHandler implements IIMIPHan
 			counterProposedAttendees = proposedattendees(counterEvent);
 			Attendee originator = originator(counterEvent, counterProposedAttendees);
 			updateOriginatorPartStat(originator, currentSeries.value.main);
-			addNewAttendees(counterEvent, currentSeries.value.main);
+			addNewAttendees(counterEvent, currentSeries.value.main, originator.mailto);
 		} else {
 			counterEvent = propositionSeries.occurrences.get(0);
 			counterProposedAttendees = proposedattendees(counterEvent);
@@ -90,13 +90,13 @@ public class EventCounterHandler extends AbstractLmtpHandler implements IIMIPHan
 				timestamp += duration;
 				BmDateTime dtend = BmDateTimeWrapper.fromTimestamp(timestamp, newOccurrence.dtstart.timezone);
 				newOccurrence.dtend = dtend;
-				addNewAttendees(counterEvent, newOccurrence);
+				addNewAttendees(counterEvent, newOccurrence, originator.mailto);
 				occurrences.add(newOccurrence);
 				currentSeries.value.occurrences = occurrences;
 			} else {
 				VEventOccurrence existingException = currentSeries.value.occurrence(counterEvent.recurid);
 				updateOriginatorPartStat(originator, existingException);
-				addNewAttendees(counterEvent, existingException);
+				addNewAttendees(counterEvent, existingException, originator.mailto);
 			}
 		}
 
@@ -150,10 +150,11 @@ public class EventCounterHandler extends AbstractLmtpHandler implements IIMIPHan
 		cal.update(currentSeries.uid, currentSeries.value, false);
 	}
 
-	private void addNewAttendees(VEventOccurrence counterEvent, VEvent existingEvent) {
+	private void addNewAttendees(VEventOccurrence counterEvent, VEvent existingEvent, String originator) {
 		existingEvent.attendees.addAll(proposedattendees(counterEvent).stream().map(att -> {
 			att.role = Role.OptionalParticipant;
 			att.partStatus = ParticipationStatus.NeedsAction;
+			att.sentBy = originator;
 			return att;
 		}).toList());
 	}

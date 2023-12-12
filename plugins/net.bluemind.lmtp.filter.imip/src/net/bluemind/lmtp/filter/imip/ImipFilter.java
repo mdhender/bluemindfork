@@ -175,8 +175,8 @@ public class ImipFilter extends AbstractLmtpHandler implements IMessageFilter {
 	 */
 	private IMIPResponse handleIMIPMessage(LmtpAddress sender, final ResolvedBox recipient, final IMIPInfos imip)
 			throws ServerFault, MailboxInvitationDeniedException, CounterNotAllowedException {
-		logger.info("[{}] IMIP message from: {} to {}. Method: {}. Organizer: {}", imip.messageId, sender, recipient,
-				imip.method, imip.organizerEmail);
+		logger.info("[{}] IMIP message from: {} to {}. Method: {}. Organizer: {}", imip.messageId, sender.email,
+				recipient, imip.method, imip.organizerEmail);
 
 		ItemValue<Domain> domain = provider().instance(IDomains.class).findByNameOrAliases(recipient.getDomainPart());
 		if (domain == null) {

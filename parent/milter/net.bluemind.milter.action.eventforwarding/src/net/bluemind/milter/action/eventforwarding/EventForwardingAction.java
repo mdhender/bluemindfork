@@ -149,22 +149,27 @@ public class EventForwardingAction implements MilterAction {
 	private void sendCounter(String from, Set<Mailbox> newAttendees, VEventOccurrence existingEvent, ICalendar service,
 			String originator, ItemValue<VEventSeries> existingSeries) {
 		VEventCounter counter = new VEventCounter();
-
 		counter.counter = existingEvent.copy();
 		counter.originator = new CounterOriginator();
 		counter.originator.email = from;
 		counter.originator.commonName = originator;
 		counter.counter.attendees = new ArrayList<>(
 				counter.counter.attendees.stream().filter(att -> att.mailto.equals(from)).toList());
+		List<Attendee> added = new ArrayList<>();
 		newAttendees.forEach(to -> {
 			Attendee newAttendee = Attendee.create(CUType.Individual, null, Role.NonParticipant,
-					ParticipationStatus.Tentative, null, null, null, null, to.getName(), null, null, null,
+					ParticipationStatus.Tentative, null, null, null, from, to.getName(), null, null, null,
 					to.getAddress());
 			counter.counter.attendees.add(newAttendee);
+			added.add(newAttendee);
 		});
 		existingSeries.value.counters = Arrays.asList(counter);
+
 		service.update(existingSeries.uid, existingSeries.value, true);
 		existingSeries.value.counters = Collections.emptyList();
+		VEvent existingEventReference = counter.counter.recurid == null ? existingSeries.value.main
+				: existingSeries.value.occurrence(counter.counter.recurid);
+		existingEventReference.attendees.addAll(added);
 		service.update(existingSeries.uid, existingSeries.value, false);
 	}
 
