@@ -6,13 +6,14 @@ import {
     LOAD_MAX_MESSAGE_SIZE,
     REMOVE_ATTACHMENT,
     SET_DRAFT_CONTENT,
-    SET_MESSAGE_CONTENT
+    SET_MESSAGE_CONTENT,
+    TOGGLE_SIGNATURE,
+    UPDATE_SIGNATURE
 } from "~/actions";
 import {
     ADD_FILE,
     RESET_COMPOSER,
     RESET_FILES,
-    SET_CORPORATE_SIGNATURE,
     SET_DISCLAIMER,
     SET_DRAFT_COLLAPSED_CONTENT,
     SET_DRAFT_EDITOR_CONTENT,
@@ -23,29 +24,24 @@ import {
     SET_MAIL_TIPS,
     SET_MAX_MESSAGE_SIZE,
     SET_PERSONAL_SIGNATURE,
-    SHOW_SENDER,
-    UNSET_CORPORATE_SIGNATURE
+    SHOW_SENDER
 } from "~/mutations";
 import { GET_DRAFT_CONTENT, IS_SENDER_SHOWN } from "~/getters";
+
 import templateChooser from "./templateChooser";
-const { removeCorporateSignatureContent } = signatureUtils;
+const { removeCorporateSignatureContent, isCorporateSignature, isDisclaimer } = signatureUtils;
 
 export default {
     mutations: {
         [RESET_COMPOSER]: state => {
             state.disclaimer = null;
-            state.corporateSignature = null;
             state.personalSignature = null;
+            state.signature = null;
             state.editorContent = "";
             state.collapsedContent = null;
             state.inlineImagesSaved = [];
             state.isSenderShown = false;
             state.maxMessageSizeExceeded = false;
-        },
-        [SET_CORPORATE_SIGNATURE]: (state, mailTip) => {
-            if (!state.corporateSignature || state.corporateSignature.html !== mailTip.html) {
-                state.corporateSignature = mailTip;
-            }
         },
         [SET_PERSONAL_SIGNATURE]: (state, signature) => {
             state.personalSignature = signature;
@@ -67,9 +63,7 @@ export default {
         [SHOW_SENDER]: (state, value) => {
             state.isSenderShown = value;
         },
-        [UNSET_CORPORATE_SIGNATURE]: state => {
-            state.corporateSignature = null;
-        },
+
         [SET_MAIL_TIPS]: (state, mailTips) => {
             state.mailTips = mailTips;
         },
@@ -102,6 +96,13 @@ export default {
                 const key = Object.keys(state.uploadingFiles)[index];
                 Vue.delete(state.uploadingFiles, key);
             }
+        },
+
+        SET_SIGNATURE: (state, payload) => {
+            state.signature = payload;
+        },
+        UNSET_SIGNATURE: state => {
+            state.signature = null;
         }
     },
 
@@ -116,21 +117,55 @@ export default {
             const content = getters[GET_DRAFT_CONTENT];
             const action = debounce === false ? SET_MESSAGE_CONTENT : DEBOUNCED_SET_MESSAGE_CONTENT;
             return dispatch(action, { message: draft, content });
+        },
+        [UPDATE_SIGNATURE]({ dispatch, commit, state }, payload) {
+            if (!payload) {
+                dispatch(TOGGLE_SIGNATURE);
+            } else {
+                const { mailTips, signByDefault } = payload;
+                if (Array.isArray(mailTips)) {
+                    if (mailTips.length > 0) {
+                        const matchingTips = mailTips[0].matchingTips;
+                        const disclaimer = matchingTips.find(isDisclaimer);
+
+                        commit(SET_DISCLAIMER, disclaimer ? JSON.parse(disclaimer.value) : null);
+
+                        const corporateSignature = matchingTips.find(isCorporateSignature);
+                        if (corporateSignature) {
+                            // commit(SET_CORPORATE_SIGNATURE, JSON.parse(corporateSignature.value));
+                            commit("SET_SIGNATURE", JSON.parse(corporateSignature.value));
+                        } else {
+                            // commit(UNSET_CORPORATE_SIGNATURE);
+                            commit("SET_SIGNATURE", state.personalSignature);
+                        }
+                    } else {
+                        commit(SET_DISCLAIMER, null);
+                        commit("SET_SIGNATURE", signByDefault ? state.personalSignature : null);
+                    }
+                } else {
+                    commit("SET_SIGNATURE", mailTips);
+                }
+            }
+        },
+        [TOGGLE_SIGNATURE](ctx) {
+            ctx.commit("SET_SIGNATURE", ctx.state.signature === null ? ctx.state.personalSignature : null);
         }
     },
 
     getters: {
-        [GET_DRAFT_CONTENT]: ({ collapsedContent, editorContent, corporateSignature, disclaimer }) => {
+        [GET_DRAFT_CONTENT]: ({ collapsedContent, editorContent, signature, disclaimer }) => {
             const wholeContent = collapsedContent ? editorContent + collapsedContent : editorContent;
+            const corporateSignature = signature?.uid ? signature : null;
             return removeCorporateSignatureContent(wholeContent, { corporateSignature, disclaimer });
         },
-        [IS_SENDER_SHOWN]: state => userSettings => state.isSenderShown || userSettings.always_show_from === "true"
+        [IS_SENDER_SHOWN]: state => userSettings => state.isSenderShown || userSettings.always_show_from === "true",
+        signature: state => state.signature
     },
 
     state: {
         disclaimer: null,
-        corporateSignature: null,
         personalSignature: null,
+        signature: null,
         editorContent: "",
         collapsedContent: null,
         inlineImagesSaved: [],

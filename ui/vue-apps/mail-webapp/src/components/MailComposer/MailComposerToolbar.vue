@@ -158,7 +158,7 @@ export default {
             return this.$store.state.settings;
         },
         hasCorporateSignature() {
-            return this.$store.state.mail.messageCompose.corporateSignature !== null;
+            return Boolean(this.$store.state.mail.messageCompose.signature?.uid);
         },
         isSaving() {
             return this.message.status === MessageStatus.SAVING;

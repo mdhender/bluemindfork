@@ -1,8 +1,7 @@
 import { mapState } from "vuex";
 import { INFO, REMOVE } from "@bluemind/alert.store";
 import { draftUtils, mailTipUtils, signatureUtils } from "@bluemind/mail";
-import { SET_DISCLAIMER, SET_CORPORATE_SIGNATURE, UNSET_CORPORATE_SIGNATURE } from "~/mutations";
-import { SET_DRAFT_CONTENT } from "~/actions";
+import { SET_DRAFT_CONTENT, UPDATE_SIGNATURE } from "~/actions";
 
 const { isNewMessage } = draftUtils;
 const {
@@ -10,8 +9,6 @@ const {
     CORPORATE_SIGNATURE_SELECTOR,
     DISCLAIMER_SELECTOR,
     PERSONAL_SIGNATURE_SELECTOR,
-    isCorporateSignature,
-    isDisclaimer,
     wrapCorporateSignature,
     wrapDisclaimer,
     wrapPersonalSignature
@@ -35,10 +32,6 @@ const corporateSignatureGotRemoved = {
  */
 export default {
     props: {
-        isSignatureInserted: {
-            type: Boolean,
-            required: true
-        },
         message: {
             type: Object,
             required: true
@@ -48,13 +41,15 @@ export default {
         ...mapState("mail", {
             personalSignature: state => state.messageCompose.personalSignature,
             mailTips: state => state.messageCompose.mailTips,
-            $_SignatureMixin_corporateSignature: state => state.messageCompose.corporateSignature,
             $_SignatureMixin_disclaimer: state => state.messageCompose.disclaimer,
-            $_SignatureMixin_editorContent: state => state.messageCompose.editorContent,
-            $_SignatureMixin_insertSignaturePref() {
-                return this.$store.state.settings.insert_signature;
-            }
-        })
+            $_SignatureMixin_editorContent: state => state.messageCompose.editorContent
+        }),
+        signature() {
+            return this.$store.getters["mail/signature"];
+        },
+        signByDefault() {
+            return this.$store.state.settings.insert_signature === "true";
+        }
     },
     data() {
         return { $_SignatureMixin_checkCorporateSignatureDone: false };
@@ -63,125 +58,42 @@ export default {
         this.$_SignatureMixin_refreshSignature();
     },
     watch: {
+        async signature(updatedSignature, previous) {
+            const editorRef = await this.getEditorRef();
+
+            this.cleanSignatureFromContent(editorRef, previous);
+            this.insertSignature(editorRef, updatedSignature);
+            this.insertDisclaimer(editorRef);
+
+            this.notifySignatureChange(previous, updatedSignature);
+
+            this.$_SignatureMixin_removePlaceholder();
+
+            this.$store.dispatch(`mail/${SET_DRAFT_CONTENT}`, {
+                html: editorRef.getContent(),
+                draft: this.message
+            });
+        },
         "message.from"() {
             this.$_SignatureMixin_refreshSignature();
         },
         mailTips: {
             handler(mailTips) {
-                if (mailTips.length > 0) {
-                    const matchingTips = mailTips[0].matchingTips;
+                this.$store.dispatch(`mail/${UPDATE_SIGNATURE}`, { mailTips, signByDefault: this.signByDefault });
 
-                    const disclaimer = matchingTips.find(isDisclaimer);
-                    this.$store.commit("mail/" + SET_DISCLAIMER, disclaimer ? JSON.parse(disclaimer.value) : null);
-
-                    const corporateSignature = matchingTips.find(isCorporateSignature);
-                    if (corporateSignature) {
-                        this.$store.commit("mail/" + SET_CORPORATE_SIGNATURE, JSON.parse(corporateSignature.value));
-                    } else {
-                        this.$store.commit("mail/" + UNSET_CORPORATE_SIGNATURE);
-                    }
-                } else {
-                    this.$store.commit("mail/" + SET_DISCLAIMER, null);
-                    this.$store.commit("mail/" + UNSET_CORPORATE_SIGNATURE);
-                }
                 this.$_SignatureMixin_checkCorporateSignatureDone = true;
             },
             immediate: true
         },
-        personalSignature: {
-            async handler(personalSignature, old) {
-                const editorRef = await this.getEditorRef();
-                if (
-                    this.$_SignatureMixin_corporateSignature &&
-                    this.$_SignatureMixin_containsPersonalSignature(personalSignature, old, editorRef)
-                ) {
-                    this.$store.dispatch("alert/" + INFO, corporateSignatureGotInserted);
-                    editorRef.removeContent(PERSONAL_SIGNATURE_SELECTOR(personalSignature.id));
-                    if (old) {
-                        editorRef.removeContent(PERSONAL_SIGNATURE_SELECTOR(old.id));
-                    }
-                }
-                if (old && editorRef.hasContent(PERSONAL_SIGNATURE_SELECTOR(old.id))) {
-                    editorRef.removeContent(PERSONAL_SIGNATURE_SELECTOR(old.id));
-                }
-                if (
-                    !this.$_SignatureMixin_corporateSignature &&
-                    personalSignature &&
-                    !editorRef.hasContent(PERSONAL_SIGNATURE_SELECTOR(personalSignature.id)) &&
-                    this.$_SignatureMixin_insertSignaturePref === "true"
-                ) {
-                    const content = wrapPersonalSignature({ html: personalSignature.html, id: personalSignature.id });
-                    const triggerOnChange = !isNewMessage(this.message);
-                    editorRef.insertContent(content, { triggerOnChange });
-                    this.$store.dispatch(`mail/${SET_DRAFT_CONTENT}`, {
-                        html: editorRef.getContent(),
-                        draft: this.message
-                    });
-                }
-                this.$_SignatureMixin_onPersonalSignatureChange();
-            },
-            immediate: true
-        },
-        $_SignatureMixin_corporateSignature: {
-            async handler(corpSign, old) {
-                const editorRef = await this.getEditorRef();
-                if (old) {
-                    const options = old.usePlaceholder
-                        ? { movable: CORPORATE_SIGNATURE_PLACEHOLDER }
-                        : { editable: false };
-                    editorRef.removeContent(CORPORATE_SIGNATURE_SELECTOR, options);
-                }
-                if (corpSign) {
-                    const options = {};
-                    if (corpSign.usePlaceholder) {
-                        options.movable = CORPORATE_SIGNATURE_PLACEHOLDER;
-                        options.tooltip = this.$t("mail.compose.corporate_signature.use_placeholder");
-                    } else {
-                        options.editable = false;
-                        options.tooltip = this.$t("mail.compose.corporate_signature.read_only");
-                    }
-                    editorRef.insertContent(wrapCorporateSignature(corpSign.html), options);
-                    this.$store.dispatch(`mail/${SET_DRAFT_CONTENT}`, {
-                        draft: this.message,
-                        html: editorRef.getContent()
-                    });
-                }
 
-                if (corpSign && editorRef.hasContent(PERSONAL_SIGNATURE_SELECTOR(this.personalSignature.id))) {
-                    editorRef.removeContent(PERSONAL_SIGNATURE_SELECTOR(this.personalSignature.id));
-                    this.$store.dispatch("alert/" + INFO, corporateSignatureGotInserted);
-                }
-
-                if (old && !corpSign) {
-                    this.$store.dispatch("alert/" + INFO, corporateSignatureGotRemoved);
-                    if (
-                        this.personalSignature &&
-                        !editorRef.hasContent(PERSONAL_SIGNATURE_SELECTOR(this.personalSignature.id)) &&
-                        this.$_SignatureMixin_insertSignaturePref === "true"
-                    ) {
-                        editorRef.insertContent(
-                            wrapPersonalSignature({ html: this.personalSignature.html, id: this.personalSignature.id })
-                        );
-                        this.$store.dispatch(`mail/${SET_DRAFT_CONTENT}`, {
-                            draft: this.message,
-                            html: editorRef.getContent()
-                        });
-                    }
-                }
-                this.$_SignatureMixin_onPersonalSignatureChange();
-                this.$_SignatureMixin_removePlaceholder();
-            },
-            immediate: true
-        },
         $_SignatureMixin_disclaimer: {
             async handler(disclaimer) {
                 const editorRef = await this.getEditorRef();
                 if (disclaimer) {
-                    const options = {
+                    editorRef.insertContent(wrapDisclaimer(disclaimer.html), {
                         editable: false,
                         tooltip: this.$t("mail.compose.corporate_signature.read_only")
-                    };
-                    editorRef.insertContent(wrapDisclaimer(disclaimer.html), options);
+                    });
                 } else {
                     editorRef.removeContent(DISCLAIMER_SELECTOR, { editable: false });
                 }
@@ -191,34 +103,14 @@ export default {
     },
     methods: {
         async toggleSignature() {
-            const editorRef = await this.getEditorRef();
-            const selector = PERSONAL_SIGNATURE_SELECTOR(this.personalSignature.id);
-            if (editorRef.hasContent(selector)) {
-                editorRef.removeContent(selector);
-            } else {
-                editorRef.insertContent(
-                    wrapPersonalSignature({ html: this.personalSignature.html, id: this.personalSignature.id })
-                );
-            }
-            this.$_SignatureMixin_onPersonalSignatureChange();
-        },
-        async $_SignatureMixin_onPersonalSignatureChange() {
-            const editorRef = await this.getEditorRef();
-            const isSignatureInserted = editorRef.hasContent(PERSONAL_SIGNATURE_SELECTOR(this.personalSignature.id));
-            this.$emit("update:is-signature-inserted", isSignatureInserted);
+            this.$store.dispatch(`mail/${UPDATE_SIGNATURE}`);
         },
         $_SignatureMixin_resetAlerts() {
             this.$store.dispatch("alert/" + REMOVE, corporateSignatureGotRemoved.alert);
             this.$store.dispatch("alert/" + REMOVE, corporateSignatureGotInserted.alert);
         },
-        $_SignatureMixin_containsPersonalSignature(personalSignature, old, editorRef) {
-            return (
-                (personalSignature && editorRef.hasContent(PERSONAL_SIGNATURE_SELECTOR(personalSignature.id))) ||
-                (old && editorRef.hasContent(PERSONAL_SIGNATURE_SELECTOR(old.id)))
-            );
-        },
-        async $_SignatureMixin_refreshSignature() {
-            await this.$execute("get-mail-tips", { context: getMailTipContext(this.message), message: this.message });
+        $_SignatureMixin_refreshSignature() {
+            this.$execute("get-mail-tips", { context: getMailTipContext(this.message), message: this.message });
         },
         async $_SignatureMixin_removePlaceholder() {
             if (this.$_SignatureMixin_checkCorporateSignatureDone) {
@@ -227,9 +119,57 @@ export default {
                 // case where signature has changed and doesnt match draft anymore
                 editorRef.removeText(CORPORATE_SIGNATURE_PLACEHOLDER);
             }
+        },
+        cleanSignatureFromContent(editorRef, signature) {
+            editorRef.removeContent(PERSONAL_SIGNATURE_SELECTOR());
+            editorRef.removeContent(DISCLAIMER_SELECTOR, { editable: false });
+
+            const options = signature?.uid
+                ? signature.usePlaceholders
+                    ? { movable: CORPORATE_SIGNATURE_PLACEHOLDER }
+                    : { editable: false }
+                : {};
+            editorRef.removeContent(CORPORATE_SIGNATURE_SELECTOR, options);
+        },
+        insertSignature(editorRef, signature) {
+            if (signature?.id) {
+                editorRef.insertContent(wrapPersonalSignature({ html: signature.html, id: signature.id }), {
+                    triggerOnChange: !isNewMessage(this.message)
+                });
+            }
+
+            if (signature?.uid) {
+                const options = {};
+                if (signature.usePlaceholder) {
+                    options.movable = CORPORATE_SIGNATURE_PLACEHOLDER;
+                    options.tooltip = this.$t("mail.compose.corporate_signature.use_placeholder");
+                } else {
+                    options.editable = false;
+                    options.tooltip = this.$t("mail.compose.corporate_signature.read_only");
+                }
+                editorRef.insertContent(wrapCorporateSignature(signature.html), options);
+            }
+        },
+        insertDisclaimer(editorRef) {
+            if (this.$_SignatureMixin_disclaimer) {
+                editorRef.insertContent(wrapDisclaimer(this.$_SignatureMixin_disclaimer.html), {
+                    editable: false,
+                    tooltip: this.$t("mail.compose.corporate_signature.read_only")
+                });
+            }
+        },
+        notifySignatureChange(removedSignature, insertedSignature) {
+            if (insertedSignature?.uid) {
+                this.$store.dispatch("alert/" + INFO, corporateSignatureGotInserted);
+            }
+
+            if (removedSignature?.uid && insertedSignature?.id === "default") {
+                this.$store.dispatch("alert/" + INFO, corporateSignatureGotRemoved);
+            }
         }
     },
     destroyed() {
         this.$_SignatureMixin_resetAlerts();
+        this.$store.dispatch(`mail/${UPDATE_SIGNATURE}`, { mailTips: null });
     }
 };

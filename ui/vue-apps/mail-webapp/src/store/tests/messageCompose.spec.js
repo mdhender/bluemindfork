@@ -4,11 +4,10 @@ import cloneDeep from "lodash.clonedeep";
 import inject from "@bluemind/inject";
 import { MockMailboxesClient } from "@bluemind/test-utils";
 import storeOptions from "../messageCompose";
-import { LOAD_MAX_MESSAGE_SIZE, SET_DRAFT_CONTENT, DEBOUNCED_SET_MESSAGE_CONTENT } from "~/actions";
+import { UPDATE_SIGNATURE, LOAD_MAX_MESSAGE_SIZE, SET_DRAFT_CONTENT, DEBOUNCED_SET_MESSAGE_CONTENT } from "~/actions";
 import { GET_DRAFT_CONTENT, IS_SENDER_SHOWN } from "~/getters";
 import {
     ADD_FILE,
-    SET_CORPORATE_SIGNATURE,
     SET_DISCLAIMER,
     SET_DRAFT_COLLAPSED_CONTENT,
     SET_DRAFT_EDITOR_CONTENT,
@@ -20,6 +19,7 @@ import {
     SET_MAX_MESSAGE_SIZE,
     SHOW_SENDER
 } from "~/mutations";
+
 Vue.use(Vuex);
 
 const file1 = {
@@ -44,8 +44,8 @@ describe("messageCompose", () => {
     describe("mutations", () => {
         test("SET_CORPORATE_SIGNATURE", () => {
             const corpSign = { uid: "my-uid", html: "html sign" };
-            store.commit(SET_CORPORATE_SIGNATURE, corpSign);
-            expect(store.state.corporateSignature).toStrictEqual(corpSign);
+            store.commit("SET_SIGNATURE", corpSign);
+            expect(store.state.signature).toStrictEqual(corpSign);
         });
         test("SET_DISCLAIMER", () => {
             const disclaimer = { uid: "my-disc-uid", html: "disc-html sign" };
@@ -54,11 +54,11 @@ describe("messageCompose", () => {
         });
         test("change corporate signature or disclaimer if it's not the same html", () => {
             const corpSign = { uid: "my-uid", html: "html sign" };
-            store.commit(SET_CORPORATE_SIGNATURE, corpSign);
+            store.commit("SET_SIGNATURE", corpSign);
 
             const corpSignWithSameUid = { uid: "my-uid", html: "html sign 2" };
-            store.commit(SET_CORPORATE_SIGNATURE, corpSignWithSameUid);
-            expect(store.state.corporateSignature.html).toEqual("html sign 2");
+            store.commit("SET_SIGNATURE", corpSignWithSameUid);
+            expect(store.state.signature.html).toEqual("html sign 2");
 
             const disclaimer = { uid: "my-uid", html: "html sign" };
             store.commit(SET_DISCLAIMER, disclaimer);
@@ -182,13 +182,31 @@ describe("messageCompose", () => {
             expect(store.getters[IS_SENDER_SHOWN](userSettings)).toBeTruthy();
         });
         test("GET_DRAFT_CONTENT", () => {
-            const collapsed = "collapsed";
-            const content = "content";
             expect(store.getters[GET_DRAFT_CONTENT]).toEqual("");
+
+            const content = "content";
             store.commit(SET_DRAFT_EDITOR_CONTENT, content);
             expect(store.getters[GET_DRAFT_CONTENT]).toEqual(content);
+
+            const collapsed = "collapsed";
             store.commit(SET_DRAFT_COLLAPSED_CONTENT, collapsed);
             expect(store.getters[GET_DRAFT_CONTENT]).toEqual(content + collapsed);
+        });
+
+        test("should replace corp sign by placeholder", () => {
+            store.dispatch(UPDATE_SIGNATURE, {
+                mailTips: {
+                    uid: 1,
+                    html: `<div class="bm-corporate-signature"> MY CORP IS BEAUTIFUL</div>`,
+                    usePlaceholder: true
+                }
+            });
+
+            store.commit(
+                SET_DRAFT_EDITOR_CONTENT,
+                '<p>Content + signature</p> <div class="bm-corporate-signature"> MY CORP IS BEAUTIFUL</div>'
+            );
+            expect(store.getters[GET_DRAFT_CONTENT]).toEqual("<p>Content + signature</p> --X-BM-SIGNATURE--");
         });
     });
 });

@@ -73,18 +73,14 @@
                     @files-count="draggedFilesCount = $event"
                     @drop-files="execAddAttachments({ files: $event, message })"
                 />
-                <mail-composer-content
-                    ref="content"
-                    :message="message"
-                    :is-signature-inserted.sync="isSignatureInserted"
-                />
+                <mail-composer-content ref="content" :message="message" />
                 <template-chooser />
             </bm-file-drop-zone>
         </div>
 
         <mail-composer-footer
             :message="message"
-            :is-signature-inserted="isSignatureInserted"
+            :is-signature-inserted="signatureInserted"
             :is-delivery-status-requested.sync="isDeliveryStatusRequested"
             :is-disposition-notification-requested.sync="isDispositionNotificationRequested"
             @toggle-signature="toggleSignature"
@@ -113,7 +109,7 @@ import TemplateChooser from "~/components/TemplateChooser";
 import MailOpenInPopup from "../MailOpenInPopup";
 import MailComposerAttachZone from "./MailComposerAttachZone";
 
-import { computed, ref } from "vue";
+import { computed, ref, watchEffect } from "vue";
 import ComposerTopFrame from "./ComposerTopFrame/ComposerTopFrame";
 import { messageUtils } from "@bluemind/mail";
 const { computeParts } = messageUtils;
@@ -146,37 +142,39 @@ export default {
     },
     setup(props) {
         const content = ref(); // DOM ref="content"
+        watchEffect(() => console.info("wait Ref to be Mounted:", content.value), { flush: "post" });
         const { execAddAttachments } = useAddAttachmentsCommand();
         const {
+            checkAndRepairFrom,
             draggedFilesCount,
             identityId,
-            isSignatureInserted,
-            isSenderShown,
             isDeliveryStatusRequested,
             isDispositionNotificationRequested,
-            toggleSignature,
+            isSenderShown,
+            isSignatureInserted,
+            messageCompose,
             toggleDeliveryStatus,
             toggleDispositionNotification,
-            checkAndRepairFrom,
-            messageCompose
+            toggleSignature
         } = useComposer(
             computed(() => props.message),
             content
         );
         return {
+            checkAndRepairFrom,
+            content,
             draggedFilesCount,
+            execAddAttachments,
             identityId,
-            isSignatureInserted,
-            isSenderShown,
             isDeliveryStatusRequested,
             isDispositionNotificationRequested,
-            toggleSignature,
+            isSenderShown,
+            isSignatureInserted,
+            messageCompose,
+            setFrom,
             toggleDeliveryStatus,
             toggleDispositionNotification,
-            checkAndRepairFrom,
-            messageCompose,
-            execAddAttachments,
-            setFrom
+            toggleSignature
         };
     },
     data() {
@@ -200,6 +198,9 @@ export default {
         },
         subject() {
             return this.message.subject?.trim() || "";
+        },
+        signatureInserted() {
+            return Boolean(this.$store.getters["mail/signature"]);
         }
     },
     watch: {

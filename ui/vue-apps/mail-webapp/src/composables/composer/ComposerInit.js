@@ -57,6 +57,7 @@ export function useComposerInit() {
             partsByMessageKey.value[message.key],
             store.state.settings.lang
         );
+
         if (!userPrefTextOnly.value) {
             const partsWithCid = parts.filter(part => MimeType.isImage(part) && part.contentId);
 
