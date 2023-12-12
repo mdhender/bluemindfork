@@ -815,7 +815,7 @@ public class GroupStoreTests {
 		try {
 			groupStore.create(item2, g2);
 			fail("Test must thrown an exception");
-		} catch (SQLException sqle) {
+		} catch (Exception sqle) {
 			assertTrue(sqle.getMessage().toLowerCase().contains("duplicate key")
 					&& sqle.getMessage().toLowerCase().contains("t_group_container_id_name_key"));
 		}
@@ -831,7 +831,7 @@ public class GroupStoreTests {
 		g2.name = g1.name;
 		try {
 			groupStore.update(g2Item, g2);
-		} catch (SQLException sqle) {
+		} catch (Exception sqle) {
 			assertTrue(sqle.getMessage().toLowerCase().contains("duplicate key")
 					&& sqle.getMessage().toLowerCase().contains("t_group_container_id_name_key"));
 		}
