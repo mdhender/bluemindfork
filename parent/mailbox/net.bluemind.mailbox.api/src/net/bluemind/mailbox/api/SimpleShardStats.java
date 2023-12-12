@@ -31,6 +31,9 @@ public class SimpleShardStats {
 	@NotNull
 	public Set<String> mailboxes;
 
+	@NotNull
+	public Set<String> aliases;
+
 	public long docCount;
 
 	public long deletedCount;

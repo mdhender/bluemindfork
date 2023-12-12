@@ -59,9 +59,6 @@ import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.elasticsearch.core.search.HitsMetadata;
 import co.elastic.clients.elasticsearch.indices.GetAliasResponse;
-import co.elastic.clients.elasticsearch.indices.GetMappingResponse;
-import co.elastic.clients.elasticsearch.indices.get_alias.IndexAliases;
-import co.elastic.clients.elasticsearch.indices.stats.IndicesStats;
 import co.elastic.clients.json.JsonData;
 import co.elastic.clients.util.ObjectBuilder;
 import io.vertx.core.Vertx;
@@ -90,6 +87,7 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.NullTaskMonitor;
 import net.bluemind.index.MailIndexActivator;
+import net.bluemind.index.mail.statistics.ShardStatistics;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.lib.elasticsearch.EsBulk;
 import net.bluemind.lib.elasticsearch.IndexAliasMapping;
@@ -108,7 +106,6 @@ import net.bluemind.lib.elasticsearch.exception.ElasticTaskException;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.ShardStats;
-import net.bluemind.mailbox.api.ShardStats.MailboxStats;
 import net.bluemind.mailbox.api.SimpleShardStats;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
@@ -124,7 +121,7 @@ public class MailIndexService implements IMailIndexService {
 	public static final String JOIN_FIELD = "body_msg_link";
 	public static final String PARENT_TYPE = "body";
 	public static final String CHILD_TYPE = "record";
-	private static final String INDEX_PENDING = "mailspool_pending";
+	public static final String INDEX_PENDING = "mailspool_pending";
 	private static final String INDEX_PENDING_READ_ALIAS = "mailspool_pending_read_alias";
 	private static final String INDEX_PENDING_WRITE_ALIAS = "mailspool_pending_write_alias";
 
@@ -191,7 +188,8 @@ public class MailIndexService implements IMailIndexService {
 	public void deleteBodyEntries(List<String> bodyIds) {
 		ElasticsearchClient esClient = getIndexClient();
 		deleteBodiesFromIndex(bodyIds, INDEX_PENDING_WRITE_ALIAS);
-		filteredMailspoolIndexNames(esClient).forEach(index -> deleteBodiesFromIndex(bodyIds, index));
+		ShardStatistics.get(metricRegistry, idFactory).filteredMailspoolIndexNames(esClient)
+				.forEach(index -> deleteBodiesFromIndex(bodyIds, index));
 	}
 
 	private void deleteBodiesFromIndex(List<String> deletedOrphanBodies, String index) {
@@ -594,7 +592,7 @@ public class MailIndexService implements IMailIndexService {
 				return;
 			}
 
-			List<String> shards = filteredMailspoolIndexNames(esClient);
+			List<String> shards = ShardStatistics.get(metricRegistry, idFactory).filteredMailspoolIndexNames(esClient);
 			if (shards.isEmpty()) {
 				logger.warn("no shards found");
 				return;
@@ -740,106 +738,12 @@ public class MailIndexService implements IMailIndexService {
 	}
 
 	public List<ShardStats> getStats() {
-		ElasticsearchClient esClient = ESearchActivator.getClient();
-		List<String> indexNames = filteredMailspoolIndexNames(esClient);
-		List<ShardStats> ret = new ArrayList<>(indexNames.size());
-		logger.debug("indices {} ", indexNames);
-
-		long worstResponseTime = 0;
-		for (String indexName : indexNames) {
-			ShardStats is = indexStats(esClient, indexName, new ShardStats());
-
-			is.topMailbox = topMailbox(esClient, indexName, is.mailboxes);
-
-			is.state = ShardStats.State.OK;
-			if (!is.topMailbox.isEmpty()) {
-				MailboxStats topMailbox = is.topMailbox.get(0);
-				long duration = boxSearchDuration(esClient, topMailbox.mailboxUid);
-				is.state = ShardStats.State.ofDuration(duration);
-				worstResponseTime = Math.max(worstResponseTime, duration);
-				logger.info("{} response time : {}ms, state : {}", is.indexName, duration, is.state);
-				metricRegistry.timer(idFactory.name("response-time", "index", is.indexName)).record(duration,
-						TimeUnit.MILLISECONDS);
-			}
-
-			ret.add(is);
-		}
-
-		metricRegistry.gauge(idFactory.name("worst-response-time")).set(worstResponseTime);
-
-		Collections.sort(ret, (a, b) -> (int) (b.docCount - a.docCount));
-		return ret;
+		return ShardStatistics.get(metricRegistry, idFactory).getStats();
 	}
 
 	@Override
 	public List<SimpleShardStats> getLiteStats() {
-		ElasticsearchClient esClient = ESearchActivator.getClient();
-		List<String> indexNames = filteredMailspoolIndexNames(esClient);
-		logger.debug("indices {} ", indexNames);
-		return indexNames.stream() //
-				.map(indexName -> indexStats(esClient, indexName, new SimpleShardStats())) //
-				.sorted((a, b) -> (int) (b.docCount - a.docCount)).toList();
-	}
-
-	private <T extends SimpleShardStats> T indexStats(ElasticsearchClient esClient, String indexName, T is) {
-		is.indexName = indexName;
-		is.mailboxes = indexMailboxes(esClient, indexName);
-		IndicesStats stat;
-		try {
-			stat = esClient.indices().stats(s -> s.index(indexName)).indices().get(indexName);
-			is.size = stat.total().store().sizeInBytes();
-			is.docCount = stat.total().docs().count();
-			is.deletedCount = stat.total().docs().deleted();
-			is.externalRefreshCount = stat.total().refresh().externalTotal();
-			is.externalRefreshDuration = stat.total().refresh().externalTotalTimeInMillis();
-			return is;
-		} catch (ElasticsearchException | IOException e) {
-			throw new ElasticIndexException(indexName, e);
-		}
-	}
-
-	private List<ShardStats.MailboxStats> topMailbox(ElasticsearchClient esClient, String indexName,
-			Set<String> mailboxes) {
-		try {
-			SearchResponse<Void> aggResp = esClient.search(s -> s //
-					.index(indexName).size(0)
-					.aggregations("countByOwner", a -> a.terms(t -> t.field("owner").size(500))), Void.class);
-			return aggResp.aggregations().get("countByOwner").sterms().buckets().array().stream() //
-					.map(b -> new ShardStats.MailboxStats(b.key().stringValue(), b.docCount())) //
-					.filter(as -> mailboxes.contains(as.mailboxUid)) //
-					.toList();
-		} catch (ElasticsearchException | IOException e) {
-			throw new ElasticIndexException(indexName, e);
-		}
-	}
-
-	private long boxSearchDuration(ElasticsearchClient esClient, String mailboxUid) {
-		try {
-			String randomToken = Long.toHexString(Double.doubleToLongBits(Math.random()));
-			SearchResponse<Void> results = esClient.search(s -> s //
-					.index(getReadIndexAliasName(mailboxUid)) //
-					.source(so -> so.fetch(false)) //
-					.query(q -> q.bool(b -> b.must(m -> m.hasParent(p -> p //
-							.parentType(PARENT_TYPE) //
-							.score(false) //
-							.query(f -> f.queryString(qs -> qs.query("content:\"" + randomToken + "\"")))))
-							.must(m -> m.term(t -> t.field("owner").value(mailboxUid))))),
-					Void.class);
-			return results.took();
-		} catch (ElasticsearchException | IOException e) {
-			throw new ElasticDocumentException(getReadIndexAliasName(mailboxUid), e);
-		}
-	}
-
-	private Set<String> indexMailboxes(ElasticsearchClient esClient, String indexName) {
-		try {
-			IndexAliases aliasesRsp = esClient.indices().getAlias(a -> a.index(indexName)).get(indexName);
-			return aliasesRsp.aliases().keySet().stream().filter(a -> a.startsWith("mailspool_alias_")) //
-					.map(a -> a.substring("mailspool_alias_".length())) //
-					.collect(Collectors.toSet());
-		} catch (Exception e) {
-			return Collections.emptySet();
-		}
+		return ShardStatistics.get(metricRegistry, idFactory).getLiteStats();
 	}
 
 	private static final long TIME_BUDGET = TimeUnit.SECONDS.toNanos(15);
@@ -1053,23 +957,6 @@ public class MailIndexService implements IMailIndexService {
 
 		return new InternalMessageSearchResult(contUid, itemId, subject, size, "IPM.Note", messageDate, from, to, seen,
 				flagged, hasAttachment, preview, imapUid);
-	}
-
-	private List<String> filteredMailspoolIndexNames(ElasticsearchClient esClient) {
-		try {
-			GetMappingResponse response = esClient.indices().getMapping(b -> b.index("mailspool*"));
-			return filterMailspoolIndexNames(response);
-		} catch (ElasticsearchException | IOException e) {
-			return Collections.emptyList();
-		}
-	}
-
-	private List<String> filterMailspoolIndexNames(GetMappingResponse indexResponse) {
-		return indexResponse.result().entrySet().stream() //
-				.filter(e -> !e.getKey().startsWith(INDEX_PENDING))
-				.filter(e -> e.getValue().mappings().meta() == null
-						|| !e.getValue().mappings().meta().containsKey(ESearchActivator.BM_MAINTENANCE_STATE_META_KEY))
-				.map(Entry::getKey).sorted().toList();
 	}
 
 	public static class InternalMessageSearchResult extends MessageSearchResult {
