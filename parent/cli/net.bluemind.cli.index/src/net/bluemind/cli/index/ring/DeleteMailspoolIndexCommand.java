@@ -30,8 +30,8 @@ import net.bluemind.mailbox.api.IMailboxMgmt;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Command(name = "add-mailspool", description = "Add a new mailspool index")
-public class AddMailspoolIndexCommand implements ICmdLet, Runnable {
+@Command(name = "delete-mailspool", description = "Delete an existing mailspool from ring")
+public class DeleteMailspoolIndexCommand implements ICmdLet, Runnable {
 
 	@Option(names = "--numericIndex", description = "Numeric position in the ring")
 	public int numericIndex;
@@ -42,9 +42,9 @@ public class AddMailspoolIndexCommand implements ICmdLet, Runnable {
 	public void run() {
 		CliUtils utils = new CliUtils(ctx);
 
-		TaskRef task = ctx.adminApi().instance(IMailboxMgmt.class, "global.virt").addIndexToRing(numericIndex);
-		Tasks.follow(ctx, task, "AddMailspoolIndexCommand",
-				String.format("Failed to add mailspool index at position %d", numericIndex));
+		TaskRef task = ctx.adminApi().instance(IMailboxMgmt.class, "global.virt").deleteIndexFromRing(numericIndex);
+		Tasks.follow(ctx, task, "DeleteMailspoolIndexCommand",
+				String.format("Failed to delete mailspool index at position %d", numericIndex));
 	}
 
 	@Override
@@ -62,7 +62,7 @@ public class AddMailspoolIndexCommand implements ICmdLet, Runnable {
 
 		@Override
 		public Class<? extends ICmdLet> commandClass() {
-			return AddMailspoolIndexCommand.class;
+			return DeleteMailspoolIndexCommand.class;
 		}
 	}
 

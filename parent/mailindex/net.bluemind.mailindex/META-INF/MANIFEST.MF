@@ -42,5 +42,6 @@ Require-Bundle: org.eclipse.core.runtime,
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.index,
- net.bluemind.index.mail
+ net.bluemind.index.mail,
+ net.bluemind.index.mail.statistics
 Automatic-Module-Name: net.bluemind.mailindex

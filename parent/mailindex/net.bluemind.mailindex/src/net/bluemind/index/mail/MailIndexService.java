@@ -87,9 +87,11 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.NullTaskMonitor;
 import net.bluemind.index.MailIndexActivator;
+import net.bluemind.index.mail.ring.AliasRing;
 import net.bluemind.index.mail.statistics.ShardStatistics;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.lib.elasticsearch.EsBulk;
+import net.bluemind.lib.elasticsearch.IndexAliasCreator.RingIndexAliasCreator;
 import net.bluemind.lib.elasticsearch.IndexAliasMapping;
 import net.bluemind.lib.elasticsearch.IndexAliasMode;
 import net.bluemind.lib.elasticsearch.IndexAliasMode.Mode;
@@ -138,7 +140,7 @@ public class MailIndexService implements IMailIndexService {
 
 	public MailIndexService() {
 		metricRegistry = MetricsRegistry.get();
-		idFactory = new IdFactory("mailindex-service", metricRegistry, MailIndexService.class);
+		idFactory = new IdFactory("mailindex-service", getMetricRegistry(), MailIndexService.class);
 
 		VertxPlatform.executeBlockingPeriodic(TimeUnit.HOURS.toMillis(1), i -> getStats());
 	}
@@ -188,7 +190,7 @@ public class MailIndexService implements IMailIndexService {
 	public void deleteBodyEntries(List<String> bodyIds) {
 		ElasticsearchClient esClient = getIndexClient();
 		deleteBodiesFromIndex(bodyIds, INDEX_PENDING_WRITE_ALIAS);
-		ShardStatistics.get(metricRegistry, idFactory).filteredMailspoolIndexNames(esClient)
+		ShardStatistics.get(getMetricRegistry(), idFactory).filteredMailspoolIndexNames(esClient)
 				.forEach(index -> deleteBodiesFromIndex(bodyIds, index));
 	}
 
@@ -267,7 +269,7 @@ public class MailIndexService implements IMailIndexService {
 		}
 	}
 
-	private long bulkDelete(String indexName, Function<Query.Builder, ObjectBuilder<Query>> filter) {
+	public long bulkDelete(String indexName, Function<Query.Builder, ObjectBuilder<Query>> filter) {
 		ElasticsearchClient esClient = getIndexClient();
 		try {
 			return esClient.deleteByQuery(d -> d.index(indexName) //
@@ -592,7 +594,8 @@ public class MailIndexService implements IMailIndexService {
 				return;
 			}
 
-			List<String> shards = ShardStatistics.get(metricRegistry, idFactory).filteredMailspoolIndexNames(esClient);
+			List<String> shards = ShardStatistics.get(getMetricRegistry(), idFactory)
+					.filteredMailspoolIndexNames(esClient);
 			if (shards.isEmpty()) {
 				logger.warn("no shards found");
 				return;
@@ -660,6 +663,38 @@ public class MailIndexService implements IMailIndexService {
 
 	}
 
+	@Override
+	public void addIndexToRing(Integer numericIndex) {
+		if (IndexAliasMode.getMode() == Mode.ONE_TO_ONE) {
+			logger.info("Preventing addIndexToRing operation in one to one alias mode");
+			throw new UnsupportedOperationException("Operation not permitted in one to one alias mode");
+		}
+
+		var esClient = ESearchActivator.getClient();
+
+		try {
+			AliasRing.create(esClient, this).addIndex(numericIndex);
+		} catch (ElasticsearchException | IOException e) {
+			throw new ElasticIndexException(RingIndexAliasCreator.getIndexRingName("mailspool", numericIndex), e);
+		}
+	}
+
+	@Override
+	public void removeIndexFromRing(Integer numericIndex) {
+		if (IndexAliasMode.getMode() == Mode.ONE_TO_ONE) {
+			logger.info("Preventing addIndexToRing operation in one to one alias mode");
+			throw new UnsupportedOperationException("Operation not permitted in one to one alias mode");
+		}
+
+		var esClient = ESearchActivator.getClient();
+
+		try {
+			AliasRing.create(esClient, this).removeIndex(numericIndex);
+		} catch (ElasticsearchException | IOException e) {
+			throw new ElasticIndexException(RingIndexAliasCreator.getIndexRingName("mailspool", numericIndex), e);
+		}
+	}
+
 	private void createMailspoolIfNotExists(String indexName, ElasticsearchClient esClient) {
 		boolean exists;
 		try {
@@ -677,7 +712,7 @@ public class MailIndexService implements IMailIndexService {
 		}
 	}
 
-	private void moveMailspoolBox(ElasticsearchClient esClient, String mailboxUid, String fromIndex, String toIndex) {
+	public void moveMailspoolBox(ElasticsearchClient esClient, String mailboxUid, String fromIndex, String toIndex) {
 		try {
 			VertxEsTaskMonitor taskMonitor = new VertxEsTaskMonitor(Vertx.vertx(), esClient);
 			// msg body
@@ -738,12 +773,12 @@ public class MailIndexService implements IMailIndexService {
 	}
 
 	public List<ShardStats> getStats() {
-		return ShardStatistics.get(metricRegistry, idFactory).getStats();
+		return ShardStatistics.get(getMetricRegistry(), idFactory).getStats();
 	}
 
 	@Override
 	public List<SimpleShardStats> getLiteStats() {
-		return ShardStatistics.get(metricRegistry, idFactory).getLiteStats();
+		return ShardStatistics.get(getMetricRegistry(), idFactory).getLiteStats();
 	}
 
 	private static final long TIME_BUDGET = TimeUnit.SECONDS.toNanos(15);
@@ -957,6 +992,14 @@ public class MailIndexService implements IMailIndexService {
 
 		return new InternalMessageSearchResult(contUid, itemId, subject, size, "IPM.Note", messageDate, from, to, seen,
 				flagged, hasAttachment, preview, imapUid);
+	}
+
+	public Registry getMetricRegistry() {
+		return metricRegistry;
+	}
+
+	public IdFactory getIdFactory() {
+		return idFactory;
 	}
 
 	public static class InternalMessageSearchResult extends MessageSearchResult {

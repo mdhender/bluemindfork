@@ -105,4 +105,8 @@ public interface IMailIndexService {
 
 	void storeBodyAsByte(String uid, byte[] body);
 
+	void addIndexToRing(Integer numericIndex);
+
+	void removeIndexFromRing(Integer numericIndex);
+
 }

@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -57,6 +58,15 @@ public abstract class ShardStatistics {
 		this.idFactory = idFactory;
 	}
 
+	protected abstract Set<String> indexMailboxes(ElasticsearchClient esClient, String indexName);
+
+	protected abstract List<MailboxStats> topMailbox(ElasticsearchClient esClient, String indexName,
+			Set<String> mailboxes);
+
+	protected abstract long boxSearchDuration(ElasticsearchClient esClient, String mailboxUid);
+
+	protected abstract Set<String> indexAliases(ElasticsearchClient esClient, String indexName);
+
 	public static ShardStatistics get(Registry metricRegistry, IdFactory idFactory) {
 		return IndexAliasMode.getMode() == Mode.ONE_TO_ONE ? new OnetoOneShardStatistics(metricRegistry, idFactory)
 				: new RingShardStatistics(metricRegistry, idFactory);
@@ -78,7 +88,7 @@ public abstract class ShardStatistics {
 		long worstResponseTime = 0;
 		for (String indexName : indexNames) {
 			ShardStats is = indexStats(esClient, indexName, new ShardStats());
-
+			is.aliases = indexAliases(esClient, indexName);
 			is.topMailbox = topMailbox(esClient, indexName, is.mailboxes);
 
 			is.state = ShardStats.State.OK;
@@ -98,15 +108,6 @@ public abstract class ShardStatistics {
 
 		Collections.sort(ret, (a, b) -> (int) (b.docCount - a.docCount));
 		return ret;
-	}
-
-	protected Set<String> indexAliases(ElasticsearchClient esClient, String indexName) {
-		try {
-			IndexAliases aliasesRsp = esClient.indices().getAlias(a -> a.index(indexName)).get(indexName);
-			return aliasesRsp.aliases().keySet();
-		} catch (Exception e) {
-			return Collections.emptySet();
-		}
 	}
 
 	public List<String> filteredMailspoolIndexNames(ElasticsearchClient esClient) {
@@ -139,13 +140,6 @@ public abstract class ShardStatistics {
 			throw new ElasticIndexException(indexName, e);
 		}
 	}
-
-	protected abstract Set<String> indexMailboxes(ElasticsearchClient esClient, String indexName);
-
-	protected abstract List<MailboxStats> topMailbox(ElasticsearchClient esClient, String indexName,
-			Set<String> mailboxes);
-
-	protected abstract long boxSearchDuration(ElasticsearchClient esClient, String mailboxUid);
 
 	static class OnetoOneShardStatistics extends ShardStatistics {
 
@@ -208,10 +202,20 @@ public abstract class ShardStatistics {
 
 	}
 
-	static class RingShardStatistics extends ShardStatistics {
+	public static class RingShardStatistics extends ShardStatistics {
 
 		public RingShardStatistics(Registry metricRegistry, IdFactory idFactory) {
 			super(metricRegistry, idFactory);
+		}
+
+		@Override
+		protected Set<String> indexAliases(ElasticsearchClient esClient, String indexName) {
+			try {
+				IndexAliases aliasesRsp = esClient.indices().getAlias(a -> a.index(indexName)).get(indexName);
+				return aliasesRsp.aliases().keySet();
+			} catch (Exception e) {
+				return Collections.emptySet();
+			}
 		}
 
 		@Override
@@ -227,6 +231,11 @@ public abstract class ShardStatistics {
 		@Override
 		protected long boxSearchDuration(ElasticsearchClient esClient, String mailboxUid) {
 			throw new UnsupportedOperationException("boxSearchDuration not available in ring mode");
+		}
+
+		public Map<String, Set<String>> getRing(ElasticsearchClient esClient) {
+			return filteredMailspoolIndexNames(esClient).stream()
+					.collect(Collectors.toMap(name -> name, name -> indexAliases(esClient, name)));
 		}
 
 	}

@@ -20,8 +20,10 @@ package net.bluemind.mailbox.api;
 
 import java.util.List;
 
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.QueryParam;
@@ -91,6 +93,14 @@ public interface IMailboxMgmt {
 	@Path("{mailboxUid}/_move_index")
 	public TaskRef moveIndex(@PathParam("mailboxUid") String mailboxUid, @QueryParam("index") String indexName,
 			@QueryParam("deleteSource") boolean deleteSource) throws ServerFault;
+
+	@PUT
+	@Path("{numericIndex}/_add_index")
+	public TaskRef addIndexToRing(@PathParam("numericIndex") Integer numericIndex) throws ServerFault;
+
+	@DELETE
+	@Path("{numericIndex}/_remove_index")
+	public TaskRef deleteIndexFromRing(@PathParam("numericIndex") Integer numericIndex) throws ServerFault;
 
 	public void move(ItemValue<Mailbox> mailbox, ItemValue<Server> server) throws ServerFault;
 

@@ -179,6 +179,42 @@ public class MailboxMgmt implements IMailboxMgmt {
 	}
 
 	@Override
+	public TaskRef addIndexToRing(Integer numericIndex) throws ServerFault {
+		if (IndexAliasMode.getMode() == Mode.ONE_TO_ONE) {
+			throw new UnsupportedOperationException("Operation not permitted in one to one alias mode");
+		}
+		return context.provider().instance(ITasksManager.class).run("add-index-" + numericIndex,
+				new BlockingServerTask() {
+
+					@Override
+					public void run(IServerTaskMonitor monitor) throws Exception {
+						RecordIndexActivator.getIndexer().ifPresentOrElse(
+								indexer -> indexer.addIndexToRing(numericIndex),
+								() -> new ServerFault("RecordIndexActivator is missing, consider restarting core"));
+					}
+				});
+
+	}
+
+	@Override
+	public TaskRef deleteIndexFromRing(Integer numericIndex) throws ServerFault {
+		if (IndexAliasMode.getMode() == Mode.ONE_TO_ONE) {
+			throw new UnsupportedOperationException("Operation not permitted in one to one alias mode");
+		}
+		return context.provider().instance(ITasksManager.class).run("remove-index-" + numericIndex,
+				new BlockingServerTask() {
+
+					@Override
+					public void run(IServerTaskMonitor monitor) throws Exception {
+						RecordIndexActivator.getIndexer().ifPresentOrElse(
+								indexer -> indexer.removeIndexFromRing(numericIndex),
+								() -> new ServerFault("RecordIndexActivator is missing, consider restarting core"));
+					}
+				});
+
+	}
+
+	@Override
 	public List<ShardStats> getShardsStats() {
 		rbacManager.check(BasicRoles.ROLE_SYSTEM_MANAGER);
 
@@ -256,4 +292,5 @@ public class MailboxMgmt implements IMailboxMgmt {
 		}
 
 	}
+
 }

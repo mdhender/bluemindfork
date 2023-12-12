@@ -153,4 +153,14 @@ public class NoopMailIndexService implements IMailIndexService {
 		return null;
 	}
 
+	@Override
+	public void addIndexToRing(Integer numericIndex) {
+		logger.debug("NOOP");
+	}
+
+	@Override
+	public void removeIndexFromRing(Integer numericIndex) {
+		logger.debug("NOOP");
+	}
+
 }
