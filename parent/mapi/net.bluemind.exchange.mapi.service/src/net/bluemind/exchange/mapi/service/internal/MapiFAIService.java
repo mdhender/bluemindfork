@@ -106,12 +106,12 @@ public class MapiFAIService implements IMapiFolderAssociatedInformation {
 	}
 
 	@Override
-	public void preload(MapiFAI fai) throws ServerFault {
+	public void preload(long internalId, MapiFAI fai) throws ServerFault {
 		String pidTagSourceKey = getPreloadExtId(fai);
 		if (pidTagSourceKey != null) {
 			ItemValue<MapiFAI> existingFAI = storeService.getByExtId(pidTagSourceKey);
 			if (existingFAI == null) {
-				storeService.create(pidTagSourceKey, pidTagSourceKey, pidTagSourceKey, fai);
+				storeService.createWithId(pidTagSourceKey, internalId, pidTagSourceKey, pidTagSourceKey, fai);
 			}
 		}
 	}

@@ -39,25 +39,25 @@ public interface IMapiFolderAssociatedInformation extends IDataShardSupport {
 	/**
 	 * Creates or updates an FAI with the given globalCounter (itemId in bm)
 	 * 
-	 * @param gc  to itemId to update/assign
+	 * @param internalId itemId to update/assign
 	 * @param fai
 	 * @return
 	 * @throws ServerFault
 	 */
 	@PUT
 	@Path("{globalCounter}")
-	ItemValue<MapiFAI> store(@PathParam("globalCounter") long gc, MapiFAI fai) throws ServerFault;
+	ItemValue<MapiFAI> store(@PathParam("globalCounter") long internalId, MapiFAI fai) throws ServerFault;
 
 	/**
-	 * Creates an FAI
+	 * Creates a FAI
 	 * 
 	 * @param fai
 	 * @return
 	 * @throws ServerFault
 	 */
 	@PUT
-	@Path("_preload")
-	void preload(MapiFAI fai) throws ServerFault;
+	@Path("_preload/{internalId}")
+	void preload(@PathParam("internalId") long internalId, MapiFAI fai) throws ServerFault;
 
 	/**
 	 * Fetches all the FAIs for a given {@link MapiFAI#id}
