@@ -23,6 +23,7 @@ goog.provide("net.bluemind.calendar.vevent.VEventAdaptor");
 goog.require("goog.array");
 goog.require("goog.i18n.DateTimeSymbols_en");
 goog.require("goog.date.Interval");
+goog.require('net.bluemind.html.sanitize');
 goog.require("net.bluemind.mvp.UID");
 goog.require("net.bluemind.date.DateTime");
 goog.require('net.bluemind.calendar.vevent.defaultValues');
@@ -73,17 +74,7 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.toModelView = function(veve
   model.conferenceId = vevent['conferenceId'];
   model.conferenceConfiguration = vevent['conferenceConfiguration'];
   model.organizer = vevent['organizer'];
-  model.description = vevent['description'];
-  model.conferenceDescription = '';
-  if (model.conference != null && model.conference != ''
-    && model.description != null && model.description != '') {
-    var idx = model.description.indexOf("<videoconferencingtemplate");
-    var len = model.description.length;
-    var desc = model.description;
-    model.description = desc.substring(0, idx);
-    model.conferenceDescription = desc.substring(idx, len);
-  }
-
+  model = this.setDescription(model, vevent['description'])
   model.transp = vevent['transparency'];
   model.class = vevent['classification'];
   model.status = vevent['status'];
@@ -197,6 +188,23 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.toModelView = function(veve
 
   return model;
 };
+
+net.bluemind.calendar.vevent.VEventAdaptor.prototype.setDescription = function(model, description) {
+  model.conferenceDescription = {raw: null, sanitized: null};
+  model.description = {raw: null, sanitized: null};
+  if (description) {
+    if (model.conference != null && model.conference != '') {
+      var index = description.indexOf("<videoconferencingtemplate");
+      model.conferenceDescription.raw = description.slice(index);
+      model.conferenceDescription.sanitized = net.bluemind.html.sanitize(description.slice(index));
+      description = description.slice(0, index);
+    }
+
+    model.description.raw = description;
+    model.description.sanitized = net.bluemind.html.sanitize(description);
+  }
+  return model;
+}
 
 net.bluemind.calendar.vevent.VEventAdaptor.prototype.dateToModel = function(date) {
   var helper = this.ctx_.helper("date");
@@ -442,7 +450,7 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.fromModelView = function(mo
   vevent['summary'] = model.summary;
   vevent['classification'] = model.class || 'Public';
   vevent['transparency'] = model.transp || (model.states.busy ? 'Opaque' : 'Transparent');
-  vevent['description'] = (model.description || '') + (model.conferenceDescription || '');
+  vevent['description'] = (model.description.raw || '') + (model.conferenceDescription.raw || '');
   vevent['location'] = model.location || '';
   vevent['url'] = model.url || '';
   vevent['conference'] = model.conference || '';
@@ -677,9 +685,11 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.isModified = function(remot
  */
 net.bluemind.calendar.vevent.VEventAdaptor.prototype.contentHasBeenModified = function(remote, modified) {
   var isModified = remote == null;
+  var description = (modified.description.raw || '') + (modified.conferenceDescription.raw || '');
+
   isModified = isModified || this.isStringModified_(remote['location'], modified.location);
   isModified = isModified || this.isStringModified_(remote['summary'], modified.summary);
-  isModified = isModified || this.isDescriptionModified_(remote['description'], modified.description);
+  isModified = isModified || this.isDescriptionModified_(remote['description'], description);
   isModified = isModified || remote['classification'] != modified.class;
   isModified = isModified || remote['priority'] != modified.priority;
   isModified = isModified || this.isStringModified_(remote['url'], modified.url);

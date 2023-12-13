@@ -461,6 +461,8 @@ net.bluemind.calendar.month.MonthView.prototype.createEvent_ = function(start, r
   var calendars = this.getWritablesCalendars_();
   var evt = {
     summary : '',
+    description: {raw: null, sanitized: null},
+    conferenceDescription: {raw: null, sanitized: null},
     dtstart : start,
     dtend : end,
     tooltip : '',

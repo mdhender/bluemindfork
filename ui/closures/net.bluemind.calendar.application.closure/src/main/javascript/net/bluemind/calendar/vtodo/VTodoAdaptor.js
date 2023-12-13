@@ -22,6 +22,7 @@ goog.provide("net.bluemind.calendar.vtodo.VTodoAdaptor");
 
 goog.require("goog.array");
 goog.require("goog.i18n.DateTimeSymbols_en");
+goog.require('net.bluemind.html.sanitize');
 goog.require("net.bluemind.mvp.UID");
 
 /**
@@ -72,7 +73,11 @@ net.bluemind.calendar.vtodo.VTodoAdaptor.prototype.toModelView = function(vtodo,
   model.location = value['location'];
   model.organizer = value['organizer'];
   model.calendar = vtodo['container'];
-  model.description = value['description'];
+  model.description = {raw: null, sanitized: null};
+  if (value['description']) {
+    model.description.raw = value['description'];
+    model.description.sanitized = net.bluemind.html.sanitize(model.description.raw);
+  }
   model.transp = value['transparency'];
   model.class = value['classification'];
   model.status = value['status'];

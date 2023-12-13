@@ -475,10 +475,10 @@
             </tr>
           {/if}
 
-          {if $event.description}
+          {if $event.description.raw}
             <tr>
               <th>{msg meaning="calendar.event.description" desc="event description label"}Description{/msg}</th>
-              <td colspan="2"><div class="{css bubble-description-container}">{$event.description |noAutoescape}</div></td>
+              <td colspan="2"><div class="{css bubble-description-container}">{$event.description.raw|cleanHtml:'ul','li'}</div></td>
             </tr>
           {/if}
 

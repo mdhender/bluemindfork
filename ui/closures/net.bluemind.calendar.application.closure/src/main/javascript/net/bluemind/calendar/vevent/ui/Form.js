@@ -1196,7 +1196,7 @@ net.bluemind.calendar.vevent.ui.Form.prototype.setModelValues_ = function() {
 
 net.bluemind.calendar.vevent.ui.Form.prototype.adaptDescription_ = function() {
 	var el = document.createElement( 'html' );
-	el.innerHTML = this.getModel().description;
+	el.innerHTML = this.getModel().description.sanitized;
 	
 	var imgs = el.getElementsByTagName( 'img' );
 
@@ -1444,9 +1444,10 @@ net.bluemind.calendar.vevent.ui.Form.prototype.onEditorChange_ = function(e) {
   var value = this.editor_.getValue();
   
   if (value.length > (1024 * 1024)) {
-    this.editor_.setValue(this.getModel().description || '');
+    this.editor_.setValue(this.getModel().description.sanitized || '');
   } else {
-    this.getModel().description = this.adaptDescriptionEditorValue_(value);
+    this.getModel().description.raw = this.adaptDescriptionEditorValue_(value);
+    this.getModel().description.sanitized = this.getModel().description.raw;
     this.setFormActions_();
   }
 };
@@ -1875,12 +1876,8 @@ net.bluemind.calendar.vevent.ui.Form.prototype.addOrRemoveVideoConferencingAddFu
     this.getModel().conference = res['conference'];
     this.getModel().conferenceId = res['conferenceId'];
     this.getModel().conferenceConfiguration = res['conferenceConfiguration'];
-    var desc = res.description.trim();
-    var idx =  desc.indexOf("<videoconferencingtemplate");
-    var len = desc.length;
-    this.getModel().description = desc.substring(0, idx) || '';
-    this.getModel().conferenceDescription = desc.substring(idx, len);
-    this.editor_.setValue(this.getModel().description);
+    adaptor = new net.bluemind.calendar.vevent.VEventAdaptor(this.ctx);
+    this.editor_.setValue(this.getModel().description.sanitized);
     this.showConferenceData_();
   }, function(e) {
     console.error(e);

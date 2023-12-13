@@ -679,9 +679,9 @@
                   </div>
                 {/if}
 
-                {if $event.description}
+                {if $event.description.raw}
                   <div class="{css detailLabel}">{msg meaning="calendar.event.description" desc="event desc label"}Description{/msg}</div>
-                  <div class="{css detailValue}">{$event.description |noAutoescape}</div>
+                  <div class="{css detailValue}">{$event.description.sanitized |noAutoescape}</div>
                 {/if}
               </div>
             </div>

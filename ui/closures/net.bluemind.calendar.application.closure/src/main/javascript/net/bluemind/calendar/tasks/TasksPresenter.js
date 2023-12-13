@@ -31,6 +31,7 @@ goog.require("net.bluemind.calendar.tasks.TasksView");
 goog.require("net.bluemind.calendar.navigation.events.EventType");
 goog.require("net.bluemind.container.service.ContainerService.EventType");
 goog.require("net.bluemind.container.service.ContainersService.EventType");
+goog.require('net.bluemind.html.sanitize');
 goog.require("net.bluemind.mvp.Presenter");
 goog.require("net.bluemind.tag.service.TagService");
 goog.require("net.bluemind.calendar.tasks.events.EventType");
@@ -170,6 +171,11 @@ net.bluemind.calendar.tasks.TasksPresenter.prototype.modelToView_ = function(vto
   model.uid = vtodo['value']['uid'];
   model.container = vtodo['container'];
   model.summary = vtodo['value']['summary'];
+  model.description = {raw: null, sanitized: null};
+  if (vtodo['value']['description']) {
+    model.description.raw = vtodo['value']['description'];
+    model.description.sanitized = net.bluemind.html.sanitize(vtodo['value']['description']);
+  }
   model.description = vtodo['value']['description'];
   model.location = vtodo['value']['location'];
   var helper = this.ctx.helper('date');

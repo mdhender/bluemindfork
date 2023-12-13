@@ -1129,6 +1129,8 @@ net.bluemind.calendar.day.DayView.prototype.handleInDayMouseDown_ = function(e) 
     
     var event = {
       summary : '',
+      description: {raw: null, sanitized: null},
+      conferenceDescription: {raw: null, sanitized: null},
       tooltip : '',
       location : '',
       draft: true,
@@ -1274,6 +1276,8 @@ net.bluemind.calendar.day.DayView.prototype.createAlldayEvent_ = function(start,
   var calendars = this.getWritablesCalendars_();
   var evt = {
     summary : '',
+    description: {raw: null, sanitized: null},
+    conferenceDescription: {raw: null, sanitized: null},
     dtstart : start,
     dtend : end,
     tooltip : '',
