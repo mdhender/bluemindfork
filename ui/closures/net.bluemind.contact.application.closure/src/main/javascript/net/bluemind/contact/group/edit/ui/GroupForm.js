@@ -70,7 +70,7 @@ net.bluemind.contact.group.edit.ui.GroupForm.prototype.setModel = function(model
   goog.base(this, 'setModel', model);
   this.getChild('name').setValue(model.name);
   this.getChild('categories').setValue(model.categories);
-  this.getChild('note').setValue(model.note);
+  this.getChild('note').setValue(model.note.sanitized);
   this.getChild('members').setValue(model.members);
 
   if (model.errors) {
@@ -102,7 +102,11 @@ net.bluemind.contact.group.edit.ui.GroupForm.prototype.getModel = function() {
   var model = goog.base(this, 'getModel') || {};
   model.name = this.getChild('name').getValue();
   model.categories = this.getChild('categories').getValue();
-  model.note = this.getChild('note').getValue();
+  var note = this.getChild('note').getValue();
+  if (model.note.sanitized != note) {
+    model.note.sanitized = note;
+    model.note.raw = note;
+  }
   model.members = this.getChild('members').getValue();
   return model;
 };

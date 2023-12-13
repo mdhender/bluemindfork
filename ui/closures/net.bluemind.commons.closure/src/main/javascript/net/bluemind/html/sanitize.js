@@ -24,8 +24,8 @@
  *
  */
 
-goog.provide('bluemind.html.Sanitizer');
-goog.provide('bluemind.html.sanitize');
+goog.provide('net.bluemind.html.Sanitizer');
+goog.provide('net.bluemind.html.sanitize');
 
 goog.require('goog.array');
 goog.require('goog.string');
@@ -45,9 +45,9 @@ goog.require('goog.uri.utils');
  * @param {string} htmlText The HTML text to sanitize.
  * @return {string} A sanitized HTML, safe to be embedded on the page.
  */
-bluemind.html.sanitize = function(htmlText) {
+net.bluemind.html.sanitize = function(htmlText) {
   var stringBuffer = new goog.string.StringBuffer();
-  var handler = new bluemind.html.Sanitizer(stringBuffer);
+  var handler = new net.bluemind.html.Sanitizer(stringBuffer);
   var parser = new goog.string.html.HtmlParser();
   parser.parse(handler, htmlText);
   return stringBuffer.toString();
@@ -62,7 +62,7 @@ bluemind.html.sanitize = function(htmlText) {
  * @constructor
  * @extends {goog.string.html.HtmlSaxHandler}
  */
-bluemind.html.Sanitizer = function(stringBuffer) {
+net.bluemind.html.Sanitizer = function(stringBuffer) {
   goog.base(this);
 
   this.stringBuffer_ = stringBuffer;
@@ -70,7 +70,7 @@ bluemind.html.Sanitizer = function(stringBuffer) {
   this.ignoring_ = false;
 };
 
-goog.inherits(bluemind.html.Sanitizer, goog.string.html.HtmlSaxHandler);
+goog.inherits(net.bluemind.html.Sanitizer, goog.string.html.HtmlSaxHandler);
 
 
 /**
@@ -78,7 +78,7 @@ goog.inherits(bluemind.html.Sanitizer, goog.string.html.HtmlSaxHandler);
  * @type {RegExp}
  * @private
  */
-bluemind.html.Sanitizer.AMP_RE_ = /&/g;
+net.bluemind.html.Sanitizer.AMP_RE_ = /&/g;
 
 
 /**
@@ -86,7 +86,7 @@ bluemind.html.Sanitizer.AMP_RE_ = /&/g;
  * @type {RegExp}
  * @private
  */
-bluemind.html.Sanitizer.LT_RE_ = /</g;
+net.bluemind.html.Sanitizer.LT_RE_ = /</g;
 
 
 /**
@@ -94,7 +94,7 @@ bluemind.html.Sanitizer.LT_RE_ = /</g;
  * @type {RegExp}
  * @private
  */
-bluemind.html.Sanitizer.GT_RE_ = />/g;
+net.bluemind.html.Sanitizer.GT_RE_ = />/g;
 
 
 /**
@@ -102,7 +102,7 @@ bluemind.html.Sanitizer.GT_RE_ = />/g;
  * @type {RegExp}
  * @private
  */
-bluemind.html.Sanitizer.QUOTE_RE_ = /\"/g;
+net.bluemind.html.Sanitizer.QUOTE_RE_ = /\"/g;
 
 
 /**
@@ -110,9 +110,9 @@ bluemind.html.Sanitizer.QUOTE_RE_ = /\"/g;
  * @type {RegExp}
  * @private
  */
-bluemind.html.Sanitizer.EQUALS_RE_ = /=/g;
+net.bluemind.html.Sanitizer.EQUALS_RE_ = /=/g;
 
-bluemind.html.Sanitizer.SAFE_SCHEME = [
+net.bluemind.html.Sanitizer.SAFE_SCHEME = [
   'http',
   'https',
   'ftp',
@@ -122,7 +122,7 @@ bluemind.html.Sanitizer.SAFE_SCHEME = [
   'mailto'
 ];
 
-bluemind.html.Sanitizer.SAFE_STYLE = [
+net.bluemind.html.Sanitizer.SAFE_STYLE = [
   'backgroundColor',
   'textAlign',
   'color'
@@ -134,24 +134,24 @@ bluemind.html.Sanitizer.SAFE_STYLE = [
  * @type {goog.string.StringBuffer}
  * @private
  */
-bluemind.html.Sanitizer.prototype.stringBuffer_;
+net.bluemind.html.Sanitizer.prototype.stringBuffer_;
 
 /**
  * A stack that holds how the handler is being called.
  * @type {Array}
  * @private
  */
-bluemind.html.Sanitizer.prototype.stack_;
+net.bluemind.html.Sanitizer.prototype.stack_;
 /**
  * Whether we are ignoring what is being processed or not.
  * @type {boolean}
  * @private
  */
-bluemind.html.Sanitizer.prototype.ignoring_;
+net.bluemind.html.Sanitizer.prototype.ignoring_;
 
 
 /** @override */
-bluemind.html.Sanitizer.prototype.startTag = function(tagName, attribs) {
+net.bluemind.html.Sanitizer.prototype.startTag = function(tagName, attribs) {
   if (this.ignoring_) {
     return;
   }
@@ -186,7 +186,7 @@ bluemind.html.Sanitizer.prototype.startTag = function(tagName, attribs) {
 
 
 /** @override */
-bluemind.html.Sanitizer.prototype.endTag = function(tagName) {
+net.bluemind.html.Sanitizer.prototype.endTag = function(tagName) {
   if (this.ignoring_) {
     this.ignoring_ = false;
     return;
@@ -233,34 +233,34 @@ bluemind.html.Sanitizer.prototype.endTag = function(tagName) {
 
 
 /** @override */
-bluemind.html.Sanitizer.prototype.pcdata = function(text) {
+net.bluemind.html.Sanitizer.prototype.pcdata = function(text) {
   if (!this.ignoring_) {
     this.stringBuffer_.append(text);
   }
 };
 
 /** @override */
-bluemind.html.Sanitizer.prototype.rcdata = function(text) {
+net.bluemind.html.Sanitizer.prototype.rcdata = function(text) {
   if (!this.ignoring_) {
     this.stringBuffer_.append(text);
   }
 };
 
 /** @override */
-bluemind.html.Sanitizer.prototype.cdata = function(text) {
+net.bluemind.html.Sanitizer.prototype.cdata = function(text) {
   if (!this.ignoring_) {
     this.stringBuffer_.append(text);
   }
 };
 
 /** @override */
-bluemind.html.Sanitizer.prototype.startDoc = function() {
+net.bluemind.html.Sanitizer.prototype.startDoc = function() {
   this.stack_ = [];
   this.ignoring_ = false;
 };
 
 /** @override */
-bluemind.html.Sanitizer.prototype.endDoc = function() {
+net.bluemind.html.Sanitizer.prototype.endDoc = function() {
   for (var i = this.stack_.length; --i >= 0;) {
     this.stringBuffer_.append('</', this.stack_[i], '>');
   }
@@ -274,13 +274,13 @@ bluemind.html.Sanitizer.prototype.endDoc = function() {
  * @return {string} An escaped version of {@code s}.
  * @private
  */
-bluemind.html.Sanitizer.prototype.escapeAttrib_ = function(s) {
+net.bluemind.html.Sanitizer.prototype.escapeAttrib_ = function(s) {
   // Escaping '=' defangs many UTF-7 and SGML short-tag attacks.
-  return s.replace(bluemind.html.Sanitizer.AMP_RE_, '&amp;').
-      replace(bluemind.html.Sanitizer.LT_RE_, '&lt;').
-      replace(bluemind.html.Sanitizer.GT_RE_, '&gt;').
-      replace(bluemind.html.Sanitizer.QUOTE_RE_, '&#34;').
-      replace(bluemind.html.Sanitizer.EQUALS_RE_, '&#61;');
+  return s.replace(net.bluemind.html.Sanitizer.AMP_RE_, '&amp;').
+      replace(net.bluemind.html.Sanitizer.LT_RE_, '&lt;').
+      replace(net.bluemind.html.Sanitizer.GT_RE_, '&gt;').
+      replace(net.bluemind.html.Sanitizer.QUOTE_RE_, '&#34;').
+      replace(net.bluemind.html.Sanitizer.EQUALS_RE_, '&#61;');
 };
 
 
@@ -292,7 +292,7 @@ bluemind.html.Sanitizer.prototype.escapeAttrib_ = function(s) {
  * @return {Array.<?string>} A sanitized version of the {@code attribs}.
  * @private
  */
-bluemind.html.Sanitizer.prototype.sanitizeAttributes_ =
+net.bluemind.html.Sanitizer.prototype.sanitizeAttributes_ =
     function(tagName, attribs) {
   for (var i = 0; i < attribs.length; i += 2) {
     var attribName = attribs[i];
@@ -348,9 +348,9 @@ bluemind.html.Sanitizer.prototype.sanitizeAttributes_ =
  * @return {?string} A sanitized version of the {@code uri}.
  * @private
  */
-bluemind.html.Sanitizer.prototype.sanitizeURI_ = function(uri) {
+net.bluemind.html.Sanitizer.prototype.sanitizeURI_ = function(uri) {
   var scheme = goog.uri.utils.getScheme(uri) || 'invalid';
-  if (goog.array.contains(bluemind.html.Sanitizer.SAFE_SCHEME, scheme.toLowerCase())) {
+  if (goog.array.contains(net.bluemind.html.Sanitizer.SAFE_SCHEME, scheme.toLowerCase())) {
     if (scheme.toLowerCase() == 'data') {
       if (!goog.string.startsWith(uri, 'data:image/') || (uri.length > (1024 * 1024 * 10 * 1.37))) {
         return null;
@@ -368,11 +368,11 @@ bluemind.html.Sanitizer.prototype.sanitizeURI_ = function(uri) {
  * @return {?string} A sanitized version of the {@code uri}.
  * @private
  */
-bluemind.html.Sanitizer.prototype.sanitizeStyles_ = function(styles) {
+net.bluemind.html.Sanitizer.prototype.sanitizeStyles_ = function(styles) {
   var css = goog.style.parseStyleAttribute(styles);
   var valid = {};
-  for ( var i = 0; i < bluemind.html.Sanitizer.SAFE_STYLE.length; i++) {
-    var key = bluemind.html.Sanitizer.SAFE_STYLE[i];
+  for ( var i = 0; i < net.bluemind.html.Sanitizer.SAFE_STYLE.length; i++) {
+    var key = net.bluemind.html.Sanitizer.SAFE_STYLE[i];
     if (css[key]) {
       valid[key] = css[key];
     }

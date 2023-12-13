@@ -19,6 +19,7 @@
 goog.provide("net.bluemind.contact.vcard.VCardModelAdapter");
 
 goog.require("goog.array");
+goog.require('net.bluemind.html.sanitize');
 goog.require("net.bluemind.addressbook.api.i18n.Address.Caption");
 goog.require("net.bluemind.addressbook.api.i18n.Email.Caption");
 goog.require("net.bluemind.addressbook.api.i18n.IMPP.Caption");
@@ -93,8 +94,10 @@ net.bluemind.contact.vcard.VCardModelAdapter.prototype.toModelView = function(vc
   if (vcard['value']['related']['spouse']) {
     mv.spouse = vcard['value']['related']['spouse'];
   }
+  mv.note = {raw: null, sanitized: null};
   if (vcard['value']['explanatory']['note']) {
-    mv.note = vcard['value']['explanatory']['note'];
+    mv.note.raw = vcard['value']['explanatory']['note'];
+    mv.note.sanitized = net.bluemind.html.sanitize(mv.note.raw);
   }
   if (vcard['value']['security']['key']) {
     mv.pemCertificate = vcard['value']['security']['key']['value'];
@@ -256,8 +259,8 @@ net.bluemind.contact.vcard.VCardModelAdapter.prototype.fromModelView = function(
   if (mv.spouse) {
     vcard['value']['related']['spouse'] = mv.spouse;
   }
-  if (mv.note) {
-    vcard['value']['explanatory']['note'] = mv.note;
+  if (mv.note.raw) {
+    vcard['value']['explanatory']['note'] = mv.note.raw;
   }
   if (mv.emails.length > 0) {
     vcard['value']['communications']['emails'] = goog.array.map(mv.emails, function(email) {

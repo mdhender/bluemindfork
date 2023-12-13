@@ -42,7 +42,14 @@ net.bluemind.ui.form.RichTextField.prototype.createField = function() {
   this.addChild(field);
   field.render(this.getElementByClass(goog.getCssName('field-base-field')));
 };
-
+net.bluemind.ui.form.RichTextField.prototype.enterDocument = function() {
+  goog.base(this, 'enterDocument');
+  this.getElement().addEventListener("click", preventDefault)
+};
+net.bluemind.ui.form.RichTextField.prototype.exitDocument = function() {
+  goog.base(this, 'exitDocument');
+  this.getElement().removeEventListener("click", preventDefault)
+};
 /** @override */
 net.bluemind.ui.form.RichTextField.prototype.getValue = function() {
   return this.getChild('field').getValue();
@@ -52,3 +59,8 @@ net.bluemind.ui.form.RichTextField.prototype.getValue = function() {
 net.bluemind.ui.form.RichTextField.prototype.setValue = function(value) {
   return this.getChild('field').setValue(value);
 };
+
+
+function preventDefault(event) {
+  event.preventDefault();
+}

@@ -275,7 +275,7 @@ net.bluemind.contact.individual.edit.ui.IndividualForm.prototype.setModel = func
   this.getChild('assistant').setValue(model.assistant);
   this.getChild('spouse').setValue(model.spouse);
   this.getChild('categories').setValue(model.categories);
-  this.getChild('note').setValue(model.note);
+  this.getChild('note').setValue(model.note.sanitized);
   this.getChild('impps').setValue(model.impps);
   this.getChild('header').getChild('photo').setValue(model.photo);
   this.getChild('categories').setValue(model.categories);
@@ -324,7 +324,11 @@ net.bluemind.contact.individual.edit.ui.IndividualForm.prototype.getModel = func
   model.assistant = this.getChild('assistant').getValue();
   model.spouse = this.getChild('spouse').getValue();
   model.categories = this.getChild('categories').getValue();
-  model.note = this.getChild('note').getValue();
+  var note = this.getChild('note').getValue()
+  if (model.note.sanitized != note) {
+    model.note.sanitized = note;
+    model.note.raw = note;
+  }
   model.categories = this.getChild('categories').getValue();
   model.pemCertificate = this.getChild('pubkeycert').getValue();
   model.uploadPhoto = this.photoData_;

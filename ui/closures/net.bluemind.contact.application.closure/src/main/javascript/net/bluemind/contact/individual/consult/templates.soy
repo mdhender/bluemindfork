@@ -122,10 +122,10 @@
         <div>{$contact.spouse}</div>
       </div>
     {/if}
-    {if $contact.note}
+    {if $contact.note.sanitized}
     <div>
       <span>{msg meaning="contact.vcard.note" desc="Note contact field label"}Note{/msg}</span>
-      <div>{$contact.note |noAutoescape}</div>
+      <div>{$contact.note.sanitized |noAutoescape}</div>
     </div>
     {/if}
   </div>
