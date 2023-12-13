@@ -90,7 +90,7 @@ function setIdentityHeader(identityId, message) {
 }
 
 async function computeDestinationMailbox(rawIdentity, mailboxes) {
-    let destinationMailboxUid;
+    let destinationMailboxUid = inject("UserSession").userId;
     if (rawIdentity.sentFolder !== DEFAULT_FOLDERS.SENT) {
         const mailboxInStore = mailboxes[`user.${rawIdentity.mailboxUid}`] || mailboxes[rawIdentity.mailboxUid];
         let writable;
@@ -105,8 +105,6 @@ async function computeDestinationMailbox(rawIdentity, mailboxes) {
         if (writable) {
             destinationMailboxUid = rawIdentity.mailboxUid;
         }
-    } else {
-        destinationMailboxUid = inject("UserSession").userId;
     }
     return destinationMailboxUid;
 }
