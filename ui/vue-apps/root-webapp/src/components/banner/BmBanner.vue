@@ -85,7 +85,7 @@ export default {
         }
     }
 
-    .fa-9dots {
+    .icon-9dots {
         cursor: pointer;
         margin-right: $sp-3;
     }

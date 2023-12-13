@@ -1,5 +1,8 @@
 <template>
-    <div class="text-truncate"><bm-icon icon="list" class="mr-4" /> {{ todoList.name }}</div>
+    <div class="d-flex align-items-center">
+        <bm-icon icon="list" class="mr-4" />
+        <div class="text-truncate">{{ todoList.name }}</div>
+    </div>
 </template>
 
 <script>

@@ -19,7 +19,7 @@ function myAddressBooks(i18n) {
     return {
         id: "my_address_books",
         name: i18n.t("common.my_address_books"),
-        icon: "addressbook",
+        icon: "address-book",
         groups: [
             {
                 id: "group",
@@ -34,7 +34,7 @@ function otherAddressBooks(i18n) {
     return {
         id: "other_address_books",
         name: i18n.t("common.other_address_books"),
-        icon: "addressbook-shared",
+        icon: "address-book-shared",
         groups: [
             {
                 id: "group",

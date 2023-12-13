@@ -148,7 +148,7 @@ const remove = async contact => {
                     />
                     <bm-icon
                         v-if="cell.item.incoherentCopyImip"
-                        class="pl-4 text-warning"
+                        class="ml-4 text-warning"
                         icon="exclamation-circle"
                         :title="$t('preferences.account.delegates.calendar.invitations.incoherent.in_table')"
                     />

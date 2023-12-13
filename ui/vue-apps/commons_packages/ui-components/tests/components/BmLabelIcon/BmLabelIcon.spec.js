@@ -43,7 +43,7 @@ describe("BmLabelIcon", () => {
         });
 
         expect(wrapper.find("svg").isVisible()).toBeTrue;
-        expect(wrapper.find(".fa-folder").isVisible()).toBeTrue;
+        expect(wrapper.find(".icon-folder").isVisible()).toBeTrue;
     });
 
     test("called with an icon and slot", () => {
@@ -51,7 +51,7 @@ describe("BmLabelIcon", () => {
         let wrapper = defaultMount(mySlot);
 
         expect(wrapper.find("svg").isVisible()).toBeTrue;
-        expect(wrapper.find(".fa-folder").isVisible()).toBeTrue;
+        expect(wrapper.find(".icon-folder").isVisible()).toBeTrue;
 
         expect(wrapper.text()).toContain(mySlot);
     });

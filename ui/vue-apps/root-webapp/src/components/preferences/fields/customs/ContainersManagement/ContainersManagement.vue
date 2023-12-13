@@ -171,7 +171,7 @@ export default {
 @import "~@bluemind/ui-components/src/css/utils/variables";
 
 .containers-management {
-    .b-table .fa-star-fill {
+    .b-table .icon-star-fill {
         color: $secondary-fg;
     }
 }

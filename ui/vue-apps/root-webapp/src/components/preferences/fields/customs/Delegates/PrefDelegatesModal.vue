@@ -36,7 +36,7 @@
             </bm-form-radio>
             <bm-form-radio :value="Verb.SendAs" class="my-3">
                 {{ $t("preferences.account.delegates.edit.send_as") }}
-                <span class="tail-content"><bm-icon class="pl-4" icon="user-outline" /></span>
+                <span class="tail-content"><bm-icon class="ml-4" icon="user-outline" /></span>
             </bm-form-radio>
         </bm-form-radio-group>
         <div class="delegation-notice">
@@ -118,7 +118,7 @@
                     "
                 >
                     {{ $t("preferences.account.delegates.calendar.private") }}
-                    <span class="tail-content"><bm-icon class="pl-3" icon="lock-fill" /></span>
+                    <span class="tail-content"><bm-icon class="ml-3" icon="lock-fill" /></span>
                 </span>
             </bm-form-checkbox>
         </div>

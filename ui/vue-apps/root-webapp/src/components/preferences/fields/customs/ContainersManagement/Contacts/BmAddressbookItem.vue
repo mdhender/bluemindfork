@@ -1,5 +1,8 @@
 <template>
-    <div class="text-truncate"><bm-icon icon="addressbook" class="mr-4" />{{ addressbook.name }}</div>
+    <div class="d-flex align-items-center">
+        <bm-icon icon="address-book" class="mr-4" />
+        <div class="text-truncate">{{ addressbook.name }}</div>
+    </div>
 </template>
 
 <script>

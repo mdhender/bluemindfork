@@ -1,10 +1,10 @@
 import { mount } from "@vue/test-utils";
 import AddressBookList from "../../src/components/RecipientPicker/AddressBookList";
-import { bmBuildings } from "@bluemind/ui-components/src/icons/bmBuildings";
-import { bmUser } from "@bluemind/ui-components/src/icons/bmUser";
-import { bmEnvelopeUser } from "@bluemind/ui-components/src/icons/bmEnvelopeUser";
-import { bmEnvelopeUserShared } from "@bluemind/ui-components/src/icons/bmEnvelopeUserShared";
-import { bmUserShared } from "@bluemind/ui-components/src/icons/bmUserShared";
+import buildingsIcon from "@bluemind/ui-components/src/icons/buildings";
+import userIcon from "@bluemind/ui-components/src/icons/user";
+import envelopeUserIcon from "@bluemind/ui-components/src/icons/envelope-user";
+import envelopeUserSharedIcon from "@bluemind/ui-components/src/icons/envelope-user-shared";
+import userSharedIcon from "@bluemind/ui-components/src/icons/user-shared";
 
 describe("Addressbooks list [RECIPIENT PICKER]", () => {
     it("should be a vue component instance", () => {
@@ -45,36 +45,36 @@ describe("Addressbooks list [RECIPIENT PICKER]", () => {
         describe("Owned addressBooks", () => {
             test("Directory addressbook", () => {
                 const wrapper = AddressbookListSUT()._withDirectoryAdressbook().mount();
-                expect(wrapper.find("svg").find("path").attributes("d")).toEqual(svgPathOf(bmBuildings));
+                expect(wrapper.find("svg").find("path").attributes("d")).toEqual(svgPathOf(buildingsIcon));
             });
             test("Collected addressbook", () => {
                 const wrapper = AddressbookListSUT()._withCollectedContacts().mount();
-                expect(wrapper.find("svg").find("path").attributes("d")).toEqual(svgPathOf(bmEnvelopeUser));
+                expect(wrapper.find("svg").find("path").attributes("d")).toEqual(svgPathOf(envelopeUserIcon));
             });
             test("Personnal addressbook", () => {
                 const wrapper = AddressbookListSUT()._withAddressbooks().mount();
-                expect(wrapper.find("svg").find("path").attributes("d")).toEqual(svgPathOf(bmUser));
+                expect(wrapper.find("svg").find("path").attributes("d")).toEqual(svgPathOf(userIcon));
             });
         });
 
         describe("Shared addressboooks", () => {
             it("shared collected addressbook", () => {
                 const wrapper = AddressbookListSUT().withSharedCollectedAddressbook().mount();
-                expect(wrapper.find("svg").find("path").attributes("d")).toEqual(svgPathOf(bmEnvelopeUserShared));
+                expect(wrapper.find("svg").find("path").attributes("d")).toEqual(svgPathOf(envelopeUserSharedIcon));
             });
             it("shared personnal addressbook", () => {
                 const wrapper = AddressbookListSUT().withSharedOtherAddressbook().mount();
-                expect(wrapper.find("svg").find("path").attributes("d")).toEqual(svgPathOf(bmUserShared));
+                expect(wrapper.find("svg").find("path").attributes("d")).toEqual(svgPathOf(userSharedIcon));
             });
 
             test("others Addressbook", () => {
                 const wrapper = AddressbookListSUT().withSharedOtherAddressbook().mount();
-                expect(wrapper.find("svg").find("path").attributes("d")).toEqual(svgPathOf(bmUserShared));
+                expect(wrapper.find("svg").find("path").attributes("d")).toEqual(svgPathOf(userSharedIcon));
             });
         });
 
         function svgPathOf(svgInJs) {
-            return svgInJs.icon[4].toString();
+            return svgInJs[2];
         }
     });
 

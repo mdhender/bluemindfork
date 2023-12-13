@@ -13,7 +13,7 @@ function VideoWidgetCreator() {
                 .toUpperCase();
         };
         var widget = document.createElement("a");
-        widget.classList.add("fa", "fa-lg", "fa-video-camera");
+        widget.classList.add("icon-lg", "icon-video-camera");
         widget.onclick = function () {
             var url = "/visio/" + shortid();
             window.open(url, "_blank");

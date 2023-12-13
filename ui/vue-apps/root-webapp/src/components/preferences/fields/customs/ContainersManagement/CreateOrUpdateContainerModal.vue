@@ -177,7 +177,7 @@ export default {
     }
 
     &.is-calendar {
-        .fa-calendar {
+        .icon-calendar {
             color: $neutral-fg;
         }
     }

@@ -124,7 +124,8 @@ export default {
     }
     .is-default-cell {
         width: base-px-to-rem(40);
-        .fa-star-fill {
+        padding-bottom: base-px-to-rem(4) !important;
+        .icon-star-fill {
             color: $secondary-fg;
         }
     }

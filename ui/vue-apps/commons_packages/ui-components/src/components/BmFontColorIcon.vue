@@ -2,7 +2,7 @@
     <bm-icon
         class="bm-font-color-icon"
         v-bind="[$attrs]"
-        :stacked="[{ icon: 'font-color-neutral' }, { icon: 'font-color-indicator', customStyle: { color } }]"
+        :stacked="[{ icon: 'font-color-neutral' }, { icon: 'font-color-indicator', style: { color } }]"
     />
 </template>
 

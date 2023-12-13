@@ -247,7 +247,7 @@ export default {
                 padding-top: base-px-to-rem(44);
                 padding-left: $sp-6;
 
-                .mark-as-flagged-button .fa-flag-fill {
+                .mark-as-flagged-button .icon-flag-fill {
                     color: $warning-fg;
                 }
             }

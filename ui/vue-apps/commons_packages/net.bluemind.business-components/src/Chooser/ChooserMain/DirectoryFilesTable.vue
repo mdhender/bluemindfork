@@ -74,7 +74,7 @@ export default {
     .empty-folder {
         font-weight: $font-weight-bold;
     }
-    .bm-icon.fa-folder-fill {
+    .bm-icon.icon-folder-fill {
         color: $secondary-fg;
     }
 }

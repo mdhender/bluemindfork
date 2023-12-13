@@ -47,7 +47,7 @@
                         @click="identity.isDefault = !identity.isDefault"
                     >
                         <bm-icon :icon="identity.isDefault ? 'star-fill' : 'star'" class="mr-1" size="lg" />
-                        {{ $t("preferences.mail.identities.make_default") }}
+                        <div>{{ $t("preferences.mail.identities.make_default") }}</div>
                     </div>
                 </div>
             </div>
@@ -418,7 +418,7 @@ async function fetchRights(mailboxUid) {
     display: flex;
     flex-direction: column;
 
-    .fa-star-fill {
+    .icon-star-fill {
         color: $secondary-fg;
     }
 
@@ -471,6 +471,8 @@ async function fetchRights(mailboxUid) {
 
     .change-default {
         cursor: pointer;
+        display: flex;
+        align-items: center;
     }
 
     .bm-form-autocomplete-input {

@@ -309,6 +309,7 @@ export default {
     }
     .is-default-cell {
         width: base-px-to-rem(40);
+        padding-bottom: base-px-to-rem(4) !important;
     }
 }
 </style>

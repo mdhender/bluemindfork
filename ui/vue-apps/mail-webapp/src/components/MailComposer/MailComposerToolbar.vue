@@ -39,7 +39,8 @@
                 class="save-message save-message-error"
                 :title="$t('mail.compose.save.error_reason')"
             >
-                <bm-icon icon="exclamation-circle" />{{ saveMessage }}
+                <bm-icon icon="exclamation-circle" />
+                <div>{{ saveMessage }}</div>
             </div>
             <div v-else class="save-message">{{ saveMessage }}</div>
             <bm-extension id="webapp.mail" path="composer.footer.toolbar" :message="message" class="d-flex" />

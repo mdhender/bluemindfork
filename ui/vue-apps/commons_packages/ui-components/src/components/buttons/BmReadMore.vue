@@ -4,7 +4,10 @@
             {{ text }}
         </div>
         <bm-button variant="link" :href="href" target="_blank">
-            <bm-icon icon="popup" class="mr-3" />{{ $t("common.read_more") }}
+            <div class="d-flex align-items-center">
+                <bm-icon icon="popup" class="mr-3" />
+                <div>{{ $t("common.read_more") }}</div>
+            </div>
         </bm-button>
     </div>
 </template>

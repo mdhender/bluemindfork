@@ -8,6 +8,8 @@
 }
 
 .bm-drag-tooltip {
+    display: flex;
+    align-items: center;
     background-color: $drag-bg-color;
     color: $drag-color;
     font-weight: $font-weight-bold;

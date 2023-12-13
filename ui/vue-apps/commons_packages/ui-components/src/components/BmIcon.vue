@@ -1,58 +1,33 @@
 <template>
-    <font-awesome-icon
-        v-if="!stacked"
-        :icon="icon"
-        :fixed-width="fixedWidth"
-        class="bm-icon"
-        :class="[variantClass, `fa-${size}`]"
-        :style="customStyle"
-        :rotation="rotation"
-        :flip="flip"
-        :transform="transform"
-        :title="title"
-    />
-    <font-awesome-layers
-        v-else
-        class="bm-icon"
-        :class="size ? `fa-${size}` : ''"
-        :fixed-width="fixedWidth"
-        :title="title"
-    >
-        <font-awesome-icon
-            v-for="(stackedIcon, index) in stacked"
+    <div v-if="stacked" class="bm-icon stacked" :class="`icon-${size}`">
+        <bm-icon
+            v-for="(layer, index) in stacked"
             :key="index"
-            :icon="stackedIcon.icon || stackedIcon"
-            :fixed-width="stackedIcon.fixedWidth"
-            class="bm-icon"
-            :class="[stackedIcon.class || variantClass, `fa-${stackedIcon.size || size}`]"
-            :style="stackedIcon.customStyle || customStyle"
-            :rotation="stackedIcon.rotation || rotation"
-            :flip="stackedIcon.flip || flip"
-            :transform="stackedIcon.transform || transform"
+            :icon="layer.icon"
+            :class="layer.class"
+            :style="layer.style"
+            :variant="layer.variant"
+            :size="size"
         />
-    </font-awesome-layers>
+    </div>
+    <component
+        :is="iconComponent"
+        v-else
+        role="img"
+        class="bm-icon"
+        :class="`icon-${icon} icon-${size} ${variantClass}`"
+    />
 </template>
 
 <script>
-import { FontAwesomeIcon, FontAwesomeLayers } from "@fortawesome/vue-fontawesome";
-import { library } from "@fortawesome/fontawesome-svg-core";
-
-initIcons();
-
-export { library };
+import useBmIconLibrary from "./useBmIconLibrary";
+const library = useBmIconLibrary();
 
 export default {
     name: "BmIcon",
-    components: {
-        FontAwesomeIcon,
-        FontAwesomeLayers
-    },
     props: {
-        fixedWidth: { type: Boolean, default: false },
-        flip: { type: String, default: undefined },
-        icon: { type: [Object, Array, String], default: undefined },
-        customStyle: { type: [Object, Array, String], default: undefined },
-        rotation: { type: String, default: undefined },
+        icon: { type: String, default: undefined },
+        stacked: { type: Array, default: undefined },
         size: {
             type: String,
             default: "md",
@@ -60,12 +35,12 @@ export default {
                 return ["xs", "sm", "md", "lg", "xl", "2xl", "3xl", "4xl", "5xl"].includes(value);
             }
         },
-        stacked: { type: Array, default: undefined },
-        title: { type: String, default: undefined },
-        transform: { type: String, default: undefined },
         variant: { type: String, default: "" }
     },
     computed: {
+        iconComponent() {
+            return this.icon && library[this.icon] ? { template: library[this.icon] } : null;
+        },
         variantClass() {
             if (this.variant) {
                 return `text-${this.variant}`;
@@ -74,21 +49,30 @@ export default {
         }
     }
 };
-
-function initIcons() {
-    const iconsLoader = require.context("../icons", false, /\.js$/);
-
-    iconsLoader.keys().forEach(icon => {
-        library.add(iconsLoader(icon));
-    });
-}
 </script>
 
 <style lang="scss">
 @import "../css/utils/variables.scss";
 
+svg.bm-icon > path {
+    fill: currentColor;
+}
+
+.bm-icon {
+    display: inline-block;
+}
+
+.bm-icon.stacked {
+    position: relative;
+    > .bm-icon {
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+}
+
 @each $name, $value in $icon-sizes {
-    .bm-icon.fa-#{$name} {
+    .bm-icon.icon-#{$name} {
         width: $value;
         height: $value;
         flex: none;

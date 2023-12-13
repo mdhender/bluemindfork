@@ -18,7 +18,8 @@
             <slot name="shadow" />
         </div>
         <div ref="tooltip" class="bm-draggable-tooltip">
-            <bm-icon v-if="tooltip_.cursor" :icon="tooltip_.cursor" /> {{ tooltip_.text }}
+            <bm-icon v-if="tooltip_.cursor" :icon="tooltip_.cursor" />
+            <div>{{ tooltip_.text }}</div>
         </div>
     </div>
 </template>

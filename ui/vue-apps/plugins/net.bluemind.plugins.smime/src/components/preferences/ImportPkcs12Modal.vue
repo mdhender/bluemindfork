@@ -44,7 +44,7 @@
                     <div class="drop-zone-content">
                         <div class="icon-and-text">
                             <bm-icon icon="file-type-certificate" size="lg" />
-                            {{ $t("smime.preferences.import_field.modal.drop_file") }}
+                            <div>{{ $t("smime.preferences.import_field.modal.drop_file") }}</div>
                         </div>
                         <div class="mb-5">{{ $t("common.or") }}</div>
                         <bm-button variant="fill-accent" @click="openFilePicker">{{ $t("common.browse") }}</bm-button>

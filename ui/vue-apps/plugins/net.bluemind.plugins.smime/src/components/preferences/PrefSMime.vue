@@ -77,7 +77,7 @@ export default {
 <style lang="scss">
 @import "~@bluemind/ui-components/src/css/utils/variables.scss";
 .pref-smime {
-    .fa-check-circle {
+    .icon-check-circle {
         color: $success-fg;
     }
 }

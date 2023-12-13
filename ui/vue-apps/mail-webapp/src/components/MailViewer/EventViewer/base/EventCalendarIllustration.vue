@@ -176,23 +176,23 @@ const repeatIcon = computed(() => {
         }
 
         .event-calendar-illustration-icon-status.bm-icon {
-            &.fa-pencil {
+            &.icon-pencil {
                 color: $neutral-fg-lo1;
             }
-            &.fa-lock-fill {
+            &.icon-lock-fill {
                 color: $neutral-fg;
             }
-            &.fa-check {
+            &.icon-check {
                 color: $success-fg;
             }
-            &.fa-interrogation {
+            &.icon-interrogation {
                 color: $warning-fg;
 
                 &.event-calendar-illustration-countered {
                     color: $info-fg;
                 }
             }
-            &.fa-cross {
+            &.icon-cross {
                 color: $danger-fg;
             }
         }

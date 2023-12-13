@@ -1,7 +1,7 @@
 @import "~@bluemind/ui-components/src/css/utils/colors";
 
 @each $file-type, $value in $file-type-icons-colors {
-    .fa-#{$file-type} {
+    .icon-#{$file-type} {
         color: $value;
     }
 }

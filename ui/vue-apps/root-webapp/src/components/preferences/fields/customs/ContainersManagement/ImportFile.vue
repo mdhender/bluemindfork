@@ -28,7 +28,7 @@
                 <div class="drop-zone-content">
                     <div class="icon-and-text">
                         <bm-icon :icon="fileTypeIcon" size="lg" />
-                        {{ $t("preferences.display_containers.import_file." + container.type) }}
+                        <div>{{ $t("preferences.display_containers.import_file." + container.type) }}</div>
                     </div>
                     <div class="mb-5">{{ $t("common.or") }}</div>
                     <bm-button variant="fill-accent" @click="openFilePicker">{{ $t("common.browse") }}</bm-button>
