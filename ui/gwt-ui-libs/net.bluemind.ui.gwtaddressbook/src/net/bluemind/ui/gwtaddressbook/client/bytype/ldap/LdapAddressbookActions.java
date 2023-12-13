@@ -57,7 +57,6 @@ public class LdapAddressbookActions extends CompositeGwtWidgetElement {
 	private Label ldapProtocol;
 	private Label ldapBaseDn;
 	private Label ldapLoginDn;
-	private Label ldapLoginPw;
 	private Label ldapUserFilter;
 	private Label entryUUID;
 	private String containerUid;
@@ -116,11 +115,6 @@ public class LdapAddressbookActions extends CompositeGwtWidgetElement {
 		ft.setWidget(i, 1, ldapLoginDn);
 		i++;
 
-		ft.setWidget(i, 0, new Label(LdapAddressbookConstants.INST.ldapLoginPw()));
-		ldapLoginPw = new Label();
-		ft.setWidget(i, 1, ldapLoginPw);
-		i++;
-
 		ft.setWidget(i, 0, new Label(LdapAddressbookConstants.INST.ldapUserFilter()));
 		ldapUserFilter = new Label();
 		ft.setWidget(i, 1, ldapUserFilter);
@@ -177,7 +171,6 @@ public class LdapAddressbookActions extends CompositeGwtWidgetElement {
 		ldapProtocol.setText(settings.get("protocol"));
 		ldapBaseDn.setText(settings.get("baseDn"));
 		ldapLoginDn.setText(settings.get("loginDn"));
-		ldapLoginPw.setText(settings.get("loginPw"));
 		ldapUserFilter.setText(settings.get("filter"));
 		entryUUID.setText(settings.get("entryUUID"));
 	}

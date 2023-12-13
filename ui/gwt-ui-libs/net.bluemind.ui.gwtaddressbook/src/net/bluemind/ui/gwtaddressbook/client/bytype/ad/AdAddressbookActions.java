@@ -57,7 +57,6 @@ public class AdAddressbookActions extends CompositeGwtWidgetElement {
 	private Label adProtocol;
 	private Label adBaseDn;
 	private Label adLoginDn;
-	private Label adLoginPw;
 	private Label adUserFilter;
 	private String containerUid;
 
@@ -115,11 +114,6 @@ public class AdAddressbookActions extends CompositeGwtWidgetElement {
 		ft.setWidget(i, 1, adLoginDn);
 		i++;
 
-		ft.setWidget(i, 0, new Label(AdAddressbookConstants.INST.adLoginPw()));
-		adLoginPw = new Label();
-		ft.setWidget(i, 1, adLoginPw);
-		i++;
-
 		ft.setWidget(i, 0, new Label(AdAddressbookConstants.INST.adUserFilter()));
 		adUserFilter = new Label();
 		ft.setWidget(i, 1, adUserFilter);
@@ -171,7 +165,6 @@ public class AdAddressbookActions extends CompositeGwtWidgetElement {
 		adProtocol.setText(settings.get("protocol"));
 		adBaseDn.setText(settings.get("baseDn"));
 		adLoginDn.setText(settings.get("loginDn"));
-		adLoginPw.setText(settings.get("loginPw"));
 		adUserFilter.setText(settings.get("filter"));
 	}
 
