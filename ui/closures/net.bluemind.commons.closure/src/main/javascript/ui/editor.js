@@ -31,6 +31,7 @@ goog.provide('bluemind.ui.editor.FeatureDescriptor');
 goog.require('bluemind.ui.editor.IConfigurablePlugin');
 goog.require('bluemind.ui.editor.messages');
 goog.require('bluemind.ui.editor.Toolbar');
+goog.require('net.bluemind.html.sanitize');
 goog.require('goog.array');
 goog.require('goog.dom');
 goog.require('goog.editor.Command');
@@ -63,6 +64,7 @@ goog.require('goog.editor.ContentEditableField');
 bluemind.ui.Editor = function(field, opt_toolbar, opt_options) {
   goog.base(this);
   this.field = new goog.editor.ContentEditableField(field);
+  this.sanitize = !(opt_options || {}).unsafe;
   var toolbar;
   if (!opt_toolbar) {
     toolbar = goog.dom.createDom(goog.dom.TagName.DIV);
@@ -279,7 +281,11 @@ bluemind.ui.Editor.prototype.setValue = function(html) {
  */
 bluemind.ui.Editor.prototype.getValue = function() {
   var content = goog.string.trim(this.field.getCleanContents());
-  return content.replace(/^(<div>)?<br\/?>(<\/div>)?$/,'');
+  content = content.replace(/^(<div>)?<br\/?>(<\/div>)?$/,'');
+  if (this.sanitize) {
+    content = net.bluemind.html.sanitize(content);
+  }
+  return content
 };
 
 /**

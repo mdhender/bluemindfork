@@ -38,8 +38,9 @@ goog.require('goog.ui.Component');
  * @constructor
  * @extends {goog.ui.Component}
  */
-bluemind.ui.RichText = function( opt_domHelper) {
+bluemind.ui.RichText = function( opt_domHelper, opt_options) {
   goog.base(this, opt_domHelper);
+  this.sanitize = !(opt_options || {}).unsafe;
 };
 goog.inherits(bluemind.ui.RichText, goog.ui.Component);
 
@@ -64,7 +65,7 @@ bluemind.ui.RichText.prototype.enterDocument = function() {
   if (! this.editor_) {
     var eid = this.makeId('editor');
     var tid = this.makeId('toolbar');    
-    this.editor_ = new bluemind.ui.Editor(eid, tid);
+    this.editor_ = new bluemind.ui.Editor(eid, tid, {unsafe: !this.sanitize});
   } else if (this.editor_.field.isUneditable()) {
     this.editor_.field.makeEditable();
   }
