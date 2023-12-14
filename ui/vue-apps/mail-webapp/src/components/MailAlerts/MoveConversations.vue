@@ -1,7 +1,7 @@
 <template>
     <i18n :path="path" tag="span">
         <template #count>{{ payload.conversations.length }}</template>
-        <template #subject>{{ payload.conversations[0].subject.trim() || $t("mail.viewer.no.subject") }}</template>
+        <template #subject>{{ payload.conversations[0].subject?.trim() || $t("mail.viewer.no.subject") }}</template>
         <template #folder>
             <router-link :to="folderRoute(payload.folder)">
                 <strong

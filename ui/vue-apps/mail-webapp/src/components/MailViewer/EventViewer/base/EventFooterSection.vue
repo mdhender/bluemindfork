@@ -4,16 +4,22 @@ import { BmButtonExpand } from "@bluemind/ui-components";
 
 const props = defineProps({
     label: { type: String, required: true },
-    entries: { type: Array, default: () => [] }
+    entries: { type: Array, default: () => [] },
+    expandable: { type: Boolean, default: true }
 });
 
 const expanded = ref(false);
+function expand() {
+    if (props.expandable) {
+        expanded.value = !expanded.value;
+    }
+}
 </script>
 
 <template>
     <div class="event-footer-section" :class="{ 'section-expanded': expanded }">
-        <div class="event-footer-section-header" @click.prevent="expanded = !expanded">
-            <bm-button-expand :expanded="expanded" size="sm" />
+        <div class="event-footer-section-header" @click.prevent="expand">
+            <bm-button-expand :expanded="expanded" size="sm" :disabled="!expandable" />
             <span class="bold">
                 {{ label }}
             </span>

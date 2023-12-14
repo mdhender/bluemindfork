@@ -16,10 +16,7 @@ export default {
         const attendee = this.findAttendee(infos.attendees, calendarOwner);
         return {
             summary: infos.summary,
-            organizer: {
-                name: infos.organizer?.commonName,
-                mail: infos.organizer?.mailto
-            },
+            organizer: adaptOrganizer(infos.organizer),
             date: adaptDate(infos.dtstart, infos.dtend, infos.rrule),
             conference: infos.conference,
             attendees: this.adaptAttendeeList(infos.attendees),
@@ -162,6 +159,16 @@ export default {
         return updatedEvent;
     }
 };
+
+function adaptOrganizer(organizer) {
+    if (organizer) {
+        return {
+            name: organizer.commonName,
+            mail: organizer.mailto
+        };
+    }
+    return null;
+}
 
 function removeAttendeesFilter(rejectedAttendees) {
     return a =>

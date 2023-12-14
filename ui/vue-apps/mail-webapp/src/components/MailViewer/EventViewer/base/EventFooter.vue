@@ -10,12 +10,14 @@ import MailContactCardSlots from "../../../MailContactCardSlots";
 
 const props = defineProps({ event: { type: Object, required: true } });
 
-const organizer = computed(() => props.event.organizer || {});
+const organizer = computed(() => props.event.organizer);
 const attendees = computed(() =>
-    [organizer.value, ...getAttendeesByCutype(props.event.attendees, "Individual")].map(attendee => ({
-        dn: attendee?.name,
-        address: attendee?.mail
-    }))
+    [organizer.value, ...getAttendeesByCutype(props.event.attendees, "Individual")]
+        .filter(Boolean)
+        .map(attendee => ({
+            dn: attendee?.name,
+            address: attendee?.mail
+        }))
 );
 
 const resources = computed(() =>
@@ -59,6 +61,7 @@ function copyLink() {
 
         <event-footer-section
             :label="$tc('mail.viewer.invitation.attendee', attendees?.length, { count: attendees?.length })"
+            :expandable="attendees?.length > 0"
         >
             <div v-for="(attendee, index) in attendees" :key="index" class="event-footer-entry" role="listitem">
                 <mail-contact-card-slots
