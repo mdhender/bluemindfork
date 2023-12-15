@@ -32,7 +32,6 @@ import com.google.common.base.Splitter;
 
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
-import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.http.HttpServerRequest;
@@ -150,25 +149,20 @@ public final class Nginx implements Handler<HttpServerRequest>, NeedVertxExecuto
 			}
 			QueryParameters qp = QueryParameters.fromRequest(req, time);
 
-			vertx.executeBlocking((Promise<AuthResponse> prom) -> {
-				try {
-					prom.complete(computeResponse(qp));
-				} catch (Exception e) {
-					prom.fail(e);
-				}
-			}, false, res -> {
-				Throwable ex = res.cause();
-				AuthResponse ar = res.result();
-				if (ex != null) {
-					logger.error(ex.getMessage(), ex);
-					fail(qp, resp);
-				} else if (ar.validation == ValidationKind.NONE || ar.validation == ValidationKind.PASSWORDEXPIRED) {
-					fail(qp, resp);
-				} else {
-					succeed(resp, qp, ar.backendSrv, ar.backendLatd);
-				}
-				resp.end();
-			});
+			vertx.executeBlocking(() -> this.computeResponse(qp), false) //
+					.onSuccess(ar -> {
+						if (ar.validation == ValidationKind.NONE || ar.validation == ValidationKind.PASSWORDEXPIRED) {
+							fail(qp, resp);
+						} else {
+							succeed(resp, qp, ar.backendSrv, ar.backendLatd);
+						}
+						resp.end();
+					}) //
+					.onFailure(ex -> {
+						logger.error(ex.getMessage(), ex);
+						fail(qp, resp);
+						resp.end();
+					});
 
 		});
 	}
