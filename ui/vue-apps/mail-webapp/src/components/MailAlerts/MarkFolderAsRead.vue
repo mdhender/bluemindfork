@@ -1,21 +1,18 @@
 <template>
     <i18n :path="path" tag="span">
         <template #name>
-            <router-link :to="folderRoute(folder)">
-                <strong><mail-folder-icon :folder="folder" :mailbox="payload.mailbox" /></strong>
-            </router-link>
+            <folder-route-link :folder="folder" />
         </template>
     </i18n>
 </template>
 <script>
 import { AlertMixin } from "@bluemind/alert.store";
-import MailFolderIcon from "../MailFolderIcon";
-import { MailRoutesMixin } from "~/mixins";
+import FolderRouteLink from "../FolderRouteLink";
 
 export default {
     name: "MarkFolderAsRead",
-    components: { MailFolderIcon },
-    mixins: [AlertMixin, MailRoutesMixin],
+    components: { FolderRouteLink },
+    mixins: [AlertMixin],
     computed: {
         folder() {
             return this.payload.folder;

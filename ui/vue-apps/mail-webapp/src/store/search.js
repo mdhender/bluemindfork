@@ -1,4 +1,4 @@
-import { CONVERSATION_LIST_IS_FILTERED, HAS_PATTERN, IS_TYPING_IN_SEARCH } from "~/getters";
+import { IS_SEARCH_ENABLED, HAS_PATTERN, IS_TYPING_IN_SEARCH } from "~/getters";
 import {
     RESET_CURRENT_SEARCH_PATTERN,
     SET_CURRENT_SEARCH_DEEP,
@@ -63,8 +63,7 @@ const actions = {
 };
 
 const getters = {
-    [CONVERSATION_LIST_IS_FILTERED]: ({ searchQuery }) =>
-        !!searchQuery.pattern && searchQuery.pattern.trim().length > 0,
+    [IS_SEARCH_ENABLED]: ({ searchQuery }) => !!searchQuery.pattern && searchQuery.pattern.trim().length > 0,
     [HAS_PATTERN]: ({ currentSearch }) => currentSearch.pattern?.length >= 0,
     [IS_TYPING_IN_SEARCH]: ({ currentSearch, searchQuery }) =>
         currentSearch.pattern !== null && currentSearch.pattern !== searchQuery.pattern

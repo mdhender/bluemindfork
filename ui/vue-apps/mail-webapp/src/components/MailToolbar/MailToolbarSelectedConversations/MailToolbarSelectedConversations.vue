@@ -53,6 +53,15 @@
             />
             <mail-toolbar-selected-conversations-other-actions :compact="compact" />
         </template>
+        <template v-else-if="CONVERSATION_LIST_DELETED_FILTER_ENABLED">
+            <mail-toolbar-responsive-button
+                :title="unexpungeAriaText()"
+                icon="clock-rewind"
+                :label="unexpungeText"
+                :compact="compact"
+                @click="unexpunge()"
+            />
+        </template>
     </div>
 </template>
 

@@ -1,6 +1,6 @@
 import cloneDeep from "lodash.clonedeep";
 import store from "../search";
-import { CONVERSATION_LIST_IS_FILTERED, HAS_PATTERN, IS_TYPING_IN_SEARCH } from "~/getters";
+import { IS_SEARCH_ENABLED, HAS_PATTERN, IS_TYPING_IN_SEARCH } from "~/getters";
 import {
     SET_CURRENT_SEARCH_PATTERN,
     SET_SEARCH_QUERY_FOLDER,
@@ -50,12 +50,12 @@ describe("search", () => {
         });
     });
     describe("getters", () => {
-        test("CONVERSATION_LIST_IS_FILTERED", () => {
-            expect(store.getters[CONVERSATION_LIST_IS_FILTERED](state)).toBeFalsy();
+        test("IS_SEARCH_ENABLED", () => {
+            expect(store.getters[IS_SEARCH_ENABLED](state)).toBeFalsy();
             state.searchQuery.pattern = "Search pattern";
-            expect(store.getters[CONVERSATION_LIST_IS_FILTERED](state)).toBeTruthy();
+            expect(store.getters[IS_SEARCH_ENABLED](state)).toBeTruthy();
             state.searchQuery.pattern = "   ";
-            expect(store.getters[CONVERSATION_LIST_IS_FILTERED](state)).toBeFalsy();
+            expect(store.getters[IS_SEARCH_ENABLED](state)).toBeFalsy();
         });
         test("HAS_PATTERN", () => {
             expect(store.getters[HAS_PATTERN](state)).toBeFalsy();

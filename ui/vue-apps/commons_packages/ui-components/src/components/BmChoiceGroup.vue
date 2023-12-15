@@ -97,7 +97,9 @@ export default {
             }
         },
         addBottomSelectorClass(index) {
-            this.bottomSelectorPosition = this.options[index].value;
+            if (index > -1) {
+                this.bottomSelectorPosition = this.options[index]?.value;
+            }
         }
     }
 };

@@ -1,5 +1,5 @@
 <template>
-    <chain-of-responsibility :is-responsible="CONVERSATION_LIST_IS_FILTERED">
+    <chain-of-responsibility :is-responsible="IS_SEARCH_ENABLED">
         <section class="mail-home-screen mail-search-screen" aria-labelledby="text-1">
             <div class="starter-text-and-actions">
                 <div class="starter-main">
@@ -17,7 +17,7 @@
 
 <script>
 import { mapGetters } from "vuex";
-import { CONVERSATION_LIST_IS_RESOLVED, CONVERSATION_LIST_IS_FILTERED, CONVERSATION_LIST_COUNT } from "~/getters";
+import { CONVERSATION_LIST_IS_RESOLVED, IS_SEARCH_ENABLED, CONVERSATION_LIST_COUNT } from "~/getters";
 
 import { BmButton, BmIllustration } from "@bluemind/ui-components";
 
@@ -29,7 +29,7 @@ export default {
     computed: {
         ...mapGetters("mail", {
             CONVERSATION_LIST_IS_RESOLVED,
-            CONVERSATION_LIST_IS_FILTERED,
+            IS_SEARCH_ENABLED,
             CONVERSATION_LIST_COUNT
         }),
 

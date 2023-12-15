@@ -2,22 +2,20 @@
     <i18n :path="path" tag="span">
         <template #folder> <mail-folder-icon :folder="folder" :mailbox="payload.mailbox" /> </template>
         <template #destination>
-            <router-link v-if="destination" :to="folderRoute(destination)">
-                <strong><mail-folder-icon :folder="destination" :mailbox="payload.mailbox" /></strong>
-            </router-link>
-            <span v-else> {{ $t("alert.mail.move_folder.to_mailbox_root", { mailbox }) }}</span>
+            <folder-route-link v-if="destination" :folder="destination" />
+            <span v-else> {{ $t("alert.mail.move_folder.to_mailbox_root", { mailbox: mailbox }) }}</span>
         </template>
     </i18n>
 </template>
 <script>
 import { AlertMixin } from "@bluemind/alert.store";
-import { MailRoutesMixin } from "~/mixins";
+import FolderRouteLink from "../FolderRouteLink.vue";
 import MailFolderIcon from "../MailFolderIcon";
 
 export default {
     name: "MoveFolder",
-    components: { MailFolderIcon },
-    mixins: [AlertMixin, MailRoutesMixin],
+    components: { FolderRouteLink, MailFolderIcon },
+    mixins: [AlertMixin],
     computed: {
         folder() {
             return this.payload.folder;

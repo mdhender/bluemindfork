@@ -6,11 +6,23 @@
             </template>
         </bm-alert-area>
         <section class="mail-home-screen" aria-labelledby="text-1">
-            <div class="starter-text-and-actions">
+            <div class="starter-text-and-actions" :class="{ 'with-call-to-action': hasCallToAction }">
                 <div class="starter-main">
                     <h1 id="text-1">{{ mainText }}</h1>
+                    <div v-if="hasCallToAction" class="call-to-action">
+                        <bm-button
+                            v-if="CONVERSATION_LIST_DELETED_FILTER_ENABLED"
+                            size="lg"
+                            icon="clock-rewind"
+                            variant="fill-accent"
+                            @click="unexpunge()"
+                        >
+                            {{ $t("mail.actions.recover") }}
+                        </bm-button>
+                    </div>
                 </div>
             </div>
+
             <div class="illustration-and-actions">
                 <div
                     v-if="ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE && !CONVERSATION_LIST_DELETED_FILTER_ENABLED"
@@ -103,7 +115,6 @@ import {
 import { UNSELECT_ALL_CONVERSATIONS } from "~/mutations";
 
 import { folderUtils } from "@bluemind/mail";
-
 import { BmAlertArea, BmButton, BmIllustration } from "@bluemind/ui-components";
 
 import { ActionTextMixin, FlagMixin, MoveMixin, RemoveMixin, SelectionMixin } from "~/mixins";
@@ -171,6 +182,9 @@ export default {
             return this.CONVERSATIONS_ACTIVATED
                 ? this.$tc("mail.actions.move.conversations.aria", 2)
                 : this.$tc("mail.actions.move.aria", 2);
+        },
+        hasCallToAction() {
+            return this.CONVERSATION_LIST_DELETED_FILTER_ENABLED;
         }
     },
     watch: {
@@ -226,6 +240,9 @@ export default {
     .mail-home-screen {
         .starter-text-and-actions {
             flex: 0 1 base-px-to-rem(80);
+            &.with-call-to-action {
+                flex: 0 1 base-px-to-rem(130);
+            }
         }
 
         .cancel-selection-btn-wrapper {

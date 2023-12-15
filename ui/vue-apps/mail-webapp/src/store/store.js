@@ -104,10 +104,10 @@ export const getters = {
     [ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE]: (state, { CURRENT_MAILBOX }) => CURRENT_MAILBOX.writable,
     [ALL_CONVERSATIONS_ARE_SELECTED]: (state, { SELECTION_KEYS, CONVERSATION_LIST_ALL_KEYS }) =>
         SELECTION_KEYS.length > 0 && SELECTION_KEYS.length === CONVERSATION_LIST_ALL_KEYS.length,
-    [CONVERSATIONS_ACTIVATED]: (state, { CONVERSATION_LIST_IS_FILTERED }) =>
+    [CONVERSATIONS_ACTIVATED]: (state, { IS_SEARCH_ENABLED }) =>
         state.mailThreadSetting === "true" &&
         state.folders[state.activeFolder].allowConversations &&
-        !CONVERSATION_LIST_IS_FILTERED,
+        !IS_SEARCH_ENABLED,
     [FILTERED_USER_RESULTS]: ({ folderList }, getters) => {
         const results = {};
         if (getters[FOLDER_LIST_IS_FILTERED] && !getters[FOLDER_LIST_IS_LOADING]) {

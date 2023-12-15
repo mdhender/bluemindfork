@@ -82,6 +82,9 @@ export default {
         getLeafParts(message.structure).forEach(
             part => part.address && api(message.folderRef.uid).removePart(part.address)
         );
+    },
+    unexpunge(message) {
+        return api(message.folderRef.uid).unexpunge(message.remoteRef.uid);
     }
 };
 

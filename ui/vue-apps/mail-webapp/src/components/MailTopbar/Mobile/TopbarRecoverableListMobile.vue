@@ -6,6 +6,6 @@ const route = { name: "v:mail:home", params: { filter: null } };
 <template>
     <bm-navbar class="topbar-recoverable-list-mobile">
         <bm-navbar-back :to="$router.relative(route, $route)" />
-        <bm-navbar-title :title="$t('mail.recoverable.back')" />
+        <bm-navbar-title :title="$t('mail.recoverable')" />
     </bm-navbar>
 </template>

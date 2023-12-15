@@ -29,6 +29,7 @@
     </bm-draggable>
     <conversation-list-item
         v-else
+        class="draggable-conversation"
         :conversation="conversation"
         :is-selected="isSelected"
         :multiple="multiple"

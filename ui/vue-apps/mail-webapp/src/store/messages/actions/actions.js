@@ -2,16 +2,19 @@ import { draftUtils, loadingStatusUtils, messageUtils } from "@bluemind/mail";
 import { MESSAGE_IS_LOADED } from "~/getters";
 
 import {
+    ADD_CONVERSATIONS,
     ADD_FLAG,
     ADD_MESSAGES,
     DELETE_FLAG,
     MOVE_MESSAGES,
     REMOVE_MESSAGES,
-    SET_MESSAGES_LOADING_STATUS
+    SET_MESSAGES_LOADING_STATUS,
+    SET_CONVERSATION_LIST_STATUS
 } from "~/mutations";
-import { FETCH_MESSAGE_METADATA } from "~/actions";
+import { FETCH_MESSAGE_METADATA, REMOVE_CONVERSATIONS } from "~/actions";
 import apiMessages from "../../api/apiMessages";
 import { FolderAdaptor } from "../../folders/helpers/FolderAdaptor";
+import { ConversationListStatus } from "../../conversationList";
 
 const { draftKey } = draftUtils;
 const { LoadingStatus } = loadingStatusUtils;
@@ -130,5 +133,20 @@ export async function moveMessages({ commit }, { conversation, messages, folder 
     } catch (e) {
         commit(MOVE_MESSAGES, { conversation, messages: partial });
         throw e;
+    }
+}
+
+export async function unexpunge({ commit }, { messages }) {
+    commit(SET_CONVERSATION_LIST_STATUS, ConversationListStatus.BUSY);
+    commit(REMOVE_CONVERSATIONS, messages);
+
+    try {
+        const promises = messages.map(message => apiMessages.unexpunge(message));
+        await Promise.all(promises);
+    } catch (err) {
+        commit(ADD_CONVERSATIONS, { conversations: messages });
+        throw err;
+    } finally {
+        commit(SET_CONVERSATION_LIST_STATUS, ConversationListStatus.IDLE);
     }
 }

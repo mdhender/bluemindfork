@@ -54,6 +54,20 @@
                 "success": "{count} E-Mails wurden erfolgreich markiert.",
                 "error": "Fehler beim Markieren der Nachrichten."
             },
+            "unexpunge": {
+                "loading": {
+                    "single": "\"{subject}\" wird gerade aus dem {folder} geholt...",
+                    "plural": "{count} Nachrichten werden abgerufen..."
+                },
+                "success": {
+                    "single": "\"{subject}\" wurde aus dem in den {folder} wiederhergestellt.",
+                    "plural": "{count} Nachrichten wurden aus dem {folder} geholt"
+                },
+                "error": {
+                    "single": "\"{subject}\" konnte nicht abgerufen werden.",
+                    "plural": "{count} Nachrichten konnten nicht abgerufen werden."
+                }
+            },
             "mark_messages_as_read": {
                 "loading": "Markiere {count} E-Mails als gelesen...",
                 "success": "{count} E-Mails erfolgreich als gelesen markiert.",
@@ -188,6 +202,8 @@
     "mail.actions.mark_conversations_flagged.aria": "{subject} nicht markiert, klicken Sie zum markieren | Markiere ausgewählte Konversationen",
     "mail.actions.mark_unflagged": "Markierung löschen",
     "mail.actions.mark_unflagged.aria": "{subject} markiert, klicken Sie um Markierung zu löschen | Lösche Markierung der ausgewählten E-Mails",
+    "mail.actions.unexpunge": "Wiederherstellen",
+    "mail.actions.unexpunge.aria": "Wiederherstellung der \"{subject}\" Nachricht",
     "mail.actions.mark_conversations_unflagged.aria": "{subject} markiert, klicken Sie um Markierung zu löschen | Lösche Markierung der ausgewählten Konversationen",
     "mail.actions.move_folder.aria": "Verschiebe Ordner {name}",
     "mail.actions.move_folder.excluded_folder.descendant": "Verschieben in seine Unterordner nicht möglich",
@@ -398,6 +414,7 @@
     "mail.preview.nopreview.invalid": "Der geteilte Link ist ungültig",
     "mail.preview.nopreview": "Datei kann nicht in der Vorschau angezeigt werden",
     "mail.recoverable.back": "Zurück zu Papierkorb",
+    "mail.recoverable": "Abrufbare Nachrichten",
     "mail.search.options.folder.current": "Aktueller Ordner",
     "mail.search.options.folder.label": "Suche in",
     "mail.search.options.modal.title": "Sucheinstellungen",

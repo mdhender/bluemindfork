@@ -4,10 +4,10 @@
         :class="{ 'search-typing': IS_TYPING_IN_SEARCH, 'mail-conversation-list': true }"
         :style="mailConversationListWidth"
     >
-        <search-result-header v-if="CONVERSATION_LIST_IS_FILTERED" />
+        <search-result-header v-if="IS_SEARCH_ENABLED" />
         <folder-result-header v-else />
         <search-input-mobile v-if="HAS_PATTERN" class="mobile-only" />
-        <search-result v-if="CONVERSATION_LIST_IS_FILTERED" class="mail-conversation-list-content" />
+        <search-result v-if="IS_SEARCH_ENABLED" class="mail-conversation-list-content" />
         <folder-result v-else class="mail-conversation-list-content" />
     </section>
 </template>
@@ -18,7 +18,8 @@ import debounce from "lodash.debounce";
 
 import {
     CONVERSATION_LIST_COUNT,
-    CONVERSATION_LIST_IS_FILTERED,
+    CONVERSATION_LIST_DELETED_FILTER_ENABLED,
+    IS_SEARCH_ENABLED,
     CONVERSATION_LIST_KEYS,
     CONVERSATION_MESSAGE_BY_KEY,
     CONVERSATIONS_ACTIVATED,
@@ -54,7 +55,8 @@ export default {
         ...mapGetters("mail", {
             CONVERSATION_MESSAGE_BY_KEY,
             CONVERSATION_LIST_COUNT,
-            CONVERSATION_LIST_IS_FILTERED,
+            CONVERSATION_LIST_DELETED_FILTER_ENABLED,
+            IS_SEARCH_ENABLED,
             CONVERSATION_LIST_KEYS,
             HAS_PATTERN,
             IS_TYPING_IN_SEARCH
@@ -108,7 +110,7 @@ export default {
     bus: {
         [PUSHED_FOLDER_CHANGES]: async function (folderUid) {
             if (
-                !this.CONVERSATION_LIST_IS_FILTERED &&
+                !this.IS_SEARCH_ENABLED &&
                 (this.folder.remoteRef.uid === folderUid || (this.CONVERSATIONS_ACTIVATED && this.isCurrentMailbox()))
             ) {
                 this.refreshList(folderUid);

@@ -128,7 +128,7 @@ const actions = {
     async [REFRESH_CONVERSATION_LIST_KEYS]({ commit, state, getters }, { folder, conversationsActivated }) {
         let conversations = [];
         let hasMoreResults = false;
-        if (getters.CONVERSATION_LIST_IS_FILTERED) {
+        if (getters.IS_SEARCH_ENABLED) {
             const res = await search(state, folder);
             hasMoreResults = res.hasMoreResults;
             conversations = res.results;

@@ -54,6 +54,20 @@
                 "success": "{count}  messages sont dorénavant suivis.",
                 "error": "Le suivi n'a pas pu être assuré pour les messages sélectionnés."
             },
+            "unexpunge": {
+                "loading": {
+                    "single": "\"{subject}\" est en train d'être récupéré dans la {folder}...",
+                    "plural": "{count} messages sont en train d'être récupérés..."
+                },
+                "success": {
+                    "single": "\"{subject}\" a été récupéré dans la {folder}. ",
+                    "plural": "{count} messages ont été récupérés dans la {folder}."
+                },
+                "error": {
+                    "single": "\"{subject}\" n'a pas pu être récupéré.",
+                    "plural": "{count} messages n'ont été pas pu être récupérés."
+                }
+            },
             "mark_messages_as_read": {
                 "loading": "{count} messages sont en train d'être marqués comme lus...",
                 "success": "{count} messages ont bien été marqués comme lus.",
@@ -188,6 +202,8 @@
     "mail.actions.mark_conversations_flagged.aria": "Conversation \"{subject}\" non suivie, cliquez pour suivre | Assurer le suivi des conversations sélectionnées",
     "mail.actions.mark_unflagged": "Ne plus suivre",
     "mail.actions.mark_unflagged.aria": "Message \"{subject}\" suivi, cliquez pour ne plus suivre | Ne plus assurer le suivi des messages sélectionnés",
+    "mail.actions.unexpunge": "Récupérer",
+    "mail.actions.unexpunge.aria": "Récupérer le message \"{subject}\"",
     "mail.actions.mark_conversations_unflagged.aria": "Conversation \"{subject}\" suivie, cliquez pour ne plus suivre | Ne plus assurer le suivi des conversations sélectionnées",
     "mail.actions.move_folder.aria": "Déplacer le dossier {name}",
     "mail.actions.move_folder.excluded_folder.descendant": "Impossible de déplacer vers ses sous-dossiers",
@@ -399,6 +415,7 @@
     "mail.preview.nopreview.invalid": "Le lien partagé est invalide",
     "mail.preview.nopreview": "Ce fichier n'est pas prévisualisable",
     "mail.recoverable.back": "Retourner à la Corbeille",
+    "mail.recoverable": "Messages à récupérer",
     "mail.search.options.folder.current": "Ce dossier",
     "mail.search.options.folder.label": "Rechercher dans",
     "mail.search.options.modal.title": "Paramètres de recherche",
@@ -524,7 +541,8 @@
             "new_template_full": "Créer un nouveau modèle",
             "print": {
                 "title": "Imprimer le dernier message de la conversation \"{subject}\""
-            }
+            },
+            "recover": "Récupérer les messages"
         },
         "compose": {
             "save": {

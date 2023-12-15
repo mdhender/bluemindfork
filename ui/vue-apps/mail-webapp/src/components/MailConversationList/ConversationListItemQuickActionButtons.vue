@@ -1,6 +1,15 @@
 <template>
-    <bm-button-group>
-        <template v-if="isWritable && !isDeleted">
+    <bm-button-group v-if="isWritable">
+        <template v-if="isDeleted">
+            <bm-icon-button
+                :aria-label="unexpungeAriaText(1, subject)"
+                :title="unexpungeAriaText(1, subject)"
+                variant="compact"
+                icon="clock-rewind"
+                @click.prevent.stop="unexpunge([conversation])"
+            />
+        </template>
+        <template v-else>
             <bm-icon-button
                 :aria-label="removeAriaText(1, subject)"
                 :title="removeAriaText(1, subject)"
@@ -56,11 +65,12 @@
 
 <script>
 import { BmButtonGroup, BmIconButton } from "@bluemind/ui-components";
-import { mapState, mapGetters } from "vuex";
+import { mapState, mapGetters, mapActions } from "vuex";
 import { messageUtils } from "@bluemind/mail";
 import { Flag } from "@bluemind/email";
 import { ActionTextMixin, FlagMixin, RemoveMixin, MailRoutesMixin } from "~/mixins";
 import { MY_DRAFTS, MY_TEMPLATES } from "~/getters";
+
 import MessagePathParam from "~/router/MessagePathParam";
 
 const { MessageCreationModes } = messageUtils;

@@ -3,22 +3,19 @@
     <default-alert v-else-if="alert.type === AlertTypes.ERROR" :alert="alert" />
     <i18n v-else-if="alert.type === AlertTypes.SUCCESS" :path="path" tag="span">
         <template #name>
-            <router-link :to="folderRoute(folder)">
-                <strong><mail-folder-icon :folder="folder" :mailbox="mailboxes[folder.mailboxRef.key]" /></strong>
-            </router-link>
+            <folder-route-link :folder="folder" />
         </template>
     </i18n>
 </template>
 <script>
 import { mapState } from "vuex";
 import { AlertMixin, DefaultAlert } from "@bluemind/alert.store";
-import MailFolderIcon from "../MailFolderIcon";
-import { MailRoutesMixin } from "~/mixins";
+import FolderRouteLink from "../FolderRouteLink";
 
 export default {
     name: "RenameFolder",
-    components: { DefaultAlert, MailFolderIcon },
-    mixins: [AlertMixin, MailRoutesMixin],
+    components: { DefaultAlert, FolderRouteLink },
+    mixins: [AlertMixin],
     computed: {
         ...mapState("mail", ["folders", "mailboxes"]),
         name() {

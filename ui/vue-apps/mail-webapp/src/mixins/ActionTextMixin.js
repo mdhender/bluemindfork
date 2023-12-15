@@ -27,6 +27,9 @@ export default {
         },
         moveText() {
             return this.$tc("mail.actions.move", this.selectionLength);
+        },
+        unexpungeText() {
+            return this.$tc("mail.actions.unexpunge", this.selectionLength);
         }
     },
     methods: {
@@ -59,6 +62,9 @@ export default {
             return this.$_AlertTextMixin_CONVERSATIONS_ACTIVATED
                 ? this.$tc("mail.actions.move.conversations.aria", length, { subject })
                 : this.$tc("mail.actions.move.aria", length, { subject });
+        },
+        unexpungeAriaText(length = this.selectionLength, subject = this.$_ActionTextMixin_subject) {
+            return this.$tc("mail.actions.unexpunge.aria", length, { subject });
         }
     }
 };
