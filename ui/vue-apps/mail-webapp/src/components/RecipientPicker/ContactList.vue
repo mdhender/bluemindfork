@@ -11,6 +11,7 @@
             :fill="false"
             selectable
             selected-variant=""
+            select-mode="range"
             show-empty
             @row-selected="$emit('selected', $event)"
         >
