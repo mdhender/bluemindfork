@@ -146,9 +146,13 @@ public class NewMailshare extends CompositeGwtWidgetElement {
 
 		JsMailshare mailshare = map.get("mailshare").cast();
 		mailshare.setName(name.asEditor().getValue());
-		mailshare.setEmails(mailTable.asEditor().getValue());
 		mailshare.setArchived(false);
-		mailshare.setRouting(JsMailboxRouting.create(Routing.internal));
+		if (mailperms.getValue()) {
+			mailshare.setEmails(mailTable.asEditor().getValue());
+			mailshare.setRouting(JsMailboxRouting.create(Routing.internal));
+		} else {
+			mailshare.setRouting(JsMailboxRouting.create(Routing.none));
+		}
 		mailshare.setOrgUnitUid(delegation.asEditor().getValue());
 		mailshare.setDataLocation(mailBackend.getSelectedValue());
 	}

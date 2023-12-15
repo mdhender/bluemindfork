@@ -58,7 +58,7 @@ public class MailshareGeneralEditor extends CompositeGwtWidgetElement {
 
 	private static GenralUiBinder uiBinder = GWT.create(GenralUiBinder.class);
 
-	private String domainUid;
+	private ItemValue<Domain> domain;
 
 	@UiField
 	StringEdit name;
@@ -94,7 +94,7 @@ public class MailshareGeneralEditor extends CompositeGwtWidgetElement {
 	private void routingChanged() {
 		boolean noneRouting = routing.getSelectedValue().equals(Routing.none.name());
 		if (!noneRouting && mailTable.asEditor().getValue().length() == 0) {
-			mailTable.asWidget().setValue(name.asEditor().getValue(), domainUid);
+			mailTable.asWidget().setValue(name.asEditor().getValue(), domain.value.defaultAlias);
 		}
 		mailPanel.setVisible(!noneRouting);
 	}
@@ -103,15 +103,13 @@ public class MailshareGeneralEditor extends CompositeGwtWidgetElement {
 	public void loadModel(JavaScriptObject model) {
 		GWT.log("load MODEL edit general !!!!");
 		JsMapStringJsObject map = model.cast();
-		domainUid = map.getString("domainUid");
 
 		if (map.get("mailshare") == null) {
 			GWT.log("mailshare not found..");
 			return;
 		}
 
-		ItemValue<Domain> domain = new ItemValueGwtSerDer<>(new DomainGwtSerDer())
-				.deserialize(new JSONObject(map.get("domain")));
+		domain = new ItemValueGwtSerDer<>(new DomainGwtSerDer()).deserialize(new JSONObject(map.get("domain")));
 		JsMailshare mailshare = map.get("mailshare").cast();
 		name.asEditor().setValue(mailshare.getName());
 
