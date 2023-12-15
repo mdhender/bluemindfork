@@ -20,6 +20,7 @@ package net.bluemind.system.ldap.importation.search;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.text.ParseException;
 import java.util.Collections;
@@ -28,6 +29,7 @@ import java.util.Optional;
 import org.apache.directory.api.ldap.model.filter.FilterParser;
 import org.junit.Test;
 
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.system.ldap.importation.api.LdapConstants;
 import net.bluemind.system.ldap.importation.api.LdapProperties;
@@ -35,6 +37,8 @@ import net.bluemind.system.ldap.importation.internal.tools.GroupManagerImpl;
 import net.bluemind.system.ldap.importation.internal.tools.LdapParameters;
 
 public class LdapGroupSearchFilterTest {
+	private static final String TESTUUID = "97d55733-4a94-4e4f-a847-47b1f6162e1b";
+
 	private Domain getDomain() {
 		Domain domain = new Domain();
 
@@ -58,15 +62,15 @@ public class LdapGroupSearchFilterTest {
 		Domain domain = getDomain();
 		domain.properties.put(LdapProperties.import_ldap_group_filter.name(), null);
 
-		assertEquals("", new LdapGroupSearchFilter().getSearchFilter(
-				LdapParameters.build(domain, Collections.<String, String>emptyMap()), Optional.empty(), null, null));
+		assertEquals("", new LdapGroupSearchFilter()
+				.getSearchFilter(LdapParameters.build(domain, Collections.<String, String>emptyMap())));
 	}
 
 	@Test
 	public void groupFilterOnly() throws ParseException {
 		Domain domain = getDomain();
-		String filter = new LdapGroupSearchFilter().getSearchFilter(
-				LdapParameters.build(domain, Collections.<String, String>emptyMap()), Optional.empty(), null, null);
+		String filter = new LdapGroupSearchFilter()
+				.getSearchFilter(LdapParameters.build(domain, Collections.<String, String>emptyMap()));
 
 		assertEquals(LdapProperties.import_ldap_group_filter.getDefaultValue(), filter);
 		FilterParser.parse(filter);
@@ -77,7 +81,7 @@ public class LdapGroupSearchFilterTest {
 	}
 
 	private String getExpectedUuidFilterPart(String uuidAttr) {
-		return "(" + uuidAttr + "=uuid)";
+		return "(" + uuidAttr + "=" + TESTUUID + ")";
 	}
 
 	private String getExpectedNameFilterPart() {
@@ -90,46 +94,13 @@ public class LdapGroupSearchFilterTest {
 		domain.properties.put(LdapProperties.import_ldap_group_filter.name(), "groupfilter");
 
 		// Groupfilter + lastupdate
-		String filter = new LdapGroupSearchFilter().getSearchFilter(
-				LdapParameters.build(domain, Collections.<String, String>emptyMap()), Optional.of("lastupdate"), null,
-				null);
+		String filter = new LdapGroupSearchFilter().getSearchFilterByLastModification(
+				LdapParameters.build(domain, Collections.<String, String>emptyMap()), Optional.of("lastupdate"));
 
 		FilterParser.parse(filter);
 		assertTrue(filter.contains("groupfilter"));
 		assertTrue(filter.contains(getExpectedLastUpdateFilterPart()));
 		assertEquals("(&)", filter.replace("groupfilter", "").replace(getExpectedLastUpdateFilterPart(), ""));
-
-		// Groupfilter + lastupdate + UUID
-		filter = new LdapGroupSearchFilter().getSearchFilter(
-				LdapParameters.build(domain, Collections.<String, String>emptyMap()), Optional.of("lastupdate"), "uuid",
-				null);
-
-		FilterParser.parse(filter);
-		assertTrue(filter.contains("groupfilter"));
-		assertTrue(filter.contains(getExpectedLastUpdateFilterPart()));
-		assertTrue(filter.contains(getExpectedUuidFilterPart(
-				LdapParameters.build(domain, Collections.<String, String>emptyMap()).ldapDirectory.extIdAttribute)));
-		assertEquals("(&)",
-				filter.replace("groupfilter", "").replace(getExpectedLastUpdateFilterPart(), "")
-						.replace(getExpectedUuidFilterPart(LdapParameters.build(domain,
-								Collections.<String, String>emptyMap()).ldapDirectory.extIdAttribute), ""));
-
-		// Groupfilter + lastupdate + UUID + name
-		filter = new LdapGroupSearchFilter().getSearchFilter(
-				LdapParameters.build(domain, Collections.<String, String>emptyMap()), Optional.of("lastupdate"), "uuid",
-				"name");
-
-		FilterParser.parse(filter);
-		assertTrue(filter.contains("groupfilter"));
-		assertTrue(filter.contains(getExpectedLastUpdateFilterPart()));
-		assertTrue(filter.contains(getExpectedNameFilterPart()));
-		assertTrue(filter.contains(getExpectedUuidFilterPart(
-				LdapParameters.build(domain, Collections.<String, String>emptyMap()).ldapDirectory.extIdAttribute)));
-		assertEquals("(&)",
-				filter.replace("groupfilter", "").replace(getExpectedLastUpdateFilterPart(), "")
-						.replace(getExpectedUuidFilterPart(LdapParameters.build(domain,
-								Collections.<String, String>emptyMap()).ldapDirectory.extIdAttribute), "")
-						.replace(getExpectedNameFilterPart(), ""));
 	}
 
 	@Test
@@ -138,8 +109,8 @@ public class LdapGroupSearchFilterTest {
 		domain.properties.put(LdapProperties.import_ldap_group_filter.name(), "groupfilter");
 
 		// Groupfilter + UUID
-		String filter = new LdapGroupSearchFilter().getSearchFilter(
-				LdapParameters.build(domain, Collections.<String, String>emptyMap()), Optional.empty(), "uuid", null);
+		String filter = new LdapGroupSearchFilter()
+				.getSearchFilterByUuid(LdapParameters.build(domain, Collections.<String, String>emptyMap()), TESTUUID);
 
 		FilterParser.parse(filter);
 		assertTrue(filter.contains("groupfilter"));
@@ -149,18 +120,9 @@ public class LdapGroupSearchFilterTest {
 				LdapParameters.build(domain, Collections.<String, String>emptyMap()).ldapDirectory.extIdAttribute),
 				""));
 
-		// Groupfilter + UUID + name
-		filter = new LdapGroupSearchFilter().getSearchFilter(
-				LdapParameters.build(domain, Collections.<String, String>emptyMap()), Optional.empty(), "uuid", "name");
-
-		FilterParser.parse(filter);
-		assertTrue(filter.contains("groupfilter"));
-		assertTrue(filter.contains(getExpectedNameFilterPart()));
-		assertTrue(filter.contains(getExpectedUuidFilterPart(
-				LdapParameters.build(domain, Collections.<String, String>emptyMap()).ldapDirectory.extIdAttribute)));
-		assertEquals("(&)", filter.replace("groupfilter", "").replace(getExpectedUuidFilterPart(
-				LdapParameters.build(domain, Collections.<String, String>emptyMap()).ldapDirectory.extIdAttribute), "")
-				.replace(getExpectedNameFilterPart(), ""));
+		filter = new LdapGroupSearchFilter()
+				.getSearchFilterByUuid(LdapParameters.build(domain, Collections.<String, String>emptyMap()), "invalid");
+		assertEquals("groupfilter", filter);
 	}
 
 	@Test
@@ -168,13 +130,27 @@ public class LdapGroupSearchFilterTest {
 		Domain domain = getDomain();
 		domain.properties.put(LdapProperties.import_ldap_group_filter.name(), "groupfilter");
 
-		// Groupfilter + UUID
-		String filter = new LdapGroupSearchFilter().getSearchFilter(
-				LdapParameters.build(domain, Collections.<String, String>emptyMap()), Optional.empty(), null, "name");
+		// Groupfilter + name
+		String filter = new LdapGroupSearchFilter()
+				.getSearchFilterByName(LdapParameters.build(domain, Collections.<String, String>emptyMap()), "name");
 
 		FilterParser.parse(filter);
 		assertTrue(filter.contains("groupfilter"));
 		assertTrue(filter.contains(getExpectedNameFilterPart()));
 		assertEquals("(&)", filter.replace("groupfilter", "").replace(getExpectedNameFilterPart(), ""));
+
+		try {
+			new LdapGroupSearchFilter()
+					.getSearchFilterByName(LdapParameters.build(domain, Collections.<String, String>emptyMap()), "");
+			fail("Test must thrown an exception");
+		} catch (ServerFault sf) {
+		}
+
+		try {
+			new LdapGroupSearchFilter()
+					.getSearchFilterByName(LdapParameters.build(domain, Collections.<String, String>emptyMap()), "  ");
+			fail("Test must thrown an exception");
+		} catch (ServerFault sf) {
+		}
 	}
 }

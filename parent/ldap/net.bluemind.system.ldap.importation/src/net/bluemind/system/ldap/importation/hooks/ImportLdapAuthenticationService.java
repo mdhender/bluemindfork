@@ -87,8 +87,8 @@ public class ImportLdapAuthenticationService extends ImportAuthenticationService
 
 			if (ldapConCtx.isPresent()) {
 				EntryCursor result = ldapConCtx.get().ldapCon.search(parameters.ldapDirectory.baseDn,
-						new LdapUserSearchFilter().getSearchFilter(parameters, Optional.empty(), userLogin, null),
-						SearchScope.SUBTREE, "dn");
+						new LdapUserSearchFilter().getSearchFilterByName(parameters, userLogin), SearchScope.SUBTREE,
+						"dn");
 
 				if (result.next()) {
 					ldapUserLogin = result.get().getDn().getName();
@@ -136,7 +136,7 @@ public class ImportLdapAuthenticationService extends ImportAuthenticationService
 			ldapConCtx = ldapPoolByDomain.getAuthenticatedConnectionContext(parameters);
 
 			if (ldapConCtx.isPresent()) {
-				String filter = new LdapUserSearchFilter().getSearchFilter(parameters, Optional.empty(), null, uuid);
+				String filter = new LdapUserSearchFilter().getSearchFilterByUuid(parameters, uuid);
 				EntryCursor result = ldapConCtx.get().ldapCon.search(parameters.ldapDirectory.baseDn, filter,
 						SearchScope.SUBTREE, "dn");
 

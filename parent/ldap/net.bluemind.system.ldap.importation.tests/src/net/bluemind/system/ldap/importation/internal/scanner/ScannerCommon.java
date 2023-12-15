@@ -80,8 +80,6 @@ import net.bluemind.system.ldap.importation.internal.tools.LdapHelper;
 import net.bluemind.system.ldap.importation.internal.tools.LdapParameters;
 import net.bluemind.system.ldap.importation.internal.tools.LdapUuidMapper;
 import net.bluemind.system.ldap.importation.internal.tools.UserManagerImpl;
-import net.bluemind.system.ldap.importation.search.LdapGroupSearchFilter;
-import net.bluemind.system.ldap.importation.search.LdapUserSearchFilter;
 import net.bluemind.system.ldap.importation.tests.enhancer.ScannerEnhancerHook;
 import net.bluemind.system.ldap.tests.helpers.LdapDockerTestHelper;
 import net.bluemind.user.api.User;
@@ -215,9 +213,9 @@ public abstract class ScannerCommon {
 		try (LdapConProxy ldapCon = LdapHelper
 				.connectLdap(LdapParameters.build(getDomain(), Collections.<String, String>emptyMap()))) {
 			PagedSearchResult entries = new DirectorySearch<>(
-					LdapParameters.build(getDomain(), Collections.<String, String>emptyMap()),
-					new LdapGroupSearchFilter(), new LdapUserSearchFilter()).findByFilterAndBaseDnAndScopeAndAttributes(
-							ldapCon, "(objectclass=*)", new Dn(dn), SearchScope.OBJECT, "*", "+",
+					LdapParameters.build(getDomain(), Collections.<String, String>emptyMap()))
+					.findByFilterAndBaseDnAndScopeAndAttributes(ldapCon, "(objectclass=*)", new Dn(dn),
+							SearchScope.OBJECT, "*", "+",
 							LdapProperties.import_ldap_ext_id_attribute.getDefaultValue());
 
 			while (entries.next()) {
@@ -296,9 +294,9 @@ public abstract class ScannerCommon {
 		try (LdapConProxy ldapCon = LdapHelper
 				.connectLdap(LdapParameters.build(getDomain(), Collections.<String, String>emptyMap()))) {
 			PagedSearchResult entries = new DirectorySearch<>(
-					LdapParameters.build(getDomain(), Collections.<String, String>emptyMap()),
-					new LdapGroupSearchFilter(), new LdapUserSearchFilter()).findByFilterAndBaseDnAndScopeAndAttributes(
-							ldapCon, "(objectclass=*)", new Dn(dn), SearchScope.OBJECT, "*", "+",
+					LdapParameters.build(getDomain(), Collections.<String, String>emptyMap()))
+					.findByFilterAndBaseDnAndScopeAndAttributes(ldapCon, "(objectclass=*)", new Dn(dn),
+							SearchScope.OBJECT, "*", "+",
 							LdapProperties.import_ldap_ext_id_attribute.getDefaultValue());
 
 			while (entries.next()) {

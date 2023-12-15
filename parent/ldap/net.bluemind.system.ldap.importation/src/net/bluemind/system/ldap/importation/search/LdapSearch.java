@@ -37,28 +37,33 @@ import net.bluemind.system.importation.search.PagedSearchResult;
 import net.bluemind.system.ldap.importation.internal.tools.LdapParameters;
 
 public class LdapSearch extends DirectorySearch<LdapParameters> {
+	private final LdapGroupSearchFilter groupFilter;
+	private final LdapUserSearchFilter userFilter;
+
 	public LdapSearch(LdapParameters ldapParameters) {
-		super(ldapParameters, new LdapGroupSearchFilter(), new LdapUserSearchFilter());
+		super(ldapParameters);
+		this.groupFilter = new LdapGroupSearchFilter();
+		this.userFilter = new LdapUserSearchFilter();
 	}
 
 	public PagedSearchResult findAllUsers(LdapConnection ldapCon) throws LdapException {
-		return findByFilter(ldapCon, userFilter.getSearchFilter(ldapParameters, Optional.empty(), null, null));
+		return findByFilter(ldapCon, userFilter.getSearchFilter(ldapParameters));
 	}
 
 	public PagedSearchResult findUsersDnByLastModification(LdapConnection ldapCon, Optional<String> lastUpdate)
 			throws LdapException {
 		return super.findByFilterAndAttributes(ldapCon,
-				userFilter.getSearchFilter(ldapParameters, lastUpdate, null, null));
+				userFilter.getSearchFilterByLastModification(ldapParameters, lastUpdate));
 	}
 
 	public PagedSearchResult findGroupsDnByLastModification(LdapConnection ldapCon, Optional<String> lastUpdate)
 			throws LdapException {
-		return findByFilterAndAttributes(ldapCon, groupFilter.getSearchFilter(ldapParameters, lastUpdate, null, null));
+		return findByFilterAndAttributes(ldapCon,
+				groupFilter.getSearchFilterByLastModification(ldapParameters, lastUpdate));
 	}
 
 	public PagedSearchResult findAllGroups(LdapConnection ldapCon) throws LdapException {
-		return findByFilterAndAttributes(ldapCon,
-				groupFilter.getSearchFilter(ldapParameters, Optional.empty(), null, null),
+		return findByFilterAndAttributes(ldapCon, groupFilter.getSearchFilter(ldapParameters),
 				ldapParameters.ldapDirectory.extIdAttribute);
 	}
 
@@ -72,7 +77,7 @@ public class LdapSearch extends DirectorySearch<LdapParameters> {
 	 */
 	public Optional<Entry> findUserFromDn(LdapConnection ldapCon, Dn userDn) throws LdapException {
 		try (PagedSearchResult cursor = super.findByFilterAndBaseDnAndScopeAndAttributes(ldapCon,
-				userFilter.getSearchFilter(ldapParameters, Optional.empty(), null, null), userDn, SearchScope.OBJECT,
+				userFilter.getSearchFilter(ldapParameters), userDn, SearchScope.OBJECT,
 				ldapParameters.ldapDirectory.extIdAttribute)) {
 			return StreamSupport.stream(cursor.spliterator(), false)
 					.filter(r -> r.getType() == MessageTypeEnum.SEARCH_RESULT_ENTRY)
@@ -91,7 +96,7 @@ public class LdapSearch extends DirectorySearch<LdapParameters> {
 	 */
 	public Optional<Entry> getGroupFromDn(LdapConnection ldapCon, Dn groupDn) throws LdapException {
 		try (PagedSearchResult cursor = super.findByFilterAndBaseDnAndScopeAndAttributes(ldapCon,
-				groupFilter.getSearchFilter(ldapParameters, Optional.empty(), null, null), groupDn, SearchScope.OBJECT,
+				groupFilter.getSearchFilter(ldapParameters), groupDn, SearchScope.OBJECT,
 				ldapParameters.ldapDirectory.extIdAttribute)) {
 			return StreamSupport.stream(cursor.spliterator(), false)
 					.filter(r -> r.getType() == MessageTypeEnum.SEARCH_RESULT_ENTRY)
@@ -112,13 +117,12 @@ public class LdapSearch extends DirectorySearch<LdapParameters> {
 			throw new NullOrEmptySplitGroupName();
 		}
 
-		return super.findByFilterAndAttributes(ldapCon, groupFilter.getSearchFilter(ldapParameters, Optional.empty(),
-				null, ldapParameters.splitDomain.relayMailboxGroup), "*");
+		return super.findByFilterAndAttributes(ldapCon,
+				groupFilter.getSearchFilterByName(ldapParameters, ldapParameters.splitDomain.relayMailboxGroup), "*");
 	}
 
 	public PagedSearchResult findByUserLogin(LdapConnection ldapCon, String userLogin) throws LdapException {
-		return super.findByFilterAndAttributes(ldapCon,
-				userFilter.getSearchFilter(ldapParameters, Optional.empty(), userLogin, null),
+		return super.findByFilterAndAttributes(ldapCon, userFilter.getSearchFilterByName(ldapParameters, userLogin),
 				ldapParameters.ldapDirectory.extIdAttribute);
 	}
 }

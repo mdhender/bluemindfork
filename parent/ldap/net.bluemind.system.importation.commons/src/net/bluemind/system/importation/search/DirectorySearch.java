@@ -27,13 +27,9 @@ import net.bluemind.system.importation.commons.Parameters;
 
 public class DirectorySearch<T extends Parameters> {
 	protected final T ldapParameters;
-	protected final GroupSearchFilter groupFilter;
-	protected final UserSearchFilter userFilter;
 
-	public DirectorySearch(T ldapParameters, GroupSearchFilter groupFilter, UserSearchFilter userFilter) {
+	public DirectorySearch(T ldapParameters) {
 		this.ldapParameters = ldapParameters;
-		this.groupFilter = groupFilter;
-		this.userFilter = userFilter;
 	}
 
 	public PagedSearchResult findByFilter(LdapConnection ldapCon, String filter) throws LdapException {

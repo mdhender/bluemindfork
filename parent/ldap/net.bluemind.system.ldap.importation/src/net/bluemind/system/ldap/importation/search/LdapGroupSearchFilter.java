@@ -18,47 +18,22 @@
  */
 package net.bluemind.system.ldap.importation.search;
 
-import java.util.Optional;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.system.importation.commons.Parameters;
-import net.bluemind.system.importation.search.GroupSearchFilter;
-import net.bluemind.system.ldap.importation.api.LdapConstants;
 import net.bluemind.system.ldap.importation.internal.tools.GroupManagerImpl;
 
-public class LdapGroupSearchFilter implements GroupSearchFilter {
-
-	private static final Logger logger = LoggerFactory.getLogger(LdapGroupSearchFilter.class);
-
+public class LdapGroupSearchFilter extends LdapCommonSearchFilter {
 	@Override
-	public <T extends Parameters> String getSearchFilter(T ldapParameters, Optional<String> lastUpdate, String uuid,
-			String name) {
-		String filter = ldapParameters.ldapDirectory.groupFilter;
-		String conditions = "";
-
-		if (lastUpdate.isPresent() && !lastUpdate.get().trim().isEmpty()) {
-			conditions += "(" + LdapConstants.MODIFYTIMESTAMP_ATTR + ">=" + lastUpdate.get() + ")";
+	protected String nameCondition(String name) {
+		if (name == null || name.isBlank()) {
+			throw new ServerFault("Invalid group name " + name);
 		}
 
-		if (uuid != null && !"".equals(uuid)) {
-			conditions += "(" + ldapParameters.ldapDirectory.extIdAttribute + "=" + uuid + ")";
-		}
-
-		if (name != null && !"".equals(name)) {
-			conditions += "(" + GroupManagerImpl.LDAP_NAME + "=" + name + ")";
-		}
-
-		if (!"".equals(conditions)) {
-			filter = "(&" + filter + conditions + ")";
-		}
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("Group search LDAP filter: " + filter);
-		}
-
-		return filter;
+		return "(" + GroupManagerImpl.LDAP_NAME + "=" + name + ")";
 	}
 
+	@Override
+	protected <T extends Parameters> String getFilter(T ldapParameters) {
+		return ldapParameters.ldapDirectory.groupFilter;
+	}
 }

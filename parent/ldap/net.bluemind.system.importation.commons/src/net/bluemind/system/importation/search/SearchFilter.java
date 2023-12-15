@@ -22,7 +22,13 @@ import java.util.Optional;
 
 import net.bluemind.system.importation.commons.Parameters;
 
-public interface UserSearchFilter {
-	public <T extends Parameters> String getSearchFilter(T ldapParameters, Optional<String> lastUpdate, String login,
-			String uuid);
+public interface SearchFilter {
+	public <T extends Parameters> String getSearchFilter(T ldapParameters);
+
+	public <T extends Parameters> String getSearchFilterByLastModification(T ldapParameters,
+			Optional<String> lastUpdate);
+
+	public <T extends Parameters> String getSearchFilterByUuid(T ldapParameters, String uuid);
+
+	public <T extends Parameters> String getSearchFilterByName(T ldapParameters, String login);
 }

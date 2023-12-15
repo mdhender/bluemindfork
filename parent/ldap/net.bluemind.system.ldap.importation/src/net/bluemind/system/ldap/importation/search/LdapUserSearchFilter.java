@@ -18,45 +18,23 @@
  */
 package net.bluemind.system.ldap.importation.search;
 
-import java.util.Optional;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import net.bluemind.core.api.Regex;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.system.importation.commons.Parameters;
-import net.bluemind.system.importation.search.UserSearchFilter;
-import net.bluemind.system.ldap.importation.api.LdapConstants;
 import net.bluemind.system.ldap.importation.internal.tools.UserManagerImpl;
 
-public class LdapUserSearchFilter implements UserSearchFilter {
-	private static final Logger logger = LoggerFactory.getLogger(LdapUserSearchFilter.class);
+public class LdapUserSearchFilter extends LdapCommonSearchFilter {
+	@Override
+	protected String nameCondition(String name) {
+		if (!Regex.LOGIN.validate(name)) {
+			throw new ServerFault("Invalid user name " + name);
+		}
+
+		return "(" + UserManagerImpl.LDAP_LOGIN + "=" + name + ")";
+	}
 
 	@Override
-	public <T extends Parameters> String getSearchFilter(T ldapParameters, Optional<String> lastUpdate, String login,
-			String uuid) {
-		String filter = ldapParameters.ldapDirectory.userFilter;
-		String conditions = "";
-
-		if (lastUpdate.isPresent() && !lastUpdate.get().trim().isEmpty()) {
-			conditions += "(" + LdapConstants.MODIFYTIMESTAMP_ATTR + ">=" + lastUpdate.get() + ")";
-		}
-
-		if (login != null && !"".equals(login.trim())) {
-			conditions += "(" + UserManagerImpl.LDAP_LOGIN + "=" + login + ")";
-		}
-
-		if (uuid != null && !"".equals(uuid.trim())) {
-			conditions += "(" + ldapParameters.ldapDirectory.extIdAttribute + "=" + uuid + ")";
-		}
-
-		if (!"".equals(conditions)) {
-			filter = "(&" + filter + conditions + ")";
-		}
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("User search LDAP filter: " + filter);
-		}
-
-		return filter;
+	protected <T extends Parameters> String getFilter(T ldapParameters) {
+		return ldapParameters.ldapDirectory.userFilter;
 	}
 }

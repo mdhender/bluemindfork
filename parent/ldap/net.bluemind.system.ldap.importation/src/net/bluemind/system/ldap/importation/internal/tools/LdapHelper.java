@@ -73,9 +73,8 @@ public class LdapHelper {
 		long time = metrics.clock.monotonicTime();
 		try (LdapConProxy ldapCon = connectLdap(ldapParameters)) {
 			EntryCursor result = ldapCon.search(ldapParameters.ldapDirectory.baseDn,
-					new LdapUserSearchFilter().getSearchFilter(ldapParameters, Optional.empty(), userLogin, null),
-					SearchScope.SUBTREE, "*", UserManagerImpl.LDAP_MEMBER_OF,
-					ldapParameters.ldapDirectory.extIdAttribute);
+					new LdapUserSearchFilter().getSearchFilterByName(ldapParameters, userLogin), SearchScope.SUBTREE,
+					"*", UserManagerImpl.LDAP_MEMBER_OF, ldapParameters.ldapDirectory.extIdAttribute);
 
 			conTimer.record(metrics.clock.monotonicTime() - time, TimeUnit.NANOSECONDS);
 			if (result.next()) {

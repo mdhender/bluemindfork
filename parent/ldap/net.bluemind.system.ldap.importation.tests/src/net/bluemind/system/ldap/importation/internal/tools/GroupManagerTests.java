@@ -71,7 +71,6 @@ import net.bluemind.system.importation.search.PagedSearchResult;
 import net.bluemind.system.importation.search.PagedSearchResult.LdapSearchException;
 import net.bluemind.system.ldap.importation.api.LdapProperties;
 import net.bluemind.system.ldap.importation.search.LdapGroupSearchFilter;
-import net.bluemind.system.ldap.importation.search.LdapUserSearchFilter;
 import net.bluemind.system.ldap.tests.helpers.LdapDockerTestHelper;
 
 /**
@@ -355,12 +354,10 @@ public class GroupManagerTests {
 		try (LdapConProxy ldapCon = LdapHelper
 				.connectLdap(LdapParameters.build(domain.value, Collections.<String, String>emptyMap()))) {
 			PagedSearchResult entries = new DirectorySearch<>(
-					LdapParameters.build(domain.value, Collections.<String, String>emptyMap()),
-					new LdapGroupSearchFilter(), new LdapUserSearchFilter())
+					LdapParameters.build(domain.value, Collections.<String, String>emptyMap()))
 					.findByFilterAndBaseDnAndScopeAndAttributes(ldapCon,
 							new LdapGroupSearchFilter().getSearchFilter(
-									LdapParameters.build(domain.value, Collections.<String, String>emptyMap()),
-									Optional.empty(), null, null),
+									LdapParameters.build(domain.value, Collections.<String, String>emptyMap())),
 							new Dn(groupDn), SearchScope.OBJECT, "*",
 							LdapProperties.import_ldap_ext_id_attribute.getDefaultValue());
 

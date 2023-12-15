@@ -110,9 +110,9 @@ public class LdapSearchTestHelper {
 		Entry entry = null;
 
 		try (LdapConProxy ldapCon = LdapHelper.connectLdap(ldapParameters)) {
-			PagedSearchResult entries = new DirectorySearch<>(ldapParameters, new LdapGroupSearchFilter(),
-					new LdapUserSearchFilter()).findByFilterAndBaseDnAndScopeAndAttributes(ldapCon, "(objectclass=*)",
-							new Dn(dn), SearchScope.OBJECT, "*", "+",
+			PagedSearchResult entries = new DirectorySearch<>(ldapParameters)
+					.findByFilterAndBaseDnAndScopeAndAttributes(ldapCon, "(objectclass=*)", new Dn(dn),
+							SearchScope.OBJECT, "*", "+",
 							LdapProperties.import_ldap_ext_id_attribute.getDefaultValue());
 
 			while (entries.next()) {

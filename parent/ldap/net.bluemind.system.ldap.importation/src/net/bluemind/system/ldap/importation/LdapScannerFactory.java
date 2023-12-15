@@ -77,9 +77,8 @@ public class LdapScannerFactory {
 			throws IOException, LdapException, CursorException, LdapSearchException {
 		try (LdapConProxy ldapCon = LdapHelper.connectLdap(ldapParameters)) {
 			try (PagedSearchResult cursor = SearchCursorBuilder.withConnection(ldapCon, ldapParameters)
-					.withSearchFilter("(&"
-							+ new LdapGroupSearchFilter().getSearchFilter(ldapParameters, Optional.empty(), null, null)
-							+ "(" + GroupMemberAttribute.member.name() + "=*))")
+					.withSearchFilter("(&" + new LdapGroupSearchFilter().getSearchFilter(ldapParameters) + "("
+							+ GroupMemberAttribute.member.name() + "=*))")
 					.withAttributes(GroupMemberAttribute.member.name()).withSizeLimit(5).execute()) {
 				return cursor.next();
 			}
@@ -90,9 +89,8 @@ public class LdapScannerFactory {
 			throws IOException, LdapException, CursorException, LdapSearchException {
 		try (LdapConProxy ldapCon = LdapHelper.connectLdap(ldapParameters)) {
 			try (PagedSearchResult cursor = SearchCursorBuilder.withConnection(ldapCon, ldapParameters)
-					.withSearchFilter("(&"
-							+ new LdapUserSearchFilter().getSearchFilter(ldapParameters, Optional.empty(), null, null)
-							+ "(" + UserManagerImpl.LDAP_MEMBER_OF + "=*))")
+					.withSearchFilter("(&" + new LdapUserSearchFilter().getSearchFilter(ldapParameters) + "("
+							+ UserManagerImpl.LDAP_MEMBER_OF + "=*))")
 					.withAttributes(UserManagerImpl.LDAP_MEMBER_OF).withSizeLimit(5).execute()) {
 				return cursor.next();
 			}
