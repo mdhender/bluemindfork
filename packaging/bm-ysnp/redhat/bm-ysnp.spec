@@ -21,7 +21,7 @@ BlueMind java based saslauthd replacement
 cp -a %{_rootdir}/* %{buildroot}
 
 mkdir -p %{buildroot}%{_unitdir}
-install -m 644 /sources/stretch/bm-ysnp.service %{buildroot}%{_unitdir}
+install -m 644 /sources/buster/bm-ysnp.service %{buildroot}%{_unitdir}
 
 %files
 %exclude %dir /usr
