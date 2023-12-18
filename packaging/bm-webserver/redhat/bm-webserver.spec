@@ -21,7 +21,7 @@ BlueMind web server
 cp -a %{_rootdir}/* %{buildroot}
 
 mkdir -p %{buildroot}%{_unitdir}
-install -m 644 /sources/stretch/bm-webserver.service %{buildroot}%{_unitdir}
+install -m 644 /sources/buster/bm-webserver.service %{buildroot}%{_unitdir}
 
 %files
 %exclude %dir /usr

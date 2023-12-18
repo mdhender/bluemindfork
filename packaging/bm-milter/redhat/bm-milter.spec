@@ -19,7 +19,7 @@ BlueMind Milter filters
 cp -a %{_rootdir}/* %{buildroot}
 
 mkdir -p %{buildroot}%{_unitdir}
-install -m 644 /sources/stretch/bm-milter.service %{buildroot}%{_unitdir}
+install -m 644 /sources/buster/bm-milter.service %{buildroot}%{_unitdir}
 
 %files
 %exclude %dir /usr

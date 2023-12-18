@@ -31,7 +31,7 @@ cp %{_rootdir}/usr/bin/* %{buildroot}/usr/bin
 mkdir -p %{buildroot}/lib/systemd
 cp -a %{_rootdir}/lib/systemd/* %{buildroot}/lib/systemd
 
-install -m 644 /sources/stretch/bm-conf.bluemind.target %{buildroot}/lib/systemd/system/bluemind.target
+install -m 644 /sources/buster/bm-conf.bluemind.target %{buildroot}/lib/systemd/system/bluemind.target
 
 %files
 %attr(0755, root, root) /etc/bm

@@ -17,7 +17,7 @@ BlueMind automated memory tuning
 cp -a %{_rootdir}/* %{buildroot}
 
 mkdir -p %{buildroot}%{_unitdir}
-install -m 644 /sources/stretch/bm-pimp.service %{buildroot}%{_unitdir}
+install -m 644 /sources/buster/bm-pimp.service %{buildroot}%{_unitdir}
 
 %files
 %exclude %dir /usr

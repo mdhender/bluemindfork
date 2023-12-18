@@ -19,7 +19,7 @@ BlueMind tika-based text extractor
 cp -a %{_rootdir}/* %{buildroot}
 
 mkdir -p %{buildroot}%{_unitdir}
-install -m 644 /sources/stretch/bm-tika.service %{buildroot}%{_unitdir}
+install -m 644 /sources/buster/bm-tika.service %{buildroot}%{_unitdir}
 
 %files
 %attr(0755, root, root) %{_datadir}/bm-tika/bin/oom_kill.sh

@@ -19,7 +19,7 @@ BlueMind Node handles all the remote tasks for BlueMind Core
 cp -a %{_rootdir}/* %{buildroot}
 
 mkdir -p %{buildroot}%{_unitdir}
-install -m 644 /sources/stretch/bm-node.service %{buildroot}%{_unitdir}
+install -m 644 /sources/buster/bm-node.service %{buildroot}%{_unitdir}
 
 mkdir -p %{buildroot}/var/lib/bm-ca
 

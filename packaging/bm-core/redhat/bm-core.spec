@@ -21,7 +21,7 @@ BlueMind core server
 cp -a %{_rootdir}/* %{buildroot}
 
 mkdir -p %{buildroot}%{_unitdir}
-install -m 644 /sources/stretch/bm-core.service %{buildroot}%{_unitdir}
+install -m 644 /sources/buster/bm-core.service %{buildroot}%{_unitdir}
 
 
 %files
