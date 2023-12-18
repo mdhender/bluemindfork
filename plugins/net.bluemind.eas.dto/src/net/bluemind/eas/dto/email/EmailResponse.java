@@ -110,6 +110,7 @@ public class EmailResponse {
 	public String sender;
 	public CalendarType calendarType;
 	public Boolean isLeapMonth;
+	public String calendarUid;
 	public String accountId;
 	public FirstDayOfWeek firstDayOfWeek;
 	// public MeetingMessageType meetingMessageType;

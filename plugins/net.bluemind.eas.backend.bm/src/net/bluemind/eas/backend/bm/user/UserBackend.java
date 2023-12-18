@@ -18,6 +18,7 @@
  */
 package net.bluemind.eas.backend.bm.user;
 
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -33,7 +34,9 @@ import net.bluemind.config.Token;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.caches.registry.CacheRegistry;
 import net.bluemind.core.caches.registry.ICacheRegistration;
+import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.document.storage.IDocumentStore;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
@@ -48,6 +51,7 @@ import net.bluemind.user.api.IUserSettings;
 import net.bluemind.user.api.User;
 
 public class UserBackend extends CoreConnect {
+
 	private static final Cache<String, MSUser> cache = Caffeine.newBuilder().recordStats()
 			.expireAfterAccess(1, TimeUnit.MINUTES).build();
 
@@ -80,32 +84,13 @@ public class UserBackend extends CoreConnect {
 		String domain = latd.next();
 		try {
 			String core = "http://" + Topology.get().core().value.address() + ":8090";
-
 			// BM-8155
 			IDomains domainsService = getService(core, Token.admin0(), IDomains.class);
 			ItemValue<Domain> dom = domainsService.findByNameOrAliases(domain);
 
 			ItemValue<User> user = getService(core, Token.admin0(), IUser.class, dom.uid).byEmail(loginAtDomain);
 			Map<String, String> settings = getService(core, Token.admin0(), IUserSettings.class, dom.uid).get(user.uid);
-			String lang = settings.get("lang");
-			String tz = settings.get("timezone");
-			Set<String> emails = new HashSet<String>();
-			String defaultEmail = user.value.defaultEmail().address;
-			for (Email e : user.value.emails) {
-				if (e.allAliases) {
-					for (String alias : dom.value.aliases) {
-						String email = e.address.split("@")[0] + "@" + alias;
-						if (!defaultEmail.equals(email)) {
-							emails.add(email);
-						}
-					}
-				}
-				emails.add(e.address);
-			}
-			MSUser ret = new MSUser(user.uid, user.displayName, user.value.login + "@" + dom.uid, password, lang, tz,
-					user.value.routing != Routing.none, user.value.defaultEmail().address, emails,
-					user.value.dataLocation);
-			return ret;
+			return getUser(user, dom, password);
 		} catch (Exception e) {
 			throw new ActiveSyncException(e);
 		}
@@ -126,4 +111,44 @@ public class UserBackend extends CoreConnect {
 		return loadPhoto(photoId, bs);
 	}
 
+	public MSUser getUser(BackendSession bs, String userUid) {
+
+		String core = "http://" + Topology.get().core().value.address() + ":8090";
+		IUser userService = getService(core, Token.admin0(), IUser.class, bs.getUser().getDomain());
+		IDomains domainsService = getService(core, Token.admin0(), IDomains.class);
+
+		ItemValue<Domain> dom = domainsService.findByNameOrAliases(bs.getUser().getDomain());
+		ItemValue<User> user = userService.getComplete(userUid);
+		return getUser(user, dom, user.value.password);
+
+	}
+
+	private MSUser getUser(ItemValue<User> user, ItemValue<Domain> dom, String password) {
+
+		String core = "http://" + Topology.get().core().value.address() + ":8090";
+		Map<String, String> settings = getService(core, Token.admin0(), IUserSettings.class, dom.uid).get(user.uid);
+		String lang = settings.get("lang");
+		String tz = settings.get("timezone");
+		Set<String> emails = new HashSet<String>();
+		String defaultEmail = user.value.defaultEmail().address;
+		for (Email e : user.value.emails) {
+			if (e.allAliases) {
+				for (String alias : dom.value.aliases) {
+					String email = e.address.split("@")[0] + "@" + alias;
+					if (!defaultEmail.equals(email)) {
+						emails.add(email);
+					}
+				}
+			}
+			emails.add(e.address);
+		}
+		MSUser ret = new MSUser(user.uid, user.displayName, user.value.login + "@" + dom.uid, password, lang, tz,
+				user.value.routing != Routing.none, user.value.defaultEmail().address, emails, user.value.dataLocation);
+		return ret;
+	}
+
+	public boolean userHasRoleReadExtended(BackendSession bs, String containerUid) {
+		IContainerManagement cmApi = getService(bs, IContainerManagement.class, containerUid);
+		return cmApi.canAccess(Arrays.asList(Verb.ReadExtended.name()));
+	}
 }

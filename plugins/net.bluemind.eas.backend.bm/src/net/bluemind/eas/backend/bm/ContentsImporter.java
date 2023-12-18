@@ -145,9 +145,9 @@ public class ContentsImporter implements IContentsImporter {
 	}
 
 	@Override
-	public String importCalendarUserStatus(BackendSession bs, long itemId, AttendeeStatus userResponse,
-			Date instanceId) {
-		return calBackend.updateUserStatus(bs, itemId, userResponse, instanceId);
+	public String importCalendarUserStatus(BackendSession bs, long itemId, AttendeeStatus userResponse, Date instanceId,
+			String calendarUid) {
+		return calBackend.updateUserStatus(bs, itemId, userResponse, instanceId, calendarUid);
 	}
 
 	@Override

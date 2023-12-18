@@ -336,6 +336,7 @@ public class CalendarResponse {
 	public Date appointmentReplyTime;
 	public ResponseType responseType;
 	public Boolean disallowNewTimeProposal;
+	public String calendarUid;
 	public String onlineMeetingConfLink;
 	public String onlineMeetingExternalLink;
 	public long itemUid;

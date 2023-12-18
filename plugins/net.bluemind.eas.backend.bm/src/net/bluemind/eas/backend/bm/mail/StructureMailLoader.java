@@ -35,6 +35,8 @@ import net.bluemind.backend.mail.api.MessageBody.Part;
 import net.bluemind.backend.mail.api.MessageBody.Recipient;
 import net.bluemind.backend.mail.api.MessageBody.RecipientKind;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
+import net.bluemind.calendar.api.ICalendarUids;
+import net.bluemind.calendar.api.ICalendarUids.UserCalendarType;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.helper.ical4j.VEventServiceHelper;
 import net.bluemind.core.api.date.BmDateTime;
@@ -48,6 +50,7 @@ import net.bluemind.eas.backend.bm.compat.OldFormats;
 import net.bluemind.eas.backend.bm.impl.CoreConnect;
 import net.bluemind.eas.backend.bm.mail.loader.EventProvider;
 import net.bluemind.eas.backend.bm.mail.loader.MailAttachmentProvider;
+import net.bluemind.eas.backend.bm.user.UserBackend;
 import net.bluemind.eas.dto.calendar.CalendarResponse;
 import net.bluemind.eas.dto.calendar.CalendarResponse.InstanceType;
 import net.bluemind.eas.dto.email.EmailResponse;
@@ -55,6 +58,7 @@ import net.bluemind.eas.dto.email.EmailResponse.Flag.Status;
 import net.bluemind.eas.dto.email.EmailResponse.LastVerbExecuted;
 import net.bluemind.eas.dto.email.Importance;
 import net.bluemind.eas.dto.email.MessageClass;
+import net.bluemind.icalendar.api.ICalendarElement.Classification;
 import net.bluemind.utils.HeaderUtil;
 
 /**
@@ -168,8 +172,18 @@ public class StructureMailLoader extends CoreConnect {
 		HeaderUtil hUtil = new HeaderUtil(header.get().firstValue());
 		String eventUid = hUtil.getHeaderValue().map(HeaderUtil.Value::toString).orElseThrow();
 
-		ItemValue<VEventSeries> vevent = new EventProvider(bs).get(eventUid);
+		// For delegation case, must get the calendar of the person who hand the
+		// delegation over
+		Optional<Header> headerXBmCalendar = item.body.headers.stream()
+				.filter(h -> "x-bm-calendar".equalsIgnoreCase(h.name)).findFirst();
+
+		String calendarUid = getCalendarUid(headerXBmCalendar);
+		ret.calendarUid = calendarUid;
+
+		ItemValue<VEventSeries> vevent = new EventProvider(bs).get(calendarUid, eventUid);
 		if (vevent != null) {
+			boolean isInvitationASimpleMessage = userCanRespond(item, vevent, ret, calendarUid);
+			logger.info("SCL - isInvitationASimpleMessage: {}", isInvitationASimpleMessage);
 			EventConverter converter = new EventConverter();
 			MSEvent msEvent = converter.convert(bs.getUser(), vevent);
 			// FIXME add meetingMessageType into MeetingRequest
@@ -195,6 +209,9 @@ public class StructureMailLoader extends CoreConnect {
 				Calendar begin = Calendar.getInstance(tz);
 				begin.setTimeInMillis(new BmDateTimeWrapper(recurId).toTimestamp(tz.getID()));
 				ret.meetingRequest.recurrenceId = begin.getTime();
+			}
+			if (isInvitationASimpleMessage) {
+				transformReadOnlyRequestToSimpleEmail(ret);
 			}
 			logger.info("Found meeting request with uid {}, subject: {}", eventUid, vevent.value.main.summary);
 		} else {
@@ -222,4 +239,36 @@ public class StructureMailLoader extends CoreConnect {
 		return calResponse;
 	}
 
+	private void transformReadOnlyRequestToSimpleEmail(EmailResponse ret) {
+		ret.messageClass = MessageClass.NOTE;
+		ret.meetingRequest = null;
+	}
+
+	private String getCalendarUid(Optional<Header> headerXBmCalendar) {
+		if (headerXBmCalendar.isEmpty()) {
+			return ICalendarUids.defaultUserCalendar(bs.getUser().getUid());
+		}
+		HeaderUtil hUtilXBmCalendar = new HeaderUtil(headerXBmCalendar.get().firstValue());
+		return hUtilXBmCalendar.getHeaderValue().map(HeaderUtil.Value::toString).orElseThrow();
+	}
+
+	private boolean userCanRespond(MailboxItem item, ItemValue<VEventSeries> vevent, EmailResponse ret,
+			String calendarUid) {
+		boolean isHeaderEventReadOnly = item.flags.stream().anyMatch(f -> f.flag.equals("BmEventReadOnly"));
+		String calendarOwnerUid = ret.calendarUid.replace(ICalendarUids.TYPE + ":" + UserCalendarType.Default + ":", "")
+				.trim();
+		boolean isBackendUserIsDelegator = bs.getUser().getUid().equals(calendarOwnerUid);
+
+		UserBackend userBackend = new UserBackend();
+		boolean canUserAnswerPrivateEvent = vevent.value.main.classification.equals(Classification.Public)
+				|| (userBackend.userHasRoleReadExtended(bs, calendarUid)
+						&& vevent.value.main.classification.equals(Classification.Private));
+
+		if (isBackendUserIsDelegator) {
+			return isHeaderEventReadOnly;
+		}
+
+		return !canUserAnswerPrivateEvent;
+
+	}
 }

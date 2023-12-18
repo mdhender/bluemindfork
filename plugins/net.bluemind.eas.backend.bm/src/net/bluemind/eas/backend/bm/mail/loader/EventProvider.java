@@ -18,6 +18,9 @@
  */
 package net.bluemind.eas.backend.bm.mail.loader;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.VEventSeries;
@@ -27,6 +30,7 @@ import net.bluemind.eas.backend.BackendSession;
 import net.bluemind.eas.backend.bm.impl.CoreConnect;
 
 public class EventProvider {
+	protected static final Logger logger = LoggerFactory.getLogger(EventProvider.class);
 
 	private static class CoreCoStub extends CoreConnect {
 
@@ -48,6 +52,11 @@ public class EventProvider {
 
 	public ItemValue<VEventSeries> get(String eventUid) {
 		cc = coreStub.getCalendarService(bs, ICalendarUids.defaultUserCalendar(bs.getUser().getUid()));
+		return cc.getComplete(eventUid);
+	}
+
+	public ItemValue<VEventSeries> get(String calendarUid, String eventUid) {
+		cc = coreStub.getCalendarService(bs, calendarUid);
 		return cc.getComplete(eventUid);
 	}
 

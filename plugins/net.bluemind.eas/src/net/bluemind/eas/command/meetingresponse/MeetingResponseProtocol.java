@@ -135,10 +135,9 @@ public class MeetingResponseProtocol implements IEasProtocol<MeetingResponseRequ
 						if (itemRef.getType() == ItemDataType.EMAIL) {
 							itemId = invitation.itemUid;
 						}
-
 						IContentsImporter importer = backend.getContentsImporter(bs);
 						String calendarId = importer.importCalendarUserStatus(bs, itemId, attendeeStatus,
-								request.instanceId);
+								request.instanceId, invitation.calendarUid);
 
 						// 2.2.3.18 CalendarId
 						// If the meeting is declined, the response does not
@@ -204,7 +203,9 @@ public class MeetingResponseProtocol implements IEasProtocol<MeetingResponseRequ
 		CalendarResponse cr = null;
 		if (ic.getType() == ItemDataType.EMAIL) {
 			if (loaded.metadata.email != null) {
+
 				cr = loaded.metadata.email.meetingRequest;
+				cr.calendarUid = loaded.metadata.email.calendarUid;
 				logger.debug("Loaded invitation from email {}", cr);
 			}
 		} else if (ic.getType() == ItemDataType.CALENDAR) {

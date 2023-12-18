@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -49,6 +50,7 @@ import net.bluemind.attachment.api.AttachedFile;
 import net.bluemind.attachment.api.IAttachment;
 import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.ICalendarUids;
+import net.bluemind.calendar.api.ICalendarUids.UserCalendarType;
 import net.bluemind.calendar.api.IFreebusyUids;
 import net.bluemind.calendar.api.IVFreebusy;
 import net.bluemind.calendar.api.VEventOccurrence;
@@ -79,6 +81,7 @@ import net.bluemind.eas.backend.MergedFreeBusy.SlotAvailability;
 import net.bluemind.eas.backend.bm.compat.OldFormats;
 import net.bluemind.eas.backend.bm.impl.CoreConnect;
 import net.bluemind.eas.backend.bm.mail.AttachmentHelper;
+import net.bluemind.eas.backend.bm.user.UserBackend;
 import net.bluemind.eas.data.calendarenum.AttendeeStatus;
 import net.bluemind.eas.dto.base.AirSyncBaseResponse;
 import net.bluemind.eas.dto.base.AppData;
@@ -95,6 +98,7 @@ import net.bluemind.eas.dto.sync.CollectionId;
 import net.bluemind.eas.dto.sync.CollectionSyncRequest.Options.ConflicResolution;
 import net.bluemind.eas.dto.sync.SyncState;
 import net.bluemind.eas.dto.type.ItemDataType;
+import net.bluemind.eas.dto.user.MSUser;
 import net.bluemind.eas.exception.ActiveSyncException;
 import net.bluemind.eas.store.ISyncStorage;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
@@ -392,9 +396,15 @@ public class CalendarBackend extends CoreConnect {
 	 * @param instanceId
 	 * @return
 	 */
-	public String updateUserStatus(BackendSession bs, long itemId, AttendeeStatus status, Date instanceId) {
+	public String updateUserStatus(BackendSession bs, long itemId, AttendeeStatus status, Date instanceId,
+			String calendarUid) {
 		try {
-			ICalendar cs = getService(bs, ICalendar.class, ICalendarUids.defaultUserCalendar(bs.getUser().getUid()));
+			ICalendar cs = getService(bs, ICalendar.class, calendarUid);
+
+			String ownerUid = calendarUid.replace(ICalendarUids.TYPE + ":" + UserCalendarType.Default + ":", "").trim();
+			UserBackend userBackend = new UserBackend();
+			MSUser mSUSer = userBackend.getUser(bs, ownerUid);
+			Set<String> userMails = mSUSer.getEmails();
 
 			HierarchyNode f = storage.getHierarchyNode(bs.getUniqueIdentifier(), bs.getUser().getDomain(),
 					bs.getUser().getUid(),
@@ -406,7 +416,7 @@ public class CalendarBackend extends CoreConnect {
 			boolean rsvp = (partStatus == ParticipationStatus.NeedsAction);
 			if (instanceId == null) {
 				for (Attendee a : vevent.value.main.attendees) {
-					if (bs.getUser().getEmails().contains(a.mailto)) {
+					if (userMails.contains(a.mailto)) {
 						a.partStatus = partStatus;
 						a.rsvp = rsvp;
 					}
@@ -422,7 +432,7 @@ public class CalendarBackend extends CoreConnect {
 					Iterator<Attendee> it = exception.attendees.iterator();
 					while (it.hasNext()) {
 						Attendee a = it.next();
-						if (bs.getUser().getEmails().contains(a.mailto)) {
+						if (userMails.contains(a.mailto)) {
 							a.partStatus = partStatus;
 							a.rsvp = rsvp;
 						}
@@ -444,7 +454,7 @@ public class CalendarBackend extends CoreConnect {
 					Iterator<Attendee> it = rec.attendees.iterator();
 					while (it.hasNext()) {
 						Attendee a = it.next();
-						if (bs.getUser().getEmails().contains(a.mailto)) {
+						if (userMails.contains(a.mailto)) {
 							a.partStatus = partStatus;
 							a.rsvp = rsvp;
 						}
