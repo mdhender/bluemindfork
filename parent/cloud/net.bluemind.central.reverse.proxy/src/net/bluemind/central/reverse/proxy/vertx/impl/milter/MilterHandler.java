@@ -53,7 +53,7 @@ public class MilterHandler implements Handler<NetSocket> {
 	}
 
 	public void setClientIp(String clientIp) {
-		logger.info("[milter:{}] set client IP to {}", deploymentId, clientIp);
+		logger.debug("[milter:{}] set client IP to {}", deploymentId, clientIp);
 		this.clientIp = Optional.of(clientIp);
 	}
 

@@ -12,6 +12,7 @@ import static net.bluemind.central.reverse.proxy.model.common.PostfixMapsStoreEv
 import static net.bluemind.central.reverse.proxy.model.common.PostfixMapsStoreEventBusAddress.MAILBOX_STORE;
 import static net.bluemind.central.reverse.proxy.model.common.PostfixMapsStoreEventBusAddress.MANAGE_MEMBER_NAME;
 import static net.bluemind.central.reverse.proxy.model.common.PostfixMapsStoreEventBusAddress.SRS_RECIPIENT;
+import static net.bluemind.central.reverse.proxy.model.common.PostfixMapsStoreEventBusAddress.TIME_WARN;
 import static net.bluemind.central.reverse.proxy.model.common.PostfixMapsStoreEventBusAddress.UPDATE_DOMAIN_SETTINGS_NAME;
 
 import java.util.concurrent.CompletableFuture;
@@ -19,6 +20,8 @@ import java.util.concurrent.ExecutionException;
 
 import org.apache.curator.shaded.com.google.common.annotations.VisibleForTesting;
 import org.apache.curator.shaded.com.google.common.base.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.Message;
@@ -31,6 +34,8 @@ import net.bluemind.central.reverse.proxy.model.common.InstallationInfo;
 import net.bluemind.central.reverse.proxy.model.common.MemberInfo;
 
 public class PostfixMapsStore {
+	private final Logger logger = LoggerFactory.getLogger(PostfixMapsStore.class);
+
 	private final PostfixMapsStorage storage;
 
 	private MessageConsumer<JsonObject> consumer;
@@ -49,6 +54,8 @@ public class PostfixMapsStore {
 
 	public PostfixMapsStore setupService(Vertx vertx) {
 		consumer = vertx.eventBus().<JsonObject>consumer(ADDRESS).handler(event -> {
+			long time = System.currentTimeMillis();
+
 			String action = event.headers().get("action");
 			switch (action) {
 			case ADD_INSTALLATION_NAME:
@@ -89,6 +96,13 @@ public class PostfixMapsStore {
 				break;
 			default:
 				event.fail(404, "Unknown action '" + action + "'");
+			}
+
+			time = System.currentTimeMillis() - time;
+			if (logger.isDebugEnabled()) {
+				logger.debug("PostfixMapsStore: vertx event consumption took {}ms long", time);
+			} else if (time > TIME_WARN) {
+				logger.warn("PostfixMapsStore: vertx event consumption took {}ms long", time);
 			}
 		});
 

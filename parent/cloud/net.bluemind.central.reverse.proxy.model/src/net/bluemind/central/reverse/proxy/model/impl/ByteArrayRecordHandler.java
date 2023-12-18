@@ -43,7 +43,7 @@ public class ByteArrayRecordHandler implements RecordHandler<byte[], byte[]> {
 	public void handle(ConsumerRecord<byte[], byte[]> rec) {
 		keyMapper.map(rec.key()).flatMap(key -> safeStore(rec, key))
 				.ifPresent(futureStoredKey -> futureStoredKey
-						.onSuccess(storedKey -> logger.info("[model] Stored {}:{}", storedKey.type, storedKey))
+						.onSuccess(storedKey -> logger.debug("[model] Stored {}:{}", storedKey.type, storedKey))
 						.onFailure(t -> logger.error("[model] Failed to store: {}", keyMapper.map(rec.key()), t)));
 	}
 
@@ -81,9 +81,7 @@ public class ByteArrayRecordHandler implements RecordHandler<byte[], byte[]> {
 			}
 
 			if ("net.bluemind.domain.api.DomainSettings".equals(key.valueClass)) {
-				logger.info("DDomainSettings: {} {}", key, new String(val));
 				Optional<DomainSettings> set = valueMapper.mapDomainSettings(val);
-				logger.info("Convert: {}", set);
 				return set
 						.map(domainSettings -> postfixMapsStoreClient.addDomainSettings(domainSettings).map(v -> key));
 			}

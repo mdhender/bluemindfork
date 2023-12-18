@@ -63,7 +63,6 @@ import net.bluemind.milter.cache.DomainAliasCache;
 import net.bluemind.mime4j.common.Mime4JHelper;
 
 public class MilterHandler implements JilterHandler {
-
 	private static final Logger logger = LoggerFactory.getLogger(MilterHandler.class);
 	private static final Registry registry = MetricsRegistry.get();
 	private static final IdFactory idFactory = new IdFactory(MetricsRegistry.get(), MilterHandler.class);

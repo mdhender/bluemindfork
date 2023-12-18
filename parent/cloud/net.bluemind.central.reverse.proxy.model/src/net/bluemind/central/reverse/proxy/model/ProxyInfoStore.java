@@ -7,6 +7,7 @@ import static net.bluemind.central.reverse.proxy.model.common.ProxyInfoStoreEven
 import static net.bluemind.central.reverse.proxy.model.common.ProxyInfoStoreEventBusAddress.ALL_IPS_NAME;
 import static net.bluemind.central.reverse.proxy.model.common.ProxyInfoStoreEventBusAddress.ANY_IP_NAME;
 import static net.bluemind.central.reverse.proxy.model.common.ProxyInfoStoreEventBusAddress.IP_NAME;
+import static net.bluemind.central.reverse.proxy.model.common.ProxyInfoStoreEventBusAddress.TIME_WARN;
 
 import java.util.Collections;
 import java.util.List;
@@ -16,6 +17,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.curator.shaded.com.google.common.annotations.VisibleForTesting;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.Message;
@@ -27,6 +30,8 @@ import net.bluemind.central.reverse.proxy.model.common.DomainInfo;
 import net.bluemind.central.reverse.proxy.model.common.InstallationInfo;
 
 public class ProxyInfoStore {
+	private final Logger logger = LoggerFactory.getLogger(ProxyInfoStore.class);
+
 	private final ProxyInfoStorage storage;
 
 	private MessageConsumer<JsonObject> consumer;
@@ -45,6 +50,8 @@ public class ProxyInfoStore {
 
 	public ProxyInfoStore setupService(Vertx vertx) {
 		consumer = vertx.eventBus().<JsonObject>consumer(ADDRESS).handler(event -> {
+			long time = System.currentTimeMillis();
+
 			String action = event.headers().get("action");
 			switch (action) {
 			case ADD_DIR_NAME:
@@ -67,6 +74,13 @@ public class ProxyInfoStore {
 				break;
 			default:
 				event.fail(404, "Unknown action '" + action + "'");
+			}
+
+			time = System.currentTimeMillis() - time;
+			if (logger.isDebugEnabled()) {
+				logger.debug("ProxyInfoStore: vertx event consumption took {}ms long", time);
+			} else if (time > TIME_WARN) {
+				logger.warn("ProxyInfoStore: vertx event consumption took {}ms long", time);
 			}
 		});
 

@@ -64,9 +64,9 @@ public class NginxImapAuthEndpoint extends AbstractVerticle {
 		vertx.createHttpServer(opts).requestHandler(this::nginxRoutingRequest).listen(8143, ar -> {
 			if (ar.succeeded()) {
 				var srv = ar.result();
-				logger.info("{} Listening on {}", srv, srv.actualPort());
+				logger.info("[imap-auth:{}] Started on port {}", srv, srv.actualPort());
 			} else {
-				logger.info("Failed to listener on 8143", ar.cause());
+				logger.info("[imap-auth:{}] Failed to listen on port 8143", ar.cause());
 			}
 		});
 	}

@@ -19,6 +19,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
@@ -32,8 +33,6 @@ import net.bluemind.central.reverse.proxy.model.common.MemberInfo;
 
 public class PostfixMapsStoreClientImpl implements PostfixMapsStoreClient {
 	private final Logger logger = LoggerFactory.getLogger(PostfixMapsStoreClientImpl.class);
-
-	private static final String STORE_NOT_AVAILABLE = "postfix maps store not available";
 
 	private final Vertx vertx;
 
@@ -49,7 +48,7 @@ public class PostfixMapsStoreClientImpl implements PostfixMapsStoreClient {
 			if (ar.succeeded()) {
 				p.complete();
 			} else {
-				p.fail(STORE_NOT_AVAILABLE);
+				onError(p, ar);
 			}
 		});
 		return p.future();
@@ -63,7 +62,7 @@ public class PostfixMapsStoreClientImpl implements PostfixMapsStoreClient {
 			if (ar.succeeded()) {
 				p.complete();
 			} else {
-				p.fail(STORE_NOT_AVAILABLE);
+				onError(p, ar);
 			}
 		});
 		return p.future();
@@ -77,7 +76,7 @@ public class PostfixMapsStoreClientImpl implements PostfixMapsStoreClient {
 			if (ar.succeeded()) {
 				p.complete();
 			} else {
-				p.fail(STORE_NOT_AVAILABLE);
+				onError(p, ar);
 			}
 		});
 		return p.future();
@@ -91,7 +90,7 @@ public class PostfixMapsStoreClientImpl implements PostfixMapsStoreClient {
 			if (ar.succeeded()) {
 				p.complete();
 			} else {
-				p.fail(STORE_NOT_AVAILABLE);
+				onError(p, ar);
 			}
 		});
 		return p.future();
@@ -105,7 +104,7 @@ public class PostfixMapsStoreClientImpl implements PostfixMapsStoreClient {
 			if (ar.succeeded()) {
 				p.complete();
 			} else {
-				p.fail(STORE_NOT_AVAILABLE);
+				onError(p, ar);
 			}
 		});
 		return p.future();
@@ -119,7 +118,7 @@ public class PostfixMapsStoreClientImpl implements PostfixMapsStoreClient {
 			if (ar.succeeded()) {
 				p.complete();
 			} else {
-				p.fail(STORE_NOT_AVAILABLE);
+				onError(p, ar);
 			}
 		});
 		return p.future();
@@ -134,7 +133,7 @@ public class PostfixMapsStoreClientImpl implements PostfixMapsStoreClient {
 			if (ar.succeeded()) {
 				p.complete(ar.result().body().getJsonArray("mailboxes").stream().map(Object::toString).toList());
 			} else {
-				p.fail(STORE_NOT_AVAILABLE);
+				onError(p, ar);
 			}
 		});
 		return p.future();
@@ -151,7 +150,7 @@ public class PostfixMapsStoreClientImpl implements PostfixMapsStoreClient {
 						p.complete(Optional.ofNullable(ar.result().body().getString("exists")).map(Boolean::valueOf)
 								.orElse(Boolean.FALSE));
 					} else {
-						p.fail(STORE_NOT_AVAILABLE);
+						onError(p, ar);
 					}
 				});
 		return p.future();
@@ -168,7 +167,7 @@ public class PostfixMapsStoreClientImpl implements PostfixMapsStoreClient {
 						p.complete(Optional.ofNullable(ar.result().body().getString("managed")).map(Boolean::valueOf)
 								.orElse(Boolean.FALSE));
 					} else {
-						p.fail(STORE_NOT_AVAILABLE);
+						onError(p, ar);
 					}
 				});
 		return p.future();
@@ -184,7 +183,7 @@ public class PostfixMapsStoreClientImpl implements PostfixMapsStoreClient {
 					if (ar.succeeded()) {
 						p.complete(ar.result().body().getString("relay"));
 					} else {
-						p.fail(STORE_NOT_AVAILABLE);
+						onError(p, ar);
 					}
 				});
 		return p.future();
@@ -200,9 +199,17 @@ public class PostfixMapsStoreClientImpl implements PostfixMapsStoreClient {
 					if (ar.succeeded()) {
 						p.complete(ar.result().body().getString("recipient"));
 					} else {
-						p.fail(STORE_NOT_AVAILABLE);
+						onError(p, ar);
 					}
 				});
 		return p.future();
+	}
+
+	private void onError(Promise<?> p, AsyncResult<?> ar) {
+		if (ar.cause() != null) {
+			p.fail(ar.cause());
+		} else {
+			p.fail("postfix maps store not available");
+		}
 	}
 }
