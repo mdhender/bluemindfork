@@ -5,11 +5,11 @@
 set -e
 
 APT_DISTNAMES="focal jammy buster bullseye bookworm"  # Use space separator
-RPM_RHEL_VERSIONS="7 8"  # Use space separator
+RPM_RHEL_VERSIONS="8"  # Use space separator
 
 
 PGVERSION=$1
-[ ! -z "${PGVERSION}" ] && shift || PGVERSION=15
+[ ! -z "${PGVERSION}" ] && shift || PGVERSION=16
 TEMPDIR=$(mktemp -d)
 
 trap "{ rm -fr \"$TEMPDIR\"; }" EXIT

@@ -27,7 +27,7 @@ import net.bluemind.systemcheck.checks.Activator;
 
 public class VersionHelper {
 
-	public static final String PG_VERSION = "15";
+	public static final String PG_VERSION = "16";
 
 	public static VersionInfo getSWVersion() {
 		String version = Activator.getVersion();

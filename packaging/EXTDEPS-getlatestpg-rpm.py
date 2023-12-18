@@ -54,7 +54,7 @@ if __name__ == "__main__":
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("postgresql_version",
         help="PostgreSQL major version (eg. 12)")
-    parser.add_argument("--rhel-version", default="7", help="RHEL version (eg. 7)")
+    parser.add_argument("--rhel-version", default="8", help="RHEL version (eg. 8)")
     parser.add_argument("--arch", default="x86_64", help="Architecture")
     parser.add_argument("--yum-repomd-base",
         default="https://download.postgresql.org/pub/repos/yum/srpms/",

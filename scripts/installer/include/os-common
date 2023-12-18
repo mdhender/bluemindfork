@@ -1,23 +1,10 @@
 # On success, at the end INSTALLER_VERSION and OS_VERSION equal to one of those values
-REDHAT7="redhat-7"
 REDHAT8="redhat-8"
 UBUNTU_FOCAL="ubuntu-focal"
 UBUNTU_JAMMY="ubuntu-jammy"
 DEBIAN_BUSTER="debian-buster"
 DEBIAN_BULLSEYE="debian-bullseye"
 DEBIAN_BOOKWORM="debian-bookworm"
-
-check_redhat7() {
-    if [  -e /etc/system-release ]; then
-        release=`cat /etc/system-release`
-        
-        if [[ "${release}" == *"release 7."* ]]; then
-            return 0
-        fi
-    fi
-    
-    return 1
-}
 
 check_redhat8() {
     if [  -e /etc/system-release ]; then
@@ -89,14 +76,6 @@ check_diskfree() {
 }
 
 detect_os() {
-    if [ -e "./rhel7" ]; then
-        INSTALLER_VERSION=${REDHAT7}
-        if check_redhat7; then
-            OS_VERSION=${INSTALLER_VERSION}
-            source "./include/os-redhat-base"
-        fi
-    fi
-    
     if [ -e "./rhel8" ]; then
         INSTALLER_VERSION=${REDHAT8}
         if check_redhat8; then

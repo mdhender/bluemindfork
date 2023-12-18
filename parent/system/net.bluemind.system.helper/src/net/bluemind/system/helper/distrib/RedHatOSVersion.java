@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 
 import net.bluemind.system.helper.distrib.list.Distribution;
 import net.bluemind.system.helper.distrib.list.RedHat;
-import net.bluemind.system.helper.distrib.list.RedHat7;
 import net.bluemind.system.helper.distrib.list.RedHat8;
 
 public class RedHatOSVersion implements IOsVersionDetection {
@@ -53,9 +52,7 @@ public class RedHatOSVersion implements IOsVersionDetection {
 		try (BufferedReader br = new BufferedReader(new FileReader(distributionFile));) {
 			String line = null;
 			while ((line = br.readLine()) != null) {
-				if (line.contains("release 7.")) {
-					distrib = new RedHat7();
-				} else if (line.contains("release 8.")) {
+				if (line.contains("release 8.")) {
 					distrib = new RedHat8();
 				}
 			}

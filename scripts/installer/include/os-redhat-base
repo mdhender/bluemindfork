@@ -4,30 +4,21 @@ RHCLONE=0
 [ -e /etc/centos-release ] && {
   RHCLONE=1
   OS_VERSION_CN="centos-8"
-
-  [ ${OS_VERSION} == ${REDHAT7} ] && OS_VERSION_CN="centos-7"
 }
 
 [ -e /etc/rocky-release ] && {
   RHCLONE=1
   OS_VERSION_CN="rockylinux-8"
-
-  [ ${OS_VERSION} == ${REDHAT7} ] && OS_VERSION_CN="rockylinux-7"
 }
 
 [ -e /etc/almalinux-release ] && {
   RHCLONE=1
   OS_VERSION_CN="almalinux-8"
-
-  [ ${OS_VERSION} == ${REDHAT7} ] && OS_VERSION_CN="almalinux-7"
 }
 
 YUM_SOURCE_FILE="/etc/yum.repos.d/bm.repo"
 
 RH_EPEL_RPM="https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm"
-if [ ${OS_VERSION} == ${REDHAT7} ]; then
-    RH_EPEL_RPM="https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
-fi
 
 disableFirewall() {
   display_action ${txt_rh_disable_iptables}
@@ -121,7 +112,7 @@ configureRepo() {
   fi
 
   # RedHat (not CentOS) specific repo configuration
-  optionalChannelName="rhel-7-server-optional-rpms"
+  optionalChannelName="rhel-8-server-optional-rpms"
   yum-config-manager --setopt ${optionalChannelName}.enabled=1 --save 2>&1 > /dev/null
 
   display_action_ok
