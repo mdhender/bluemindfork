@@ -49,5 +49,5 @@ public class CapabilityProcessor implements CommandProcessor<CapabilityCommand> 
 	public Class<CapabilityCommand> handledType() {
 		return CapabilityCommand.class;
 	}
-
+	
 }

@@ -39,11 +39,6 @@ public class UidFetchProcessor extends SelectedStateCommandProcessor<UidFetchCom
 	private static final Logger logger = LoggerFactory.getLogger(UidFetchProcessor.class);
 
 	@Override
-	public Class<UidFetchCommand> handledType() {
-		return UidFetchCommand.class;
-	}
-
-	@Override
 	protected void checkedOperation(UidFetchCommand command, ImapContext ctx, Handler<AsyncResult<Void>> completed) {
 		checkedOperation(command, ctx, Stopwatch.createStarted(), completed);
 	}
@@ -67,6 +62,11 @@ public class UidFetchProcessor extends SelectedStateCommandProcessor<UidFetchCom
 					.onComplete(writeAr -> completed.handle(Result.fail(t)));
 			return null;
 		});
+	}
+
+	@Override
+	public Class<UidFetchCommand> handledType() {
+		return UidFetchCommand.class;
 	}
 
 }

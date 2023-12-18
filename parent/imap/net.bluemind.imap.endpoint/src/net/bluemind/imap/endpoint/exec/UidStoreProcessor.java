@@ -41,11 +41,6 @@ public class UidStoreProcessor extends SelectedStateCommandProcessor<UidStoreCom
 	private static final Logger logger = LoggerFactory.getLogger(UidStoreProcessor.class);
 
 	@Override
-	public Class<UidStoreCommand> handledType() {
-		return UidStoreCommand.class;
-	}
-
-	@Override
 	protected void checkedOperation(UidStoreCommand command, ImapContext ctx, Handler<AsyncResult<Void>> completed) {
 		Stopwatch chrono = Stopwatch.createStarted();
 		ctx.mailbox().updateFlags(ctx.selected(), command.idset(), command.mode(), command.flags());
@@ -61,6 +56,11 @@ public class UidStoreProcessor extends SelectedStateCommandProcessor<UidStoreCom
 			UidFetchProcessor proc = new UidFetchProcessor();
 			proc.checkedOperation(fetch, ctx, chrono, completed);
 		}
+	}
+	
+	@Override
+	public Class<UidStoreCommand> handledType() {
+		return UidStoreCommand.class;
 	}
 
 }

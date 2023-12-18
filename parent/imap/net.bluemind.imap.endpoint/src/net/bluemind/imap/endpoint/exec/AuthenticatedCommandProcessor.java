@@ -40,5 +40,9 @@ public abstract class AuthenticatedCommandProcessor<T extends AnalyzedCommand>
 		}
 		return true;
 	}
+	
+	public String toString() {
+		return getClass().getSimpleName().replace("Processor", "");
+	}
 
 }

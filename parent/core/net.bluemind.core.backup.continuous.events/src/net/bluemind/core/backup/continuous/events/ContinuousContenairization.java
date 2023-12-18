@@ -58,7 +58,7 @@ public interface ContinuousContenairization<T> {
 			logger.error("{}:fails type:{} domainUid:{} ownerUid:{} itemUid:{}", operation, t, metaDesc.domainUid,
 					metaDesc.owner, iv.uid, ex);
 		} else if (lim.tryAcquire()) {
-			logger.info("{}:succeed type:{} domainUid:{} ownerUid:{} itemUid:{}", operation, t, metaDesc.domainUid,
+			logger.debug("{}:succeed type:{} domainUid:{} ownerUid:{} itemUid:{}", operation, t, metaDesc.domainUid,
 					metaDesc.owner, iv.uid);
 		}
 	}

@@ -66,6 +66,9 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
 import com.google.common.io.CharStreams;
 import com.google.common.io.CountingInputStream;
+import com.netflix.spectator.api.Clock;
+import com.netflix.spectator.api.Registry;
+import com.netflix.spectator.api.Timer;
 
 import net.bluemind.backend.mail.api.DispositionType;
 import net.bluemind.backend.mail.api.MessageBody;
@@ -75,6 +78,8 @@ import net.bluemind.backend.mail.api.MessageBody.RecipientKind;
 import net.bluemind.content.analysis.ContentAnalyzerFactory;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.metrics.registry.IdFactory;
+import net.bluemind.metrics.registry.MetricsRegistry;
 import net.bluemind.mime4j.common.AddressableEntity;
 import net.bluemind.mime4j.common.Mime4JHelper;
 import net.bluemind.mime4j.common.OffloadedBodyFactory;
@@ -84,7 +89,6 @@ import net.bluemind.mime4j.common.OffloadedBodyFactory.SizedBody;
 public class BodyStreamProcessor {
 
 	private static final Logger logger = LoggerFactory.getLogger(BodyStreamProcessor.class);
-
 	/**
 	 * The version of the DB body this {@link BodyStreamProcessor} produces from an
 	 * IMAP message.
@@ -94,7 +98,12 @@ public class BodyStreamProcessor {
 	static {
 		System.setProperty("mail.mime.decodetext.strict", "false");
 	}
-
+	
+	private static final Registry registry = MetricsRegistry.get();
+	private static final IdFactory idFactory = new IdFactory("BodyStreamProcessor", MetricsRegistry.get(), BodyStreamProcessor.class);
+	private static final Timer putLatencyTimer = registry.timer(idFactory.name("latency").withTag("method", "put"));
+	private static final Clock clock = registry.clock();
+	
 	public static CompletableFuture<MessageBodyData> processBody(Stream eml) {
 		return EZInputStreamAdapter.consume(eml, emlInput -> {
 			logger.debug("Consuming wrapped stream {}", emlInput);
@@ -107,7 +116,7 @@ public class BodyStreamProcessor {
 	}
 
 	private static MessageBodyData parseBody(CountingInputStream emlInput) {
-		long time = System.currentTimeMillis();
+		final long start = clock.monotonicTime();
 
 		MessageBody mb = new MessageBody();
 		mb.bodyVersion = BODY_VERSION;
@@ -158,11 +167,11 @@ public class BodyStreamProcessor {
 			with.addAll(toString(parsed.getCc()));
 
 			mb.structure.size = mb.size;
-			time = System.currentTimeMillis() - time;
-			if (time > 10) {
-				logger.info("Body ({} byte(s)) processed in {}ms.", mb.size, time);
+			long time = clock.monotonicTime() - start;
+			putLatencyTimer.record(time, TimeUnit.NANOSECONDS);
+			if ((time / 1000000) > 500) {
+				logger.warn("Body ({} byte(s)) processed in {}ms.", mb.size, time/1000000);
 			}
-
 			cleanUnreferencedInlineAttachments(bodyWithDom.jsoup, mb, parsed);
 
 			MessageBodyData bodyData = new MessageBodyData(mb, bodyTxt.toString(), filenames, with,

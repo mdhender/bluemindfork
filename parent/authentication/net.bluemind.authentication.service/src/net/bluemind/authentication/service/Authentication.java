@@ -28,7 +28,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -183,7 +182,6 @@ public class Authentication implements IInCoreAuthentication {
 
 		SecurityContext sc = Sessions.get().getIfPresent(password);
 		AuthResult result = authContext.map(ac -> checkToken(sc, ac)).orElse(AuthResult.UNKNOWN);
-
 		if (result != AuthResult.YES) {
 			// checkProviders are able to create user on the fly
 			// If AuthContext is null, try to build a fake AuthContext from login
@@ -280,8 +278,7 @@ public class Authentication implements IInCoreAuthentication {
 				.instance(IUserSettings.class, authContext.domain.uid).get(authContext.user.uid);
 
 		if (context == null) {
-			logger.info("login: '{}', origin: '{}', from: '{}' successfully authentified (status: {})", login, origin,
-					securityContext.getRemoteAddresses(), status);
+			logger.info("[name={};origin={};status={}] authenticated", login, origin, status);
 			resp.authKey = UUID.randomUUID().toString();
 			context = buildSecurityContext(resp.authKey, authContext.user, authContext.domain.uid, settings, origin,
 					status == Status.Expired, interactive);
@@ -303,7 +300,7 @@ public class Authentication implements IInCoreAuthentication {
 			Sessions.get().put(resp.authKey, context);
 		} else {
 
-			logger.debug("login: '{}', origin: '{}', from: '{}' successfully authentified with session token", login,
+			logger.debug("[name={};origin={};from={}] authenticated session token", login,
 					origin, securityContext.getRemoteAddresses());
 			resp.authKey = context.getSessionId();
 		}
@@ -473,7 +470,14 @@ public class Authentication implements IInCoreAuthentication {
 			AuthUser currentUser = getCurrentUser();
 			performer = String.format("%s (%s)", securityContext.getSubject(), currentUser.displayName);
 		}
-		logger.info("sudo as '{}' by {} from origin '{}'", login, performer, securityContext.getOrigin());
+		List<String> oips = new ArrayList<String>();
+		for (String ipAddress : securityContext.getRemoteAddresses()) {
+            if (!ipAddress.startsWith("127.")) {
+            	oips.add(ipAddress);
+            }
+        } 
+		logger.info("[name={};origin={};oip={}] sudo as by {}", login, securityContext.getOrigin(),
+				String.join(",", oips), performer);
 
 		Iterator<String> splitted = atSplitter.split(login).iterator();
 		String localPart = splitted.next();
@@ -646,5 +650,4 @@ public class Authentication implements IInCoreAuthentication {
 	public void resetTokens() {
 		TokensStore.reset();
 	}
-
 }

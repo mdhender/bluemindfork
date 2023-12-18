@@ -55,12 +55,13 @@ import net.bluemind.imap.endpoint.cmd.SelectCommand;
  */
 public class SelectProcessor extends AbstractSelectorProcessor<SelectCommand> {
 	@Override
+	protected boolean isAlwaysReadOnly() {
+		return false;
+	}
+	
+	@Override
 	public Class<SelectCommand> handledType() {
 		return SelectCommand.class;
 	}
 
-	@Override
-	protected boolean isAlwaysReadOnly() {
-		return false;
-	}
 }

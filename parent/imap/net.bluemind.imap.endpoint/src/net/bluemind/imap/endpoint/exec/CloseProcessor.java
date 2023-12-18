@@ -29,7 +29,7 @@ import net.bluemind.imap.endpoint.cmd.CloseCommand;
 public class CloseProcessor extends AuthenticatedCommandProcessor<CloseCommand> {
 
 	private static final Logger logger = LoggerFactory.getLogger(CloseProcessor.class);
-
+	
 	@Override
 	public void checkedOperation(CloseCommand command, ImapContext ctx, Handler<AsyncResult<Void>> completed) {
 		StringBuilder sb = new StringBuilder();

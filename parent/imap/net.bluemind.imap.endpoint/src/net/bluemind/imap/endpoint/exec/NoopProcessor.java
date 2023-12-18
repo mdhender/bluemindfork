@@ -42,5 +42,9 @@ public class NoopProcessor implements CommandProcessor<NoopCommand>, ISequenceRe
 	public Class<NoopCommand> handledType() {
 		return NoopCommand.class;
 	}
+	
+	public String toString() {
+		return getClass().getSimpleName().replace("Processor", "");
+	}
 
 }

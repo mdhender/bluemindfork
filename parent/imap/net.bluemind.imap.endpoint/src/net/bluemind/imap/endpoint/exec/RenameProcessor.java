@@ -31,11 +31,6 @@ import net.bluemind.imap.endpoint.driver.SelectedFolder;
 
 public class RenameProcessor extends AuthenticatedCommandProcessor<RenameCommand> {
 	@Override
-	public Class<RenameCommand> handledType() {
-		return RenameCommand.class;
-	}
-
-	@Override
 	protected void checkedOperation(RenameCommand renameCommand, ImapContext ctx,
 			Handler<AsyncResult<Void>> completed) {
 		MailboxConnection con = ctx.mailbox();
@@ -59,6 +54,11 @@ public class RenameProcessor extends AuthenticatedCommandProcessor<RenameCommand
 				ctx.write(renameCommand.raw().tag() + " NO rename failed\r\n").onComplete(completed);
 			}
 		}
+	}
+	
+	@Override
+	public Class<RenameCommand> handledType() {
+		return RenameCommand.class;
 	}
 
 }

@@ -34,12 +34,6 @@ import net.bluemind.imap.endpoint.locks.ISequenceReader;
 import net.bluemind.lib.vertx.Result;
 
 public class SearchProcessor extends SelectedStateCommandProcessor<SearchCommand> implements ISequenceReader {
-
-	@Override
-	public Class<SearchCommand> handledType() {
-		return SearchCommand.class;
-	}
-
 	@Override
 	protected void checkedOperation(SearchCommand command, ImapContext ctx, Handler<AsyncResult<Void>> completed) {
 		Stopwatch chrono = Stopwatch.createStarted();
@@ -62,6 +56,11 @@ public class SearchProcessor extends SelectedStateCommandProcessor<SearchCommand
 		}
 		completed.handle(Result.success());
 
+	}
+	
+	@Override
+	public Class<SearchCommand> handledType() {
+		return SearchCommand.class;
 	}
 
 }

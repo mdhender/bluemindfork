@@ -105,7 +105,7 @@ public class IdleProcessor extends AuthenticatedCommandProcessor<IdleCommand> {
 		idleCheckpointer.checkpointSequences(logger, "idle", sb, ctx);
 		SelectedFolder live = ctx.selected();
 		ctx.write(sb.toString());
-		logger.info("idle checkpoint for {}", live);
+		logger.debug("idle checkpoint for {}", live);
 		if (changed.length > 0) {
 			FetchedItemStream fetchStream = new FetchedItemStream(ctx, command.raw().tag() + " idle", parts);
 			ImapIdSet changeSet = ImapIdSet.uids(

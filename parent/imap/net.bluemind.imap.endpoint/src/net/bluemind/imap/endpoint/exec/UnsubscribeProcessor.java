@@ -37,11 +37,6 @@ public class UnsubscribeProcessor extends AuthenticatedCommandProcessor<Unsubscr
 	private static final Logger logger = LoggerFactory.getLogger(UnsubscribeProcessor.class);
 
 	@Override
-	public Class<UnsubscribeCommand> handledType() {
-		return UnsubscribeCommand.class;
-	}
-
-	@Override
 	protected void checkedOperation(UnsubscribeCommand command, ImapContext ctx, Handler<AsyncResult<Void>> completed) {
 		MailboxConnection con = ctx.mailbox();
 		String f = command.folder();
@@ -52,4 +47,10 @@ public class UnsubscribeProcessor extends AuthenticatedCommandProcessor<Unsubscr
 		ctx.write(command.raw().tag() + " OK unsubscribe completed\r\n");
 		completed.handle(Result.success());
 	}
+	
+	@Override
+	public Class<UnsubscribeCommand> handledType() {
+		return UnsubscribeCommand.class;
+	}
+
 }

@@ -148,7 +148,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		rbac.check(Verb.Read.name());
 		ItemValue<MailboxRecord> record = storeService.get(id, null);
 		if (record == null) {
-			logger.warn("MailItem {} not found.", id);
+			logger.debug("MailItem {} not found.", id);
 			return null;
 		}
 
@@ -240,7 +240,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 	}
 
 	private ImapAck mailRewrite(ItemValue<MailboxItem> current, MailboxItem newValue) {
-		logger.info("[{}] EML rewrite expected with subject '{}'", mailboxUniqueId, newValue.body.subject);
+		logger.debug("[{}] EML rewrite expected with subject '{}'", mailboxUniqueId, newValue.body.subject);
 		newValue.body.date = newValue.body.headers.stream()
 				.filter(header -> header.name.equals(MailApiHeaders.X_BM_DRAFT_REFRESH_DATE)).findAny()
 				.map(h -> new Date(Long.parseLong(h.firstValue()))).orElse(current.value.body.date);
@@ -258,7 +258,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		int messageMaxSize = LocalSysconfCache.get().integerValue(SysConfKeys.message_size_limit.name(),
 				10 * 1024 * 1024);
 		if (sizedStream.nettyBuffer().readableBytes() > messageMaxSize) {
-			String errorMsg = "Rewritten Eml exceeds max message size (so it has not been submitted to Cyrus).";
+			String errorMsg = "Rewritten Eml exceeds max message size";
 			throw new ServerFault(errorMsg, ErrorCode.ENTITY_TOO_LARGE);
 		}
 
@@ -327,8 +327,6 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 	}
 
 	private ImapItemIdentifier createImpl(long id, MailboxItem value) {
-		logger.info("create 'draft' {}", id);
-
 		ItemValue<MailboxItem> existingItem = getCompleteById(id);
 		if (existingItem != null) {
 			long existingRefreshDate = existingItem.value.body.date.getTime();
@@ -336,6 +334,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 					.filter(header -> header.name.equals(MailApiHeaders.X_BM_DRAFT_REFRESH_DATE)).findAny();
 			if (newRefreshDate.isPresent()
 					&& existingRefreshDate == Long.parseLong(newRefreshDate.get().firstValue())) {
+				logger.info("Draft is created with id: {}", id);
 				return ImapItemIdentifier.of(existingItem.value.imapUid, id, existingItem.version,
 						existingItem.timestamp());
 			}
@@ -459,9 +458,9 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 	private ReadStream<Buffer> imapFetch(long imapUid, String address) {
 		InputStream stream = fetchCompleteOIO(imapUid);
-		logger.info("Got stream {} for {}", stream, imapUid);
+		logger.debug("Got stream {} for {}", stream, imapUid);
 		try (Message parsed = Mime4JHelper.parse(stream, new OffloadedBodyFactory())) {
-			logger.info("Parsed {} as {}", stream, parsed);
+			logger.debug("Parsed {} as {}", stream, parsed);
 			SingleBody body = null;
 			if (parsed.isMultipart()) {
 				Multipart mp = (Multipart) parsed.getBody();
@@ -479,14 +478,14 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 				return new EmptyStream();
 			} else {
 				ByteBuf buf = Unpooled.buffer();
-				logger.info("Found body {}", body);
+				logger.debug("Found body {}", body);
 				try (InputStream part = body.getInputStream();
 						InputStream decIfNeeded = dec(body, part);
 						ByteBufOutputStream out = new ByteBufOutputStream(buf)) {
 					long copied = ByteStreams.copy(decIfNeeded, out);
-					logger.info("Copied {} byte(s) for uid {} part {}", copied, imapUid, address);
+					logger.debug("Copied {} byte(s) for uid {} part {}", copied, imapUid, address);
 				}
-				logger.info("Returning {}", buf);
+				logger.debug("Returning {}", buf);
 				return new BufferReadStream(Buffer.buffer(buf));
 			}
 
@@ -513,7 +512,10 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 				OutputStream out = Files.newOutputStream(partFile(addr).toPath())) {
 			ByteStreams.copy(ri, out);
 			time = System.currentTimeMillis() - time;
-			logger.info("[{}] Upload tooks {}ms", addr, time);
+			if (time > 500)
+			{
+				logger.warn("[{}] Upload Part tooks {}ms", addr, time);	
+			}
 			return addr;
 		} catch (Exception e) {
 			throw new ServerFault(e);

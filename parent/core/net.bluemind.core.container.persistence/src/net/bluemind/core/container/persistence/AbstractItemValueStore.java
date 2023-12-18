@@ -55,5 +55,9 @@ public abstract class AbstractItemValueStore<T> extends JdbcAbstractStore implem
 		Map<Long, T> map = values.stream().collect(Collectors.toMap(iv -> iv.itemId, iv -> iv.value, (v1, v2) -> v1));
 		return items.stream().map(i -> map.get(i.id)).collect(Collectors.toList());
 	}
+	
+	public String toString() {
+		return getClass().getSimpleName();
+	}
 
 }

@@ -110,13 +110,13 @@ public class StatusProcessor extends AuthenticatedCommandProcessor<StatusCommand
 	}
 
 	@Override
-	public Class<StatusCommand> handledType() {
-		return StatusCommand.class;
-	}
-
-	@Override
 	public SelectedFolder readFolder(AnalyzedCommand cmd, ImapContext ctx) {
 		return ctx.mailbox().select(((StatusCommand) cmd).folder());
+	}
+	
+	@Override
+	public Class<StatusCommand> handledType() {
+		return StatusCommand.class;
 	}
 
 }

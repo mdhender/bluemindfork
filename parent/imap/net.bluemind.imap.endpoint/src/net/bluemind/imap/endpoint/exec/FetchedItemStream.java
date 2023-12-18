@@ -81,7 +81,7 @@ public class FetchedItemStream implements WriteStream<FetchedItem> {
 	public void end(Handler<AsyncResult<Void>> handler) {
 		if (!ended) {
 			ended = true;
-			logger.info("ending fetch after {} write(s)", writeCnt);
+			logger.debug("ending fetch after {} write(s)", writeCnt);
 			handler.handle(Result.success());
 		}
 	}

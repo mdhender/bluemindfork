@@ -103,7 +103,7 @@ public class LmtpMessageHandler implements LmtpListener {
 						return RecipientAcceptance.TEMPORARY_REJECT.reason("over quota");
 					}
 				}
-				logger.info("Accept from {} to {}", from, found.mbox.value);
+				logger.info("Append message from {} to {}", from, found.mbox.value);
 				return RecipientAcceptance.ACCEPT.reason(null);
 			} else {
 				logger.warn("Reject from {} to {}", from, recipient);

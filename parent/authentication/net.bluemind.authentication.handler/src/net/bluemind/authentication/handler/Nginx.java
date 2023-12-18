@@ -206,8 +206,8 @@ public final class Nginx implements Handler<HttpServerRequest>, NeedVertxExecuto
 			}
 
 			long time = System.currentTimeMillis() - qp.time;
-			logger.info("[{}][{}][{}] will use imap backend {} using login [{}], done in {}ms.", qp.clientIp,
-					qp.protocol, qp.latd, backendSrv, backendLatd, time);
+			logger.info("[name={};protocol={},oip={};backend={}] resolved in {}ms.", qp.latd, qp.protocol, qp.clientIp, 
+					backendSrv, time);
 			return AuthResponse.of(kind, backendLatd, backendSrv);
 		}
 

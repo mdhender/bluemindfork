@@ -117,7 +117,9 @@ public class SpoolBackingStore implements ISdsBackingStore {
 		try (InputStream input = new ByteBufInputStream(bb, true)) {
 			nc.writeFile(target, input);
 			long upload = ms(chrono);
-			logger.info("{} stored. Timings (select: {}ms, comp: {}ms, upload: {}ms)", req.guid, tgtSel, comp, upload);
+			if (upload > 500) {
+				logger.info("{} stored. Timings (select: {}ms, comp: {}ms, upload: {}ms)", req.guid, tgtSel, comp, upload);
+			}
 			return CompletableFuture.completedFuture(SdsResponse.UNTAGGED_OK);
 		} catch (IOException e) {
 			return CompletableFuture.failedFuture(e);

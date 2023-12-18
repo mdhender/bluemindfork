@@ -83,14 +83,19 @@ public class AuthenticatePlainProcessor extends StateConstrainedCommandProcessor
 	}
 
 	@Override
-	public Class<AuthenticatePlainCommand> handledType() {
-		return AuthenticatePlainCommand.class;
-	}
-
-	@Override
 	protected boolean stateCheck(AuthenticatePlainCommand command, ImapContext ctx,
 			Handler<AsyncResult<Void>> completed) {
 		return ctx.state() == SessionState.IN_AUTH;
+	}
+	
+	@Override
+	public Class<AuthenticatePlainCommand> handledType() {
+		return AuthenticatePlainCommand.class;
+	}
+	
+	@Override
+	public String toString() {
+		return "PlainAuthenticate";
 	}
 
 }

@@ -51,7 +51,7 @@ public class LocalSysconfCache {
 
 		SystemConf ret = confApi.getValues();
 		HELD.current = Optional.of(ret);
-		logger.info("Initial load of {}", ret);
+		logger.debug("Initial load of {}", ret);
 		return ret;
 	}
 

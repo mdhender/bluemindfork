@@ -289,7 +289,7 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 			throw new ServerFault("Cannot find source mailboxfolder");
 		}
 
-		logger.info("[{}] Import {} item(s) from {} into {}", container.name, mailboxItems.ids.size(),
+		logger.info("[{}] Moving {} item(s) from {} into {}", container.name, mailboxItems.ids.size(),
 				sourceFolder.value.fullName, destinationFolder.value.fullName);
 
 		IItemsTransfer transferApi = context.provider().instance(IItemsTransfer.class, sourceFolder.uid,

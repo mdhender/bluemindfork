@@ -50,11 +50,6 @@ public class StoreProcessor extends SelectedStateCommandProcessor<StoreCommand>
 	private static final Logger logger = LoggerFactory.getLogger(StoreProcessor.class);
 
 	@Override
-	public Class<StoreCommand> handledType() {
-		return StoreCommand.class;
-	}
-
-	@Override
 	protected void checkedOperation(StoreCommand command, ImapContext ctx, Handler<AsyncResult<Void>> completed) {
 		Stopwatch chrono = Stopwatch.createStarted();
 		long newVersion = ctx.mailbox().updateFlags(ctx.selected(), command.idset(), command.mode(), command.flags());
@@ -72,6 +67,11 @@ public class StoreProcessor extends SelectedStateCommandProcessor<StoreCommand>
 			FetchProcessor proc = new FetchProcessor();
 			proc.checkedOperation(fetch, ctx, chrono, completed);
 		}
+	}
+
+	@Override
+	public Class<StoreCommand> handledType() {
+		return StoreCommand.class;
 	}
 
 }

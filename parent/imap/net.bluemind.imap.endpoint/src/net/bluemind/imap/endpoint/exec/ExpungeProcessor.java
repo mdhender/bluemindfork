@@ -22,12 +22,6 @@ import net.bluemind.imap.endpoint.cmd.ExpungeCommand;
 import net.bluemind.imap.endpoint.driver.ImapIdSet;
 
 public class ExpungeProcessor extends AbstractExpungeProcessor<ExpungeCommand> {
-
-	@Override
-	public Class<ExpungeCommand> handledType() {
-		return ExpungeCommand.class;
-	}
-
 	public ExpungeProcessor() {
 		super(true);
 	}
@@ -35,6 +29,11 @@ public class ExpungeProcessor extends AbstractExpungeProcessor<ExpungeCommand> {
 	@Override
 	protected ImapIdSet fromSet(ExpungeCommand command) {
 		return ImapIdSet.uids("1:*");
+	}
+
+	@Override
+	public Class<ExpungeCommand> handledType() {
+		return ExpungeCommand.class;
 	}
 
 }

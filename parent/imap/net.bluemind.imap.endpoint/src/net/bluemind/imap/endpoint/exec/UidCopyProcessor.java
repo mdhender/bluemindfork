@@ -33,12 +33,6 @@ import net.bluemind.imap.endpoint.locks.ISequenceWriter;
 public class UidCopyProcessor extends SelectedStateCommandProcessor<UidCopyCommand> implements ISequenceWriter {
 
 	private static final Logger logger = LoggerFactory.getLogger(UidCopyProcessor.class);
-
-	@Override
-	public Class<UidCopyCommand> handledType() {
-		return UidCopyCommand.class;
-	}
-
 	@Override
 	protected void checkedOperation(UidCopyCommand command, ImapContext ctx, Handler<AsyncResult<Void>> completed) {
 		MailboxConnection con = ctx.mailbox();
@@ -62,6 +56,11 @@ public class UidCopyProcessor extends SelectedStateCommandProcessor<UidCopyComma
 	@Override
 	public SelectedFolder modifiedFolder(AnalyzedCommand cmd, ImapContext ctx) {
 		return ctx.mailbox().select(((UidCopyCommand) cmd).folder());
+	}
+	
+	@Override
+	public Class<UidCopyCommand> handledType() {
+		return UidCopyCommand.class;
 	}
 
 }

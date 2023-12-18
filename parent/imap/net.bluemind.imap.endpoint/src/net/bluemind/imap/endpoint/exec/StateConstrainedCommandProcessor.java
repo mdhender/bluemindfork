@@ -41,4 +41,7 @@ public abstract class StateConstrainedCommandProcessor<T extends AnalyzedCommand
 
 	protected abstract void checkedOperation(T command, ImapContext ctx, Handler<AsyncResult<Void>> completed);
 
+	public String toString() {
+		return getClass().getSimpleName().replace("Processor", "");
+	}
 }

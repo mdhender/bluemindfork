@@ -26,11 +26,6 @@ import net.bluemind.imap.endpoint.locks.ISequenceWriter;
 public class UidExpungeProcessor extends AbstractExpungeProcessor<UidExpungeCommand>
 		implements ISequenceWriter, ISequenceCheckpoint {
 
-	@Override
-	public Class<UidExpungeCommand> handledType() {
-		return UidExpungeCommand.class;
-	}
-
 	public UidExpungeProcessor() {
 		super(false);
 	}
@@ -38,6 +33,11 @@ public class UidExpungeProcessor extends AbstractExpungeProcessor<UidExpungeComm
 	@Override
 	protected ImapIdSet fromSet(UidExpungeCommand command) {
 		return ImapIdSet.uids(command.idset());
+	}
+	
+	@Override
+	public Class<UidExpungeCommand> handledType() {
+		return UidExpungeCommand.class;
 	}
 
 }

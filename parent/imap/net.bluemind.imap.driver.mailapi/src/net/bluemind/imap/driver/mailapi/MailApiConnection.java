@@ -558,7 +558,7 @@ public class MailApiConnection implements MailboxConnection {
 			// https://datatracker.ietf.org/doc/html/rfc2177
 			notIdle();
 		} else {
-			logger.info("idle monitoring on {}", selected.folder);
+			logger.debug("Idle monitoring on folder {}", selected.folder);
 			String watchedUid = IMailReplicaUids.mboxRecords(selected.folder.uid);
 			Context idleContext = VertxContext.getOrCreateDuplicatedContext();
 			// we only notify on sequence visible at the start of the idling phase
@@ -810,7 +810,7 @@ public class MailApiConnection implements MailboxConnection {
 		tgtRecApi.updates(toCreate);
 		String sourceSet = sourceImapUid.stream().mapToLong(Long::longValue).mapToObj(Long::toString)
 				.collect(Collectors.joining(","));
-		logger.info("[{}] sourceSet: {} from {}", this, sourceSet, sourceImapUid);
+		logger.debug("[{}] sourceSet: {} from {} to [{}-{}]", this, sourceSet, sourceImapUid, start, end);
 		return new CopyResult(sourceSet, start, end, target.folder.value.uidValidity);
 	}
 

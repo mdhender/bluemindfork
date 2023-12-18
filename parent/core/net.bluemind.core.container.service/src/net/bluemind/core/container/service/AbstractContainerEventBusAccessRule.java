@@ -54,7 +54,9 @@ public class AbstractContainerEventBusAccessRule implements IEventBusAccessRule 
 			return new RBACManager(context).forContainer(uid).can(Verb.Read.name());
 		} catch (ServerFault e) {
 			if (e.getCode() == ErrorCode.NOT_FOUND) {
-				logger.info("Authorization on non-existing container {} requested", uid);
+				if (!uid.contains("admin0_global.virt")) {
+					logger.info("Authorization on non-existing container {} requested", uid);
+				}
 				return false;
 			} else {
 				throw e;

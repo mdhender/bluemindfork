@@ -25,15 +25,12 @@ package net.bluemind.imap.endpoint.exec;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import net.bluemind.imap.endpoint.ImapContext;
+import net.bluemind.imap.endpoint.cmd.StoreCommand;
 import net.bluemind.imap.endpoint.cmd.SubscribeCommand;
 import net.bluemind.imap.endpoint.driver.MailboxConnection;
 import net.bluemind.lib.vertx.Result;
 
 public class SubscribeProcessor extends AuthenticatedCommandProcessor<SubscribeCommand> {
-	@Override
-	public Class<SubscribeCommand> handledType() {
-		return SubscribeCommand.class;
-	}
 
 	@Override
 	protected void checkedOperation(SubscribeCommand command, ImapContext ctx, Handler<AsyncResult<Void>> completed) {
@@ -46,4 +43,10 @@ public class SubscribeProcessor extends AuthenticatedCommandProcessor<SubscribeC
 		}
 		completed.handle(Result.success());
 	}
+	
+	@Override
+	public Class<SubscribeCommand> handledType() {
+		return SubscribeCommand.class;
+	}
+
 }

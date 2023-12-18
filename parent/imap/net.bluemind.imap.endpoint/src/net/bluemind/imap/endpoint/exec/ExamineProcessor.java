@@ -39,12 +39,13 @@ import net.bluemind.imap.endpoint.cmd.ExamineCommand;
  */
 public class ExamineProcessor extends AbstractSelectorProcessor<ExamineCommand> {
 	@Override
+	protected boolean isAlwaysReadOnly() {
+		return true;
+	}
+	
+	@Override
 	public Class<ExamineCommand> handledType() {
 		return ExamineCommand.class;
 	}
 
-	@Override
-	protected boolean isAlwaysReadOnly() {
-		return true;
-	}
 }

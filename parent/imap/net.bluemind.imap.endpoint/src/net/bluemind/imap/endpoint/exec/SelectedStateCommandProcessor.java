@@ -46,5 +46,9 @@ public abstract class SelectedStateCommandProcessor<T extends AnalyzedCommand>
 		}
 		return true;
 	}
+	
+	public String toString() {
+		return getClass().getSimpleName().replace("Processor", "");
+	}
 
 }

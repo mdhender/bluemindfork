@@ -55,7 +55,9 @@ public class TokenAuthProvider implements IAuthProvider {
 				ret = AuthResult.YES;
 			} else {
 				ret = AuthResult.UNKNOWN;
-				logger.error("Fail to validate token for admin0 from {}", sc.getRemoteAddresses());
+				if (logger.isDebugEnabled()) {
+					logger.error("Failed to validate token for admin0 from {}", sc.getRemoteAddresses());
+				}
 			}
 		}
 

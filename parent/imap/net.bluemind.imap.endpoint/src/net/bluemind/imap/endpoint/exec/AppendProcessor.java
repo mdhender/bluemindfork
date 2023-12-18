@@ -44,11 +44,6 @@ public class AppendProcessor extends AuthenticatedCommandProcessor<AppendCommand
 	private static final Logger logger = LoggerFactory.getLogger(AppendProcessor.class);
 
 	@Override
-	public Class<AppendCommand> handledType() {
-		return AppendCommand.class;
-	}
-
-	@Override
 	protected void checkedOperation(AppendCommand command, ImapContext ctx, Handler<AsyncResult<Void>> completed) {
 		SelectedFolder target = ctx.mailbox().select(command.folder());
 		AppendStatus appendStatus = ctx.mailbox().append(target, command.flags(), command.deliveryDate(),
@@ -72,6 +67,11 @@ public class AppendProcessor extends AuthenticatedCommandProcessor<AppendCommand
 	@Override
 	public SelectedFolder modifiedFolder(AnalyzedCommand cmd, ImapContext ctx) {
 		return ctx.mailbox().select(((AppendCommand) cmd).folder());
+	}
+	
+	@Override
+	public Class<AppendCommand> handledType() {
+		return AppendCommand.class;
 	}
 
 }

@@ -58,7 +58,7 @@ public class RepairTaskMonitor implements IServerTaskMonitor {
 	@Override
 	public void begin(double totalWork, String log) {
 		if (config.logToCoreLog) {
-			logger.info("[BEGIN][{}]: {} {}", totalWork, logPrefix, log);
+			logger.info("[BEGIN]{} {}", logPrefix, log);
 		}
 		if (config.verbose && (!(delegate instanceof RepairTaskMonitor))) {
 			Level level = config.verbose ? Level.INFO : Level.DEBUG;
@@ -80,8 +80,8 @@ public class RepairTaskMonitor implements IServerTaskMonitor {
 	@Override
 	public void end(boolean success, String log, String result) {
 		boolean isSuccess = this.isSuccess() && success;
-		if (config.logToCoreLog) {
-			logger.info("[END][SUCCESS: {}][{}]: {}", isSuccess, result, log);
+		if (config.logToCoreLog && !logPrefix.isEmpty()) {
+			logger.info("[END]{} Success: {}, result: {}, log: {}", logPrefix, isSuccess, result, log);
 		}
 		if (!(delegate instanceof RepairTaskMonitor)) {
 			delegate.end(isSuccess, log, result);

@@ -176,12 +176,16 @@ public class RuleEngine {
 				.filter(rule -> rule.active && rule.trigger == Trigger.IN
 						&& rule.match(fieldValueProvider, parameterValueProvider))
 				.toList();
-		logger.info("[rules] {} matching out of {} rule(s)", filtered.size(), rules.size());
+		if (!filtered.isEmpty()) {
+			logger.info("[rules] {} out of {} rule(s) are matching", filtered.size(), rules.size());
+		}
 		return filtered;
 	}
 
 	private DeliveryContent applyRulesActions(List<MailFilterRule> rules) {
-		logger.info("[rules] applying {} rules on {}", rules.size(), originalContent);
+		if (!rules.isEmpty()) {
+			logger.info("[rules] Applying {} rules on {}", rules.size(), originalContent);
+		}
 		return rules.stream() //
 				.sequential() //
 				.reduce(originalContent, this::applyRuleActions, (result1, result2) -> result2);

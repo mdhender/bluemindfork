@@ -75,7 +75,6 @@ public abstract class AbstractEmailHook implements IAclHook {
 			RawField... headers) throws ServerFault {
 
 		if (entries.isEmpty()) {
-			logger.info("no one to notify");
 			return;
 		}
 

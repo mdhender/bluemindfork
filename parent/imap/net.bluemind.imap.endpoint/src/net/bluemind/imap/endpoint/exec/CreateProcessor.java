@@ -30,11 +30,6 @@ import net.bluemind.imap.endpoint.driver.MailboxConnection;
 
 public class CreateProcessor extends AuthenticatedCommandProcessor<CreateCommand> {
 	@Override
-	public Class<CreateCommand> handledType() {
-		return CreateCommand.class;
-	}
-
-	@Override
 	protected void checkedOperation(CreateCommand createCommand, ImapContext ctx,
 			Handler<AsyncResult<Void>> completed) {
 		MailboxConnection con = ctx.mailbox();
@@ -45,4 +40,10 @@ public class CreateProcessor extends AuthenticatedCommandProcessor<CreateCommand
 			ctx.write(createCommand.raw().tag() + " OK create completed\r\n").onComplete(completed);
 		}
 	}
+	
+	@Override
+	public Class<CreateCommand> handledType() {
+		return CreateCommand.class;
+	}
+
 }

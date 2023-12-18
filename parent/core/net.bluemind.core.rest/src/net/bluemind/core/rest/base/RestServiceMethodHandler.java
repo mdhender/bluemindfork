@@ -167,13 +167,9 @@ public class RestServiceMethodHandler implements IRestCallHandler {
 				error(response, key, sf);
 				return;
 			}
-
 			try {
 				AccessTokenValidator.validate(domainUid, accessToken);
 			} catch (ServerFault sf) {
-				if (logger.isDebugEnabled()) {
-					logger.debug("Failed to validate AccessToken: {}", sf.getMessage());
-				}
 				Optional<Cookie> rtc = cookies.stream().filter(c -> REFRESH_COOKIE.equals(c.name())).findFirst();
 				if (rtc.isEmpty()) {
 					error(response, key, new ServerFault("No refresh token cookie"));
@@ -274,7 +270,11 @@ public class RestServiceMethodHandler implements IRestCallHandler {
 	}
 
 	private void error(AsyncHandler<RestResponse> response, String key, Exception e) {
-		logger.error(e.getMessage(), e);
+		if (logger.isDebugEnabled()) {
+			logger.error("Failed to validate AccessToken: ", e);
+		} else {
+			logger.error(e.getMessage());
+		}
 		Sessions.get().invalidate(key);
 		RestResponse resp = RestResponse.invalidSession(String.format("invalid accesstoken: %s", e.getMessage()));
 		resp.headers.add("WWW-authenticate", "Bearer");

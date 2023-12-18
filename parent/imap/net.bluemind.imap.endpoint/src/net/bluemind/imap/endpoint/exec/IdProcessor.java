@@ -38,7 +38,7 @@ public class IdProcessor implements CommandProcessor<IdCommand> {
 	public void operation(IdCommand id, ImapContext ctx, Handler<AsyncResult<Void>> completed) {
 		String resp = MY_ID + id.raw().tag() + " OK Completed\r\n";
 		ctx.write(resp);
-		logger.info("Id-ed myself as version {} to {}", ImapEndpointActivator.getVersion(), id.clientId().get("name"));
+		logger.info("Client identified as {}-{}", id.clientId().get("name"), id.clientId().get("version"));
 		ctx.clientId(id.clientId());
 		completed.handle(Result.success());
 	}

@@ -30,11 +30,6 @@ import net.bluemind.imap.endpoint.driver.MailboxConnection;
 
 public class DeleteProcessor extends AuthenticatedCommandProcessor<DeleteCommand> {
 	@Override
-	public Class<DeleteCommand> handledType() {
-		return DeleteCommand.class;
-	}
-
-	@Override
 	protected void checkedOperation(DeleteCommand deleteCommand, ImapContext ctx,
 			Handler<AsyncResult<Void>> completed) {
 		MailboxConnection con = ctx.mailbox();
@@ -44,6 +39,11 @@ public class DeleteProcessor extends AuthenticatedCommandProcessor<DeleteCommand
 		} else {
 			ctx.write(deleteCommand.raw().tag() + " NO delete failed\r\n").onComplete(completed);
 		}
+	}
+	
+	@Override
+	public Class<DeleteCommand> handledType() {
+		return DeleteCommand.class;
 	}
 
 }

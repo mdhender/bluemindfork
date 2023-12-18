@@ -118,11 +118,11 @@ public class DbMessageBodiesService implements IInternalDbMessageBodies {
 			CompletableFuture<Void> prom = classic.pipeTo(tmpStream).toCompletionStage().toCompletableFuture()
 					.orTimeout(10, TimeUnit.SECONDS);
 			classic.resume();
-			logger.info("Using netbased-stream {}", classic);
+			logger.debug("Using netbased-stream {}", classic);
 			prom.join();
 		}
 
-		logger.info("File copy of {} stream created ({} byte(s))", uid, tmpFile.length());
+		logger.debug("File copy of {} stream created ({} byte(s))", uid, tmpFile.length());
 
 		Stream eml = VertxStream.localPath(tmpFile.toPath());
 		MessageBodyObjectStore objectStore = bodyObjectStore.get();

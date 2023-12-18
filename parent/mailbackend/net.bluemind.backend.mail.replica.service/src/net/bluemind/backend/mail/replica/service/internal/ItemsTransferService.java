@@ -167,7 +167,8 @@ public class ItemsTransferService implements IItemsTransfer {
 				AppendTx tx = toFolders.prepareAppend(target.internalId, records.size());
 				long start = tx.imapUid - (records.size() - 1);
 				long end = tx.imapUid;
-				logger.info("Create imapUids [ {} - {} ]", start, end);
+				logger.debug("Creating imapUids [ {} - {} ]", start, end);
+				logger.debug("Moving {} message(s).", records.size());
 				long cnt = start;
 				List<MailboxRecord> copies = new ArrayList<>(records.size());
 				for (WithId<MailboxRecord> iv : records) {

@@ -107,7 +107,7 @@ public class OutboxService implements IOutbox {
 			List<ItemValue<MailboxItem>> mails = retrieveOutboxItems(mailboxItemsService);
 			int mailCount = mails.size();
 			enumerate = System.currentTimeMillis() - enumerate;
-			logger.info("[{}] Flushing {} outbox item(s), enumerate took {}ms.",
+			logger.info("[{}] Flushing {} outbox item(s), took {}ms.",
 					context.getSecurityContext().getSubject(), mails.size(), enumerate);
 			monitor.begin(mails.size(), "FLUSHING OUTBOX - have " + mailCount + " mails to send.");
 
@@ -136,7 +136,7 @@ public class OutboxService implements IOutbox {
 					(a, b) -> a + b);
 
 			addRecipientsToCollectedContacts(user.uid, collectedRecipients);
-			logger.info("[{}] flushed {}", context.getSecurityContext().getSubject(), mailCount);
+			logger.debug("[{}] flushed {}", context.getSecurityContext().getSubject(), mailCount);
 			monitor.end(true, "FLUSHING OUTBOX finished successfully", String.format(
 					"{\"result\": %s, \"requestedDSNs\": %d}", JsonUtils.asString(flushResults), requestedDSNs));
 		}).exceptionally(e -> {

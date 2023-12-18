@@ -171,7 +171,7 @@ public class MessageBodyObjectStore {
 	}
 
 	public void store(String uid, Date deliveryDate, File tmpFile) {
-		logger.info("Store {} with {}", uid, objectStore);
+		logger.debug("Store {} with {}", uid, objectStore);
 		PutRequest pr = new PutRequest();
 		pr.filename = tmpFile.getAbsolutePath();
 		pr.guid = uid;

@@ -39,11 +39,6 @@ public class FetchProcessor extends SelectedStateCommandProcessor<FetchCommand>
 	private static final Logger logger = LoggerFactory.getLogger(FetchProcessor.class);
 
 	@Override
-	public Class<FetchCommand> handledType() {
-		return FetchCommand.class;
-	}
-
-	@Override
 	protected void checkedOperation(FetchCommand command, ImapContext ctx, Handler<AsyncResult<Void>> completed) {
 		checkedOperation(command, ctx, Stopwatch.createStarted(), completed);
 	}
@@ -72,6 +67,11 @@ public class FetchProcessor extends SelectedStateCommandProcessor<FetchCommand>
 					.onComplete(writeAr -> completed.handle(Result.fail(t)));
 			return null;
 		});
+	}
+	
+	@Override
+	public Class<FetchCommand> handledType() {
+		return FetchCommand.class;
 	}
 
 }

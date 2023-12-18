@@ -42,11 +42,6 @@ public class UidSearchProcessor extends SelectedStateCommandProcessor<UidSearchC
 	private static final Logger logger = LoggerFactory.getLogger(UidSearchProcessor.class);
 
 	@Override
-	public Class<UidSearchCommand> handledType() {
-		return UidSearchCommand.class;
-	}
-
-	@Override
 	protected void checkedOperation(UidSearchCommand command, ImapContext ctx, Handler<AsyncResult<Void>> completed) {
 		Stopwatch chrono = Stopwatch.createStarted();
 
@@ -72,7 +67,11 @@ public class UidSearchProcessor extends SelectedStateCommandProcessor<UidSearchC
 			ctx.write(uidsResp);
 		}
 		completed.handle(Result.success());
-
+	}
+	
+	@Override
+	public Class<UidSearchCommand> handledType() {
+		return UidSearchCommand.class;
 	}
 
 }

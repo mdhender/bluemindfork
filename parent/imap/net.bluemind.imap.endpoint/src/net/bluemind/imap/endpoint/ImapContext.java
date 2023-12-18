@@ -84,7 +84,7 @@ public class ImapContext {
 
 		@Override
 		public String address() {
-			return "yeah";
+			return null;
 		}
 
 		@Override
@@ -280,7 +280,7 @@ public class ImapContext {
 		ToStringHelper build = MoreObjects.toStringHelper(ImapContext.class).add("con", mailbox);
 		if (clientId != null && clientId.containsKey("name")) {
 			String id = clientId.get("name") + "/" + clientId.get("version");
-			build.add("id", id);
+			build.add("ua", id);
 		}
 		return build.toString();
 	}

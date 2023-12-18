@@ -46,11 +46,11 @@ public class DomainBookVerticle extends AbstractVerticle {
 			public void handle(Message<JsonObject> event) {
 
 				if (suspended) {
-					logger.warn("domain book replication is suspended {}", event.body());
+					logger.warn("Domain book update is suspended {}", event.body());
 					return;
 				}
 				String domain = event.body().getString("domain");
-				logger.info("replicate domain book {}", domain);
+				logger.info("Updating domain addressbook of domain {}", domain);
 				long time = System.currentTimeMillis();
 				BmContext context = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).getContext();
 				try {
@@ -59,10 +59,10 @@ public class DomainBookVerticle extends AbstractVerticle {
 						dBook.sync();
 					}
 				} catch (Exception e) {
-					logger.error("error during replication: {}", e.getMessage());
+					logger.error("Error during domain addressbook update: {}", e.getMessage());
 				}
 
-				logger.info("replicate domain book {} DONE in {} ms", domain, (System.currentTimeMillis() - time));
+				logger.info("Domain addressbook update of domain {} DONE in {} ms", domain, (System.currentTimeMillis() - time));
 				// to help unit tests wait
 				vertx.eventBus().publish("domainbook.sync." + domain, "DONE");
 			}
@@ -73,7 +73,7 @@ public class DomainBookVerticle extends AbstractVerticle {
 
 		vertx.eventBus().consumer("dir.changed", (Message<JsonObject> msg) -> {
 			if (suspended) {
-				logger.warn("domain book replication is suspended: {}", msg.body());
+				logger.warn("Domain addressbook update is suspended: {}", msg.body());
 				return;
 			}
 			tm.handle(msg);

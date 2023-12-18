@@ -78,7 +78,6 @@ public class EmlBuilder {
 		MessageImpl msg = new MessageImpl();
 		msg.setDate(mb.date);
 		BasicBodyFactory bbf = new BasicBodyFactory();
-		logger.info("Subject is '{}'", mb.subject);
 		msg.setSubject(mb.subject);
 		fillHeader(msg.getHeader(), mb.headers, true);
 		setRecipients(msg, mb.recipients);
@@ -216,7 +215,7 @@ public class EmlBuilder {
 		} else {
 			MultipartImpl mp = new MultipartImpl(structure.mime.substring("multipart/".length()));
 			for (Part p : structure.children) {
-				logger.info("Adding part {}", p.mime);
+				logger.debug("Adding part {}", p.mime);
 				Body childBody = createBody(bbf, p, sid);
 				BodyPart bp = new BodyPart();
 				if (childBody instanceof MultipartImpl multiPartImpl) {
