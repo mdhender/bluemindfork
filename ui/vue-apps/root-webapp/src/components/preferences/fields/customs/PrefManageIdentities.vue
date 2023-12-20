@@ -135,7 +135,7 @@ export default {
         }
     }
     td.identity-cell {
-        padding-top: base-px-to-rem(8) !important;
+        padding-top: base-px-to-rem(4) !important;
     }
     .label-cell {
         width: 50%;

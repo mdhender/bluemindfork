@@ -62,17 +62,23 @@ watchEffect(() => {
             {{ $t("preferences.account.delegates.create") }}
         </bm-button>
         <template v-if="Object.keys(delegates).length">
-            <div class="d-flex align-items-center pt-4">
-                <bm-icon icon="open-envelope" class="mr-4" />
-                {{
-                    delegatesWithCopyImipRuleCount > 0
-                        ? $t("preferences.account.delegates.receive_imip", { count: delegatesWithCopyImipRuleCount })
-                        : $t("preferences.account.delegates.receive_imip.none")
-                }}
-                <bm-read-more
-                    class="ml-5"
-                    href="https://doc.bluemind.net/release/5.0/category/guide_de_l_utilisateur/parametrer_le_compte_utilisateur#manage-my-invitations"
-                />
+            <div class="d-flex align-items-center pt-4 regular">
+                <bm-icon icon="open-envelope" class="mr-4 align-self-start" />
+                <span>
+                    <span class="mr-5">
+                        {{
+                            delegatesWithCopyImipRuleCount > 0
+                                ? $t("preferences.account.delegates.receive_imip", {
+                                      count: delegatesWithCopyImipRuleCount
+                                  })
+                                : $t("preferences.account.delegates.receive_imip.none")
+                        }}
+                    </span>
+                    <bm-read-more
+                        class="d-inline-flex"
+                        href="https://doc.bluemind.net/release/5.0/category/guide_de_l_utilisateur/parametrer_le_compte_utilisateur#manage-my-invitations"
+                    />
+                </span>
             </div>
             <span v-if="delegatesWithCopyImipRuleCount == 0" class="bold">
                 {{ $t("preferences.account.delegates.receive_imip.none.notice") }}

@@ -157,6 +157,13 @@ a.nav-link:focus {
     min-width: 0;
 }
 
+.tail-content {
+    white-space: nowrap;
+    &::before {
+        content: "\200B";
+    }
+}
+
 @each $breakpoint in map-keys($grid-breakpoints) {
     @include media-breakpoint-up($breakpoint) {
         $infix: breakpoint-infix($breakpoint, $grid-breakpoints);

@@ -76,6 +76,7 @@ export default {
         margin-right: $sp-5;
         .contact {
             margin-left: $sp-3;
+            margin-right: 0;
         }
     }
 }

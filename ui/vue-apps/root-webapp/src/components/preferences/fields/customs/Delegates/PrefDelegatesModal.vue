@@ -34,17 +34,18 @@
             <bm-form-radio :value="Verb.SendOnBehalf">
                 {{ $t("preferences.account.delegates.edit.send_on_behalf") }}
             </bm-form-radio>
-            <bm-form-radio :value="Verb.SendAs">
-                {{ $t("preferences.account.delegates.edit.send_as") }}<bm-icon class="pl-4" icon="user-outline" />
+            <bm-form-radio :value="Verb.SendAs" class="my-3">
+                {{ $t("preferences.account.delegates.edit.send_as") }}
+                <span class="tail-content"><bm-icon class="pl-4" icon="user-outline" /></span>
             </bm-form-radio>
         </bm-form-radio-group>
         <div class="delegation-notice">
             <div class="delegation-notice-label">
                 {{ $t("preferences.account.delegates.edit.notice.label") }}
             </div>
-            <div class="d-flex align-items-center pt-1 px-2">
+            <div class="pt-1 sender-preview">
                 <contact :contact="userAsContact" transparent bold-dn avatar-size="md" />
-                <span v-if="formData.delegationRight.current === Verb.SendOnBehalf" class="ml-3">
+                <span v-if="formData.delegationRight.current === Verb.SendOnBehalf" class="ml-3 sent-by">
                     <i18n path="preferences.account.delegates.edit.notice.send_by">
                         <template #delegate>
                             <span class="bold">{{
@@ -68,41 +69,57 @@
                 v-model="formData.calendarRight.current"
                 :disabled="!selectedDelegate"
                 :auto-min-width="false"
-                class="my-4"
+                class="mt-3 mb-4"
                 :options="rights(Container.CALENDAR)"
                 @input="onCalendarRightChanged"
             />
-            <bm-form-checkbox v-model="formData.copyImipToDelegate.current" :disabled="copyImipToDelegateDisabled">
-                <div
-                    class="d-flex align-items-center"
+            <bm-form-checkbox
+                v-model="formData.copyImipToDelegate.current"
+                :disabled="copyImipToDelegateDisabled"
+                class="mt-2 ml-3"
+            >
+                <span
                     :title="
                         copyImipToDelegateDisabled
-                            ? $t('preferences.account.delegates.calendar.invitations.title', {
+                            ? $t('preferences.account.delegates.option_needs_permission', {
                                   right: $t('preferences.account.delegates.right.calendar.can_edit')
                               })
                             : undefined
                     "
                 >
                     {{ $t("preferences.account.delegates.calendar.invitations") }}
-                    <bm-icon class="pl-3" icon="open-envelope" />
-                    <bm-icon
-                        v-if="incoherentCopyImipToDelegate"
-                        class="pl-3 text-warning"
-                        icon="exclamation-circle"
-                        :title="
-                            $t('preferences.account.delegates.calendar.invitations.incoherent.in_modal', {
-                                right: $t('preferences.account.delegates.right.calendar.can_edit')
-                            })
-                        "
-                    />
-                </div>
+                    <span class="tail-content ml-2">
+                        <bm-icon class="ml-4" icon="open-envelope" />
+                        <bm-icon
+                            v-if="incoherentCopyImipToDelegate"
+                            class="ml-3 text-warning"
+                            icon="exclamation-circle"
+                            :title="
+                                $t('preferences.account.delegates.calendar.invitations.incoherent.in_modal', {
+                                    right: $t('preferences.account.delegates.right.calendar.can_edit')
+                                })
+                            "
+                        />
+                    </span>
+                </span>
             </bm-form-checkbox>
             <bm-form-checkbox
                 v-model="formData.seePrivateEvents.current"
                 :disabled="!selectedDelegate || !isSeePrivateEventsPossible"
+                class="my-4 ml-3"
             >
-                {{ $t("preferences.account.delegates.calendar.private") }}
-                <bm-icon class="pl-3" icon="lock-fill" />
+                <span
+                    :title="
+                        !isSeePrivateEventsPossible
+                            ? $t('preferences.account.delegates.option_needs_permission', {
+                                  right: $t('preferences.account.delegates.right.calendar.can_read')
+                              })
+                            : undefined
+                    "
+                >
+                    {{ $t("preferences.account.delegates.calendar.private") }}
+                    <span class="tail-content"><bm-icon class="pl-3" icon="lock-fill" /></span>
+                </span>
             </bm-form-checkbox>
         </div>
         <!-- TodoLists -->
@@ -116,7 +133,7 @@
                 v-model="formData.todoListRight.current"
                 :disabled="!selectedDelegate"
                 :auto-min-width="false"
-                class="my-4"
+                class="mt-3 mb-4"
                 :options="rights(Container.TODO_LIST)"
             />
         </div>
@@ -131,7 +148,7 @@
                 v-model="formData.messageRight.current"
                 :disabled="!selectedDelegate"
                 :auto-min-width="false"
-                class="my-4"
+                class="mt-3 mb-4"
                 :options="rights(Container.MAILBOX)"
             />
         </div>
@@ -146,7 +163,7 @@
                 v-model="formData.contactsRight.current"
                 :disabled="!selectedDelegate"
                 :auto-min-width="false"
-                class="my-4"
+                class="mt-3 mb-4"
                 :options="rights(Container.CONTACTS)"
             />
         </div>
@@ -470,6 +487,9 @@ export default {
             if (!this.isCopyImipOptionPossible && this.formData.copyImipToDelegate.current) {
                 this.formData.copyImipToDelegate.current = false;
             }
+            if (!this.isSeePrivateEventsPossible && this.formData.seePrivateEvents.current) {
+                this.formData.seePrivateEvents.current = false;
+            }
         }
     }
 };
@@ -490,10 +510,6 @@ function changed({ current, initial }) {
         }
         .radio-group {
             padding: $sp-5 0 $sp-3 $sp-4;
-        }
-        .bm-form-radio,
-        .bm-form-checkbox {
-            line-height: $line-height-lg;
         }
         .app-label {
             color: $neutral-fg-hi1;
@@ -532,8 +548,24 @@ function changed({ current, initial }) {
                 margin-bottom: $sp-3;
             }
 
-            .contact .contact-main-part {
-                margin-left: $sp-5 + $sp-2;
+            .sender-preview {
+                $offset: base-px-to-rem(37);
+                text-indent: -$offset;
+                padding-left: $offset;
+                padding-right: $sp-2;
+
+                .contact {
+                    text-indent: 0;
+                    .contact-main-part {
+                        margin-left: $sp-5 + $sp-2;
+                    }
+                }
+
+                .sent-by {
+                    position: relative;
+                    bottom: base-px-to-rem(10);
+                    text-indent: base-px-to-rem(20);
+                }
             }
         }
     }

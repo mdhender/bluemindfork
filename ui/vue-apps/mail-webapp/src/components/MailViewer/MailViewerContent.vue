@@ -73,9 +73,6 @@ export default {
             &:not(.no-avatar) .contact-main-part {
                 margin-left: $single-mail-avatar-main-gap !important;
             }
-            &.no-avatar {
-                margin-right: 0;
-            }
         }
         .date {
             flex: none;
@@ -83,6 +80,20 @@ export default {
             @include until-lg {
                 display: block;
                 padding-left: $avatar-width + $single-mail-avatar-main-gap;
+            }
+        }
+        .mail-viewer-from {
+            display: flex;
+            @include until-lg {
+                display: block;
+                $offset: base-px-to-rem(11);
+                margin-bottom: -$offset;
+                .sender-suffix {
+                    padding-left: $avatar-width + $single-mail-avatar-main-gap;
+                    position: relative;
+                    top: -$offset;
+                    margin-bottom: base-px-to-rem(-1);
+                }
             }
         }
     }

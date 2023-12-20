@@ -369,7 +369,7 @@ public class DelegationActionTests {
 
 		assertEnvelop(mm, sender);
 		assertMessageHeaders(mm, sender, Verb.Read);
-		assertTrue(smtpError(mm));
+		assertFalse(smtpError(mm));
 	}
 
 	@Test

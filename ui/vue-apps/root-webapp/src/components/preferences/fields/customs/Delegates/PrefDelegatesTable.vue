@@ -122,7 +122,7 @@ const remove = async contact => {
         >
             <template #cell(contact)="cell">
                 <div class="d-flex align-items-center">
-                    <contact :contact="cell.value" transparent bold enable-card />
+                    <contact :contact="cell.value" class="text-truncate" transparent bold enable-card />
                     <bm-icon
                         v-if="cell.item.isSendAs"
                         icon="user-outline"

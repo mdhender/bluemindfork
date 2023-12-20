@@ -75,18 +75,18 @@ const withDetails = computed(() => {
 </script>
 
 <template>
-    <div class="event-detail" :class="{ 'with-details': withDetails }">
+    <div class="event-detail" :class="{ 'with-details': withDetails, 'no-summary': !event.attendee }">
         <event-calendar-illustration
             :status="calendarStatus"
             :date="eventValue?.counter?.dtstart.iso8601 ?? eventValue?.dtstart.iso8601"
             :is-recurring="isRecurring"
             :only-occurrence="Boolean(event.recuridIsoDate)"
         />
-        <div class="event-row-icon summary">
+        <div v-if="event.attendee" class="event-row-icon summary">
             <bm-icon v-if="event.private" icon="lock-fill" />
             <h3>{{ event.summary }}</h3>
         </div>
-        <div class="event-time title">
+        <div class="event-time title" :class="{ 'no-summary': !event.attendee }">
             <span :class="{ 'event-time-current regular': counterTimeRange }">
                 {{ eventTimeRange }}
             </span>
@@ -139,6 +139,10 @@ const withDetails = computed(() => {
         "illustration summary"
         "illustration time";
 
+    &.no-summary {
+        grid-template-areas: "illustration time";
+    }
+
     @include until-lg {
         $row-time-height: $sp-6 + $sp-3;
         $row-title-height: $sp-7 + $sp-5;
@@ -147,6 +151,11 @@ const withDetails = computed(() => {
                 "illustration summary"
                 "illustration time"
                 "details details";
+            &.no-summary {
+                grid-template-areas:
+                    "illustration time"
+                    "details details";
+            }
             margin-left: 0;
         }
 
@@ -159,6 +168,11 @@ const withDetails = computed(() => {
                 "illustration summary"
                 "illustration time"
                 "illustration details";
+            &.no-summary {
+                grid-template-areas:
+                    "illustration time"
+                    "details details";
+            }
         }
     }
 
@@ -199,6 +213,9 @@ const withDetails = computed(() => {
     .event-time.title {
         grid-area: time;
         align-self: start;
+        &.no-summary {
+            align-self: center;
+        }
         margin-bottom: 0;
 
         @include until-lg {

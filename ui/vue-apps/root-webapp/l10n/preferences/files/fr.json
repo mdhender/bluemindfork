@@ -16,7 +16,7 @@
     "preferences.leave_app.confirm.button": "Quitter les préférences",
     "preferences.account.delegates.calendar.invitations.incoherent.in_modal": "Le délégué ne pourra pas répondre si vous ne donnez pas au moins le droit \"{right}\"",
     "preferences.account.delegates.calendar.invitations.incoherent.in_table": "Le délégué ne pourra pas répondre aux invitations sans droit de modification sur l’agenda",
-    "preferences.account.delegates.calendar.invitations.title": "Cette option nécessite au moins le droit \"{right}\"",
+    "preferences.account.delegates.option_needs_permission": "Cette option nécessite au moins le droit \"{right}\"",
     "preferences.account.delegates.calendar.invitations": "Reçoit les messages relatifs aux invitations et y répond",
     "preferences.account.delegates.calendar.private": "Peut voir les éléments privés",
     "preferences.account.delegates.create": "Créer une délégation",

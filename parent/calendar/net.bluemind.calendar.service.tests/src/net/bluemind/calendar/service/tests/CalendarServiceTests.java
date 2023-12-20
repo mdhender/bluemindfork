@@ -361,8 +361,8 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 
 		List<AccessControlEntry> ace = Arrays.asList(
 				AccessControlEntry.create(userSecurityContext.getSubject(), Verb.All),
-				AccessControlEntry.create(attendee1SecurityContext.getSubject(), Verb.All),
-				AccessControlEntry.create(attendee2SecurityContext.getSubject(), Verb.Write));
+				AccessControlEntry.create(attendee1SecurityContext.getSubject(), Verb.Write),
+				AccessControlEntry.create(attendee2SecurityContext.getSubject(), Verb.Read));
 		try {
 			aclStoreData.store(userCalendarContainer, ace);
 			aclStoreData.store(userTagContainer, ace);
@@ -370,14 +370,14 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 			e.printStackTrace();
 		}
 		try {
-			// Cannot modifiy private event with write verb
+			// Cannot modify private event with read verb
 			getCalendarService(attendee2SecurityContext, userCalendarContainer).update(uid, event, sendNotifications);
-			fail();
+			fail("Should not be able to modify private event with read verb");
 		} catch (ServerFault e) {
 			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
 		}
-		// Can modifiy private event with manage verb
 
+		// Can modify private event with write verb
 		getCalendarService(attendee1SecurityContext, userCalendarContainer).update(uid, event, sendNotifications);
 
 		assertEquals(UPDATE, CalendarTestSyncHook.action());
@@ -415,8 +415,8 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 
 		List<AccessControlEntry> ace = Arrays.asList(
 				AccessControlEntry.create(userSecurityContext.getSubject(), Verb.All),
-				AccessControlEntry.create(attendee1SecurityContext.getSubject(), Verb.All),
-				AccessControlEntry.create(attendee2SecurityContext.getSubject(), Verb.Write));
+				AccessControlEntry.create(attendee1SecurityContext.getSubject(), Verb.Write),
+				AccessControlEntry.create(attendee2SecurityContext.getSubject(), Verb.Read));
 		try {
 			aclStoreData.store(userCalendarContainer, ace);
 			aclStoreData.store(userTagContainer, ace);
@@ -424,15 +424,15 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 			e.printStackTrace();
 		}
 		try {
-			// Cannot modifiy private event with write verb
+			// Cannot modify private event with read verb
 			ICalendar attendee2CalApi = getCalendarService(attendee2SecurityContext, userCalendarContainer);
 			attendee2CalApi.restore(eventItem, false);
-			fail();
+			fail("Should not be able to modify private event with read verb");
 		} catch (ServerFault e) {
 			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
 		}
 
-		// Can modifiy private event with manage verb
+		// Can modify private event with write verb
 		ICalendar attendee1CalApi = getCalendarService(attendee1SecurityContext, userCalendarContainer);
 		eventItem.version++;
 		attendee1CalApi.restore(eventItem, false);
