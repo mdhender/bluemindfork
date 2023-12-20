@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -619,7 +620,8 @@ public class GroupService implements IGroup, IInCoreGroup {
 	public List<ItemValue<Group>> memberOf(String uid) throws ServerFault {
 		rbacManager.forEntry(uid).check(BasicRoles.ROLE_MANAGER, BasicRoles.ROLE_MANAGE_GROUP);
 
-		return memberOfGroups(uid).stream().map(this::getComplete).collect(Collectors.toList());
+		return memberOfGroups(uid).stream().map(this::getComplete).filter(Objects::nonNull)
+				.collect(Collectors.toList());
 	}
 
 	@Override
