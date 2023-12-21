@@ -24,16 +24,16 @@ CHRONOGRAF="1.10.1.bm4~34148c7f5"
 INFLUXDB="1.8.10.bm4~247d383a3"
 
 # OpenTelemetry
-TELEMETRY="1.32.0-bm9"
-GRAFANA="10.2.2"
+TELEMETRY="1.32.0-bluemind752"
+GRAFANA="10.2.3"
 GRAFANA_MIMIR="2.10.4"
 GRAFANA_TEMPO="2.3.1"
 GRAFANA_AGENT="0.38.1-1"
-GRAFANA_STACK="${TELEMETRY}"
+GRAFANA_STACK="${GRAFANA}-bluemind752"
 
 # PostgreSQL
 # Use EXTDEPS-getlastpg.sh if you need to modify (requires python3 + requests for RHEL)
-# Example: ./EXTDEPS-getlastpg.sh 16 | sort # for PostgreSQL 15
+# Example: ./EXTDEPS-getlastpg.sh 16 | sort # for PostgreSQL 16
 BMPOSTGRESQL="16.1-bluemind723"
 
 # Override from EXTDEPS-getlastpg
@@ -206,13 +206,19 @@ BMMINIODEB="bm-sds-storage-s3-minio=${MINIO}"
 BMWEEDDEB="bm-sds-storage-s3-seaweedfs=${WEED}"
 BMCASSDEB="bm-cassandra=${CASS}"
 
-# OpenTelemetry
+# Monitoring / OpenTelemetry
 BM_TELEMETRY_DEB="bm-opentelemetry-agent=${TELEMETRY}"
 BM_GRAFANA_STACK_DEB="bm-grafana-stack=${GRAFANA_STACK}"
 GRAFANA_DEB="grafana=${GRAFANA}"
 GRAFANA_TEMPO_DEB="tempo=${GRAFANA_TEMPO}"
 GRAFANA_AGENT_DEB="grafana-agent=${GRAFANA_AGENT}"
 GRAFANA_MIMIR_DEB="mimir=${GRAFANA_MIMIR}"
+BM_TELEMETRY_RPM=${BM_TELEMETRY_DEB}
+BM_GRAFANA_STACK_RPM=${BM_GRAFANA_STACK_DEB}
+GRAFANA_RPM=${GRAFANA_DEB}
+GRAFANA_TEMPO_RPM=${GRAFANA_TEMPO_DEB}
+GRAFANA_AGENT_RPM=${GRAFANA_AGENT_DEB}
+GRAFANA_MIMIR_RPM=${GRAFANA_MIMIR_DEB}
 
 # SNZIP
 BMSNZIPDEB="bm-maintenance-snzip=${BMSNZIP}"
@@ -332,6 +338,12 @@ done
 
 RHEL8="${BMCYRUSRPM} \
 		${BMKEYCLOAKRPM} \
+		${BM_TELEMETRY_RPM} \
+		${BM_GRAFANA_STACK_RPM} \
+		${GRAFANA_RPM} \
+		${GRAFANA_MIMIR_RPM} \
+		${GRAFANA_TEMPO_RPM} \
+		${GRAFANA_AGENT_RPM} \
 		${BMESRPM} \
 		${BMTICKRPM} \
 		${BMJDKRPM} \
