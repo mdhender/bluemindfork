@@ -1060,6 +1060,40 @@ public class GroupServiceTests {
 	}
 
 	@Test
+	public void testGetExpandedGroupsMembers() throws ServerFault, SQLException, InterruptedException {
+		ItemValue<Group> group1 = createGroup();
+
+		ItemValue<Group> group2 = createGroup();
+		Member g2AsMember = new Member();
+		g2AsMember.type = Member.Type.group;
+		g2AsMember.uid = group2.uid;
+
+		System.err.println("GRP1 UID: " + group1.uid);
+		System.err.println("GRP2 UID: " + group2.uid);
+
+		getGroupService(adminSecurityContext).add(group1.uid, Arrays.asList(g2AsMember));
+
+		List<Member> userMembers = getUsersMembers(2);
+		getGroupService(adminSecurityContext).add(group1.uid, Arrays.asList(userMembers.get(0)));
+		getGroupService(adminSecurityContext).add(group2.uid, Arrays.asList(userMembers.get(1)));
+
+		System.err.println("User uid: " + userMembers.get(0) + " member of group1");
+		System.err.println("User uid: " + userMembers.get(1) + " member of group2");
+
+		List<Member> users = getGroupService(adminSecurityContext).getExpandedMembers(group1.uid);
+		compareMember(userMembers, users);
+
+		getGroupService(adminSecurityContext).remove(group1.uid, Arrays.asList(g2AsMember));
+
+		List<Member> pp = getGroupService(adminSecurityContext).getMembers(group1.uid);
+		assertEquals(1, pp.size());
+		assertEquals(userMembers.get(0).uid, pp.get(0).uid);
+
+		users = getGroupService(adminSecurityContext).getExpandedMembers(group1.uid);
+		compareMember(Arrays.asList(userMembers.get(0)), users);
+	}
+
+	@Test
 	public void testGetExpandedUsersMembers() throws ServerFault, SQLException {
 		ItemValue<Group> group1 = createGroup();
 
