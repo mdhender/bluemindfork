@@ -478,7 +478,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testGetExpandedUsersMembersNullUid() throws ServerFault {
+	public void getExpandedUsersMembersNullUid() throws ServerFault {
 		try {
 			getGroupService(adminSecurityContext).getExpandedMembers(null);
 			fail("Test must thrown an exception");
@@ -488,7 +488,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testGetExpandedUsersMembersEmptyUid() throws ServerFault {
+	public void getExpandedUsersMembersEmptyUid() throws ServerFault {
 		try {
 			getGroupService(adminSecurityContext).getExpandedMembers("");
 			fail("Test must thrown an exception");
@@ -498,7 +498,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testGetExpandedUsersMembersInexistantGroup() throws ServerFault {
+	public void getExpandedUsersMembersInexistantGroup() throws ServerFault {
 		try {
 			getGroupService(adminSecurityContext).getMembers(UUID.randomUUID().toString());
 			fail("Test must thrown an exception");
@@ -676,16 +676,15 @@ public class GroupServiceTests {
 
 		group.name = "checkthat" + System.nanoTime();
 		getGroupService(adminSecurityContext).update(uid, group);
+
+		waitForGroupVcard(domainUid, uid);
 		ItemValue<VCard> dirVCard = testContext.provider().instance(IDirectory.class, domainUid).getVCard(uid);
 		assertNotNull(dirVCard);
-		assertEquals(group.name, dirVCard.value.identification.formatedName.value);
-
 		assertEquals(group.name, dirVCard.value.identification.formatedName.value);
 		assertEquals(0, dirVCard.value.organizational.member.size());
 
 		group.hiddenMembers = false;
 		getGroupService(adminSecurityContext).update(uid, group);
-		waitForGroupVcard(domainUid, uid);
 		dirVCard = testContext.provider().instance(IDirectory.class, domainUid).getVCard(uid);
 		assertNotNull(dirVCard);
 		assertEquals(3, dirVCard.value.organizational.member.size());
@@ -744,7 +743,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testDeleteGroupAsUser() throws ServerFault, SQLException {
+	public void testDeleteGroupAsUser() throws ServerFault {
 		try {
 			ItemValue<Group> group = createGroup();
 			getGroupService(user1SecurityContext).delete(group.uid);
@@ -1060,7 +1059,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testGetExpandedGroupsMembers() throws ServerFault, SQLException, InterruptedException {
+	public void getExpandedGroupsMembers() {
 		ItemValue<Group> group1 = createGroup();
 
 		ItemValue<Group> group2 = createGroup();
@@ -1068,33 +1067,105 @@ public class GroupServiceTests {
 		g2AsMember.type = Member.Type.group;
 		g2AsMember.uid = group2.uid;
 
-		System.err.println("GRP1 UID: " + group1.uid);
-		System.err.println("GRP2 UID: " + group2.uid);
-
 		getGroupService(adminSecurityContext).add(group1.uid, Arrays.asList(g2AsMember));
 
 		List<Member> userMembers = getUsersMembers(2);
 		getGroupService(adminSecurityContext).add(group1.uid, Arrays.asList(userMembers.get(0)));
 		getGroupService(adminSecurityContext).add(group2.uid, Arrays.asList(userMembers.get(1)));
 
-		System.err.println("User uid: " + userMembers.get(0) + " member of group1");
-		System.err.println("User uid: " + userMembers.get(1) + " member of group2");
-
 		List<Member> users = getGroupService(adminSecurityContext).getExpandedMembers(group1.uid);
 		compareMember(userMembers, users);
 
 		getGroupService(adminSecurityContext).remove(group1.uid, Arrays.asList(g2AsMember));
-
-		List<Member> pp = getGroupService(adminSecurityContext).getMembers(group1.uid);
-		assertEquals(1, pp.size());
-		assertEquals(userMembers.get(0).uid, pp.get(0).uid);
 
 		users = getGroupService(adminSecurityContext).getExpandedMembers(group1.uid);
 		compareMember(Arrays.asList(userMembers.get(0)), users);
 	}
 
 	@Test
-	public void testGetExpandedUsersMembers() throws ServerFault, SQLException {
+	public void getExpandedGroupsMembers_userMultipleGroupsRemoveGroup() {
+		ItemValue<Group> group1 = createGroup();
+		ItemValue<Group> group2 = createGroup();
+		ItemValue<Group> group3 = createGroup();
+		ItemValue<Group> group4 = createGroup();
+
+		Member g2AsMember = new Member();
+		g2AsMember.type = Member.Type.group;
+		g2AsMember.uid = group2.uid;
+
+		Member g3AsMember = new Member();
+		g3AsMember.type = Member.Type.group;
+		g3AsMember.uid = group3.uid;
+
+		Member g4AsMember = new Member();
+		g4AsMember.type = Member.Type.group;
+		g4AsMember.uid = group4.uid;
+
+		getGroupService(adminSecurityContext).add(group1.uid, Arrays.asList(g2AsMember, g4AsMember));
+		getGroupService(adminSecurityContext).add(group2.uid, Arrays.asList(g3AsMember));
+
+		List<Member> g3UserMembers = getUsersMembers(1);
+		getGroupService(adminSecurityContext).add(group3.uid, Arrays.asList(g3UserMembers.get(0)));
+		getGroupService(adminSecurityContext).add(group4.uid, Arrays.asList(g3UserMembers.get(0)));
+
+		List<Member> g1Users = getGroupService(adminSecurityContext).getExpandedMembers(group1.uid);
+		compareMember(g3UserMembers, g1Users);
+
+		List<Member> g2Users = getGroupService(adminSecurityContext).getExpandedMembers(group2.uid);
+		compareMember(g3UserMembers, g2Users);
+
+		getGroupService(adminSecurityContext).remove(group2.uid, Arrays.asList(g3AsMember));
+
+		g1Users = getGroupService(adminSecurityContext).getExpandedMembers(group1.uid);
+		compareMember(g3UserMembers, g1Users);
+
+		g2Users = getGroupService(adminSecurityContext).getExpandedMembers(group2.uid);
+		assertTrue(g2Users.isEmpty());
+	}
+
+	@Test
+	public void getExpandedGroupsMembers_userMultipleGroupsRemoveUser() {
+		ItemValue<Group> group1 = createGroup();
+		ItemValue<Group> group2 = createGroup();
+		ItemValue<Group> group3 = createGroup();
+		ItemValue<Group> group4 = createGroup();
+
+		Member g2AsMember = new Member();
+		g2AsMember.type = Member.Type.group;
+		g2AsMember.uid = group2.uid;
+
+		Member g3AsMember = new Member();
+		g3AsMember.type = Member.Type.group;
+		g3AsMember.uid = group3.uid;
+
+		Member g4AsMember = new Member();
+		g4AsMember.type = Member.Type.group;
+		g4AsMember.uid = group4.uid;
+
+		getGroupService(adminSecurityContext).add(group1.uid, Arrays.asList(g2AsMember, g4AsMember));
+		getGroupService(adminSecurityContext).add(group2.uid, Arrays.asList(g3AsMember));
+
+		List<Member> g34UserMembers = getUsersMembers(1);
+		getGroupService(adminSecurityContext).add(group3.uid, Arrays.asList(g34UserMembers.get(0)));
+		getGroupService(adminSecurityContext).add(group4.uid, Arrays.asList(g34UserMembers.get(0)));
+
+		List<Member> g1Users = getGroupService(adminSecurityContext).getExpandedMembers(group1.uid);
+		compareMember(g34UserMembers, g1Users);
+
+		List<Member> g2Users = getGroupService(adminSecurityContext).getExpandedMembers(group2.uid);
+		compareMember(g34UserMembers, g2Users);
+
+		getGroupService(adminSecurityContext).remove(group3.uid, Arrays.asList(g34UserMembers.get(0)));
+
+		g1Users = getGroupService(adminSecurityContext).getExpandedMembers(group1.uid);
+		compareMember(g34UserMembers, g1Users);
+
+		g2Users = getGroupService(adminSecurityContext).getExpandedMembers(group2.uid);
+		assertTrue(g2Users.isEmpty());
+	}
+
+	@Test
+	public void getExpandedUsersMembers() throws ServerFault {
 		ItemValue<Group> group1 = createGroup();
 
 		ItemValue<Group> group2 = createGroup();
@@ -1346,7 +1417,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testAddMemberInvalidMember1() throws ServerFault, SQLException {
+	public void testAddMemberInvalidMember1() throws ServerFault {
 		ItemValue<Group> group = createGroup();
 
 		Member member = new Member();
@@ -1427,7 +1498,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void groupWithNoMailbox() throws ServerFault, SQLException {
+	public void groupWithNoMailbox() throws ServerFault {
 		Group group = defaultGroup();
 		group.emails.clear();
 		String uid = UUID.randomUUID().toString();

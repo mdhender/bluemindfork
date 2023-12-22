@@ -34,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Sets;
 
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -61,13 +62,6 @@ public class GroupStore extends AbstractItemValueStore<Group> {
 		@Override
 		public Member create(ResultSet con) throws SQLException {
 			return new Member();
-		}
-	};
-
-	private static final Creator<Long> PARENT_CREATOR = new Creator<Long>() {
-		@Override
-		public Long create(ResultSet con) throws SQLException {
-			return Long.valueOf(con.getLong(1));
 		}
 	};
 
@@ -239,16 +233,23 @@ public class GroupStore extends AbstractItemValueStore<Group> {
 		updateUserGroupHierarchy(item, Collections.emptySet(), membersIds.stream().collect(Collectors.toSet()));
 	}
 
-	public void removeGroupsMembers(Item groupItem, Collection<Long> membersIds) throws SQLException {
-		if (membersIds == null || membersIds.isEmpty()) {
+	public void removeGroupsMembers(Item groupItem, Collection<Long> toRemoveGroupIds) throws SQLException {
+		if (toRemoveGroupIds == null || toRemoveGroupIds.isEmpty()) {
 			return;
 		}
 
 		delete("DELETE FROM t_group_groupmember WHERE group_parent_id = ? AND group_child_id = ANY (?)",
-				new Object[] { groupItem.id, membersIds.toArray(new Long[membersIds.size()]) });
+				new Object[] { groupItem.id, toRemoveGroupIds.toArray(new Long[toRemoveGroupIds.size()]) });
 
-		Set<Long> flatUsersIds = allUserIdsInGroup(groupItem.id);
-		updateUserGroupHierarchy(groupItem, Collections.emptySet(), flatUsersIds);
+		Set<Long> allUsersIdsInRemovedGroups = toRemoveGroupIds.stream().flatMap(removedGroupId -> {
+			try {
+				return allUserIdsInGroup(removedGroupId).stream();
+			} catch (SQLException e) {
+				throw ServerFault.sqlFault(e);
+			}
+		}).collect(Collectors.toSet());
+
+		updateUserGroupHierarchy(groupItem, Collections.emptySet(), allUsersIdsInRemovedGroups);
 	}
 
 	public void removeExternalUsersMembers(Item item, Collection<Long> membersIds) throws SQLException {
@@ -331,18 +332,16 @@ public class GroupStore extends AbstractItemValueStore<Group> {
 			addFlatMembers(groupItem.id, addedUserIds);
 		}
 		if (!removedUserIds.isEmpty()) {
-			removeFlatMembers(groupItem.id, removedUserIds);
+			removeFlatMembers(groupItem.id, Sets.difference(removedUserIds, allUserIdsInGroup(groupItem.id)));
 		}
 
 		Set<Long> parentGroupIds = getParents(groupItem.id);
 		for (Long parentGroupId : parentGroupIds) {
-			logger.debug("Updating t_group_flat_members for parent group id {} of group id {}", parentGroupId,
-					groupItem.id);
 			if (!addedUserIds.isEmpty()) {
 				addFlatMembers(parentGroupId, addedUserIds);
 			}
 			if (!removedUserIds.isEmpty()) {
-				removeFlatMembers(parentGroupId, removedUserIds);
+				removeFlatMembers(parentGroupId, Sets.difference(removedUserIds, allUserIdsInGroup(parentGroupId)));
 			}
 		}
 	}

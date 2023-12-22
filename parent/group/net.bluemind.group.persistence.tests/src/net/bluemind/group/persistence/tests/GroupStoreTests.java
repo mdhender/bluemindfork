@@ -28,10 +28,13 @@ import static org.junit.Assert.fail;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -63,6 +66,11 @@ public class GroupStoreTests {
 
 	public static class MemberWithItem extends Member {
 		public Item item;
+
+		@Override
+		public String toString() {
+			return "Member [type=" + type + ", uid=" + uid + ", item=" + item + "]";
+		}
 	}
 
 	@Before
@@ -250,7 +258,7 @@ public class GroupStoreTests {
 	}
 
 	private List<MemberWithItem> getUserMember(int count) throws SQLException {
-		List<MemberWithItem> usersMembers = new ArrayList<MemberWithItem>(count);
+		List<MemberWithItem> usersMembers = new ArrayList<>(count);
 		for (int i = 0; i < count; i++) {
 			String itemUid = UUID.randomUUID().toString();
 			Item item = domainItemStore.create(Item.create(itemUid, null));
@@ -266,7 +274,7 @@ public class GroupStoreTests {
 	}
 
 	private List<MemberWithItem> getGroupMember(int count) throws SQLException {
-		List<MemberWithItem> groupsMembers = new ArrayList<MemberWithItem>(count);
+		List<MemberWithItem> groupsMembers = new ArrayList<>(count);
 		for (int i = 0; i < count; i++) {
 			Item item = initAndCreateGroup();
 
@@ -281,7 +289,7 @@ public class GroupStoreTests {
 	}
 
 	private List<MemberWithItem> getExternalUserMember(int count) throws SQLException {
-		List<MemberWithItem> externalUserMembers = new ArrayList<MemberWithItem>(count);
+		List<MemberWithItem> externalUserMembers = new ArrayList<>(count);
 		for (int i = 0; i < count; i++) {
 			Item item = initAndCreateGroup();
 
@@ -295,13 +303,12 @@ public class GroupStoreTests {
 		return externalUserMembers;
 	}
 
-	private void compareMembers(List<? extends Member> expected, List<? extends Member> found) {
+	private void compareMembers(Collection<? extends Member> expected, Collection<? extends Member> found) {
+
 		assertEquals(expected.size(), found.size());
 		int count = 0;
 		for (Member expectedMember : expected) {
 			for (Member memberFound : found) {
-				logger.info("Comparing : " + expectedMember.type + " " + memberFound.type + " " + expectedMember.uid
-						+ " " + memberFound.uid);
 				if (expectedMember.type == memberFound.type && memberFound.uid.equals(expectedMember.uid)) {
 					count++;
 					break;
@@ -428,7 +435,7 @@ public class GroupStoreTests {
 		List<MemberWithItem> externalUsersMembers = getExternalUserMember(2);
 		groupStore.addExternalUsersMembers(item, membersToList(externalUsersMembers));
 
-		List<Member> allMembers = new ArrayList<Member>();
+		List<Member> allMembers = new ArrayList<>();
 		allMembers.addAll(groupsMembers);
 		allMembers.addAll(usersMembers);
 		allMembers.addAll(externalUsersMembers);
@@ -436,7 +443,7 @@ public class GroupStoreTests {
 		List<Member> addedMembers = groupStore.getMembers(item);
 		compareMembers(allMembers, addedMembers);
 
-		ArrayList<String> toRemove = new ArrayList<String>();
+		ArrayList<String> toRemove = new ArrayList<>();
 		toRemove.add(groupsMembers.get(0).uid);
 		toRemove.add(usersMembers.get(0).uid);
 		toRemove.add(externalUsersMembers.get(0).uid);
@@ -534,7 +541,7 @@ public class GroupStoreTests {
 	 */
 	@Test
 	public void testGetFlatUsersMembers() throws SQLException, ServerFault {
-		ArrayList<Member> members = new ArrayList<Member>();
+		ArrayList<Member> members = new ArrayList<>();
 
 		Item item1 = initAndCreateGroup();
 		Item item2 = initAndCreateGroup();
@@ -565,7 +572,7 @@ public class GroupStoreTests {
 	 */
 	@Test
 	public void testGetFlatUsersMembersWithExternalUsers() throws SQLException, ServerFault {
-		ArrayList<Member> members = new ArrayList<Member>();
+		ArrayList<Member> members = new ArrayList<>();
 
 		Item item1 = initAndCreateGroup();
 		Item item2 = initAndCreateGroup();
@@ -576,7 +583,7 @@ public class GroupStoreTests {
 		logger.info("STEP 1");
 		groupStore.addGroupsMembers(item1, Arrays.asList(item2));
 
-		logger.info("STEP 2 : " + groupStore.getFlatUsersMembers(item1).size());
+		logger.info("STEP 2 : {}", groupStore.getFlatUsersMembers(item1).size());
 		compareMembers(members, groupStore.getFlatUsersMembers(item1));
 		logger.info("STEP 3");
 
@@ -601,7 +608,7 @@ public class GroupStoreTests {
 	 */
 	@Test
 	public void testGetFlatUsersMembers2() throws SQLException, ServerFault {
-		ArrayList<Member> g1UsersMembers = new ArrayList<Member>();
+		ArrayList<Member> g1UsersMembers = new ArrayList<>();
 
 		Item item1 = initAndCreateGroup();
 		Item item2 = initAndCreateGroup();
@@ -642,7 +649,7 @@ public class GroupStoreTests {
 	 */
 	@Test
 	public void testGetFlatUsersMembers3() throws SQLException, ServerFault {
-		ArrayList<Member> g1UsersMembers = new ArrayList<Member>();
+		ArrayList<Member> g1UsersMembers = new ArrayList<>();
 
 		Item item1 = initAndCreateGroup();
 		Item item2 = initAndCreateGroup();
@@ -675,7 +682,6 @@ public class GroupStoreTests {
 		g3AsMember.uid = item3.uid;
 		groupStore.addGroupsMembers(item1, Arrays.asList(item3));
 		g1UsersMembers.add(g3Members.get(0));
-		// g1UsersMembers.addAll(g3Members);
 
 		// Add user member to g4
 		List<MemberWithItem> g4Members = getUserMember(1);
@@ -705,6 +711,155 @@ public class GroupStoreTests {
 		compareMembers(g1UsersMembers, groupStore.getFlatUsersMembers(item1));
 	}
 
+	/** <!-- @formatter:off -->
+	 *          G1          u1, u2, eu3, u4
+	 *         /  \
+	 *       G2    G3
+	 *      /        \
+	 *    G4          G4
+	 *    
+	 * Test1: Remove G4 from g2: no change for g1, change for g2
+	 * 
+	 * @throws SQLException
+	 * @throws ServerFault
+	 */
+	@Test
+	public void testGetFlatUsersMembers4() throws SQLException, ServerFault {
+		Set<Member> g1UsersMembersExpected = HashSet.newHashSet(5);
+
+		Item item1 = initAndCreateGroup();
+		Item item2 = initAndCreateGroup();
+		Item item3 = initAndCreateGroup();
+		Item item4 = initAndCreateGroup();
+
+		// Add user member to g1
+		List<MemberWithItem> g1Members = getUserMember(1);
+		groupStore.addUsersMembers(item1, membersToList(g1Members));
+		g1UsersMembersExpected.add(g1Members.get(0));
+
+		// Add user member to g2
+		List<MemberWithItem> g2Members = getUserMember(1);
+		groupStore.addUsersMembers(item2, membersToList(g2Members));
+
+		// Add g2 to g1
+		Member g2AsMember = new Member();
+		g2AsMember.type = Member.Type.group;
+		g2AsMember.uid = item2.uid;
+		groupStore.addGroupsMembers(item1, Arrays.asList(item2));
+		g1UsersMembersExpected.add(g2Members.get(0));
+
+		// Add an external user to g3
+		List<MemberWithItem> g3Members = getExternalUserMember(1);
+		groupStore.addExternalUsersMembers(item3, membersToList(g3Members));
+
+		// Add g3 to g1
+		Member g3AsMember = new Member();
+		g3AsMember.type = Member.Type.group;
+		g3AsMember.uid = item3.uid;
+		groupStore.addGroupsMembers(item1, Arrays.asList(item3));
+		g1UsersMembersExpected.add(g3Members.get(0));
+
+		// Add user member to g4
+		List<MemberWithItem> g4Members = getUserMember(1);
+		groupStore.addUsersMembers(item4, membersToList(g4Members));
+
+		// Add g4 to g2 and g3
+		Member g4AsMember = new Member();
+		g4AsMember.type = Member.Type.group;
+		g4AsMember.uid = item4.uid;
+		groupStore.addGroupsMembers(item2, Arrays.asList(item4));
+		groupStore.addGroupsMembers(item3, Arrays.asList(item4));
+		g1UsersMembersExpected.add(g4Members.get(0));
+
+		compareMembers(g1UsersMembersExpected, groupStore.getFlatUsersMembers(item1));
+		
+		// Remove G3 from members, should only remove eu3
+		groupStore.removeGroupsMembers(item1, List.of(item3.id));
+		g1UsersMembersExpected.remove(g3Members.get(0));
+		compareMembers(g1UsersMembersExpected, groupStore.getFlatUsersMembers(item1));
+		
+		// Remove G2 from members, should remove u2, u4
+		groupStore.removeGroupsMembers(item1, List.of(item2.id));
+		g1UsersMembersExpected.remove(g2Members.get(0));
+		g1UsersMembersExpected.remove(g4Members.get(0));
+		compareMembers(g1UsersMembersExpected, groupStore.getFlatUsersMembers(item1));
+	}
+	
+	/* <!-- @formatter:off -->
+	 * G1 contient (G2, G4)
+ 	 * G2 contient (G3, a)
+     * G3 contient (x, y)
+     * G4 contient (x, z)
+     * 
+     *          G1
+     *         /  \
+     *       G2(a) G4
+     *       /     (x,z)
+     *     G3         
+     *    (x,y)  
+     * Si on remove le groupe G3 du groupe G2,
+     * j'ai l'impression qu'au niveau des flat members,
+     * on va supprimer l'utilisateur x du groupe G1 (parent de G2)
+     * alors qu'il est dans le groupe G4, fils de G1.
+	 */
+	@Test
+	public void testGetFlatUsersMembers5() throws SQLException, ServerFault {
+		Set<Member> g1UsersMembersExpected = HashSet.newHashSet(5);
+
+		Item item1 = initAndCreateGroup();
+		Item item2 = initAndCreateGroup();
+		Item item3 = initAndCreateGroup();
+		Item item4 = initAndCreateGroup();
+
+		System.err.println("g1 " + item1);
+		
+		// Add user member to g2
+		List<MemberWithItem> g2Members = getUserMember(1);
+		System.err.println("g2 " + item2 + " members: " + g2Members.stream().map(x -> x.toString()).collect(Collectors.joining(",")));
+		groupStore.addUsersMembers(item2, membersToList(g2Members));
+				
+		// Add user member to g3
+		List<MemberWithItem> g3Members = getUserMember(2);
+		System.err.println("g3 " + item3 + " members: " + g3Members.stream().map(x -> x.toString()).collect(Collectors.joining(",")));
+		groupStore.addUsersMembers(item3, membersToList(g3Members));
+		
+		// Add user member to g4
+		List<MemberWithItem> g4Members = getUserMember(1);
+		// Same user as g3(0) in g4
+		g4Members.add(g3Members.get(0));
+		System.err.println("g4 " + item4 + " members: " + g4Members.stream().map(x -> x.toString()).collect(Collectors.joining(",")));
+		groupStore.addUsersMembers(item4, membersToList(g4Members));
+		
+		// Add g2 to g1
+		Member g2AsMember = new Member();
+		g2AsMember.type = Member.Type.group;
+		g2AsMember.uid = item2.uid;
+		groupStore.addGroupsMembers(item1, List.of(item2));
+		g1UsersMembersExpected.addAll(g2Members);
+
+		// Add g4 to g1
+		Member g4AsMember = new Member();
+		g4AsMember.type = Member.Type.group;
+		g4AsMember.uid = item4.uid;
+		groupStore.addGroupsMembers(item1, List.of(item4));
+		g1UsersMembersExpected.addAll(g4Members);
+
+		// Add g3 to g2
+		Member g3AsMember = new Member();
+		g3AsMember.type = Member.Type.group;
+		g3AsMember.uid = item3.uid;
+		groupStore.addGroupsMembers(item2, List.of(item3));
+		g1UsersMembersExpected.addAll(g3Members);
+
+		compareMembers(g1UsersMembersExpected, groupStore.getFlatUsersMembers(item1));
+		
+		// Remove G3 from G2, should only remove y
+		groupStore.removeGroupsMembers(item2, List.of(item3.id));
+		g1UsersMembersExpected.remove(g3Members.get(1));
+		
+		compareMembers(g1UsersMembersExpected, groupStore.getFlatUsersMembers(item1));
+		
+	}
 	private Item initAndCreateGroup() throws SQLException {
 		return initAndCreateGroup(null);
 	}
@@ -957,7 +1112,7 @@ public class GroupStoreTests {
 		Group created = groupStore.get(item);
 		assertEquals(0, created.properties.size());
 
-		Map<String, String> properties = new HashMap<String, String>();
+		Map<String, String> properties = new HashMap<>();
 		g.properties = properties;
 		groupStore.update(item, g);
 		created = groupStore.get(item);
