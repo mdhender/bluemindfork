@@ -28,9 +28,13 @@ public class RingActionValidator {
 		ADD_INDEX, REMOVE_INDEX
 	}
 
+	public static boolean isCoherent(AliasRing ring) {
+		return ring.getIndices().stream().allMatch(index -> index.readAliases().size() == index.writeAliases().size());
+	}
+
 	public static void validate(AliasRing ring, ACTION action, int position) {
 
-		if (ring.getIndices().stream().anyMatch(index -> index.readAliases().size() != index.writeAliases().size())) {
+		if (!isCoherent(ring)) {
 			throw new ServerFault("There is already a rebalance action running");
 		}
 
@@ -45,11 +49,6 @@ public class RingActionValidator {
 					index -> index.aliases().stream().map(RingAlias::position).toList().contains(position))) {
 				throw new ServerFault("Index " + RingIndexAliasCreator.getIndexRingName("mailspool", position)
 						+ " must not extend existing ring");
-			}
-
-			if (ring.getIndices().stream()
-					.anyMatch(index -> index.readAliases().size() != index.writeAliases().size())) {
-				throw new ServerFault("There is already a rebalance action running");
 			}
 
 			break;

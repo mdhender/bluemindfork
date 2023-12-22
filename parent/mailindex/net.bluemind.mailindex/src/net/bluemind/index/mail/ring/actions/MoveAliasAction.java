@@ -19,6 +19,7 @@
 package net.bluemind.index.mail.ring.actions;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.SortedSet;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
@@ -39,17 +40,18 @@ public class MoveAliasAction implements IndexAction {
 	}
 
 	public void execute(ElasticsearchClient esClient) throws ElasticsearchException, IOException {
-		for (RingAlias alias : concernedAliases) {
+		List<String> aliases = concernedAliases.stream().map(RingAlias::name).toList();
+		if (!aliases.isEmpty()) {
 			esClient.indices().updateAliases(u -> u //
 					.actions(action -> action
-							.remove(removeAction -> removeAction.index(sourceIndex.name()).alias(alias.name()))) //
-					.actions(action -> action.add(addAction -> addAction.index(targetIndex).alias(alias.name()))));
+							.remove(removeAction -> removeAction.index(sourceIndex.name()).aliases(aliases))) //
+					.actions(action -> action.add(addAction -> addAction.index(targetIndex).aliases(aliases))));
 		}
 	}
 
 	@Override
 	public String info() {
-		return String.format("Moving aliases {} from index {} to {}",
+		return String.format("Moving aliases %s from index %s to %s",
 				String.join(",", concernedAliases.stream().map(RingAlias::name).toList()), sourceIndex.name(),
 				targetIndex);
 	}

@@ -21,102 +21,54 @@ package net.bluemind.index.mail.ring;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TreeSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.ElasticsearchException;
-import net.bluemind.index.mail.MailIndexService;
-import net.bluemind.index.mail.ring.AliasRing.RingIndex;
-import net.bluemind.index.mail.ring.actions.CopyDocumentsAction;
-import net.bluemind.index.mail.ring.actions.CreateIndexAction;
-import net.bluemind.index.mail.ring.actions.DeleteIndexAction;
 import net.bluemind.index.mail.ring.actions.IndexAction;
-import net.bluemind.index.mail.ring.actions.MoveAliasAction;
-import net.bluemind.lib.elasticsearch.IndexAliasCreator.RingIndexAliasCreator;
 
 public class AliasRingOperations {
 
-	private final ElasticsearchClient esClient;
-	private final MailIndexService service;
+	private static final Logger logger = LoggerFactory.getLogger(AliasRingOperations.class);
 
-	public AliasRingOperations(ElasticsearchClient esClient, MailIndexService service) {
-		this.esClient = esClient;
-		this.service = service;
+	private final List<IndexAction> actions;
+	private final String operation;
+	private final ElasticsearchClient client;
+
+	private AliasRingOperations(ElasticsearchClient client, String operation, List<IndexAction> actions) {
+		this.client = client;
+		this.operation = operation;
+		this.actions = actions;
 	}
 
-	public void createIndex(String indexName) throws ElasticsearchException, IOException {
-		new Executioner.Builder(esClient, "Adding index " + indexName) //
-				.action(new CreateIndexAction(indexName)) //
-				.execute();
+	private void execute() throws ElasticsearchException, IOException {
+		logger.info("Executing index operation: {}", operation);
+		for (int i = 0; i < actions.size(); i++) {
+			IndexAction action = actions.get(i);
+			logger.info("[{}/{}] Executing index action: {}", i + 1, actions.size(), action.info());
+			action.execute(client);
+		}
 	}
 
-	public void deleteIndex(String indexName) throws ElasticsearchException, IOException {
-		new Executioner.Builder(esClient, "Deleting index " + indexName) //
-				.action(new DeleteIndexAction(indexName)) //
-				.execute();
-	}
-
-	public void rebalance(RingIndex sourceIndex, int targetPosition) throws ElasticsearchException, IOException {
-		var targetIndex = RingIndexAliasCreator.getIndexRingName("mailspool", targetPosition);
-
-		var concernedReadAliases = new TreeSet<>(
-				sourceIndex.readAliases().stream().filter(alias -> alias.position() <= targetPosition).toList());
-		var concerncedwriteAliases = new TreeSet<>(
-				sourceIndex.writeAliases().stream().filter(alias -> alias.position() <= targetPosition).toList());
-
-		new Executioner.Builder(esClient,
-				String.format("Rebalancing source index %s with target index %s", sourceIndex.name(), targetIndex)) //
-				.action(new MoveAliasAction(sourceIndex, concernedReadAliases, targetIndex)) //
-				.action(new CopyDocumentsAction(service, sourceIndex, concernedReadAliases, targetIndex)) //
-				.action(new MoveAliasAction(sourceIndex, concerncedwriteAliases, targetIndex)) //
-				.execute();
-	}
-
-	private static class Executioner {
-
-		private static final Logger logger = LoggerFactory.getLogger(Executioner.class);
-
-		private final List<IndexAction> actions;
+	public static class Builder {
+		private final List<IndexAction> actions = new ArrayList<>();
 		private final String operation;
 		private final ElasticsearchClient client;
 
-		public Executioner(ElasticsearchClient client, String operation, List<IndexAction> actions) {
+		Builder(ElasticsearchClient client, String operation) {
 			this.client = client;
 			this.operation = operation;
-			this.actions = actions;
 		}
 
-		public void execute() throws ElasticsearchException, IOException {
-			logger.info("Executing index operation: {}", operation);
-			for (int i = 0; i < actions.size(); i++) {
-				IndexAction action = actions.get(i);
-				logger.info("[{}/{}] Executing index action: {}", i + 1, actions.size(), action.info());
-				action.execute(client);
-			}
+		Builder action(IndexAction action) {
+			actions.add(action);
+			return this;
 		}
 
-		private static class Builder {
-			private final List<IndexAction> actions = new ArrayList<>();
-			private final String operation;
-			private final ElasticsearchClient client;
-
-			Builder(ElasticsearchClient client, String operation) {
-				this.client = client;
-				this.operation = operation;
-			}
-
-			Builder action(IndexAction action) {
-				actions.add(action);
-				return this;
-			}
-
-			void execute() throws ElasticsearchException, IOException {
-				new Executioner(client, operation, actions).execute();
-			}
-
+		void execute() throws ElasticsearchException, IOException {
+			new AliasRingOperations(client, operation, actions).execute();
 		}
 
 	}

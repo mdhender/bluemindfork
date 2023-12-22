@@ -26,5 +26,11 @@
             impl="net.bluemind.index.ExpungeVerticleFactory">
       </verticle>
    </extension>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.index.mail.ring.AliasRingOperationCheck$Factory">
+      </verticle>
+   </extension>
 
 </plugin>

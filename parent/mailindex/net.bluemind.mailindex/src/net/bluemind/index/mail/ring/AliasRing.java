@@ -35,6 +35,10 @@ import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.index.mail.MailIndexService;
 import net.bluemind.index.mail.ring.RingActionValidator.ACTION;
+import net.bluemind.index.mail.ring.actions.CopyDocumentsAction;
+import net.bluemind.index.mail.ring.actions.CreateIndexAction;
+import net.bluemind.index.mail.ring.actions.DeleteIndexAction;
+import net.bluemind.index.mail.ring.actions.MoveAliasAction;
 import net.bluemind.index.mail.statistics.ShardStatistics.RingShardStatistics;
 import net.bluemind.lib.elasticsearch.IndexAliasCreator.RingIndexAliasCreator;
 
@@ -44,13 +48,11 @@ public class AliasRing {
 	private SortedSet<RingIndex> indices;
 	private final ElasticsearchClient esClient;
 	private final MailIndexService service;
-	private final AliasRingOperations operations;
 
 	public AliasRing(ElasticsearchClient esClient, MailIndexService service, SortedSet<RingIndex> indices) {
 		this.esClient = esClient;
 		this.service = service;
 		this.indices = indices;
-		this.operations = new AliasRingOperations(esClient, service);
 	}
 
 	public static AliasRing create(ElasticsearchClient esClient, MailIndexService service) {
@@ -60,14 +62,13 @@ public class AliasRing {
 	private static SortedSet<RingIndex> getRing(ElasticsearchClient esClient, MailIndexService service) {
 		var ringStatistics = new RingShardStatistics(service.getMetricRegistry(), service.getIdFactory())
 				.getRing(esClient);
-		var ring = new TreeSet<>(ringStatistics.entrySet().stream().map(entry -> {
+		return new TreeSet<>(ringStatistics.entrySet().stream().map(entry -> {
 			String name = entry.getKey();
 			Map<Boolean, List<RingAlias>> aliases = entry.getValue().stream().map(RingAlias::new)
 					.collect(Collectors.partitioningBy(RingAlias::isReadAlias));
 			return new RingIndex(name, new TreeSet<>(aliases.get(Boolean.TRUE)),
 					new TreeSet<>(aliases.get(Boolean.FALSE)));
 		}).toList());
-		return ring;
 	}
 
 	public void addIndex(Integer position) throws ElasticsearchException, IOException {
@@ -77,8 +78,8 @@ public class AliasRing {
 		RingActionValidator.validate(this, ACTION.ADD_INDEX, position);
 		var nextIndex = getNextIndex(position);
 
-		operations.createIndex(targetIndex);
-		operations.rebalance(nextIndex, position);
+		createIndex(targetIndex);
+		rebalance(nextIndex, position);
 
 		this.indices = getRing(esClient, service);
 	}
@@ -87,14 +88,19 @@ public class AliasRing {
 		var targetIndex = RingIndexAliasCreator.getIndexRingName("mailspool", position);
 		logger.info("Removing index {} from mailspool alias ring", targetIndex);
 
-		RingActionValidator.validate(this, ACTION.REMOVE_INDEX, position);
 		RingIndex index = getIndex(position);
-		var nextIndex = getNextIndex(position);
-
-		operations.rebalance(index, nextIndex.position());
-		operations.deleteIndex(index.name);
+		if (!index.aliases().isEmpty()) {
+			RingActionValidator.validate(this, ACTION.REMOVE_INDEX, position);
+			var nextIndex = getNextIndex(position);
+			rebalance(index, nextIndex.position());
+		}
+		deleteIndex(index.name);
 
 		this.indices = getRing(esClient, service);
+	}
+
+	public boolean isCoherent() {
+		return RingActionValidator.isCoherent(this);
 	}
 
 	private RingIndex getIndex(int position) {
@@ -122,6 +128,34 @@ public class AliasRing {
 		return indices;
 	}
 
+	public void createIndex(String indexName) throws ElasticsearchException, IOException {
+		new AliasRingOperations.Builder(esClient, "Adding index " + indexName) //
+				.action(new CreateIndexAction(indexName)) //
+				.execute();
+	}
+
+	public void deleteIndex(String indexName) throws ElasticsearchException, IOException {
+		new AliasRingOperations.Builder(esClient, "Deleting index " + indexName) //
+				.action(new DeleteIndexAction(indexName)) //
+				.execute();
+	}
+
+	public void rebalance(RingIndex sourceIndex, int targetPosition) throws ElasticsearchException, IOException {
+		var targetIndex = RingIndexAliasCreator.getIndexRingName("mailspool", targetPosition);
+
+		var concernedReadAliases = new TreeSet<>(
+				sourceIndex.readAliases().stream().filter(alias -> alias.position() <= targetPosition).toList());
+		var concerncedWriteAliases = new TreeSet<>(
+				sourceIndex.writeAliases().stream().filter(alias -> alias.position() <= targetPosition).toList());
+
+		new AliasRingOperations.Builder(esClient,
+				String.format("Rebalancing source index %s with target index %s", sourceIndex.name(), targetIndex)) //
+				.action(new MoveAliasAction(sourceIndex, concerncedWriteAliases, targetIndex)) //
+				.action(new CopyDocumentsAction(service, sourceIndex, concernedReadAliases, targetIndex)) //
+				.action(new MoveAliasAction(sourceIndex, concernedReadAliases, targetIndex)) //
+				.execute();
+	}
+
 	public static record RingIndex(String name, SortedSet<RingAlias> readAliases, SortedSet<RingAlias> writeAliases)
 			implements Comparable<RingIndex> {
 
@@ -138,7 +172,7 @@ public class AliasRing {
 
 		@Override
 		public int compareTo(RingIndex other) {
-			return this.name.compareTo(other.name);
+			return Integer.compare(this.position(), other.position());
 		}
 
 	}
@@ -153,9 +187,13 @@ public class AliasRing {
 			return RingIndexAliasCreator.isReadAlias(name);
 		}
 
+		public boolean isWriteAlias() {
+			return !RingIndexAliasCreator.isReadAlias(name);
+		}
+
 		@Override
 		public int compareTo(RingAlias other) {
-			return this.name.compareTo(other.name);
+			return Integer.compare(this.position(), other.position());
 		}
 	}
 

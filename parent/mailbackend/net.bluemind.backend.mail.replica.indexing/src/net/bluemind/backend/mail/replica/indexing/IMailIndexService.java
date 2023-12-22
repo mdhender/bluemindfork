@@ -109,4 +109,8 @@ public interface IMailIndexService {
 
 	void removeIndexFromRing(Integer numericIndex);
 
+	default boolean isNoop() {
+		return false;
+	}
+
 }

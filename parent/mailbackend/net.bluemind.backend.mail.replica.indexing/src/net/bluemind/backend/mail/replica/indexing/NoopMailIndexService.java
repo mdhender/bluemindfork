@@ -163,4 +163,9 @@ public class NoopMailIndexService implements IMailIndexService {
 		logger.debug("NOOP");
 	}
 
+	@Override
+	public boolean isNoop() {
+		return true;
+	}
+
 }
