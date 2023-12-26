@@ -142,14 +142,13 @@ export function useDelegation() {
     });
 
     const removeDelegate = userUid => {
-        const cleanUpAcl = containerUids.value.map(uid => {
-            if (uid) {
-                inject("ContainerManagementPersistence", uid).setAccessControlList(
-                    getAcl(uid).filter(
-                        ({ subject, verb }) =>
-                            subject !== userUid || ![...DELEGATION_VERBS, ...SHARED_CONTAINERS_VERBS].includes(verb)
-                    )
+        const cleanUpAcl = containerUids.value.map(containerUid => {
+            if (containerUid) {
+                const acl = getAcl(containerUid).filter(
+                    ({ subject, verb }) =>
+                        subject !== userUid || ![...DELEGATION_VERBS, ...SHARED_CONTAINERS_VERBS].includes(verb)
                 );
+                return store.dispatch("preferences/UPDATE_ACL", { containerUid, acl });
             }
         });
         const removeCopyImipRule = removeDelegateFromCopyImipMailboxRule(userUid);

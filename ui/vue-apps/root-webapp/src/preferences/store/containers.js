@@ -47,6 +47,15 @@ const actions = {
         commit("SET_ACL", { containerUid, acl });
         return acl;
     },
+    async UPDATE_ACL({ commit, state }, { containerUid, acl }) {
+        const oldAcl = state.acls[containerUid];
+        commit("SET_ACL", { containerUid, acl });
+        try {
+            await inject("ContainerManagementPersistence", containerUid).setAccessControlList(acl);
+        } catch {
+            commit("SET_ACL", { containerUid, acl: oldAcl });
+        }
+    },
     async FETCH_ACL_IF_NOT_LOADED({ state, dispatch }, containerUid) {
         return state.acls[containerUid] || (await dispatch("FETCH_ACL", containerUid));
     }

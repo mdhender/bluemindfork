@@ -88,11 +88,10 @@ watchEffect(async () => {
 
 const confirmDeleteModal = ref();
 const deletedDelegate = ref();
-const remove = async contact => {
+const remove = contact => {
     deletedDelegate.value = contact?.dn || contact?.address;
     confirmDeleteModal.value.onOk = async () => {
         await removeDelegate(contact.uid);
-        confirmDeleteModal.value.hide();
         await fetchAcls();
         store.dispatch(`alert/${SUCCESS}`, SAVE_ALERT);
     };
