@@ -265,6 +265,7 @@ export function useDelegation() {
     const setFlagsAction = {
         name: "SET_FLAGS",
         flags: [Flag.READ_ONLY_EVENT],
+        internalFlags: [],
         clientProperties: { type: "delegation" }
     };
 
@@ -381,22 +382,26 @@ export function useDelegation() {
         const copyImipMailboxRuleIndex = mailboxFilter.rules.findIndex(matchCopyImipMailboxRule);
         if (copyImipMailboxRuleIndex > -1) {
             const copyImipMailboxRule = mailboxFilter.rules[copyImipMailboxRuleIndex];
-            const filteredActions = copyImipMailboxRule.actions.filter(
-                ({ clientProperties: { type, delegate } }) => type !== "delegation" || delegate !== uid
+
+            // remove the redirect action for the given delegate
+            const updatedActions = copyImipMailboxRule.actions.filter(
+                action => !matchCopyImipActionForDelegate(action, uid)
             );
-            if (filteredActions.length < copyImipMailboxRule.actions.length) {
-                if (filteredActions.length === 0) {
-                    mailboxFilter.rules.splice(copyImipMailboxRuleIndex, 1);
-                } else if (filteredActions.length < copyImipMailboxRule.actions.length) {
-                    copyImipMailboxRule.actions = filteredActions;
-                }
+
+            const remainingRedirectActions = updatedActions.filter(({ name }) => name === "REDIRECT").length;
+            if (remainingRedirectActions === 0) {
+                // remove the entire rule
+                mailboxFilter.rules.splice(copyImipMailboxRuleIndex, 1);
+                store.dispatch("preferences/SAVE_RULES", mailboxFilter.rules);
+            } else if (updatedActions.length < copyImipMailboxRule.actions.length) {
+                mailboxFilter.rules[copyImipMailboxRuleIndex].actions = updatedActions;
                 store.dispatch("preferences/SAVE_RULES", mailboxFilter.rules);
             }
         }
     };
 
-    const matchCopyImipActionForDelegate = ({ clientProperties: { type, delegate } }, delegateUid) =>
-        type === "delegation" && delegate === delegateUid;
+    const matchCopyImipActionForDelegate = ({ name, emails, clientProperties: { type, delegate } }, delegateUid) =>
+        name === "REDIRECT" && emails?.length && type === "delegation" && delegate === delegateUid;
 
     const canSeePrivateEvents = uid =>
         getCalendarAcl()?.some(({ subject, verb }) => subject === uid && verb === Verb.ReadExtended);
