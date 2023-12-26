@@ -90,17 +90,28 @@ public class AclChangedNotificationVerticle extends AbstractVerticle {
 		Map<String, AclChangeInfo> aclChangeInfos = new HashMap<>();
 		while (!ACL_CHANGED_MSGS.isEmpty()) {
 			AclChangedMsg aclChangedMsg = ACL_CHANGED_MSGS.poll();
-			aclChangedMsg.diff().forEach(ace -> {
-				String key = AclChangeInfo.key(aclChangedMsg.domainUid(), aclChangedMsg.sourceUserId(), ace.subject);
-				AclChangeInfo aclChangeInfo = aclChangeInfos.computeIfAbsent(key,
-						k -> new AclChangeInfo(aclChangedMsg.domainUid(), aclChangedMsg.sourceUserId(), ace.subject));
-				NewVerbs newVerbs = aclChangeInfo.newVerbsByContainer.computeIfAbsent(aclChangedMsg.containerUid(),
-						k -> new NewVerbs(aclChangedMsg.containerUid(), aclChangedMsg.containerName(),
-								aclChangedMsg.containerType(), aclChangedMsg.defaultContainer()));
-				newVerbs.verbs.add(ace.verb);
-			});
+			aclChangedMsg.diff().stream().filter(ace -> isTargetUser(ace.subject, aclChangedMsg.domainUid()))
+					.forEach(ace -> {
+						String key = AclChangeInfo.key(aclChangedMsg.domainUid(), aclChangedMsg.sourceUserId(),
+								ace.subject);
+						AclChangeInfo aclChangeInfo = aclChangeInfos.computeIfAbsent(key,
+								k -> new AclChangeInfo(aclChangedMsg.domainUid(), aclChangedMsg.sourceUserId(),
+										ace.subject));
+						NewVerbs newVerbs = aclChangeInfo.newVerbsByContainer.computeIfAbsent(
+								aclChangedMsg.containerUid(),
+								k -> new NewVerbs(aclChangedMsg.containerUid(), aclChangedMsg.containerName(),
+										aclChangedMsg.containerType(), aclChangedMsg.defaultContainer()));
+						newVerbs.verbs.add(ace.verb);
+					});
 		}
 		return aclChangeInfos.values();
+	}
+
+	private boolean isTargetUser(String userUid, String domainUid) {
+		BmContext bmContext = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).getContext();
+		IDirectory dirService = bmContext.provider().instance(IDirectory.class, domainUid);
+		DirEntry targetUser = dirService.findByEntryUid(userUid);
+		return targetUser != null && targetUser.email != null && targetUser.displayName != null;
 	}
 
 	private void sendMessages() {
