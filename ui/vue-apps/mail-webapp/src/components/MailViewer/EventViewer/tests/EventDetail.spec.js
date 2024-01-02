@@ -47,6 +47,7 @@ function EventDetailComponent(currentEvent) {
     const CURRENT_EVENT = {
         summary: "SUMMARY TEXT",
         date: "toutes les 2 semaines, le lundi, mardi, mercredi, jeudi et vendredi jusqu’au jeu. 11/08/22",
+        attendee: {},
         serverEvent: {
             value: {
                 main: {

@@ -7,6 +7,9 @@ const baseConfig = {
     moduleFileExtensions: ["ts", "js", "json", "vue"],
     modulePathIgnorePatterns: ["open/clients/js/target/", "target"],
     setupFilesAfterEnv: ["./.jest/setupFilesAfterEnv.js", "fake-indexeddb/auto"],
+    moduleNameMapper: {
+        "^.+/BmIcon(.vue)?$": "<rootDir>/mockBmIcon.vue"
+    },
     transform: {
         "^.+\\.[t|j]sx?$": "babel-jest",
         ".+\\.(css|styl|less|sass|scss|png|jpg|ttf|woff|woff2|svg)$": "jest-transform-stub",
@@ -53,6 +56,7 @@ module.exports = {
             ...baseConfig,
             displayName: "mail-app",
             moduleNameMapper: {
+                ...baseConfig.moduleNameMapper,
                 "^~/actions$": "<rootDir>/mail-webapp/src/store/types/actions",
                 "^~/getters$": "<rootDir>/mail-webapp/src/store/types/getters",
                 "^~/mutations$": "<rootDir>/mail-webapp/src/store/types/mutations",
@@ -65,6 +69,7 @@ module.exports = {
             ...baseConfig,
             displayName: "root-app",
             moduleNameMapper: {
+                ...baseConfig.moduleNameMapper,
                 "~(.*)$": "<rootDir>/root-webapp/src$1"
             },
             testMatch: ["<rootDir>/root-webapp/" + testFileMatcher]

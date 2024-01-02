@@ -29,12 +29,6 @@ describe("BmLabelIcon", () => {
             }
         });
     }
-
-    test("is a Vue instance", () => {
-        expect(defaultMount("mySlot").vm).toBeTruthy();
-    });
-
-    // FIXME: Cas non pertinent, que faire si le composant est créé sans slot ?
     test("called with an icon", () => {
         let wrapper = mount(BmLabelIcon, {
             propsData: {
@@ -42,17 +36,14 @@ describe("BmLabelIcon", () => {
             }
         });
 
-        expect(wrapper.find("svg").isVisible()).toBeTrue;
-        expect(wrapper.find(".icon-folder").isVisible()).toBeTrue;
+        expect(wrapper.find("svg").attributes("data-test-id")).toEqual("folder");
     });
 
     test("called with an icon and slot", () => {
         let mySlot = "Hello World";
         let wrapper = defaultMount(mySlot);
 
-        expect(wrapper.find("svg").isVisible()).toBeTrue;
-        expect(wrapper.find(".icon-folder").isVisible()).toBeTrue;
-
+        expect(wrapper.find("svg").attributes("data-test-id")).toEqual("folder");
         expect(wrapper.text()).toContain(mySlot);
     });
 });
