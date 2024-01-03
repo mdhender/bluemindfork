@@ -124,11 +124,11 @@ public interface IInstallation extends ICustomTheme {
 
 	@POST
 	@Path("_resetIndexes")
-	public void resetIndexes();
+	public TaskRef resetIndexes();
 
 	@POST
 	@Path("{index}/_resetIndex")
-	public void resetIndex(@PathParam("index") String index);
+	public TaskRef resetIndex(@PathParam("index") String index);
 
 	@GET
 	@Path("_infos")

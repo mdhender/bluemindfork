@@ -22,6 +22,8 @@ import java.util.Optional;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
+import net.bluemind.cli.utils.Tasks;
+import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.system.api.IInstallation;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
@@ -57,7 +59,8 @@ public class ResetCommand implements ICmdLet, Runnable {
 		ctx.info("Resetting index {}...", index);
 		long time = System.currentTimeMillis();
 		IInstallation instApi = ctx.adminApi().instance(IInstallation.class);
-		instApi.resetIndex(index);
+		TaskRef ref = instApi.resetIndex(index);
+		Tasks.follow(ctx, ref, "", "Cannot reset index " + index);
 		time = System.currentTimeMillis() - time;
 		ctx.info("{} reseted in {}ms", index, time);
 	}

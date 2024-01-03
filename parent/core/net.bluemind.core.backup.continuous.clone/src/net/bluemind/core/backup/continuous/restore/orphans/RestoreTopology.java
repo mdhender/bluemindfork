@@ -39,6 +39,7 @@ import net.bluemind.core.rest.base.GenericStream;
 import net.bluemind.core.task.api.ITask;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.service.IServerTaskMonitor;
+import net.bluemind.core.task.service.TaskUtils;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.core.utils.JsonUtils.ValueReader;
 import net.bluemind.network.topology.Topology;
@@ -144,7 +145,7 @@ public class RestoreTopology {
 					}
 				}
 			} while (true);
-			target.instance(IInstallation.class).resetIndexes();
+			TaskUtils.wait(target, target.instance(IInstallation.class).resetIndexes());
 		}
 
 		Map<String, PromotingServer> serverByUid = touched.stream()

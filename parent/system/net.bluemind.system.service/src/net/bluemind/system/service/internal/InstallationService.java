@@ -554,22 +554,39 @@ public class InstallationService implements IInstallation {
 	}
 
 	@Override
-	public void resetIndexes() {
+	public TaskRef resetIndexes() {
 		if (!context.getSecurityContext().isDomainGlobal()) {
 			throw new ServerFault("only admin0 can reset indexes", ErrorCode.PERMISSION_DENIED);
 		}
 
-		ESearchActivator.clearClientCache();
-		ESearchActivator.resetIndexes();
+		return context.provider().instance(ITasksManager.class).run(new BlockingServerTask() {
+
+			@Override
+			protected void run(IServerTaskMonitor monitor) throws Exception {
+				ESearchActivator.clearClientCache();
+				ESearchActivator.resetIndexes();
+			}
+
+		});
 	}
 
 	@Override
-	public void resetIndex(String index) {
+	public TaskRef resetIndex(String index) {
 		if (!context.getSecurityContext().isDomainGlobal()) {
 			throw new ServerFault("only admin0 can reset an index", ErrorCode.PERMISSION_DENIED);
 		}
-		ESearchActivator.clearClientCache();
-		ESearchActivator.resetIndex(index);
+
+		return context.provider().instance(ITasksManager.class).run(new BlockingServerTask() {
+
+			@Override
+			protected void run(IServerTaskMonitor monitor) throws Exception {
+				ESearchActivator.clearClientCache();
+				ESearchActivator.resetIndex(index);
+				;
+			}
+
+		});
+
 	}
 
 	@Override
