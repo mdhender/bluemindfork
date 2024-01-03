@@ -282,7 +282,7 @@ public class ContainerGroupStoreService extends DirValueStoreService<Group> {
 		});
 	}
 
-	private void requestGroupVCardUpdate(String domainUid, String groupUid) {
+	public void requestGroupVCardUpdate(String domainUid, String groupUid) {
 		JsonObject updateVcardOrder = new JsonObject();
 		updateVcardOrder.put("domain_uid", domainUid);
 		updateVcardOrder.put("group_uid", groupUid);

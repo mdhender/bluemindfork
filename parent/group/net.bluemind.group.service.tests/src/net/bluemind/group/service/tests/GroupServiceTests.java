@@ -673,10 +673,10 @@ public class GroupServiceTests {
 
 		List<Member> membersToAdd = getMembers(3);
 		getGroupService(adminSecurityContext).add(uid, membersToAdd);
+		waitForGroupVcard(domainUid, uid);
 
 		group.name = "checkthat" + System.nanoTime();
 		getGroupService(adminSecurityContext).update(uid, group);
-
 		waitForGroupVcard(domainUid, uid);
 		ItemValue<VCard> dirVCard = testContext.provider().instance(IDirectory.class, domainUid).getVCard(uid);
 		assertNotNull(dirVCard);
@@ -685,6 +685,7 @@ public class GroupServiceTests {
 
 		group.hiddenMembers = false;
 		getGroupService(adminSecurityContext).update(uid, group);
+		waitForGroupVcard(domainUid, uid);
 		dirVCard = testContext.provider().instance(IDirectory.class, domainUid).getVCard(uid);
 		assertNotNull(dirVCard);
 		assertEquals(3, dirVCard.value.organizational.member.size());

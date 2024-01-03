@@ -155,6 +155,7 @@ public class GroupService implements IGroup, IInCoreGroup {
 		mailboxes.validate(uid, mailbox);
 
 		storeService.create(groupItem, reservedIdsConsumer -> mailboxes.created(uid, mailbox, reservedIdsConsumer));
+		storeService.requestGroupVCardUpdate(domainUid, uid);
 
 		logger.debug("Created {}", uid);
 		for (IGroupHook gh : groupsHooks) {
@@ -212,6 +213,8 @@ public class GroupService implements IGroup, IInCoreGroup {
 			gh.onGroupUpdated(new GroupMessage(iv(uid, previous), context, groupContainer),
 					new GroupMessage(iv(uid, group), context, groupContainer));
 		}
+
+		storeService.requestGroupVCardUpdate(domainUid, uid);
 		dirEventProducer.changed(uid, storeService.getVersion());
 	}
 

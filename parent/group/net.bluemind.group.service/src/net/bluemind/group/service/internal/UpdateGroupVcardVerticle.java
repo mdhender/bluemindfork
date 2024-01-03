@@ -45,8 +45,8 @@ import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.lib.vertx.utils.ThrottleMessages;
 
 public class UpdateGroupVcardVerticle extends AbstractVerticle {
-	public static String VCARD_UPDATE_BUS_ADDRESS = "group.update_vcard.queue";
-	public static String VCARD_NOTIFY_BUS_ADDRESS = "group.update_vcard.done";
+	public static final String VCARD_UPDATE_BUS_ADDRESS = "group.update_vcard.queue";
+	public static final String VCARD_NOTIFY_BUS_ADDRESS = "group.update_vcard.done";
 	private static Logger logger = LoggerFactory.getLogger(UpdateGroupVcardVerticle.class);
 
 	public static class Factory implements IVerticleFactory, IUniqueVerticleFactory {
