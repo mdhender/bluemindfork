@@ -11,6 +11,7 @@
 	<modules>
 		<module>net.bluemind.calendar.api</module>
 		<module>net.bluemind.calendar.hook</module>
+		<module>net.bluemind.calendar.hook.acl</module>
 		<module>net.bluemind.calendar.hook.ics</module>
 		<module>net.bluemind.calendar.sqlschema</module>
 		<module>net.bluemind.calendar.persistence</module>
