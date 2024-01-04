@@ -16,7 +16,7 @@
         <div v-if="phones.length" class="d-flex mt-4">
             <div><bm-icon icon="phone" variant="secondary" /></div>
             <ol class="d-flex flex-column flex-fill p-0 ml-4 mb-0">
-                <li v-for="phone in phones" :key="phone.number" class="d-flex" :text="phone.number">
+                <li v-for="phone in phones" :key="phone.number" class="d-flex align-items-center" :text="phone.number">
                     <a
                         class="text-truncate"
                         :href="`tel:${phone.number.replace(/\s+/g, '')}`"
@@ -24,8 +24,8 @@
                     >
                         <strong>{{ phone.number }}</strong>
                     </a>
-                    <span class="ml-4 text-neutral text-truncate">{{ phone.type }}</span>
-                    <bm-icon-button-copy :text="phone.number" size="sm" class="ml-4" />
+                    <span class="ml-4 phone-type caption-italic text-truncate">{{ phone.type }}</span>
+                    <bm-icon-button-copy :text="phone.number" size="sm" class="ml-2" />
                 </li>
             </ol>
         </div>
@@ -139,6 +139,11 @@ function isValidAddress(address) {
             }
             &:hover .bm-icon-button-copy {
                 visibility: visible;
+            }
+
+            .phone-type {
+                color: $neutral-fg-lo1;
+                margin-top: base-px-to-rem(1);
             }
         }
     }
