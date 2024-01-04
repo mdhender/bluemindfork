@@ -5,7 +5,6 @@ import {
     deleteFlag,
     fetchMessageIfNotLoaded,
     fetchMessageMetadata,
-    unexpunge,
     moveMessages,
     removeMessages
 } from "./actions";
@@ -27,7 +26,6 @@ import {
     MARK_MESSAGE_AS_UNFLAGGED,
     MARK_MESSAGE_AS_UNREAD,
     MARK_MESSAGES_AS_FLAGGED,
-    UNEXPUNGE,
     MARK_MESSAGES_AS_READ,
     MARK_MESSAGES_AS_UNFLAGGED,
     MARK_MESSAGES_AS_UNREAD,
@@ -87,6 +85,5 @@ export default {
     [SET_MESSAGE_CONTENT]: setMessageContent,
     [DEBOUNCED_SET_MESSAGE_CONTENT]: debouncedSetMessageContent,
     [TOGGLE_DSN_REQUEST]: toggleDSNRequest,
-    [UPDATE_MESSAGE_STRUCTURE]: updateMessageStructure,
-    [UNEXPUNGE]: withAlert(unexpunge, UNEXPUNGE, "UnexpungeMessages")
+    [UPDATE_MESSAGE_STRUCTURE]: updateMessageStructure
 };

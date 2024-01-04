@@ -3,8 +3,7 @@ import {
     MARK_CONVERSATIONS_AS_FLAGGED,
     MARK_CONVERSATIONS_AS_READ,
     MARK_CONVERSATIONS_AS_UNFLAGGED,
-    MARK_CONVERSATIONS_AS_UNREAD,
-    UNEXPUNGE
+    MARK_CONVERSATIONS_AS_UNREAD
 } from "~/actions";
 import { mapActions, mapGetters, mapState } from "vuex";
 import { Flag } from "@bluemind/email";
@@ -92,8 +91,7 @@ export default {
             $_FlagMixin_markAsRead: MARK_CONVERSATIONS_AS_READ,
             $_FlagMixin_markAsUnflagged: MARK_CONVERSATIONS_AS_UNFLAGGED,
             $_FlagMixin_markAsUnread: MARK_CONVERSATIONS_AS_UNREAD,
-            $_FlagMixin_markFolderAsRead: MARK_FOLDER_AS_READ,
-            UNEXPUNGE
+            $_FlagMixin_markFolderAsRead: MARK_FOLDER_AS_READ
         }),
         showMarkAsReadInMain(isTemplate = false) {
             if (isTemplate) {
@@ -179,9 +177,6 @@ export default {
                 conversationsActivated: this.$_FlagMixin_CONVERSATIONS_ACTIVATED,
                 mailbox: this.$_FlagMixin_CURRENT_MAILBOX
             });
-        },
-        unexpunge(messages = this.selected) {
-            return this.UNEXPUNGE({ messages });
         }
     }
 };

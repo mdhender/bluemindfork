@@ -13,7 +13,8 @@ import {
     REMOVE_CONVERSATIONS,
     REMOVE_CONVERSATION_MESSAGES,
     REMOVE_MESSAGES,
-    MOVE_MESSAGES
+    MOVE_MESSAGES,
+    UNEXPUNGE
 } from "~/actions";
 import FormattedDateMixin from "./FormattedDateMixin";
 import SelectionMixin from "./SelectionMixin";
@@ -128,6 +129,11 @@ export default {
         },
         remove() {
             return this.REMOVE_CONVERSATIONS(this.selected);
+        },
+        unexpunge(conversations = this.selected) {
+            return this.$store.dispatch(`mail/${UNEXPUNGE}`, {
+                conversations
+            });
         }
     }
 };

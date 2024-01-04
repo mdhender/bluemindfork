@@ -83,8 +83,12 @@ export default {
             part => part.address && api(message.folderRef.uid).removePart(part.address)
         );
     },
-    unexpunge(message) {
-        return api(message.folderRef.uid).unexpunge(message.remoteRef.uid);
+    multipleUnexpungeById(messages) {
+        const byFolder = groupByFolder(messages);
+        const requests = map(byFolder, ({ itemsId }, folder) => {
+            return api(folder).multipleUnexpungeById(itemsId);
+        });
+        return Promise.all(requests);
     }
 };
 

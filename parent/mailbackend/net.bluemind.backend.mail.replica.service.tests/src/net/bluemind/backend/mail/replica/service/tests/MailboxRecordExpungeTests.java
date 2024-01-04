@@ -73,6 +73,7 @@ public class MailboxRecordExpungeTests extends AbstractRollingReplicationTests {
 	private Container recordsContainer;
 	private Container subtreeContainer;
 	private Long mailItemId;
+	private Long mailItemId2;
 
 	@Before
 	@Override
@@ -89,11 +90,13 @@ public class MailboxRecordExpungeTests extends AbstractRollingReplicationTests {
 		imapAsUser(sc -> {
 			assertTrue(sc.create(MARCO));
 			int added = sc.append(MARCO, testEml(), new FlagsList());
+			int added2 = sc.append(MARCO, testEml(), new FlagsList());
 			assertTrue(added > 0);
 			sc.select(MARCO);
-			Collection<MimeTree> bs = sc.uidFetchBodyStructure(Arrays.asList(added));
+			Collection<MimeTree> bs = sc.uidFetchBodyStructure(Arrays.asList(added, added2));
 			MimeTree tree = bs.iterator().next();
 			logger.info(String.format("Mail %d added:%n %s", added, tree));
+			logger.info(String.format("Mail %d added:%n %s", added2, tree));
 			return null;
 		});
 
@@ -101,8 +104,9 @@ public class MailboxRecordExpungeTests extends AbstractRollingReplicationTests {
 		ItemValue<MailboxFolder> marco = foldersApi.byName(MARCO);
 		IMailboxItems recApi = recApi(marco.uid);
 		ContainerChangeset<Long> changes = recApi.changesetById(0L);
-		assertEquals(1, changes.created.size());
+		assertEquals(2, changes.created.size());
 		this.mailItemId = changes.created.get(0);
+		this.mailItemId2 = changes.created.get(1);
 
 		this.expungeApi = getExpungeApi(marco);
 
@@ -169,6 +173,18 @@ public class MailboxRecordExpungeTests extends AbstractRollingReplicationTests {
 	public void testDelete() throws SQLException {
 		insertExpungedMessage(mailItemId);
 		expungeApi.delete(mailItemId);
+		Count count = expungeApi.count(ItemFlagFilter.all());
+		assertEquals(0, count.total);
+	}
+
+	@Test
+	public void testMultipleDelete() throws SQLException {
+		insertExpungedMessage(mailItemId);
+		insertExpungedMessage(mailItemId2);
+		assertEquals(2, expungeApi.count(ItemFlagFilter.all()).total);
+
+		List<Long> ids = Arrays.asList(mailItemId, mailItemId2);
+		expungeApi.multipleDelete(ids);
 		Count count = expungeApi.count(ItemFlagFilter.all());
 		assertEquals(0, count.total);
 	}

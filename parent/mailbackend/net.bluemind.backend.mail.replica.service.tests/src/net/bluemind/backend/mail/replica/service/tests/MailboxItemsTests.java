@@ -44,6 +44,7 @@ import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.ItemVersion;
+import net.bluemind.core.container.model.SortDescriptor;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -195,9 +196,29 @@ public class MailboxItemsTests extends AbstractRollingReplicationTests {
 			assertTrue(itemInTrash.value.flags.contains(MailboxItemFlag.System.Deleted.value()));
 		}
 	}
+	@Test
+	public void multipleUnexpungeById() {
+		SortDescriptor sortDescriptor = createSortDescriptor(ItemFlagFilter.create().mustNot(ItemFlag.Deleted));
+		List<Long> inMarco = mailApi.sortedIds(sortDescriptor).stream().toList();
+		List<Long> toDeletedIds = Arrays.asList(inMarco.get(0), inMarco.get(1));
+		mailApi.multipleDeleteById(toDeletedIds);
 
-	protected void assertExpunge(List<Long> deletedIds, List<ItemValue<MailboxItem>> records) {
-		assertEquals("Should contain 'expunged' internal flag", deletedIds.size(), records.stream()
+		ItemValue<MailboxFolder> trash = foldersApi().byName("Trash");
+		IMailboxItems trashService = provider().instance(IMailboxItems.class, trash.uid);
+		List<Long> expungedIds = trashService.sortedIds(createSortDescriptor(ItemFlagFilter.all())).stream().toList();
+
+		List<ItemValue<MailboxItem>> expungedItems = trashService.multipleGetById(expungedIds);
+		assertEquals(2, expungedItems.stream()
 				.filter(r -> ((MailboxRecord) r.value).internalFlags.contains(InternalFlag.expunged)).count());
+
+		List<Long> unexpungedIds = trashService.multipleUnexpungeById(expungedIds).stream()
+				.map(identifier -> identifier.id)
+				.toList();
+		List<ItemValue<MailboxItem>> unexpungedRecords = trashService.multipleGetById(unexpungedIds);
+		assertEquals("Should not contain 'Deleted' flag", unexpungedIds.size(), unexpungedRecords.stream()
+				.filter(r -> !r.value.flags.contains(MailboxItemFlag.System.Deleted.value())).count());
+
+		List<ItemValue<MailboxItem>> expunged = trashService.multipleGetById(expungedIds);
+		assertEquals("Should have deleted expunged items", 0, expunged.size());
 	}
 }

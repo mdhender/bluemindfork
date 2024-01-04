@@ -17,8 +17,10 @@ import {
     CONVERSATION_LIST_UNREAD_FILTER_ENABLED
 } from "~/getters";
 import {
+    ADD_CONVERSATIONS,
     RESET_CONVERSATIONS,
     REMOVE_CONVERSATIONS,
+    RESET_CONVERSATION_LIST,
     RESET_CONVERSATION_LIST_PAGE,
     SET_CONVERSATION_LIST_FILTER,
     SET_CONVERSATION_LIST_PAGE,
@@ -74,16 +76,15 @@ const state = {
 };
 
 const mutations = {
-    [RESET_CONVERSATIONS]: state => {
-        state._removed = [];
-        state._keys = [];
-    },
     [RESET_CONVERSATION_LIST_PAGE]: state => {
         state.currentPage = 0;
     },
     [SET_CONVERSATION_LIST]: (state, { conversations }) => {
-        state._removed = [];
         state._keys = conversations.map(({ key }) => key);
+    },
+    [RESET_CONVERSATION_LIST]: state => {
+        state._removed = [];
+        state._keys = [];
     },
     [SET_CONVERSATION_LIST_STATUS]: (state, status) => {
         state.status = status;
@@ -111,12 +112,16 @@ const mutations = {
     [RESET_CONVERSATIONS]: state => {
         state._keys = [];
         state._removed = [];
+    },
+    [ADD_CONVERSATIONS]: (state, { conversations }) => {
+        state._removed = state._removed.filter(key => conversations.includes(key));
     }
 };
 
 const actions = {
     async [FETCH_CONVERSATION_LIST_KEYS]({ commit, dispatch }, { folder, conversationsActivated }) {
         commit(SET_CONVERSATION_LIST_STATUS, ConversationListStatus.LOADING);
+        commit(RESET_CONVERSATION_LIST);
         try {
             await dispatch(REFRESH_CONVERSATION_LIST_KEYS, { folder, conversationsActivated });
             commit(SET_CONVERSATION_LIST_STATUS, ConversationListStatus.SUCCESS);

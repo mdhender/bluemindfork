@@ -18,7 +18,6 @@ import debounce from "lodash.debounce";
 
 import {
     CONVERSATION_LIST_COUNT,
-    CONVERSATION_LIST_DELETED_FILTER_ENABLED,
     IS_SEARCH_ENABLED,
     CONVERSATION_LIST_KEYS,
     CONVERSATION_MESSAGE_BY_KEY,
@@ -55,7 +54,6 @@ export default {
         ...mapGetters("mail", {
             CONVERSATION_MESSAGE_BY_KEY,
             CONVERSATION_LIST_COUNT,
-            CONVERSATION_LIST_DELETED_FILTER_ENABLED,
             IS_SEARCH_ENABLED,
             CONVERSATION_LIST_KEYS,
             HAS_PATTERN,

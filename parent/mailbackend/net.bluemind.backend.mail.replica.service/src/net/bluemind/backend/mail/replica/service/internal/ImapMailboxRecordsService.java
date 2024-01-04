@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -91,7 +92,6 @@ import net.bluemind.core.container.api.IdRange;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemIdentifier;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.container.model.ItemVersion;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
@@ -400,25 +400,38 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 	}
 
 	public ItemIdentifier unexpunge(long itemId) {
+		return this.multipleUnexpungeById(Collections.singletonList(itemId)).get(0);
+	}
+
+	@Override
+	public List<ItemIdentifier> multipleUnexpungeById(List<Long> itemIds) {
 		rbac.check(Verb.Write.name());
 
-		ItemValue<MailboxRecord> item = storeService.get(itemId, null);
-		if (item == null) {
-			throw ServerFault.notFound("itemId " + itemId + " not found for unexpunge");
-		}
+		List<ItemValue<MailboxRecord>> records = storeService.getMultipleById(itemIds);
+		AppendTx unexpTx = foldersWriteDelegate.get().prepareAppend(folderItemId, records.size());
+		long start = unexpTx.imapUid - (records.size() - 1);
+		long count = start;
+		List<MailboxRecord> copies = new ArrayList<>(records.size());
+		for (ItemValue<MailboxRecord> iv : records) {
+			MailboxRecord copy = createUnexpunge(iv.value, count++);
+			copies.add(copy);
+		}		
+		List<Long> createdIds = writeDelegate.get().multiCreate(copies).stream().map(item -> item.id).toList();
+		List<ItemValue<MailboxItem>> fullFresh = multipleGetById(createdIds);
 
-		AppendTx unexpTx = foldersWriteDelegate.get().prepareAppend(folderItemId, 1);
-		MailboxRecord freshRec = item.value.copy();
-		freshRec.flags = freshRec.flags.stream().filter(f -> !f.flag.equals("\\Deleted")).toList();
-		freshRec.internalFlags = freshRec.internalFlags.stream().filter(f -> f != InternalFlag.expunged).toList();
-		freshRec.imapUid = unexpTx.imapUid;
-		ItemVersion itemRec = writeDelegate.get().create(unexpTx.imapUid + ".", freshRec);
-		ItemValue<MailboxItem> fullFresh = getCompleteById(itemRec.id);
 		IMailboxRecordExpunged expungeApi = context.provider().instance(IMailboxRecordExpunged.class,
 				IMailReplicaUids.uniqueId(container.uid));
-		expungeApi.delete(itemId);
-		return fullFresh.identifier();
+		expungeApi.multipleDelete(itemIds);
+		
+		return fullFresh.stream().map(fresh -> fresh.identifier()).toList();
+	}
 
+	private MailboxRecord createUnexpunge(MailboxRecord item, long imapUid) {
+		MailboxRecord freshRec = item.copy();
+		freshRec.flags = freshRec.flags.stream().filter(f -> !f.flag.equals("\\Deleted")).toList();
+		freshRec.internalFlags = freshRec.internalFlags.stream().filter(f -> f != InternalFlag.expunged).toList();
+		freshRec.imapUid = imapUid;
+		return freshRec;
 	}
 
 	@Override

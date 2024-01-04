@@ -19,8 +19,10 @@
 package net.bluemind.backend.mail.replica.service.internal;
 
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,26 +52,7 @@ public class MailboxRecordExpungedService implements IMailboxRecordExpunged {
 
 	@Override
 	public void delete(long itemId) {
-		JdbcAbstractStore.doOrFail(() -> {
-			MailboxRecordExpunged expRecord = get(itemId);
-			Long imapUid = expRecord.imapUid;
-			Integer containerId = expRecord.containerId;
-			try {
-				context.provider()
-						.instance(IDbMailboxRecords.class, IMailReplicaUids.uniqueId(expungedStore.getContainerUid()))
-						.deleteImapUids(Arrays.asList(imapUid));
-			} catch (Exception e) {
-				logger.error("Error cleaning up message {} on container {}: {}", imapUid, containerId, e.getMessage());
-			}
-			try {
-				logger.info("Purge expunged message {} of queue for container {}", imapUid, containerId);
-				expungedStore.deleteExpunged(containerId, Arrays.asList(imapUid));
-			} catch (Exception e) {
-				logger.error("Error cleaning up message {} on container {}: {}", imapUid, containerId, e.getMessage());
-			}
-
-			return null;
-		});
+		multipleDelete(List.of(itemId));
 	}
 
 	@Override
@@ -97,5 +80,34 @@ public class MailboxRecordExpungedService implements IMailboxRecordExpunged {
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}
+	}
+
+	@Override
+	public void multipleDelete(List<Long> itemIds) {
+		JdbcAbstractStore.doOrFail(() -> {
+			Map<Integer, List<Long>> imapUidsByContainerUid = itemIds.stream().map(itemId -> get(itemId))
+					.collect(Collectors.groupingBy(data -> data.containerId,
+							Collectors.mapping(MailboxRecordExpunged::imapUid, Collectors.toList())));
+			for (Entry<Integer, List<Long>> entry : imapUidsByContainerUid.entrySet()) {
+				Integer containerId = entry.getKey();
+				List<Long> imapUids = entry.getValue();
+
+				try {
+					context.provider()
+							.instance(IDbMailboxRecords.class,
+									IMailReplicaUids.uniqueId(expungedStore.getContainerUid()))
+							.deleteImapUids(imapUids);
+					logger.info("Purge expunged message {} of queue for container {}", imapUids.toString(),
+							containerId);
+					expungedStore.deleteExpunged(containerId, imapUids);
+				} catch (Exception e) {
+					logger.error("Error cleaning up message {} on container {}: {}", imapUids.toString(), containerId,
+							e.getMessage());
+				}
+			}
+
+			return null;
+		});
+
 	}
 }

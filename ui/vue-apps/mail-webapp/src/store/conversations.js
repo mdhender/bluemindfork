@@ -33,7 +33,8 @@ import {
     MOVE_CONVERSATION_MESSAGES,
     MOVE_CONVERSATIONS,
     REMOVE_CONVERSATION_MESSAGES,
-    REMOVE_CONVERSATIONS
+    REMOVE_CONVERSATIONS,
+    UNEXPUNGE
 } from "~/actions";
 import {
     CONVERSATION_MESSAGE_BY_KEY,
@@ -89,7 +90,8 @@ const actions = {
             await dispatch(REMOVE_MESSAGES, { messages });
         }
     },
-    [REMOVE_CONVERSATIONS]: withAlertOrNot(removeConversations, "REMOVE", "", "RemoveConversations", 1)
+    [REMOVE_CONVERSATIONS]: withAlertOrNot(removeConversations, "REMOVE", "", "RemoveConversations", 1),
+    [UNEXPUNGE]: withAlert(unexpunge, UNEXPUNGE, "UnexpungeMessages")
 };
 
 const mutations = {
@@ -290,6 +292,20 @@ function markConversationsAsFlagged(store, { conversations, conversationsActivat
 
 function markConversationsAsUnflagged(store, { conversations, conversationsActivated, mailbox }) {
     return deleteFlag(store, conversations, conversationsActivated, mailbox, Flag.FLAGGED);
+}
+
+async function unexpunge({ commit, getters }, { conversations }) {
+    conversations = ensureArray(conversations);
+    const messages = messagesInConversationFolder(getters, conversations);
+
+    commit(REMOVE_CONVERSATIONS, conversations);
+    try {
+        await apiMessages.multipleUnexpungeById(conversations.map(fakeConversationToMessage));
+    } catch (e) {
+        commit(ADD_CONVERSATIONS, { conversations });
+        commit(ADD_MESSAGES, { messages, preserve: true });
+        throw e;
+    }
 }
 
 async function moveConversations({ getters, commit }, { conversations, mailbox, folder, conversationsActivated }) {

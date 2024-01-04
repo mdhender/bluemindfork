@@ -140,6 +140,17 @@ public interface IMailboxItems
 	ItemIdentifier unexpunge(@PathParam("itemId") long itemId);
 
 	/**
+	 * Re-injects multiple items into the current folder
+	 * 
+	 * @param itemIds the item ids of deleted or deleted+expunged messages
+	 * @return
+	 */
+	@POST
+	@Path("_multipleUnexpunge")
+	List<ItemIdentifier> multipleUnexpungeById(List<Long> itemIds);
+
+
+	/**
 	 * Mark deleted items as ready for removal. Physical will removal will occur
 	 * later (cyr_expire & co)
 	 */

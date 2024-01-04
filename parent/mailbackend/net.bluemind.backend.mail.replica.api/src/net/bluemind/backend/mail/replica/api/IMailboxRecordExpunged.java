@@ -35,6 +35,10 @@ public interface IMailboxRecordExpunged extends ICountingSupport {
 	@Path("_delete")
 	public void delete(@QueryParam("id") long itemId);
 
+	@POST
+	@Path("_multipleDelete")
+	public void multipleDelete(List<Long> itemIds);
+
 	@GET
 	@Path("_fetch")
 	public List<MailboxRecordExpunged> fetch();

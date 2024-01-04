@@ -10,7 +10,7 @@ const props = defineProps({
         required: true
     }
 });
-const messages = computed(() => props.alert.payload.messages);
+const messages = computed(() => props.alert.payload.conversations);
 const isSingleMessage = computed(() => messages.value.length === 1);
 const mailbox = computed(() => {
     const { folders, mailboxes } = store.state.mail;
