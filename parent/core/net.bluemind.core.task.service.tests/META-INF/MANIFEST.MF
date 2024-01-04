@@ -10,6 +10,7 @@ Require-Bundle: net.bluemind.core.jdbc;bundle-version="1.0.0",
  net.bluemind.core.sessions;bundle-version="1.0.0",
  net.bluemind.core.task.service,
  net.bluemind.core.rest.http.vertx;bundle-version="1.0.0",
- net.bluemind.configfile
+ net.bluemind.configfile,
+ com.fasterxml.jackson.core.jackson-databind
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.core.task.service.tests
