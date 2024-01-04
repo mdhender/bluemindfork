@@ -957,7 +957,7 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		RRule rrule = new RRule();
 		rrule.frequency = RRule.Frequency.WEEKLY;
 		rrule.until = BmDateTimeHelper.time(ZonedDateTime.of(2014, 6, 4, 0, 0, 0, 0, tz));
-		List<RRule.WeekDay> weekDay = new ArrayList<RRule.WeekDay>(4);
+		List<RRule.WeekDay> weekDay = new ArrayList<>(4);
 		weekDay.add(RRule.WeekDay.mo());
 		weekDay.add(RRule.WeekDay.tu());
 		weekDay.add(RRule.WeekDay.th());
@@ -1028,7 +1028,7 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		List<VEvent> list = OccurrenceHelper.list(res, dateMin, dateMax);
 		assertEquals(5, list.size());
 
-		List<ZonedDateTime> found = new ArrayList<ZonedDateTime>(12);
+		List<ZonedDateTime> found = new ArrayList<>(12);
 		for (VEvent item : list) {
 			found.add(new BmDateTimeWrapper(item.dtstart).toDateTime());
 		}
@@ -1109,7 +1109,7 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		rrule.interval = 1;
 		event.main.rrule = rrule;
 
-		Set<BmDateTime> exdate = new HashSet<>(1);
+		Set<BmDateTime> exdate = HashSet.newHashSet(1);
 		BmDateTime exDate = BmDateTimeHelper.time(ZonedDateTime.of(2014, 6, 1, 8, 0, 0, 0, tz));
 		exdate.add(exDate);
 		event.main.exdate = exdate;
@@ -1140,7 +1140,7 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		// Every _1st_ thurday
 		RRule rrule = new RRule();
 		rrule.frequency = RRule.Frequency.MONTHLY;
-		List<RRule.WeekDay> weekDay = new ArrayList<RRule.WeekDay>(1);
+		List<RRule.WeekDay> weekDay = new ArrayList<>(1);
 		weekDay.add(new RRule.WeekDay("TH", 1));
 		rrule.byDay = weekDay;
 		rrule.interval = 1;
@@ -1158,7 +1158,7 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 				.search(query).values.get(0);
 		List<VEvent> list = OccurrenceHelper.list(res, dateMin, dateMax);
 
-		List<ZonedDateTime> found = new ArrayList<ZonedDateTime>(12);
+		List<ZonedDateTime> found = new ArrayList<>(12);
 		for (VEvent item : list) {
 			found.add(new BmDateTimeWrapper(item.dtstart).toDateTime());
 		}
@@ -1183,13 +1183,13 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		// Every _LAST_ monday
 		rrule = new RRule();
 		rrule.frequency = RRule.Frequency.MONTHLY;
-		weekDay = new ArrayList<RRule.WeekDay>(1);
+		weekDay = new ArrayList<>(1);
 		weekDay.add(new RRule.WeekDay("MO", -1));
 		rrule.byDay = weekDay;
 		rrule.interval = 1;
 		event.main.rrule = rrule;
 
-		Set<BmDateTime> exdate = new HashSet<>(1);
+		Set<BmDateTime> exdate = HashSet.newHashSet(1);
 		BmDateTime exDate = BmDateTimeHelper.time(ZonedDateTime.of(2011, 2, 28, 17, 0, 0, 0, tz));
 		exdate.add(exDate);
 		event.main.exdate = exdate;
@@ -1206,7 +1206,7 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 
 		assertEquals(23, list.size());
 
-		found = new ArrayList<ZonedDateTime>();
+		found = new ArrayList<>();
 		for (VEvent item : list) {
 			found.add(new BmDateTimeWrapper(item.dtstart).toDateTime());
 		}
@@ -1619,12 +1619,12 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		rrule.interval = 1;
 		event.main.rrule = rrule;
 
-		Set<BmDateTime> exdate = new HashSet<>(1);
+		Set<BmDateTime> exdate = HashSet.newHashSet(1);
 		BmDateTime exDate = BmDateTimeHelper.time(ZonedDateTime.of(2014, 6, 1, 8, 0, 0, 0, tz));
 		exdate.add(exDate);
 		event.main.exdate = exdate;
 
-		Set<BmDateTime> rdate = new HashSet<>(1);
+		Set<BmDateTime> rdate = HashSet.newHashSet(1);
 		BmDateTime rDate1 = BmDateTimeHelper.time(ZonedDateTime.of(2014, 6, 13, 12, 0, 0, 0, tz));
 		rdate.add(rDate1);
 
@@ -1821,7 +1821,7 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		List<VEvent> list = OccurrenceHelper.list(res, dateMin, dateMax);
 		assertEquals(5, list.size());
 
-		List<ZonedDateTime> found = new ArrayList<ZonedDateTime>(5);
+		List<ZonedDateTime> found = new ArrayList<>(5);
 		for (VEvent item : list) {
 			found.add(new BmDateTimeWrapper(item.dtstart).toDateTime());
 		}

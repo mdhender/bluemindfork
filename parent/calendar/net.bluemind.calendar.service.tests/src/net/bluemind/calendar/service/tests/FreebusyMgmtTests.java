@@ -80,7 +80,7 @@ public class FreebusyMgmtTests {
 		ContainerStore containerStore = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
 				defaultSecurityContext);
 
-		AclStore aclStore = new AclStore(JdbcTestHelper.getInstance().getDataSource());
+		AclStore aclStore = new AclStore(null, JdbcTestHelper.getInstance().getDataSource());
 
 		container = Container.create(UUID.randomUUID().toString(), IFreebusyUids.TYPE, "fb container",
 				defaultSecurityContext.getSubject(), DOMAIN, true);

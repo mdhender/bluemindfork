@@ -185,11 +185,12 @@ public class NodeClientTests extends TestCase {
 
 	private LinkedList<String> runTask(INodeClient nc, TaskRef ref) throws ServerFault {
 		TaskStatus ts = null;
-		LinkedList<String> outLines = new LinkedList<String>();
+		LinkedList<String> outLines = new LinkedList<>();
 		do {
 			try {
 				Thread.sleep(50);
 			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
 				fail("should not be interrupted");
 			}
 			ts = nc.getExecutionStatus(ref);
@@ -451,17 +452,14 @@ public class NodeClientTests extends TestCase {
 		assertTrue(fail == 0);
 	}
 
-	public void testExecParallel() throws ServerFault, IOException, InterruptedException {
+	public void testExecParallel() throws ServerFault, InterruptedException {
 		int CNT = 10;
-		EventExecutorGroup exec = new DefaultEventExecutorGroup(3);
-		final AtomicLong total = new AtomicLong();
-		final AtomicLong failed = new AtomicLong();
-		final INodeClient nc = client();
-		// Random r = new Random();
-		Runnable sleepCommand = new Runnable() {
-
-			@Override
-			public void run() {
+		try (EventExecutorGroup exec = new DefaultEventExecutorGroup(3)) {
+			final AtomicLong total = new AtomicLong();
+			final AtomicLong failed = new AtomicLong();
+			final INodeClient nc = client();
+			// Random r = new Random();
+			Runnable sleepCommand = () -> {
 				try {
 					long val = total.incrementAndGet();
 					ExitList el = NCUtils.exec(nc, "sleep " + (1 + (val % 3)));
@@ -472,16 +470,17 @@ public class NodeClientTests extends TestCase {
 					e.printStackTrace();
 					failed.incrementAndGet();
 				}
+			};
+
+			for (int i = 0; i < CNT; i++) {
+				exec.execute(sleepCommand);
+				assertEquals(0, failed.get());
 			}
-		};
-		for (int i = 0; i < CNT; i++) {
-			exec.execute(sleepCommand);
+			Future<?> down = exec.shutdownGracefully();
+			System.out.println("Waiting for threads termination... " + total.get() + "/" + CNT);
+			down.await(5, TimeUnit.MINUTES);
 			assertEquals(0, failed.get());
 		}
-		Future<?> down = exec.shutdownGracefully();
-		System.out.println("Waiting for threads termination... " + total.get() + "/" + CNT);
-		down.await(5, TimeUnit.MINUTES);
-		assertEquals(0, failed.get());
 	}
 
 	public void testWriteParallel() throws ServerFault, IOException {
@@ -516,6 +515,7 @@ public class NodeClientTests extends TestCase {
 				down = pool.awaitTermination(2, TimeUnit.SECONDS);
 				System.out.print(".");
 			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
 				System.out.print("X");
 			}
 		} while (!down);

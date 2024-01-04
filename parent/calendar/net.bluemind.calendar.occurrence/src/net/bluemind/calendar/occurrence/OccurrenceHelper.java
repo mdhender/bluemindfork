@@ -29,8 +29,6 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import com.google.common.collect.ImmutableList;
-
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
@@ -64,7 +62,7 @@ public class OccurrenceHelper {
 		}
 
 		Period period = new Period(new DateTime(start), new DateTime(end));
-		List<VEvent> ret = new LinkedList<VEvent>();
+		List<VEvent> ret = new LinkedList<>();
 		ret.addAll(getOccurrences(event, period, o -> period(o.dtstart, o.dtend)));
 		ret.sort((e1, e2) -> {
 			return new BmDateTimeWrapper(e1.dtstart).toDateTime()
@@ -138,18 +136,17 @@ public class OccurrenceHelper {
 
 	}
 
-	@SuppressWarnings("unchecked")
 	private static List<VEventOccurrence> getCalculatedOccurrences(ItemValue<VEventSeries> event, Period period,
 			Function<VEventOccurrence, Period> criterion) {
 		if (event.value.main == null) {
-			return ImmutableList.of();
+			return Collections.emptyList();
 		}
 		if (event.value.main.rrule == null) {
 			VEventOccurrence mainOccurrence = VEventOccurrence.fromEvent(event.value.main, event.value.main.dtstart);
 			if (period.intersects(criterion.apply(mainOccurrence))) {
-				return ImmutableList.of(mainOccurrence);
+				return List.of(mainOccurrence);
 			}
-			return ImmutableList.of();
+			return Collections.emptyList();
 		}
 
 		PeriodList periods = calculatedSeriesOccurrences(event, period);

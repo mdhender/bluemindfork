@@ -110,13 +110,14 @@ public class ContainerUserStoreService extends DirValueStoreService<User> {
 
 	@Override
 	protected void deleteValue(Item item) throws ServerFault, SQLException {
-		roleStore.set(item, new HashSet<String>());
+		roleStore.set(item, new HashSet<>());
 		identityStore.delete(item);
 		userSettingsStore.delete(item);
 		userSubscriptionStore.unsubscribeAll(item.uid);
 		super.deleteValue(item);
 	}
 
+	@Override
 	protected void deleteValues() throws ServerFault {
 		throw new ServerFault("Should not be called !");
 	}

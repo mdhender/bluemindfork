@@ -94,7 +94,6 @@ import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
-import net.bluemind.user.api.UserHelper;
 import net.bluemind.user.persistence.UserStore;
 
 public class GroupServiceTests {
@@ -1288,8 +1287,7 @@ public class GroupServiceTests {
 		ItemValue<Group> group = createGroup();
 
 		String fakeDomainUid = System.nanoTime() + ".lan";
-		Container otherUserContainer = Container.create(UserHelper.getContainerUid(fakeDomainUid), "users",
-				"Other users container", "me", true);
+		Container otherUserContainer = Container.create(fakeDomainUid, "users", "Other users container", "me", true);
 		otherUserContainer = containerHome.create(otherUserContainer);
 
 		UserStore userStore = new UserStore(JdbcTestHelper.getInstance().getDataSource(), otherUserContainer);

@@ -66,7 +66,7 @@ public class PerOwnerMailboxEventProducer extends AbstractVerticle {
 			return null;
 		}, false));
 		eb.consumer(ReplicationEvents.HIER_UPD_ADDR, (Message<JsonObject> msg) -> vertx.executeBlocking(() -> {
-			if (!msg.body().getBoolean("minor")) {
+			if (Boolean.FALSE.equals(msg.body().getBoolean("minor"))) {
 				String owner = msg.body().getString("owner");
 				JsonObject ownerEvent = createHierarchyEvent(msg, owner);
 				eb.publish(ADDRESS_PREFIX + owner + ADDRESS_SUFFIX, ownerEvent);

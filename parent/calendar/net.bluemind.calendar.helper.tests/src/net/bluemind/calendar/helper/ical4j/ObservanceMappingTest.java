@@ -23,6 +23,7 @@ import static org.junit.Assert.assertEquals;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -48,7 +49,7 @@ public class ObservanceMappingTest {
 	@Test
 	public void testVtimezoneParsing() throws Exception {
 		try (Reader reader = new InputStreamReader(
-				ObservanceMappingTest.class.getClassLoader().getResourceAsStream("vtz.ics"), "utf-8")) {
+				ObservanceMappingTest.class.getClassLoader().getResourceAsStream("vtz.ics"), StandardCharsets.UTF_8)) {
 			List<CalendarComponent> calendarComponents = fromICS(reader);
 			ObservanceMapper mapper = ObservanceMapper.fromCalendarComponents(calendarComponents);
 			Map<String, String> timezoneMapping = mapper.getTimezoneMapping();
@@ -64,7 +65,8 @@ public class ObservanceMappingTest {
 	@Test
 	public void testVtimezoneParsingMexico() throws Exception {
 		try (Reader reader = new InputStreamReader(
-				ObservanceMappingTest.class.getClassLoader().getResourceAsStream("mexico.vtz.ics"), "utf-8")) {
+				ObservanceMappingTest.class.getClassLoader().getResourceAsStream("mexico.vtz.ics"),
+				StandardCharsets.UTF_8)) {
 			List<CalendarComponent> calendarComponents = fromICS(reader);
 			ObservanceMapper mapper = ObservanceMapper.fromCalendarComponents(calendarComponents);
 			Map<String, String> timezoneMapping = mapper.getTimezoneMapping();
@@ -83,7 +85,6 @@ public class ObservanceMappingTest {
 		Calendar calendar = builder.build(ur);
 		ComponentList<CalendarComponent> clist = calendar.getComponents();
 
-		@SuppressWarnings("unchecked")
 		Iterator<CalendarComponent> it = clist.iterator();
 		List<CalendarComponent> calendarComponents = new LinkedList<>();
 		while (it.hasNext()) {

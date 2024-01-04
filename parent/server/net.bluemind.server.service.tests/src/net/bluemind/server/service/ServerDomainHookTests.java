@@ -95,7 +95,7 @@ public class ServerDomainHookTests {
 
 		itemStore = new ItemStore(JdbcTestHelper.getInstance().getDataSource(), installation, defaultSecurityContext);
 		serverStore = new ServerStore(JdbcTestHelper.getInstance().getDataSource(), installation);
-		AclStore aclStore = new AclStore(JdbcTestHelper.getInstance().getDataSource());
+		AclStore aclStore = new AclStore(null, JdbcTestHelper.getInstance().getDataSource());
 		aclStore.store(installation,
 				Arrays.asList(AccessControlEntry.create(defaultSecurityContext.getSubject(), Verb.All)));
 		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);

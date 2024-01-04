@@ -95,7 +95,7 @@ public class DocumentServiceTests {
 		itemStore.create(item);
 		item = itemStore.get("test");
 
-		AclStore aclStore = new AclStore(JdbcTestHelper.getInstance().getDataSource());
+		AclStore aclStore = new AclStore(null, JdbcTestHelper.getInstance().getDataSource());
 		aclStore.store(container, Arrays.asList(AccessControlEntry.create(context.getSubject(), Verb.All)));
 
 	}

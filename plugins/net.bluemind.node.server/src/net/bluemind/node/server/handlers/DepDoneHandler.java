@@ -40,7 +40,7 @@ public class DepDoneHandler implements Handler<AsyncResult<String>> {
 			logger.error(cause.getMessage(), cause);
 		}
 		id = ar.result();
-		logger.info("Deployement done with id: " + id);
+		logger.info("Deployement done with id: {} ", id);
 		cdl.countDown();
 	}
 

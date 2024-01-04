@@ -33,23 +33,22 @@ public class AbstractContainerEventBusAccessRule implements IEventBusAccessRule 
 	private String baseAddress;
 	private static final Logger logger = LoggerFactory.getLogger(AbstractContainerEventBusAccessRule.class);
 
+	private static final String ENDSWITH = ".changed";
+	private static final int ENDSWITH_LEN = ENDSWITH.length();
+
 	public AbstractContainerEventBusAccessRule(String baseAddress) {
 		this.baseAddress = baseAddress;
 	}
 
 	@Override
 	public boolean match(String path) {
-		if (path.startsWith(baseAddress) && path.endsWith(".changed")) {
-			return true;
-		} else {
-			return false;
-		}
+		return path.startsWith(baseAddress) && path.endsWith(ENDSWITH);
 	}
 
 	@Override
 	public boolean authorize(BmContext context, String path) {
 		String uid = path.substring(baseAddress.length() + 1);
-		uid = uid.substring(0, uid.length() - ".changed".length());
+		uid = uid.substring(0, uid.length() - ENDSWITH_LEN);
 		try {
 			return new RBACManager(context).forContainer(uid).can(Verb.Read.name());
 		} catch (ServerFault e) {

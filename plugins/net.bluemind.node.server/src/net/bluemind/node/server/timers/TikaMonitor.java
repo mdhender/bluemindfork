@@ -50,6 +50,7 @@ public final class TikaMonitor implements Handler<Long> {
 					logger.info("Tika was restarted by {} (code: {})", f.getAbsolutePath(), exit);
 				}
 			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
 				logger.error("cmd: " + f.getAbsolutePath() + ", interrupted");
 			}
 		}

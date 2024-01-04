@@ -57,6 +57,7 @@ public class SystemHelper {
 		try {
 			exit = pid.waitFor();
 		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 			logger.error("cmd: " + cmd + ", interrupted");
 		}
 

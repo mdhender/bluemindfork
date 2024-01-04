@@ -81,7 +81,7 @@ public class DocumentFolderServiceTests {
 		container = containerStore.create(container);
 		container = containerStore.get(containerId);
 
-		AclStore aclStore = new AclStore(JdbcTestHelper.getInstance().getDataSource());
+		AclStore aclStore = new AclStore(null, JdbcTestHelper.getInstance().getDataSource());
 		aclStore.store(container, Arrays.asList(AccessControlEntry.create(context.getSubject(), Verb.All)));
 	}
 

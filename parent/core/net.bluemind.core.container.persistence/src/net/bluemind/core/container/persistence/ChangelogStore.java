@@ -18,8 +18,6 @@
  */
 package net.bluemind.core.container.persistence;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
@@ -49,30 +47,7 @@ public class ChangelogStore extends JdbcAbstractStore {
 
 	private final Container container;
 
-	private class ChangelogStatementValues implements StatementValues<LogEntry> {
-
-		private byte type;
-
-		public ChangelogStatementValues(byte type) {
-			this.type = type;
-		}
-
-		@Override
-		public int setValues(Connection con, PreparedStatement statement, int index, int currentRow, LogEntry value)
-				throws SQLException {
-			statement.setLong(index++, value.version);
-			statement.setLong(index++, container.id);
-			statement.setString(index++, value.itemUid);
-			statement.setByte(index++, type);
-			statement.setLong(index++, value.internalId);
-			statement.setLong(index++, value.weightSeed);
-			return index;
-		}
-
-	}
-
 	private class ChangelogEntryPopulator implements EntityPopulator<ChangeLogEntry> {
-
 		@Override
 		public int populate(ResultSet rs, int index, ChangeLogEntry value) throws SQLException {
 			value.version = rs.getLong(index++);
@@ -89,7 +64,6 @@ public class ChangelogStore extends JdbcAbstractStore {
 	}
 
 	private class LightChangelogEntryPopulator implements EntityPopulator<ChangeLogEntry> {
-
 		@Override
 		public int populate(ResultSet rs, int index, ChangeLogEntry value) throws SQLException {
 			value.version = rs.getLong(index++);
@@ -99,11 +73,9 @@ public class ChangelogStore extends JdbcAbstractStore {
 			value.weightSeed = rs.getLong(index++);
 			return index;
 		}
-
 	}
 
 	private class FlaggedChangelogEntryPopulator implements EntityPopulator<FlaggedChangeLogEntry> {
-
 		@Override
 		public int populate(ResultSet rs, int index, FlaggedChangeLogEntry value) throws SQLException {
 			value.version = rs.getLong(index++);
@@ -114,7 +86,6 @@ public class ChangelogStore extends JdbcAbstractStore {
 			value.weightSeed = rs.getLong(index++);
 			return index;
 		}
-
 	}
 
 	public ChangelogStore(DataSource pool, Container container) {

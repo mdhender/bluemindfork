@@ -197,15 +197,15 @@ public abstract class AbstractServiceTests {
 		ContainerStore containerHome = new ContainerStore(defaultContext, dataDataSource, defaultSecurityContext);
 
 		String containerId = "test_" + System.nanoTime();
-		Container container = Container.create(containerId, INoteUids.TYPE, "test", owner, domainUid);
-		container = containerHome.create(container);
-		assertNotNull(container);
+		Container tcontainer = Container.create(containerId, INoteUids.TYPE, "test", owner, domainUid);
+		tcontainer = containerHome.create(tcontainer);
+		assertNotNull(tcontainer);
 
 		containerHome = new ContainerStore(new BmTestContext(defaultSecurityContext),
 				JdbcActivator.getInstance().getDataSource(), defaultSecurityContext);
-		containerHome.createOrUpdateContainerLocation(container, datalocation);
+		containerHome.createOrUpdateContainerLocation(tcontainer, datalocation);
 
-		return container;
+		return tcontainer;
 	}
 
 	@After
@@ -221,7 +221,7 @@ public abstract class AbstractServiceTests {
 	protected abstract INotes getServiceNotes(SecurityContext context) throws ServerFault;
 
 	protected VNote defaultVNote() {
-		List<TagRef> categories = new ArrayList<TagRef>(1);
+		List<TagRef> categories = new ArrayList<>(1);
 		categories.add(tagRef1);
 		categories.add(tagRef2);
 

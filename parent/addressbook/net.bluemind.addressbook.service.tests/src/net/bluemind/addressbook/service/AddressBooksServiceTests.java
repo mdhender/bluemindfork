@@ -71,7 +71,7 @@ public class AddressBooksServiceTests extends AbstractServiceTests {
 
 		container2 = createTestContainer(owner);
 		container3 = createTestContainer(owner);
-		AclStore aclStore = new AclStore(JdbcTestHelper.getInstance().getDataSource());
+		AclStore aclStore = new AclStore(null, JdbcTestHelper.getInstance().getDataSource());
 		aclStore.store(container2,
 				Arrays.asList(AccessControlEntry.create(defaultSecurityContext.getSubject(), Verb.All)));
 

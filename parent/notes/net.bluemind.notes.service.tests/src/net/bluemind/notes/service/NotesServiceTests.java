@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -82,7 +81,7 @@ public class NotesServiceTests extends AbstractServiceTests {
 		ContainerStore dirContainerStore = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
 				securityContext);
 
-		aclStore = new AclStore(JdbcTestHelper.getInstance().getMailboxDataDataSource());
+		aclStore = new AclStore(null, JdbcTestHelper.getInstance().getMailboxDataDataSource());
 
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
@@ -100,11 +99,6 @@ public class NotesServiceTests extends AbstractServiceTests {
 		userSubscriptionStore = new UserSubscriptionStore(securityContext, JdbcTestHelper.getInstance().getDataSource(),
 				dirContainerStore.get("bm.lan"));
 
-	}
-
-	@After
-	public void after() throws Exception {
-		JdbcTestHelper.getInstance().afterTest();
 	}
 
 	@Test
