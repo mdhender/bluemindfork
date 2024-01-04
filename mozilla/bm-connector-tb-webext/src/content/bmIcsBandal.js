@@ -51,10 +51,15 @@ var gBMIcsBandal = {
     changeBandalLinksOnclick: function(aState) {
         let win = getWindow();
         let part = win.document.getElementById("bm-ics-bandal-participation");
-        if (this._otherUserLogin != null) {
-            part.setAttribute("value", bmUtils.getLocalizedString("icsbandal.participationOf") + " " + this._otherUserDisplayName);
+        let ofDisplayName = win.document.getElementById("bm-ics-bandal-participation-of");
+        if (this._otherUserDisplayName != null) {
+            part.setAttribute("value", bmUtils.getLocalizedString("icsbandal.participationOf"));
+            ofDisplayName.setAttribute("value", this._otherUserDisplayName);
+            ofDisplayName.setAttribute("hidden", "false");
         } else {
             part.setAttribute("value", bmUtils.getLocalizedString("icsbandal.participation"));
+            ofDisplayName.setAttribute("value", "");
+            ofDisplayName.setAttribute("hidden", "true");
         }
         let accept = win.document.getElementById("bm-ics-bandal-accept");
         let tentat = win.document.getElementById("bm-ics-bandal-tentative");
@@ -92,12 +97,10 @@ var gBMIcsBandal = {
     },
     onStartHeaders: function() {
         gBMIcsBandal.hideBandal();
+        this._containerUid = null;
         this._ressourceId = null;
-        this._attendeeType = null;
         this._attendeeDir = null;
-        this._otherUserLogin = null;
         this._otherUserDisplayName = null;
-        this._otherUserId = null;
         this._eventItemUids = [];
         this._bandalKind = null;
         this._clearPartBandal();
@@ -149,7 +152,6 @@ var gBMIcsBandal = {
         if (!f) return;
         gBMIcsBandal._logger.debug("f.URI:" + f.URI);
         let imapFolder = null;
-        let otherLogin = null;
         try {
             imapFolder = f.QueryInterface(Components.interfaces.nsIMsgImapMailFolder);
         } catch(e) {
@@ -160,17 +162,10 @@ var gBMIcsBandal = {
         }
         gBMIcsBandal._checkInBmMailAccount(imapFolder);
 
-        let folderPart = "\"" + f.URI.split("/")[3] + "/\"";
-        let inComServer = imapFolder.imapIncomingServer;
-        if (folderPart == inComServer.publicNamespace) {
-            gBMIcsBandal._logger.debug("in a shared public folder -> do not display ics bandal");
+        let tags = dispMessage.getStringProperty("keywords") || "";
+        if (tags.indexOf("bmeventreadonly") != -1) {
+            gBMIcsBandal._logger.info("readonly meeting request managed by a delegate");
             return;
-        } else {
-            if (folderPart == inComServer.otherUsersNamespace) {
-                //imap://nico%40test.lan@edge.test.lan/Autres%20utilisateurs/mehdi
-                otherLogin = f.folderURL.split("/")[4];
-                gBMIcsBandal._logger.debug("in a shared folder of user: " + otherLogin);
-            }
         }
 
         MsgHdrToMimeMessage(dispMessage, null, function(aMsgHdr, aMimeMsg) {
@@ -179,10 +174,12 @@ var gBMIcsBandal = {
                 let cancel = aMimeMsg.headers["x-bm-event-canceled"];
                 let resourceId = aMimeMsg.headers["x-bm-resourcebooking"];
                 let counter = aMimeMsg.headers["x-bm-event-countered"];
+                let calendarUid = aMimeMsg.headers["x-bm-calendar"];
                 gBMIcsBandal._logger.debug("x-bm-event:" + uids);
                 gBMIcsBandal._logger.debug("x-bm-event-canceled:" + cancel);
                 gBMIcsBandal._logger.debug("x-bm-resourcebooking:" + resourceId);
                 gBMIcsBandal._logger.debug("x-bm-event-countered:" + counter);
+                gBMIcsBandal._logger.debug("x-bm-calendar:" + calendarUid);
                 if (uids || cancel || resourceId || counter) {
                     gBMIcsBandal._hideLightingImipBar();
                 }
@@ -191,7 +188,7 @@ var gBMIcsBandal = {
                     if (gBMIcsBandal._events.length > 0) {
                         let msg = {};
                         msg.bmResourceId = resourceId;
-                        msg.bmOtherLogin = otherLogin;
+                        msg.bmCalendar = calendarUid;
                         msg.bmBandalKind = "PART";
                         gBMIcsBandal.onBmIcsMail(msg);
                     }
@@ -200,7 +197,7 @@ var gBMIcsBandal = {
                     if (gBMIcsBandal._events.length > 0) {
                         let msg = {};
                         msg.bmResourceId = resourceId;
-                        msg.bmOtherLogin = otherLogin;
+                        msg.bmCalendar = calendarUid;
                         msg.bmBandalKind = "COUNTER";
                         gBMIcsBandal.onBmIcsMail(msg);
                     }
@@ -298,12 +295,10 @@ var gBMIcsBandal = {
         if (bmUtils.getSettings(this._login, this._pwd, this._srv, false)) {
             let self = this;
             self._auth().then(function() {
-                if (msg.bmOtherLogin != null) {
-                    self._otherUserLogin = msg.bmOtherLogin;
-                    return self._getOtherUser(msg.bmOtherLogin);
-                } else {
-                    return;
+                if (msg.bmCalendar && self._containerUid != msg.bmCalendar) {
+                    return self._getOtherCalendar(msg.bmCalendar);
                 }
+                return;
             }).then(function() {
                 return self._getSeriesAndEvent(self._events[0]);
             }).then(function(seriesAndEvent) {
@@ -348,23 +343,24 @@ var gBMIcsBandal = {
     _srv: {},
     _authKey: null,
     _user: null,
-    _userUid: null,
     _containerUid: null,
+    _ressourceId: null,
+    _attendeeDir: null,
     _auth: function() {
         let auth = BMAuthService.login(this._srv.value, this._login.value, this._pwd.value);
         let self = this;
         return auth.then(function(logged) {
             self._authKey = logged.authKey;
             self._user = logged.authUser;
-            if (!self._userUid) {
-                self._userUid = logged.authUser.uid;
-            }
-            if (self._ressourceId) {
-                self._containerUid = "calendar:" + self._ressourceId;
-                self._attendeeDir = "bm://" + self._user.domainUid + "/resources/" + self._ressourceId;
-            } else {
-                self._containerUid = "calendar:Default:" + self._userUid;
-                self._attendeeDir = "bm://" + self._user.domainUid + "/users/" + self._userUid;
+            if (!self._containerUid) {
+                //init for logged user, will be overwritten if for another user
+                if (self._ressourceId) {
+                    self._containerUid = "calendar:" + self._ressourceId;
+                    self._attendeeDir = "bm://" + self._user.domainUid + "/resources/" + self._ressourceId;
+                } else {
+                    self._containerUid = "calendar:Default:" + logged.authUser.uid;
+                    self._attendeeDir = "bm://" + self._user.domainUid + "/users/" + logged.authUser.uid;
+                }
             }
             return Promise.resolve();
         });
@@ -456,49 +452,32 @@ var gBMIcsBandal = {
         let bandal = win.document.getElementById("bm-ics-bandal");
         bandal.collapsed = false;
     },
-    _getOtherUser: function(aLogin) {
-        let dir = new DirectoryClient(this._srv.value, this._authKey, this._user.domainUid);
+    _getOtherCalendar: function(aCalendarUid) {
+        let cc = new ContainersClient(this._srv.value, this._authKey);
         let self = this;
-        let email = aLogin + "@" + this._user.domainUid;
-        let res = dir.getByEmail(email);
-        let dirEntry;
-        return res.then(function(aDirEntry) {
-            if (!aDirEntry || aDirEntry.kind != "USER") {
-                self._logger.debug("user: " + email + " not found");
-                return Promise.reject();
-            } else {
-                return aDirEntry;
-            }
-        }).then(function(aDirEntry) {
-            dirEntry = aDirEntry; 
-            self._userUid = dirEntry.entryUid;
-            let cc = new ContainersClient(self._srv.value, self._authKey);
-            return cc.all({type: "calendar"});
-        }).then(function(calendars) {
-            let otherCal = null;
-            for (let c of calendars) {
-                if (c.defaultContainer && c.owner == self._userUid) {
-                    otherCal = c;
-                }
-            }
+        let res =  cc.get(aCalendarUid);
+        return res.then(function(otherCal) {
             if (otherCal == null) {
-                self._logger.info("no readable calendar found for user: " + aLogin);
+                self._logger.info("other calendar[" + aCalendarUid + "] not found or not readable");
                 return Promise.reject();
             } else {
                 if (!otherCal.writable) {
                     let win = getWindow();
-                    self._logger.info("calendar is not writable: " + aLogin);
+                    self._logger.info("other calendar[" + aCalendarUid + "] is not writable");
                     let partRow = win.document.getElementById("bm-ics-bandal-partRow");
                     partRow.setAttribute("hidden" , "true");
                     let counterRow = win.document.getElementById("bm-counter-bandal-decisionRow");
                     counterRow.setAttribute("hidden" , "true");
                 }
-                self._otherUserDisplayName = dirEntry.displayName;
-                self._userUid = dirEntry.entryUid;
-                self._containerUid = otherCal.uid;
-                self._attendeeDir = "bm://" + dirEntry.path;
-                return Promise.resolve();
-            } 
+            }
+            let dir = new DirectoryClient(self._srv.value, self._authKey, self._user.domainUid);
+            return dir.findByEntryUid(otherCal.owner);
+        }).then(function(dirEntry) {
+            self._otherUserDisplayName = dirEntry.displayName;
+            self._userUid = dirEntry.entryUid;
+            self._containerUid = aCalendarUid;
+            self._attendeeDir = "bm://" + dirEntry.path;
+            return Promise.resolve();
         });
     },
     _fillPartBandal: function(aEvent) {
@@ -625,7 +604,7 @@ var gBMIcsBandal = {
         proposed.setAttribute("value", this._dateString(counter.counter.dtstart, counter.counter.dtend));
 
         let decision = win.document.getElementById("bm-counter-bandal-decision");
-        if (this._otherUserLogin != null) {
+        if (this._otherUserDisplayName != null) {
             decision.setAttribute("value", bmUtils.getLocalizedString("counterbandal.acceptFor") + " " + this._otherUserDisplayName);
         } else {
             decision.setAttribute("value", bmUtils.getLocalizedString("counterbandal.accept"));

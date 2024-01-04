@@ -238,6 +238,7 @@ function onLoad(activatedWhileWindowOpen) {
                     </div>
                     <div id="bm-counter-bandal-decisionRow">
                         <label id="bm-counter-bandal-decision" value=""/>
+                        <label id="bm-ics-bandal-participation-of" value="" hidden="true" class="highlight"/>
                     </div>
                     <div>
                         <hbox>
@@ -306,6 +307,7 @@ function msgsListener () {
                 </div>
                 <div id="bm-ics-bandal-partRow">
                     <label id="bm-ics-bandal-participation" value=""/>
+                    <label id="bm-ics-bandal-participation-of" value="" hidden="true" class="highlight"/>
                 </div>
                 <div>
                     <hbox>
