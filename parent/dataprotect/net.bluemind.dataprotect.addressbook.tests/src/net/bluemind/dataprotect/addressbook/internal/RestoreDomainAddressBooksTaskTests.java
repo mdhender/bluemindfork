@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
@@ -35,7 +36,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
 import net.bluemind.addressbook.api.AddressBookDescriptor;
@@ -124,13 +124,12 @@ public class RestoreDomainAddressBooksTaskTests {
 		testContext = new BmTestContext(SecurityContext.SYSTEM);
 
 		PopulateHelper.addUser(login, domain, Routing.internal);
-		testContext.provider().instance(ISystemConfiguration.class)
-				.updateMutableValues(ImmutableMap.of("db_version", "3.1.0"));
+		testContext.provider().instance(ISystemConfiguration.class).updateMutableValues(Map.of("db_version", "3.1.0"));
 	}
 
 	private List<String> getTagsExcept(String... except) {
 		// tag & assign host for everything
-		List<String> tags = new LinkedList<String>();
+		List<String> tags = new LinkedList<>();
 
 		IDomainTemplate dt = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IDomainTemplate.class);
@@ -162,8 +161,8 @@ public class RestoreDomainAddressBooksTaskTests {
 			p.waitFor(10, TimeUnit.SECONDS);
 		}
 
-		Process p = Runtime.getRuntime()
-				.exec("sudo chown -R " + System.getProperty("user.name") + " /var/spool/bm-hollowed");
+		Process p = Runtime.getRuntime().exec(new String[] { "sudo", "chown", "-R", System.getProperty("user.name"),
+				":", System.getProperty("user.name"), "/var/spool/bm-hollowed" });
 		p.waitFor(10, TimeUnit.SECONDS);
 	}
 

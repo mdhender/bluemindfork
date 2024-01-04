@@ -114,12 +114,12 @@ public class ImapRateLimitCommand implements ICmdLet, Runnable {
 	}
 
 	private void reloadBmCoreService() {
-		String reloadCommand = "systemctl reload bm-core";
+		String[] reloadCommand = { "systemctl", "reload", "bm-core" };
 		try {
 			Process process = Runtime.getRuntime().exec(reloadCommand);
 			int exitVal = process.waitFor();
 			if (exitVal == 0) {
-				ctx.info("'{}': success", reloadCommand);
+				ctx.info("'{}': success", List.of(reloadCommand).stream().collect(Collectors.joining(" ")));
 			} else {
 				String errorOutput = process.errorReader().lines().collect(Collectors.joining("\n"));
 				ctx.error("'{}': failed with message '{}'", reloadCommand, errorOutput);

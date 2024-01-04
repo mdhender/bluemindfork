@@ -185,8 +185,8 @@ public class DPServiceTests {
 			p.waitFor(10, TimeUnit.SECONDS);
 		}
 
-		Process p = Runtime.getRuntime()
-				.exec("sudo chown -R " + System.getProperty("user.name") + " /var/spool/bm-hollowed");
+		Process p = Runtime.getRuntime().exec(
+				new String[] { "sudo", "chown", "-R", System.getProperty("user.name"), "/var/spool/bm-hollowed" });
 		p.waitFor(10, TimeUnit.SECONDS);
 	}
 
@@ -367,7 +367,7 @@ public class DPServiceTests {
 		assertEquals(expectedDomains.length, content.domains.size());
 		Set<String> wantedDomains = Sets.newHashSet(expectedDomains);
 		assertTrue("All expected domains " + wantedDomains + " are not in " + content.domains,
-				content.domains.stream().map(iv -> iv.uid).allMatch(uid -> wantedDomains.contains(uid)));
+				content.domains.stream().map(iv -> iv.uid).allMatch(wantedDomains::contains));
 		assertNotNull(content.entries);
 		for (ItemValue<DirEntry> deItem : content.entries) {
 			DirEntry de = deItem.value;
@@ -450,8 +450,8 @@ public class DPServiceTests {
 	protected void makeBackupFilesReadable() {
 		if (!RUN_AS_ROOT) {
 			try {
-				Process p = Runtime.getRuntime()
-						.exec("sudo chown -R " + System.getProperty("user.name") + " /var/backups/bluemind");
+				Process p = Runtime.getRuntime().exec(new String[] { "sudo", "chown", "-R",
+						System.getProperty("user.name"), "/var/backups/bluemind" });
 				p.waitFor(10, TimeUnit.SECONDS);
 			} catch (IOException | InterruptedException e) {
 				e.printStackTrace(System.err);

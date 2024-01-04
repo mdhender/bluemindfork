@@ -167,8 +167,8 @@ public class RestoreNotesTaskTests {
 			p.waitFor(10, TimeUnit.SECONDS);
 		}
 
-		Process p = Runtime.getRuntime()
-				.exec("sudo chown -R " + System.getProperty("user.name") + " /var/spool/bm-hollowed");
+		Process p = Runtime.getRuntime().exec(new String[] { "sudo", "chown", "-R", System.getProperty("user.name"),
+				":", System.getProperty("user.name"), "/var/spool/bm-hollowed" });
 		p.waitFor(10, TimeUnit.SECONDS);
 	}
 

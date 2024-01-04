@@ -56,13 +56,16 @@ public class YSNPDaemon implements IApplication {
 
 		VertxPlatform.spawnBlocking(1, TimeUnit.MINUTES);
 
-		Process p = Runtime.getRuntime().exec("chmod 777 " + YSNPConfiguration.INSTANCE.getSocketPath());
+		Process p = Runtime.getRuntime()
+				.exec(new String[] { "chmod", "777", YSNPConfiguration.INSTANCE.getSocketPath() });
 		p.waitFor();
 
-		p = Runtime.getRuntime().exec("chmod 777 " + YSNPConfiguration.INSTANCE.getExpireOkSocketPath());
+		p = Runtime.getRuntime()
+				.exec(new String[] { "chmod", "777", YSNPConfiguration.INSTANCE.getExpireOkSocketPath() });
 		p.waitFor();
 
-		p = Runtime.getRuntime().exec("chmod 777 " + YSNPConfiguration.INSTANCE.getArchivedOkSocketPath());
+		p = Runtime.getRuntime()
+				.exec(new String[] { "chmod", "777", YSNPConfiguration.INSTANCE.getArchivedOkSocketPath() });
 		p.waitFor();
 
 		Startup.notifyReady();

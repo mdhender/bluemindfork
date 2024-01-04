@@ -143,8 +143,8 @@ public class ServersToBackup {
 					}
 				} else {
 					// TEST MODE ONLY
-					Process p = Runtime.getRuntime()
-							.exec("sudo chown -R " + System.getProperty("user.name") + " /var/backups/bluemind");
+					Process p = Runtime.getRuntime().exec(new String[] { "sudo", "chown", "-R",
+							System.getProperty("user.name"), "/var/backups/bluemind" });
 					p.waitFor(10, TimeUnit.SECONDS);
 
 				}

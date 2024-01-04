@@ -66,7 +66,7 @@ public class YSNPConfiguration {
 	private void initSaslauthdSocketDir() throws IOException, InterruptedException {
 		File runDir = new File("/var/run/saslauthd");
 		if (runDir.isDirectory()) {
-			Process p = Runtime.getRuntime().exec("/bin/rm -rf " + runDir.getPath());
+			Process p = Runtime.getRuntime().exec(new String[] { "rm", "-rf", runDir.getPath() });
 			try {
 				p.waitFor();
 			} catch (InterruptedException e) {
@@ -77,20 +77,21 @@ public class YSNPConfiguration {
 
 		File postfixChrootDir = new File("/var/spool/postfix/var/run/saslauthd");
 		try {
-			Process p = Runtime.getRuntime().exec("/bin/rm -rf " + postfixChrootDir.getPath());
+			Process p = Runtime.getRuntime().exec(new String[] { "rm", "-rf", postfixChrootDir.getPath() });
 			p.waitFor();
 
 			postfixChrootDir.mkdirs();
 
 			// no sasl group on redhat...
-			p = Runtime.getRuntime().exec("chown root:sasl " + postfixChrootDir.getPath());
+			p = Runtime.getRuntime().exec(new String[] { "chown", "root:sasl", postfixChrootDir.getPath() });
 			p.waitFor();
 
-			p = Runtime.getRuntime().exec("chmod u+r+w+x,g-r-w+x,o-r-w-x " + postfixChrootDir.getPath());
+			p = Runtime.getRuntime()
+					.exec(new String[] { "chmod", "u+r+w+x,g-r-w+x,o-r-w-x", postfixChrootDir.getPath() });
 			p.waitFor();
 
 			// should fix redhat cyrus login
-			p = Runtime.getRuntime().exec("chmod a+x " + postfixChrootDir.getPath());
+			p = Runtime.getRuntime().exec(new String[] { "chmod", "a+x", postfixChrootDir.getPath() });
 			p.waitFor();
 		} catch (InterruptedException e) {
 			logger.warn("Unable to configure: {}", postfixChrootDir.getPath());
@@ -98,10 +99,11 @@ public class YSNPConfiguration {
 		}
 
 		try {
-			Process p = Runtime.getRuntime().exec("/bin/ln -s " + postfixChrootDir.getPath() + " " + runDir.getPath());
+			Process p = Runtime.getRuntime()
+					.exec(new String[] { "ln", "-s", postfixChrootDir.getPath(), runDir.getPath() });
 			p.waitFor();
 		} catch (InterruptedException e) {
-			logger.warn("Unable to create: " + runDir.getPath() + " link to directory: " + postfixChrootDir.getPath());
+			logger.warn("Unable to create: {} link to directory: {}", runDir.getPath(), postfixChrootDir.getPath());
 			throw e;
 		}
 	}

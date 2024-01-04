@@ -161,8 +161,8 @@ public class RestoreWebAppDataTaskTests {
 			p.waitFor(10, TimeUnit.SECONDS);
 		}
 
-		Process p = Runtime.getRuntime()
-				.exec("sudo chown -R " + System.getProperty("user.name") + " /var/spool/bm-hollowed");
+		Process p = Runtime.getRuntime().exec(new String[] { "sudo", "chown", "-R", System.getProperty("user.name"),
+				":", System.getProperty("user.name"), "/var/spool/bm-hollowed" });
 		p.waitFor(10, TimeUnit.SECONDS);
 	}
 
@@ -227,8 +227,8 @@ public class RestoreWebAppDataTaskTests {
 	protected void makeBackupFilesReadable() {
 		if (!RUN_AS_ROOT) {
 			try {
-				Process p = Runtime.getRuntime()
-						.exec("sudo chown -R " + System.getProperty("user.name") + " /var/backups/bluemind");
+				Process p = Runtime.getRuntime().exec(
+						new String[] { "sudo", "chown -R", System.getProperty("user.name"), "/var/backups/bluemind" });
 				p.waitFor(10, TimeUnit.SECONDS);
 			} catch (IOException | InterruptedException e) {
 				e.printStackTrace(System.err);
