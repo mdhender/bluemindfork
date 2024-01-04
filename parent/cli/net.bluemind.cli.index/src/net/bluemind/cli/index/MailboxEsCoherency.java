@@ -207,10 +207,10 @@ public class MailboxEsCoherency extends SingleOrDomainOperation {
 							incoherency.dbCount());
 				});
 				report.missingInDb().forEach(incoherency -> {
-					ctx.warn("[{}] - {}: es={}, db=not found", incoherency.uid(), incoherency.esCount());
+					ctx.warn("[{}] - {}: es={}, db=not found", displayName, incoherency.uid(), incoherency.esCount());
 				});
 				report.missingInEs().forEach(incoherency -> {
-					ctx.warn("[{}] - {} ({}): es=not found, db={}", incoherency.uid(),
+					ctx.warn("[{}] - {} ({}): es=not found, db={}", displayName, incoherency.uid(),
 							report.mailboxesByUid().get(incoherency.uid()).value.fullName, incoherency.dbCount());
 				});
 			}
@@ -254,7 +254,7 @@ public class MailboxEsCoherency extends SingleOrDomainOperation {
 							? ItemFlagFilter.all() //
 							: ItemFlagFilter.create().mustNot(ItemFlag.Deleted);
 					Count dbCount = mailboxRecordsApi.count(filter);
-					double allowedDiscrepency = dbCount.total * delta / 100.0;
+					double allowedDiscrepency = Math.ceil(dbCount.total * delta / 100.0);
 					boolean incohenrecy = folderCount.count() < dbCount.total - allowedDiscrepency
 							|| folderCount.count() > dbCount.total + allowedDiscrepency;
 					if (incohenrecy && (dbCount.total > folderCount.count() || reportEsOversized)) {

@@ -163,10 +163,10 @@ public class BoxIndexing {
 		List<Long> created = ((ISortingSupport) mbItems).sortedIds(sortDescriptor);
 
 		logger.info("Folder {}:{} containers {} created elements", folder.uid, folder.value.name, created.size());
-		if (created.isEmpty()) {
-			deleteRemainingOrphans(esClient, mailbox.uid, folder.uid);
-			return;
-		}
+
+		logger.info("Folder {}:{} deleting remaining orphans if any", folder.uid, folder.value.name);
+		deleteRemainingOrphans(esClient, mailbox.uid, folder.uid);
+
 		monitor.begin(created.size(), "Syncing " + created.size() + " message(s) in " + folder.value.name);
 
 		List<List<Long>> partitioned = Lists.partition(created, 50);
