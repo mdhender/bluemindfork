@@ -98,9 +98,6 @@ export function useComposer(message, contentRef) {
     }
 
     function resolveIdentity(identityId) {
-        console.log(
-            findIdentityById(identityId) || findIdentityByOriginator(message.value.from) || defaultIdentity.value
-        );
         return findIdentityById(identityId) || findIdentityByOriginator(message.value.from) || defaultIdentity.value;
     }
 

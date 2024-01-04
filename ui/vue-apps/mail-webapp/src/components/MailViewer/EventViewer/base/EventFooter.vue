@@ -12,12 +12,10 @@ const props = defineProps({ event: { type: Object, required: true } });
 
 const organizer = computed(() => props.event.organizer);
 const attendees = computed(() =>
-    [organizer.value, ...getAttendeesByCutype(props.event.attendees, "Individual")]
-        .filter(Boolean)
-        .map(attendee => ({
-            dn: attendee?.name,
-            address: attendee?.mail
-        }))
+    [organizer.value, ...getAttendeesByCutype(props.event.attendees, "Individual")].filter(Boolean).map(attendee => ({
+        dn: attendee?.name,
+        address: attendee?.mail
+    }))
 );
 
 const resources = computed(() =>
