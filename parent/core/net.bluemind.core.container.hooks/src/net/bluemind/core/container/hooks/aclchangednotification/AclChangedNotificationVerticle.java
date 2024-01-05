@@ -22,11 +22,8 @@ import org.apache.james.mime4j.stream.RawField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import freemarker.core.ParseException;
 import freemarker.template.Configuration;
-import freemarker.template.MalformedTemplateNameException;
 import freemarker.template.TemplateException;
-import freemarker.template.TemplateNotFoundException;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Verticle;
 import io.vertx.core.eventbus.Message;
@@ -53,7 +50,7 @@ import net.bluemind.user.api.IUserSettings;
 
 public class AclChangedNotificationVerticle extends AbstractVerticle {
 	private static final Logger logger = LoggerFactory.getLogger(AclChangedNotificationVerticle.class);
-	private static final Queue<AclChangedMsg> ACL_CHANGED_MSGS = new ConcurrentLinkedQueue<>();;
+	private static final Queue<AclChangedMsg> ACL_CHANGED_MSGS = new ConcurrentLinkedQueue<>();
 	private static int queueMaxSize;
 	public static final String ACL_CHANGED_NOTIFICATION_COLLECT_BUS_ADDRESS = "bm.acl.changed.notification.collect";
 	public static final String ACL_CHANGED_NOTIFICATION_TEARDOWN_BUS_ADDRESS = "bm.acl.changed.notification.teardown";
@@ -83,7 +80,7 @@ public class AclChangedNotificationVerticle extends AbstractVerticle {
 							sendMessages();
 						}
 					} catch (Exception e) {
-						logger.error("Unable to add " + AclChangedMsg.class.getName() + " to the queue.");
+						logger.error("Unable to add {} to the queue", AclChangedMsg.class.getName());
 					}
 				});
 		vertx.eventBus().consumer(ACL_CHANGED_NOTIFICATION_TEARDOWN_BUS_ADDRESS, m -> sendMessages());
@@ -109,22 +106,24 @@ public class AclChangedNotificationVerticle extends AbstractVerticle {
 	private void sendMessages() {
 		processQueue().forEach(aclChangeInfo -> {
 			try {
-				toMails(aclChangeInfo).forEach(mail -> {
-					vertx.eventBus().publish(SendMailAddress.SEND, new LocalJsonObject<>(mail));
-				});
+				toMails(aclChangeInfo)
+						.forEach(mail -> vertx.eventBus().publish(SendMailAddress.SEND, new LocalJsonObject<>(mail)));
 			} catch (IOException | TemplateException e) {
-				logger.error("Unable to send ACL Changed messages.", e);
+				logger.error("Unable to send ACL changed messages", e);
 			}
 		});
 	}
 
-	private List<Mail> toMails(AclChangeInfo aclChangeInfo) throws TemplateNotFoundException,
-			MalformedTemplateNameException, ParseException, IOException, TemplateException {
+	private List<Mail> toMails(AclChangeInfo aclChangeInfo) throws IOException, TemplateException {
 		Mail m = new Mail();
 		BmContext bmContext = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).getContext();
 		IDirectory dirService = bmContext.provider().instance(IDirectory.class, aclChangeInfo.domainUid);
 		DirEntry targetUser = dirService.findByEntryUid(aclChangeInfo.targetUserId);
 		DirEntry sourceUser = dirService.findByEntryUid(aclChangeInfo.sourceUserId);
+
+		if (targetUser.email == null) {
+			return Collections.emptyList();
+		}
 
 		Mailbox from = buildFrom(aclChangeInfo.domainUid, targetUser);
 		m.from = from;
@@ -141,7 +140,7 @@ public class AclChangedNotificationVerticle extends AbstractVerticle {
 		Map<String, Object> ftlData = prepareFtlData(resolver, sourceUser);
 
 		aclChangeInfo.newVerbsByContainer.values().forEach(newVerbs -> {
-			buildFtlData(ftlData, newVerbs, resolver, lang, sourceUser);
+			buildFtlData(ftlData, newVerbs, resolver, lang);
 			addContainerTypeHeader(m, newVerbs);
 		});
 
@@ -160,8 +159,7 @@ public class AclChangedNotificationVerticle extends AbstractVerticle {
 		return ftlData;
 	}
 
-	private String applyTemplate(Map<String, Object> ftlData, Locale locale) throws TemplateNotFoundException,
-			MalformedTemplateNameException, ParseException, TemplateException, IOException {
+	private String applyTemplate(Map<String, Object> ftlData, Locale locale) throws TemplateException, IOException {
 		StringWriter sw = new StringWriter();
 		Configuration cfg = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
 		cfg.setClassForTemplateLoading(this.getClass(), "/");
@@ -170,8 +168,7 @@ public class AclChangedNotificationVerticle extends AbstractVerticle {
 		return sw.toString();
 	}
 
-	private void buildFtlData(Map<String, Object> ftlData, NewVerbs newVerbs, MessagesResolver resolver, String lang,
-			DirEntry sourceUser) {
+	private void buildFtlData(Map<String, Object> ftlData, NewVerbs newVerbs, MessagesResolver resolver, String lang) {
 		@SuppressWarnings("unchecked")
 		Map<String, List<Permission>> appPermissions = (Map<String, List<Permission>>) ftlData.get("appPermissions");
 		String containerName = I18nLabels.getInstance().translate(lang, newVerbs.containerName);
@@ -191,11 +188,9 @@ public class AclChangedNotificationVerticle extends AbstractVerticle {
 	}
 
 	private void addContainerTypeHeader(Mail m, NewVerbs newVerbs) {
-		switch (newVerbs.containerType) {
-		case IMailboxAclUids.TYPE:
+		if (newVerbs.containerType.equals(IMailboxAclUids.TYPE)) {
 			m.headers.add(new RawField("X-BM-MailboxSharing", newVerbs.containerUid));
-			break;
-		default:
+		} else {
 			m.headers.add(new RawField("X-BM-FolderUid", newVerbs.containerUid));
 			m.headers.add(new RawField("X-BM-FolderType", newVerbs.containerType));
 		}
@@ -224,7 +219,8 @@ public class AclChangedNotificationVerticle extends AbstractVerticle {
 	}
 
 	private Mailbox buildFrom(String domainUid, DirEntry de) {
-		String noreply = de != null && de.email.contains("@") ? "no-reply@" + de.email.split("@")[1]
+		String noreply = (de != null && de.email != null) && de.email.contains("@")
+				? "no-reply@" + de.email.split("@")[1]
 				: "no-reply@" + domainUid;
 		return SendmailHelper.formatAddress(noreply, noreply);
 	}
