@@ -56,12 +56,12 @@
             },
             "unexpunge": {
                 "loading": {
-                    "single": "\"{subject}\" is being recovered from the {folder}...",
+                    "single": "\"{subject}\" is being recovered from the {trash}...",
                     "plural": "{count} messages are being recovered..."
                 },
                 "success": {
-                    "single": "\"{subject}\" has been recovered from the {folder}.",
-                    "plural": "{count} messages were retrieved from the {folder}."
+                    "single": "\"{subject}\" has been recovered from the {trash}.",
+                    "plural": "{count} messages were retrieved from the {trash}."
                 },
                 "error": {
                     "single": "\"{subject}\" could not be recovered.",
@@ -203,7 +203,7 @@
     "mail.actions.mark_unflagged": "Remove flag",
     "mail.actions.mark_unflagged.aria": "{subject} flagged, click to remove flag | Remove flag from selected messages",
     "mail.actions.unexpunge": "Recover",
-    "mail.actions.unexpunge.aria": "Recover the \"{subject}\" message",
+    "mail.actions.unexpunge.aria": "Recover the \"{subject}\" message | Recover {count} messages",
     "mail.actions.mark_conversations_unflagged.aria": "{subject} flagged, click to remove flag | Remove flag from selected conversations",
     "mail.actions.move_folder.aria": "Move folder {name}",
     "mail.actions.move_folder.excluded_folder.descendant": "Unable to move to its subfolders",
@@ -357,7 +357,9 @@
     "mail.list.range.today": "Today",
     "mail.list.range.yesterday": "Yesterday",
     "mail.list.recoverable.header": "Messages deleted from the trash can be recovered.",
-    "mail.list.recoverable.link": "No recoverable messages |  View recoverable messages ({count}) | View recoverable messages ({count})",
+    "mail.list.recoverable.empty": "There are no recoverable messages",
+    "mail.list.recoverable.link": "No recoverable messages |  Recover messages ({count}) | Recover messages ({count})",
+    "mail.list.recoverable.loading": "Search for recoverable messages",
     "mail.list.replied.aria": "Replied",
     "mail.list.search.no_result": "No message containing {pattern} has been found.",
     "mail.list.search.no_result.folder": "No message containing {pattern} has been found in {folder}{sub}.",
@@ -391,7 +393,7 @@
     "mail.message.starter.display.sent": "View sent messages",
     "mail.message.starter.display.templates": "View templates",
     "mail.message.starter.draft.details": "This folder contains messages you have started composing and have not yet sent.",
-    "mail.message.starter.recoverable.details": "to retrieve from trash",
+    "mail.message.starter.recoverable.details": "to recover from trash",
     "mail.message.starter.outbox.details": "This folder contains the messages that have not yet reached your mail server for technical reasons (connection, server state).",
     "mail.message.starter.sent.details": "This folder contains the messages that have reached your mail server to be sent to their recipients.",
     "mail.message.starter.shared.info": "You are in a shared folder.",

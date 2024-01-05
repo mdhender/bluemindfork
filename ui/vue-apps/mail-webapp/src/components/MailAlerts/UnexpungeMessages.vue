@@ -26,7 +26,7 @@ const trash = computed(() => store.getters[`mail/${MAILBOX_TRASH}`](mailbox.valu
             <i18n :path="`alert.mail.unexpunge.${alert.type}.${isSingleMessage ? 'single' : 'plural'}`">
                 <template v-if="isSingleMessage" #subject>{{ messages[0].subject }}</template>
                 <template v-else #count> {{ messages.length }} </template>
-                <template #folder><folder-route-link :folder="trash" /></template>
+                <template #trash><folder-route-link :folder="trash" /></template>
             </i18n>
         </div>
     </div>

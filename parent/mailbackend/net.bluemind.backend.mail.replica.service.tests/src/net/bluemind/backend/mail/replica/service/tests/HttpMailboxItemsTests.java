@@ -98,4 +98,7 @@ public class HttpMailboxItemsTests extends MailboxItemsTests {
 		return EmlTemplates.withRandomMessageId("with_inlines.ftl");
 	}
 
+	protected void assertUnexpunged(List<Long> unexpungedIds, List<ItemValue<MailboxItem>> records) {
+		// cannot cast to record over http
+	}
 }

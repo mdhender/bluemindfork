@@ -7,15 +7,13 @@
                     <div id="text-2" class="description">{{ $t("mail.message.starter.recoverable.details") }}</div>
                 </div>
                 <div class="starter-links">
-                    <div class="starter-link">
-                        <bm-button
-                            icon="arrow-back"
-                            :to="$router.relative({ name: 'v:mail:home', params: { filter: null } }, $route)"
-                            variant="link"
-                        >
-                            {{ $tc("mail.recoverable.back") }}
-                        </bm-button>
-                    </div>
+                    <bm-button
+                        icon="arrow-back"
+                        :to="$router.relative({ name: 'v:mail:home', params: { filter: null } }, $route)"
+                        variant="link"
+                    >
+                        {{ $tc("mail.recoverable.back") }}
+                    </bm-button>
                 </div>
             </div>
             <bm-illustration value="recoverable-messages" size="lg" over-background />

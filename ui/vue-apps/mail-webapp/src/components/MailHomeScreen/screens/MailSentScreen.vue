@@ -7,26 +7,22 @@
                     <div id="text-2" class="description">{{ $t("mail.message.starter.sent.details") }}</div>
                 </div>
                 <div class="starter-links">
-                    <div class="starter-link">
-                        <bm-button
-                            size="lg"
-                            icon="inbox"
-                            :to="{ name: 'v:mail:home', params: { folder: MY_INBOX.path } }"
-                            variant="link"
-                        >
-                            {{ $t("mail.message.starter.display.inbox") }}
-                        </bm-button>
-                    </div>
-                    <div class="starter-link">
-                        <bm-button
-                            size="lg"
-                            icon="clock"
-                            :to="{ name: 'v:mail:home', params: { folder: MY_OUTBOX.path } }"
-                            variant="link"
-                        >
-                            {{ $t("mail.message.starter.display.outbox") }}
-                        </bm-button>
-                    </div>
+                    <bm-button
+                        size="lg"
+                        icon="inbox"
+                        :to="{ name: 'v:mail:home', params: { folder: MY_INBOX.path } }"
+                        variant="link"
+                    >
+                        {{ $t("mail.message.starter.display.inbox") }}
+                    </bm-button>
+                    <bm-button
+                        size="lg"
+                        icon="clock"
+                        :to="{ name: 'v:mail:home', params: { folder: MY_OUTBOX.path } }"
+                        variant="link"
+                    >
+                        {{ $t("mail.message.starter.display.outbox") }}
+                    </bm-button>
                 </div>
             </div>
             <bm-illustration value="sent" size="lg" over-background />

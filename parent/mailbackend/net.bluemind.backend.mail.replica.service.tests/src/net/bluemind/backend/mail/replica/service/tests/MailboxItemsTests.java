@@ -37,8 +37,6 @@ import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.api.MailboxItem;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
-import net.bluemind.backend.mail.replica.api.MailboxRecord;
-import net.bluemind.backend.mail.replica.api.MailboxRecord.InternalFlag;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemFlagFilter;
@@ -209,7 +207,7 @@ public class MailboxItemsTests extends AbstractRollingReplicationTests {
 
 		List<ItemValue<MailboxItem>> expungedItems = trashService.multipleGetById(expungedIds);
 		assertEquals(2, expungedItems.stream()
-				.filter(r -> ((MailboxRecord) r.value).internalFlags.contains(InternalFlag.expunged)).count());
+				.filter(r -> r.value.flags.contains(MailboxItemFlag.System.Deleted.value())).count());
 
 		List<Long> unexpungedIds = trashService.multipleUnexpungeById(expungedIds).stream()
 				.map(identifier -> identifier.id)

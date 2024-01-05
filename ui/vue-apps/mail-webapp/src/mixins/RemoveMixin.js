@@ -130,10 +130,9 @@ export default {
         remove() {
             return this.REMOVE_CONVERSATIONS(this.selected);
         },
-        unexpunge(conversations = this.selected) {
-            return this.$store.dispatch(`mail/${UNEXPUNGE}`, {
-                conversations
-            });
+        async unexpunge(conversations = this.selected) {
+            await this.$store.dispatch(`mail/${UNEXPUNGE}`, { conversations });
+            this.$router.navigate(this.folderRoute(conversations[0].folderRef));
         }
     }
 };

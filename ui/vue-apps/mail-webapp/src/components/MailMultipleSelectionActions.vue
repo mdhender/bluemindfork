@@ -5,8 +5,8 @@
                 <component :is="context.alert.renderer" :alert="context.alert" />
             </template>
         </bm-alert-area>
-        <section class="mail-home-screen" aria-labelledby="text-1">
-            <div class="starter-text-and-actions" :class="{ 'with-call-to-action': hasCallToAction }">
+        <section class="mail-home-screen" aria-labelledby="text-1" :class="{ 'with-call-to-action': hasCallToAction }">
+            <div class="starter-text-and-actions">
                 <div class="starter-main">
                     <h1 id="text-1">{{ mainText }}</h1>
                     <div v-if="hasCallToAction" class="call-to-action">
@@ -240,9 +240,9 @@ export default {
     .mail-home-screen {
         .starter-text-and-actions {
             flex: 0 1 base-px-to-rem(80);
-            &.with-call-to-action {
-                flex: 0 1 base-px-to-rem(130);
-            }
+        }
+        &.with-call-to-action .starter-text-and-actions {
+            flex: 0 1 base-px-to-rem(130);
         }
 
         .cancel-selection-btn-wrapper {
@@ -258,6 +258,11 @@ export default {
             &:after {
                 flex: 0 1 base-px-to-rem(136);
                 content: "";
+            }
+        }
+        &.with-call-to-action .cancel-selection-btn-wrapper {
+            &:after {
+                flex: 0 1 base-px-to-rem(86);
             }
         }
 

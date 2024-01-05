@@ -56,12 +56,12 @@
             },
             "unexpunge": {
                 "loading": {
-                    "single": "\"{subject}\" est en train d'être récupéré dans la {folder}...",
+                    "single": "\"{subject}\" est en train d'être récupéré dans la {trash}...",
                     "plural": "{count} messages sont en train d'être récupérés..."
                 },
                 "success": {
-                    "single": "\"{subject}\" a été récupéré dans la {folder}. ",
-                    "plural": "{count} messages ont été récupérés dans la {folder}."
+                    "single": "\"{subject}\" a été récupéré dans la {trash}. ",
+                    "plural": "{count} messages ont été récupérés dans la {trash}."
                 },
                 "error": {
                     "single": "\"{subject}\" n'a pas pu être récupéré.",
@@ -203,7 +203,7 @@
     "mail.actions.mark_unflagged": "Ne plus suivre",
     "mail.actions.mark_unflagged.aria": "Message \"{subject}\" suivi, cliquez pour ne plus suivre | Ne plus assurer le suivi des messages sélectionnés",
     "mail.actions.unexpunge": "Récupérer",
-    "mail.actions.unexpunge.aria": "Récupérer le message \"{subject}\"",
+    "mail.actions.unexpunge.aria": "Récupérer le message \"{subject}\" | Récupérer {count} messages",
     "mail.actions.mark_conversations_unflagged.aria": "Conversation \"{subject}\" suivie, cliquez pour ne plus suivre | Ne plus assurer le suivi des conversations sélectionnées",
     "mail.actions.move_folder.aria": "Déplacer le dossier {name}",
     "mail.actions.move_folder.excluded_folder.descendant": "Impossible de déplacer vers ses sous-dossiers",
@@ -357,9 +357,10 @@
     "mail.list.range.today": "Aujourd'hui",
     "mail.list.range.yesterday": "Hier",
     "mail.list.replied.aria": "Répondu",
+    "mail.list.recoverable.empty": "Il n'y a aucun message récupérable",
     "mail.list.recoverable.header": "Les messages supprimés de la corbeille peuvent être récupérés.",
-    "mail.list.recoverable.link": "Aucun message récupérable | Voir les messages récupérables ({count}) | Voir les messages récupérables ({count})",
-    "mail.list.recoverable.loading": "Chargement des messages récupérables",
+    "mail.list.recoverable.link": "Aucun message récupérable | Récupérer des messages ({count}) | Récupérer des messages ({count})",
+    "mail.list.recoverable.loading": "Recherche des messages récupérables",
     "mail.list.search.no_result": "Aucun message contenant {pattern} n'a été trouvé.",
     "mail.list.search.no_result.folder": "Aucun message contenant {pattern} n'a été trouvé dans {folder}{sub}.",
     "mail.list.search.no_result.deep": " et ses sous-dossiers",

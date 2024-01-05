@@ -9,26 +9,22 @@
                     <new-message template full />
                 </div>
                 <div class="starter-links">
-                    <div class="starter-link">
-                        <bm-button
-                            size="lg"
-                            icon="inbox"
-                            :to="{ name: 'v:mail:home', params: { folder: MY_INBOX.path } }"
-                            variant="link"
-                        >
-                            {{ $t("mail.message.starter.display.inbox") }}
-                        </bm-button>
-                    </div>
-                    <div class="starter-link">
-                        <bm-button
-                            size="lg"
-                            icon="pencil"
-                            :to="{ name: 'v:mail:home', params: { folder: MY_DRAFTS.path } }"
-                            variant="link"
-                        >
-                            {{ $t("mail.message.starter.display.drafts") }}
-                        </bm-button>
-                    </div>
+                    <bm-button
+                        size="lg"
+                        icon="inbox"
+                        :to="{ name: 'v:mail:home', params: { folder: MY_INBOX.path } }"
+                        variant="link"
+                    >
+                        {{ $t("mail.message.starter.display.inbox") }}
+                    </bm-button>
+                    <bm-button
+                        size="lg"
+                        icon="pencil"
+                        :to="{ name: 'v:mail:home', params: { folder: MY_DRAFTS.path } }"
+                        variant="link"
+                    >
+                        {{ $t("mail.message.starter.display.drafts") }}
+                    </bm-button>
                 </div>
             </div>
             <bm-illustration value="templates" size="lg" over-background />

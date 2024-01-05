@@ -64,7 +64,7 @@ export default {
                 : this.$tc("mail.actions.move.aria", length, { subject });
         },
         unexpungeAriaText(length = this.selectionLength, subject = this.$_ActionTextMixin_subject) {
-            return this.$tc("mail.actions.unexpunge.aria", length, { subject });
+            return this.$tc("mail.actions.unexpunge.aria", length, { subject, count: length });
         }
     }
 };

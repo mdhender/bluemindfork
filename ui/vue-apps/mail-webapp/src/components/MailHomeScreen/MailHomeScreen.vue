@@ -104,15 +104,9 @@ export default {
             justify-content: center;
             align-items: center;
             gap: 0 $sp-7;
-
-            .starter-link {
+            & > .bm-button {
                 margin-top: $sp-6;
                 margin-bottom: $sp-5;
-                display: flex;
-                gap: $sp-4;
-                .bm-icon {
-                    color: $neutral-fg;
-                }
             }
         }
     }

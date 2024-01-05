@@ -25,8 +25,6 @@ const route = { name: "v:mail:home", params: { filter: "deleted" } };
 
 <template>
     <div class="trash-result-header">
-        <span>{{ $t("mail.list.recoverable.header") }}</span>
-        <br />
         <bm-button :disabled="!count" variant="text-accent" :loading="loading" :to="$router.relative(route, $route)">
             <template v-if="loading">
                 {{ $t("mail.list.recoverable.loading") }}
@@ -43,8 +41,10 @@ const route = { name: "v:mail:home", params: { filter: "deleted" } };
 
 .trash-result-header {
     text-align: center;
-    padding: $sp-5 $sp-5 0;
     color: $neutral-fg;
     @include regular;
+    > .bm-button {
+        max-width: 100%;
+    }
 }
 </style>

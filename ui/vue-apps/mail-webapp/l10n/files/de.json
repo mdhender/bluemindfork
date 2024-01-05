@@ -56,16 +56,16 @@
             },
             "unexpunge": {
                 "loading": {
-                    "single": "\"{subject}\" wird gerade aus dem {folder} geholt...",
-                    "plural": "{count} Nachrichten werden abgerufen..."
+                    "single": "\"{subject}\" wird aktuell aus dem {trash} wiederhergestellt...",
+                    "plural": "{count} Nachrichten werden wiederhergestellt..."
                 },
                 "success": {
-                    "single": "\"{subject}\" wurde aus dem in den {folder} wiederhergestellt.",
-                    "plural": "{count} Nachrichten wurden aus dem {folder} geholt"
+                    "single": "\"{subject}\" wurde aus dem in den {trash} wiederhergestellt.",
+                    "plural": "{count} Nachrichten wurden aus dem {trash} wiederhergestellt"
                 },
                 "error": {
-                    "single": "\"{subject}\" konnte nicht abgerufen werden.",
-                    "plural": "{count} Nachrichten konnten nicht abgerufen werden."
+                    "single": "\"{subject}\" konnte nicht wiederhergestellt werden.",
+                    "plural": "{count} Nachrichten konnten nicht wiederhergestellt werden."
                 }
             },
             "mark_messages_as_read": {
@@ -203,7 +203,7 @@
     "mail.actions.mark_unflagged": "Markierung löschen",
     "mail.actions.mark_unflagged.aria": "{subject} markiert, klicken Sie um Markierung zu löschen | Lösche Markierung der ausgewählten E-Mails",
     "mail.actions.unexpunge": "Wiederherstellen",
-    "mail.actions.unexpunge.aria": "Wiederherstellung der \"{subject}\" Nachricht",
+    "mail.actions.unexpunge.aria": "Wiederherstellung der \"{subject}\" Nachricht  | {count} Nachrichten wiederherstellen",
     "mail.actions.mark_conversations_unflagged.aria": "{subject} markiert, klicken Sie um Markierung zu löschen | Lösche Markierung der ausgewählten Konversationen",
     "mail.actions.move_folder.aria": "Verschiebe Ordner {name}",
     "mail.actions.move_folder.excluded_folder.descendant": "Verschieben in seine Unterordner nicht möglich",
@@ -357,7 +357,9 @@
     "mail.list.range.today": "Heute",
     "mail.list.range.yesterday": "Gestern",
     "mail.list.recoverable.header": "Aus dem Papierkorb gelöschte Nachrichten können wiederhergestellt werden.",
-    "mail.list.recoverable.link": "Keine wiederherstellbaren Nachrichten | Abrufbare Nachrichten anzeigen ({count}) | Abrufbare Nachrichten anzeigen ({count})",
+    "mail.list.recoverable.empty": "Es gibt keine wiederherstellbaren Nachrichten",
+    "mail.list.recoverable.link": "Keine wiederherstellbaren Nachrichten | Nachrichten wiederherstellen ({count}) | Nachrichten wiederherstellen({count})",
+    "mail.list.recoverable.loading": "Suche nach wiederherstellbaren Nachrichten",
     "mail.list.replied.aria": "Geantwortet",
     "mail.list.search.no_result": "Es wurde keine E-Mails gefunden, die {pattern} enthalten.",
     "mail.list.search.no_result.folder": "In {folder}{sub} wurden keine E-Mails gefunden, die {pattern} enthielten.",
