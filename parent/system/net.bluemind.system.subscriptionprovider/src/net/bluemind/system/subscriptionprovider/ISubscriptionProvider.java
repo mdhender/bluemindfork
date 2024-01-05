@@ -18,6 +18,8 @@
  */
 package net.bluemind.system.subscriptionprovider;
 
+import javax.sql.DataSource;
+
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.system.api.SubscriptionInformations;
 import net.bluemind.system.helper.distrib.list.Distribution;
@@ -27,11 +29,12 @@ public interface ISubscriptionProvider {
 	public SubscriptionInformations loadSubscriptionInformations() throws ServerFault;
 
 	/**
+	 * @param dataSource
 	 * @param sub
 	 * @throws ServerFault code == ErrorCode.NOT_FOUND if update subscription is not
 	 *                     available
 	 */
-	public void updateSubscription(byte[] sub, Distribution serverOS) throws ServerFault;
+	public void updateSubscription(DataSource dataSource, byte[] sub, Distribution serverOS) throws ServerFault;
 
 	public void removeSubscription(Distribution distribution) throws ServerFault;
 

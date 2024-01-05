@@ -18,6 +18,8 @@
  */
 package net.bluemind.system.subscriptionprovider;
 
+import javax.sql.DataSource;
+
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.system.api.SubscriptionInformations;
@@ -37,7 +39,8 @@ public class EmptySubscriptionProvider implements ISubscriptionProvider {
 	}
 
 	@Override
-	public void updateSubscription(byte[] subscription, Distribution serverOs) throws ServerFault {
+	public void updateSubscription(DataSource dataSource, byte[] subscription, Distribution serverOs)
+			throws ServerFault {
 		throw new ServerFault("Updating a subscription is not supported using this provider", ErrorCode.NOT_FOUND);
 	}
 

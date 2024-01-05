@@ -18,8 +18,8 @@
 package net.bluemind.cli.user.update;
 
 import net.bluemind.cli.cmd.api.CliContext;
-import net.bluemind.cli.cmd.api.CliException;
 import net.bluemind.cli.user.UserUpdateCommand;
+import net.bluemind.cli.user.UserUpdateCommand.PasswordNeverExpireOption;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
@@ -29,23 +29,31 @@ public class PasswordNeverExpires extends UpdateCommand {
 		super(userUpdateCommand);
 	}
 
+	private PasswordNeverExpireOption getPasswordNeverExpireOption() {
+		PasswordNeverExpireOption passwordNeverExpire = getOptions().passwordNeverExpire;
+
+		if (passwordNeverExpire == null) {
+			return new PasswordNeverExpireOption();
+		}
+
+		return getOptions().passwordNeverExpire;
+	}
+
 	@Override
 	public boolean mustBeExecuted() {
-		return userUpdateCommand.setPasswordNeverExpires || userUpdateCommand.unsetPasswordNeverExpires;
+		return getPasswordNeverExpireOption().setPasswordNeverExpires
+				|| getPasswordNeverExpireOption().unsetPasswordNeverExpires;
 	}
 
 	@Override
 	public void check() {
-		if (userUpdateCommand.setPasswordNeverExpires && userUpdateCommand.unsetPasswordNeverExpires) {
-			throw new CliException(
-					"Only one parameter of --set-password-never-expires and --unset-password-never-expires must be set");
-		}
+		// Nothing to do
 	}
 
 	@Override
 	public void execute(String domainUid, ItemValue<User> user) {
-		user.value.passwordNeverExpires = userUpdateCommand.setPasswordNeverExpires
-				|| !userUpdateCommand.unsetPasswordNeverExpires;
+		user.value.passwordNeverExpires = getPasswordNeverExpireOption().setPasswordNeverExpires
+				|| !getPasswordNeverExpireOption().unsetPasswordNeverExpires;
 		ctx.adminApi().instance(IUser.class, domainUid).update(user.uid, user.value);
 	}
 }

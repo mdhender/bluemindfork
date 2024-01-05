@@ -18,8 +18,8 @@
 package net.bluemind.cli.user.update;
 
 import net.bluemind.cli.cmd.api.CliContext;
-import net.bluemind.cli.cmd.api.CliException;
 import net.bluemind.cli.user.UserUpdateCommand;
+import net.bluemind.cli.user.UserUpdateCommand.PasswordMustChangeOption;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
@@ -29,23 +29,31 @@ public class PasswordMustChange extends UpdateCommand {
 		super(userUpdateCommand);
 	}
 
+	private PasswordMustChangeOption getPasswordMustchangeOption() {
+		PasswordMustChangeOption passwordMustchange = getOptions().passwordMustChange;
+
+		if (passwordMustchange == null) {
+			return new PasswordMustChangeOption();
+		}
+
+		return getOptions().passwordMustChange;
+	}
+
 	@Override
 	public boolean mustBeExecuted() {
-		return userUpdateCommand.setPasswordMustChange || userUpdateCommand.unsetPasswordMustChange;
+		return getPasswordMustchangeOption().setPasswordMustChange
+				|| getPasswordMustchangeOption().unsetPasswordMustChange;
 	}
 
 	@Override
 	public void check() {
-		if (userUpdateCommand.setPasswordMustChange && userUpdateCommand.unsetPasswordMustChange) {
-			throw new CliException(
-					"Only one parameter of --set-password-must-change and --unset-password-must-change must be set");
-		}
+		// Nothing to do
 	}
 
 	@Override
 	public void execute(String domainUid, ItemValue<User> user) {
-		user.value.passwordMustChange = userUpdateCommand.setPasswordMustChange
-				|| !userUpdateCommand.unsetPasswordMustChange;
+		user.value.passwordMustChange = getPasswordMustchangeOption().setPasswordMustChange
+				|| !getPasswordMustchangeOption().unsetPasswordMustChange;
 		ctx.adminApi().instance(IUser.class, domainUid).update(user.uid, user.value);
 	}
 }

@@ -23,16 +23,20 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.user.api.User;
 
 public abstract class UpdateCommand {
-	protected final UserUpdateCommand userUpdateCommand;
+	private final UserUpdateCommand userUpdateCommand;
 	protected CliContext ctx;
 
-	public UpdateCommand(UserUpdateCommand userUpdateCommand) {
+	protected UpdateCommand(UserUpdateCommand userUpdateCommand) {
 		this.userUpdateCommand = userUpdateCommand;
 	}
 
 	public UpdateCommand setContext(CliContext ctx) {
 		this.ctx = ctx;
 		return this;
+	}
+
+	protected UserUpdateCommand.UpdateOpts getOptions() {
+		return userUpdateCommand.updateOpts;
 	}
 
 	public abstract boolean mustBeExecuted();

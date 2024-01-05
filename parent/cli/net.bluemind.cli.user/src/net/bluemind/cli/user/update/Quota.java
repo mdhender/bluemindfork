@@ -32,12 +32,12 @@ public class Quota extends UpdateCommand {
 
 	@Override
 	public boolean mustBeExecuted() {
-		return userUpdateCommand.quota != null;
+		return getOptions().quota != null;
 	}
 
 	@Override
 	public void check() {
-		if (userUpdateCommand.quota < 0) {
+		if (getOptions().quota < 0) {
 			throw new CliException("Quota must be greater or equal to 0");
 		}
 	}
@@ -49,7 +49,7 @@ public class Quota extends UpdateCommand {
 		if (mailboxItem == null) {
 			throw new CliException("mailbox not found");
 		}
-		mailboxItem.value.quota = userUpdateCommand.quota;
+		mailboxItem.value.quota = getOptions().quota;
 		mailboxesApi.update(mailboxItem.uid, mailboxItem.value);
 	}
 }

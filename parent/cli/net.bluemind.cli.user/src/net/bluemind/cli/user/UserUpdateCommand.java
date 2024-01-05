@@ -26,6 +26,8 @@ import net.bluemind.cli.cmd.api.CliException;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.directory.common.SingleOrDomainOperation;
+import net.bluemind.cli.user.update.AccountTypeCmd;
+import net.bluemind.cli.user.update.AccountTypeCmd.SupportedAccountType;
 import net.bluemind.cli.user.update.ExternalId;
 import net.bluemind.cli.user.update.Password;
 import net.bluemind.cli.user.update.PasswordMustChange;
@@ -37,10 +39,11 @@ import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
+import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Command(name = "update", description = "update users")
+@Command(name = "update", description = "Update users")
 public class UserUpdateCommand extends SingleOrDomainOperation {
 
 	public static class Reg implements ICmdLetRegistration {
@@ -56,26 +59,44 @@ public class UserUpdateCommand extends SingleOrDomainOperation {
 		}
 	}
 
-	@Option(names = "--password", description = "update user password")
-	public String password = null;
+	@ArgGroup(exclusive = false, heading = "Other update options%n")
+	public UpdateOpts updateOpts;
 
-	@Option(names = "--set-password-must-change", description = "set user password must change")
-	public boolean setPasswordMustChange = false;
+	public static class UpdateOpts {
+		@Option(names = "--password", description = "update user password")
+		public String password = null;
 
-	@Option(names = "--unset-password-must-change", description = "unset user password must change")
-	public boolean unsetPasswordMustChange = false;
+		@ArgGroup(exclusive = true, heading = "Manage password must change flag%n")
+		public PasswordMustChangeOption passwordMustChange;
 
-	@Option(names = "--set-password-never-expires", description = "set user password never expires")
-	public boolean setPasswordNeverExpires = false;
+		@ArgGroup(exclusive = true, heading = "Manage password never expire flag%n")
+		public PasswordNeverExpireOption passwordNeverExpire;
 
-	@Option(names = "--unset-password-never-expires", description = "unset user password never expires")
-	public boolean unsetPasswordNeverExpires = false;
+		@Option(names = "--external-id", description = "update user external id (used by AD/LDAP synchronisaion), empty to unset")
+		public String extId = null;
 
-	@Option(names = "--external-id", description = "update user external id (used by AD/LDAP synchronisaion), empty to unset")
-	public String extId = null;
+		@Option(names = "--quota", description = "update user mailbox quota (KiB)")
+		public Integer quota = null;
 
-	@Option(names = "--quota", description = "update user mailbox quota (KiB)")
-	public Integer quota = null;
+		@Option(names = "--account-type", description = "update user account type: ${COMPLETION-CANDIDATES}")
+		public SupportedAccountType accountType = null;
+	}
+
+	public static class PasswordMustChangeOption {
+		@Option(names = "--set-password-must-change", description = "set user password must change")
+		public boolean setPasswordMustChange = false;
+
+		@Option(names = "--unset-password-must-change", description = "unset user password must change")
+		public boolean unsetPasswordMustChange = false;
+	}
+
+	public static class PasswordNeverExpireOption {
+		@Option(names = "--set-password-never-expires", description = "set user password never expires")
+		public boolean setPasswordNeverExpires = false;
+
+		@Option(names = "--unset-password-never-expires", description = "unset user password never expires")
+		public boolean unsetPasswordNeverExpires = false;
+	}
 
 	private List<UpdateCommand> commands = new ArrayList<>();
 
@@ -85,6 +106,7 @@ public class UserUpdateCommand extends SingleOrDomainOperation {
 		commands.add(new PasswordMustChange(ctx, this));
 		commands.add(new PasswordNeverExpires(ctx, this));
 		commands.add(new Quota(ctx, this));
+		commands.add(new AccountTypeCmd(ctx, this));
 	}
 
 	@Override

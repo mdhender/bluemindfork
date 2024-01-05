@@ -30,7 +30,7 @@ public class ExternalId extends UpdateCommand {
 
 	@Override
 	public boolean mustBeExecuted() {
-		return userUpdateCommand.extId != null;
+		return getOptions().extId != null;
 	}
 
 	@Override
@@ -40,6 +40,6 @@ public class ExternalId extends UpdateCommand {
 	@Override
 	public void execute(String domainUid, ItemValue<User> user) {
 		ctx.adminApi().instance(IUser.class, domainUid).setExtId(user.uid,
-				userUpdateCommand.extId.trim().isEmpty() ? null : userUpdateCommand.extId);
+				getOptions().extId.trim().isEmpty() ? null : getOptions().extId);
 	}
 }

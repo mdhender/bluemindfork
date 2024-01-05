@@ -485,8 +485,8 @@ public class InstallationService implements IInstallation {
 	public void updateSubscription(String licence) throws ServerFault {
 		RBACManager.forContext(context).check(BasicRoles.ROLE_MANAGE_SUBSCRIPTION);
 		try {
-			SubscriptionProviders.getSubscriptionProvider().updateSubscription(Base64.getDecoder().decode(licence),
-					OsVersionDetectionFactory.create().detect());
+			SubscriptionProviders.getSubscriptionProvider().updateSubscription(context.getDataSource(),
+					Base64.getDecoder().decode(licence), OsVersionDetectionFactory.create().detect());
 		} catch (ServerFault e) {
 			if (e.getCode() == ErrorCode.NOT_FOUND) {
 				String lang = context.getSecurityContext().getLang();
@@ -523,7 +523,7 @@ public class InstallationService implements IInstallation {
 		ArchiveHelper.checkFileSize(archiveFile);
 		Distribution serverOs = OsVersionDetectionFactory.create().detect();
 		byte[] licence = ArchiveHelper.getSubscriptionFile(archiveFile, serverOs);
-		SubscriptionProviders.getSubscriptionProvider().updateSubscription(licence, serverOs);
+		SubscriptionProviders.getSubscriptionProvider().updateSubscription(context.getDataSource(), licence, serverOs);
 		logger.info("Subscription archive has been submitted.");
 	}
 

@@ -18,35 +18,40 @@
 package net.bluemind.cli.user.update;
 
 import net.bluemind.cli.cmd.api.CliContext;
-import net.bluemind.cli.cmd.api.CliException;
 import net.bluemind.cli.user.UserUpdateCommand;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.user.api.ChangePassword;
+import net.bluemind.directory.api.BaseDirEntry.AccountType;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
 
-public class Password extends UpdateCommand {
-	public Password(CliContext ctx, UserUpdateCommand userUpdateCommand) {
+public class AccountTypeCmd extends UpdateCommand {
+	public enum SupportedAccountType {
+		FULL, FULL_AND_VISIO;
+	}
+
+	public AccountTypeCmd(CliContext ctx, UserUpdateCommand userUpdateCommand) {
 		super(userUpdateCommand);
+	}
+
+	private AccountType getAccountType() {
+		if (getOptions().accountType == SupportedAccountType.FULL_AND_VISIO) {
+			return AccountType.FULL_AND_VISIO;
+		}
+
+		return AccountType.FULL;
 	}
 
 	@Override
 	public boolean mustBeExecuted() {
-		return getOptions().password != null;
+		return getOptions().accountType != null;
 	}
 
 	@Override
 	public void check() {
-		getOptions().password = getOptions().password.trim();
-
-		if (getOptions().password.isEmpty()) {
-			throw new CliException("Password must not be empty");
-		}
 	}
 
 	@Override
 	public void execute(String domainUid, ItemValue<User> user) {
-		ctx.adminApi().instance(IUser.class, domainUid).setPassword(user.uid,
-				ChangePassword.create(getOptions().password));
+		ctx.adminApi().instance(IUser.class, domainUid).updateAccountType(user.uid, getAccountType());
 	}
 }
