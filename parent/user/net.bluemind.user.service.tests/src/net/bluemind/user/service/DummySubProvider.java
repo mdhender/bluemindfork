@@ -21,6 +21,8 @@ import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
+import javax.sql.DataSource;
+
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.system.api.SubscriptionInformations;
 import net.bluemind.system.api.SubscriptionInformations.InstallationIndicator;
@@ -57,7 +59,7 @@ public class DummySubProvider implements ISubscriptionProvider {
 	}
 
 	@Override
-	public void updateSubscription(byte[] sub, Distribution serverOS) throws ServerFault {
+	public void updateSubscription(DataSource dataSource, byte[] sub, Distribution serverOS) throws ServerFault {
 		// not implemented, only for tests
 	}
 
