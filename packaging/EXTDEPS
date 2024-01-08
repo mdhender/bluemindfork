@@ -3,7 +3,7 @@ BMSDS="5.0.0-370"
 
 BMES="7.17.15-bluemind109"
 
-BMKEYCLOAK="22.0.5-bluemind833"
+BMKEYCLOAK="22.0.5-bluemind845"
 
 KAFKA_REPL="0.1.0-bluemind513"
 KAFKA="3.6.1-bluemind731"
@@ -34,7 +34,7 @@ GRAFANA_STACK="${GRAFANA}-bluemind752"
 # PostgreSQL
 # Use EXTDEPS-getlastpg.sh if you need to modify (requires python3 + requests for RHEL)
 # Example: ./EXTDEPS-getlastpg.sh 16 | sort # for PostgreSQL 16
-BMPOSTGRESQL="16.1-bluemind839"
+BMPOSTGRESQL="16.1-bluemind846"
 
 # Override from EXTDEPS-getlastpg
 PG_FOCAL="16.1-1.pgdg20.04+1"
