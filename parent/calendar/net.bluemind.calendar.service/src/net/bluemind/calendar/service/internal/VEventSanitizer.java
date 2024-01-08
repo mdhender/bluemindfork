@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -311,15 +312,18 @@ public class VEventSanitizer {
 			return rrule.byDay;
 		}
 
+		List<WeekDay> weekDays = new ArrayList<>(new HashSet<>(rrule.byDay));
+		Collections.sort(weekDays, (weekDay1, weekDay2) -> Integer.compare(weekDay1.toInt(), weekDay2.toInt()));
+
 		boolean notMonthlyAndNotYearly = rrule.frequency != Frequency.MONTHLY && rrule.frequency != Frequency.YEARLY;
 		boolean yearlyWithWeekNo = rrule.frequency == Frequency.YEARLY
 				&& (rrule.byWeekNo != null && !rrule.byWeekNo.isEmpty());
 
 		if (!notMonthlyAndNotYearly && !yearlyWithWeekNo) {
-			return rrule.byDay;
+			return weekDays;
 		}
 
-		return rrule.byDay.stream().map(d -> new WeekDay(d.day, 0)).collect(Collectors.toList());
+		return weekDays.stream().map(d -> new WeekDay(d.day, 0)).distinct().toList();
 	}
 
 	private void sanitizePrecision(BmDateTime dtStart, BmDateTime toAdapt) {
