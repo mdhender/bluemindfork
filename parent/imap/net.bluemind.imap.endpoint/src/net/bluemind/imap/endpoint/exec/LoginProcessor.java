@@ -43,7 +43,8 @@ public class LoginProcessor implements CommandProcessor<LoginCommand> {
 	@Override
 	public void operation(LoginCommand lc, ImapContext ctx, Handler<AsyncResult<Void>> completed) {
 		MailboxDriver driver = Drivers.activeDriver();
-		MailboxConnection connection = driver.open(lc.login(), lc.password());
+		MailboxConnection connection = driver.open(lc.login(), lc.password(),
+				ctx.socket().remoteAddress().hostAddress());
 		if (connection != null) {
 			ctx.mailbox(connection);
 			ctx.state(SessionState.AUTHENTICATED);

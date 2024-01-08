@@ -22,8 +22,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import net.bluemind.common.vertx.contextlogging.ContextualData;
@@ -50,7 +48,6 @@ public class AuthenticatePlainProcessor extends StateConstrainedCommandProcessor
 		String tag = ContextualData.get("auth_tag");
 		logger.info("{} PLAIN for {}", tag, lc);
 
-		ByteBuf authBuf = Unpooled.wrappedBuffer(lc.payload());
 		List<String> parts = Base64Splitter.splitOnNull(lc.payload());
 		if (parts.size() == 3) {
 			String login = parts.get(1);
@@ -60,7 +57,7 @@ public class AuthenticatePlainProcessor extends StateConstrainedCommandProcessor
 			}
 
 			MailboxDriver driver = Drivers.activeDriver();
-			MailboxConnection connection = driver.open(login, pass);
+			MailboxConnection connection = driver.open(login, pass, ctx.socket().remoteAddress().hostAddress());
 			if (connection != null) {
 				ctx.mailbox(connection);
 				ctx.state(SessionState.AUTHENTICATED);
@@ -87,12 +84,12 @@ public class AuthenticatePlainProcessor extends StateConstrainedCommandProcessor
 			Handler<AsyncResult<Void>> completed) {
 		return ctx.state() == SessionState.IN_AUTH;
 	}
-	
+
 	@Override
 	public Class<AuthenticatePlainCommand> handledType() {
 		return AuthenticatePlainCommand.class;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "PlainAuthenticate";

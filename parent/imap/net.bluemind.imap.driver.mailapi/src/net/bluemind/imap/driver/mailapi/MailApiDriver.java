@@ -27,6 +27,8 @@ import net.bluemind.authentication.api.AuthUser;
 import net.bluemind.authentication.api.IAuthentication;
 import net.bluemind.authentication.api.LoginResponse;
 import net.bluemind.authentication.api.LoginResponse.Status;
+import net.bluemind.authentication.mgmt.api.ISessionsMgmt;
+import net.bluemind.authentication.mgmt.api.SessionUpdate;
 import net.bluemind.config.BmIni;
 import net.bluemind.config.Token;
 import net.bluemind.core.rest.IServiceProvider;
@@ -56,7 +58,7 @@ public class MailApiDriver implements MailboxDriver {
 	}
 
 	@Override
-	public MailboxConnection open(String ak, String sk) {
+	public MailboxConnection open(String ak, String sk, String remoteIp) {
 		LoginResponse login;
 		try {
 			login = anonAuthApi.login(ak, sk, "imap-endpoint");
@@ -70,9 +72,14 @@ public class MailApiDriver implements MailboxDriver {
 		}
 		IServiceProvider userProv = SPResolver.get().resolve(login.authKey);
 		AuthUser current = userProv.instance(IAuthentication.class).getCurrentUser();
+		boolean authWithExistingToken = login.authKey.equals(sk);
+		if (!authWithExistingToken) {
+			ISessionsMgmt sessMgmt = userProv.instance(ISessionsMgmt.class);
+			sessMgmt.updateCurrent(SessionUpdate.forIp(remoteIp));
+		}
 		logger.info("[{}] logged-in.", current.value.defaultEmail());
 		return new MailApiConnection(userProv, SPResolver.get().resolve(Token.admin0()), current,
-				!login.authKey.equals(sk), sharedMap);
+				!authWithExistingToken, sharedMap);
 	}
 
 	@Override

@@ -57,13 +57,13 @@ public class Appender implements Runnable {
 					msg = sc.uidFetchMessage(result);
 				}
 				int newResult = sc.append("INBOX", msg.source().openStream(), unflagged);
-				if (newResult < 0) {
+				if (newResult <= 0) {
 					failed.incrementAndGet();
 					break;
 				} else {
 					ok.incrementAndGet();
-					boolean ok = sc.uidStore(Arrays.asList(result), del, true);
-					assertTrue("flagging of " + result + " failed", ok);
+					boolean ok = sc.uidStore(Arrays.asList(newResult), del, true);
+					assertTrue("flagging of " + newResult + " failed", ok);
 					result = newResult;
 					ok = sc.noop();
 					assertTrue("noop failed", ok);

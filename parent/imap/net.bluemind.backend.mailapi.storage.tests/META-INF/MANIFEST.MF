@@ -36,5 +36,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.system.state,
  net.bluemind.imap.endpoint,
  net.bluemind.delivery.conversationreference.service,
- net.bluemind.delivery.conversationreference.sqlschema
+ net.bluemind.delivery.conversationreference.sqlschema,
+ net.bluemind.authentication.mgmt.service;bundle-version="5.0.0"
 Bundle-ActivationPolicy: lazy

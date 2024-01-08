@@ -27,7 +27,7 @@ public class MockMailboxDriver implements MailboxDriver {
 	public static int maxLiteralSize = 1024 * 1024;
 
 	@Override
-	public MailboxConnection open(String ak, String sk) {
+	public MailboxConnection open(String ak, String sk, String ip) {
 		return new MockConnection(model, ak, sk);
 	}
 

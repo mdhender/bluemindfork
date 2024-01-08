@@ -29,6 +29,7 @@ import com.google.common.base.Splitter;
 
 import net.bluemind.authentication.mgmt.api.ISessionsMgmt;
 import net.bluemind.authentication.mgmt.api.SessionEntry;
+import net.bluemind.authentication.mgmt.api.SessionUpdate;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
@@ -76,5 +77,16 @@ public class SessionsMgmt implements ISessionsMgmt {
 								.findByEntryUid(sc.getSubject())).map(de -> de.email).orElse(null),
 						sc.getContainerUid(), sc.getSubject(), sc.getOrigin(), sc.getRemoteAddresses()))
 				.collect(Collectors.toList());
+	}
+
+	@Override
+	public void updateCurrent(SessionUpdate ud) {
+		RBACManager.forContext(context).checkNotAnoynmous();
+		String sid = context.getSecurityContext().getSessionId();
+		if (!context.getSecurityContext().fromGlobalVirt() && sid != null) {
+			SecurityContext current = Sessions.get().getIfPresent(sid);
+			Sessions.get().put(sid, current.from(ud.remoteIps));
+			logger.info("Remote IPs updated to {}", ud.remoteIps);
+		}
 	}
 }

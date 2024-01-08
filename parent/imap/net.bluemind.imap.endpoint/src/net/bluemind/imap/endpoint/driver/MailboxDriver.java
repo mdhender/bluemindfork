@@ -20,7 +20,7 @@ package net.bluemind.imap.endpoint.driver;
 
 public interface MailboxDriver {
 
-	MailboxConnection open(String ak, String sk);
+	MailboxConnection open(String ak, String sk, String remoteIp);
 
 	int maxLiteralSize();
 

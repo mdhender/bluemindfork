@@ -42,6 +42,7 @@ Require-Bundle: org.junit,
  net.bluemind.core.auditlogs,
  net.bluemind.core.auditlogs.client.es,
  net.bluemind.system.state,
- net.bluemind.core.auditlogs.client.loader
+ net.bluemind.core.auditlogs.client.loader,
+ net.bluemind.authentication.mgmt.service;bundle-version="5.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.imap.tests
