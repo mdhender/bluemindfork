@@ -5,6 +5,7 @@ public class ImapConfig {
 	public static final String OVERRIDE_PATH = "/etc/bm/imap.conf";
 
 	public static final String PORT = "imap.port";
+	public static final String PROXY_PROTOCOL = "imap.proxy-protocol";
 	public static final String IDLE_TIMEOUT = "imap.idle-timeout";
 	public static final String CHUNK_SIZE = "imap.chunk-size";
 

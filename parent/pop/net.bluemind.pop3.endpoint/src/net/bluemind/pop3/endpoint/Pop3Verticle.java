@@ -26,6 +26,7 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Context;
 import io.vertx.core.Promise;
 import io.vertx.core.Verticle;
+import io.vertx.core.net.NetServerOptions;
 import net.bluemind.lib.vertx.ContextNetSocket;
 import net.bluemind.lib.vertx.IVerticleFactory;
 import net.bluemind.lib.vertx.VertxContext;
@@ -52,7 +53,10 @@ public class Pop3Verticle extends AbstractVerticle {
 	public void start(Promise<Void> startPromise) throws Exception {
 		Config conf = Pop3Config.get();
 		int port = conf.getInt("pop3.port");
-		vertx.createNetServer().connectHandler(socket -> {
+		NetServerOptions opts = new NetServerOptions();
+		opts.setTcpFastOpen(true).setTcpNoDelay(true).setTcpQuickAck(true);
+		opts.setUseProxyProtocol(conf.getBoolean("pop3.proxy-protocol"));
+		vertx.createNetServer(opts).connectHandler(socket -> {
 			Context ctx = VertxContext.getOrCreateDuplicatedContext();
 			ctx.runOnContext(v -> new Pop3Session(vertx, ctx, new ContextNetSocket(ctx, socket)).start());
 		}).listen(port, ar -> {
