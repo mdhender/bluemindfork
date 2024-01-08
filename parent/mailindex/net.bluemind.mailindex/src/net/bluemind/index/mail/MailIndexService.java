@@ -229,6 +229,7 @@ public class MailIndexService implements IMailIndexService {
 		ElasticsearchClient esClient = getIndexClient();
 		String boxAlias = getWriteIndexAliasName(box.uid);
 		return getUserAliasIndex(boxAlias, esClient).map(boxIndex -> {
+			ESearchActivator.refreshIndex(boxIndex);
 			long deletedCount = 0;
 			Iterator<IDRange> iter = set.iterator();
 			while (iter.hasNext()) {
@@ -450,6 +451,7 @@ public class MailIndexService implements IMailIndexService {
 	@Override
 	public void expunge(ItemValue<Mailbox> box, ItemValue<MailboxFolder> f, IDSet set) {
 		logger.info("(expunge) expunge: {} {}", f.displayName, set);
+
 		long deletedCount = deleteSet(box, f, set);
 		logger.info("expunge {} ({}) : {} deleted", f.displayName, set, deletedCount);
 	}

@@ -26,7 +26,6 @@ public class WithId<T> {
 	public T value;
 
 	public WithId() {
-		// needed for Jackson
 	}
 
 	public WithId(long itemId, T value) {

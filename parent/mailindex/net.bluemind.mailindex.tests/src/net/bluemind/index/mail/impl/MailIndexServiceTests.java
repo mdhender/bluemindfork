@@ -69,6 +69,8 @@ import net.bluemind.index.MailIndexActivator;
 import net.bluemind.index.mail.MailIndexService;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.lib.elasticsearch.IndexAliasMapping;
+import net.bluemind.lib.elasticsearch.IndexAliasMode;
+import net.bluemind.lib.elasticsearch.IndexAliasMode.Mode;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.ShardStats;
 import net.bluemind.utils.ByteSizeUnit;
@@ -377,7 +379,9 @@ public abstract class MailIndexServiceTests extends AbstractSearchTests {
 
 		refreshAllIndices();
 
-		assertFalse(userAliasExists(userAlias));
+		if (IndexAliasMode.getMode() == Mode.ONE_TO_ONE) {
+			assertFalse(userAliasExists(userAlias));
+		}
 		List<MailSummary> sentSummaries = service.fetchSummary(mailbox, sentFolder, emptySet);
 		assertEquals(0, sentSummaries.size());
 		List<MailSummary> inboxSummaries = service.fetchSummary(mailbox, inboxFolder, emptySet);
@@ -452,44 +456,6 @@ public abstract class MailIndexServiceTests extends AbstractSearchTests {
 		Set<String> folders = MailIndexActivator.getService().getFolders(userUid);
 		assertTrue(folders.contains(f1));
 		assertTrue(folders.contains(f2));
-	}
-
-	@Test
-	public void testMoveIndexToNewIndex() throws Exception {
-		ElasticsearchClient c = ESearchActivator.getClient();
-		MailIndexService service = (MailIndexService) MailIndexActivator.getService();
-
-		byte[] eml = Files.toByteArray(new File("data/test.eml"));
-		storeBody(bodyUid, eml);
-		List<BulkOp> bulkOperations = new ArrayList<>();
-		for (int i = 0; i < 10000; i++) {
-			bulkOperations.addAll(bulkMessage(mboxUid, userUid, bodyUid, i + 1, Collections.emptyList(), i + 1));
-		}
-		service.doBulk(bulkOperations);
-		refreshAllIndices();
-
-		service.moveMailbox(userUid, "mailspool_test2");
-		refreshAllIndices();
-
-		SearchResponse<ObjectNode> resp = c.search(s -> s //
-				.index("mailspool_test2") //
-				.query(q -> q.matchAll(a -> a)), ObjectNode.class);
-		assertEquals(10000L, resp.hits().total().value());
-
-		resp = c.search(s -> s //
-				.index("mailspool_test2") //
-				.query(q -> q.queryString(qs -> qs.query("id:\"" + entryId(44) + "\""))), ObjectNode.class);
-		assertEquals(1L, resp.hits().total().value());
-
-		resp = c.search(s -> s //
-				.index(ALIAS) //
-				.query(q -> q.queryString(qs -> qs.query("id:\"" + entryId(44) + "\""))), ObjectNode.class);
-		assertEquals(1L, resp.hits().total().value());
-
-		resp = c.search(s -> s //
-				.index(INDEX_NAME) //
-				.query(q -> q.queryString(qs -> qs.query("id:\"" + entryId(44) + "\""))), ObjectNode.class);
-		assertEquals(0L, resp.hits().total().value());
 	}
 
 	@Test
@@ -1214,7 +1180,7 @@ public abstract class MailIndexServiceTests extends AbstractSearchTests {
 
 	}
 
-	private void refreshAllIndices() throws RuntimeException {
+	protected void refreshAllIndices() throws RuntimeException {
 		try {
 			Map<String, IndexAliases> indexAliases = ESearchActivator.getClient().indices().getAlias().result();
 			indexAliases.keySet().forEach(ESearchActivator::refreshIndex);

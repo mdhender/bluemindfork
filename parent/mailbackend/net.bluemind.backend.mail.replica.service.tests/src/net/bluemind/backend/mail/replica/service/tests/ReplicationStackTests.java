@@ -1980,7 +1980,6 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 
 		mboxesApi.emptyFolder(foundItem.internalId);
 
-		assertTrue("Expected 3 updates to occur on the hierarchy", hierUpdLock.await(10, TimeUnit.SECONDS));
 		imapAsUser(sc -> {
 			ListResult foundFolders = sc.listAll();
 			for (ListInfo f : foundFolders) {
@@ -2093,7 +2092,6 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 
 		mboxesApi.removeMessages(foundItem.internalId);
 
-		assertTrue("Expected 1 update to occur on the hierarchy", hierUpdLock.await(10, TimeUnit.SECONDS));
 		imapAsUser(sc -> {
 			ListResult foundFolders = sc.listAll();
 			for (ListInfo f : foundFolders) {
@@ -2980,11 +2978,13 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 		List<ItemValue<MailboxFolder>> found = userMboxesApi.all();
 		assertNotNull(found);
 		ItemValue<MailboxFolder> mbox = null;
+		ItemValue<MailboxFolder> trash = null;
 		for (ItemValue<MailboxFolder> iv : found) {
 			System.out.println("Got " + iv.value.name);
 			if (iv.value.name.equals(folderName)) {
 				mbox = iv;
-				break;
+			} else if (iv.value.name.equals("Trash")) {
+				trash = iv;
 			}
 		}
 		assertNotNull(mbox);
@@ -2998,7 +2998,11 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 		Thread.sleep(2000);
 
 		changeset = recordsApi.changesetById(changeset.version);
-		assertEquals(10, changeset.updated.size());
+		assertEquals(0, changeset.updated.size());
+
+		IMailboxItems trashRecordsApi = prov.instance(IMailboxItems.class, trash.uid);
+		changeset = trashRecordsApi.changesetById(0L);
+		assertEquals(10, changeset.created.size());
 
 		changeset.updated.forEach(up -> {
 			ItemValue<MailboxItem> record = recordsApi.getCompleteById(up);

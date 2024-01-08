@@ -18,8 +18,25 @@
  */
 package net.bluemind.index.mail.impl;
 
-import org.junit.Before;
+import static org.junit.Assert.assertEquals;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import org.junit.Before;
+import org.junit.Test;
+
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.io.Files;
+
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import net.bluemind.backend.mail.replica.indexing.IMailIndexService.BulkOp;
+import net.bluemind.index.MailIndexActivator;
+import net.bluemind.index.mail.MailIndexService;
+import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.lib.elasticsearch.ElasticsearchClientConfig;
 
 public class DefaultMailIndexServiceTests extends MailIndexServiceTests {
@@ -33,6 +50,44 @@ public class DefaultMailIndexServiceTests extends MailIndexServiceTests {
 		System.setProperty(ALIAS_RING_MODE_ALIAS_COUNT_MULTIPLIER, "0");
 		ElasticsearchClientConfig.reload();
 		super.before();
+	}
+
+	@Test
+	public void testMoveIndexToNewIndex() throws Exception {
+		ElasticsearchClient c = ESearchActivator.getClient();
+		MailIndexService service = (MailIndexService) MailIndexActivator.getService();
+
+		byte[] eml = Files.toByteArray(new File("data/test.eml"));
+		storeBody(bodyUid, eml);
+		List<BulkOp> bulkOperations = new ArrayList<>();
+		for (int i = 0; i < 10000; i++) {
+			bulkOperations.addAll(bulkMessage(mboxUid, userUid, bodyUid, i + 1, Collections.emptyList(), i + 1));
+		}
+		service.doBulk(bulkOperations);
+		refreshAllIndices();
+
+		service.moveMailbox(userUid, "mailspool_test2");
+		refreshAllIndices();
+
+		SearchResponse<ObjectNode> resp = c.search(s -> s //
+				.index("mailspool_test2") //
+				.query(q -> q.matchAll(a -> a)), ObjectNode.class);
+		assertEquals(10000L, resp.hits().total().value());
+
+		resp = c.search(s -> s //
+				.index("mailspool_test2") //
+				.query(q -> q.queryString(qs -> qs.query("id:\"" + entryId(44) + "\""))), ObjectNode.class);
+		assertEquals(1L, resp.hits().total().value());
+
+		resp = c.search(s -> s //
+				.index(ALIAS) //
+				.query(q -> q.queryString(qs -> qs.query("id:\"" + entryId(44) + "\""))), ObjectNode.class);
+		assertEquals(1L, resp.hits().total().value());
+
+		resp = c.search(s -> s //
+				.index(INDEX_NAME) //
+				.query(q -> q.queryString(qs -> qs.query("id:\"" + entryId(44) + "\""))), ObjectNode.class);
+		assertEquals(0L, resp.hits().total().value());
 	}
 
 }

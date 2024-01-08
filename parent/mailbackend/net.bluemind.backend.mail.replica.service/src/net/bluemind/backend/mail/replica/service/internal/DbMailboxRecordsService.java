@@ -275,6 +275,11 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 	}
 
 	@Override
+	public void deleteById(long id) {
+		delete(storeService.get(id, null).uid);
+	}
+
+	@Override
 	public List<ItemValue<MailboxRecord>> all() {
 		return storeService.all();
 	}
@@ -456,7 +461,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 			int deletes = softDelete.get();
 			if (System.currentTimeMillis() - time > 500) {
 				logger.info("[{}] Db CRUD op, cr: {}, upd: {}, del: {} in {}ms", mailboxUniqueId, toCreate.size(),
-					toUpdate.size() - deletes, deletes, System.currentTimeMillis() - time);
+						toUpdate.size() - deletes, deletes, System.currentTimeMillis() - time);
 			}
 			return Optional.ofNullable(updVers.get()).map(Number::longValue).orElseGet(storeService::getVersion);
 		});
@@ -494,7 +499,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 				indexService.doBulk(operations);
 				esTime = System.currentTimeMillis() - esTime;
 				if (esTime > 500) {
-					logger.info("[{}] Es CRUD op, idx: {} in {}ms", mailboxUniqueId, pushToIndex.size(), esTime);	
+					logger.info("[{}] Es CRUD op, idx: {} in {}ms", mailboxUniqueId, pushToIndex.size(), esTime);
 				}
 			} catch (Exception e) {
 				logger.error("[{}] Es CRUD op failed", mailboxUniqueId, e);

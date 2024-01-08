@@ -18,6 +18,7 @@
 package net.bluemind.backend.mail.replica.service.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.InputStream;
@@ -35,6 +36,7 @@ import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.api.MailboxItem;
+import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.MailboxRecord.InternalFlag;
 import net.bluemind.core.container.model.ContainerChangeset;
@@ -155,7 +157,15 @@ public class MailboxItemsTests extends AbstractRollingReplicationTests {
 		Thread.sleep(250);
 
 		ItemValue<MailboxItem> item = mailApi.getCompleteById(deletedId);
-		assertExunged(item);
+		assertNull(item);
+
+		ItemValue<MailboxFolder> trash = foldersApi().byName("Trash");
+		IMailboxItems trashService = provider().instance(IMailboxItems.class, trash.uid);
+		ContainerChangeset<ItemVersion> filteredChangesetById = trashService.filteredChangesetById(0l,
+				ItemFlagFilter.all());
+		ItemVersion itemVersion = filteredChangesetById.created.get(0);
+		ItemValue<MailboxItem> itemInTrash = trashService.getCompleteById(itemVersion.id);
+		assertTrue(itemInTrash.value.flags.contains(MailboxItemFlag.System.Deleted.value()));
 	}
 
 	@Test
@@ -172,12 +182,18 @@ public class MailboxItemsTests extends AbstractRollingReplicationTests {
 		Thread.sleep(500);
 
 		List<ItemValue<MailboxItem>> records = mailApi.multipleGetById(deletedIds);
-		assertExpunge(deletedIds, records);
-	}
+		assertTrue(records.isEmpty());
 
-	protected void assertExunged(ItemValue<MailboxItem> item) {
-		assertTrue("Should contain 'expunged' internal flag",
-				((MailboxRecord) item.value).internalFlags.contains(InternalFlag.expunged));
+		ItemValue<MailboxFolder> trash = foldersApi().byName("Trash");
+		IMailboxItems trashService = provider().instance(IMailboxItems.class, trash.uid);
+		ContainerChangeset<ItemVersion> filteredChangesetById = trashService.filteredChangesetById(0l,
+				ItemFlagFilter.all());
+		assertEquals(filteredChangesetById.created.size(), deletedIds.size());
+
+		for (ItemVersion itemVersion : filteredChangesetById.created) {
+			ItemValue<MailboxItem> itemInTrash = trashService.getCompleteById(itemVersion.id);
+			assertTrue(itemInTrash.value.flags.contains(MailboxItemFlag.System.Deleted.value()));
+		}
 	}
 
 	protected void assertExpunge(List<Long> deletedIds, List<ItemValue<MailboxItem>> records) {

@@ -39,6 +39,7 @@ import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.api.utils.FolderTree;
 import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
+import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.MailboxRecord.InternalFlag;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
@@ -60,7 +61,11 @@ import net.bluemind.core.container.model.ItemVersion;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
+import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.directory.api.DirEntry;
+import net.bluemind.directory.api.IDirectory;
 
 public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesService
 		implements IMailboxFolders, IMailboxFoldersByContainer {
@@ -182,6 +187,14 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 			throw ServerFault.notFound("Folder with id " + id + " has already been deleted.");
 		}
 
+		IDbMailboxRecords recordService = context.provider().instance(IDbMailboxRecords.class, toDelete.uid);
+
+		DirEntry dirEntry = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDirectory.class, container.domainUid).findByEntryUid(container.owner);
+		String subtreeContainer = IMailReplicaUids.subtreeUid(container.domainUid, dirEntry);
+		Trash trash = new Trash(context, subtreeContainer, recordService);
+		trash.deleteItems(toDelete.internalId, recordService.all().stream().map(rec -> rec.internalId).toList());
+
 		IDbByContainerReplicatedMailboxes writeDelegate = context.provider()
 				.instance(IDbByContainerReplicatedMailboxes.class, container.uid);
 		writeDelegate.delete(toDelete.uid);
@@ -221,14 +234,23 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 			throw ServerFault.notFound("Folder with id " + id + " not found");
 		}
 		ItemFlagFilter filter = ItemFlagFilter.create().mustNot(ItemFlag.Deleted);
-		Count count = context.provider().instance(IDbMailboxRecords.class, folder.uid).count(filter);
+		IDbMailboxRecords recordService = context.provider().instance(IDbMailboxRecords.class, folder.uid);
+		Count count = recordService.count(filter);
 		logger.info("Start emptying {} (deleteChildFolders={})...", folder, deleteChildFolders);
 		if (deleteChildFolders) {
 			deleteChildFolders(folder);
 		}
 		logger.info("On purge of '{}'", folder.value.fullName);
 		if (count.total > 0) {
-			flag(folder, MailboxItemFlag.System.Deleted);
+			if (folder.value.name.equals("Trash") && folder.value.parentUid == null) {
+				flag(folder, MailboxItemFlag.System.Deleted);
+			} else {
+				DirEntry dirEntry = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+						.instance(IDirectory.class, container.domainUid).findByEntryUid(container.owner);
+				String subtreeContainer = IMailReplicaUids.subtreeUid(container.domainUid, dirEntry);
+				Trash trash = new Trash(context, subtreeContainer, recordService);
+				trash.deleteItems(folder.internalId, recordService.all().stream().map(rec -> rec.internalId).toList());
+			}
 		}
 	}
 

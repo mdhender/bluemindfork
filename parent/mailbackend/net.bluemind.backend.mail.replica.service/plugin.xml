@@ -120,7 +120,7 @@
             class="net.bluemind.backend.mail.replica.service.UserInboxServiceFactory">
       </serviceFactory>
       <serviceFactory
-            class="net.bluemind.backend.mail.replica.service.internal.ItemsTransferService$Factory">
+            class="net.bluemind.backend.mail.replica.service.internal.ItemsTransferServiceFactory">
       </serviceFactory>
       <serviceFactory
             class="net.bluemind.backend.mail.replica.service.internal.MessageBodyTierChangeService$Factory">

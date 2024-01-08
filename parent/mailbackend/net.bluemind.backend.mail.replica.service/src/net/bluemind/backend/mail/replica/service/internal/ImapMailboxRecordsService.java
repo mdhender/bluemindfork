@@ -120,6 +120,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 	private final Supplier<IDbByContainerReplicatedMailboxes> foldersWriteDelegate;
 	private long folderItemId;
 	private final Supplier<MailboxItemDecomposer> decomposer;
+	private final String subtreeContainer;
 
 	private static final MailboxItemFlag mdnSentFlag = new MailboxItemFlag("$MDNSent");
 
@@ -132,6 +133,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		this.imapFolder = recordsLocation.imapPath(context);
 		this.namespace = recordsLocation.namespace();
 		this.folderItemId = recordsLocation.folderItemId;
+		this.subtreeContainer = recordsLocation.subtreeContainer;
 
 		logger.debug("namespace {}, subtree {}", namespace, recordsLocation);
 
@@ -512,9 +514,8 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 				OutputStream out = Files.newOutputStream(partFile(addr).toPath())) {
 			ByteStreams.copy(ri, out);
 			time = System.currentTimeMillis() - time;
-			if (time > 500)
-			{
-				logger.warn("[{}] Upload Part tooks {}ms", addr, time);	
+			if (time > 500) {
+				logger.warn("[{}] Upload Part tooks {}ms", addr, time);
 			}
 			return addr;
 		} catch (Exception e) {
@@ -570,8 +571,13 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 		rbac.check(Verb.Write.name());
 
-		FlagUpdate flagUpdate = FlagUpdate.of(ids, MailboxItemFlag.System.Deleted.value());
-		addFlag(flagUpdate);
+		if (!imapFolder.equals("Trash")) {
+			Trash trash = new Trash(context, subtreeContainer, writeDelegate.get());
+			trash.deleteItems(folderItemId, ids);
+		} else {
+			FlagUpdate flagUpdate = FlagUpdate.of(ids, MailboxItemFlag.System.Deleted.value());
+			addFlag(flagUpdate);
+		}
 
 	}
 

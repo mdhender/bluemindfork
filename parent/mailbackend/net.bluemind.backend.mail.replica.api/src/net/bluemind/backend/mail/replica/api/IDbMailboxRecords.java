@@ -114,6 +114,10 @@ public interface IDbMailboxRecords extends IChangelogSupport, IDataShardSupport,
 	@Path("{uid}")
 	void delete(@PathParam("uid") String uid);
 
+	@DELETE
+	@Path("id/{id}")
+	void deleteById(@PathParam("id") long id);
+
 	@POST
 	@Path("_updates")
 	Ack updates(List<MailboxRecord> records);
