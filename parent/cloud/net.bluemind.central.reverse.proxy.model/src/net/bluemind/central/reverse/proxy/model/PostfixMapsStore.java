@@ -7,12 +7,15 @@ import static net.bluemind.central.reverse.proxy.model.common.PostfixMapsStoreEv
 import static net.bluemind.central.reverse.proxy.model.common.PostfixMapsStoreEventBusAddress.ALIAS_TO_MAILBOX;
 import static net.bluemind.central.reverse.proxy.model.common.PostfixMapsStoreEventBusAddress.DEL_DIR_NAME;
 import static net.bluemind.central.reverse.proxy.model.common.PostfixMapsStoreEventBusAddress.DEL_DOMAIN_NAME;
+import static net.bluemind.central.reverse.proxy.model.common.PostfixMapsStoreEventBusAddress.HEADER_ACTION;
+import static net.bluemind.central.reverse.proxy.model.common.PostfixMapsStoreEventBusAddress.HEADER_TS;
 import static net.bluemind.central.reverse.proxy.model.common.PostfixMapsStoreEventBusAddress.MAILBOX_DOMAIN_MANAGED;
 import static net.bluemind.central.reverse.proxy.model.common.PostfixMapsStoreEventBusAddress.MAILBOX_EXISTS;
 import static net.bluemind.central.reverse.proxy.model.common.PostfixMapsStoreEventBusAddress.MAILBOX_STORE;
 import static net.bluemind.central.reverse.proxy.model.common.PostfixMapsStoreEventBusAddress.MANAGE_MEMBER_NAME;
 import static net.bluemind.central.reverse.proxy.model.common.PostfixMapsStoreEventBusAddress.SRS_RECIPIENT;
-import static net.bluemind.central.reverse.proxy.model.common.PostfixMapsStoreEventBusAddress.TIME_WARN;
+import static net.bluemind.central.reverse.proxy.model.common.PostfixMapsStoreEventBusAddress.TIME_MANAGE_WARN;
+import static net.bluemind.central.reverse.proxy.model.common.PostfixMapsStoreEventBusAddress.TIME_PROCES_WARN;
 import static net.bluemind.central.reverse.proxy.model.common.PostfixMapsStoreEventBusAddress.UPDATE_DOMAIN_SETTINGS_NAME;
 
 import java.util.concurrent.CompletableFuture;
@@ -54,9 +57,10 @@ public class PostfixMapsStore {
 
 	public PostfixMapsStore setupService(Vertx vertx) {
 		consumer = vertx.eventBus().<JsonObject>consumer(ADDRESS).handler(event -> {
+			logEventProcessDuration(event);
 			long time = System.currentTimeMillis();
 
-			String action = event.headers().get("action");
+			String action = event.headers().get(HEADER_ACTION);
 			switch (action) {
 			case ADD_INSTALLATION_NAME:
 				addInstallation(event);
@@ -101,12 +105,27 @@ public class PostfixMapsStore {
 			time = System.currentTimeMillis() - time;
 			if (logger.isDebugEnabled()) {
 				logger.debug("PostfixMapsStore: vertx event consumption took {}ms long", time);
-			} else if (time > TIME_WARN) {
-				logger.warn("PostfixMapsStore: vertx event consumption took {}ms long", time);
+			} else if (time > TIME_MANAGE_WARN) {
+				logger.warn("PostfixMapsStore: vertx event consumption took more than {}ms long: {}ms",
+						TIME_MANAGE_WARN, time);
 			}
 		});
 
 		return this;
+	}
+
+	private void logEventProcessDuration(Message<JsonObject> event) {
+		try {
+			long ts = Long.parseLong(event.headers().get(HEADER_TS));
+
+			long processTime = System.currentTimeMillis() - ts;
+			if (processTime > TIME_PROCES_WARN) {
+				logger.warn("PostfixMapsStore: vertx event process took more than {}ms long: {}ms", TIME_PROCES_WARN,
+						ts);
+			}
+		} catch (NumberFormatException nfe) {
+			// Ignore bad event timestamp
+		}
 	}
 
 	private void addInstallation(Message<JsonObject> event) {

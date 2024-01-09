@@ -6,8 +6,11 @@ import static net.bluemind.central.reverse.proxy.model.common.ProxyInfoStoreEven
 import static net.bluemind.central.reverse.proxy.model.common.ProxyInfoStoreEventBusAddress.ADD_INSTALLATION_NAME;
 import static net.bluemind.central.reverse.proxy.model.common.ProxyInfoStoreEventBusAddress.ALL_IPS_NAME;
 import static net.bluemind.central.reverse.proxy.model.common.ProxyInfoStoreEventBusAddress.ANY_IP_NAME;
+import static net.bluemind.central.reverse.proxy.model.common.ProxyInfoStoreEventBusAddress.HEADER_ACTION;
+import static net.bluemind.central.reverse.proxy.model.common.ProxyInfoStoreEventBusAddress.HEADER_TS;
 import static net.bluemind.central.reverse.proxy.model.common.ProxyInfoStoreEventBusAddress.IP_NAME;
-import static net.bluemind.central.reverse.proxy.model.common.ProxyInfoStoreEventBusAddress.TIME_WARN;
+import static net.bluemind.central.reverse.proxy.model.common.ProxyInfoStoreEventBusAddress.TIME_MANAGE_WARN;
+import static net.bluemind.central.reverse.proxy.model.common.ProxyInfoStoreEventBusAddress.TIME_PROCES_WARN;
 
 import java.util.Collections;
 import java.util.List;
@@ -50,9 +53,10 @@ public class ProxyInfoStore {
 
 	public ProxyInfoStore setupService(Vertx vertx) {
 		consumer = vertx.eventBus().<JsonObject>consumer(ADDRESS).handler(event -> {
+			logEventProcessDuration(event);
 			long time = System.currentTimeMillis();
 
-			String action = event.headers().get("action");
+			String action = event.headers().get(HEADER_ACTION);
 			switch (action) {
 			case ADD_DIR_NAME:
 				addDir(event);
@@ -78,13 +82,27 @@ public class ProxyInfoStore {
 
 			time = System.currentTimeMillis() - time;
 			if (logger.isDebugEnabled()) {
-				logger.debug("ProxyInfoStore: vertx event consumption took {}ms long", time);
-			} else if (time > TIME_WARN) {
-				logger.warn("ProxyInfoStore: vertx event consumption took {}ms long", time);
+				logger.debug("ProxyInfoStore: vertx event management took {}ms long", time);
+			} else if (time > TIME_MANAGE_WARN) {
+				logger.warn("ProxyInfoStore: vertx event management took more than {}ms long: {}ms", TIME_MANAGE_WARN,
+						time);
 			}
 		});
 
 		return this;
+	}
+
+	private void logEventProcessDuration(Message<JsonObject> event) {
+		try {
+			long ts = Long.parseLong(event.headers().get(HEADER_TS));
+
+			long processTime = System.currentTimeMillis() - ts;
+			if (processTime > TIME_PROCES_WARN) {
+				logger.warn("ProxyInfoStore: vertx event process took more than {}ms long: {}ms", TIME_PROCES_WARN, ts);
+			}
+		} catch (NumberFormatException nfe) {
+			// Ignore bad event timestamp
+		}
 	}
 
 	private void addDir(Message<JsonObject> event) {
