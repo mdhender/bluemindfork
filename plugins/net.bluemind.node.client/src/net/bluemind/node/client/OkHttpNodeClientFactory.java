@@ -90,6 +90,7 @@ public class OkHttpNodeClientFactory implements INodeClientFactory {
 			trySsl = true;
 		}
 		builder.followRedirects(false);
+		builder.readTimeout(5, TimeUnit.MINUTES);
 		builder.callTimeout(1, TimeUnit.HOURS);
 
 		ConnectionPool pool = new ConnectionPool(8, 30, TimeUnit.SECONDS);

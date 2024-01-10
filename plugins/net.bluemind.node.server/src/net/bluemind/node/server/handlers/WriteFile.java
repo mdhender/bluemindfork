@@ -36,10 +36,13 @@ import java.nio.file.attribute.PosixFilePermissions;
 import java.nio.file.attribute.UserDefinedFileAttributeView;
 import java.util.EnumSet;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.LongAdder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Stopwatch;
 
 import io.netty.buffer.ByteBuf;
 import io.vertx.core.Handler;
@@ -67,6 +70,7 @@ public class WriteFile implements Handler<HttpServerRequest> {
 	}
 
 	private void writeFile(final HttpServerRequest req, final String path) {
+		Stopwatch chrono = Stopwatch.createStarted();
 		// LC: write to temporary file, then move atomically, so the file is either
 		// fully written, or not present
 		Path originalPath = Paths.get(path);
@@ -103,7 +107,8 @@ public class WriteFile implements Handler<HttpServerRequest> {
 				safeClose(chan);
 				try {
 					Files.move(tempPath, originalPath, StandardCopyOption.ATOMIC_MOVE);
-					logger.info("PUT {} completed, wrote {} byte(s)", originalPath, len.sum());
+					logger.info("PUT {} completed, wrote {} byte(s) in {}ms.", originalPath, len.sum(),
+							chrono.elapsed(TimeUnit.MILLISECONDS));
 					req.response().end();
 				} catch (IOException e) {
 					logger.error("PUT {} rename to {} failed", tempPath, originalPath);
