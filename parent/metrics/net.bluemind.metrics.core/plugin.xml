@@ -37,6 +37,12 @@
    <extension
          point="net.bluemind.server.hook.serverhook">
       <hook
+            impl="net.bluemind.metrics.core.KeycloakTagHandler">
+      </hook>
+   </extension>
+   <extension
+         point="net.bluemind.server.hook.serverhook">
+      <hook
             impl="net.bluemind.metrics.core.OpenldapTagHandler">
       </hook>
    </extension>
@@ -205,6 +211,8 @@
             impl="net.bluemind.metrics.core.MemCachedTagHandler"/>
       <tick_input_configurator
             impl="net.bluemind.metrics.core.NginxTagHandler"/>
+      <tick_input_configurator
+            impl="net.bluemind.metrics.core.KeycloakTagHandler"/>
       <tick_input_configurator
             impl="net.bluemind.metrics.core.OpenldapTagHandler"/>
       <tick_input_configurator
