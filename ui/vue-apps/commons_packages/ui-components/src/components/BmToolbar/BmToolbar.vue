@@ -1,30 +1,20 @@
 <script>
+import { BmExtension, useExtensions } from "@bluemind/extensions.vue";
 import BmButtonToolbar from "../buttons/BmButtonToolbar";
 import BmIconDropdown from "../dropdown/BmIconDropdown";
 import OverflownElements from "../../directives/OverflownElements";
-import { getExtensionsContent, normalizeSlot } from "./toolbar";
 import { computed, h, ref, useAttrs, useListeners, useSlots } from "vue";
 
 const Toolbar = {
     extends: BmButtonToolbar,
-    props: {
-        context: {
-            type: Object,
-            default: () => {}
-        }
-    },
     provide() {
-        return { $context: { ...this.context, renderContext: "toolbar" } };
+        return { $context: "toolbar" };
     }
 };
 
 const Menu = {
     extends: BmIconDropdown,
     props: {
-        context: {
-            type: Object,
-            default: () => {}
-        },
         icon: {
             type: String,
             default: "3dots"
@@ -39,7 +29,7 @@ const Menu = {
         }
     },
     provide() {
-        return { $context: { ...this.context, renderContext: "menu" } };
+        return { $context: "menu" };
     }
 };
 
@@ -53,6 +43,7 @@ export default {
         }
     },
     setup(props) {
+        const { renderWebAppExtensions, normalizeSlot } = useExtensions();
         const slots = useSlots();
         const attrs = useAttrs();
         const listeners = useListeners();
@@ -64,32 +55,32 @@ export default {
             shown.value = nodes.length - hidden.value - 1;
         }
 
-        const toolbarClasses = computed(() => (menuEntries.value.length ? "bm-toolbar overflow" : "bm-toolbar"));
-
-        const extensions = computed(() => (props.extension ? getExtensionsContent(props.extension) : []));
-        const menuExtensions = computed(() => (props.extension ? getExtensionsContent(`${props.extension}.menu`) : []));
-        const items = computed(() => [...normalizeSlot(slots.default()), ...extensions.value]);
-        const menuEntries = computed(() => [
-            ...items.value.slice(items.value.length - hidden.value),
-            ...normalizeSlot(slots.menu()),
-            ...menuExtensions.value
-        ]);
-        const toolbarEntries = computed(() => [
-            ...items.value.slice(0, shown.value),
-            ...(menuEntries.value.length ? [h(Menu, { ref: "more", class: "overflow-menu" }, menuEntries.value)] : []),
-            ...items.value.slice(shown.value)
-        ]);
+        const extensions = computed(() => renderWebAppExtensions(props.extension));
+        const menuExtensions = computed(() => renderWebAppExtensions(`${props.extension}.menu`));
 
         return function render() {
+            const items = [...normalizeSlot(slots.default()), ...extensions.value];
+            const menuEntries = [
+                ...items.slice(items.length - hidden.value),
+                ...normalizeSlot(slots.menu()),
+                ...menuExtensions.value
+            ];
+            const toolbarEntries = [
+                ...items.slice(0, shown.value),
+                ...(menuEntries.length ? [h(Menu, { ref: "more", class: "overflow-menu" }, menuEntries)] : []),
+                ...items.slice(shown.value)
+            ];
+            const classes = menuEntries.length ? "bm-toolbar overflow" : "bm-toolbar";
+
             return h(
                 Toolbar,
                 {
-                    class: toolbarClasses.value,
+                    class: classes,
                     directives: [{ name: "overflown-elements" }],
                     on: { overflown, ...listeners },
                     attrs
                 },
-                toolbarEntries.value
+                toolbarEntries
             );
         };
     }

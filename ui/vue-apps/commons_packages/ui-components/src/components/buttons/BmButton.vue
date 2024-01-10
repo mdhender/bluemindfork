@@ -1,21 +1,40 @@
 <template>
-    <b-button class="bm-button" v-bind="$props" :disabled="disabled || loading" v-on="$listeners">
+    <b-button
+        v-if="!extension || !extensions.length"
+        class="bm-button"
+        v-bind="$props"
+        :disabled="disabled || loading"
+        v-on="$listeners"
+    >
         <bm-spinner v-if="loading" thick />
         <slot v-else name="icon">
             <bm-icon v-if="icon" :icon="icon" />
         </slot>
         <span class="slot-wrapper"><slot /></span>
     </b-button>
+    <bm-dropdown v-else class="bm-button" v-bind="$props" :disabled="disabled || loading" split v-on="$listeners">
+        <template #button-content>
+            <slot name="icon">
+                <bm-icon v-if="icon" :icon="icon" />
+            </slot>
+            <span class="slot-wrapper"><slot /></span>
+        </template>
+        <v-nodes :vnodes="extensions" />
+    </bm-dropdown>
 </template>
 
 <script>
+import { computed } from "vue";
 import { BButton } from "bootstrap-vue";
+import { useExtensions } from "@bluemind/extensions.vue";
+import VNodes from "../VNodes";
 import BmIcon from "../BmIcon";
+import BmDropdown from "../dropdown/BmDropdown";
 import BmSpinner from "../BmSpinner";
 
 export default {
     name: "BmButton",
-    components: { BButton, BmIcon, BmSpinner },
+    components: { BButton, BmDropdown, BmIcon, BmSpinner, VNodes },
     props: {
         // those props are only passed to BButton, they are set here to not be recognized as an attribute
         ...BButton.options.props,
@@ -49,7 +68,16 @@ export default {
                 return ["sm", "md", "lg"].includes(value);
             }
         },
-        loading: { type: Boolean, default: false }
+        loading: { type: Boolean, default: false },
+        extension: {
+            type: String,
+            default: undefined
+        }
+    },
+    setup(props) {
+        const { renderWebAppExtensions } = useExtensions();
+        const extensions = renderWebAppExtensions(props.extension);
+        return { extensions };
     },
     computed: {
         hasIcon() {

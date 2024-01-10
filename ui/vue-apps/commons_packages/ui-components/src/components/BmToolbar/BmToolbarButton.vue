@@ -1,12 +1,21 @@
 <script>
+import { useExtensions } from "@bluemind/extensions.vue";
 import BmButton from "../buttons/BmButton.vue";
 import BmDropdownItemButton from "../dropdown/BmDropdownItemButton.vue";
-import BmToolbarDropdown from "./BmToolbarDropdown.vue";
-import { getExtensionsContent, useToolbarContext } from "./toolbar";
+import BmDropdown from "../dropdown/BmDropdown.vue";
+import { useToolbarContext } from "./toolbar";
 import { computed, h, useAttrs, useListeners, useSlots } from "vue";
+import VNodes from "../VNodes.vue";
 
 export default {
     name: "BmToolbarButton",
+    components: {
+        BmButton,
+        BmDropdown,
+        BmDropdownItemButton,
+        VNodes
+    },
+    inheritAttrs: false,
     props: {
         extension: {
             type: String,
@@ -14,30 +23,22 @@ export default {
         }
     },
     setup(props) {
+        const { renderWebAppExtensions } = useExtensions();
         const attrs = useAttrs();
         const listeners = useListeners();
         const slots = useSlots();
         const { isInToolbar } = useToolbarContext();
-        console.log(attrs, slots.default);
-        const extensions = computed(() => (props.extension ? getExtensionsContent(props.extension) : []));
-        const options = computed(() => ({ attrs: { ...attrs }, on: listeners }));
 
-        const buildDropdownWithExtensions = () =>
-            h(BmToolbarDropdown, { ...options.value, attrs: { ...options.value.attrs, split: true } }, [
-                h("template", { slot: "button-content" }, slots.default()),
-                ...extensions.value
-            ]);
-
-        return function render() {
-            if (extensions.value.length) {
-                return buildDropdownWithExtensions();
-            }
-
-            if (isInToolbar.value) {
-                return h(BmButton, options.value, slots.default());
-            }
-            return h(BmDropdownItemButton, options.value, slots.default());
-        };
+        const extensions = computed(() => renderWebAppExtensions(props.extension));
+        return { extensions, isInToolbar };
     }
 };
 </script>
+
+<template>
+    <bm-button v-if="isInToolbar" v-bind="$attrs" :extension="extension" v-on="$listeners"><slot /></bm-button>
+    <bm-dropdown v-else-if="extensions.length" v-bind="$attrs" :text="$slots.default[0].text.trim()" v-on="$listeners">
+        <v-nodes :vnodes="extensions" />
+    </bm-dropdown>
+    <bm-dropdown-item-button v-else v-bind="$attrs" v-on="$listeners"><slot /> </bm-dropdown-item-button>
+</template>

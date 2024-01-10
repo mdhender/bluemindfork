@@ -1,14 +1,9 @@
 <template>
     <b-button
-        v-bind="$props"
+        v-if="!extension || !extensions.length"
+        v-bind="childProps"
         class="bm-icon-button"
-        :class="{
-            regular: regular,
-            compact: compact,
-            accent: variant === 'regular-accent',
-            danger: variant === 'compact-danger',
-            'on-fill-primary': variant.endsWith('on-fill-primary')
-        }"
+        :class="classes"
         :variant="'icon-' + variant"
         v-on="$listeners"
     >
@@ -16,15 +11,30 @@
             <bm-icon :icon="icon" />
         </slot>
     </b-button>
+    <bm-icon-dropdown
+        v-else
+        class="bm-icon-button"
+        :class="classes"
+        v-bind="[$attrs, childProps]"
+        :variant="variant"
+        split
+        v-on="$listeners"
+    >
+        <v-nodes :vnodes="extensions" />
+    </bm-icon-dropdown>
 </template>
 
 <script>
+import { computed } from "vue";
 import { BButton } from "bootstrap-vue";
+import { useExtensions } from "@bluemind/extensions.vue";
 import BmIcon from "../BmIcon";
+import BmIconDropdown from "../dropdown/BmIconDropdown";
+import VNodes from "../VNodes";
 
 export default {
     name: "BmIconButton",
-    components: { BButton, BmIcon },
+    components: { BButton, BmIconDropdown, BmIcon, VNodes },
     props: {
         ...BButton.options.props,
         variant: {
@@ -51,7 +61,16 @@ export default {
             validator: function (value) {
                 return ["sm", "md", "lg"].includes(value);
             }
+        },
+        extension: {
+            type: String,
+            default: undefined
         }
+    },
+    setup(props) {
+        const { renderWebAppExtensions } = useExtensions();
+        const extensions = renderWebAppExtensions(props.extension);
+        return { extensions };
     },
     computed: {
         regular() {
@@ -59,6 +78,19 @@ export default {
         },
         compact() {
             return this.variant.startsWith("compact");
+        },
+        classes() {
+            return {
+                regular: this.regular,
+                compact: this.compact,
+                accent: this.variant === "regular-accent",
+                danger: this.variant === "compact-danger",
+                "on-fill-primary": this.variant.endsWith("on-fill-primary")
+            };
+        },
+        childProps() {
+            const { extension, ...props } = this.$props;
+            return props;
         }
     }
 };

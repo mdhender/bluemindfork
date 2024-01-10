@@ -1,7 +1,7 @@
 <template>
     <bv-dropdown
         ref="b_dropdown"
-        v-bind="[$attrs, $props]"
+        v-bind="[$attrs, childProps]"
         class="bm-icon-dropdown"
         :class="{
             regular,
@@ -18,17 +18,20 @@
             </slot>
         </template>
         <slot />
+        <v-nodes v-if="extension && extensions.length" :vnodes="extensions" />
     </bv-dropdown>
 </template>
 
 <script>
+import { useExtensions } from "@bluemind/extensions.vue";
 import BmDropdownMixin from "./mixins/BmDropdownMixin";
 import BmIcon from "../BmIcon";
 import { BvDropdown } from "./BDropdown";
+import VNodes from "../VNodes";
 
 export default {
     name: "BmIconDropdown",
-    components: { BvDropdown, BmIcon },
+    components: { BvDropdown, BmIcon, VNodes },
     mixins: [BmDropdownMixin],
     props: {
         variant: {
@@ -63,7 +66,16 @@ export default {
         noCaret: {
             type: Boolean,
             default: false
+        },
+        extension: {
+            type: String,
+            default: undefined
         }
+    },
+    setup(props) {
+        const { renderWebAppExtensions } = useExtensions();
+        const extensions = renderWebAppExtensions(props.extension);
+        return { extensions };
     },
     computed: {
         regular() {
@@ -71,6 +83,10 @@ export default {
         },
         compact() {
             return this.variant.startsWith("compact");
+        },
+        childProps() {
+            const { extension, ...props } = this.$props;
+            return props;
         }
     }
 };

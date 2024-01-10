@@ -1,7 +1,7 @@
 <template>
     <bv-dropdown
         ref="b_dropdown"
-        v-bind="[$attrs, $props]"
+        v-bind="[$attrs, childProps]"
         :dropright="isSubMenu"
         class="bm-dropdown"
         :class="{
@@ -26,17 +26,20 @@
             </slot>
         </template>
         <slot />
+        <v-nodes v-if="extension && extensions.length" vnodes="extensions" />
     </bv-dropdown>
 </template>
 
 <script>
+import { useExtensions } from "@bluemind/extensions.vue";
 import BmDropdownMixin from "./mixins/BmDropdownMixin";
 import BmIcon from "../BmIcon";
 import { BvDropdown } from "./BDropdown";
+import VNodes from "../VNodes";
 
 export default {
     name: "BmDropdown",
-    components: { BvDropdown, BmIcon },
+    components: { BvDropdown, BmIcon, VNodes },
     mixins: [BmDropdownMixin],
     inject: {
         getBvDropdown: { default: () => () => null }
@@ -80,11 +83,24 @@ export default {
         split: {
             type: Boolean,
             default: false
+        },
+        extension: {
+            type: String,
+            default: undefined
         }
+    },
+    setup(props) {
+        const { renderWebAppExtensions } = useExtensions();
+        const extensions = renderWebAppExtensions(props.extension);
+        return { extensions };
     },
     computed: {
         isSubMenu() {
             return !!this.getBvDropdown();
+        },
+        childProps() {
+            const { extension, ...props } = this.$props;
+            return props;
         }
     },
     methods: {

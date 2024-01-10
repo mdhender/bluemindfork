@@ -18,11 +18,7 @@ export default {
             return props.extensions.map(extension => scopedSlots.default({ extension }));
         } else if (props.decorator) {
             return props.extensions.map(extension =>
-                h(
-                    props.decorator,
-                    { props: { ...extension.props }, attrs },
-                    h(extension.name, { attrs })
-                )
+                h(props.decorator, { props: { ...extension.props }, attrs }, h(extension.name, { attrs }))
             );
         } else {
             return props.extensions.map(extension => h(extension.name, { attrs }));
