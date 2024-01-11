@@ -165,22 +165,26 @@ public class WbxmlResponseBuilder implements IResponseBuilder {
 		@Override
 		public void handle(AsyncResult<Message<LocalJsonObject<Chunk>>> event) {
 			MDC.put("user", loginForSifting);
-			Chunk c = event.result().body().getValue();
-			if (c == Chunk.LAST) {
-				logger.debug("Last chunk after receiving {}bytes.", total);
-				end.onResult(self);
-			} else if (c == Chunk.UNKNOWN) {
-				logger.debug("Ignore unknown stream");
+			if (event.failed()) {
+				logger.warn("Error while streaming to wbxml", event.cause());
 			} else {
-				if (logger.isDebugEnabled()) {
-					logger.debug("Received chunk ({}byte(s))", c.buf.length);
+				Chunk c = event.result().body().getValue();
+				if (c == Chunk.LAST) {
+					logger.debug("Last chunk after receiving {}bytes.", total);
+					end.onResult(self);
+				} else if (c == Chunk.UNKNOWN) {
+					logger.debug("Ignore unknown stream");
+				} else {
+					if (logger.isDebugEnabled()) {
+						logger.debug("Received chunk ({}byte(s))", c.buf.length);
+					}
+					total += c.buf.length;
+					output.write(c.buf, () -> {
+						MDC.put("user", loginForSifting);
+						next();
+						MDC.put("user", "anonymous");
+					});
 				}
-				total += c.buf.length;
-				output.write(c.buf, () -> {
-					MDC.put("user", loginForSifting);
-					next();
-					MDC.put("user", "anonymous");
-				});
 			}
 			MDC.put("user", "anonymous");
 		}
