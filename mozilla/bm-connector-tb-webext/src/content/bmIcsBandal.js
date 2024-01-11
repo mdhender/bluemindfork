@@ -184,8 +184,8 @@ var gBMIcsBandal = {
                     gBMIcsBandal._hideLightingImipBar();
                 }
                 if (uids) {
-                    gBMIcsBandal._getRsvpEvents(uids);
-                    if (gBMIcsBandal._events.length > 0) {
+                    gBMIcsBandal._getRsvpEvent(uids);
+                    if (gBMIcsBandal._event) {
                         let msg = {};
                         msg.bmResourceId = resourceId;
                         msg.bmCalendar = calendarUid;
@@ -194,7 +194,7 @@ var gBMIcsBandal = {
                     }
                 } else if (counter) {
                     gBMIcsBandal._getCounterEvent(counter);
-                    if (gBMIcsBandal._events.length > 0) {
+                    if (gBMIcsBandal._event) {
                         let msg = {};
                         msg.bmResourceId = resourceId;
                         msg.bmCalendar = calendarUid;
@@ -229,56 +229,45 @@ var gBMIcsBandal = {
             }
         }, 100);
     },
-    _getRsvpEvents: function(aHeaders) {
-        this._events = [];
-        let added = [];
-        for (let i = 0; i < aHeaders.length; i++) {
-            //8ce82499-8af9-497a-a74c-ce6902fab97a; recurid="2016-12-09T12:30:00.000+01:00"; rsvp="true"
-            let h = aHeaders[i].split("; rsvp=");
-            let uidAndRecurId = h[0];
-            if (h.length == 2) {
-                let r = h[1];
-                let rsvp = r.substring(1, r.length -1);//"true"
-                if (rsvp == "true" && added.indexOf(uidAndRecurId) == -1) {
-                    //8ce82499-8af9-497a-a74c-ce6902fab97a; recurid="2016-12-09T12:30:00.000+01:00"
-                    let u = uidAndRecurId.split("; recurid=");
-                    let uid = u[0];
-                    let recurId = null;
-                    if (u.length == 2) {
-                        let r = u[1];
-                        recurId = r.substring(1, r.length -1);
-                    }
-                    let event = {
-                        eventUid: uid,
-                        recurid: recurId
-                    };
-                    added.push(uid);
-                    this._events.push(event);
-                    this._logger.debug("Invite:" + event.eventUid + ", recurid:" + event.recurid);
-                }
+    _parseHeaderValues: function(aHeader) {
+        let value, attributes = {};
+        aHeader.split("; ").forEach((attribute) => {
+            let properties = attribute.split('=');
+            if (properties.length === 1) {
+                value = attribute; 
+            } else {
+                let propValue = properties[1]; 
+                attributes[properties[0]] = propValue?.substring(1, propValue.length -1);
             }
+        });
+        return {value, attributes};
+    },
+    _getRsvpEvent: function(aHeaders) {
+        this._event = null;
+        let header = aHeaders[0].trim();
+        //44fed5ac-3fd8-45af-adf5-b7517a7d7c02; rsvp="true"; std="1704893400000"; major="true"; end="1704897000000"; seq="0"
+        let {value, attributes} = this._parseHeaderValues(header);
+        if (attributes.rsvp === "true") {
+            let event = {
+                eventUid: value,
+                recurid: attributes.recurid
+            }
+            this._event = event;
+            this._logger.debug("Invite:" + event.eventUid + ", recurid:" + event.recurid);
         }
     },
     _getCounterEvent: function(aHeaders) {
-        this._events = [];
-        for (let i = 0; i < aHeaders.length; i++) {
-            //d7b9e8fc-da66-4c54-a789-de827496ec44; originator="david@bm.lan"; recurid="2016-12-09T12:30:00.000+01:00"
-            let h = aHeaders[i].split("; recurid=");
-            let uidAndOriginator = h[0].split("; originator=");
-            let uid = uidAndOriginator[0];
-            let orignator = uidAndOriginator[1].substring(1, uidAndOriginator[1].length -1);//"david@bm.lan"
-            let recurId = null;
-            if (h.length == 2) {
-                recurId = h[1].substring(1, h[1].length -1);//"2016-12-09T12:30:00.000+01:00"
-            }
-            let event = {
-                eventUid: uid,
-                recurid: recurId,
-                originator: orignator
-            };
-            this._events.push(event);
-            this._logger.debug("Counter:" + event.eventUid + ", originator:" + event.originator + ", recurid:" + event.recurid);
+        this._event = null;
+        let header = aHeaders[0].trim();
+        //d7b9e8fc-da66-4c54-a789-de827496ec44; originator="david@bm.lan"; recurid="2016-12-09T12:30:00.000+01:00"
+        let {value, attributes} = this._parseHeaderValues(header);
+        let event = {
+            eventUid: value,
+            recurid: attributes.recurid,
+            orignator: attributes.originator
         }
+        this._event = event;
+        this._logger.debug("Counter:" + event.eventUid + ", originator:" + event.originator + ", recurid:" + event.recurid);
     },
     onEndAttachments: function() {},
     onBeforeShowHeaderPane: function() {},
@@ -300,7 +289,7 @@ var gBMIcsBandal = {
                 }
                 return;
             }).then(function() {
-                return self._getSeriesAndEvent(self._events[0]);
+                return self._getSeriesAndEvent(self._event);
             }).then(function(seriesAndEvent) {
                 if (seriesAndEvent == null) {
                     self._logger.debug("series not found");
@@ -314,7 +303,7 @@ var gBMIcsBandal = {
                 if (self._bandalKind == "PART") {
                     self._participationBandal(seriesAndEvent);
                 } else {
-                    self._counterBandal(seriesAndEvent, self._events[0]);
+                    self._counterBandal(seriesAndEvent, self._event);
                 }
             }).catch(function(err) {
                 self._logger.error(err);
@@ -518,7 +507,7 @@ var gBMIcsBandal = {
     },
     _setParticipation: function(aState, aAttDir) {
         let cal = new CalendarClient(this._srv.value, this._authKey, this._containerUid);
-        let result = cal.getByIcsUid(this._events[0].eventUid);
+        let result = cal.getByIcsUid(this._event.eventUid);
         let self = this;
         result.then(function(items) {
             let changes = {
@@ -528,29 +517,27 @@ var gBMIcsBandal = {
                 let series = itemValue.value;
                 let sendNotif = false;
                 let partChanged = false;
-                for (let event of self._events) {
-                    let vevent;
-                    if (!event.recurid && series.main) {
-                        vevent = series.main;
-                    } else {
-                        for(let occ of series.occurrences) {
-                            if (occ.recurid.iso8601 == event.recurid) {
-                                vevent = occ;
-                                break;
-                            }
+                let vevent;
+                if (!self._event.recurid && series.main) {
+                    vevent = series.main;
+                } else {
+                    for(let occ of series.occurrences) {
+                        if (occ.recurid.iso8601 == self._event.recurid) {
+                            vevent = occ;
+                            break;
                         }
                     }
-                    if (vevent) {
-                        for (let attendee of vevent.attendees) {
-                            self._logger.debug("attendee dir:" + attendee.dir + " type:" + attendee.cutype);
-                            if (attendee.dir == aAttDir) {
-                                attendee.partStatus = aState;
-                                partChanged = true;
-                            }
+                }
+                if (vevent) {
+                    for (let attendee of vevent.attendees) {
+                        self._logger.debug("attendee dir:" + attendee.dir + " type:" + attendee.cutype);
+                        if (attendee.dir == aAttDir) {
+                            attendee.partStatus = aState;
+                            partChanged = true;
                         }
-                        if (vevent.organizer.dir != aAttDir) {
-                            sendNotif = true;
-                        }
+                    }
+                    if (vevent.organizer.dir != aAttDir) {
+                        sendNotif = true;
                     }
                 }
                 if (partChanged) {
@@ -617,7 +604,7 @@ var gBMIcsBandal = {
     },
     acceptCounter: function(accepted) {
         this._logger.info("acceptCounter(" + accepted + ")");
-        let event = this._events[0];
+        let event = this._event;
         let self = this;
         self._auth().then(function() {
             return self._getSeriesAndEvent(event);
