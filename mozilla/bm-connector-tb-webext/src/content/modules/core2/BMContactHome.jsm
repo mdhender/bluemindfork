@@ -183,7 +183,6 @@ BMContactHome.prototype.asEntry = function(/*BMContact*/ contact) {
 }
 
 BMContactHome.prototype.fillContactFromEntry = function(entry, /*BMContact*/ contact) {
-    this._logger.debug("fillContactFromEntry");
     contact.setId(entry['id']);
     contact.setExtId(entry['externalId']);
     contact.setFolder(entry['folder']);
@@ -576,7 +575,6 @@ BMContact.prototype = {
         let mobile = null;
         let extras = [];
         for (let phone of value) {
-            this._logger.debug("set phone: label:" + phone.label + " value:" + phone.phone);
             if (!work && this._containsTypes(phone.label, ["work","voice"])) {
                 work = phone.phone;
             } else if (!home && this._containsTypes(phone.label, ["home","voice"])) {
@@ -626,7 +624,6 @@ BMContact.prototype = {
         }
         let extras = [];
         for (let im of value) {
-            this._logger.debug("set im:" + im.protocol + ":" + im.id);
             let field = imFieldByLabel[im.protocol];
             if (field && !imValues[field]) {
                 imValues[field] = im.id;
@@ -734,7 +731,6 @@ BMContact.prototype = {
                 extras.push(addr);
             }
         }
-        this._logger.debug("set home address: " + home);
         if (!home) {
             home = {street: null, zipcode: null, town: null, state: null, country: null, expresspostal: null};
         }
@@ -745,7 +741,6 @@ BMContact.prototype = {
         this._setProp("HomeCountry", home.country);
         this._setProp("X-BM-homeExpresspostal", home.expresspostal);
         
-        this._logger.debug("set work address: " + work);
         if (!work) {
             work = {street: null, zipcode: null, town: null, state: null, country: null, expresspostal: null};
         }

@@ -65,7 +65,6 @@ BMDlistHome.prototype.asEntry = function(dlist, directory) {
 };
 
 BMDlistHome.prototype.fillDlistFromEntry = function(entry, /*BMDlist*/ dlist) {
-    this._logger.debug("fillDlistFromEntry");
     dlist.setId(entry['id']);
 	dlist.setExtId(entry['extId']);
 	dlist.setFolder(entry['folder']);
@@ -162,7 +161,8 @@ BMDlist.prototype = {
             }
             let card = directory.getCardFromProperty("bm-id", entry.itemUid, false);
             if (!card) {
-                this._logger.debug(" card not found in directory -> create local card for thunderbird");
+                this._logger.debug(" card[" + entry.mailto + "] not found in list[" + directory.dirName + "]"
+                 + " -> create local card for thunderbird");
                 card = Components.classes["@mozilla.org/addressbook/cardproperty;1"]
                                     .createInstance(Components.interfaces.nsIAbCard);
                 card.displayName = entry.commonName;

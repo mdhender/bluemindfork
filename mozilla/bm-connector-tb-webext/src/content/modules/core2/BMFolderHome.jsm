@@ -427,9 +427,7 @@ let BMFolderHome = {
         for (let directory of it) {
             if (directory instanceof Components.interfaces.nsIAbDirectory) {
                 let id = bmUtils.getCharPref(directory.URI + ".bm-id", null);
-                //this._logger.debug("_getDirectoryById: " + directory.dirName + " uri: " + directory.URI + " id: " + id);
                 if (id && id == aId) {
-                    this._logger.debug("found");
                     return directory;
                 }
             }
@@ -442,7 +440,6 @@ let BMFolderHome = {
         for (let directory of it) {
             if (directory instanceof Components.interfaces.nsIAbDirectory) {
                 let id = bmUtils.getCharPref(directory.URI + ".bm-id", null);
-                //this._logger.debug("_getDirectories: " + directory.dirName + " uri: " + directory.URI + " id: " + id);
                 if (id) {
                     ret.push(directory);
                 }

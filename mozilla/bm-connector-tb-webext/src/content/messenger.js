@@ -159,11 +159,15 @@ var gBMOverlay = {
 	openBmApp: async function (aApp, aBackground) {
 		this.openBmApps([{
 			bmApp: aApp,
-			openInBackGround: aBackground}
-		]);
+			openInBackGround: aBackground
+		}]);
 	},
     openBmApps: async function (aApps) {
-		this._logger.info("Open BM web apps:" + aApps);
+		let appsNames = [];
+		aApps.forEach(app => {
+			appsNames.push(app.bmApp);
+		});
+		this._logger.info("Open BM web apps: " + appsNames.join());
         let user = {};
         let pwd = {};
         let srv = {};
@@ -326,16 +330,19 @@ var gBMOverlay = {
 		}
 	},
     _openWebPage: async function(aServer, aAskedUri, aBackground) {
-		let matchesUrl = ["https://*" + aAskedUri + "/*"];
+		let url;
 		switch (aAskedUri) {
 			case "/cal" :
-				matchesUrl.push("https://*/webapp/calendar/*");
+				url = aServer + "/cal/iframe.html";
 				break;
 			case "/task" :
-				matchesUrl.push("https://*/webapp/tasks/*");
+				url = aServer + "/task/iframe.html";
+				break;
+			default:
+				url = aServer + aAskedUri + "/index.html";
 				break;
 		}
-        let url = aServer + aAskedUri + "/index.html";
+		let matchesUrl = [url];
 		if (bmUtils.getBoolPref("extensions.bm.openInTab", false)) {
 			let tabBm = await this._getBmTab(aAskedUri);
 			if (!tabBm) {
