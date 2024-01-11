@@ -106,3 +106,5 @@ export const FOLDER_LIST_LIMIT_FOR_USER = "FOLDER_LIST_LIMIT_FOR_USER";
 // messageCompose
 export const IS_SENDER_SHOWN = "IS_SENDER_SHOWN";
 export const GET_DRAFT_CONTENT = "GET_DRAFT_CONTENT";
+export const SIGNATURE = "SIGNATURE";
+export const DISCLAIMER = "DISCLAIMER";

@@ -79,11 +79,7 @@
                     <template #dropZone>
                         <mail-composer-attach-zone :text="$tc('mail.new.attachments.drop.zone', draggedFilesCount)" />
                     </template>
-                    <mail-composer-content
-                        ref="content"
-                        :message="message"
-                        :is-signature-inserted.sync="isSignatureInserted"
-                    />
+                    <mail-composer-content ref="content" :message="message" />
                 </bm-file-drop-zone>
             </div>
         </template>
@@ -114,7 +110,9 @@ import { messageUtils } from "@bluemind/mail";
 import { ComposerActionsMixin, EditRecipientsMixin, FileDropzoneMixin } from "~/mixins";
 import { setFrom } from "~/composables/composer/ComposerFrom";
 import { AddAttachmentsCommand } from "~/commands";
+import { SIGNATURE_INSERTED, SIGNATURE } from "~/getters";
 import { REMOVE_MESSAGES, SET_MESSAGE_COMPOSING } from "~/mutations";
+import { TOGGLE_SIGNATURE } from "~/actions";
 import { useComposer } from "~/composables/composer/Composer";
 import MailComposerAttachments from "../../MailComposer/MailComposerAttachments";
 import MailComposerAttachZone from "../../MailComposer/MailComposerAttachZone";
@@ -127,7 +125,7 @@ import MailConversationViewerItemMixin from "./MailConversationViewerItemMixin";
 import MailConversationViewerVerticalLine from "./MailConversationViewerVerticalLine";
 import MailOpenInPopupWithShift from "../../MailOpenInPopupWithShift";
 import MessagePathParam from "~/router/MessagePathParam";
-import { computed, ref } from "vue";
+import { computed, ref, watchEffect } from "vue";
 
 const { MessageStatus, computeParts } = messageUtils;
 
@@ -163,14 +161,13 @@ export default {
     },
     setup(props) {
         const content = ref(); // DOM ref="content"
+
         const {
             draggedFilesCount,
             identityId,
-            isSignatureInserted,
             isSenderShown,
             isDeliveryStatusRequested,
             isDispositionNotificationRequested,
-            toggleSignature,
             toggleDeliveryStatus,
             toggleDispositionNotification,
             checkAndRepairFrom
@@ -178,18 +175,18 @@ export default {
             computed(() => props.message),
             content
         );
+
         return {
             draggedFilesCount,
             identityId,
-            isSignatureInserted,
             isSenderShown,
             isDeliveryStatusRequested,
             isDispositionNotificationRequested,
-            toggleSignature,
             toggleDeliveryStatus,
             toggleDispositionNotification,
             checkAndRepairFrom,
-            setFrom
+            setFrom,
+            content
         };
     },
     data() {
@@ -209,6 +206,9 @@ export default {
         },
         attachments() {
             return this.computedParts?.attachments || [];
+        },
+        isSignatureInserted() {
+            return Boolean(this.$store.getters[`mail/${SIGNATURE}`]);
         }
     },
     watch: {
@@ -232,6 +232,9 @@ export default {
         ...mapMutations("mail", { REMOVE_MESSAGES }),
         consult() {
             this.$store.commit(`mail/${SET_MESSAGE_COMPOSING}`, { messageKey: this.message.key, composing: false });
+        },
+        toggleSignature() {
+            this.$store.dispatch(`mail/${TOGGLE_SIGNATURE}`);
         },
         async showAndFocusRecipientField(recipientType) {
             this[`show${capitalize(recipientType)}`] = true;

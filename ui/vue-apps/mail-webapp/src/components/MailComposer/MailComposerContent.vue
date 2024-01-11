@@ -93,7 +93,7 @@ export default {
                 // focus on content when a recipient is already set
                 if (this.message.to.length > 0) {
                     await this.getEditorRef();
-                    this.$refs["message-content"].focusBefore(PERSONAL_SIGNATURE_SELECTOR(this.personalSignature.id));
+                    this.$refs["message-content"].focusBefore(PERSONAL_SIGNATURE_SELECTOR(this.signature?.id));
                 }
             },
             immediate: true

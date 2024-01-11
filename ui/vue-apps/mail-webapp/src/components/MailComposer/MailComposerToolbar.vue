@@ -122,7 +122,7 @@ import {
     SET_TEMPLATE_CHOOSER_VISIBLE,
     SHOW_SENDER
 } from "~/mutations";
-import { IS_SENDER_SHOWN } from "~/getters";
+import { IS_SENDER_SHOWN, SIGNATURE } from "~/getters";
 import { mapGetters, mapMutations, mapState } from "vuex";
 
 const { MessageStatus } = messageUtils;
@@ -158,7 +158,7 @@ export default {
             return this.$store.state.settings;
         },
         hasCorporateSignature() {
-            return Boolean(this.$store.state.mail.messageCompose.signature?.uid);
+            return Boolean(this.$store.getters[`mail/${SIGNATURE}`]?.uid);
         },
         isSaving() {
             return this.message.status === MessageStatus.SAVING;
@@ -167,13 +167,15 @@ export default {
             const kind = this.isDraft ? "draft" : "template";
             if (this.isSaving) {
                 return this.$t(`mail.compose.save.${kind}.inprogress`);
-            } else if (this.errorOccuredOnSave) {
-                return this.$t(`mail.compose.save.${kind}.error`);
-            } else if (isNewMessage(this.message)) {
-                return "";
-            } else {
-                return this.saveMessageWithDate;
             }
+            if (this.errorOccuredOnSave) {
+                return this.$t(`mail.compose.save.${kind}.error`);
+            }
+            if (isNewMessage(this.message)) {
+                return "";
+            }
+
+            return this.saveMessageWithDate;
         },
         saveMessageWithDate() {
             const kind = this.isDraft ? "draft" : "template";

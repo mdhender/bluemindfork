@@ -4,11 +4,10 @@ import cloneDeep from "lodash.clonedeep";
 import inject from "@bluemind/inject";
 import { MockMailboxesClient } from "@bluemind/test-utils";
 import storeOptions from "../messageCompose";
-import { UPDATE_SIGNATURE, LOAD_MAX_MESSAGE_SIZE, SET_DRAFT_CONTENT, DEBOUNCED_SET_MESSAGE_CONTENT } from "~/actions";
+import { LOAD_MAX_MESSAGE_SIZE, SET_DRAFT_CONTENT, DEBOUNCED_SET_MESSAGE_CONTENT } from "~/actions";
 import { GET_DRAFT_CONTENT, IS_SENDER_SHOWN } from "~/getters";
 import {
     ADD_FILE,
-    SET_DISCLAIMER,
     SET_DRAFT_COLLAPSED_CONTENT,
     SET_DRAFT_EDITOR_CONTENT,
     SET_FILE_ADDRESS,
@@ -17,9 +16,9 @@ import {
     SET_FILE_STATUS,
     SET_MAIL_TIPS,
     SET_MAX_MESSAGE_SIZE,
-    SHOW_SENDER,
-    SET_SIGNATURE
+    SHOW_SENDER
 } from "~/mutations";
+import { wrapCorporateSignature, wrapDisclaimer } from "@bluemind/mail/src/signature/signature";
 
 Vue.use(Vuex);
 
@@ -43,31 +42,75 @@ describe("messageCompose", () => {
     });
 
     describe("mutations", () => {
-        test("SET_CORPORATE_SIGNATURE", () => {
-            const corpSign = { uid: "my-uid", html: "html sign" };
-            store.commit(SET_SIGNATURE, corpSign);
-            expect(store.state.signature).toStrictEqual(corpSign);
-        });
-        test("SET_DISCLAIMER", () => {
-            const disclaimer = { uid: "my-disc-uid", html: "disc-html sign" };
-            store.commit(SET_DISCLAIMER, disclaimer);
-            expect(store.state.disclaimer).toStrictEqual(disclaimer);
-        });
-        test("change corporate signature or disclaimer if it's not the same html", () => {
-            const corpSign = { uid: "my-uid", html: "html sign" };
-            store.commit(SET_SIGNATURE, corpSign);
+        describe("Signatures", () => {
+            test("SET_CORPORATE_SIGNATURE", () => {
+                const corpSign = { uid: "my-uid", html: "html sign" };
+                const mailTips = [{ matchingTips: [{ mailtipType: "Signature", value: JSON.stringify(corpSign) }] }];
 
-            const corpSignWithSameUid = { uid: "my-uid", html: "html sign 2" };
-            store.commit(SET_SIGNATURE, corpSignWithSameUid);
-            expect(store.state.signature.html).toEqual("html sign 2");
+                store.commit(SET_MAIL_TIPS, mailTips);
 
-            const disclaimer = { uid: "my-uid", html: "html sign" };
-            store.commit(SET_DISCLAIMER, disclaimer);
+                expect(store.getters["SIGNATURE"].html).toStrictEqual(wrapCorporateSignature(corpSign.html));
+            });
+            test("SET_DISCLAIMER", () => {
+                const disclaimer = { uid: "my-disc-uid", html: "disc-html sign" };
+                const mailTips = MailTipsBuilder().disclaimer(disclaimer);
 
-            const disclaimerWithSameUid = { uid: "my-uid", html: "html sign 2" };
-            store.commit(SET_DISCLAIMER, disclaimerWithSameUid);
-            expect(store.state.disclaimer.html).toEqual("html sign 2");
+                store.commit(SET_MAIL_TIPS, mailTips);
+
+                expect(store.getters["DISCLAIMER"].textContent).toEqual(disclaimer.html);
+            });
+
+            test("change corporate signature if it's not the same html", () => {
+                store.commit(SET_MAIL_TIPS, MailTipsBuilder().corporateSignature({ uid: "my-uid", html: "html sign" }));
+                store.commit(
+                    SET_MAIL_TIPS,
+                    MailTipsBuilder().corporateSignature({ uid: "my-uid", html: "html sign 2" })
+                );
+
+                expect(store.getters["SIGNATURE"].html).toEqual(wrapCorporateSignature("html sign 2"));
+            });
+
+            test("change disclaimer if it's not the same html", () => {
+                store.commit(SET_MAIL_TIPS, MailTipsBuilder().disclaimer({ uid: "my-uid", html: "html sign" }));
+                store.commit(SET_MAIL_TIPS, MailTipsBuilder().disclaimer({ uid: "my-uid", html: "html sign 2" }));
+
+                expect(store.getters["DISCLAIMER"]).toEqual(wrapDisclaimer("html sign 2"));
+            });
+
+            function MailTipsBuilder() {
+                return {
+                    corporateSignature({ uid, html }) {
+                        return [createMailTipsCorporateSignature(uid, html)];
+                    },
+                    disclaimer({ uid, html }) {
+                        return [createDisclaimerMailTip(uid, html)];
+                    }
+                };
+            }
+
+            function createMailTipsCorporateSignature(uid, html) {
+                return {
+                    matchingTips: [
+                        {
+                            mailtipType: "Signature",
+                            value: JSON.stringify({ uid, html })
+                        }
+                    ]
+                };
+            }
+
+            function createDisclaimerMailTip(uid, html) {
+                return {
+                    matchingTips: [
+                        {
+                            mailtipType: "Signature",
+                            value: JSON.stringify({ uid, html, isDisclaimer: true })
+                        }
+                    ]
+                };
+            }
         });
+
         test("SET_DRAFT_EDITOR_CONTENT", () => {
             store.commit(SET_DRAFT_EDITOR_CONTENT, "Content");
             expect(store.state.editorContent).toEqual("Content");
@@ -195,14 +238,20 @@ describe("messageCompose", () => {
         });
 
         test("should replace corp sign by placeholder", () => {
-            store.dispatch(UPDATE_SIGNATURE, {
-                mailTips: {
-                    uid: 1,
-                    html: `<div class="bm-corporate-signature"> MY CORP IS BEAUTIFUL</div>`,
-                    usePlaceholder: true
+            store.commit(SET_MAIL_TIPS, [
+                {
+                    matchingTips: [
+                        {
+                            mailtipType: "Signature",
+                            value: JSON.stringify({
+                                uid: 1,
+                                html: `<div class="bm-corporate-signature"> MY CORP IS BEAUTIFUL</div>`,
+                                usePlaceholder: true
+                            })
+                        }
+                    ]
                 }
-            });
-
+            ]);
             store.commit(
                 SET_DRAFT_EDITOR_CONTENT,
                 '<p>Content + signature</p> <div class="bm-corporate-signature"> MY CORP IS BEAUTIFUL</div>'

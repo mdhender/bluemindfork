@@ -97,7 +97,7 @@ import { BmDropzone, BmFileDropZone, BmIconButton, BmFormInput, BmForm } from "@
 import { ComposerActionsMixin, FileDropzoneMixin } from "~/mixins";
 import { useComposer } from "~/composables/composer/Composer";
 import { setFrom } from "~/composables/composer/ComposerFrom";
-import { MY_TEMPLATES } from "~/getters";
+import { MY_TEMPLATES, SIGNATURE } from "~/getters";
 import { useAddAttachmentsCommand } from "~/commands";
 import MessagePathParam from "~/router/MessagePathParam";
 import MailComposerAttachments from "./MailComposerAttachments";
@@ -150,7 +150,6 @@ export default {
             isDeliveryStatusRequested,
             isDispositionNotificationRequested,
             isSenderShown,
-            isSignatureInserted,
             messageCompose,
             toggleDeliveryStatus,
             toggleDispositionNotification,
@@ -168,7 +167,6 @@ export default {
             isDeliveryStatusRequested,
             isDispositionNotificationRequested,
             isSenderShown,
-            isSignatureInserted,
             messageCompose,
             setFrom,
             toggleDeliveryStatus,
@@ -199,7 +197,7 @@ export default {
             return this.message.subject?.trim() || "";
         },
         signatureInserted() {
-            return Boolean(this.$store.getters["mail/signature"]);
+            return Boolean(this.$store.getters[`mail/${SIGNATURE}`]);
         }
     },
     watch: {
