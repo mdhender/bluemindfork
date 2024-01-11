@@ -1,15 +1,15 @@
 import { MailTipTypes } from "../mailTip";
 import * as CorporateSignature from "./corporateSignature";
+import escapeRegExp from "lodash.escaperegexp";
 
 export function removeSignature(content, userPrefTextOnly, signature) {
     return userPrefTextOnly ? removeTextSignature(content, signature) : removeHtmlSignature(content);
 }
 
-function removeTextSignature(raw, content) {
+function removeTextSignature(rawContent, signatureContent) {
     const TEXT_SIGNATURE_PREFIX = "--\n";
-    // FIXME does not work if 'content' contains regex special characters like '('
-    const regexp = new RegExp("^" + TEXT_SIGNATURE_PREFIX + content, "mi");
-    return raw.replace(regexp, "");
+    const regexp = new RegExp("^" + TEXT_SIGNATURE_PREFIX + escapeRegExp(signatureContent), "mi");
+    return rawContent.replace(regexp, "");
 }
 const WRAPPER_TAG = "div";
 const PERSONAL_SIGNATURE_ATTR = "data-bm-signature"; // must match same attr defined in sanitizeHtml
@@ -80,31 +80,30 @@ function trimSignature(signature) {
         return;
     }
 
-    let root = new DOMParser().parseFromString(signature, "text/html")?.body;
-
-    while (root.childElementCount === 1 && root.children[0].hasChildNodes()) {
-        root = root.children[0];
+    let node = new DOMParser().parseFromString(signature, "text/html")?.body;
+    while (node.childElementCount === 1 && node.children[0].hasChildNodes()) {
+        node = node.children[0];
     }
 
-    const lines = root && Array.from(root.childNodes); // result OF ARRAY.FROM is ALWAY TRUE IN NEXT LINE IF (???)
+    const lines = node && Array.from(node.childNodes);
     if (lines) {
         for (const line of lines) {
             if (isSignatureLineEmpty(line)) {
-                root.removeChild(line);
+                node.removeChild(line);
             } else {
                 break;
             }
         }
-        if (root.hasChildNodes()) {
+        if (node.hasChildNodes()) {
             for (const line of lines.reverse()) {
                 if (isSignatureLineEmpty(line)) {
-                    root.removeChild(line);
+                    node.removeChild(line);
                 } else {
                     break;
                 }
             }
         }
-        return root.innerHTML;
+        return node.innerHTML;
     }
     return signature;
 }

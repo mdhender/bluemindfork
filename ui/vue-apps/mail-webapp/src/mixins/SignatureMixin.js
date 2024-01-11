@@ -1,7 +1,7 @@
 import { mapState } from "vuex";
 import { INFO, REMOVE } from "@bluemind/alert.store";
 import { draftUtils, mailTipUtils, signatureUtils } from "@bluemind/mail";
-import { SET_DRAFT_CONTENT, UPDATE_SIGNATURE } from "~/actions";
+import { SET_DRAFT_CONTENT, UPDATE_SIGNATURE, TOGGLE_SIGNATURE } from "~/actions";
 
 const { isNewMessage } = draftUtils;
 const {
@@ -67,8 +67,6 @@ export default {
 
             this.notifySignatureChange(previous, updatedSignature);
 
-            this.$_SignatureMixin_removePlaceholder();
-
             this.$store.dispatch(`mail/${SET_DRAFT_CONTENT}`, {
                 html: editorRef.getContent(),
                 draft: this.message
@@ -103,7 +101,7 @@ export default {
     },
     methods: {
         async toggleSignature() {
-            this.$store.dispatch(`mail/${UPDATE_SIGNATURE}`);
+            this.$store.dispatch(`mail/${TOGGLE_SIGNATURE}`);
         },
         $_SignatureMixin_resetAlerts() {
             this.$store.dispatch("alert/" + REMOVE, corporateSignatureGotRemoved.alert);
@@ -112,16 +110,9 @@ export default {
         $_SignatureMixin_refreshSignature() {
             this.$execute("get-mail-tips", { context: getMailTipContext(this.message), message: this.message });
         },
-        async $_SignatureMixin_removePlaceholder() {
-            if (this.$_SignatureMixin_checkCorporateSignatureDone) {
-                const editorRef = await this.getEditorRef();
-                // remove placeholder when it has not been replaced by a signature
-                // case where signature has changed and doesnt match draft anymore
-                editorRef.removeText(CORPORATE_SIGNATURE_PLACEHOLDER);
-            }
-        },
+
         cleanSignatureFromContent(editorRef, signature) {
-            editorRef.removeContent(PERSONAL_SIGNATURE_SELECTOR());
+            editorRef.removeContent(PERSONAL_SIGNATURE_SELECTOR(signature?.id));
             editorRef.removeContent(DISCLAIMER_SELECTOR, { editable: false });
 
             const options = signature?.uid
@@ -130,6 +121,10 @@ export default {
                     : { editable: false }
                 : {};
             editorRef.removeContent(CORPORATE_SIGNATURE_SELECTOR, options);
+
+            // remove placeholder when it has not been replaced by a signature
+            // case where signature has changed and doesnt match draft anymore
+            this.$_SignatureMixin_checkCorporateSignatureDone && editorRef.removeText(CORPORATE_SIGNATURE_PLACEHOLDER);
         },
         insertSignature(editorRef, signature) {
             if (signature?.id) {
@@ -163,7 +158,7 @@ export default {
                 this.$store.dispatch("alert/" + INFO, corporateSignatureGotInserted);
             }
 
-            if (removedSignature?.uid && insertedSignature?.id === "default") {
+            if (removedSignature?.uid && Boolean(insertedSignature?.id)) {
                 this.$store.dispatch("alert/" + INFO, corporateSignatureGotRemoved);
             }
         }

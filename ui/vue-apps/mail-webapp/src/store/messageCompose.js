@@ -24,6 +24,7 @@ import {
     SET_MAIL_TIPS,
     SET_MAX_MESSAGE_SIZE,
     SET_PERSONAL_SIGNATURE,
+    SET_SIGNATURE,
     SHOW_SENDER
 } from "~/mutations";
 import { GET_DRAFT_CONTENT, IS_SENDER_SHOWN } from "~/getters";
@@ -98,11 +99,8 @@ export default {
             }
         },
 
-        SET_SIGNATURE: (state, payload) => {
+        [SET_SIGNATURE]: (state, payload) => {
             state.signature = payload;
-        },
-        UNSET_SIGNATURE: state => {
-            state.signature = null;
         }
     },
 
@@ -118,37 +116,30 @@ export default {
             const action = debounce === false ? SET_MESSAGE_CONTENT : DEBOUNCED_SET_MESSAGE_CONTENT;
             return dispatch(action, { message: draft, content });
         },
-        [UPDATE_SIGNATURE]({ dispatch, commit, state }, payload) {
-            if (!payload) {
-                dispatch(TOGGLE_SIGNATURE);
-            } else {
-                const { mailTips, signByDefault } = payload;
-                if (Array.isArray(mailTips)) {
-                    if (mailTips.length > 0) {
-                        const matchingTips = mailTips[0].matchingTips;
-                        const disclaimer = matchingTips.find(isDisclaimer);
+        [UPDATE_SIGNATURE]({ commit, state }, { mailTips, signByDefault }) {
+            if (Array.isArray(mailTips)) {
+                if (mailTips.length > 0) {
+                    const matchingTips = mailTips[0].matchingTips;
+                    const disclaimer = matchingTips.find(isDisclaimer);
 
-                        commit(SET_DISCLAIMER, disclaimer ? JSON.parse(disclaimer.value) : null);
+                    commit(SET_DISCLAIMER, disclaimer ? JSON.parse(disclaimer.value) : null);
 
-                        const corporateSignature = matchingTips.find(isCorporateSignature);
-                        if (corporateSignature) {
-                            // commit(SET_CORPORATE_SIGNATURE, JSON.parse(corporateSignature.value));
-                            commit("SET_SIGNATURE", JSON.parse(corporateSignature.value));
-                        } else {
-                            // commit(UNSET_CORPORATE_SIGNATURE);
-                            commit("SET_SIGNATURE", state.personalSignature);
-                        }
+                    const corporateSignature = matchingTips.find(isCorporateSignature);
+                    if (corporateSignature) {
+                        commit(SET_SIGNATURE, JSON.parse(corporateSignature.value));
                     } else {
-                        commit(SET_DISCLAIMER, null);
-                        commit("SET_SIGNATURE", signByDefault ? state.personalSignature : null);
+                        commit(SET_SIGNATURE, state.personalSignature);
                     }
                 } else {
-                    commit("SET_SIGNATURE", mailTips);
+                    commit(SET_DISCLAIMER, null);
+                    commit(SET_SIGNATURE, signByDefault ? state.personalSignature : null);
                 }
+            } else {
+                commit(SET_SIGNATURE, mailTips);
             }
         },
-        [TOGGLE_SIGNATURE](ctx) {
-            ctx.commit("SET_SIGNATURE", ctx.state.signature === null ? ctx.state.personalSignature : null);
+        [TOGGLE_SIGNATURE]({ state, commit }) {
+            commit(SET_SIGNATURE, state.signature === null ? state.personalSignature : null);
         }
     },
 

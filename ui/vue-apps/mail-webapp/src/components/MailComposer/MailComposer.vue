@@ -142,7 +142,6 @@ export default {
     },
     setup(props) {
         const content = ref(); // DOM ref="content"
-        watchEffect(() => console.info("wait Ref to be Mounted:", content.value), { flush: "post" });
         const { execAddAttachments } = useAddAttachmentsCommand();
         const {
             checkAndRepairFrom,

@@ -17,7 +17,8 @@ import {
     SET_FILE_STATUS,
     SET_MAIL_TIPS,
     SET_MAX_MESSAGE_SIZE,
-    SHOW_SENDER
+    SHOW_SENDER,
+    SET_SIGNATURE
 } from "~/mutations";
 
 Vue.use(Vuex);
@@ -44,7 +45,7 @@ describe("messageCompose", () => {
     describe("mutations", () => {
         test("SET_CORPORATE_SIGNATURE", () => {
             const corpSign = { uid: "my-uid", html: "html sign" };
-            store.commit("SET_SIGNATURE", corpSign);
+            store.commit(SET_SIGNATURE, corpSign);
             expect(store.state.signature).toStrictEqual(corpSign);
         });
         test("SET_DISCLAIMER", () => {
@@ -54,10 +55,10 @@ describe("messageCompose", () => {
         });
         test("change corporate signature or disclaimer if it's not the same html", () => {
             const corpSign = { uid: "my-uid", html: "html sign" };
-            store.commit("SET_SIGNATURE", corpSign);
+            store.commit(SET_SIGNATURE, corpSign);
 
             const corpSignWithSameUid = { uid: "my-uid", html: "html sign 2" };
-            store.commit("SET_SIGNATURE", corpSignWithSameUid);
+            store.commit(SET_SIGNATURE, corpSignWithSameUid);
             expect(store.state.signature.html).toEqual("html sign 2");
 
             const disclaimer = { uid: "my-uid", html: "html sign" };
