@@ -496,6 +496,11 @@ public class UserService implements IInCoreUser, IUser {
 	}
 
 	private boolean passwordUpdateNeeded(ItemValue<User> userItem) {
+		if (userItem.externalId != null
+				&& (userItem.externalId.startsWith("ldap://") || userItem.externalId.startsWith("ad://"))) {
+			return false;
+		}
+
 		if (userItem.value.passwordMustChange) {
 			return true;
 		}
