@@ -67,8 +67,12 @@ import net.bluemind.imap.SearchQuery;
 import net.bluemind.imap.StoreClient;
 import net.bluemind.imap.TaggedResult;
 import net.bluemind.imap.mime.MimeTree;
+import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.mailbox.api.IMailboxes;
+import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
+import net.bluemind.mailbox.api.MailboxQuota;
 import net.bluemind.server.api.Server;
 import net.bluemind.system.state.RunningState;
 import net.bluemind.system.state.StateContext;
@@ -80,6 +84,8 @@ public class UserMailboxTests {
 	public static void sysprop() {
 		System.setProperty("node.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
 	}
+
+	private String userUid;
 
 	@Before
 	public void before() throws Exception {
@@ -102,8 +108,14 @@ public class UserMailboxTests {
 
 		ElasticsearchTestHelper.getInstance().beforeTest();
 
-		String userUid = PopulateHelper.addUser("john", "devenv.blue", Routing.internal);
+		this.userUid = PopulateHelper.addUser("john", "devenv.blue", Routing.internal);
 		assertNotNull(userUid);
+
+		IMailboxes mboxes = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IMailboxes.class,
+				domUid);
+		ItemValue<Mailbox> asMbox = mboxes.getComplete(userUid);
+		asMbox.value.quota = 50000;
+		mboxes.update(userUid, asMbox.value);
 
 		StateContext.setInternalState(new RunningState());
 		System.err.println("==== BEFORE ====");
@@ -400,6 +412,40 @@ public class UserMailboxTests {
 			Collection<Integer> basicSearch = sc.uidSearch(sq);
 			assertEquals(3, basicSearch.size());
 		}
+	}
+
+	@Test
+	public void testDeletingFolderUpdatesQuota() throws IMAPException {
+		ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
+		IMailboxes mboxApi = prov.instance(IMailboxes.class, "devenv.blue");
+		MailboxQuota startQuota = mboxApi.getMailboxQuota(userUid);
+		System.err.println("start at " + startQuota);
+		ESearchActivator.refreshIndex("mailspool_*");
+		try (StoreClient sc = new StoreClient("127.0.0.1", 1143, "john@devenv.blue", "john")) {
+			assertTrue(sc.login());
+			String fn = "big.folder." + System.nanoTime();
+			assertTrue(sc.create(fn));
+			FlagsList fl = new FlagsList();
+			int added = sc.append(fn, bigEml(), fl);
+			assertTrue(added > 0);
+
+			ESearchActivator.refreshIndex("mailspool_*");
+
+			MailboxQuota postAppend = mboxApi.getMailboxQuota(userUid);
+			System.err.println("append at " + postAppend);
+			assertTrue(postAppend.used > startQuota.used);
+
+			assertTrue(sc.deleteMailbox(fn).isOk());
+
+			ESearchActivator.refreshIndex("mailspool_*");
+
+			MailboxQuota postDel = mboxApi.getMailboxQuota(userUid);
+			System.err.println("afterDel at " + postDel);
+
+			assertTrue(postDel.used < postAppend.used);
+
+		}
+
 	}
 
 	@Test
