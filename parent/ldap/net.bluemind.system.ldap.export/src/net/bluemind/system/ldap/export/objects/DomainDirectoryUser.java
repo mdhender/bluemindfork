@@ -64,7 +64,7 @@ public class DomainDirectoryUser extends LdapObjects {
 			// Email
 			"mail",
 			// Phones
-			"telephoneNumber", "facsimileTelephoneNumber", "homePhone", "mobile",
+			"telephoneNumber", "facsimileTelephoneNumber", "homePhone", "mobile", "pager",
 			// Address
 			"l", "postalCode", "postOfficeBox", "postalAddress", "street", "st", "registeredAddress",
 			// Password
@@ -135,15 +135,11 @@ public class DomainDirectoryUser extends LdapObjects {
 	}
 
 	private void initPhone(Entry ldapEntry) throws LdapException {
-		List<Tel> tels = user.value.contactInfos.communications.tels;
-
-		for (Tel tel : tels) {
+		for (Tel tel : user.value.contactInfos.communications.tels) {
 			String attr = getPhoneLdapAttrName(tel.parameters);
-			if (attr == null) {
-				continue;
+			if (attr != null) {
+				ldapEntry.add(attr, tel.value);
 			}
-
-			ldapEntry.add(attr, tel.value);
 		}
 	}
 
@@ -159,6 +155,8 @@ public class DomainDirectoryUser extends LdapObjects {
 			return "homePhone";
 		} else if (params.contains("cell") && params.contains("voice")) {
 			return "mobile";
+		} else if (params.contains("pager") && params.contains("voice")) {
+			return "pager";
 		}
 
 		return null;
