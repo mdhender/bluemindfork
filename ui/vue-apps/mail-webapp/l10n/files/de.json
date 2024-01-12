@@ -142,7 +142,7 @@
             "send_message": {
                 "loading": "Versand von \"{subject}\"...",
                 "error": "\"{subject}\" konnte nicht gesendet werden.",
-                "success": "\"{subjectWithLink}\" erfolgreich versendet!"
+                "success": "\"{subject}\" erfolgreich versendet!"
             },
             "video_conference": {
                 "info": "An der Videokonferenz teilnehmen."
