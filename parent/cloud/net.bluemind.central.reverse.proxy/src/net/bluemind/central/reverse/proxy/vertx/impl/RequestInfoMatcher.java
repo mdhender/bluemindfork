@@ -23,7 +23,8 @@ public class RequestInfoMatcher implements AuthMatcher<HttpServerRequestContext>
 		} else if (getAuthorization(context) != null && getAuthorization(context).toLowerCase().startsWith("basic")) {
 			futureAuth = loginFromBasicAuth(context);
 
-		} else if (context.request().path().startsWith("/login")
+		} else if (context.request().path().startsWith("/keycloak/realms")
+				&& context.request().path().endsWith("/login-actions/authenticate")
 				&& context.request().method().equals(HttpMethod.POST)) {
 			futureAuth = loginFromLoginRoute(context);
 		}
@@ -46,7 +47,7 @@ public class RequestInfoMatcher implements AuthMatcher<HttpServerRequestContext>
 	}
 
 	private Future<Auth> loginFromLoginRoute(HttpServerRequestContext context) {
-		return context.withAvalaibleBody().map(v -> Auth.create(context.request().getFormAttribute("login")));
+		return context.withAvalaibleBody().map(v -> Auth.create(context.request().getFormAttribute("username")));
 	}
 
 	private String getAuthorization(HttpServerRequestContext context) {
