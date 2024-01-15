@@ -42,12 +42,9 @@ public class MailboxExistsMaintenanceOperation extends MailboxMaintenanceOperati
 	private void checkAndRepair(boolean repair, String domainUid, RepairTaskMonitor monitor) {
 		monitor.begin(1, String.format("Check mailbox %s exists in mail store", mailboxToString(domainUid)));
 
-		if (!MailboxesStorageFactory.getMailStorage().mailboxExist(context, domainUid, mailbox)) {
-			if (repair) {
-				MailboxesStorageFactory.getMailStorage().create(context, domainUid, mailbox);
-
-				monitor.progress(1, String.format("Mailbox %s repair finished", mailboxToString(domainUid)));
-			}
+		if (!MailboxesStorageFactory.getMailStorage().mailboxExist(context, domainUid, mailbox) && repair) {
+			MailboxesStorageFactory.getMailStorage().create(context, domainUid, mailbox);
+			monitor.progress(1, String.format("Mailbox %s repair finished", mailboxToString(domainUid)));
 		}
 		monitor.end();
 	}

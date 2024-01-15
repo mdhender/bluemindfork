@@ -18,8 +18,6 @@
 package net.bluemind.backend.mailapi.storage;
 
 import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,16 +37,12 @@ import net.bluemind.backend.mail.replica.indexing.IMailIndexService;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.rest.BmContext;
-import net.bluemind.domain.api.Domain;
 import net.bluemind.index.MailIndexActivator;
-import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.MailboxQuota;
 import net.bluemind.mailbox.service.IMailboxesStorage;
 import net.bluemind.mailbox.service.common.DefaultFolder;
-import net.bluemind.mailbox.service.common.DefaultFolder.Status;
 import net.bluemind.server.api.Server;
 import net.bluemind.utils.ByteSizeUnit;
 
@@ -85,11 +79,11 @@ public class MailApiBoxStorage implements IMailboxesStorage {
 
 		if (currentBoxItem.value.dataLocation == null) {
 			// users & admins group (default groups) seems to be in this case
-			logger.warn("***** WTF mbox without datalocation {}", currentBoxItem.value);
+			logger.warn("Mailbox without datalocation {}", currentBoxItem.value);
 			return;
 		}
 		if (!currentBoxItem.value.dataLocation.equals(previousBoxItem.value.dataLocation)) {
-			logger.warn("**** Mailbox has migrated to a new server ({} => {}), let the replication deal with that",
+			logger.warn("Mailbox has migrated to a new server ({} => {}), which is not supported on BMv5+",
 					previousBoxItem.value.dataLocation, currentBoxItem.value.dataLocation);
 			return;
 		}
@@ -150,7 +144,7 @@ public class MailApiBoxStorage implements IMailboxesStorage {
 	private void mailshareFolders(String domainUid, ItemValue<Mailbox> boxItem, IDbReplicatedMailboxes foldersApi) {
 		String n = boxItem.value.name;
 		for (String f : Iterables.concat(Collections.singleton(n),
-				DefaultFolder.MAILSHARE_FOLDERS_NAME.stream().map(f -> n + "/" + f).collect(Collectors.toList()))) {
+				DefaultFolder.MAILSHARE_FOLDERS_NAME.stream().map(f -> n + "/" + f).toList())) {
 			MailboxReplica repl = folder(boxItem, f);
 			String uid = CyrusUniqueIds.forMailbox(domainUid, boxItem, repl.name).toString();
 			if (foldersApi.getComplete(uid) != null) {
@@ -196,38 +190,8 @@ public class MailApiBoxStorage implements IMailboxesStorage {
 	}
 
 	@Override
-	public void changeFilter(BmContext context, ItemValue<Domain> domain, ItemValue<Mailbox> value, MailFilter filter)
-			throws ServerFault {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void changeDomainFilter(BmContext context, String domainUid, MailFilter filter) throws ServerFault {
-
-	}
-
-	@Override
-	public void createDomainPartition(BmContext context, ItemValue<Domain> value, ItemValue<Server> server)
-			throws ServerFault {
-		// TODO Auto-generated method stub
-		System.err.println("createDomainPartition " + value);
-
-	}
-
-	@Override
-	public void deleteDomainPartition(BmContext context, ItemValue<Domain> value, ItemValue<Server> server)
-			throws ServerFault {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void initialize(BmContext context, ItemValue<Server> server) throws ServerFault {
-		// TODO Auto-generated method stub
 		logger.info("init server {}", server);
-		System.err.println("init " + server);
-
 	}
 
 	@Override
@@ -238,44 +202,10 @@ public class MailApiBoxStorage implements IMailboxesStorage {
 	}
 
 	@Override
-	public List<MailFolder> checkAndRepairHierarchy(BmContext context, String domainUid, ItemValue<Mailbox> mailbox,
-			boolean repair) throws ServerFault {
-		return Collections.emptyList();
-	}
-
-	@Override
-	public void checkAndRepairQuota(BmContext context, String domainUid, ItemValue<Mailbox> mailbox) {
-		// OK
-	}
-
-	@Override
-	public void checkAndRepairFilesystem(BmContext context, String domainUid, ItemValue<Mailbox> mailbox) {
-		// OK
-	}
-
-	@Override
-	public Status checkAndRepairDefaultFolders(BmContext context, String domainUid, ItemValue<Mailbox> mailbox,
-			boolean repair) {
-		return new DefaultFolder.Status();
-	}
-
-	@Override
-	public List<MailFolder> checkAndRepairAcl(BmContext context, String domainUid, ItemValue<Mailbox> mailbox,
-			List<AccessControlEntry> acls, boolean repair) throws ServerFault {
-		return Collections.emptyList();
-	}
-
-	@Override
-	public CheckAndRepairStatus checkAndRepairSharedSeen(BmContext context, String domainUid,
-			ItemValue<Mailbox> mailbox, boolean repair) {
-		return new CheckAndRepairStatus(0, 0, 0);
-	}
-
-	@Override
 	public void move(String domainUid, ItemValue<Mailbox> mailbox, ItemValue<Server> sourceServer,
 			ItemValue<Server> dstServer) {
 		// OK
-		logger.warn("MOVE will not be performed for {}", mailbox);
+		logger.error("MOVE will not be performed for {}", mailbox);
 	}
 
 }

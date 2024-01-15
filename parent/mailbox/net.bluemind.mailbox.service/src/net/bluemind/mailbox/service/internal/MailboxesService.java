@@ -276,7 +276,6 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 			throw ServerFault.sqlFault(e);
 		}
 
-		mailboxStorage().changeDomainFilter(context, domainUid, filter);
 		for (IMailboxHook hook : hooks) {
 			hook.onDomainMailFilterChanged(context, domainUid, filter);
 		}
@@ -350,7 +349,6 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 
 		storeService.setFilter(mailboxUid, filter);
 
-		mailboxStorage().changeFilter(context, domain, mailbox, filter);
 		for (IMailboxHook hook : hooks) {
 			hook.onMailFilterChanged(context, domainUid, mailbox, filter);
 		}

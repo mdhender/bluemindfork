@@ -28,7 +28,6 @@ import java.util.stream.Stream;
 
 import org.slf4j.event.Level;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
 import net.bluemind.core.api.fault.ServerFault;
@@ -62,11 +61,11 @@ public class MailboxRepairSupport implements IDirEntryRepairSupport {
 	@Override
 	public Set<MaintenanceOperation> availableOperations(Kind kind) {
 		if (!supportedKinds.contains(kind)) {
-			return ImmutableSet.of();
+			return Set.of();
 		}
 
 		ResourceBundle resourceBundle = ResourceBundle.getBundle("OSGI-INF/l10n/MailboxRepairSupport",
-				new Locale(context.getSecurityContext().getLang()));
+				Locale.of(context.getSecurityContext().getLang()));
 
 		return Stream.of(MailboxMaintenanceOperation.DiagnosticReportCheckId.values()).map(id -> {
 			MaintenanceOperation op = new MaintenanceOperation();
@@ -81,32 +80,19 @@ public class MailboxRepairSupport implements IDirEntryRepairSupport {
 	@Override
 	public Set<InternalMaintenanceOperation> ops(Kind kind) {
 		if (!supportedKinds.contains(kind)) {
-			return ImmutableSet.of();
+			return Set.of();
 		}
 
 		return Sets.newHashSet(new MailboxAclsContainerMaintenanceOperation(context),
-				new MailboxFilesystemMaintenanceOperation(context), new MailboxAclsMaintenanceOperation(context),
-				new MailboxExistsMaintenanceOperation(context), new MailboxFiltersMaintenanceOperation(context),
-				new MailboxImapHierarchyMaintenanceOperation(context), new MailboxQuotaMaintenanceOperation(context),
-				new MailboxIndexExistsMaintenanceOperation(context),
-				new MailboxPostfixMapsMaintenanceOperation(context),
-				new MailboxDefaultFoldersMaintenanceOperation(context),
-				new MailboxSharedSeenMaintenanceOperation(context));
+				new MailboxExistsMaintenanceOperation(context), new MailboxIndexExistsMaintenanceOperation(context),
+				new MailboxPostfixMapsMaintenanceOperation(context));
 	}
 
 	public abstract static class MailboxMaintenanceOperation extends InternalMaintenanceOperation {
 
 		public enum DiagnosticReportCheckId {
-			mailboxExists(true), mailboxIndexExists(true), mailboxAclsContainer(true), mailboxAcls(true),
-			mailboxHsm(false), mailboxFilesystem(true), mailboxImapHierarchy(true), mailboxQuota(true),
-			mailboxFilters(true), mailboxPostfixMaps(true), mailboxSubscription(true),
-
-			mailboxDefaultFolders(true),
-
-			/**
-			 * sharedseen true on user mailboxes
-			 */
-			mailboxSharedSeen(true);
+			mailboxExists(true), mailboxIndexExists(true), mailboxAclsContainer(true), mailboxPostfixMaps(true),
+			mailboxSubscription(true), mailboxDefaultFolders(true);
 
 			private DiagnosticReportCheckId(boolean sortable) {
 				this.sortable = sortable;
