@@ -46,8 +46,10 @@ import com.google.common.hash.HashingInputStream;
 import com.google.common.io.ByteStreams;
 
 import net.bluemind.backend.mail.api.IMailboxFolders;
+import net.bluemind.backend.mail.api.IMailboxFoldersByContainer;
 import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.backend.mail.api.MailboxFolder;
+import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
@@ -72,6 +74,7 @@ import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
+import net.bluemind.mailbox.api.Mailbox.Type;
 import net.bluemind.mailbox.api.MailboxQuota;
 import net.bluemind.server.api.Server;
 import net.bluemind.system.state.RunningState;
@@ -436,6 +439,45 @@ public class UserMailboxTests {
 			assertTrue(postAppend.used > startQuota.used);
 
 			assertTrue(sc.deleteMailbox(fn).isOk());
+
+			ESearchActivator.refreshIndex("mailspool_*");
+
+			MailboxQuota postDel = mboxApi.getMailboxQuota(userUid);
+			System.err.println("afterDel at " + postDel);
+
+			assertTrue(postDel.used < postAppend.used);
+
+		}
+
+	}
+
+	@Test
+	public void testEmptyTrashUpdatesQuota() throws IMAPException {
+		ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
+		IMailboxes mboxApi = prov.instance(IMailboxes.class, "devenv.blue");
+		MailboxQuota startQuota = mboxApi.getMailboxQuota(userUid);
+		System.err.println("start at " + startQuota);
+		ESearchActivator.refreshIndex("mailspool_*");
+		try (StoreClient sc = new StoreClient("127.0.0.1", 1143, "john@devenv.blue", "john")) {
+			assertTrue(sc.login());
+			String fn = "Trash/big.folder." + System.nanoTime();
+			assertTrue(sc.create(fn));
+			FlagsList fl = new FlagsList();
+			int added = sc.append(fn, bigEml(), fl);
+			assertTrue(added > 0);
+
+			ESearchActivator.refreshIndex("mailspool_*");
+
+			MailboxQuota postAppend = mboxApi.getMailboxQuota(userUid);
+			System.err.println("append at " + postAppend);
+			assertTrue(postAppend.used > startQuota.used);
+
+			// assertTrue(sc.deleteMailbox(fn).isOk());
+			String subtree = IMailReplicaUids.subtreeUid("devenv.blue", Type.user, userUid);
+			IMailboxFoldersByContainer folderApi = prov.instance(IMailboxFoldersByContainer.class, subtree);
+			ItemValue<MailboxFolder> toEmpty = folderApi.byName("Trash");
+			assertNotNull(toEmpty);
+			folderApi.emptyFolder(toEmpty.internalId);
 
 			ESearchActivator.refreshIndex("mailspool_*");
 
