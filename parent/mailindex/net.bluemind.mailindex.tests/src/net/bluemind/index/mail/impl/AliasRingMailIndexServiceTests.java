@@ -101,4 +101,9 @@ public class AliasRingMailIndexServiceTests extends MailIndexServiceTests {
 		assertTrue(aliases.aliases().containsKey("mailspool_ring_alias_read15"));
 	}
 
+	@Override
+	protected void statsAfterMove() {
+		// move is not supported with ring mode
+	}
+
 }

@@ -503,6 +503,11 @@ public abstract class MailIndexServiceTests extends AbstractSearchTests {
 
 		List<ShardStats> stats = MailIndexActivator.getService().getStats();
 		assertNotNull(stats);
+		statsAfterMove();
+	}
+
+	protected void statsAfterMove() {
+		List<ShardStats> stats;
 		MailIndexActivator.getService().moveMailbox(userUid, "mailspool_test2");
 		refreshAllIndices();
 
