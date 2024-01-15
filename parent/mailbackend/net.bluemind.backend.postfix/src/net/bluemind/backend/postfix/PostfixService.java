@@ -92,10 +92,7 @@ public class PostfixService {
 			throw new ServerFault("Unable to init postfix map on server: " + serverItem.uid, ErrorCode.FAILURE);
 		}
 
-		ServerMaps serverMaps = optionalServerMaps.get();
-		serverMaps.writeFlatMaps();
-		serverMaps.enableMaps();
-
+		EventProducer.dirtyMaps();
 		restartPostfix(serverItem);
 	}
 
