@@ -16,32 +16,24 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.eas.impl.vertx.compat;
+package net.bluemind.eas.wbxml.builder.tests;
 
 import java.io.IOException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.http.HttpServerRequest;
-import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.streams.WriteStream;
 import net.bluemind.eas.wbxml.WbxmlOutput;
-import net.bluemind.vertx.common.request.Requests;
 
-public class VertxOutput extends WbxmlOutput {
+public class VertxTestOutput extends WbxmlOutput {
 
-	private static final Logger logger = LoggerFactory.getLogger(VertxOutput.class);
-	private static final long THRESHOLD = 32768;
-	private final HttpServerResponse resp;
-	private final HttpServerRequest req;
+	private static final long THRESHOLD = 256;
 	private long count;
 	private Buffer pending;
 	private long total;
+	private WriteStream<Buffer> stream;
 
-	public VertxOutput(HttpServerRequest req) {
-		this.req = req;
-		this.resp = req.response();
+	public VertxTestOutput(WriteStream<Buffer> stream) {
+		this.stream = stream;
 		this.pending = Buffer.buffer();
 	}
 
@@ -55,15 +47,15 @@ public class VertxOutput extends WbxmlOutput {
 
 	private void flushIfNecessary(final QueueDrained drained) {
 		if (count > THRESHOLD) {
-			resp.write(pending);
+			stream.write(pending);
 			pending = Buffer.buffer();
 			count = 0;
 			if (drained != null) {
-				if (resp.writeQueueFull()) {
-					logger.warn("[{}]: Write queue is full, setting drain handler", streamId());
-					resp.drainHandler(handler -> {
-						logger.warn("[{}] Write queue is ready to accept data", streamId());
-						resp.drainHandler(null);
+				if (stream.writeQueueFull()) {
+					System.err.println(streamId() + ": GOT QUEUE FULL condition");
+					stream.drainHandler(handler -> {
+						stream.drainHandler(null);
+						System.err.println(streamId() + ": DRAIN condition");
 						drained.drained();
 					});
 				} else {
@@ -95,10 +87,8 @@ public class VertxOutput extends WbxmlOutput {
 
 	@Override
 	public String end() {
-		Requests.tag(req, "out.size", String.format("%db", total));
-		String requestIdentifier = Requests.tag(req, "rid");
-		resp.end(pending);
-		return requestIdentifier;
+		stream.write(pending);
+		return "OK";
 	}
 
 }

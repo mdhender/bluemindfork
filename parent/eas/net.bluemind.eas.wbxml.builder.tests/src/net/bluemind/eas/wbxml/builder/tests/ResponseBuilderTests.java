@@ -18,6 +18,10 @@
  */
 package net.bluemind.eas.wbxml.builder.tests;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Iterator;
@@ -29,11 +33,12 @@ import java.util.concurrent.TimeUnit;
 
 import javax.xml.transform.TransformerException;
 
+import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import junit.framework.TestCase;
+import net.bluemind.core.rest.base.SlowWriteStream;
 import net.bluemind.eas.dto.NamespaceMapping;
 import net.bluemind.eas.dto.base.Callback;
 import net.bluemind.eas.dto.base.DisposableByteSource;
@@ -47,8 +52,9 @@ import net.bluemind.eas.wbxml.WBXMLTools;
 import net.bluemind.eas.wbxml.WbxmlOutput;
 import net.bluemind.eas.wbxml.builder.WbxmlResponseBuilder;
 import net.bluemind.eas.wbxml.builder.vertx.ByteSourceEventProducer;
+import net.bluemind.lib.vertx.VertxPlatform;
 
-public class ResponseBuilderTests extends TestCase {
+public class ResponseBuilderTests {
 
 	private Set<String> deployements;
 
@@ -62,7 +68,7 @@ public class ResponseBuilderTests extends TestCase {
 
 		public void expectCompletion() {
 			try {
-				assertTrue(cdl.await(1, TimeUnit.SECONDS));
+				assertTrue(cdl.await(10, TimeUnit.SECONDS));
 			} catch (InterruptedException e) {
 			}
 		}
@@ -74,6 +80,7 @@ public class ResponseBuilderTests extends TestCase {
 
 	}
 
+	@Test
 	public void testRootOnlyDocument() throws IOException, TransformerException {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		WbxmlOutput output = WbxmlOutput.of(bos);
@@ -88,6 +95,7 @@ public class ResponseBuilderTests extends TestCase {
 		assertNotNull(doc);
 	}
 
+	@Test
 	public void testNestedContainer() throws IOException, TransformerException {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		WbxmlOutput output = WbxmlOutput.of(bos);
@@ -107,6 +115,7 @@ public class ResponseBuilderTests extends TestCase {
 		assertEquals(1, collections.getChildNodes().getLength());
 	}
 
+	@Test
 	public void testSiblingContainer() throws IOException, TransformerException {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		WbxmlOutput output = WbxmlOutput.of(bos);
@@ -126,6 +135,7 @@ public class ResponseBuilderTests extends TestCase {
 		DOMUtils.logDom(doc);
 	}
 
+	@Test
 	public void testContainerWithContent() throws IOException, TransformerException {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		WbxmlOutput output = WbxmlOutput.of(bos);
@@ -144,9 +154,44 @@ public class ResponseBuilderTests extends TestCase {
 		DOMUtils.logDom(doc);
 	}
 
-	public void testContainerWithDataStream() throws IOException, TransformerException {
+	@Test
+	public void testBackpressureHandling() throws Exception {
+		VertxPlatform.getVertx().deployVerticle(new ByteSourceEventProducer());
+
+		SlowWriteStream sl = new SlowWriteStream();
+		WbxmlOutput output = new VertxTestOutput(sl);
+
+		WbxmlResponseBuilder builder = new WbxmlResponseBuilder(null, output);
+		final LatchCountdown completion = new LatchCountdown();
+		builder.start(NamespaceMapping.SYNC);
+		builder.container("Collections").container("Collection");
+		builder.text("SyncKey", "123456");
+		builder.container("Commands");
+		builder.container("Add");
+		builder.text("ServerId", "42:666");
+		builder.container("ApplicationData");
+		builder.container(NamespaceMapping.AIR_SYNC_BASE, "Body");
+		DisposableByteSource streamable = randomStreamData(4 * 65536);
+		builder.stream("Data", streamable, new Callback<IResponseBuilder>() {
+
+			@Override
+			public void onResult(IResponseBuilder b) {
+				b.endContainer(); // body
+				b.endContainer(); // appdata
+				b.endContainer(); // add
+				b.endContainer(); // commands
+				b.endContainer().endContainer();
+				b.end(completion);
+			}
+		});
+		completion.expectCompletion();
+	}
+
+	@Test
+	public void testContainerWithDataStream() throws Exception {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		WbxmlOutput output = WbxmlOutput.of(bos);
+
 		WbxmlResponseBuilder builder = new WbxmlResponseBuilder(null, output);
 		final LatchCountdown completion = new LatchCountdown();
 		builder.start(NamespaceMapping.SYNC);
@@ -178,6 +223,7 @@ public class ResponseBuilderTests extends TestCase {
 		DOMUtils.logDom(doc);
 	}
 
+	@Test
 	public void testContainerWithMultipleStreams() throws IOException, TransformerException {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		WbxmlOutput output = WbxmlOutput.of(bos);

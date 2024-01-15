@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 public abstract class WbxmlOutput {
 
 	private static final Logger logger = LoggerFactory.getLogger(WbxmlOutput.class);
+	private String streamId;
 
 	public static interface QueueDrained {
 
@@ -40,6 +41,15 @@ public abstract class WbxmlOutput {
 	 * @param b
 	 * @throws IOException
 	 */
+
+	public void setStreamId(String streamId) {
+		this.streamId = streamId;
+	}
+
+	protected String streamId() {
+		return streamId != null ? streamId : "unknown stream-id";
+	}
+
 	public abstract void write(int b) throws IOException;
 
 	public abstract void write(byte[] data) throws IOException;
@@ -66,12 +76,12 @@ public abstract class WbxmlOutput {
 				try {
 					os.flush();
 				} catch (IOException e) {
-					logger.error(e.getMessage(), e);
+					logger.error("[{}]: error while flusing stream", streamId(), e);
 				}
 				try {
 					os.close();
 				} catch (IOException e) {
-					logger.error(e.getMessage(), e);
+					logger.error("[{}]: error while closing stream", e);
 				}
 				return null;
 			}

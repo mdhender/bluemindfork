@@ -106,7 +106,7 @@ public class Base64Output extends WbxmlOutput {
 	private void write0(final byte[] buffer, final int from, final int to, final QueueDrained drained)
 			throws IOException {
 		if (logger.isDebugEnabled()) {
-			logger.info("write0(buf, {}, {})", from, to);
+			logger.info("[{}] write0(buf, {}, {})", streamId(), from, to);
 		}
 		for (int i = from; i < to; i++) {
 			data = (data << 8) | (buffer[i] & 0xff);

@@ -90,7 +90,6 @@
 				<module>net.bluemind.eas.http.tests</module>
 				<module>net.bluemind.eas.protocol.tests</module>
 				<module>net.bluemind.eas.timezone.tests</module>
-				<module>net.bluemind.eas.wbxml.builder.tests</module>
 				<module>net.bluemind.elasticsearch.initializer.tests</module>
 				<module>net.bluemind.imap.tests</module>
 				<module>net.bluemind.imip.parser.tests</module>

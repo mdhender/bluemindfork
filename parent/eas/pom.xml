@@ -23,6 +23,7 @@
 				<module>net.bluemind.eas.persistence.tests</module>
 				<module>net.bluemind.eas.service.tests</module>
 				<module>net.bluemind.eas.integration.tests</module>
+				<module>net.bluemind.eas.wbxml.builder.tests</module>
 			</modules>
 		</profile>
 	</profiles>

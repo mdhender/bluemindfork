@@ -205,6 +205,7 @@ public class WbxmlResponseBuilder implements IResponseBuilder {
 		eb.request(ByteSourceEventProducer.REGISTER, source, (AsyncResult<Message<String>> streamIdMsg) -> {
 			MDC.put("user", loginForSifting);
 			String stream = streamIdMsg.result().body();
+			output.setStreamId(stream);
 			logger.debug("Stream {} ready to go", stream);
 			containerNamesStack.peek().setTextContent("[binary " + stream + "]");
 			NextChunk nc = new NextChunk(eb, stream, output, self, completion);
@@ -227,6 +228,7 @@ public class WbxmlResponseBuilder implements IResponseBuilder {
 		eb.request(ByteSourceEventProducer.REGISTER, source, (AsyncResult<Message<String>> streamIdMsg) -> {
 			MDC.put("user", loginForSifting);
 			String stream = streamIdMsg.result().body();
+			output.setStreamId(stream);
 			logger.info("Stream {} ready to go as base64", stream);
 			containerNamesStack.peek().setTextContent("[base64 " + stream + "]");
 			NextChunk nc = new NextChunk(eb, stream, b64, self, preComplete);

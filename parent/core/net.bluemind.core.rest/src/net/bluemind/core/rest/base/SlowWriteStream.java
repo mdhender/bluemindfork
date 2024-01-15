@@ -97,7 +97,9 @@ public class SlowWriteStream implements WriteStream<Buffer> {
 	public WriteStream<Buffer> drainHandler(Handler<Void> handler) {
 		this.drain = handler;
 		if (!writeQueueFull()) {
-			handler.handle(null);
+			if (this.drain != null) {
+				handler.handle(null);
+			}
 		}
 		return this;
 	}
