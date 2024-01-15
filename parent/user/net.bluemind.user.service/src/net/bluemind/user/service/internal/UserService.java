@@ -54,6 +54,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.sanitizer.Sanitizer;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.service.BlockingServerTask;
@@ -85,7 +86,6 @@ import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailbox.service.IInCoreMailboxes;
 import net.bluemind.mailbox.service.internal.MailboxQuotaHelper;
 import net.bluemind.role.api.BasicRoles;
-import net.bluemind.role.api.DefaultRoles;
 import net.bluemind.role.api.IRoles;
 import net.bluemind.role.api.RoleDescriptor;
 import net.bluemind.role.service.IInternalRoles;
@@ -94,6 +94,7 @@ import net.bluemind.system.state.StateContext;
 import net.bluemind.user.api.ChangePassword;
 import net.bluemind.user.api.IPasswordUpdater;
 import net.bluemind.user.api.IUser;
+import net.bluemind.user.api.PasswordInfo;
 import net.bluemind.user.api.User;
 import net.bluemind.user.hook.IUserHook;
 import net.bluemind.user.persistence.security.HashAlgorithm;
@@ -118,8 +119,8 @@ public class UserService implements IInCoreUser, IUser {
 	private final Sanitizer sanitizer;
 	private final APIKeyStore apikeyStore;
 	private final Validator validator;
-	private final PasswordValidator passwordValidator;
 	private final IInCoreMailboxes mailboxes;
+	final PasswordValidator passwordValidator;
 	private RBACManager rbacManager;
 	private UserEventProducer eventProducer;
 	private MailboxAdapter<User> mailboxAdapter;
@@ -137,13 +138,13 @@ public class UserService implements IInCoreUser, IUser {
 		this.context = context.getSecurityContext();
 		storeService = new ContainerUserStoreService(context, container, domain, globalVirt);
 		mailboxes = bmContext.su().provider().instance(IInCoreMailboxes.class, domainName);
+		passwordValidator = new PasswordValidator(context);
 
 		apikeyStore = new APIKeyStore(context.getDataSource(), context.getSecurityContext());
 
 		groupStore = new GroupStore(context.getDataSource(), container);
 		sanitizer = new Sanitizer(context);
 		validator = new Validator(context);
-		passwordValidator = new PasswordValidator(context);
 
 		rbacManager = new RBACManager(context).forDomain(userContainer.uid);
 		mailboxAdapter = UserMailboxAdapter.create(globalVirt);
@@ -462,6 +463,71 @@ public class UserService implements IInCoreUser, IUser {
 
 	}
 
+	@Override
+	public PasswordInfo getPasswordInfo(String login, String password) {
+		ItemValue<User> user = getUserFromLogin(login);
+
+		boolean passwordOk = checkPassword(user, password);
+		boolean passwordUpdateNeeded = passwordOk && passwordUpdateNeeded(user);
+		return new PasswordInfo(passwordOk, passwordUpdateNeeded, user.uid);
+	}
+
+	public boolean checkPassword(ItemValue<User> user, String password) {
+		try {
+			// BM-9728
+			if (user.value.password == null) {
+				return false;
+			}
+
+			boolean valid = HashFactory.getByPassword(user.value.password).validate(password, user.value.password);
+			updatePasswordAlgorithm(user, valid, user.value.password, password);
+			return valid;
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			return false;
+		}
+	}
+
+	private void updatePasswordAlgorithm(ItemValue<User> user, boolean valid, String password, String passwordPlain)
+			throws ServerFault {
+		// handle password using older passwordAlgorithm (3.0 -> 3.5, MD5 ->
+		// PBKDF2)
+		// PBKDF2 can also be upgraded to PBKDF2 for more iterations and a different
+		// hash algorithm
+		if (valid && HashFactory.needsUpgrade(password)) {
+			if (logger.isInfoEnabled()) {
+				logger.info("Updating password algorithm of user {} from {} to {}", user.value.login,
+						HashFactory.algorithm(password), HashFactory.DEFAULT.name());
+			}
+			((UserService) ServerSideServiceProvider.getProvider(context).instance(IInCoreUser.class, domainName))
+					.setPassword(user.uid, HashFactory.getDefault().create(passwordPlain), false);
+		}
+	}
+
+	public Boolean passwordUpdateNeeded(ItemValue<User> userItem) {
+		Map<String, String> domainSettings = bmContext.su().provider().instance(IDomainSettings.class, domainName)
+				.get();
+
+		if (userItem.value.passwordMustChange) {
+			return true;
+		}
+
+		if (userItem.value.passwordNeverExpires) {
+			return false;
+		}
+
+		Integer passwordLifetimeSetting;
+		try {
+			passwordLifetimeSetting = Integer.valueOf(domainSettings.get(DomainSettingsKeys.password_lifetime.name()));
+		} catch (NumberFormatException nfe) {
+			return false;
+		}
+
+		return (passwordLifetimeSetting > 0) && (userItem.value.passwordLastChange == null
+				|| addDaysToDate(userItem.value.passwordLastChange, passwordLifetimeSetting)
+						.compareTo(getToday()) <= 0);
+	}
+
 	private Date addDaysToDate(Date date, int amount) {
 		Calendar c = Calendar.getInstance();
 		c.setTime(date);
@@ -482,72 +548,7 @@ public class UserService implements IInCoreUser, IUser {
 		}
 	}
 
-	public PasswordInfo getPasswordInfo(String login, String password) {
-		ItemValue<User> userItem = getUserFromLogin(login);
-		boolean passwordOk = checkPassword(userItem, password);
-		boolean passwordUpdateNeeded = passwordOk ? passwordUpdateNeeded(userItem) : false;
-		return new PasswordInfo(passwordOk, passwordUpdateNeeded, userItem.uid);
-	}
-
-	public boolean passwordUpdateNeeded(String login) {
-		ParametersValidator.notNullAndNotEmpty(login);
-		ItemValue<User> userItem = getUserFromLogin(login);
-		return passwordUpdateNeeded(userItem);
-	}
-
-	private boolean passwordUpdateNeeded(ItemValue<User> userItem) {
-		if (userItem.externalId != null
-				&& (userItem.externalId.startsWith("ldap://") || userItem.externalId.startsWith("ad://"))) {
-			return false;
-		}
-
-		if (userItem.value.passwordMustChange) {
-			return true;
-		}
-
-		if (userItem.value.passwordNeverExpires) {
-			return false;
-		}
-
-		Integer passwordLifetimeSetting;
-		try {
-			passwordLifetimeSetting = Integer
-					.valueOf(bmContext.su().provider().instance(IDomainSettings.class, domainName).get()
-							.get(DomainSettingsKeys.password_lifetime.name()));
-		} catch (NumberFormatException nfe) {
-			return false;
-		}
-
-		return (passwordLifetimeSetting > 0) && (userItem.value.passwordLastChange == null
-				|| addDaysToDate(userItem.value.passwordLastChange, passwordLifetimeSetting)
-						.compareTo(getToday()) <= 0);
-	}
-
-	public boolean checkPassword(String login, String password) {
-		ParametersValidator.notNullAndNotEmpty(login);
-		ParametersValidator.notNullAndNotEmpty(password);
-		ItemValue<User> userItem = getUserFromLogin(login);
-		return checkPassword(userItem, password);
-	}
-
-	private boolean checkPassword(ItemValue<User> userItem, String password) {
-		try {
-			// BM-9728
-			if (userItem.value.password == null) {
-				return false;
-			}
-
-			boolean valid = HashFactory.getByPassword(userItem.value.password).validate(password,
-					userItem.value.password);
-			updatePasswordAlgorithm(userItem, valid, userItem.value.password, password);
-			return valid;
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-			return false;
-		}
-	}
-
-	private ItemValue<User> getUserFromLogin(String login) {
+	public ItemValue<User> getUserFromLogin(String login) {
 		if (login.contains("@")) {
 			login = login.split("@")[0];
 		}
@@ -562,22 +563,6 @@ public class UserService implements IInCoreUser, IUser {
 		}
 
 		return userItem;
-	}
-
-	private void updatePasswordAlgorithm(ItemValue<User> userItem, boolean valid, String password, String passwordPlain)
-			throws ServerFault {
-		User user = userItem.value;
-		// handle password using older passwordAlgorithm (3.0 -> 3.5, MD5 ->
-		// PBKDF2)
-		// PBKDF2 can also be upgraded to PBKDF2 for more iterations and a different
-		// hash algorithm
-		if (valid && HashFactory.needsUpgrade(password)) {
-			if (logger.isInfoEnabled()) {
-				logger.info("Updating password algorithm of user {} from {} to {}", user.login,
-						HashFactory.algorithm(password), HashFactory.DEFAULT.name());
-			}
-			storeService.setPassword(userItem.uid, HashFactory.getDefault().create(passwordPlain), false);
-		}
 	}
 
 	public boolean checkApiKey(String userUid, String sid) {
@@ -734,14 +719,10 @@ public class UserService implements IInCoreUser, IUser {
 
 	@Override
 	public Set<String> directResolvedRoles(String uid, List<String> groups) throws ServerFault {
-		ItemValue<User> userItem = getFull(uid);
-		User user = userItem.value;
-		if (passwordUpdateNeeded(user.login)) {
-			return DefaultRoles.USER_PASSWORD_EXPIRED;
-		}
+		ItemValue<User> user = getFull(uid);
 
-		Set<String> roles = UserAccountFactory.get(user.accountType).sanitizeRoles(bmContext,
-				storeService.getRoles(uid), domainName, userItem, groups);
+		Set<String> roles = UserAccountFactory.get(user.value.accountType).sanitizeRoles(bmContext,
+				storeService.getRoles(uid), domainName, user, groups);
 
 		IInternalRoles roleService = bmContext.su().provider().instance(IInternalRoles.class);
 		roles = roleService.filter(roles);
@@ -756,6 +737,12 @@ public class UserService implements IInCoreUser, IUser {
 
 	@Override
 	public void setPassword(String uid, ChangePassword password) throws ServerFault {
+		if (StringUtils.isBlank(password.currentPassword)) {
+			rbacManager.forEntry(uid).check(BasicRoles.ROLE_MANAGE_USER_PASSWORD);
+		} else {
+			rbacManager.forEntry(uid).check(BasicRoles.ROLE_SELF_CHANGE_PASSWORD, BasicRoles.ROLE_MANAGE_USER_PASSWORD);
+		}
+
 		ParametersValidator.notNullAndNotEmpty(uid);
 		ParametersValidator.notNull(password);
 		ParametersValidator.notNull(password.newPassword);
@@ -774,58 +761,8 @@ public class UserService implements IInCoreUser, IUser {
 		}
 	}
 
-	public void updatePassword(String uid, ChangePassword password) throws ServerFault {
-		if (StringUtils.isBlank(password.currentPassword)) {
-			rbacManager.forEntry(uid).check(BasicRoles.ROLE_MANAGE_USER_PASSWORD);
-			setPassword(uid, password.newPassword);
-		} else {
-			changePassword(uid, password.currentPassword, password.newPassword);
-		}
-	}
-
-	private void changePassword(String uid, String currentPassword, String newPassword) throws ServerFault {
-		rbacManager.forEntry(uid).check(BasicRoles.ROLE_SELF_CHANGE_PASSWORD, BasicRoles.ROLE_MANAGE_USER_PASSWORD);
-
-		ParametersValidator.notNull(newPassword);
-		passwordValidator.validate(newPassword);
-
-		ItemValue<User> userItem = storeService.get(uid);
-		if (userItem == null) {
-			throw notFoundServerFault(uid);
-		}
-
-		if (!checkPassword(userItem.value.login, currentPassword)) {
-			throw new ServerFault("password is not valid " + uid, ErrorCode.AUTHENTICATION_FAIL);
-		}
-
-		storeService.setPassword(uid, HashFactory.getDefault().create(newPassword), true);
-		eventProducer.passwordUpdated(uid);
-		// ysnp cache invalidation
-		MQ.getProducer(Topic.CORE_SESSIONS).send(
-				new JsonObject().put("latd", userItem.value.login + "@" + domainName).put("operation", "pwchange"));
-	}
-
-	private void setPassword(String uid, String newPassword) throws ServerFault {
-		rbacManager.forEntry(uid).check(BasicRoles.ROLE_MANAGE_USER_PASSWORD);
-
-		passwordValidator.validate(newPassword);
-
-		ItemValue<User> userItem = storeService.get(uid);
-		if (userItem == null) {
-			throw notFoundServerFault(uid);
-		}
-		// we support setting the user password as a hash, directly
-		// this is used for external user importers
-		if (HashFactory.algorithm(newPassword) != HashAlgorithm.UNKNOWN) {
-			storeService.setPassword(uid, newPassword, true);
-		} else {
-			storeService.setPassword(uid, HashFactory.getDefault().create(newPassword), true);
-		}
-
-		eventProducer.passwordUpdated(uid);
-		// ysnp cache invalidation
-		MQ.getProducer(Topic.CORE_SESSIONS).send(
-				new JsonObject().put("latd", userItem.value.login + "@" + domainName).put("operation", "pwchange"));
+	void setPassword(String userUid, String hashedPassword, boolean updateLastChange) {
+		storeService.setPassword(userUid, hashedPassword, updateLastChange);
 	}
 
 	@Override

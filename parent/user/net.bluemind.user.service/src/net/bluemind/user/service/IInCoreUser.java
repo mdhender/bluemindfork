@@ -25,19 +25,18 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.group.member.IInCoreGroupMember;
 import net.bluemind.user.api.IUser;
+import net.bluemind.user.api.PasswordInfo;
 import net.bluemind.user.api.User;
 
 public interface IInCoreUser extends IUser, IInCoreGroupMember {
 
 	ItemValue<User> getFull(String uid);
 
-	public boolean passwordUpdateNeeded(String login);
-
-	public boolean checkPassword(String login, String password) throws ServerFault;
-
 	public void deleteUserIdentitiesForMailbox(String uid) throws ServerFault;
 
 	public void deleteUserIdentitiesForMailbox(String userUid, String mailboxUid) throws ServerFault;
 
 	public Set<String> directResolvedRoles(String userUid, List<String> groups) throws ServerFault;
+
+	public PasswordInfo getPasswordInfo(String login, String password);
 }

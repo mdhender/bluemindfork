@@ -16,10 +16,9 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.user.service.internal;
+package net.bluemind.user.api;
 
 public class PasswordInfo {
-
 	public final boolean passwordOk;
 	public final boolean passwordUpdateNeeded;
 	public final String userUid;
@@ -30,4 +29,7 @@ public class PasswordInfo {
 		this.userUid = userUid;
 	}
 
+	public static PasswordInfo defaultForUser(String userUid) {
+		return new PasswordInfo(false, false, userUid);
+	}
 }

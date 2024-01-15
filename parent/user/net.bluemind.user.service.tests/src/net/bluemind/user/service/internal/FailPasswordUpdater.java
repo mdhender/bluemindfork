@@ -36,5 +36,4 @@ public class FailPasswordUpdater implements IPasswordUpdater {
 
 		return false;
 	}
-
 }

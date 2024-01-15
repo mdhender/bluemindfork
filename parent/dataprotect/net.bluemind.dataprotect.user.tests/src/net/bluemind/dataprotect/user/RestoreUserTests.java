@@ -75,6 +75,7 @@ import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.IUserSettings;
 import net.bluemind.user.api.User;
 import net.bluemind.user.service.IInCoreUser;
+import net.bluemind.user.service.internal.UserService;
 
 public class RestoreUserTests {
 	private static final boolean RUN_AS_ROOT = System.getProperty("user.name").equals("root");
@@ -232,8 +233,13 @@ public class RestoreUserTests {
 		assertTrue("restore failed", monitor.success);
 
 		// testUser password = testUser login
-		IInCoreUser userServerService = testContext.provider().instance(IInCoreUser.class, domain);
-		assertTrue(userServerService.checkPassword(restoredUser.value.login, restoredUser.value.login));
+		assertTrue(checkUserPassword(restoredUser.value.login));
+	}
+
+	private Boolean checkUserPassword(String userLogin) {
+		UserService userService = ((UserService) ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IInCoreUser.class, domain));
+		return userService.checkPassword(userService.getUserFromLogin(userLogin), userLogin);
 	}
 
 	@Test(timeout = 120000)
@@ -256,8 +262,7 @@ public class RestoreUserTests {
 		assertTrue("restore failed", monitor.success);
 
 		// testUser password = testUser login
-		IInCoreUser userServerService = testContext.provider().instance(IInCoreUser.class, domain);
-		assertTrue(userServerService.checkPassword(user.value.login, user.value.login));
+		assertTrue(checkUserPassword(restoredUser.value.login));
 	}
 
 	@Test(timeout = 120000)

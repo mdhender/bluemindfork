@@ -773,9 +773,8 @@ public class UserServiceTests {
 						+ "', password_algorithm = 'MD5' WHERE login='" + user.login + "'");
 			}
 		}
-		UserService userService = (UserService) ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IUser.class, domainUid);
-		userService.checkPassword(user.login, "pw");
+
+		checkUserPassword(user.login, "pw");
 
 		user = userStoreService.get(uid).value;
 
@@ -800,9 +799,8 @@ public class UserServiceTests {
 				st.executeUpdate();
 			}
 		}
-		UserService userService = (UserService) ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IUser.class, domainUid);
-		assertTrue(userService.checkPassword(user.login, "laurent"));
+
+		assertTrue(checkUserPassword(user.login, "laurent"));
 		String newStoredPassword = "";
 		try (Connection con = JdbcTestHelper.getInstance().getDataSource().getConnection()) {
 			try (PreparedStatement st = con.prepareStatement("SELECT password FROM t_domain_user WHERE login=?")) {
@@ -1388,8 +1386,7 @@ public class UserServiceTests {
 		Date passwordTime = userItemValue.value.passwordLastChange;
 
 		getService(domainAdminSecurityContext).setPassword(uid, ChangePassword.create("checkpass"));
-		assertTrue(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IInCoreUser.class, domainUid)
-				.checkPassword(user.login, "checkpass"));
+		assertTrue(checkUserPassword(user.login, "checkpass"));
 
 		userItemValue = getService(domainAdminSecurityContext).getComplete(uid);
 		assertTrue(passwordTime.before(userItemValue.value.passwordLastChange));
@@ -1420,19 +1417,11 @@ public class UserServiceTests {
 		user.passwordMustChange = true;
 		getService(domainAdminSecurityContext).update(uid, user);
 
-		assertTrue(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IInCoreUser.class, domainUid)
-				.passwordUpdateNeeded(user.login));
-		Set<String> roles = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IInCoreUser.class, domainUid).getResolvedRoles(uid);
-		assertEquals(1, roles.size());
-		assertEquals(BasicRoles.ROLE_SELF_CHANGE_PASSWORD, roles.iterator().next());
-
 		user.passwordMustChange = false;
 		getService(domainAdminSecurityContext).update(uid, user);
 
 		// Password expiration disabled
-		assertFalse(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IInCoreUser.class, domainUid)
-				.passwordUpdateNeeded(user.login));
+		assertFalse(getPasswordUpdateNeeded(getService(domainAdminSecurityContext).getComplete(uid)));
 
 		// Enable password expiration
 		Map<String, String> domainSettings = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
@@ -1441,8 +1430,7 @@ public class UserServiceTests {
 		ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomainSettings.class, domainUid)
 				.set(domainSettings);
 
-		assertFalse(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IInCoreUser.class, domainUid)
-				.passwordUpdateNeeded(user.login));
+		assertFalse(getPasswordUpdateNeeded(getService(domainAdminSecurityContext).getComplete(uid)));
 
 		// Password lastchange to null
 		Connection conn = null;
@@ -1456,8 +1444,7 @@ public class UserServiceTests {
 			JdbcHelper.cleanup(conn, null, st);
 		}
 
-		assertTrue(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IInCoreUser.class, domainUid)
-				.passwordUpdateNeeded(user.login));
+		assertTrue(getPasswordUpdateNeeded(getService(domainAdminSecurityContext).getComplete(uid)));
 
 		// Password lastchange 10 years ago
 		try {
@@ -1470,15 +1457,18 @@ public class UserServiceTests {
 			JdbcHelper.cleanup(conn, null, st);
 		}
 
-		assertTrue(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IInCoreUser.class, domainUid)
-				.passwordUpdateNeeded(user.login));
+		assertTrue(getPasswordUpdateNeeded(getService(domainAdminSecurityContext).getComplete(uid)));
 
 		// Password never expire
 		user.passwordNeverExpires = true;
 		getService(domainAdminSecurityContext).update(uid, user);
 
-		assertFalse(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IInCoreUser.class, domainUid)
-				.passwordUpdateNeeded(user.login));
+		assertFalse(getPasswordUpdateNeeded(getService(domainAdminSecurityContext).getComplete(uid)));
+	}
+
+	private boolean getPasswordUpdateNeeded(ItemValue<User> userItem) {
+		return ((UserService) ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IInCoreUser.class,
+				domainUid)).passwordUpdateNeeded(userItem);
 	}
 
 	@Test
@@ -1489,35 +1479,16 @@ public class UserServiceTests {
 
 		getService(domainAdminSecurityContext).setPassword(uid, ChangePassword.create("checkpass"));
 
-		assertTrue(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IInCoreUser.class, domainUid)
-				.checkPassword(user.login, "checkpass"));
-		assertFalse(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IInCoreUser.class, domainUid)
-				.checkPassword(user.login, "invalid"));
+		assertTrue(checkUserPassword(user.login, "checkpass"));
+		assertFalse(checkUserPassword(user.login, "invalid"));
 	}
 
-	@Test
-	public void testCheckPassword_invalidLogin() {
-		User user = defaultUser("test." + System.nanoTime());
-		String uid = create(user);
-		assertNotNull(uid);
+	private Boolean checkUserPassword(String userLogin, String password) {
+		ItemValue<User> user = ((UserService) ServerSideServiceProvider.getProvider(domainAdminSecurityContext)
+				.instance(IInCoreUser.class, domainUid)).getUserFromLogin(userLogin);
 
-		getService(domainAdminSecurityContext).setPassword(uid, ChangePassword.create("checkpass"));
-
-		try {
-			ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IInCoreUser.class, domainUid)
-					.checkPassword(null, "invalid");
-			fail("Test must thrown an exception!");
-		} catch (ServerFault sf) {
-			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
-		}
-
-		try {
-			ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IInCoreUser.class, domainUid)
-					.checkPassword("", "invalid");
-			fail("Test must thrown an exception!");
-		} catch (ServerFault sf) {
-			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
-		}
+		return ((UserService) ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IInCoreUser.class,
+				domainUid)).checkPassword(user, password);
 	}
 
 	@Test
@@ -1528,21 +1499,7 @@ public class UserServiceTests {
 
 		getService(domainAdminSecurityContext).setPassword(uid, ChangePassword.create("checkpass"));
 
-		try {
-			ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IInCoreUser.class, domainUid)
-					.checkPassword(user.login, null);
-			fail("Test must thrown an exception!");
-		} catch (ServerFault sf) {
-			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
-		}
-
-		try {
-			ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IInCoreUser.class, domainUid)
-					.checkPassword(user.login, "");
-			fail("Test must thrown an exception!");
-		} catch (ServerFault sf) {
-			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
-		}
+		assertFalse(checkUserPassword(user.login, null));
 	}
 
 	@Test

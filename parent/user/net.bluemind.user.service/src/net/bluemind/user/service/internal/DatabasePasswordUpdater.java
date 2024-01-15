@@ -17,25 +17,74 @@
   */
 package net.bluemind.user.service.internal;
 
+import org.apache.commons.lang3.StringUtils;
+
+import io.vertx.core.json.JsonObject;
+import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.hornetq.client.MQ;
+import net.bluemind.hornetq.client.Topic;
+import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.user.api.ChangePassword;
 import net.bluemind.user.api.IPasswordUpdater;
-import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
+import net.bluemind.user.persistence.security.HashAlgorithm;
+import net.bluemind.user.persistence.security.HashFactory;
+import net.bluemind.user.service.IInCoreUser;
 
 public class DatabasePasswordUpdater implements IPasswordUpdater {
-
 	@Override
 	public boolean update(SecurityContext context, String domainUid, ItemValue<User> userItem, ChangePassword password)
 			throws ServerFault {
-		UserService userService = (UserService) ServerSideServiceProvider.getProvider(context).instance(IUser.class,
-				domainUid);
-		userService.updatePassword(userItem.uid, password);
+		if (StringUtils.isBlank(password.currentPassword)) {
+			setPassword(context, domainUid, userItem, password.newPassword);
+		} else {
+			changePassword(context, domainUid, userItem, password.currentPassword, password.newPassword);
+		}
 
 		return true;
+	}
+
+	private void changePassword(SecurityContext context, String domainUid, ItemValue<User> user, String currentPassword,
+			String newPassword) throws ServerFault {
+		UserService userService = (UserService) ServerSideServiceProvider.getProvider(context)
+				.instance(IInCoreUser.class, domainUid);
+
+		userService.passwordValidator.validate(newPassword);
+
+		if (Boolean.FALSE.equals(userService.checkPassword(user, currentPassword))) {
+			throw new ServerFault("password is not valid " + user.uid, ErrorCode.AUTHENTICATION_FAIL);
+		}
+
+		userService.setPassword(user.uid, HashFactory.getDefault().create(newPassword), true);
+		new UserEventProducer(domainUid, VertxPlatform.eventBus()).passwordUpdated(user.uid);
+		// ysnp cache invalidation
+		MQ.getProducer(Topic.CORE_SESSIONS)
+				.send(new JsonObject().put("latd", user.value.login + "@" + domainUid).put("operation", "pwchange"));
+	}
+
+	private void setPassword(SecurityContext context, String domainUid, ItemValue<User> user, String newPassword)
+			throws ServerFault {
+		UserService userService = (UserService) ServerSideServiceProvider.getProvider(context)
+				.instance(IInCoreUser.class, domainUid);
+
+		userService.passwordValidator.validate(newPassword);
+
+		// we support setting the user password as a hash, directly
+		// this is used for external user importers
+		if (HashFactory.algorithm(newPassword) != HashAlgorithm.UNKNOWN) {
+			userService.setPassword(user.uid, newPassword, true);
+		} else {
+			userService.setPassword(user.uid, HashFactory.getDefault().create(newPassword), true);
+		}
+
+		new UserEventProducer(domainUid, VertxPlatform.eventBus()).passwordUpdated(user.uid);
+		// ysnp cache invalidation
+		MQ.getProducer(Topic.CORE_SESSIONS)
+				.send(new JsonObject().put("latd", user.value.login + "@" + domainUid).put("operation", "pwchange"));
 	}
 
 }

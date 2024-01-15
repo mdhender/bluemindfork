@@ -27,14 +27,13 @@ import net.bluemind.user.api.IPasswordUpdater;
 import net.bluemind.user.api.User;
 
 public class LdapPasswordUpdater implements IPasswordUpdater {
-
 	@Override
 	public boolean update(SecurityContext context, String domainUid, ItemValue<User> user, ChangePassword password)
 			throws ServerFault {
 		if (user.externalId != null && user.externalId.startsWith(LdapConstants.EXTID_PREFIX)) {
 			throw new ServerFault("Operation forbidden. Password must be changed in LDAP.", ErrorCode.FORBIDDEN);
 		}
+
 		return false;
 	}
-
 }

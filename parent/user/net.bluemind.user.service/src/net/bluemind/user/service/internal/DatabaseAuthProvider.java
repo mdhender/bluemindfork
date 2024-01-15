@@ -11,7 +11,8 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.domain.api.Domain;
-import net.bluemind.user.api.IUser;
+import net.bluemind.user.api.PasswordInfo;
+import net.bluemind.user.service.IInCoreUser;
 
 public class DatabaseAuthProvider implements IAuthProvider {
 
@@ -29,8 +30,8 @@ public class DatabaseAuthProvider implements IAuthProvider {
 			logger.debug("check {}@{} with password {}", login, domain.value.name, authContext.getUserPassword());
 		}
 
-		UserService userService = (UserService) ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IUser.class, domain.uid);
+		IInCoreUser userService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IInCoreUser.class, domain.uid);
 
 		PasswordInfo passwordInfo = userService.getPasswordInfo(login, authContext.getUserPassword());
 

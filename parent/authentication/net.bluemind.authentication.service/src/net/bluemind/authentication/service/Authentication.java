@@ -28,6 +28,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,6 +63,7 @@ import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomainUids;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.role.api.BasicRoles;
+import net.bluemind.role.api.DefaultRoles;
 import net.bluemind.role.service.IInternalRoles;
 import net.bluemind.system.api.SystemState;
 import net.bluemind.system.state.StateContext;
@@ -300,8 +302,8 @@ public class Authentication implements IInCoreAuthentication {
 			Sessions.get().put(resp.authKey, context);
 		} else {
 
-			logger.debug("[name={};origin={};from={}] authenticated session token", login,
-					origin, securityContext.getRemoteAddresses());
+			logger.debug("[name={};origin={};from={}] authenticated session token", login, origin,
+					securityContext.getRemoteAddresses());
 			resp.authKey = context.getSessionId();
 		}
 
@@ -472,10 +474,10 @@ public class Authentication implements IInCoreAuthentication {
 		}
 		List<String> oips = new ArrayList<String>();
 		for (String ipAddress : securityContext.getRemoteAddresses()) {
-            if (!ipAddress.startsWith("127.")) {
-            	oips.add(ipAddress);
-            }
-        } 
+			if (!ipAddress.startsWith("127.")) {
+				oips.add(ipAddress);
+			}
+		}
 		logger.info("[name={};origin={};oip={}] sudo as by {}", login, securityContext.getOrigin(),
 				String.join(",", oips), performer);
 
@@ -587,16 +589,21 @@ public class Authentication implements IInCoreAuthentication {
 		}
 
 		return new SecurityContext(authKey, user.uid, user.value.login + "@" + domainUid, groups,
-				new ArrayList<>(getRoles(user.uid, groups, domainUid)), rolesByOUs, domainUid, config.get("lang"),
-				origin, interactive);
+				new ArrayList<>(getRoles(domainUid, user.uid, groups, expiredPassword)), rolesByOUs, domainUid,
+				config.get("lang"), origin, interactive);
 	}
 
-	private Set<String> getRoles(String userUid, List<String> groups, String domainUid) throws ServerFault {
+	private Set<String> getRoles(String domainUid, String userUid, List<String> groups, boolean expiredPassword)
+			throws ServerFault {
 		IServiceProvider sp = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 		if (IDomainUids.GLOBAL_VIRT.equals(domainUid)) {
 			return sp.instance(IInternalRoles.class).resolve(ImmutableSet.<String>builder()
 					.add(SecurityContext.ROLE_SYSTEM).add(BasicRoles.ROLE_SELF_CHANGE_PASSWORD).build());
 		} else {
+			if (expiredPassword) {
+				return DefaultRoles.USER_PASSWORD_EXPIRED;
+			}
+
 			return sp.instance(IInCoreUser.class, domainUid).directResolvedRoles(userUid, groups).stream()
 					.filter(role -> RoleValidation.validate(domainUid, role)).collect(Collectors.toSet());
 		}

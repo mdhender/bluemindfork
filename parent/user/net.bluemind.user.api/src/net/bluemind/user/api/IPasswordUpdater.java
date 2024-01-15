@@ -28,10 +28,8 @@ public interface IPasswordUpdater {
 	 * @param domainUid
 	 * @param user
 	 * @param password
-	 * @return true if implementation handles password change, false otherwise.
+	 * @return true if implementation handles password update, false otherwise.
 	 * @throws ServerFault
 	 */
-	boolean update(SecurityContext context, String domainUid, ItemValue<User> user, ChangePassword password)
-			throws ServerFault;
-
+	public boolean update(SecurityContext context, String domainUid, ItemValue<User> user, ChangePassword password);
 }
