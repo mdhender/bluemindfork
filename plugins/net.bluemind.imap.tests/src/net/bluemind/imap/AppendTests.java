@@ -24,6 +24,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.james.mime4j.dom.Message;
 import org.junit.Test;
@@ -35,20 +37,14 @@ public class AppendTests extends LoggedTestCase implements IMessageProducer {
 
 	@Test
 	public void testBug4809ThreadedAppend() throws InterruptedException {
-		try (StoreClient sc1 = newStore(true); StoreClient sc2 = newStore(true)) {
+		try (StoreClient sc1 = newStore(false); StoreClient sc2 = newStore(false)) {
 			Appender ap1 = new Appender(sc1, this);
-			Thread t1 = new Thread(ap1);
-			t1.start();
+			var thread1 = CompletableFuture.runAsync(ap1);
 
 			Appender ap2 = new Appender(sc2, this);
-			Thread t2 = new Thread(ap2);
-			t2.start();
+			var thread2 = CompletableFuture.runAsync(ap2);
 
-			t1.join();
-			t2.join();
-
-			sc1.logout();
-			sc2.logout();
+			CompletableFuture.allOf(thread1, thread2).orTimeout(1, TimeUnit.MINUTES).join();
 
 			assertEquals(0, ap1.getFailed());
 			assertEquals(0, ap2.getFailed());

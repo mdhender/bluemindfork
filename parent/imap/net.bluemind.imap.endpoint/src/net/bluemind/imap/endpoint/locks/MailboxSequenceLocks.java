@@ -126,7 +126,7 @@ public class MailboxSequenceLocks {
 					} else {
 						logger.warn("[{}] Could not grab lock {} for {} (try: {})", owner, l, grabber, attempt);
 						// recurse
-						if (attempt > 100) {
+						if (attempt > 1000) {
 							ret.completeExceptionally(new EndpointRuntimeException("Could not grab lock " + l));
 							return;
 						}
