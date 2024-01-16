@@ -4,6 +4,8 @@
 		<whitelist>
 			<wl uri="js/net.bluemind.webapp.mail.js.map" />
 			<wl uri="js/net.bluemind.webapp.root.js.map" />
+			<wl uri="css/montserrat/index.css" />
+			<wl uri="css/montserrat/files" />
 		</whitelist>
 	</forward>
 </forwards>
