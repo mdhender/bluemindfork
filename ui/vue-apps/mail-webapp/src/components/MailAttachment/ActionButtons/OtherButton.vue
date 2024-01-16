@@ -1,5 +1,6 @@
 <template>
     <bm-icon-dropdown
+        v-if="!isFh"
         no-caret
         variant="compact"
         size="sm"
@@ -26,6 +27,15 @@ export default {
         message: {
             type: Object,
             required: true
+        }
+    },
+    computed: {
+        // FIXME: Delete this when extensible toolbars are done BM-16669
+        isFh() {
+            return this.file.headers.find(header => {
+                const headerName = header?.name?.toLowerCase();
+                return ["x-bm-disposition", "x-mozilla-cloud-part"].includes(headerName);
+            });
         }
     }
 };
