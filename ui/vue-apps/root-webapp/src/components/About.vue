@@ -4,33 +4,26 @@
         @click="close"
     >
         <global-events @keydown.esc="close" />
-        <div
-            class="d-flex align-items-center flex-column flex-fill flex-lg-grow-0 flex-lg-shrink-0 m-4 p-4"
-            :style="{ background: 'url(' + aboutBackgroundImg + ')  center/cover' }"
-        >
-            <div class="flex-fill"></div>
-            <div class="d-flex align-items-end">
+        <div :style="{ background: 'url(' + aboutBackgroundImg + ')  center/cover' }">
+            <div class="about-brand">
                 <!-- eslint-disable-next-line vue/no-v-html -->
-                <svg height="68" width="271" v-html="BmLogo" />
+                <svg height="51" width="200" v-html="BmLogo" />
             </div>
-            <img :src="aboutVersionImg" alt="" class="mt-2" />
-            <i18n path="banner.about.version" class="mt-2 flex-fill">
+            <div class="about-logo">
+                <img :src="aboutVersionImg" alt="" />
+            </div>
+            <i18n path="banner.about.version" class="about-version">
                 <template #brand>
-                    <strong class="font-weight-bold">
+                    <span class="about-version-commercial">
                         {{ $t("banner.about.version.brand", [version.brand]) }}
-                    </strong>
+                    </span>
                 </template>
-                <template #technical>{{ version.technical }}</template>
+                <template #technical>
+                    <span class="about-version-technical">{{ version.technical }}</span>
+                </template>
             </i18n>
-            <a
-                target="_blank"
-                href="https://www.bluemind.net/"
-                class="text-decoration-none text-uppercase h1 mb-4"
-                @click.stop
-            >
-                www.bluemind.net
-            </a>
-            <span>Copyright 2012 - {{ year }} BlueMind</span>
+            <a target="_blank" href="https://www.bluemind.net/" class="about-link" @click.stop> www.bluemind.net </a>
+            <span class="about-copyright">Copyright 2012 - {{ year }} BlueMind</span>
         </div>
     </div>
 </template>
@@ -71,18 +64,52 @@ export default {
 
 <style lang="scss">
 @import "~@bluemind/ui-components/src/css/utils/variables";
+@import "~@bluemind/ui-components/src/css/utils/responsiveness";
+@import "~@bluemind/ui-components/src/css/utils/typography";
 .about {
     > div {
         background-color: $blue-800;
         color: $white !important;
-        flex-basis: 717px !important;
+
         min-height: 500px;
         min-width: 320px;
+        padding: $sp-4;
+        margin: $sp-4;
+
+        flex: 717px 1 1;
+        @include from-lg {
+            flex-shrink: 0;
+            flex-grow: 0;
+        }
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
-    a {
-        color: $cyan;
-        letter-spacing: 6px;
-        font-weight: $font-weight-normal;
+    .about-brand {
+        margin-top: 145px;
+    }
+    .about-logo {
+        margin: 16px 0;
+    }
+    .about-version {
+        @include caption;
+        text-transform: lowercase;
+        margin-bottom: 125px;
+        color: rgba(255, 255, 255, 0.4);
+        .about-version-commercial {
+            color: rgba(255, 255, 255, 1);
+        }
+    }
+    .about-link {
+        color: $blue-500;
+        text-decoration: none;
+        margin-bottom: 10px;
+        @include regular;
+    }
+    .about-copyright {
+        @include caption;
+        opacity: 0.67;
     }
 }
 </style>
