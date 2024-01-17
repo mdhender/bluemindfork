@@ -31,6 +31,7 @@ import com.netflix.spectator.api.Timer;
 import io.netty.buffer.ByteBuf;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Context;
+import io.vertx.core.Promise;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.net.NetSocket;
 import io.vertx.core.net.SocketAddress;
@@ -69,7 +70,7 @@ public class SaslAuthdVerticle extends AbstractVerticle {
 	}
 
 	@Override
-	public void start() {
+	public void start(Promise<Void> startPromise) {
 		AtomicReference<SharedMap<String, String>> sysconf = new AtomicReference<>();
 		MQ.init().thenAccept(v -> sysconf.set(MQ.sharedMap("system.configuration")));
 
@@ -86,8 +87,10 @@ public class SaslAuthdVerticle extends AbstractVerticle {
 		}).listen(SocketAddress.domainSocketAddress(socketPath), res -> {
 			if (res.failed()) {
 				logger.error(res.cause().getMessage(), res.cause());
+				startPromise.fail(res.cause());
 			} else {
 				logger.info("Listening on {}", socketPath);
+				startPromise.complete();
 			}
 		});
 	}
