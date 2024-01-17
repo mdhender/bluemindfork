@@ -1,6 +1,7 @@
 package net.bluemind.central.reverse.proxy.vertx.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 import java.util.concurrent.CountDownLatch;
@@ -32,23 +33,25 @@ public class DownstreamSelectorTests {
 
 		final CountDownLatch cdl = new CountDownLatch(2);
 
-		MultiMap formAttributes = MultiMap.caseInsensitiveMultiMap().add("login", "one");
-		HttpServerRequest request = TestRequestHelper.createRequest(HttpMethod.POST, "/login", formAttributes);
+		MultiMap formAttributes = MultiMap.caseInsensitiveMultiMap().add("username", "one");
+		HttpServerRequest request = TestRequestHelper.createRequest(HttpMethod.POST,
+				"/keycloak/realms/global.virt/login-actions/authenticate", formAttributes);
 
 		selector.apply(new HttpServerRequestContextImpl(request)).onSuccess(session -> {
 			assertEquals("1.1.1.1", session.address().host());
 			cdl.countDown();
 		});
 
-		formAttributes = MultiMap.caseInsensitiveMultiMap().add("login", "two");
-		request = TestRequestHelper.createRequest(HttpMethod.POST, "/login", formAttributes);
+		formAttributes = MultiMap.caseInsensitiveMultiMap().add("username", "two");
+		request = TestRequestHelper.createRequest(HttpMethod.POST,
+				"/keycloak/realms/global.virt/login-actions/authenticate", formAttributes);
 
 		selector.apply(new HttpServerRequestContextImpl(request)).onSuccess(session -> {
 			assertEquals(session.address().host(), "2.2.2.2");
 			cdl.countDown();
 		});
 
-		cdl.await(30, TimeUnit.SECONDS);
+		assertTrue(cdl.await(30, TimeUnit.SECONDS));
 	}
 
 	@Test

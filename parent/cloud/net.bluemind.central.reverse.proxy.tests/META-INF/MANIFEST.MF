@@ -4,7 +4,6 @@ Bundle-Name: net.bluemind.central.reverse.proxy.tests
 Bundle-SymbolicName: net.bluemind.central.reverse.proxy.tests;singleton:=true
 Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: www.blue-mind.net
-Fragment-Host: net.bluemind.central.reverse.proxy
 Require-Bundle: org.eclipse.core.runtime,
  org.junit,
  slf4j.api,
@@ -15,7 +14,9 @@ Require-Bundle: org.eclipse.core.runtime,
  com.fasterxml.jackson.core.jackson-core,
  com.fasterxml.jackson.core.jackson-databind,
  net.bluemind.kafka.client,
- org.mockito.mockito-core
+ org.mockito.mockito-core,
+ net.bluemind.central.reverse.proxy.model.client,
+ net.bluemind.central.reverse.proxy
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.central.reverse.proxy.tests

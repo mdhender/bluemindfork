@@ -26,7 +26,8 @@ Require-Bundle: org.eclipse.core.runtime,
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.central.reverse.proxy,
- net.bluemind.central.reverse.proxy.vertx
+ net.bluemind.central.reverse.proxy.vertx,
+ net.bluemind.central.reverse.proxy.vertx.impl
 Bundle-ClassPath: .
 Eclipse-RegisterBuddy: net.bluemind.lib.vertx
 Automatic-Module-Name: net.bluemind.central.reverse.proxy
