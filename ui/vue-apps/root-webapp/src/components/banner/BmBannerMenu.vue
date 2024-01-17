@@ -147,6 +147,13 @@ export default {
 
     .dropdown-menu {
         margin-top: 0 !important;
+        position: relative !important;
+        top: 0;
+        display: block;
+        visibility: hidden;
+        &.show {
+            visibility: visible;
+        }
     }
 
     .nav-link {
