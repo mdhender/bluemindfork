@@ -117,6 +117,7 @@ export default {
         .dropdown-toggle {
             padding-right: $sp-5 !important;
             gap: $sp-5;
+            outline: none;
         }
     }
 
