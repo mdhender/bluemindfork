@@ -15,6 +15,25 @@
 		<module>net.bluemind.eas.config</module>
 		<module>net.bluemind.eas.service</module>
 		<module>net.bluemind.eas.verticle</module>
+		<module>net.bluemind.eas.backend.bm</module>
+		<module>net.bluemind.eas.busmods</module>
+		<module>net.bluemind.eas.client</module>
+		<module>net.bluemind.eas.config.global</module>
+		<module>net.bluemind.eas.dto</module>
+		<module>net.bluemind.eas.http.wbxml</module>
+		<module>net.bluemind.eas.http</module>
+		<module>net.bluemind.eas.partnership</module>
+		<module>net.bluemind.eas.search.ldap</module>
+		<module>net.bluemind.eas.serdes</module>
+		<module>net.bluemind.eas.sift</module>
+		<module>net.bluemind.eas.storage.jdbc</module>
+		<module>net.bluemind.eas.testhelper</module>
+		<module>net.bluemind.eas.timezone</module>
+		<module>net.bluemind.eas.utils</module>
+		<module>net.bluemind.eas.validation</module>
+		<module>net.bluemind.eas.wbxml.builder</module>
+		<module>net.bluemind.eas.wbxml</module>
+		<module>net.bluemind.eas</module>
 	</modules>
 	<profiles>
 		<profile>
@@ -24,6 +43,11 @@
 				<module>net.bluemind.eas.service.tests</module>
 				<module>net.bluemind.eas.integration.tests</module>
 				<module>net.bluemind.eas.wbxml.builder.tests</module>
+				<module>net.bluemind.eas.client.tests</module>
+				<module>net.bluemind.eas.endpoint.tests</module>
+				<module>net.bluemind.eas.http.tests</module>
+				<module>net.bluemind.eas.protocol.tests</module>
+				<module>net.bluemind.eas.timezone.tests</module>
 			</modules>
 		</profile>
 	</profiles>
