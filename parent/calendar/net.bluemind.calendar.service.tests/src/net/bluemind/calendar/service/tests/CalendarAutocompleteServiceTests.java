@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import org.awaitility.Awaitility;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,6 +47,7 @@ import net.bluemind.calendar.service.internal.CalendarAutocompleteService;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.persistence.AclStore;
@@ -57,6 +59,7 @@ import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.sessions.Sessions;
 import net.bluemind.core.tests.BmTestContext;
+import net.bluemind.directory.api.IDirectory;
 import net.bluemind.group.api.Group;
 import net.bluemind.group.api.IGroup;
 import net.bluemind.group.api.Member;
@@ -396,8 +399,13 @@ public class CalendarAutocompleteServiceTests {
 
 		createTestGroup("g4", "David sub goup", "u6", "u7");
 
+		IDirectory dirApi = testContext.provider().instance(IDirectory.class, DOMAIN);
+		waitForGroupVCardAsyncStuff(dirApi, "g4", 2);
+
 		createTestGroup("g1", "David Gilmour all band", Member.user("u1"), Member.user("u2"), Member.user("u3"),
 				Member.group("g2"), Member.group("g3"), Member.group("g4"));
+		waitForGroupVCardAsyncStuff(dirApi, "g1", 6);
+
 		testContext.provider().instance(IDomainAddressBook.class, DOMAIN).sync();
 
 		res = service.calendarLookup("david", Verb.Read);
@@ -407,10 +415,18 @@ public class CalendarAutocompleteServiceTests {
 		CalendarLookupResponse att2 = res.get(1);
 		assertEquals("g1", att1.uid);
 		assertEquals(ICalendarUids.defaultUserCalendar("u1"), att2.uid);
-
 		// u1 + u2 + g4.u6 + g4.u7(u3 is not Readable, g2 and g3 are hidden)
 		res = service.calendarGroupLookup(att1.uid);
 		assertEquals(4, res.size());
+	}
+
+	private void waitForGroupVCardAsyncStuff(IDirectory dirApi, String uid, int expectedMembers) {
+		// wait for the async vcard update to get the members
+		Awaitility.await().atMost(10, TimeUnit.SECONDS).until(() -> {
+			ItemValue<VCard> vcard = dirApi.getVCard(uid);
+			return vcard.value.organizational.member.size() >= expectedMembers;
+		});
+		System.err.println("Got " + expectedMembers + " for " + uid);
 	}
 
 	@Test

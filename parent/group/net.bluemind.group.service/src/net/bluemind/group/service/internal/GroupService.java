@@ -206,7 +206,7 @@ public class GroupService implements IGroup, IInCoreGroup {
 		Mailbox currentMailbox = GroupHelper.groupToMailbox(group);
 		mailboxes.validate(uid, currentMailbox);
 
-		storeService.update(groupItem,
+		var vers = storeService.update(groupItem,
 				reservedIdsConsumer -> mailboxes.updated(uid, previousMailbox, currentMailbox, reservedIdsConsumer));
 
 		for (IGroupHook gh : groupsHooks) {
@@ -215,7 +215,7 @@ public class GroupService implements IGroup, IInCoreGroup {
 		}
 
 		storeService.requestGroupVCardUpdate(domainUid, uid);
-		dirEventProducer.changed(uid, storeService.getVersion());
+		dirEventProducer.changed(uid, vers.version);
 	}
 
 	@Override
@@ -226,8 +226,8 @@ public class GroupService implements IGroup, IInCoreGroup {
 			throwNotFoundServerFault(uid);
 		}
 
-		storeService.update(uid, previousItemValue.value);
-		dirEventProducer.changed(uid, storeService.getVersion());
+		var vers = storeService.update(uid, previousItemValue.value);
+		dirEventProducer.changed(uid, vers.version);
 	}
 
 	@Override

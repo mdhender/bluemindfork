@@ -92,12 +92,17 @@ public class UpdateGroupVcardVerticle extends AbstractVerticle {
 		}
 		GroupVCardAdapter adapter = new GroupVCardAdapter(ds, SecurityContext.SYSTEM, container, gi.domainUid());
 		VCardStore vcardStore = new VCardStore(ds, container);
-		ItemValue<Group> grp = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IGroup.class, gi.domainUid()).getComplete(gi.groupUid());
-		ItemValue<Domain> domain = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IDomains.class).get(gi.domainUid());
+		ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
+		IGroup grpApi = prov.instance(IGroup.class, gi.domainUid());
+		ItemValue<Group> grp = grpApi.getComplete(gi.groupUid());
+		if (grp == null) {
+			// when we create, update then delete the group before the vcard update occurs
+			return;
+		}
+		ItemValue<Domain> domain = prov.instance(IDomains.class).get(gi.domainUid());
 		try {
 			vcardStore.update(grp.item(), adapter.asVCard(domain, grp.item().uid, grp.value));
+			grpApi.touch(grp.uid);
 		} catch (SQLException e) {
 			logger.error("Unable to update group vcard", e);
 		}

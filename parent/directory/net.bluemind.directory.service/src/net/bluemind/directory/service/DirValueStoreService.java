@@ -232,26 +232,27 @@ public abstract class DirValueStoreService<T> extends BaseDirStoreService<DirEnt
 		orgUnitHierarchyBackup.process(itemValue);
 	}
 
-	public void update(String uid, T value) throws ServerFault {
+	public ItemVersion update(String uid, T value) throws ServerFault {
 		DirEntry dirEntry = adapter.asDirEntry(container.domainUid, uid, value);
 		DirEntryAndValue<T> dirEntryValue = new DirEntryAndValue<>(dirEntry, value,
 				vcardAdapter.asVCard(domain, uid, value), asMailbox(container.domainUid, uid, value));
 		checkConsistency(uid, dirEntryValue);
-		update(uid, dirEntry.displayName, dirEntryValue);
+		var vers = update(uid, dirEntry.displayName, dirEntryValue);
 		cache.invalidate(uid);
+		return vers;
 	}
 
 	public void update(ItemValue<T> itemValue) throws ServerFault {
 		update(itemValue, doNothingOnIdsReservation);
 	}
 
-	public void update(ItemValue<T> itemValue, ReservedIds.ConsumerHandler handler) throws ServerFault {
+	public ItemVersion update(ItemValue<T> itemValue, ReservedIds.ConsumerHandler handler) throws ServerFault {
 		T value = itemValue.value;
 		DirEntry dirEntry = adapter.asDirEntry(container.domainUid, itemValue.uid, value);
 		DirEntryAndValue<T> dirEntryValue = new DirEntryAndValue<>(dirEntry, value,
 				vcardAdapter.asVCard(domain, itemValue.uid, value),
 				asMailbox(container.domainUid, itemValue.uid, value));
-		update(itemValue.item(), dirEntry.displayName, dirEntryValue, reservedIdsConsumer -> {
+		return update(itemValue.item(), dirEntry.displayName, dirEntryValue, reservedIdsConsumer -> {
 			cache.invalidate(itemValue.uid);
 			handler.acceptConsumer(reservedIdsConsumer);
 		});
