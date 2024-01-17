@@ -121,7 +121,7 @@ import debounce from "lodash.debounce";
 import { mapActions, mapState } from "vuex";
 import { inject } from "@bluemind/inject";
 import { ERROR, REMOVE } from "@bluemind/alert.store";
-import { searchVCardsHelper, sortAddressBooks } from "@bluemind/contact";
+import { Fields as SearchFields, searchVCardsHelper, sortAddressBooks } from "@bluemind/contact";
 import { BmAlertArea, BmButton, BmIconButton, BmModal, BmModalHeader, BmFormInput } from "@bluemind/ui-components";
 import AddressBookLabelIcon from "./AddressBookLabelIcon";
 import AddressBookList from "./AddressBookList";
@@ -204,25 +204,11 @@ export default {
                 }
                 const addressbookRepository = inject("AddressBookPersistence", addressbookId);
                 const ids = await addressbookRepository.sortedIds();
-                this.allContacts = (await addressbookRepository.multipleGetById(ids)).map(contact => ({
-                    uid: contact.uid,
-                    name: contact.value.identification.formatedName.value,
-                    email: extractDefaultCommunication(contact, "emails"),
-                    tel: extractDefaultCommunication(contact, "tels"),
-                    kind: contact.value.kind,
-                    members: contact.value.organizational?.member,
-                    urn: `${contact.uid}@${addressbookId}`
-                }));
+                this.allContacts = (await addressbookRepository.multipleGetById(ids)).map(contact =>
+                    transformRawContact(contact, addressbookId)
+                );
             } finally {
                 this.loading = false;
-            }
-
-            function extractDefaultCommunication(contact, targetKey) {
-                return (
-                    contact.value.communications[targetKey].find(
-                        key => key.parameters.find(param => param.label === "DEFAULT" && param.value === true) !== -1
-                    )?.value ?? ""
-                );
             }
         },
         search(searchValue) {
@@ -261,18 +247,25 @@ export default {
         async performSearch(searchValue) {
             if (searchValue) {
                 this.loading = true;
-
-                const searchResults = await inject("AddressBooksPersistence").search(
-                    searchVCardsHelper(searchValue, 50, false, this.selectedAddressBookId)
+                const addressbookRepository = inject("AddressBookPersistence", this.selectedAddressBookId);
+                const queryObject = searchVCardsHelper(
+                    searchValue,
+                    50,
+                    false,
+                    this.selectedAddressBookId,
+                    SearchFields.EMAIL,
+                    SearchFields.NAME,
+                    SearchFields.COMPANY
                 );
+                const searchResults = await addressbookRepository.search(queryObject);
+
                 this.searchedContacts =
                     searchResults.total > 0
-                        ? searchResults.values.map(contact => ({
-                              uid: contact.uid,
-                              name: contact.displayName,
-                              email: contact.value.mail,
-                              tel: contact.value.tel
-                          }))
+                        ? (
+                              await addressbookRepository.multipleGetById(
+                                  searchResults.values.map(({ internalId }) => internalId)
+                              )
+                          ).map(contact => transformRawContact(contact, this.selectedAddressBookId))
                         : [];
 
                 this.loading = false;
@@ -322,6 +315,26 @@ function toContact(contactItem) {
         kind: contactItem.kind,
         members: contactItem.members,
         urn: contactItem.urn
+    };
+}
+
+function extractDefaultCommunication(contact, targetKey) {
+    return (
+        contact.value.communications[targetKey].find(
+            key => key.parameters.find(param => param.label === "DEFAULT" && param.value === true) !== -1
+        )?.value ?? ""
+    );
+}
+
+function transformRawContact(contact, addressBookId) {
+    return {
+        uid: contact.uid,
+        name: contact.value.identification.formatedName.value,
+        email: extractDefaultCommunication(contact, "emails"),
+        company: contact.value.organizational?.org?.company,
+        kind: contact.value.kind,
+        members: contact.value.organizational?.member,
+        urn: `${contact.uid}@${addressBookId}`
     };
 }
 </script>

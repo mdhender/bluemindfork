@@ -44,12 +44,12 @@ describe("CONTACT LIST COMPONENT", () => {
     test("Contact list can have selected contacts at component initialisation", async () => {
         const wrapper = ContactListSUT({})
             .withContacts([
-                { name: "George Abitbol", email: "george@devenv.dev.bluemind.net", tel: "" },
-                { name: "Bertrand", email: "beber@avril.com", tel: "0678541232" },
-                { name: "Ferdinand", email: "F.1@badass.com", tel: "0671231254" },
-                { name: "Jhonny", email: "jhonny.begood@juin.com", tel: "0678441254" },
-                { name: "Alex", email: "laude.beer@paradox.com", tel: "067789254" },
-                { name: "Julien", email: "jul@nope.com", tel: "0675446554" }
+                { name: "George Abitbol", email: "george@devenv.dev.bluemind.net", company: "" },
+                { name: "Bertrand", email: "beber@avril.com", company: "OrangeBody" },
+                { name: "Ferdinand", email: "F.1@badass.com", company: "CyanHair" },
+                { name: "Jhonny", email: "jhonny.begood@juin.com", company: "BlueMind" },
+                { name: "Alex", email: "laude.beer@paradox.com", company: "YellowNose" },
+                { name: "Julien", email: "jul@nope.com", company: "PinkEye" }
             ])
             .withSelected([{ name: "George Abitbol" }])
             .mount();
@@ -59,15 +59,15 @@ describe("CONTACT LIST COMPONENT", () => {
         expect(rowByText(wrapper, "George").find('input[type="checkbox"]').element).toBeChecked();
     });
 
-    test("should display name, email, and telephone of contacts", () => {
+    test("should display name, email, and company of contacts", () => {
         const wrapper = ContactListSUT({}).withContacts().mount();
 
         const cells = wrapper.find("tbody>[role='row']").findAll("[role='cell']");
         const name = cells.at(1).text().split(" ")[0];
         const email = cells.at(2).text();
-        const tel = cells.at(3).text();
+        const company = cells.at(3).text();
 
-        expect(`${name}, ${email}, ${tel}`).toBe("Jhonny, jhonny.begood@juin.com, 0678541254");
+        expect(`${name}, ${email}, ${company}`).toBe("Jhonny, jhonny.begood@juin.com, BlueMind");
     });
 
     test("should display a message if an addressbook is empty", () => {
@@ -109,7 +109,7 @@ function ContactListSUT(defaultValues) {
                 ...values,
                 contacts: [
                     ...values.contacts,
-                    ...(contacts ?? [{ name: "Jhonny", email: "jhonny.begood@juin.com", tel: "0678541254" }])
+                    ...(contacts ?? [{ name: "Jhonny", email: "jhonny.begood@juin.com", company: "BlueMind" }])
                 ]
             });
         },

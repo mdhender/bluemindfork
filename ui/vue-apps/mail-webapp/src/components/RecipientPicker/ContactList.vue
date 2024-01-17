@@ -72,7 +72,7 @@
                 </div>
             </template>
 
-            <template #cell(tel)="{ value }">
+            <template #cell(company)="{ value }">
                 <div v-highlight="search" class="d-flex align-items-center position-relative">
                     <span class="text-truncate text-nowrap position-absolute w-100">{{ value }}</span>
                 </div>
@@ -112,7 +112,7 @@ export default {
                 { key: "selected", label: "", class: "selected-cell" },
                 { key: "name", label: "", class: "name-cell" },
                 { key: "email", label: "", class: "email-cell" },
-                { key: "tel", label: "", class: "tel-cell" }
+                { key: "company", label: "", class: "company-cell" }
             ],
             perPage: 50,
             currentPage: 1
@@ -202,7 +202,7 @@ export default {
             display: none;
         }
     }
-    .tel-cell {
+    .company-cell {
         width: 15%;
         @include until-lg {
             display: none;

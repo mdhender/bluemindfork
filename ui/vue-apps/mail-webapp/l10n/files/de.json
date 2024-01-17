@@ -623,5 +623,5 @@
     "recipient_picker.search.no_result": "Es wurden keine Kontakte gefunden, die {search} enthalten.",
     "recipient_picker.search.reset": "Suche zurücksetzen",
     "recipient_picker.selected.count": "{count} Kontakt ausgewählt|{count} Kontakte ausgewählt",
-    "recipientPicker.title": "Empfänger hinzufügen"
+    "recipient_picker.title": "Empfänger hinzufügen"
 }
