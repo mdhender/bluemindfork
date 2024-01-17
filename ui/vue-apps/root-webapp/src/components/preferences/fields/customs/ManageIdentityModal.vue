@@ -239,7 +239,8 @@ export default {
         },
         isFormValid() {
             return (
-                this.possibleIdentities.find(identity => identity.email === this.identity.email) &&
+                (this.isExternalIdentity(this.identity.email) ||
+                    this.possibleIdentities.find(identity => identity.email === this.identity.email)) &&
                 this.identity.displayname !== "" &&
                 this.identity.name !== ""
             );
@@ -335,7 +336,7 @@ export default {
         async checkComboSelection(email) {
             if (this.isExternalIdentity(this.emailInput)) {
                 this.identity.email = this.emailInput;
-                this.identity.mailboxUid = "";
+                this.identity.mailboxUid = null;
                 this.identity.signature = "";
                 this.identity.rights = [];
                 this.updateSignatureEditorContent();
