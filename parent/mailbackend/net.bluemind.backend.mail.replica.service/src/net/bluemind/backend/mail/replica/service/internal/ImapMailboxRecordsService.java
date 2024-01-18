@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -179,7 +178,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 	@Override
 	public void deleteById(long id) {
-		this.multipleDeleteById(Arrays.asList(id));
+		multipleDeleteById(Collections.singletonList(id));
 	}
 
 	@Override
@@ -571,20 +570,21 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 		rbac.check(Verb.Write.name());
 
-		if (!imapFolder.equals("Trash")) {
+		if (!inTrash()) {
 			Trash trash = new Trash(context, subtreeContainer, writeDelegate.get());
 			trash.deleteItems(folderItemId, ids);
 		} else {
 			FlagUpdate flagUpdate = FlagUpdate.of(ids, MailboxItemFlag.System.Deleted.value());
 			addFlag(flagUpdate);
 		}
+	}
 
+	private boolean inTrash() {
+		return foldersWriteDelegate.get().trash().uid.equals(mailboxUniqueId);
 	}
 
 	@Override
 	public Ack addFlag(FlagUpdate flagUpdate) {
-		rbac.check(Verb.Write.name());
-
 		return touchFlag(flagUpdate, rec -> {
 			rec.value.flags.add(flagUpdate.mailboxItemFlag);
 			if (MailboxItemFlag.System.Deleted.value().equals(flagUpdate.mailboxItemFlag)) {
@@ -612,7 +612,6 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 	@Override
 	public Ack deleteFlag(FlagUpdate flagUpdate) {
-		rbac.check(Verb.Write.name());
 		return touchFlag(flagUpdate, rec -> {
 			rec.value.flags.remove(flagUpdate.mailboxItemFlag);
 			return rec.value;

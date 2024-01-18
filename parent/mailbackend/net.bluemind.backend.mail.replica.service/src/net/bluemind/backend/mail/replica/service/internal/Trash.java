@@ -25,12 +25,12 @@ import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.backend.mail.api.ImportMailboxItemSet;
 import net.bluemind.backend.mail.api.ImportMailboxItemSet.MailboxItemId;
 import net.bluemind.backend.mail.api.ImportMailboxItemsStatus;
+import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.api.flags.FlagUpdate;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
-import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 
@@ -62,20 +62,20 @@ public class Trash {
 		IDbByContainerReplicatedMailboxes replicaService = context.provider()
 				.instance(IDbByContainerReplicatedMailboxes.class, subtreeContainer);
 
-		ItemValue<MailboxReplica> trashFolder = getTrashFolder(replicaService);
+		ItemValue<MailboxFolder> trashFolder = getTrashFolder(replicaService);
 		if (trashFolder != null) {
 			ImportMailboxItemsStatus importItems = softDeleteAndMoveItemsToTrash(replicaService, sourceFolderId, ids,
 					trashFolder);
-			hardDeleteSourceItems(trashFolder, importItems);
+			hardDeleteSourceItems(importItems);
 		}
 	}
 
-	private void hardDeleteSourceItems(ItemValue<MailboxReplica> trashFolder, ImportMailboxItemsStatus importItems) {
+	private void hardDeleteSourceItems(ImportMailboxItemsStatus importItems) {
 		importItems.doneIds.stream().map(moved -> moved.source).forEach(sourceFolderRecordService::deleteById);
 	}
 
 	private ImportMailboxItemsStatus softDeleteAndMoveItemsToTrash(IDbReplicatedMailboxes replicaService,
-			Long sourceFolderId, List<Long> ids, ItemValue<MailboxReplica> trashFolder) {
+			Long sourceFolderId, List<Long> ids, ItemValue<MailboxFolder> trashFolder) {
 		IMailboxItems mboxService = context.provider().instance(IMailboxItems.class,
 				replicaService.getCompleteById(sourceFolderId).uid);
 		mboxService.addFlag(FlagUpdate.of(ids, MailboxItemFlag.System.Deleted.value()));
@@ -86,8 +86,8 @@ public class Trash {
 		return folderService.importItems(trashFolder.internalId, items);
 	}
 
-	private ItemValue<MailboxReplica> getTrashFolder(IDbReplicatedMailboxes replicaService) {
-		return replicaService.byReplicaName("Trash");
+	private ItemValue<MailboxFolder> getTrashFolder(IDbReplicatedMailboxes replicaService) {
+		return replicaService.trash();
 	}
 
 }

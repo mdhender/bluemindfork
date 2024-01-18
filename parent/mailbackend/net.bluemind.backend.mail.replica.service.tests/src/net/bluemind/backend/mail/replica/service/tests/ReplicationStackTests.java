@@ -1799,6 +1799,58 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 	}
 
 	@Test
+	public void mailshareCreateThenShiftSuppr()
+			throws IMAPException, InterruptedException, ExecutionException, TimeoutException, IOException {
+		ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
+		IMailshare mailshareApi = prov.instance(IMailshare.class, domainUid);
+		Mailshare mailshare = new Mailshare();
+		mailshare.name = "shared" + System.currentTimeMillis();
+		mailshare.emails = Arrays.asList(Email.create(mailshare.name + "@" + domainUid, true));
+		mailshare.routing = Routing.internal;
+
+		mailshareApi.create(mailshare.name, mailshare);
+		IMailboxes mboxesApi = prov.instance(IMailboxes.class, domainUid);
+		List<AccessControlEntry> accessForUser = Arrays.asList(AccessControlEntry.create(userUid, Verb.Write));
+		mboxesApi.setMailboxAccessControlList(mailshare.name, accessForUser);
+
+		IMailboxFolders folders = provider().instance(IMailboxFolders.class, partition, mailshare.name);
+		List<ItemValue<MailboxFolder>> allFolders = folders.all();
+		ItemValue<MailboxFolder> trash = null;
+		ItemValue<MailboxFolder> root = null;
+		for (ItemValue<MailboxFolder> folder : allFolders) {
+			System.out.println("Got " + folder.uid + ", " + folder.value.name);
+			if ("Trash".equals(folder.value.name)) {
+				trash = folder;
+			} else if (mailshare.name.equals(folder.value.name)) {
+				root = folder;
+			}
+		}
+		assertNotNull(trash);
+		assertNotNull(root);
+		IMailboxItems itemsApi = provider().instance(IMailboxItems.class, root.uid);
+
+		ItemValue<MailboxItem> added = addDraft(root, mailshare.name);
+		// shift-suppr should end-up as a copy in Trash
+		System.err.println("multiDelete starts");
+		itemsApi.multipleDeleteById(Collections.singletonList(added.internalId));
+		IMailboxItems trashItems = provider().instance(IMailboxItems.class, trash.uid);
+		ContainerChangeset<ItemVersion> deleted = trashItems.filteredChangesetById(0L,
+				ItemFlagFilter.create().must(ItemFlag.Deleted));
+		assertFalse(deleted.created.isEmpty());
+		System.err.println(deleted.created);
+		assertEquals(1, deleted.created.size());
+
+		// shift suppr in Trash should add flag
+		ItemValue<MailboxItem> inTrash = addDraft(trash, mailshare.name);
+		assertNotNull(inTrash);
+		trashItems.multipleDeleteById(Collections.singletonList(inTrash.internalId));
+		ContainerChangeset<ItemVersion> moredeleted = trashItems.filteredChangesetById(0L,
+				ItemFlagFilter.create().must(ItemFlag.Deleted));
+		System.err.println(moredeleted.created);
+		assertEquals(2, moredeleted.created.size());
+	}
+
+	@Test
 	public void renameFolderReplication() throws IMAPException, InterruptedException, IOException {
 		IServiceProvider clientProv = provider();
 		IMailboxFolders mboxesApi = clientProv.instance(IMailboxFolders.class, partition, mboxRoot);

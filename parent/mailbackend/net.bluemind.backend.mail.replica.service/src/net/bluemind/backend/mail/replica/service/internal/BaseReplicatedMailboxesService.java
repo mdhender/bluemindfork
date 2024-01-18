@@ -97,6 +97,19 @@ public class BaseReplicatedMailboxesService implements IBaseMailboxFolders {
 		return res;
 	}
 
+	public ItemValue<MailboxFolder> trash() {
+		ItemValue<MailboxFolder> res;
+		if (root.ns == Namespace.shared) {
+			res = byName(root.name.replace('^', '.') + "/Trash");
+		} else {
+			res = byName("Trash");
+		}
+		if (res == null) {
+			logger.error("Failed to find root of {}", root);
+		}
+		return res;
+	}
+
 	protected ItemValue<MailboxFolder> adapt(ItemValue<MailboxReplica> rec) {
 		if (rec == null) {
 			return null;
