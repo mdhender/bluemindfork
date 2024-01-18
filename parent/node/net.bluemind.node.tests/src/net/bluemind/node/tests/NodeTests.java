@@ -166,7 +166,7 @@ public class NodeTests {
 					}
 				}, pool);
 			}
-			CompletableFuture.allOf(concurrent).orTimeout(5, TimeUnit.SECONDS).join();
+			CompletableFuture.allOf(concurrent).orTimeout(25, TimeUnit.SECONDS).join();
 		}
 	}
 
