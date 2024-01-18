@@ -221,12 +221,7 @@ public class GroupService implements IGroup, IInCoreGroup {
 	@Override
 	public void touch(String uid) throws ServerFault {
 		rbacManager.forEntry(uid).check(BasicRoles.ROLE_MANAGE_GROUP);
-		ItemValue<Group> previousItemValue = getFull(uid);
-		if (previousItemValue == null || previousItemValue.value == null) {
-			throwNotFoundServerFault(uid);
-		}
-
-		var vers = storeService.update(uid, previousItemValue.value);
+		var vers = storeService.touch(uid);
 		dirEventProducer.changed(uid, vers.version);
 	}
 
