@@ -9,6 +9,7 @@ const CODE_UP = 38;
 const arrayIncludes = (array, value) => array.indexOf(value) !== -1;
 
 const onTbodyRowKeydown = BTable.options.methods.onTbodyRowKeydown;
+
 export default {
     name: "BmInternalTable",
     extends: BTable,
@@ -36,6 +37,42 @@ export default {
         },
         hasFocus(tr) {
             return tr.contains(document.activeElement);
+        },
+
+        /** Hack BTable for overriding the "range" selection mode behavior. */
+        selectionHandler(item, index, event) {
+            // /!\ BM: copy/paste from https://github.com/bootstrap-vue/bootstrap-vue/blob/dev/src/components/table/helpers/mixin-selectable.js
+            /* istanbul ignore if: should never happen */
+            if (!this.isSelectable || this.noSelectOnClick) {
+                // Don't do anything if table is not in selectable mode
+                this.clearSelected();
+                return;
+            }
+            const { selectMode, selectedLastRow } = this;
+            let selectedRows = this.selectedRows.slice();
+            let selected = !selectedRows[index];
+            // Note 'multi' mode needs no special event handling
+            if (selectMode === "single") {
+                selectedRows = [];
+            } else if (selectMode === "range") {
+                if (selectedLastRow > -1 && event.shiftKey) {
+                    // range
+                    for (let idx = Math.min(selectedLastRow, index); idx <= Math.max(selectedLastRow, index); idx++) {
+                        selectedRows[idx] = true;
+                    }
+                    selected = true;
+                } else {
+                    // /!\ BM: de-activate clearing of previous selection with "range" mode
+                    // if (!(event.ctrlKey || event.metaKey)) {
+                    //     // Clear range selection if any
+                    //     selectedRows = [];
+                    //     selected = true;
+                    // }
+                    if (selected) this.selectedLastRow = index;
+                }
+            }
+            selectedRows[index] = selected;
+            this.selectedRows = selectedRows;
         }
     }
 };
