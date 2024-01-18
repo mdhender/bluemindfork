@@ -21,7 +21,6 @@ package net.bluemind.backend.mail.replica.service.internal.transfer;
 import java.util.List;
 import java.util.function.Consumer;
 
-import net.bluemind.backend.mail.api.IMailboxFoldersByContainer;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.WithId;
@@ -45,9 +44,7 @@ public class CrossMailboxTransferService extends BaseMailboxTranferService {
 		return records -> {
 			String subtreeContainer = IMailReplicaUids.subtreeUid(transferContext.domain(),
 					transferContext.fromOwner());
-			IMailboxFoldersByContainer folderService = context.provider().instance(IMailboxFoldersByContainer.class,
-					subtreeContainer);
-			long folderId = folderService.getComplete(transferContext.fromFolder().uid).internalId;
+			long folderId = transferContext.fromFolder().internalId;
 
 			Trash trash = new Trash(context, subtreeContainer, transferContext.fromRecords());
 			trash.deleteItems(folderId, records.stream().map(rec -> rec.itemId).toList());

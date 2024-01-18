@@ -82,8 +82,8 @@ public class ItemsTransferServiceFactory
 		IDbByContainerReplicatedMailboxes toFolders = context.provider().instance(
 				IDbByContainerReplicatedMailboxes.class, IMailReplicaUids.subtreeUid(toContainer.domainUid, toOwner));
 		IDbByContainerReplicatedMailboxes fromFolders = context.provider().instance(
-				IDbByContainerReplicatedMailboxes.class, IMailReplicaUids.subtreeUid(toContainer.domainUid, toOwner));
-		ItemValue<MailboxFolder> sourceFolder = fromFolders.getComplete(toUid);
+				IDbByContainerReplicatedMailboxes.class, IMailReplicaUids.subtreeUid(toContainer.domainUid, fromOwner));
+		ItemValue<MailboxFolder> sourceFolder = fromFolders.getComplete(fromUid);
 		ItemValue<MailboxFolder> targetFolder = toFolders.getComplete(toUid);
 
 		String fromLocation = DataSourceRouter.location(context, IMailReplicaUids.mboxRecords(fromUid));
