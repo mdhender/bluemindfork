@@ -2592,10 +2592,10 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 		itemApi = provider().instance(IMailboxItems.class, src.uid);
 		ItemValue<MailboxItem> deleted = itemApi.getCompleteById(id);
 		System.err.println("Deleted: " + deleted);
-		assertTrue(deleted.value.flags.contains(MailboxItemFlag.System.Deleted.value()));
+		assertNull(deleted);
 
 		deleted = itemApi.getCompleteById(id2);
-		assertTrue(deleted.value.flags.contains(MailboxItemFlag.System.Deleted.value()));
+		assertNull(deleted);
 
 	}
 
@@ -2655,9 +2655,9 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 		// check delete from source
 		itemApi = provider().instance(IMailboxItems.class, src.uid);
 		ItemValue<MailboxItem> deleted = itemApi.getCompleteById(id);
-		assertTrue(deleted.value.flags.contains(MailboxItemFlag.System.Deleted.value()));
+		assertNull(deleted);
 		deleted = itemApi.getCompleteById(id2);
-		assertTrue(deleted.value.flags.contains(MailboxItemFlag.System.Deleted.value()));
+		assertNull(deleted);
 	}
 
 	@Test

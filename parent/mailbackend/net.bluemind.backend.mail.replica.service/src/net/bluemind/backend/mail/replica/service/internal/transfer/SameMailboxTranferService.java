@@ -21,9 +21,7 @@ package net.bluemind.backend.mail.replica.service.internal.transfer;
 import java.util.List;
 import java.util.function.Consumer;
 
-import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
-import net.bluemind.backend.mail.replica.api.MailboxRecord.InternalFlag;
 import net.bluemind.backend.mail.replica.api.WithId;
 import net.bluemind.backend.mail.replica.service.internal.ItemsTransferServiceFactory.BodyTransfer;
 import net.bluemind.core.rest.BmContext;
@@ -41,20 +39,10 @@ public class SameMailboxTranferService extends BaseMailboxTranferService {
 
 	@Override
 	protected Consumer<List<WithId<MailboxRecord>>> getPostMoveOperation() {
-		return records -> {
-			if (transferContext.fromFolder().value.name.equals("Trash")) {
-				records.stream().map(withId -> withId.itemId).forEach(transferContext.fromRecords()::deleteById);
-			} else {
-				MailboxItemFlag delFlag = MailboxItemFlag.System.Deleted.value();
-				List<MailboxRecord> flagged = records.stream().map(wid -> {
-					MailboxRecord ret = wid.value;
-					ret.flags.add(delFlag);
-					ret.internalFlags.add(InternalFlag.expunged);
-					return ret;
-				}).toList();
-				transferContext.fromRecords().updates(flagged);
-			}
-		};
+		return records ->
+		// On a move to same mailbox, we could always hard delete as we're not coming
+		// from imap and the messages still exist somewhere in the mailbox
+		records.stream().map(withId -> withId.itemId).forEach(transferContext.fromRecords()::deleteById);
 	}
 
 }
