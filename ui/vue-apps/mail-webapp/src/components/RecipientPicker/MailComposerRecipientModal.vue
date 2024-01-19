@@ -121,7 +121,7 @@ import debounce from "lodash.debounce";
 import { mapActions, mapState } from "vuex";
 import { inject } from "@bluemind/inject";
 import { ERROR, REMOVE } from "@bluemind/alert.store";
-import { Fields as SearchFields, searchVCardsHelper, sortAddressBooks } from "@bluemind/contact";
+import { Fields as SearchFields, hasMailOrMember, searchVCardsHelper, sortAddressBooks } from "@bluemind/contact";
 import { BmAlertArea, BmButton, BmIconButton, BmModal, BmModalHeader, BmFormInput } from "@bluemind/ui-components";
 import AddressBookLabelIcon from "./AddressBookLabelIcon";
 import AddressBookList from "./AddressBookList";
@@ -204,9 +204,9 @@ export default {
                 }
                 const addressbookRepository = inject("AddressBookPersistence", addressbookId);
                 const ids = await addressbookRepository.sortedIds();
-                this.allContacts = (await addressbookRepository.multipleGetById(ids)).map(contact =>
-                    transformRawContact(contact, addressbookId)
-                );
+                this.allContacts = (await addressbookRepository.multipleGetById(ids))
+                    .filter(hasMailOrMember)
+                    .map(contact => transformRawContact(contact, addressbookId));
             } finally {
                 this.loading = false;
             }

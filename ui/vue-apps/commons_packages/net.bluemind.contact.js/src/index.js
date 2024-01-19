@@ -184,6 +184,13 @@ async function fetchContacts(ids) {
     }
 }
 
+function hasMailOrMember(vCard) {
+    return (
+        (vCard.value.kind === "group" && vCard.value.organizational?.member) ||
+        vCard.value.communications?.emails?.length
+    );
+}
+
 export {
     ContactValidator,
     DirEntryAdaptor,
@@ -191,6 +198,7 @@ export {
     fetchMembersWithAddress,
     Fields,
     guessName,
+    hasMailOrMember,
     isCollectAddressBook,
     isDirectoryAddressBook,
     isPersonalAddressBook,
