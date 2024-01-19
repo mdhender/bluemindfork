@@ -96,7 +96,7 @@ public class ImportLdapAuthenticationService extends ImportAuthenticationService
 				byLoginTimer.record(metrics.clock.monotonicTime() - time, TimeUnit.NANOSECONDS);
 			}
 		} catch (RuntimeException re) {
-			if (re.getCause() != null && re.getCause() instanceof InterruptedException) {
+			if (re.getCause() instanceof InterruptedException) {
 				logger.error("Getting an interrupted exception, reseting pool for {}", parameters, re);
 				ldapPoolByDomain.resetPool(parameters);
 			}
@@ -107,7 +107,7 @@ public class ImportLdapAuthenticationService extends ImportAuthenticationService
 			ldapConCtx.ifPresent(LdapConnectionContext::setError);
 			return null;
 		} finally {
-			ldapConCtx.ifPresent(lcc -> releaseConnection(ldapPoolByDomain, parameters, lcc));
+			ldapConCtx.ifPresent(lcc -> releaseConnection(ldapPoolByDomain, lcc));
 		}
 
 		if (ldapUserLogin == null) {
@@ -149,7 +149,7 @@ public class ImportLdapAuthenticationService extends ImportAuthenticationService
 
 			}
 		} catch (RuntimeException re) {
-			if (re.getCause() != null && re.getCause() instanceof InterruptedException) {
+			if (re.getCause() instanceof InterruptedException) {
 				logger.error("Getting an interrupted exception, reseting pool for {}", parameters, re);
 				ldapPoolByDomain.resetPool(parameters);
 			}
@@ -160,7 +160,7 @@ public class ImportLdapAuthenticationService extends ImportAuthenticationService
 			ldapConCtx.ifPresent(LdapConnectionContext::setError);
 			throw e;
 		} finally {
-			ldapConCtx.ifPresent(lcc -> releaseConnection(ldapPoolByDomain, parameters, lcc));
+			ldapConCtx.ifPresent(lcc -> releaseConnection(ldapPoolByDomain, lcc));
 		}
 
 		if (ldapUserLogin == null) {
@@ -173,7 +173,7 @@ public class ImportLdapAuthenticationService extends ImportAuthenticationService
 	}
 
 	@Override
-	protected boolean checkAuth(Parameters parameters, String userDn, String userPassword) {
+	protected AuthResult checkAuth(Parameters parameters, String userDn, String userPassword) {
 		Timer authTimer = metrics.forOperation("authCheck");
 		long time = metrics.clock.monotonicTime();
 		LdapPoolByDomain ldapPoolByDomain = Activator.getLdapPoolByDomain();
@@ -203,7 +203,7 @@ public class ImportLdapAuthenticationService extends ImportAuthenticationService
 							userDn, ldSearchTime);
 				}
 				authTimer.record(metrics.clock.monotonicTime() - time, TimeUnit.NANOSECONDS);
-				return false;
+				return AuthResult.NO;
 			}
 
 			if (logger.isInfoEnabled()) {
@@ -212,9 +212,9 @@ public class ImportLdapAuthenticationService extends ImportAuthenticationService
 						ldapConCtx.ldapConnectionConfig.getLdapPort(), userDn, ldSearchTime);
 			}
 			authTimer.record(metrics.clock.monotonicTime() - time, TimeUnit.NANOSECONDS);
-			return true;
+			return AuthResult.YES;
 		} catch (RuntimeException re) {
-			if (re.getCause() != null && re.getCause() instanceof InterruptedException) {
+			if (re.getCause() instanceof InterruptedException) {
 				logger.error(String.format("Getting an interrupted exception, reseting pool for %s", parameters), re);
 				ldapPoolByDomain.resetPool(parameters);
 			}
@@ -222,16 +222,17 @@ public class ImportLdapAuthenticationService extends ImportAuthenticationService
 			throw re;
 		} catch (Exception e) {
 			logger.error("Fail to check LDAP authentication", e);
-			ldapConCtx = ldapConCtx.setError();
-			return false;
+			if (ldapConCtx != null) {
+				ldapConCtx = ldapConCtx.setError();
+			}
+			return AuthResult.NO;
 		} finally {
 			// https://docs.oracle.com/javase/tutorial/essential/exceptions/finally.html
-			releaseConnection(ldapPoolByDomain, parameters, ldapConCtx);
+			releaseConnection(ldapPoolByDomain, ldapConCtx);
 		}
 	}
 
-	private void releaseConnection(LdapPoolByDomain ldapPoolByDomain, Parameters parameters,
-			LdapConnectionContext ldapConCtx) {
+	private void releaseConnection(LdapPoolByDomain ldapPoolByDomain, LdapConnectionContext ldapConCtx) {
 		Timer relTimer = metrics.forOperation("release");
 		long time = metrics.clock.monotonicTime();
 

@@ -131,12 +131,12 @@ public abstract class ImportAuthenticationService implements IAuthProvider {
 			return AuthResult.YES;
 		}
 
-		if (checkAuth(parameters, userDn, authContext.getUserPassword())) {
+		AuthResult authResult = checkAuth(parameters, userDn, authContext.getUserPassword());
+		if (AuthResult.YES == authResult) {
 			dnToPass.put(userDn, authContext.getUserPassword());
-			return AuthResult.YES;
 		}
 
-		return AuthResult.NO;
+		return authResult;
 	}
 
 	/**
@@ -158,17 +158,17 @@ public abstract class ImportAuthenticationService implements IAuthProvider {
 				return AuthResult.UNKNOWN;
 			}
 
-			if (checkAuth(parameters, userDn, authContext.getUserPassword())) {
+			AuthResult authResult = checkAuth(parameters, userDn, authContext.getUserPassword());
+			if (AuthResult.YES == authResult) {
 				dnToPass.put(userDn, authContext.getUserPassword());
-				return AuthResult.YES;
 			}
+
+			return authResult;
 		} catch (Exception e) {
 			logger.error("Unable to search for user login {} in {}", authContext.getRealUserLogin(), getDirectoryKind(),
 					e);
 			return AuthResult.UNKNOWN;
 		}
-
-		return AuthResult.NO;
 	}
 
 	/**
@@ -278,5 +278,5 @@ public abstract class ImportAuthenticationService implements IAuthProvider {
 	 * @param userPassword
 	 * @return
 	 */
-	protected abstract boolean checkAuth(Parameters parameters, String userDn, String userPassword);
+	protected abstract AuthResult checkAuth(Parameters parameters, String userDn, String userPassword);
 }

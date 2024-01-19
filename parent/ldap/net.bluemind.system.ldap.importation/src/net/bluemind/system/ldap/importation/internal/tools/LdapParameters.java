@@ -54,7 +54,7 @@ public class LdapParameters extends Parameters {
 
 	protected LdapParameters(boolean enabled, Server ldapServer, Directory ldapDirectory, SplitDomain splitDomain,
 			Optional<String> lastUpdate) {
-		super(enabled, ldapServer, ldapDirectory, splitDomain, lastUpdate);
+		super(enabled, false, ldapServer, ldapDirectory, splitDomain, lastUpdate);
 	}
 
 	public static LdapParameters build(Domain domain, Map<String, String> domainSettings) throws InvalidDnServerFault {
@@ -62,7 +62,7 @@ public class LdapParameters extends Parameters {
 			throw new IllegalArgumentException();
 		}
 
-		if (!Boolean.valueOf(domain.properties.get(LdapProperties.import_ldap_enabled.name()))) {
+		if (Boolean.FALSE.equals(Boolean.valueOf(domain.properties.get(LdapProperties.import_ldap_enabled.name())))) {
 			return new LdapParameters(false, null, null, null, Optional.empty());
 		}
 
@@ -73,7 +73,7 @@ public class LdapParameters extends Parameters {
 			protocol = LdapProtocol.getProtocol(domain.properties.get(LdapProperties.import_ldap_protocol.name()));
 		} catch (IllegalArgumentException | NullPointerException i) {
 			logger.error("Invalid protocol '{}', use: {}",
-					domain.properties.get(LdapProperties.import_ldap_protocol.name()), LdapProtocol.PLAIN.toString());
+					domain.properties.get(LdapProperties.import_ldap_protocol.name()), LdapProtocol.PLAIN);
 		}
 
 		Host host = null;
@@ -123,6 +123,7 @@ public class LdapParameters extends Parameters {
 					return port;
 				}
 			} catch (NumberFormatException nfe) {
+				// Do nothing, fallback on default port
 			}
 		}
 

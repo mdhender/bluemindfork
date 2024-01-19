@@ -1417,6 +1417,8 @@ public class UserServiceTests {
 		user.passwordMustChange = true;
 		getService(domainAdminSecurityContext).update(uid, user);
 
+		assertTrue(getPasswordUpdateNeeded(getService(domainAdminSecurityContext).getComplete(uid)));
+
 		user.passwordMustChange = false;
 		getService(domainAdminSecurityContext).update(uid, user);
 

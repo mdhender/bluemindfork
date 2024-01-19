@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
@@ -33,7 +34,7 @@ import net.bluemind.lib.ldap.LdapProtocol;
 import net.bluemind.system.importation.commons.exceptions.InvalidDnServerFault;
 
 public class Parameters {
-	public static abstract class Server {
+	public abstract static class Server {
 		public static class Host implements Comparable<Host> {
 			public final String hostname;
 			public final int port;
@@ -71,11 +72,7 @@ public class Parameters {
 
 			@Override
 			public int hashCode() {
-				final int prime = 31;
-				int result = 1;
-				result = prime * result + ((hostname == null) ? 0 : hostname.hashCode());
-				result = prime * result + port;
-				return result;
+				return Objects.hash(hostname, port);
 			}
 
 			@Override
@@ -87,14 +84,7 @@ public class Parameters {
 				if (getClass() != obj.getClass())
 					return false;
 				Host other = (Host) obj;
-				if (hostname == null) {
-					if (other.hostname != null)
-						return false;
-				} else if (!hostname.equals(other.hostname))
-					return false;
-				if (port != other.port)
-					return false;
-				return true;
+				return Objects.equals(hostname, other.hostname) && port == other.port;
 			}
 
 			@Override
@@ -117,7 +107,7 @@ public class Parameters {
 		public final LdapProtocol protocol;
 		public final boolean acceptAllCertificates;
 
-		public Server(Optional<Host> host, String login, String password, LdapProtocol protocol,
+		protected Server(Optional<Host> host, String login, String password, LdapProtocol protocol,
 				boolean acceptAllCertificates) {
 			this.host = host;
 			this.login = Strings.isNullOrEmpty(login) ? null : login;
@@ -150,14 +140,7 @@ public class Parameters {
 
 		@Override
 		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + (acceptAllCertificates ? 1231 : 1237);
-			result = prime * result + ((host == null) ? 0 : host.hashCode());
-			result = prime * result + ((login == null) ? 0 : login.hashCode());
-			result = prime * result + ((password == null) ? 0 : password.hashCode());
-			result = prime * result + ((protocol == null) ? 0 : protocol.hashCode());
-			return result;
+			return Objects.hash(acceptAllCertificates, host, login, password, protocol);
 		}
 
 		@Override
@@ -169,26 +152,9 @@ public class Parameters {
 			if (getClass() != obj.getClass())
 				return false;
 			Server other = (Server) obj;
-			if (acceptAllCertificates != other.acceptAllCertificates)
-				return false;
-			if (host == null) {
-				if (other.host != null)
-					return false;
-			} else if (!host.equals(other.host))
-				return false;
-			if (login == null) {
-				if (other.login != null)
-					return false;
-			} else if (!login.equals(other.login))
-				return false;
-			if (password == null) {
-				if (other.password != null)
-					return false;
-			} else if (!password.equals(other.password))
-				return false;
-			if (protocol != other.protocol)
-				return false;
-			return true;
+			return acceptAllCertificates == other.acceptAllCertificates && Objects.equals(host, other.host)
+					&& Objects.equals(login, other.login) && Objects.equals(password, other.password)
+					&& protocol == other.protocol;
 		}
 	}
 
@@ -282,11 +248,7 @@ public class Parameters {
 
 		@Override
 		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((relayMailboxGroup == null) ? 0 : relayMailboxGroup.hashCode());
-			result = prime * result + (splitRelayEnabled ? 1231 : 1237);
-			return result;
+			return Objects.hash(relayMailboxGroup, relayMailboxGroupDn, splitRelayEnabled);
 		}
 
 		@Override
@@ -298,18 +260,14 @@ public class Parameters {
 			if (getClass() != obj.getClass())
 				return false;
 			SplitDomain other = (SplitDomain) obj;
-			if (relayMailboxGroup == null) {
-				if (other.relayMailboxGroup != null)
-					return false;
-			} else if (!relayMailboxGroup.equals(other.relayMailboxGroup))
-				return false;
-			if (splitRelayEnabled != other.splitRelayEnabled)
-				return false;
-			return true;
+			return Objects.equals(relayMailboxGroup, other.relayMailboxGroup)
+					&& Objects.equals(relayMailboxGroupDn, other.relayMailboxGroupDn)
+					&& splitRelayEnabled == other.splitRelayEnabled;
 		}
 	}
 
 	public final boolean enabled;
+	public final boolean passwordUpdateAllowed;
 
 	public final Server ldapServer;
 	public final Directory ldapDirectory;
@@ -337,17 +295,18 @@ public class Parameters {
 			}
 		}
 
-		return new Parameters(enabled, ldapServer, ldapDirectory, splitDomain,
+		return new Parameters(enabled, false, ldapServer, ldapDirectory, splitDomain,
 				lastUpdate == null ? Optional.empty() : lastUpdate);
 	}
 
 	public static Parameters disabled() {
-		return new Parameters(false, null, null, null, Optional.empty());
+		return new Parameters(false, false, null, null, null, Optional.empty());
 	}
 
-	protected Parameters(boolean enabled, Server ldapServer, Directory ldapDirectory, SplitDomain splitDomain,
-			Optional<String> lastUpdate) {
+	protected Parameters(boolean enabled, boolean passwordUpdateAllowed, Server ldapServer, Directory ldapDirectory,
+			SplitDomain splitDomain, Optional<String> lastUpdate) {
 		this.enabled = enabled;
+		this.passwordUpdateAllowed = passwordUpdateAllowed;
 		this.ldapServer = ldapServer;
 		this.ldapDirectory = ldapDirectory;
 		this.splitDomain = splitDomain;
@@ -356,13 +315,7 @@ public class Parameters {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + (enabled ? 1231 : 1237);
-		result = prime * result + ((ldapDirectory == null) ? 0 : ldapDirectory.hashCode());
-		result = prime * result + ((ldapServer == null) ? 0 : ldapServer.hashCode());
-		result = prime * result + ((splitDomain == null) ? 0 : splitDomain.hashCode());
-		return result;
+		return Objects.hash(enabled, ldapDirectory, ldapServer, passwordUpdateAllowed, splitDomain);
 	}
 
 	@Override
@@ -374,24 +327,9 @@ public class Parameters {
 		if (getClass() != obj.getClass())
 			return false;
 		Parameters other = (Parameters) obj;
-		if (enabled != other.enabled)
-			return false;
-		if (ldapDirectory == null) {
-			if (other.ldapDirectory != null)
-				return false;
-		} else if (!ldapDirectory.equals(other.ldapDirectory))
-			return false;
-		if (ldapServer == null) {
-			if (other.ldapServer != null)
-				return false;
-		} else if (!ldapServer.equals(other.ldapServer))
-			return false;
-		if (splitDomain == null) {
-			if (other.splitDomain != null)
-				return false;
-		} else if (!splitDomain.equals(other.splitDomain))
-			return false;
-		return true;
+		return enabled == other.enabled && Objects.equals(ldapDirectory, other.ldapDirectory)
+				&& Objects.equals(ldapServer, other.ldapServer) && passwordUpdateAllowed == other.passwordUpdateAllowed
+				&& Objects.equals(splitDomain, other.splitDomain);
 	}
 
 	@Override
