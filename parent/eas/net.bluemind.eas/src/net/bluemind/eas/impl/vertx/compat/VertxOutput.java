@@ -60,9 +60,9 @@ public class VertxOutput extends WbxmlOutput {
 			count = 0;
 			if (drained != null) {
 				if (resp.writeQueueFull()) {
-					logger.warn("[{}]: Write queue is full, setting drain handler", streamId());
+					logger.debug("[{}]: Write queue is full, setting drain handler", streamId());
 					resp.drainHandler(handler -> {
-						logger.warn("[{}] Write queue is ready to accept data", streamId());
+						logger.debug("[{}] Write queue is ready to accept data", streamId());
 						resp.drainHandler(null);
 						drained.drained();
 					});
