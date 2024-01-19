@@ -8,7 +8,8 @@ Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.cli.cmd.api,
  net.bluemind.cli.utils,
- net.bluemind.domain.api
+ net.bluemind.domain.api,
+ com.github.freva.ascii-table
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.cli.eas
 Bundle-ActivationPolicy: lazy

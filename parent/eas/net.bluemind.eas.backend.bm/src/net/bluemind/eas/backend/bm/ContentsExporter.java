@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.slf4j.MDC;
+
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.eas.backend.BackendSession;
@@ -122,8 +124,10 @@ public class ContentsExporter extends CoreConnect implements IContentsExporter {
 			break;
 		}
 
+		MDC.put("user", bs.getLoginAtDomain().replace("@", "_at_"));
 		logger.info("Get changes from version {} collectionId {}, type {}, changes {}. New version {}", state.version,
 				collectionId, state.type, changes.items.size(), changes.version);
+		MDC.put("user", "anonymous");
 
 		return changes;
 	}

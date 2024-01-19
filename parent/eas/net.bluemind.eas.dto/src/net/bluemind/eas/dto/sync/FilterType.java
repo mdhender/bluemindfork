@@ -102,7 +102,7 @@ public enum FilterType {
 		}
 		Date fromFilter = cal.getTime();
 		if (st.date == null || fromFilter.after(Date.from(st.date.toInstant())) || hasChanged || st.version == 0) {
-			logger.info(
+			logger.debug(
 					"Set st.version to 0 and st.highestUid to 0 (st.date: '{}', fromFilter: '{}', filter has changed: '{}', st.version: '{}')",
 					st.date, fromFilter, hasChanged, st.version);
 

@@ -191,7 +191,7 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 			EventBus eb = VertxPlatform.eventBus();
 			eb.request(EasBusEndpoints.PUSH_KILLER + "." + bs.getUniqueIdentifier(), jso,
 					(AsyncResult<Message<Void>> event) -> {
-						logger.info("Push stopped for {}", bs.getUniqueIdentifier());
+						logger.debug("Push stopped for {}", bs.getUniqueIdentifier());
 						VertxPlatform.getVertx().executeBlocking(() -> {
 							executeSync(bs, sr, responseHandler);
 							return null;
@@ -407,9 +407,11 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 		if (response == null) {
 			// IN-31, delayed empty response
 			responder.vertx().setTimer(500, h -> {
+				MDC.put("user", bs.getLoginAtDomain().replace("@", "_at_"));
 				Backends.internalStorage().updateLastSync(bs);
 				responder.sendStatus(200);
 				completion.handle(null);
+				MDC.put("user", "anonymous");
 			});
 			return;
 		}
@@ -528,7 +530,7 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 			Requests.tag(bs.getRequest(), "moreAvail", Integer.toString(pending));
 		}
 
-		logger.info("WindowSize is {}. Send {} changes. {} change(s) will be sent later", window, changes.items.size(),
+		logger.debug("WindowSize is {}. Send {} changes. {} change(s) will be sent later", window, changes.items.size(),
 				pending);
 
 		return changes;

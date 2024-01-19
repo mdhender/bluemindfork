@@ -44,6 +44,7 @@ import org.asynchttpclient.AsyncCompletionHandler;
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.HttpResponseBodyPart;
 import org.asynchttpclient.Response;
+import org.slf4j.MDC;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -203,12 +204,14 @@ public class MailBackend extends CoreConnect {
 							changes.items.add(ic);
 							addedToSync++;
 						} else {
-							logger.info("[{}] Stop loading at email {} ({} is before {}), {} / {}", //
+							MDC.put("user", bs.getLoginAtDomain().replace("@", "_at_"));
+							logger.debug("[{}] Stop loading at email {} ({} is before {}), {} / {}", //
 									bs.getLoginAtDomain(), item.value, item.value.body.date, deliveredAfter,
 									addedToSync, changeset.created.size());
-							stopLoading = true;
+							MDC.put("user", "anonymous");
 							// stop loading as the changeset is sorted by
 							// delivery date
+							stopLoading = true;
 							break;
 						}
 					} else {

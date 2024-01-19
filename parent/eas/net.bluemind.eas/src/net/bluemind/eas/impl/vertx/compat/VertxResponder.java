@@ -109,7 +109,10 @@ public final class VertxResponder implements Responder {
 
 	@Override
 	public void sendStatus(int statusCode) {
-		logger.info("to device:\nHTTP {}\n", statusCode);
+		logger.debug("to device:\nHTTP {}\n", statusCode);
+		if (logger.isDebugEnabled() && statusCode >= 400) {
+			logger.warn("to device:\nHTTP {}\n", statusCode);
+		}
 		setASHeaders(ConnectionHeader.CLOSE);
 		resp.setStatusCode(statusCode).end();
 	}
