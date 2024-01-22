@@ -32,8 +32,9 @@ public class PimpMyRam implements IApplication {
 		long totalMemMB = getTotalSystemMemory();
 		int spareMb = configureSpareMemory(rules, totalMemMB);
 		configureProductMemory(rules, spareMb);
-
-		pimpPostgresql(totalMemMB);
+		if (hasPostgresql()) {
+			pimpPostgresql(totalMemMB);
+		}
 
 		System.exit(0);
 		return IApplication.EXIT_OK;
@@ -50,6 +51,10 @@ public class PimpMyRam implements IApplication {
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
 		}
+	}
+
+	public boolean hasPostgresql() {
+		return new File("/usr/share/doc/bm-postgresql/").isDirectory();
 	}
 
 	private void pimpPostgresql(long totalMemMB) {
