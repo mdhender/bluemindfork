@@ -19,5 +19,7 @@ package net.bluemind.elastic.topology.service.esclient;
 
 @SuppressWarnings("serial")
 public class DumbClientException extends RuntimeException {
-
+	public DumbClientException(Throwable e) {
+		super(e);
+	}
 }

@@ -67,9 +67,9 @@ public class DumbElasticClient implements AutoCloseable {
 			return mapper.apply(jsResp);
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
-			throw new DumbClientException();
+			throw new DumbClientException(e);
 		} catch (Exception e) {
-			throw new DumbClientException();
+			throw new DumbClientException(e);
 		}
 	}
 
@@ -86,9 +86,9 @@ public class DumbElasticClient implements AutoCloseable {
 			logger.debug("PUT {} -> {}", uri, result.statusCode());
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
-			throw new DumbClientException();
+			throw new DumbClientException(e);
 		} catch (Exception e) {
-			throw new DumbClientException();
+			throw new DumbClientException(e);
 		}
 	}
 
