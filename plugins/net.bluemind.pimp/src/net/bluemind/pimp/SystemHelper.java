@@ -50,7 +50,7 @@ public class SystemHelper {
 		String line = null;
 		do {
 			line = br.readLine();
-			logger.info(line != null ? line : "---");
+			logger.info("{}", line != null ? line : "---");
 		} while (line != null);
 
 		int exit = 1;
@@ -58,7 +58,7 @@ public class SystemHelper {
 			exit = pid.waitFor();
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
-			logger.error("cmd: " + cmd + ", interrupted");
+			logger.error("cmd '{}' interrupted", cmd);
 		}
 
 		return exit;

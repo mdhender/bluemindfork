@@ -7,7 +7,6 @@ import java.io.InputStream;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Throwables;
 
 public final class RulesBuilder {
 
@@ -17,7 +16,7 @@ public final class RulesBuilder {
 			return om.readValue(openRulesJson(), new TypeReference<Rule[]>() {
 			});
 		} catch (Exception e) {
-			throw Throwables.propagate(e);
+			throw new RuntimeException(e);
 		}
 
 	}
