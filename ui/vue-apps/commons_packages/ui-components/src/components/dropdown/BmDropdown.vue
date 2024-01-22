@@ -26,7 +26,7 @@
             </slot>
         </template>
         <slot />
-        <v-nodes v-if="extension && extensions.length" vnodes="extensions" />
+        <v-nodes v-if="extension && extensions.length" :vnodes="extensions" />
     </bv-dropdown>
 </template>
 

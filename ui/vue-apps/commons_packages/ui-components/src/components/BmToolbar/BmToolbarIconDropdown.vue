@@ -9,7 +9,7 @@ import { useToolbarContext } from "./toolbar";
 import BmDropdownItemButton from "../dropdown/BmDropdownItem";
 
 export default {
-    name: "BmToolbarDropdown",
+    name: "BmToolbarIconDropdown",
     props: {
         extension: {
             type: String,

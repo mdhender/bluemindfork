@@ -62,7 +62,7 @@ export default {
             const items = [...normalizeSlot(slots.default()), ...extensions.value];
             const menuEntries = [
                 ...items.slice(items.length - hidden.value),
-                ...normalizeSlot(slots.menu()),
+                ...normalizeSlot(slots.menu && slots.menu()),
                 ...menuExtensions.value
             ];
             const toolbarEntries = [

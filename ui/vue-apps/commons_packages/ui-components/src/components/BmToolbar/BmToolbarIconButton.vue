@@ -6,7 +6,6 @@ import BmDropdownItemButton from "../dropdown/BmDropdownItemButton";
 import BmDropdown from "../dropdown/BmDropdown";
 import BmToolbarIconDropdown from "./BmToolbarIconDropdown";
 
-import BmToolbarDropdown from "./BmToolbarDropdown";
 import { useToolbarContext } from "./toolbar";
 import { computed, h, useAttrs, useListeners, useSlots } from "vue";
 

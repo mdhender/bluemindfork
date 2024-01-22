@@ -2,7 +2,7 @@
     <b-button
         v-if="!extension || !extensions.length"
         class="bm-button"
-        v-bind="$props"
+        v-bind="childProps"
         :disabled="disabled || loading"
         v-on="$listeners"
     >
@@ -12,7 +12,7 @@
         </slot>
         <span class="slot-wrapper"><slot /></span>
     </b-button>
-    <bm-dropdown v-else class="bm-button" v-bind="$props" :disabled="disabled || loading" split v-on="$listeners">
+    <bm-dropdown v-else class="bm-button" v-bind="childProps" :disabled="disabled || loading" split v-on="$listeners">
         <template #button-content>
             <slot name="icon">
                 <bm-icon v-if="icon" :icon="icon" />
@@ -80,6 +80,10 @@ export default {
         return { extensions };
     },
     computed: {
+        childProps() {
+            const { extension, ...childProps } = this.$props;
+            return childProps;
+        },
         hasIcon() {
             return this.icon || this.$scopedSlots.icon;
         }
