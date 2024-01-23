@@ -181,7 +181,6 @@ public class LdapAddressBookContainerSync implements ISyncableContainer {
 	}
 
 	private ContainerSyncResult sync(String modifyTimestampString, LdapParameters lp, IServerTaskMonitor monitor) {
-
 		ContainerSyncResult ret = new ContainerSyncResult();
 		ret.status = new ContainerSyncStatus();
 
@@ -249,7 +248,14 @@ public class LdapAddressBookContainerSync implements ISyncableContainer {
 				SearchResultDone result = cursor.getSearchResultDone();
 				LdapResult ldapResult = result.getLdapResult();
 				if (ldapResult.getResultCode() != ResultCodeEnum.SUCCESS) {
-					logger.info("{} {}", ldapResult.getResultCode(), ldapResult.getDiagnosticMessage());
+					if (ldapResult.getResultCode() == ResultCodeEnum.SIZE_LIMIT_EXCEEDED) {
+						logger.warn("{} - Unable to get more responses from directory", ldapResult.getResultCode());
+					} else {
+						logger.error("Directory request fail: {} - {}", ldapResult.getResultCode(),
+								ldapResult.getDiagnosticMessage());
+					}
+
+					ret.status.syncStatus = Status.ERROR;
 					break;
 				}
 
