@@ -23,6 +23,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -198,6 +199,34 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 				.withJson(new ByteArrayInputStream(enhancedSchema)));
 	}
 
+	private static void removeIndexPatternFromIndexTemplate(ElasticsearchClient esClient,
+			IndexTemplateDefinition indexTemplateDefinition, String indexPatternToRemove) {
+		final String indexPatternField = "index_patterns";
+		JsonObject jsonSchema = new JsonObject(new String(indexTemplateDefinition.schema));
+		JsonArray indexPatternsSchemaArray = new JsonArray();
+
+		try {
+			indexTemplateDefinitionOf(esClient, indexTemplateDefinition.indexTemplateName).ifPresent(indexTemplate -> {
+				List<String> indexPatterns = new ArrayList<>(indexTemplate.indexTemplate().indexPatterns());
+				indexPatterns.remove(indexPatternToRemove);
+				indexPatterns.forEach(a -> {
+					if (!indexPatternsSchemaArray.contains(a)) {
+						indexPatternsSchemaArray.add(a);
+					}
+				});
+			});
+
+			jsonSchema.put(indexPatternField, indexPatternsSchemaArray);
+			byte[] enhancedSchema = jsonSchema.toString().getBytes();
+			esClient.indices().putIndexTemplate(it -> it.name(indexTemplateDefinition.indexTemplateName)
+					.withJson(new ByteArrayInputStream(enhancedSchema)));
+			logger.info("Remove '{}'from index_patterns field for '{}' template", indexPatternToRemove,
+					indexTemplateDefinition.indexTemplateName);
+		} catch (IOException | ElasticsearchException e) {
+			logger.error("error with removeIndexPatternFromIndexTemplate: {}", e.getMessage());
+		}
+	}
+
 	private static void updateILMPolicy(ElasticsearchClient esClient, ILMPolicyDefinition ilmPolicyDefinition)
 			throws ElasticsearchException, IOException {
 		if (ilmPolicyDefinition != null) {
@@ -219,6 +248,10 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 		if (optSchema.isPresent()) {
 			try {
 				removeDataStream(esClient, dataStreamName);
+			} catch (AuditLogRemovalException e) {
+				logger.error("Error on audit log store removal: {}", e.getMessage());
+			}
+			try {
 				removeIndexTemplate(esClient, optSchema.get().indexTemplateName);
 			} catch (AuditLogRemovalException e) {
 				logger.error("Error on audit log store removal: {}", e.getMessage());
@@ -268,6 +301,7 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 		Optional<IndexTemplateDefinition> optSchema = Optional.ofNullable(indexTemplateDefinition);
 		if (optSchema.isPresent()) {
 			removeDataStream(esClient, dataStreamFullName);
+			removeIndexPatternFromIndexTemplate(esClient, optSchema.get(), dataStreamFullName + "*");
 			removeIndexTemplate(esClient, optSchema.get().indexTemplateName);
 		}
 	}
@@ -282,8 +316,9 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 		Optional<IndexTemplateDefinition> optSchema = Optional.ofNullable(indexTemplateDefinition);
 		if (optSchema.isPresent()) {
 			try {
-				esClient.indices().deleteDataStream(d -> d.name(Arrays.asList(dataStreamName)));
-				logger.info("datastream '{}' deleted.", dataStreamName);
+				boolean isDeleted = esClient.indices().deleteDataStream(d -> d.name(Arrays.asList(dataStreamName)))
+						.acknowledged();
+				logger.info("datastream '{}' deleted: {}.", dataStreamName, isDeleted);
 			} catch (ElasticsearchException e) {
 				if (e.error() != null && "index_not_found_exception".equals(e.error().type())) {
 					logger.warn("dataStream '{}' not found, can't be delete", dataStreamName);
@@ -304,6 +339,11 @@ public class DataStreamActivator implements BundleActivator, IAuditLogMgmt {
 		} catch (ElasticsearchException e) {
 			if (e.error() != null && "index_template_missing_exception".equals(e.error().type())) {
 				logger.warn("index template '{}' not found, can't be delete", indexTemplateName);
+				return;
+			}
+			if (e.error() != null && "illegal_argument_exception".equals(e.error().type())) {
+				logger.warn("index template '{}' already in use, can't be delete: {}", indexTemplateName,
+						e.getMessage());
 				return;
 			}
 			throw new AuditLogRemovalException(e);
