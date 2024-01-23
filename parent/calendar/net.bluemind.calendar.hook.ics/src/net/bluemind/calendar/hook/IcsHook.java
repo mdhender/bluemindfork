@@ -352,8 +352,13 @@ public class IcsHook implements ICalendarHook {
 			}
 		}
 
-		if (!counterHandled) {
-			onAttendeeEventVersionUpdated(message, oldEventSeries, flatten, dirEntry);
+		for (VEvent evt : flatten) {
+			VEvent oldEvent = VEventUtil.findCorrespondingEvent(oldEventSeries, evt);
+			if (!counterHandled) {
+				processAttendeeParticipation(message, oldEventSeries, dirEntry, evt, oldEvent);
+			}
+			processAttendeeForward(message, dirEntry, evt, oldEvent);
+
 		}
 	}
 
@@ -362,26 +367,50 @@ public class IcsHook implements ICalendarHook {
 				|| (!currentCounter.counter.dtend.equals(oldCounter.counter.dtend));
 	}
 
-	private void onAttendeeEventVersionUpdated(VEventMessage message, VEventSeries oldEventSeries, List<VEvent> flatten,
-			DirEntry dirEntry) {
-		for (VEvent evt : flatten) {
-			VEvent oldEvent = VEventUtil.findCorrespondingEvent(oldEventSeries, evt);
-			Optional<EventAttendeeTuple> attendee = getMatchingAttendeeForEvent(evt, dirEntry);
-			if (attendee.isPresent()) {
-				Optional<EventAttendeeTuple> oldAttendee = getMatchingAttendeeForEvent(oldEvent, dirEntry);
-				// check if the new participation != the old one
-				if (!oldAttendee.isPresent()
-						|| oldAttendee.get().attendee.partStatus != attendee.get().attendee.partStatus) {
-					sendParticipationToOrganizer(message, attendee.get(), evt);
-				}
-				if (!evt.exception()) {
-					Set<BmDateTime> exdates = getNewExceptionList(oldEventSeries.main, evt);
-					if (exdates != null && !exdates.isEmpty()) {
-						sendExceptionsToOrganizer(message, attendee.get(), exdates);
-					}
+	private void processAttendeeParticipation(VEventMessage message, VEventSeries oldEventSeries, DirEntry dirEntry,
+			VEvent evt, VEvent oldEvent) {
+		Optional<EventAttendeeTuple> attendee = getMatchingAttendeeForEvent(evt, dirEntry);
+		if (attendee.isPresent()) {
+			if (hasAttendeeParticipationChanged(attendee.get().attendee, oldEvent)) {
+				sendParticipationToOrganizer(message, attendee.get(), evt);
+			}
+			if (!evt.exception()) {
+				Set<BmDateTime> exdates = getNewExceptionList(oldEventSeries.main, evt);
+				if (exdates != null && !exdates.isEmpty()) {
+					sendExceptionsToOrganizer(message, attendee.get(), exdates);
 				}
 			}
 		}
+	}
+
+	private boolean hasAttendeeParticipationChanged(Attendee attendee, VEvent oldEvent) {
+		Optional<Attendee> oldAttendee = oldEvent.attendees.stream().filter(att -> attendee.dir.equals(att.dir))
+				.findAny();
+		return oldAttendee.isPresent() || oldAttendee.get().partStatus != attendee.partStatus;
+	}
+
+	private void processAttendeeForward(VEventMessage message, DirEntry currentUser, VEvent event, VEvent oldEvent) {
+		Set<Attendee> attendees = ICalendarElement.diff(event.attendees, oldEvent.attendees).stream()
+				.filter(attendee -> attendee.role == Role.NonParticipant)
+				.filter(attendee -> currentUser.email.equals(attendee.sentBy))
+				.filter(attendee -> !isSamePerson(currentUser, attendee)).collect(Collectors.toSet());
+		if (!attendees.isEmpty()) {
+			if (!event.exception()) {
+				VEventMessage copy = message.copy();
+				for (Attendee attendee : attendees) {
+					VEventSeries seriesForAttendee = getSeriesForAttendee(message.vevent, attendee);
+					copy.vevent = seriesForAttendee;
+					copy.vevent.icsUid = message.vevent.icsUid;
+					String ics = getIcsPart(copy.vevent.icsUid, Method.REQUEST, seriesForAttendee, attendee);
+					sendForwardToAttendees(copy, currentUser, Arrays.asList(attendee), event, ics);
+				}
+			} else {
+				String ics = getIcsPart(Optional.of(message.vevent.acceptCounters), message.vevent.icsUid,
+						Method.REQUEST, event);
+				sendForwardToAttendees(message, currentUser, new ArrayList<>(attendees), event, ics);
+			}
+		}
+
 	}
 
 	private void onCounterProposalAdded(VEventMessage message, VEventCounter counter, DirEntry dirEntry) {
@@ -493,6 +522,34 @@ public class IcsHook implements ICalendarHook {
 			return new MessagesResolver(Messages.getEventDetailMessages(locale),
 					Messages.getEventOrganizationMessages(locale));
 		}, Method.REQUEST, md.from, recipient, ics, md.data);
+	}
+
+	private void sendForwardToAttendees(VEventMessage message, DirEntry originator, List<Attendee> attendees,
+			VEvent event, String ics) throws ServerFault {
+
+		String subject = "EventCreateSubject.ftl";
+		String body = "EventForward.ftl";
+
+		Mailbox from = SendmailHelper.formatAddress(originator.displayName, originator.email);
+		Map<String, String> settings = getSenderSettings(message, originator);
+
+		HashMap<String, Object> data = new HashMap<>();
+		data.putAll(new CalendarMailHelper().extractVEventData(event));
+		data.put("originator", originator.displayName);
+		data.put("organizer", event.organizer.commonName);
+
+		for (ICalendarElement.Attendee attendee : attendees) {
+			Mailbox recipient = SendmailHelper.formatAddress(attendee.commonName, attendee.mailto);
+			if (attendee.responseComment != null && !attendee.responseComment.trim().isEmpty()) {
+				data.put("note", attendee.responseComment);
+			} else {
+				data.remove("note");
+			}
+			sendNotificationToAttendee(message, event, settings, subject, body, (locale) -> {
+				return new MessagesResolver(Messages.getEventDetailMessages(locale),
+						Messages.getEventCreateMessages(locale), Messages.getEventForwardMessages(locale));
+			}, Method.REQUEST, from, recipient, ics, data);
+		}
 	}
 
 	private void sendCounterProposalToOrganizer(VEventMessage message, EventAttendeeTuple event,
@@ -1004,13 +1061,16 @@ public class IcsHook implements ICalendarHook {
 		if (vEvent == null) {
 			return Optional.empty();
 		}
-		String dirPath = "bm://" + user.path;
 		for (ICalendarElement.Attendee a : vEvent.attendees) {
-			if (a.dir != null && a.dir.equals(dirPath)) {
+			if (isSamePerson(user, a)) {
 				return Optional.of(new EventAttendeeTuple(a, vEvent));
 			}
 		}
 		return Optional.empty();
+	}
+
+	private boolean isSamePerson(DirEntry user, ICalendarElement.Attendee a) {
+		return a.dir != null && a.dir.equals("bm://" + user.path);
 	}
 
 	/**

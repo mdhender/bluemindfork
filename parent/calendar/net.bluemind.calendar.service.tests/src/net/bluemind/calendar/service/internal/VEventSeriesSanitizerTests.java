@@ -19,6 +19,7 @@ package net.bluemind.calendar.service.internal;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.sql.SQLException;
 import java.time.Instant;
@@ -43,6 +44,7 @@ import net.bluemind.addressbook.api.VCard.Identification.FormatedName;
 import net.bluemind.addressbook.api.VCard.Identification.Name;
 import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.VEvent;
+import net.bluemind.calendar.api.VEventCounter;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.hook.VEventMessage;
 import net.bluemind.config.InstallationId;
@@ -64,6 +66,8 @@ import net.bluemind.directory.api.IDirEntryPath;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
 import net.bluemind.icalendar.api.ICalendarElement.CUType;
+import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;
+import net.bluemind.icalendar.api.ICalendarElement.Role;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.resource.api.IResources;
@@ -126,7 +130,7 @@ public class VEventSeriesSanitizerTests {
 				+ "\n" + resourceTemplateHelper.tagEnd();
 
 		sanitizer = new VEventSeriesSanitizer(new BmTestContext(Sessions.get().getIfPresent(user.login)),
-				Container.create(UUID.randomUUID().toString(), "calendar", "this is calenddar", user.login));
+				Container.create(UUID.randomUUID().toString(), "calendar", "this is calenddar", user.login, domainUid));
 	}
 
 	/**
@@ -246,6 +250,35 @@ public class VEventSeriesSanitizerTests {
 		final String expectedResult = description + TRANSFORMED_TEMPLATE_SEPARATOR + transformedTemplate
 				+ TRANSFORMED_TEMPLATE_SUFFIX;
 		this.checkDescription(vEvents, expectedResult);
+	}
+
+	@Test
+	public void onEventForward() {
+		final List<Attendee> attendees = new ArrayList<>(3);
+
+		attendees.add(Attendee.create(CUType.Individual, null, Role.RequiredParticipant,
+				ParticipationStatus.NeedsAction, false, null, null, null, "John Doe",
+				"bm://" + IDirEntryPath.path(domainUid, user.login, Kind.USER), null, null,
+				this.user.defaultEmail().address));
+
+		final VEventMessage message = this.buildEvent("Summary", "Description", attendees);
+		message.vevent.main.organizer = new VEvent.Organizer("Georges Abitbol", this.user.defaultEmailAddress());
+		message.vevent.main.organizer.dir = "bm://" + IDirEntryPath.path(domainUid, "georges", Kind.USER);
+		message.oldEvent = message.vevent.copy();
+		Attendee toto = Attendee.create(CUType.Individual, null, Role.NonParticipant,
+				ParticipationStatus.NeedsAction, false, null, null, this.user.defaultEmailAddress(), "Toto Matinc",
+				"bm://" + IDirEntryPath.path(domainUid, "toto", Kind.USER), null, null,
+				"toto@" + this.domainUid);
+		message.vevent.main.attendees.add(toto);
+		sanitizer.update(message.oldEvent, message.vevent);
+		
+		assertTrue(message.vevent.counters.size() == 1);
+		
+		VEventCounter counter = message.vevent.counters.get(0);
+		assertTrue(counter.counter.attendees.size() == 2);
+		assertTrue(counter.counter.attendees.stream().anyMatch(a -> a.equals(toto)));
+		assertTrue(counter.originator.email.equals(user.defaultEmailAddress()));
+
 	}
 
 	/**

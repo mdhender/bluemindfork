@@ -17,14 +17,20 @@
   */
 package net.bluemind.calendar.service.internal;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bluemind.calendar.VEventUtil;
 import net.bluemind.calendar.api.VEvent;
+import net.bluemind.calendar.api.VEventCounter;
+import net.bluemind.calendar.api.VEventCounter.CounterOriginator;
 import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.core.api.fault.ServerFault;
@@ -32,7 +38,10 @@ import net.bluemind.core.container.model.Container;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.sanitizer.ISanitizer;
 import net.bluemind.core.sanitizer.ISanitizerFactory;
+import net.bluemind.directory.api.IDirEntryPath;
+import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
+import net.bluemind.icalendar.api.ICalendarElement.Role;
 
 /**
  * This sanitizer modifies events descriptions. For now it only modifies the
@@ -71,6 +80,10 @@ public class VEventSeriesSanitizer implements ISanitizer<VEventSeries> {
 			if (this.isMasterVersionAndHasAttendees(currentVEventSeries)) {
 				this.onMasterVersionUpdated(currentVEventSeries, oldVEventSeries,
 						this.bmContext.getSecurityContext().getContainerUid());
+				// FIXME : And sendNotification === true
+			} else if (isAttendeeVersionAndHasAttendees(currentVEventSeries)) {
+				this.onAttendeeVersionUpdated(currentVEventSeries, oldVEventSeries,
+						this.bmContext.getSecurityContext().getContainerUid());
 			}
 		} catch (ServerFault e) {
 			LOGGER.error(e.getMessage(), e);
@@ -80,6 +93,10 @@ public class VEventSeriesSanitizer implements ISanitizer<VEventSeries> {
 	// mostly a copy from IcsHook
 	private boolean isMasterVersionAndHasAttendees(final VEventSeries message) throws ServerFault {
 		return message.meeting() && message.master(bmContext.getSecurityContext().getContainerUid(), container.owner);
+	}
+
+	private boolean isAttendeeVersionAndHasAttendees(final VEventSeries message) throws ServerFault {
+		return message.meeting() && !message.master(bmContext.getSecurityContext().getContainerUid(), container.owner);
 	}
 
 	// mostly a copy from IcsHook
@@ -183,6 +200,73 @@ public class VEventSeriesSanitizer implements ISanitizer<VEventSeries> {
 		public ISanitizer<VEventSeries> create(final BmContext context, Container container) {
 			return new VEventSeriesSanitizer(context, container);
 		}
+	}
+
+	private void onAttendeeVersionUpdated(VEventSeries currentVEventSeries, VEventSeries oldEventSeries,
+			final String domainUid) {
+		sanitizeForward(currentVEventSeries, oldEventSeries);
+	}
+
+	private void sanitizeForward(VEventSeries current, VEventSeries old) {
+		List<VEvent> flatten = current.flatten();
+		for (VEvent event : flatten) {
+			VEvent oldEvent = VEventUtil.findCorrespondingEvent(old, event);
+			sanitizeForward(current, event, oldEvent);
+		}
+	}
+
+	private void sanitizeForward(VEventSeries series, VEvent current, VEvent old) {
+		Optional<Attendee> me = getCalendarOwnerAttendeeEntry(current);
+		if (me.isPresent()) {
+			Set<Attendee> attendees = ICalendarElement.diff(current.attendees, old.attendees).stream()
+					.filter(attendee -> attendee.role == Role.NonParticipant)
+					.filter(attendee -> me.get().mailto.equals(attendee.sentBy)).collect(Collectors.toSet());
+			if (!attendees.isEmpty()) {
+				VEventCounter counter = createCounter(current, attendees, me.get());
+				addToSeries(series, counter);
+			}
+		}
+
+	}
+
+	private void addToSeries(VEventSeries series, VEventCounter counter) {
+		series.counters = series.counters.stream().filter(existing -> !sameCounter(existing, counter))
+				.collect(Collectors.toList());
+		series.counters.add(counter);
+	}
+
+	private boolean sameCounter(VEventCounter existing, VEventCounter counter) {
+		boolean same = true;
+		same &= counter.originator.equals(existing.originator);
+		same &= counter.counter.recurid == null ? existing.counter.recurid == null
+				: counter.counter.recurid.equals(existing.counter.recurid);
+		return same;
+	}
+
+	private VEventCounter createCounter(VEvent event, Set<Attendee> attendees, Attendee me) {
+		VEventOccurrence occurrence = event instanceof VEventOccurrence ? (VEventOccurrence) event.copy()
+				: VEventOccurrence.fromEvent(event, null);
+		VEventCounter counter = new VEventCounter();
+		counter.counter = occurrence;
+		counter.originator = new CounterOriginator();
+		counter.originator.email = me.mailto;
+		counter.originator.commonName = me.commonName;
+		counter.counter.attendees = new ArrayList<>(attendees);
+		counter.counter.attendees.add(me);
+		return counter;
+	}
+
+	private Optional<Attendee> getCalendarOwnerAttendeeEntry(VEvent current) {
+		return current.attendees.stream().filter(attendee -> isCalendarOwner(attendee)).findAny();
+	}
+
+	private boolean isCalendarOwner(Attendee attendee) {
+		if (attendee.dir != null) {
+			String path = attendee.dir.substring("bm://".length());
+			return IDirEntryPath.getDomain(path).equals(container.domainUid)
+					&& IDirEntryPath.getEntryUid(path).equals(container.owner);
+		}
+		return false;
 	}
 
 }

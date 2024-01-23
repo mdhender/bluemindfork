@@ -2847,6 +2847,57 @@ public class IcsHookTests {
 
 	}
 
+	@Test
+	public void a2a_addAnAttendeeAsAnAttendee() throws Exception {
+		ItemValue<VEventSeries> old = defaultVEvent("forward");
+		old.value.main.status = ICalendarElement.Status.Tentative;
+		old.value.main.attendees.add(VEvent.Attendee.create(CUType.Individual, "", Role.RequiredParticipant,
+				ParticipationStatus.NeedsAction, false, "u2", "", "", "", "", "", "u2", "u2@test.lan"));
+
+		SecurityContext securityContext = Sessions.get().getIfPresent(user2.login);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), user1Calendar);
+		eventSanitizer.sanitize(old.value, true);
+
+		VEventSeries updated = old.value.copy();
+		updated.main.attendees.add(VEvent.Attendee.create(CUType.Individual, "", Role.NonParticipant,
+				ParticipationStatus.NeedsAction, false, "", "", "u2@test.lan", "", "", "", "u3", "u3@test.lan"));
+
+		// user2 counters meeting
+		VEventMessage veventMessage = new VEventMessage();
+		veventMessage.itemUid = old.uid;
+		veventMessage.vevent = updated;
+		veventMessage.oldEvent = old.value;
+		veventMessage.securityContext = securityContext;
+		veventMessage.sendNotifications = true;
+		veventMessage.container = containerHome.get(ICalendarUids.TYPE + ":Default:" + user2.login);
+
+		FakeSendmail fakeSendmail = new FakeSendmail();
+		new IcsHook(fakeSendmail).onEventUpdated(veventMessage);
+		assertTrue(fakeSendmail.mailSent);
+
+		assertEquals(1, fakeSendmail.messages.size());
+		TestMail tm = fakeSendmail.messages.get(0);
+		assertEquals(1, tm.to.size());
+		Message m = tm.message;
+		assertTrue(m.getSubject().contains(updated.main.summary));
+
+		assertTrue(m.getCc().get(0).toString().equals("u3@test.lan"));
+		assertTrue(m.getFrom().get(0).toString().equals("u2@test.lan"));
+		assertTrue(m.getBody() instanceof Multipart);
+		Multipart body = (Multipart) m.getBody();
+		for (Entity part : body.getBodyParts()) {
+			if ("event.ics".equals(part.getFilename())) {
+				TextBody tb = (TextBody) part.getBody();
+				InputStream in = tb.getInputStream();
+				String icsContent = new String(ByteStreams.toByteArray(in), part.getCharset());
+				in.close();
+				assertTrue(icsContent.contains("REQUEST"));
+				return;
+			}
+		}
+		fail("Did not find any ics part in the message.");
+	}
+
 	private FakeSendmail icsHookOnCreate(SecurityContext securityContext, String userUid, ItemValue<VEventSeries> event)
 			throws SQLException {
 

@@ -39,6 +39,10 @@ public class Messages {
 		return ResourceBundle.getBundle("eventCreate", locale);
 	}
 
+	public static ResourceBundle getEventForwardMessages(Locale locale) {
+		return ResourceBundle.getBundle("eventForward", locale);
+	}
+
 	public static ResourceBundle getEventDeleteMessages(Locale locale) {
 		return ResourceBundle.getBundle("eventDelete", locale);
 	}
