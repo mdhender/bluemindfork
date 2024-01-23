@@ -32,7 +32,10 @@ export default {
         const hidden = ref(0);
         const shown = ref(0);
         function overflown({ detail: nodes }) {
-            hidden.value = nodes.reduce((count, node) => (node.overflows ? ++count : count), 0);
+            hidden.value = Math.min(
+                nodes.reduce((count, node) => (node.overflows ? ++count : count), 0),
+                nodes.length - 1
+            );
             shown.value = nodes.length - hidden.value - 1;
         }
 
@@ -40,7 +43,8 @@ export default {
         const menuExtensions = computed(() => renderWebAppExtensions(`${props.extension}.menu`));
 
         return function render() {
-            const items = [...normalizeSlot(slots.default()), ...extensions.value];
+            const defaultSlot = slots.default ? normalizeSlot(slots.default()) : [];
+            const items = [...defaultSlot, ...extensions.value];
             const menuEntries = [
                 ...items.slice(items.length - hidden.value),
                 ...normalizeSlot(slots.menu && slots.menu()),

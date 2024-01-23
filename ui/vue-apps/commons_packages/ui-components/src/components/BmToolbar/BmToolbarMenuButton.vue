@@ -1,5 +1,5 @@
 <template>
-    <bm-icon-dropdown v-if="!hasMenuButtonSlot" v-bind="$props" variant="regular">
+    <bm-icon-dropdown v-if="!hasMenuButtonSlot" v-bind="props" variant="regular">
         <slot />
     </bm-icon-dropdown>
     <bm-dropdown v-else v-bind="props" variant="text">
