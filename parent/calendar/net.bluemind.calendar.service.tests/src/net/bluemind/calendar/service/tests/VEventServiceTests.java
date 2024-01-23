@@ -515,6 +515,23 @@ public class VEventServiceTests extends AbstractCalendarTests {
 	}
 
 	@Test
+	public void testImportIcsHavingColonInTzId() throws ServerFault, IOException {
+		Stream ics = getIcsFromFile("colon_tzid.ics");
+
+		TaskRef taskRef = getVEventService(userSecurityContext, userCalendarContainer).importIcs(ics);
+		ImportStats stats = waitImportEnd(taskRef);
+		assertNotNull(stats);
+		assertEquals(1, stats.importedCount());
+
+		ItemValue<VEventSeries> item = getCalendarService(userSecurityContext, userCalendarContainer)
+				.getByIcsUid("040000100000008756B58E0AF70F4B8264349C19B4624C").get(0);
+
+		VEvent vevent = item.value.main;
+		assertNotNull(vevent);
+		assertEquals("Europe/Paris", vevent.dtstart.timezone); // calculated by offset
+	}
+
+	@Test
 	public void testImportAppleCalendarAttendeeEmailFormat() throws ServerFault, IOException {
 		Stream ics = getIcsFromFile("testAppleCalEmailFormat.ics");
 

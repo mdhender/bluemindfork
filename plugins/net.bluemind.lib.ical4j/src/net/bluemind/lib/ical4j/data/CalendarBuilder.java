@@ -286,12 +286,14 @@ public class CalendarBuilder {
 				}
 			};
 			try {
-				((DateProperty) property).getParameters().add(tz);
-			} catch (
-
-			ClassCastException e) {
+				if (property.getParameter(Parameter.TZID) == null) {
+					((DateProperty) property).getParameters().add(tz);
+				}
+			} catch (ClassCastException e) {
 				try {
-					((DateListProperty) property).getParameters().add(tz);
+					if (property.getParameter(Parameter.TZID) == null) {
+						((DateListProperty) property).getParameters().add(tz);
+					}
 				} catch (ClassCastException e2) {
 					if (CompatibilityHints.isHintEnabled(CompatibilityHints.KEY_RELAXED_PARSING)) {
 						final Logger logger = LoggerFactory.getLogger(CalendarBuilder.class);
