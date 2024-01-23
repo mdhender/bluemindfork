@@ -50,6 +50,7 @@ net.bluemind.calendar.day.ui.UpdatePopup = function(ctx, format, opt_domHelper) 
   var MSG_DELETE_TITLE = goog.getMsg('Delete event');
   /** @meaning calendar.updatePopup.delete.content */
   var MSG_DELETE_CONTENT = goog.getMsg('Would you like to delete this event?');
+
   var child = new goog.ui.Dialog();
   child.setDraggable(false);
   child.setTitle(MSG_DELETE_TITLE);
@@ -58,30 +59,88 @@ net.bluemind.calendar.day.ui.UpdatePopup = function(ctx, format, opt_domHelper) 
   child.setId('delete-popup');
   this.addChild(child);
 
+  this.buildForward_();
+  this.buildDuplicate_();
+
   child = new net.bluemind.calendar.day.ui.ReplyInvitation();
   child.setId("reply-invite");
   this.addChild(child);
   var menu = new goog.ui.Menu();
+   
+};
+goog.inherits(net.bluemind.calendar.day.ui.UpdatePopup, net.bluemind.calendar.day.ui.Popup);
+
+/**
+ * 
+ */
+net.bluemind.calendar.day.ui.UpdatePopup.prototype.buildDuplicate_ = function() {
+  var menu = new goog.ui.Menu();
   
   /** @meaning calendar.action.duplicate */
   var MSG_DUPLICATE = goog.getMsg('Duplicate');
-  child = new goog.ui.MenuItem(MSG_DUPLICATE);
+  var child = new goog.ui.MenuItem(MSG_DUPLICATE);
   child.setId('duplicate');
   menu.addChild(child, true);
 
-  /** @meaning calendar.action.duplicateOccurrence */
-  var MSG_DUPLICATE_OCC = goog.getMsg('Duplicate occurrence');
+ /** @meaning calendar.action.duplicateOccurrence */
+ var MSG_DUPLICATE_OCC = goog.getMsg('Duplicate occurrence');
   child = new goog.ui.MenuItem(MSG_DUPLICATE_OCC);
   child.setId('duplicate-occurrence');
   menu.addChild(child, true);
 
+  var renderer= goog.ui.style.app.ButtonRenderer.getInstance()
   child = new goog.ui.MenuButton(goog.dom.createDom('div', [ goog.getCssName('goog-button-icon'),
-  goog.getCssName('fa'), goog.getCssName('fa-ellipsis-v'), goog.getCssNam ]), menu, goog.ui.style.app.MenuButtonRenderer.getInstance());
-  child.setId('others');
+  goog.getCssName('fa'), goog.getCssName('fa-files-o') ]), menu, renderer);
+  child.addClassName(goog.getCssName('goog-button-base-last'));
+  child.setTooltip(MSG_DUPLICATE);
+  child.setId('duplicate-menu');
+  this.addChild(child);
+
+  child = new goog.ui.Button(goog.dom.createDom('div', [ 
+    goog.getCssName('goog-button-icon'), goog.getCssName('fa'), goog.getCssName('fa-files-o') 
+  ]), renderer);
+  child.addClassName(goog.getCssName('goog-button-base-last'));
+  child.setTooltip(MSG_DUPLICATE);
+  child.setId('duplicate');
   this.addChild(child);
 
 };
-goog.inherits(net.bluemind.calendar.day.ui.UpdatePopup, net.bluemind.calendar.day.ui.Popup);
+
+/**
+ * 
+ */
+net.bluemind.calendar.day.ui.UpdatePopup.prototype.buildForward_ = function() {
+  var menu = new goog.ui.Menu();
+  
+  /** @meaning calendar.action.forward */
+  var MSG_FORWARD = goog.getMsg('Add an attendee');
+  var child = new goog.ui.MenuItem(MSG_FORWARD);
+  child.setId('forward');
+  menu.addChild(child, true);
+
+  /** @meaning calendar.action.forwardOccurrence */
+  var MSG_FORWARD_OCCURRENCE = goog.getMsg('Add an attendee on this occurrence');
+  child = new goog.ui.MenuItem(MSG_FORWARD_OCCURRENCE);
+  child.setId('forward-occurrence');
+  menu.addChild(child, true);
+
+  var renderer= goog.ui.style.app.ButtonRenderer.getInstance()
+  child = new goog.ui.MenuButton(goog.dom.createDom('div', [ goog.getCssName('goog-button-icon'),
+  goog.getCssName('fa'), goog.getCssName('fa-user-plus') ]), menu, renderer);
+  child.addClassName(goog.getCssName('goog-button-base-first'));
+  child.setTooltip(MSG_FORWARD);
+  child.setId('forward-menu');
+  this.addChild(child);
+
+  child = new goog.ui.Button(goog.dom.createDom('div', [ 
+    goog.getCssName('goog-button-icon'), goog.getCssName('fa'), goog.getCssName('fa-user-plus') 
+  ]), renderer);
+  child.addClassName(goog.getCssName('goog-button-base-first'));
+  child.setTooltip(MSG_FORWARD);
+  child.setId('forward');
+  this.addChild(child);
+
+};
 
 /** @override */
 net.bluemind.calendar.day.ui.UpdatePopup.prototype.enterDocument = function() {
@@ -123,17 +182,32 @@ net.bluemind.calendar.day.ui.UpdatePopup.prototype.ctx_;
 
 /** @override */
 net.bluemind.calendar.day.ui.UpdatePopup.prototype.eraseElement_ = function() {
-  this.getChild('others').exitDocument();
+  this.getChild('duplicate-menu').exitDocument();
+  this.getChild('duplicate').exitDocument();
+  this.getChild('forward-menu').exitDocument();
+  this.getChild('forward').exitDocument();
   goog.base(this, 'eraseElement_');
 }
 
 /** @override */
 net.bluemind.calendar.day.ui.UpdatePopup.prototype.drawElement_ = function() {
-  this.getChild('others').exitDocument();
+  this.getChild('duplicate-menu').exitDocument();
+  this.getChild('duplicate').exitDocument();
+  this.getChild('forward-menu').exitDocument();
+  this.getChild('forward').exitDocument();
   goog.base(this, 'drawElement_');
-  this.getChild('others').render(goog.dom.getElement('eb-btn-event-update-screen').parentElement);
   var model = this.getModel();
-  this.getChild('others').getMenu().getChild('duplicate-occurrence').setVisible(model.states.repeat || model.states.exception)
+  if (model.states.repeat) {
+    if (model.states.meeting && !model.states.master) {
+      this.getChild('forward-menu').render(goog.dom.getElement('eb-btn-event-update-screen').parentElement);
+    }
+    this.getChild('duplicate-menu').render(goog.dom.getElement('eb-btn-event-update-screen').parentElement);
+} else {
+    if (model.states.meeting && !model.states.master) {
+      this.getChild('forward').render(goog.dom.getElement('eb-btn-event-update-screen').parentElement);
+    }
+  this.getChild('duplicate').render(goog.dom.getElement('eb-btn-event-update-screen').parentElement);
+}
 }
 
 /** @override */
@@ -165,11 +239,37 @@ net.bluemind.calendar.day.ui.UpdatePopup.prototype.setModelListeners = function(
   this.getHandler().listen(goog.dom.getElement('eb-btn-event-update-screen'), goog.events.EventType.CLICK,
       this.updateEventScreen_);
   
-  this.getHandler().listen(this.getChild('others'), goog.ui.Component.EventType.ACTION, this.duplicate_);
-  this.getHandler().listen(this.getChild('others').getMenu(), goog.ui.Component.EventType.SHOW, function(e) {
+  this.getHandler().listen(
+    this.getChild('duplicate-menu').getMenu(), 
+    goog.ui.Component.EventType.ACTION, 
+    this.duplicate_
+  );
+  this.getHandler().listen(
+    this.getChild('duplicate'), 
+    goog.ui.Component.EventType.ACTION,
+    this.duplicate_
+  );
+  this.getHandler().listen(
+    this.getChild('forward-menu').getMenu(), 
+    goog.ui.Component.EventType.ACTION,
+    this.forward_
+  );
+  this.getHandler().listen(
+    this.getChild('forward'), 
+    goog.ui.Component.EventType.ACTION,
+    this.forward_
+  );
+
+  this.getHandler().listen(this.getChild('duplicate-menu').getMenu(), goog.ui.Component.EventType.SHOW, function(e) {
     this.addAutoHidePartner(e.target.getElement());
   });
-  this.getHandler().listen(this.getChild('others').getMenu(), goog.ui.Component.EventType.HIDE, function(e) {
+  this.getHandler().listen(this.getChild('duplicate-menu').getMenu(), goog.ui.Component.EventType.HIDE, function(e) {
+    this.removeAutoHidePartner(e.target.getElement());
+  });
+  this.getHandler().listen(this.getChild('forward-menu').getMenu(), goog.ui.Component.EventType.SHOW, function(e) {
+    this.addAutoHidePartner(e.target.getElement());
+  });
+  this.getHandler().listen(this.getChild('forward-menu').getMenu(), goog.ui.Component.EventType.HIDE, function(e) {
     this.removeAutoHidePartner(e.target.getElement());
   });
 
@@ -255,12 +355,27 @@ net.bluemind.calendar.day.ui.UpdatePopup.prototype.updateEvent_ = function() {
 net.bluemind.calendar.day.ui.UpdatePopup.prototype.duplicate_ = function(e) {
   var action = e.target.getId();
   var model = this.getModel();
-  switch(action) {
-    case "duplicate": 
-      model.states.main = true;
-      break;
+  if (action == "duplicate" && !model.states.exception) {
+    model.states.main = true;
   }
 
   var e = new net.bluemind.calendar.vevent.VEventEvent(net.bluemind.calendar.vevent.EventType.DUPLICATE, model);
+  this.dispatchEvent(e);
+};
+
+/**
+ * diplicate event
+ * 
+ * @private
+ */
+net.bluemind.calendar.day.ui.UpdatePopup.prototype.forward_ = function(e) {
+  this.hide();
+  var action = e.target.getId();
+  var model = this.getModel();
+  model.sendNotification = false;
+  if (action == "forward" && !model.states.exception) {
+    model.states.main = true;
+  }
+  var e = new net.bluemind.calendar.vevent.VEventEvent(net.bluemind.calendar.vevent.EventType.FORWARD, model);
   this.dispatchEvent(e);
 };

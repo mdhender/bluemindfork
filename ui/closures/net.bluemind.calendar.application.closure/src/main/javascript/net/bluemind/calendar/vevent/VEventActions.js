@@ -25,6 +25,7 @@ goog.require("goog.Uri");
 goog.require("goog.array");
 goog.require("goog.date.Interval");
 goog.require("goog.structs.Map");
+goog.require("net.bluemind.calendar.day.ui.ForwardDialog");
 goog.require("net.bluemind.calendar.day.ui.PrivateChangesDialog");
 goog.require("net.bluemind.calendar.day.ui.RecurringDeleteDialog");
 goog.require("net.bluemind.calendar.day.ui.RecurringFormDialog");
@@ -141,7 +142,10 @@ net.bluemind.calendar.vevent.VEventActions.prototype.setFeatures = function(feat
     this.popups_.set('note', popup);
     this.registerDisposable(popup);
   }
-
+  popup = new net.bluemind.calendar.day.ui.ForwardDialog(this.ctx_);
+  popup.setId('forward-popup');
+  this.popups_.set('forward', popup);
+  this.registerDisposable(popup);
 };
 
 /**
@@ -398,6 +402,47 @@ net.bluemind.calendar.vevent.VEventActions.prototype.duplicate = function(e) {
     model.calendar = calendar.uid;
     this.goToForm_(model);
   }, null, this);
+};
+
+
+/**
+ * Show event details actions
+ * 
+ * @param {goog.events.Event} e
+ */
+net.bluemind.calendar.vevent.VEventActions.prototype.showForward_ = function(e) {
+  var promise;
+  if (e.vevent.states.main) {
+    promise = this.ctx_.service('calendar').getItem(e.vevent.calendar, e.vevent.uid).then(function(vseries) {
+      return this.adaptor_.toModelView(vseries, goog.array.find(this.calendars_, function(calendar) {
+        return calendar.uid == e.vevent.calendar;
+      })).main;
+    }, null, this)
+  } else {
+    promise = goog.Promise.resolve(e.vevent);
+  }
+  promise.then(function(model) {
+    this.popups_.get('forward').setModel(model);
+    this.popups_.get('forward').setVisible(true);
+  }, null, this);
+};
+
+/**
+ * Show event details actions
+ * 
+ * @param {goog.events.Event} e
+ */
+net.bluemind.calendar.vevent.VEventActions.prototype.forward = function(e) {
+  var model = e.vevent;
+  if (!model.sendNotification) {
+    this.showForward_(e);
+  } else {
+    return this.ctx_.service('calendar').getItem(model.calendar, model.uid).then(function(vseries) {
+      vseries = this.adaptor_.fromVEventModelView(model, vseries);
+      this.collectAttendees_(model.attendees);
+      return this.doUpdate_(vseries, true).then(this.resolve_, this.reject_, this);
+    }, null, this);
+  }
 };
 
 /**
@@ -788,6 +833,7 @@ net.bluemind.calendar.vevent.VEventActions.prototype.showSendNote_ = function(mo
   this.popups_.get('note').setModel(model);
   this.popups_.get('note').setVisible(true);
 };
+
 
 /**
  * Show dialog

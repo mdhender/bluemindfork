@@ -58,7 +58,7 @@ net.bluemind.calendar.day.DayPresenter = function(ctx) {
   this.actions_ = new net.bluemind.calendar.vevent.VEventActions(ctx, this.adaptor_, function() {
     ctx.helper('url').reload();
   });
-  this.actions_.setFeatures([ 'private', 'recurring', 'notification', 'note' ]);
+  this.actions_.setFeatures([ 'private', 'recurring', 'notification', 'note', 'forward']);
   this.actions_.injectPopups(this.view_);
   this.registerDisposable(this.actions_);
   this.todolists_ = new net.bluemind.calendar.vtodo.TodolistsManager(ctx);
@@ -121,6 +121,8 @@ net.bluemind.calendar.day.DayPresenter.prototype.init = function() {
       this.actions_);
   this.handler.listenWithScope(this.view_, net.bluemind.calendar.vevent.EventType.DUPLICATE, this.actions_.duplicate, false,
       this.actions_);  
+  this.handler.listenWithScope(this.view_, net.bluemind.calendar.vevent.EventType.FORWARD, this.actions_.forward, false,
+    this.actions_);        
   this.handler.listen(this.view_, net.bluemind.calendar.vevent.EventType.DETAILS, function(e) {
     var vevent = e.vevent;
     if (vevent.type == 'vtodo') {

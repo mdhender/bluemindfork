@@ -145,9 +145,9 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.toModelView = function(veve
       var counterAttendee = goog.array.find(model.attendees, function(a){
         return a['mailto'] == counter['originator']['email'];
       });
-      if (counterAttendee) {
-        var counterStart = helper.fromIsoString(counter['counter']['dtstart']['iso8601']);
-        var counterEnd = helper.fromIsoString(counter['counter']['dtend']['iso8601']);
+      var counterStart = helper.create(counter['counter']['dtstart'], this.ctx_.helper('timezone').getDefaultTimeZone());
+      var counterEnd = helper.create(counter['counter']['dtend'], this.ctx_.helper('timezone').getDefaultTimeZone());
+      if (counterAttendee && !(counterStart.equals(model.dtstart) && counterEnd.equals(model.dtend))) {
 
         var counterStartDate = df.format(counterStart);        
         var counterEndDate = df.format(counterEnd);

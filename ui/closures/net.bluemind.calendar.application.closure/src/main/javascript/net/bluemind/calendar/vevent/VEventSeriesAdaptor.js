@@ -334,7 +334,7 @@ net.bluemind.calendar.vevent.VEventSeriesAdaptor.prototype.adaptCounterChanges_ 
   } else {
     existingCounter[0]['counter']['dtstart'] = this.ctx_.helper('date').toBMDateTime(counter.counter.dtstart, counter.counter.dtstart.timezone);
     existingCounter[0]['counter']['dtend'] = this.ctx_.helper('date').toBMDateTime(counter.counter.dtend, counter.counter.dtend.timezone);
-    existingCounter[0]['counter']['attendees'][0]['partStatus'] = counter.counter.attendees[0].partStatus;
+    existingCounter[0]['counter']['attendees'] = counter.counter.attendees;
   }
   
   var correspondingEvent = this.getOccurrenceApi(counter.counter.recurrenceId, vseries['value']);

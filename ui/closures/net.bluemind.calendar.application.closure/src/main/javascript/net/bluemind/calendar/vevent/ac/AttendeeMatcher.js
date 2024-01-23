@@ -31,10 +31,11 @@ goog.require("net.bluemind.calendar.vevent.VEventAdaptor");
  * @param {Array.<Object>=} opt_attendees Attendees already added
  * @extends {goog.Disposable}
  */
-net.bluemind.calendar.vevent.ac.AttendeeMatcher = function(ctx, opt_attendees) {
+net.bluemind.calendar.vevent.ac.AttendeeMatcher = function(ctx, opt_attendees, isEmailMandatory) {
   this.ctx_ = ctx;
   this.attendees = opt_attendees || [];
   this.groupAttendees = [];
+  this.isEmailMandatory = isEmailMandatory;
   this.adaptor = new net.bluemind.calendar.vevent.VEventAdaptor(ctx);
   goog.base(this);
 };
@@ -101,13 +102,13 @@ net.bluemind.calendar.vevent.ac.AttendeeMatcher.prototype.onMatch = function(tok
     }
     var valid = true;
     goog.array.forEach(this.attendees, function(att) {
-      if (att['uri'] == row['uri']) {
+      if (att['uri'] == row['uri'] || att['mailto'] == row['mailto']) {
         valid = false;
       }
     });
     if (valid) {
       goog.array.forEach(this.groupAttendees, function(att) {
-        if (att['uri'] == row['uri']) {
+        if (att['uri'] == row['uri'] || att['mailto'] == row['mailto']) {
           valid = false;
         }
       });
@@ -137,8 +138,12 @@ net.bluemind.calendar.vevent.ac.AttendeeMatcher.prototype.requestMatchingRows = 
   }
 
   var token = this.ctx_.helper('elasticsearch').escape(raw);
-  var q = '(_exists_:value.communications.emails.value OR value.kind:group) AND (value.identification.formatedName.value:'
-      + token + ' OR value.communications.emails.value:' + token + ')';
+  if (this.isEmailMandatory) {
+    var q = '(_exists_:value.communications.emails.value)';
+  } else {
+    var q = '(_exists_:value.communications.emails.value OR (value.kind:group AND _exists_:value.organizational.member) )';
+  }
+  q = q +  'AND (value.identification.formatedName.value:'  + token + ' OR value.communications.emails.value:' + token + ')';
 
   // exclude videoconferencing resources
   var videoConferencingResources = this.ctx_.service('videoConferencing').getVideoConferencingResources();

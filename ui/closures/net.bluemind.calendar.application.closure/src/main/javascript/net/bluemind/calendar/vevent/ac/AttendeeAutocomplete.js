@@ -34,8 +34,8 @@ goog.require("net.bluemind.calendar.vevent.ac.AttendeeRowRenderer");
  * @param {Object} selectionHandler
  * @extends {goog.ui.ac.AutoComplete}
  */
-net.bluemind.calendar.vevent.ac.AttendeeAutocomplete = function(ctx) {
-  var matcher = new net.bluemind.calendar.vevent.ac.AttendeeMatcher(ctx);
+net.bluemind.calendar.vevent.ac.AttendeeAutocomplete = function(ctx, isEmailMandatory) {
+  var matcher = new net.bluemind.calendar.vevent.ac.AttendeeMatcher(ctx, [], isEmailMandatory);
   var renderer = new goog.ui.ac.Renderer(null, new net.bluemind.calendar.vevent.ac.AttendeeRowRenderer());
   var handler = new goog.ui.ac.InputHandler(null, null, false, 250);
   handler.setUpdateDuringTyping(false);

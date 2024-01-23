@@ -1008,7 +1008,7 @@ net.bluemind.calendar.vevent.ui.Form.prototype.setModelValues_ = function() {
     var model = this.getModel();
     this.getChild('toolbar').getChild('delete').setVisible(model.states.removable);
     this.getChild('toolbar').getChild('others').setVisible(model.states.updating);
-    this.getChild('toolbar').getChild('others').getMenu().getChild('duplicate-occurrence').setVisible(model.states.exception);
+    this.getChild('toolbar').getChild('others').getMenu().getChild('duplicate-occurrence').setVisible(model.states.occurrence);
 
     this.setFormValue_('title', model.summary);
     this.getChild('dstart').setDate(model.dtstart);
