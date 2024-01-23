@@ -1,37 +1,10 @@
 <script>
 import { BmExtension, useExtensions } from "@bluemind/extensions.vue";
-import BmButtonToolbar from "../buttons/BmButtonToolbar";
+import BmToolbarMenuButton from "./BmToolbarMenuButton";
 import BmIconDropdown from "../dropdown/BmIconDropdown";
 import OverflownElements from "../../directives/OverflownElements";
 import { computed, h, ref, useAttrs, useListeners, useSlots } from "vue";
-
-const Toolbar = {
-    extends: BmButtonToolbar,
-    provide() {
-        return { $context: "toolbar" };
-    }
-};
-
-const Menu = {
-    extends: BmIconDropdown,
-    props: {
-        icon: {
-            type: String,
-            default: "3dots"
-        },
-        size: {
-            type: String,
-            default: "md"
-        },
-        noCaret: {
-            type: Boolean,
-            default: true
-        }
-    },
-    provide() {
-        return { $context: "menu" };
-    }
-};
+import BmToolbarInternal from "./BmToolbarInternal";
 
 export default {
     name: "BmToolbar",
@@ -40,6 +13,14 @@ export default {
         extension: {
             type: String,
             default: undefined
+        },
+        menuIcon: {
+            type: String,
+            default: undefined
+        },
+        menuWithCaret: {
+            type: Boolean,
+            default: false
         }
     },
     setup(props) {
@@ -65,15 +46,20 @@ export default {
                 ...normalizeSlot(slots.menu && slots.menu()),
                 ...menuExtensions.value
             ];
-            const toolbarEntries = [
-                ...items.slice(0, shown.value),
-                ...(menuEntries.length ? [h(Menu, { ref: "more", class: "overflow-menu" }, menuEntries)] : []),
-                ...items.slice(shown.value)
-            ];
+            const buttonContentSlot = slots?.["menu-button"] ? () => slots["menu-button"]() : null;
+            const menuButtonOptions = {
+                class: "overflow-menu",
+                props: { icon: props.menuIcon, noCaret: !props.menuWithCaret },
+                scopedSlots: {
+                    "menu-button": buttonContentSlot
+                }
+            };
+            const menuButton = menuEntries.length ? [h(BmToolbarMenuButton, menuButtonOptions, menuEntries)] : [];
+            const toolbarEntries = [...items.slice(0, shown.value), ...menuButton, ...items.slice(shown.value)];
             const classes = menuEntries.length ? "bm-toolbar overflow" : "bm-toolbar";
 
             return h(
-                Toolbar,
+                BmToolbarInternal,
                 {
                     class: classes,
                     directives: [{ name: "overflown-elements" }],
