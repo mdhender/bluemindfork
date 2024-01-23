@@ -143,7 +143,7 @@
 </template>
 
 <script>
-import Contact from "./Contact";
+import { EmailExtractor } from "@bluemind/email";
 import {
     BmContactInputAutocompleteExtra,
     BmContactInputAutocompleteItem,
@@ -153,6 +153,7 @@ import {
     MakeUniq,
     OverflownElements
 } from "@bluemind/ui-components";
+import Contact from "./Contact";
 
 let key = 0;
 
@@ -234,17 +235,7 @@ export default {
                 const model = this.contacts_,
                     input = this.contacts;
                 if (input.length !== model.length || input.some((contact, i) => !sameContact(model[i], contact))) {
-                    this.$emit(
-                        "update:contacts",
-                        model.map(c => {
-                            const contact = { ...c };
-                            delete contact.edit;
-                            delete contact.hasBeenEdited;
-                            delete contact.input;
-                            delete contact.selected;
-                            return contact;
-                        })
-                    );
+                    this.$emit("update:contacts", normalizeContacts(model));
                 }
                 const editedContact = model.find(contact => contact.edit);
                 if (editedContact !== undefined) {
@@ -270,11 +261,17 @@ export default {
                 }
             }
         },
-        value() {
-            if (this.value !== "") {
-                this.showAutocomplete(true);
+        value(value) {
+            const values = EmailExtractor.extractEmails(this.value);
+            if (values.length) {
+                this.$emit("update:contacts", normalizeContacts(this.contacts_).concat(values));
+                this.$nextTick(() => (this.value = ""));
+            } else {
+                if (this.value !== "") {
+                    this.showAutocomplete(true);
+                }
+                this.$emit("search", this.value);
             }
-            this.$emit("search", this.value);
         }
     },
     created() {
@@ -503,6 +500,17 @@ function sameContact(c1, c2) {
 
 function isVisible(element) {
     return element && element.offsetWidth && element.offsetHeight && element.getClientRects().length;
+}
+
+function normalizeContacts(contacts) {
+    return contacts.map(c => {
+        const contact = { ...c };
+        delete contact.edit;
+        delete contact.hasBeenEdited;
+        delete contact.input;
+        delete contact.selected;
+        return contact;
+    });
 }
 </script>
 
