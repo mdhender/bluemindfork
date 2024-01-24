@@ -290,9 +290,7 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		FolderTree fullTree = FolderTree.of(all());
 		List<ItemValue<MailboxFolder>> children = fullTree.children(toClean);
 		Collections.reverse(children);
-		IDbByContainerReplicatedMailboxes writeDelegate = context.provider()
-				.instance(IDbByContainerReplicatedMailboxes.class, container.uid);
-		children.forEach(child -> writeDelegate.delete(child.uid));
+		children.forEach(child -> deleteById(child.internalId));
 	}
 
 	@Override
