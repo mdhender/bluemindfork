@@ -35,6 +35,7 @@ import net.bluemind.delivery.lmtp.common.LmtpAddress;
 import net.bluemind.delivery.lmtp.common.ResolvedBox;
 import net.bluemind.delivery.lmtp.filters.PermissionDeniedException.MailboxInvitationDeniedException;
 import net.bluemind.domain.api.Domain;
+import net.bluemind.icalendar.api.ICalendarElement.Classification;
 import net.bluemind.imip.parser.IMIPInfos;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.user.api.IUser;
@@ -83,6 +84,7 @@ public class EventCancelHandler extends CancelHandler implements IIMIPHandler {
 				logger.warn("BM VEvent with event uid {} not found in calendar {}", imip.uid, calUid);
 				return IMIPResponse.createEmptyResponse();
 			}
+
 			if (null == series.main) {
 				List<VEventOccurrence> occurrences = series.occurrences;
 
@@ -124,10 +126,12 @@ public class EventCancelHandler extends CancelHandler implements IIMIPHandler {
 			}
 
 			if (imipMessageContainsASingleException(series)) {
-				return IMIPResponse.createCanceledExceptionResponse(imip.uid, series.occurrences.get(0).recurid.iso8601,
-						calUid);
+				VEventOccurrence vEventOccurrence = series.occurrences.get(0);
+				return IMIPResponse.createCanceledExceptionResponse(imip.uid, vEventOccurrence.recurid.iso8601, calUid,
+						vEventOccurrence.classification == Classification.Private);
 			} else {
-				return IMIPResponse.createCanceledResponse(imip.uid, calUid);
+				return IMIPResponse.createCanceledResponse(imip.uid, calUid,
+						series.flatten().get(0).classification == Classification.Private);
 			}
 		} catch (Exception e) {
 			throw e;

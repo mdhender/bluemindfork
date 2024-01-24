@@ -36,6 +36,7 @@ import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.helper.mail.MeetingUpdateDiff;
 import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
+import net.bluemind.icalendar.api.ICalendarElement.Classification;
 
 public class IMIPResponse {
 
@@ -44,27 +45,30 @@ public class IMIPResponse {
 	private static final String EVENT_HEADER = "X-BM-Event";
 	private static final String TODO_HEADER = "X-BM-Todo";
 	private static final String CAL_HEADER = "X-BM-Calendar";
+	private static final String PRIVATE_CAL_HEADER = "X-BM-Event-Private";
 
-	public static IMIPResponse createCanceledResponse(String itemUid, String calendarUid) {
+	public static IMIPResponse createCanceledResponse(String itemUid, String calendarUid, boolean isPrivate) {
 		StringBuilder eventIcsUid = new StringBuilder(itemUid);
-		return getCancelHeader(eventIcsUid, calendarUid);
+		return getCancelHeader(eventIcsUid, calendarUid, isPrivate);
 	}
 
-	public static IMIPResponse createCanceledExceptionResponse(String uid, String iso8601, String calendarUid) {
+	public static IMIPResponse createCanceledExceptionResponse(String uid, String iso8601, String calendarUid,
+			boolean isPrivate) {
 		StringBuilder eventIcsUid = new StringBuilder(uid);
 		eventIcsUid.append("; recurid=\"" + iso8601 + "\"");
-		return getCancelHeader(eventIcsUid, calendarUid);
+		return getCancelHeader(eventIcsUid, calendarUid, isPrivate);
 	}
 
-	public static IMIPResponse createRepliedResponse(String itemUid, String calendarUid) {
+	public static IMIPResponse createRepliedResponse(String itemUid, String calendarUid, boolean isPrivate) {
 		StringBuilder eventIcsUid = new StringBuilder(itemUid);
-		return getReplyHeader(eventIcsUid, calendarUid);
+		return getReplyHeader(eventIcsUid, calendarUid, isPrivate);
 	}
 
-	public static IMIPResponse createRepliedToExceptionResponse(String itemUid, String iso8601, String calendarUid) {
+	public static IMIPResponse createRepliedToExceptionResponse(String itemUid, String iso8601, String calendarUid,
+			boolean isPrivate) {
 		StringBuilder eventIcsUid = new StringBuilder(itemUid);
 		eventIcsUid.append("; recurid=\"" + iso8601 + "\"");
-		return getReplyHeader(eventIcsUid, calendarUid);
+		return getReplyHeader(eventIcsUid, calendarUid, isPrivate);
 	}
 
 	public static IMIPResponse createCounterResponse(String itemUid, String email, VEventOccurrence counterEvent,
@@ -79,8 +83,8 @@ public class IMIPResponse {
 		}
 
 		RawField rf = new RawField("X-BM-Event-Countered", eventIcsUid.toString());
-		UnstructuredField bmExtId = UnstructuredFieldImpl.PARSER.parse(rf, DecodeMonitor.SILENT);
-		ret.headerFields = Arrays.asList(bmExtId, getImipHeader(calendarUid));
+		UnstructuredField bmIcsUid = UnstructuredFieldImpl.PARSER.parse(rf, DecodeMonitor.SILENT);
+		prepareXBMHeaders(ret, bmIcsUid, calendarUid, counterEvent.classification == Classification.Private);
 
 		if (!proposedAttendees.isEmpty()) {
 			ret.headerFields = new ArrayList<>(ret.headerFields);
@@ -95,7 +99,8 @@ public class IMIPResponse {
 		return ret;
 	}
 
-	public static IMIPResponse createDeclineCounterResponse(String itemUid, String calendarUid, String recurid) {
+	public static IMIPResponse createDeclineCounterResponse(String itemUid, String calendarUid, String recurid,
+			boolean isPrivate) {
 		IMIPResponse ret = new IMIPResponse();
 
 		StringBuilder eventIcsUid = new StringBuilder(itemUid);
@@ -104,8 +109,8 @@ public class IMIPResponse {
 		}
 
 		RawField rf = new RawField("X-BM-Counter-Declined", eventIcsUid.toString());
-		UnstructuredField bmExtId = UnstructuredFieldImpl.PARSER.parse(rf, DecodeMonitor.SILENT);
-		ret.headerFields = Arrays.asList(bmExtId, getImipHeader(calendarUid));
+		UnstructuredField bmIcsUid = UnstructuredFieldImpl.PARSER.parse(rf, DecodeMonitor.SILENT);
+		prepareXBMHeaders(ret, bmIcsUid, calendarUid, isPrivate);
 
 		return ret;
 	}
@@ -116,23 +121,25 @@ public class IMIPResponse {
 		Map<String, String> att = (diff == null) ? Collections.emptyMap() : diff.toMap();
 		UnstructuredField bmEventHeader = createNeedResponseHeader(EVENT_HEADER, itemUid, calElement, needResponse,
 				att);
-		ret.headerFields = Arrays.asList(bmEventHeader, getImipHeader(calendarUid));
+		prepareXBMHeaders(ret, bmEventHeader, calendarUid, calElement.classification == Classification.Private);
+
 		return ret;
 	}
 
-	private static IMIPResponse getCancelHeader(StringBuilder value, String calendarUid) {
+	private static IMIPResponse getCancelHeader(StringBuilder value, String calendarUid, boolean isPrivate) {
 		IMIPResponse ret = new IMIPResponse();
 		RawField rf = new RawField("X-BM-Event-Canceled", value.toString());
 		UnstructuredField bmExtId = UnstructuredFieldImpl.PARSER.parse(rf, DecodeMonitor.SILENT);
-		ret.headerFields = Arrays.asList(bmExtId, getImipHeader(calendarUid));
+		prepareXBMHeaders(ret, bmExtId, calendarUid, isPrivate);
+
 		return ret;
 	}
 
-	private static IMIPResponse getReplyHeader(StringBuilder value, String calendarUid) {
+	private static IMIPResponse getReplyHeader(StringBuilder value, String calendarUid, boolean isPrivate) {
 		IMIPResponse ret = new IMIPResponse();
 		RawField rf = new RawField("X-BM-Event-Replied", value.toString());
 		UnstructuredField bmExtId = UnstructuredFieldImpl.PARSER.parse(rf, DecodeMonitor.SILENT);
-		ret.headerFields = Arrays.asList(bmExtId, getImipHeader(calendarUid));
+		prepareXBMHeaders(ret, bmExtId, calendarUid, isPrivate);
 		return ret;
 	}
 
@@ -144,9 +151,24 @@ public class IMIPResponse {
 		return ret;
 	}
 
+	private static void prepareXBMHeaders(IMIPResponse ret, UnstructuredField rf, String calUid, boolean isPrivate) {
+		if (ret.headerFields == null) {
+			ret.headerFields = new ArrayList<>();
+		}
+	
+		ret.headerFields.add(rf);
+		ret.headerFields.add(getImipHeader(calUid));
+		if (isPrivate) {
+			ret.headerFields.add(getPrivateEventHeader());
+		}
+	}
+
 	private static UnstructuredField getImipHeader(String uid) {
-		RawField rf = new RawField(CAL_HEADER, uid);
-		return UnstructuredFieldImpl.PARSER.parse(rf, DecodeMonitor.SILENT);
+		return UnstructuredFieldImpl.PARSER.parse(new RawField(CAL_HEADER, uid), DecodeMonitor.SILENT);
+	}
+
+	private static UnstructuredField getPrivateEventHeader() {
+		return UnstructuredFieldImpl.PARSER.parse(new RawField(PRIVATE_CAL_HEADER, "true"), DecodeMonitor.SILENT);
 	}
 
 	private static UnstructuredField createNeedResponseHeader(String header, String itemUid,

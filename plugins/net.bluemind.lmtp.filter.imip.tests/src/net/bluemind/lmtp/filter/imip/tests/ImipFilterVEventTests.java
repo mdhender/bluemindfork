@@ -499,7 +499,7 @@ public class ImipFilterVEventTests {
 	public void testRequestHandlerEventHeader() throws Exception {
 		IIMIPHandler handler = new FakeEventRequestHandlerFactory().create();
 
-		ItemValue<VEvent> event = defaultVEvent();
+		ItemValue<VEvent> event = defaultPrivateVEvent();
 		IMIPInfos imip = imip(ITIPMethod.REQUEST, defaultExternalSenderVCard(), event.uid);
 
 		imip.iCalendarElements = Arrays.asList(event.value);
@@ -509,18 +509,12 @@ public class ImipFilterVEventTests {
 		String calendarUid = ICalendarUids.defaultUserCalendar(user1Mailbox.uid);
 
 		List<Field> headerFields = response.headerFields;
-		boolean checked = false;
-		for (Field f : headerFields) {
-			if (f.getName().equalsIgnoreCase("X-BM-EVENT")) {
-				checked = true;
-				assertEquals(String.format("%s; rsvp=\"true\"", event.uid), f.getBody());
-			}
-			if (f.getName().equalsIgnoreCase("X-BM-Calendar")) {
-				checked = true;
-                assertEquals(calendarUid, f.getBody());
-			}
-		}
-		assertTrue(checked);
+		assertTrue(headerFields.stream().anyMatch(f -> f.getName().equalsIgnoreCase("X-BM-EVENT")
+				&& String.format("%s; rsvp=\"true\"", event.uid).equals(f.getBody())));
+		assertTrue(headerFields.stream()
+				.anyMatch(f -> f.getName().equalsIgnoreCase("X-BM-Calendar") && calendarUid.equals(f.getBody())));
+		assertTrue(headerFields.stream().anyMatch(
+				f -> f.getName().equalsIgnoreCase("X-BM-Event-Private") && f.getBody().toString().equals("true")));
 	}
 
 	@Test
@@ -559,12 +553,12 @@ public class ImipFilterVEventTests {
 		ResolvedBox recipient = EnvelopeBuilder.lookupEmail("user1@domain.lan");
 		IIMIPHandler handler = new FakeEventRequestHandlerFactory().create();
 
-		ItemValue<VEvent> master = defaultVEvent();
+		ItemValue<VEvent> master = defaultPrivateVEvent();
 		IMIPInfos imip = imip(ITIPMethod.REQUEST, defaultExternalSenderVCard(), master.uid);
 		imip.iCalendarElements = Arrays.asList(master.value);
 		handler.handle(imip, recipient, domain, user1Mailbox);
 
-		ItemValue<VEvent> event = defaultVEvent();
+		ItemValue<VEvent> event = defaultPrivateVEvent();
 		event.uid = master.uid;
 		imip = imip(ITIPMethod.REQUEST, defaultExternalSenderVCard(), event.uid);
 
@@ -583,17 +577,19 @@ public class ImipFilterVEventTests {
 				checked = true;
 				long start = new BmDateTimeWrapper(occurrence.dtstart).toDate().getTime();
 				long end = new BmDateTimeWrapper(occurrence.dtend).toDate().getTime();
-				String expected = String.format("%s; recurid=\"%s\"; rsvp=\"true\"; loc=\"%s\"; std=\"%s\"; major=\"false\"; end=\"%s\"; seq=\"%s\"", 
+				String expected = String.format(
+						"%s; recurid=\"%s\"; rsvp=\"true\"; loc=\"%s\"; std=\"%s\"; major=\"false\"; end=\"%s\"; seq=\"%s\"",
 						event.uid, now.iso8601, occurrence.location, start, end, occurrence.sequence);
 				assertEquals(expected, f.getBody());
 			}
-			
-			if (f.getName().equalsIgnoreCase("X-BM-Calendar")) {
-				checked = true;
-                assertEquals(calendarUid, f.getBody());
-			}
 		}
 		assertTrue(checked);
+
+		assertTrue(headerFields.stream()
+				.anyMatch(f -> f.getName().equalsIgnoreCase("X-BM-Calendar") && calendarUid.equals(f.getBody())));
+		assertTrue(headerFields.stream().anyMatch(
+				f -> f.getName().equalsIgnoreCase("X-BM-Event-Private") && f.getBody().toString().equals("true")));
+
 	}
 
 	@Test
@@ -1135,7 +1131,7 @@ public class ImipFilterVEventTests {
 	public void replyHandler() throws Exception {
 		IIMIPHandler handler = new FakeEventRequestHandlerFactory().create();
 
-		ItemValue<VEvent> event = defaultVEvent();
+		ItemValue<VEvent> event = defaultPrivateVEvent();
 		IMIPInfos imip = imip(ITIPMethod.REQUEST, defaultExternalSenderVCard(), event.uid);
 
 		imip.iCalendarElements = Arrays.asList(event.value);
@@ -1165,6 +1161,7 @@ public class ImipFilterVEventTests {
 
 		assertTrue(response.headerFields.stream().anyMatch(f -> f.getName().equals("X-BM-Event-Replied")));
 		assertTrue(response.headerFields.stream().anyMatch(f -> f.getName().equals("X-BM-Calendar")));
+		assertTrue(response.headerFields.stream().anyMatch(f -> f.getName().equals("X-BM-Event-Private")));
 
 		evt = user1Calendar.getComplete(event.uid);
 		assertNotNull(evt);
@@ -1369,7 +1366,7 @@ public class ImipFilterVEventTests {
 		assertTrue(found);
 	}
 
-	private ItemValue<VEvent> defaultVEvent(String uid) {
+	private VEvent defaultVEvent(String uid, boolean isPrivate) {
 		VEvent event = new VEvent();
 		ZoneId tz = ZoneId.of("Asia/Ho_Chi_Minh");
 		event.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2022, 2, 13, 0, 0, 0, 0, tz), Precision.DateTime);
@@ -1378,7 +1375,7 @@ public class ImipFilterVEventTests {
 		event.location = "Toulouse";
 		event.description = "Lorem ipsum";
 		event.transparency = VEvent.Transparency.Opaque;
-		event.classification = VEvent.Classification.Public;
+		event.classification = isPrivate ? VEvent.Classification.Private : VEvent.Classification.Public;
 		event.status = VEvent.Status.Confirmed;
 		event.priority = 3;
 		event.organizer = new VEvent.Organizer("external@ext-domain.lan");
@@ -1398,11 +1395,21 @@ public class ImipFilterVEventTests {
 
 		event.attendees = attendees;
 
-		return ItemValue.create(uid, event);
+		return event;
+	}
+
+	private ItemValue<VEvent> defaultVEvent(String uid) {
+		return ItemValue.create(uid, defaultVEvent(uid, false));
 	}
 
 	protected ItemValue<VEvent> defaultVEvent() {
-		return defaultVEvent(UUID.randomUUID().toString());
+		String uid = UUID.randomUUID().toString();
+		return defaultVEvent(uid);
+	}
+
+	protected ItemValue<VEvent> defaultPrivateVEvent() {
+		String uid = UUID.randomUUID().toString();
+		return ItemValue.create(uid, defaultVEvent(uid, true));
 	}
 
 	private VCard defaultExternalSenderVCard() {

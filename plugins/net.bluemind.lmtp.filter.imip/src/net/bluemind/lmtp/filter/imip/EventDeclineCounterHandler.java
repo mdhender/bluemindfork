@@ -29,6 +29,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.delivery.lmtp.common.LmtpAddress;
 import net.bluemind.delivery.lmtp.common.ResolvedBox;
 import net.bluemind.domain.api.Domain;
+import net.bluemind.icalendar.api.ICalendarElement.Classification;
 import net.bluemind.imip.parser.IMIPInfos;
 import net.bluemind.mailbox.api.Mailbox;
 
@@ -64,7 +65,8 @@ public class EventDeclineCounterHandler extends AbstractLmtpHandler implements I
 
 		cal.update(currentSeries.uid, currentSeries.value, false);
 
-		return IMIPResponse.createDeclineCounterResponse(imip.uid, calUid, recId.equals("0") ? null : recId);
+		return IMIPResponse.createDeclineCounterResponse(imip.uid, calUid, recId.equals("0") ? null : recId,
+				counterEvent.classification == Classification.Private);
 	}
 
 }

@@ -40,6 +40,7 @@ import net.bluemind.delivery.lmtp.common.ResolvedBox;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
+import net.bluemind.icalendar.api.ICalendarElement.Classification;
 import net.bluemind.imip.parser.IMIPInfos;
 import net.bluemind.mailbox.api.Mailbox;
 
@@ -106,11 +107,14 @@ public class EventReplyHandler extends ReplyHandler implements IIMIPHandler {
 		}
 		logger.info("Updating event series {}", series.uid);
 		cal.update(series.uid, series.value, false);
+
 		if (imipMessageContainsASingleException(imipOccurrences)) {
-			return IMIPResponse.createRepliedToExceptionResponse(imip.uid, imipOccurrences.get(0).recurid.iso8601,
-					calUid);
+			VEventOccurrence vEventOccurrence = imipOccurrences.get(0);
+			return IMIPResponse.createRepliedToExceptionResponse(imip.uid, vEventOccurrence.recurid.iso8601, calUid,
+					vEventOccurrence.classification == Classification.Private);
 		} else {
-			return IMIPResponse.createRepliedResponse(imip.uid, calUid);
+			return IMIPResponse.createRepliedResponse(imip.uid, calUid,
+					series.value.main.classification == Classification.Private);
 		}
 	}
 
