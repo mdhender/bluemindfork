@@ -55,8 +55,12 @@ function getUploadedFiles(message) {
 }
 
 function isCorrectNode(fragment, node) {
-    const reply = fragment.querySelector(`#${MessageReplyAttributeSeparator}`);
-    const forward = fragment.querySelector(`#${MessageForwardAttributeSeparator}`);
+    const reply =
+        fragment.querySelector(`.${MessageReplyAttributeSeparator}`) ||
+        fragment.querySelector(`#${MessageReplyAttributeSeparator}`);
+    const forward =
+        fragment.querySelector(`.${MessageForwardAttributeSeparator}`) ||
+        fragment.querySelector(`#${MessageForwardAttributeSeparator}`);
     return !((reply && reply.contains(node)) || (forward && forward.contains(node)));
 }
 

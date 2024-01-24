@@ -1,5 +1,5 @@
 import sanitizeHtml from "../src/sanitizeHtml";
-import { preventStyleInvading, WRAPPER_ID, computeNewSelector, getStyleRules } from "../src/sanitizeHtml";
+import { preventStyleInvading, WRAPPER_CLASS, computeNewSelector, getStyleRules } from "../src/sanitizeHtml";
 
 describe("Sanitize HTML using the 'xss' library", () => {
     /** We want to keep more tags than those allowed by the 'xss' library. */
@@ -56,7 +56,7 @@ describe("Sanitize HTML using the 'xss' library", () => {
 });
 
 describe("Prevent style invading", () => {
-    const wrapperSelector = "#" + WRAPPER_ID;
+    const wrapperSelector = "." + WRAPPER_CLASS;
 
     test.skip("head and body styles are parsed to prevent style invading", () => {
         const headCssRule = " p {background-color: red;}";
@@ -71,7 +71,7 @@ describe("Prevent style invading", () => {
             </html>`;
 
         const expected =
-            `<div id="${WRAPPER_ID}">
+            `<div class="${WRAPPER_CLASS}">
             <style>\n` +
             wrapperSelector +
             headCssRule +

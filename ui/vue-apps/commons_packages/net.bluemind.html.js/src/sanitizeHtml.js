@@ -135,7 +135,7 @@ function hasAllowedProtocol(url) {
 /**
  * WARNING: this is an internal const, it's exported just for testing purpose
  */
-export const WRAPPER_ID = "bm-composer-content-wrapper";
+export const WRAPPER_CLASS = "bm-composer-content-wrapper";
 
 /**
  * WARNING: this is an internal method, it's exported just for testing purpose
@@ -146,7 +146,7 @@ export function preventStyleInvading(html) {
     const styleRules = getStyleRules(tmpDoc);
 
     const rootDiv = tmpDoc.createElement("div");
-    rootDiv.id = WRAPPER_ID;
+    rootDiv.classList.add(WRAPPER_CLASS);
     rootDiv.innerHTML = tmpDoc.body.innerHTML;
 
     const rootDivStyleTags = rootDiv.getElementsByTagName("style");
@@ -198,6 +198,6 @@ export function computeNewSelector(selectorText) {
     let selectors = selectorText.split(",");
     return selectors
         .map(selector => selector.trim().replace(/^([\s>+~]*(html|body)(\.[^\s>]*)?[\s]*)*/g, ""))
-        .map(selector => "#" + WRAPPER_ID + " " + selector)
+        .map(selector => "." + WRAPPER_CLASS + " " + selector)
         .join(",");
 }

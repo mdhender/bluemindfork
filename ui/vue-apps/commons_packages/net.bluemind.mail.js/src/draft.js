@@ -268,6 +268,8 @@ export function getEditorContent(userPrefTextOnly, parts, partsByMessageKey, use
 // TODO move elsewhere
 export function findReplyOrForwardContentNode(document) {
     return (
+        document.querySelector('div[class*="' + MessageReplyAttributeSeparator + '"]') ||
+        document.querySelector('div[class*="' + MessageForwardAttributeSeparator + '"]') ||
         document.querySelector('div[id="' + MessageReplyAttributeSeparator + '"]') ||
         document.querySelector('div[id="' + MessageForwardAttributeSeparator + '"]')
     );
@@ -322,8 +324,11 @@ export function quotePreviousMessage(previousMessageContent, previousMessage, cr
     let quote = header + quotedContent;
 
     if (!userPrefTextOnly) {
-        const id = MessageCreationModes.FORWARD ? MessageForwardAttributeSeparator : MessageReplyAttributeSeparator;
-        quote = `<div id="${id}">${removeSignatureAttr(quote)}</div>`;
+        const className =
+            creationMode === MessageCreationModes.FORWARD
+                ? MessageForwardAttributeSeparator
+                : MessageReplyAttributeSeparator;
+        quote = `<div class="${className}">${removeSignatureAttr(quote)}</div>`;
     }
     return (userPrefTextOnly ? "\n" : "<br>") + quote;
 }

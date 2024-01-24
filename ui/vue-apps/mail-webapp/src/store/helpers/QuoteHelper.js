@@ -52,7 +52,7 @@ function findReplyOrForwardContentNodesNotInsideBlockquote(htmlDoc) {
     // xpath example: //*[(@id="data-bm-reply-separator" or @id="data-bm-forward-separator" or contains(class,"data-bm-reply-separator") or contains(class,"data-bm-forward-separator")) and not(ancestor::blockquote)]
     const sepIdXpath = SEP_IDS.length ? SEP_IDS.map(sid => '@id="' + sid + '"').join(" or ") : "";
     const sepClassXpath = SEP_CLASSES.length
-        ? " or " + SEP_CLASSES.map(sc => 'contains(class,"' + sc + '")').join(" or ")
+        ? " or " + SEP_CLASSES.map(sc => 'contains(@class,"' + sc + '")').join(" or ")
         : "";
     const xpath = `//*[(${sepIdXpath}${sepClassXpath}) and not(ancestor::blockquote)]`;
     const xpathResult = htmlDoc?.evaluate(xpath, htmlDoc.body, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
