@@ -165,7 +165,7 @@ public class UserManagerImpl extends UserManager {
 
 	@Override
 	protected List<String> getEmails() {
-		return getAttributesValues(entry, LDAP_MAIL);
+		return getAttributesValues(entry, LDAP_MAIL).map(String::toLowerCase).toList();
 	}
 
 	@Override

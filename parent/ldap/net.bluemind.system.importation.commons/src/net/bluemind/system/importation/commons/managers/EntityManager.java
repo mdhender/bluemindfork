@@ -18,12 +18,14 @@
   */
 package net.bluemind.system.importation.commons.managers;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -35,7 +37,7 @@ import net.bluemind.domain.api.Domain;
 public abstract class EntityManager {
 	public final ItemValue<Domain> domain;
 
-	public EntityManager(ItemValue<Domain> domain) {
+	protected EntityManager(ItemValue<Domain> domain) {
 		this.domain = domain;
 	}
 
@@ -46,27 +48,9 @@ public abstract class EntityManager {
 		return domainAliases;
 	}
 
-	protected List<String> getAttributesValues(Entry entry, String[] attrs) {
-		List<String> attrsValues = new ArrayList<>();
-
-		for (String adMailAttr : attrs) {
-			Attribute mailAttr = entry.get(adMailAttr);
-			if (mailAttr == null) {
-				continue;
-			}
-
-			Iterator<Value> adIterator = mailAttr.iterator();
-			while (adIterator.hasNext()) {
-				String userEmail = adIterator.next().getString().trim().toLowerCase();
-				if (userEmail.isEmpty()) {
-					continue;
-				}
-
-				attrsValues.add(userEmail);
-			}
-		}
-
-		return attrsValues;
+	protected Stream<String> getAttributesValues(Entry entry, String[] attrs) {
+		return Arrays.stream(attrs).map(entry::get).filter(Objects::nonNull)
+				.flatMap(attrValues -> StreamSupport.stream(attrValues.spliterator(), false)).map(Value::getString).map(String::trim);
 	}
 
 	/**

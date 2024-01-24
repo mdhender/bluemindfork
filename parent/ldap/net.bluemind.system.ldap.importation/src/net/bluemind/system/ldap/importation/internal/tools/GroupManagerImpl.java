@@ -76,7 +76,7 @@ public class GroupManagerImpl extends GroupManager {
 
 	@Override
 	protected List<String> getEmails() {
-		return getAttributesValues(entry, LDAP_MAIL);
+		return getAttributesValues(entry, LDAP_MAIL).map(String::toLowerCase).toList();
 	}
 
 	@Override
