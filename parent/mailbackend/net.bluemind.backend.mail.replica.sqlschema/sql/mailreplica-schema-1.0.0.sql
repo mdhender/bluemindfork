@@ -437,7 +437,7 @@ BEGIN
         IF TG_OP = 'INSERT' OR TG_OP = 'UPDATE' THEN
             -- we want to add to the queue expunged messages
             INSERT INTO q_mailbox_record_expunged (container_id, subtree_id, item_id, imap_uid, created) 
-            VALUES (NEW.container_id, NEW.subtree_id, NEW.item_id, NEW.imap_uid, NEW.last_updated)
+            VALUES (NEW.container_id, NEW.subtree_id, NEW.item_id, NEW.imap_uid, now())
             -- do nothing on conflict because a message can be expunge only once
             ON CONFLICT(subtree_id, item_id) DO NOTHING;
             RETURN NEW;
