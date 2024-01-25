@@ -154,8 +154,8 @@
                   </span>
                   <div class="{css goog-zippy-content}">
                     <div id="bm-ui-form-videoconferencing-desc">
-                      {if $event.conferenceDescription}
-                        {$event.conferenceDescription}
+                      {if $event.conferenceDescription.raw}
+                        {$event.conferenceDescription.sanitized}
                       {/if}
                     </div>
                   </div>

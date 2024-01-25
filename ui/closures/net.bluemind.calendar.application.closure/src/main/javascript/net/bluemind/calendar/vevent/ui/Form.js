@@ -1876,7 +1876,7 @@ net.bluemind.calendar.vevent.ui.Form.prototype.addOrRemoveVideoConferencingAddFu
     this.getModel().conference = res['conference'];
     this.getModel().conferenceId = res['conferenceId'];
     this.getModel().conferenceConfiguration = res['conferenceConfiguration'];
-    adaptor = new net.bluemind.calendar.vevent.VEventAdaptor(this.ctx);
+    this.adaptor.setDescription(this.getModel(), res.description.trim());
     this.editor_.setValue(this.getModel().description.sanitized);
     this.showConferenceData_();
   }, function(e) {
@@ -1897,7 +1897,7 @@ net.bluemind.calendar.vevent.ui.Form.prototype.addOrRemoveVideoConferencingRemov
     this.ctx.service('videoConferencing').remove(occ).then(function(res) {
       this.getModel().conference = null;
       this.getModel().conferenceId = null;
-      this.getModel().conferenceDescription = '';
+      this.getModel().conferenceDescription = {raw: '', sanitized: ''};
       this.getModel().conferenceConfiguration = null;
       this.editor_.setValue(res.description);
 
@@ -2001,7 +2001,7 @@ net.bluemind.calendar.vevent.ui.Form.prototype.showConferenceData_ = function() 
   this.getDomHelper().getElement('bm-ui-form-videoconferencing-goto').style.display = 'block';
   this.getDomHelper().getElement('bm-ui-form-videoconferencing-url').href = this.getModel().conference;
   this.getDomHelper().getElement('bm-ui-form-videoconferencing-desc-container').style.display = 'block';
-  this.getDomHelper().getElement('bm-ui-form-videoconferencing-desc').innerHTML = this.getModel().conferenceDescription;
+  this.getDomHelper().getElement('bm-ui-form-videoconferencing-desc').innerHTML = this.getModel().conferenceDescription.sanitized;
   this.getDomHelper().getElement('bm-ui-form-videoconferencing-url-copy-value').value = this.getModel().conference;
 
   var roles = goog.global['bmcSessionInfos']['roles'].split(',');

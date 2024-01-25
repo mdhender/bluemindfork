@@ -289,8 +289,8 @@
                 <input type="text" value="{$event.conference}" id="bm-ui-popup-videoconferencing-url-copy-value"/>
 
                   <div id="bm-ui-form-videoconferencing-desc">
-                    {if $event.conferenceDescription}
-                      {$event.conferenceDescription}
+                    {if $event.conferenceDescription.raw}
+                      {$event.conferenceDescription.sanitized}
                     {/if}
                   </div>
 
@@ -459,8 +459,8 @@
                 <input type="text" value="{$event.conference}" id="bm-ui-popup-videoconferencing-url-copy-value"/>
 
                   <div id="bm-ui-form-videoconferencing-desc">
-                    {if $event.conferenceDescription}
-                      {$event.conferenceDescription}
+                    {if $event.conferenceDescription.raw}
+                      {$event.conferenceDescription.sanitized}
                     {/if}
                   </div>
 
