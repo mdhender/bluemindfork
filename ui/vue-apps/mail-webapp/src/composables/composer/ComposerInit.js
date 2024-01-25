@@ -1,5 +1,5 @@
 import { InlineImageHelper, MimeType } from "@bluemind/email";
-import { sanitizeHtml } from "@bluemind/html-utils";
+import { preventStyleInvading, removeDuplicatedIds, sanitizeHtml } from "@bluemind/html-utils";
 import { BmRichEditor } from "@bluemind/ui-components";
 import { draftUtils, loadingStatusUtils, messageUtils, partUtils } from "@bluemind/mail";
 import store from "@bluemind/store";
@@ -68,7 +68,9 @@ export function useComposerInit() {
                 message.remoteRef.imapUid
             );
             content = insertionResult.contentsWithImageInserted[0];
-            content = sanitizeHtml(content, true);
+            content = sanitizeHtml(content);
+            content = preventStyleInvading(content);
+            content = removeDuplicatedIds(content);
         }
 
         const editorData = handleSeparator(content);

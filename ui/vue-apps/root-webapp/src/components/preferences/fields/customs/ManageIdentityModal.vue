@@ -150,7 +150,7 @@ import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import { Verb } from "@bluemind/core.container.api";
 import { EmailValidator } from "@bluemind/email";
 import { signatureUtils, folderUtils } from "@bluemind/mail";
-import { sanitizeHtml } from "@bluemind/html-utils";
+import { removeDuplicatedIds, sanitizeHtml } from "@bluemind/html-utils";
 import { inject } from "@bluemind/inject";
 import BmRoles from "@bluemind/roles";
 import {
@@ -302,7 +302,7 @@ export default {
             this.show = false;
         },
         async add() {
-            this.identity.signature = sanitizeHtml(this.identity.signature);
+            this.identity.signature = removeDuplicatedIds(sanitizeHtml(this.identity.signature));
 
             const id = UUIDGenerator.generate();
             await inject("UserMailIdentitiesPersistence").create(id, this.identity);
@@ -319,7 +319,7 @@ export default {
             this.SUCCESS(SAVE_ALERT);
         },
         async save() {
-            this.identity.signature = sanitizeHtml(this.identity.signature);
+            this.identity.signature = removeDuplicatedIds(sanitizeHtml(this.identity.signature));
 
             await inject("UserMailIdentitiesPersistence").update(this.id, this.identity);
             if (!this.originalIdentity.isDefault && this.identity.isDefault) {

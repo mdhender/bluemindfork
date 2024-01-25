@@ -39,11 +39,11 @@ const WINDOWS_FILEPATH_PROTOCOL = "[a-z]";
 const ALLOWED_LINK_PROTOCOLS = ["http", "https", "mailto", "tel", "sip", "file", WINDOWS_FILEPATH_PROTOCOL];
 const LINK_REGEX = new RegExp(`^(${ALLOWED_LINK_PROTOCOLS.join("|")}):(.*)`, "i");
 
-export default function (html, avoidStyleInvading) {
-    if (avoidStyleInvading) {
-        html = preventStyleInvading(html);
-    }
+export default function (html) {
+    return sanitizeXSS(html);
+}
 
+function sanitizeXSS(html) {
     const customWhiteList = {
         ...xss.whiteList,
         ...ADDITIONAL_ALLOWED_TAGS
@@ -57,9 +57,7 @@ export default function (html, avoidStyleInvading) {
         onTagAttr: customOnTagAttr,
         safeAttrValue: customSafeAttrValue
     });
-    html = xssFilter.process(html);
-
-    return html;
+    return xssFilter.process(html);
 }
 
 function customOnIgnoreTagAttr(tag, name, value) {
@@ -130,74 +128,4 @@ function safeSipPath(tag, name, path) {
 
 function hasAllowedProtocol(url) {
     return ALLOWED_LINK_PROTOCOLS.map(p => new RegExp(`^${p}:`, "i").test(url)).reduce((a, b) => a || b);
-}
-
-/**
- * WARNING: this is an internal const, it's exported just for testing purpose
- */
-export const WRAPPER_CLASS = "bm-composer-content-wrapper";
-
-/**
- * WARNING: this is an internal method, it's exported just for testing purpose
- */
-export function preventStyleInvading(html) {
-    const tmpDoc = new DOMParser().parseFromString(html, "text/html");
-
-    const styleRules = getStyleRules(tmpDoc);
-
-    const rootDiv = tmpDoc.createElement("div");
-    rootDiv.classList.add(WRAPPER_CLASS);
-    rootDiv.innerHTML = tmpDoc.body.innerHTML;
-
-    const rootDivStyleTags = rootDiv.getElementsByTagName("style");
-    while (rootDivStyleTags.length > 0) {
-        rootDivStyleTags.item(0).remove();
-    }
-
-    const styleNode = document.createElement("style");
-    styleNode.innerHTML = styleRules;
-    rootDiv.appendChild(styleNode);
-
-    return rootDiv.outerHTML;
-}
-
-/**
- * WARNING: this is an internal method, it's exported just for testing purpose
- */
-export function getStyleRules(doc) {
-    let styleRules = "";
-    const styleTags = getStyleSheets(doc);
-    for (let tag of styleTags) {
-        for (let rule of tag.cssRules) {
-            if (rule.selectorText) {
-                rule.selectorText = computeNewSelector(rule.selectorText);
-                styleRules += "\n" + rule.cssText;
-            }
-        }
-    }
-    return styleRules;
-}
-
-function getStyleSheets(doc) {
-    let styleSheets = doc.styleSheets;
-    if (!styleSheets?.length) {
-        const headStyle = [...doc.head.children].find(c => c.tagName === "STYLE")?.textContent;
-        if (headStyle) {
-            const cssStyleSheet = new CSSStyleSheet();
-            cssStyleSheet.replaceSync(headStyle);
-            styleSheets = [cssStyleSheet];
-        }
-    }
-    return styleSheets;
-}
-
-/**
- * WARNING: this is an internal method, it's exported just for testing purpose
- */
-export function computeNewSelector(selectorText) {
-    let selectors = selectorText.split(",");
-    return selectors
-        .map(selector => selector.trim().replace(/^([\s>+~]*(html|body)(\.[^\s>]*)?[\s]*)*/g, ""))
-        .map(selector => "." + WRAPPER_CLASS + " " + selector)
-        .join(",");
 }

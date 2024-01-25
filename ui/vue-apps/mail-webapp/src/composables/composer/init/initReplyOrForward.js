@@ -2,7 +2,7 @@ import { computed } from "vue";
 import { BmRichEditor } from "@bluemind/ui-components";
 import { MimeType, InlineImageHelper } from "@bluemind/email";
 import { messageUtils, draftUtils, partUtils } from "@bluemind/mail";
-import { sanitizeHtml } from "@bluemind/html-utils";
+import { preventStyleInvading, removeDuplicatedIds, sanitizeHtml } from "@bluemind/html-utils";
 import store from "@bluemind/store";
 import { getIdentityForReplyOrForward, setFrom } from "../ComposerFrom";
 import { buildForwardStructure, buildReplyStructure } from "./initStructure";
@@ -108,7 +108,9 @@ async function createEditorContent(creationMode, userPrefTextOnly, previousMessa
             partsByMessageKey.value[previousMessage.key]
         );
         contentFromPreviousMessage = insertionResult.contentsWithImageInserted[0];
-        contentFromPreviousMessage = sanitizeHtml(contentFromPreviousMessage, true);
+        contentFromPreviousMessage = sanitizeHtml(contentFromPreviousMessage);
+        contentFromPreviousMessage = preventStyleInvading(contentFromPreviousMessage);
+        contentFromPreviousMessage = removeDuplicatedIds(contentFromPreviousMessage);
     }
     const collapsed = quotePreviousMessage(contentFromPreviousMessage, previousMessage, creationMode, userPrefTextOnly);
     store.commit(`mail/${SET_DRAFT_COLLAPSED_CONTENT}`, collapsed);

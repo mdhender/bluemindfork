@@ -1,7 +1,7 @@
 import { loadingStatusUtils } from "@bluemind/mail";
 import { DateComparator, WeekDayCodes } from "@bluemind/date";
 import i18n, { WeekDay } from "@bluemind/i18n";
-import { sanitizeHtml } from "@bluemind/html-utils";
+import { preventStyleInvading, sanitizeHtml } from "@bluemind/html-utils";
 import { ICalendarElement } from "@bluemind/icalendar.api";
 const { LoadingStatus } = loadingStatusUtils;
 
@@ -26,7 +26,7 @@ export default {
             recuridIsoDate,
             uid: event.uid,
             serverEvent: event,
-            sanitizedDescription: infos.description ? sanitizeHtml(infos.description, true) : undefined,
+            sanitizedDescription: infos.description ? preventStyleInvading(sanitizeHtml(infos.description)) : undefined,
             counter: adaptCounter(event, originator, recuridIsoDate),
             loading: LoadingStatus.LOADED,
             location: infos.location,

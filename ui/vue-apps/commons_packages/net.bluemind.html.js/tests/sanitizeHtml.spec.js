@@ -1,5 +1,4 @@
 import sanitizeHtml from "../src/sanitizeHtml";
-import { preventStyleInvading, WRAPPER_CLASS, computeNewSelector, getStyleRules } from "../src/sanitizeHtml";
 
 describe("Sanitize HTML using the 'xss' library", () => {
     /** We want to keep more tags than those allowed by the 'xss' library. */
@@ -33,148 +32,100 @@ describe("Sanitize HTML using the 'xss' library", () => {
     });
     /** We do more filtering than the 'xss' library to links URLs.  */
     test("Link having no protocol is rejected", () => {
-        const url = '<a href="ta/ta/yoyo">linkDisplay</a>';
-        expect(sanitizeHtml(url)).toEqual("<a>linkDisplay</a>");
+        const html = '<a href="ta/ta/yoyo">linkDisplay</a>';
+        expect(sanitizeHtml(html)).toEqual("<a>linkDisplay</a>");
     });
     test("Link having a forbidden protocol is rejected", () => {
-        const url = '<a href="proctocol://ta/ta/yoyo">linkDisplay</a>';
-        expect(sanitizeHtml(url)).toEqual("<a>linkDisplay</a>");
+        const html = '<a href="proctocol://ta/ta/yoyo">linkDisplay</a>';
+        expect(sanitizeHtml(html)).toEqual("<a>linkDisplay</a>");
     });
     test("Link having an allowed protocol is kept", () => {
-        const url = '<a href="https://ta/ta/yoyo">linkDisplay</a>';
-        expect(sanitizeHtml(url)).toEqual(url);
+        const html = '<a href="https://ta/ta/yoyo">linkDisplay</a>';
+        expect(sanitizeHtml(html)).toEqual(html);
     });
     test("Link having an allowed protocol but a wrong case is fixed", () => {
-        const url = '<a href="hTtpS://ta/ta/yoyo">linkDisplay</a>';
-        const fixedUrl = '<a href="https://ta/ta/yoyo">linkDisplay</a>';
-        expect(sanitizeHtml(url)).toEqual(fixedUrl);
+        const html = '<a href="hTtpS://ta/ta/yoyo">linkDisplay</a>';
+        const fixedHtml = '<a href="https://ta/ta/yoyo">linkDisplay</a>';
+        expect(sanitizeHtml(html)).toEqual(fixedHtml);
     });
     test("Image with blob source should be allowed", () => {
-        const url = '<img src="blob:https://webmail-test.loc/8aa75f30-e3e2-4d70-89ba-a8062b762b3e" />';
-        expect(sanitizeHtml(url)).toEqual(url);
+        const html = '<img src="blob:https://webmail-test.loc/8aa75f30-e3e2-4d70-89ba-a8062b762b3e">';
+        expect(sanitizeHtml(html)).toEqual(html);
     });
 });
 
-describe("Prevent style invading", () => {
-    const wrapperSelector = "." + WRAPPER_CLASS;
+describe("Sanitize HTML (other features than XSS preventing)", () => {
+    test("Duplicated ids are removed", () => {
+        const html = `<div id="AAA">
+    <div id="AAA">
+        <div id="AAA">
+            <div id="CCC">
+            </div>
+        </div>
+    </div>
+</div>
+<div id="BBB">
+    <div id="AAA">
+        <div id="BBB">
+            <div id="AAA">
+                <div id="BBB">
+                    <div id="CCC">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="CCC">
+    <div id="BBB">
+        <div id="AAA">
+            <div id="BBB">
+                <div id="AAA">
+                    <div id="BBB">
+                        <div id="CCC">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>`;
 
-    test.skip("head and body styles are parsed to prevent style invading", () => {
-        const headCssRule = " p {background-color: red;}";
-        const cssRule = " .maClasse {top: 0;}";
+        const expectedResult = `<div id="AAA">
+    <div>
+        <div>
+            <div id="CCC">
+            </div>
+        </div>
+    </div>
+</div>
+<div id="BBB">
+    <div>
+        <div>
+            <div>
+                <div>
+                    <div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div>
+    <div>
+        <div>
+            <div>
+                <div>
+                    <div>
+                        <div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>`;
 
-        const html = `
-            <html>
-                <head>
-                    <style>${headCssRule}</style>
-                </head>
-                <body><style>${cssRule}</style></body>
-            </html>`;
-
-        const expected =
-            `<div class="${WRAPPER_CLASS}">
-            <style>\n` +
-            wrapperSelector +
-            headCssRule +
-            "\n" +
-            wrapperSelector +
-            cssRule +
-            "</style></div>";
-        expect(preventStyleInvading(html)).toBe(expected);
-    });
-
-    test("classic selectors", () => {
-        expect(computeNewSelector(".maClasse")).toBe(wrapperSelector + " .maClasse");
-
-        expect(computeNewSelector(".maClasse, .anotherClass")).toBe(
-            wrapperSelector + " .maClasse," + wrapperSelector + " .anotherClass"
-        );
-        expect(computeNewSelector(".maClasse.anotherClass")).toBe(wrapperSelector + " .maClasse.anotherClass");
-        expect(computeNewSelector(".maClasse .anotherClass")).toBe(wrapperSelector + " .maClasse .anotherClass");
-
-        expect(computeNewSelector("div")).toBe(wrapperSelector + " div");
-
-        expect(computeNewSelector("img[src='truc']")).toBe(wrapperSelector + " img[src='truc']");
-
-        expect(computeNewSelector("*")).toBe(wrapperSelector + " *");
-    });
-
-    test("selectors containg 'body' or 'html'", () => {
-        expect(computeNewSelector("body")).toBe(wrapperSelector + " ");
-        expect(computeNewSelector("html")).toBe(wrapperSelector + " ");
-
-        expect(computeNewSelector(".bodyBuilder")).toBe(wrapperSelector + " .bodyBuilder");
-        expect(computeNewSelector(".htmlBuilder")).toBe(wrapperSelector + " .htmlBuilder");
-
-        expect(computeNewSelector("body .builder")).toBe(wrapperSelector + " .builder");
-        expect(computeNewSelector("html .builder")).toBe(wrapperSelector + " .builder");
-
-        expect(computeNewSelector("body.builder")).toBe(wrapperSelector + " ");
-        expect(computeNewSelector("html.builder")).toBe(wrapperSelector + " ");
-
-        expect(computeNewSelector("html.machin > body")).toBe(wrapperSelector + " ");
-        expect(computeNewSelector("html.machin>.maClasse")).toBe(wrapperSelector + " >.maClasse");
-
-        expect(computeNewSelector("body, .maClasse, body > .anotherClass")).toBe(
-            wrapperSelector + " ," + wrapperSelector + " .maClasse," + wrapperSelector + " > .anotherClass"
-        );
-    });
-
-    test.skip("@media and @font-face rules are not preserved", () => {
-        const cssRules = `<style>
-          
-          p {
-                font-family: "Lato";
-                font-style: normal;
-                font-weight: 400;
-                }
-            
-           
-            }
-        </style>`;
-        const html =
-            `
-            <html>
-                <head>` +
-            cssRules +
-            `</head>
-                <body><style> p { color: red;}</style>` +
-            cssRules +
-            `</body>
-            </html>
-        `;
-        const doc = new DOMParser().parseFromString(html, "text/html");
-        const result = getStyleRules(doc);
-        expect(result).not.toContain(cssRules);
-        expect(result).toBe("\n" + wrapperSelector + " p {color: red;}");
-    });
-
-    /**
-     * @jest-environment jsdom
-     */
-    test.skip("DOMParser getStyleSheets", () => {
-        const cssRules = `<style>
-            
-            div {
-                font-family: "Lato";
-                font-style: normal;
-                font-weight: 400;
-                }
-            
-        </style>`;
-        const html =
-            `
-            <html>
-                <head>` +
-            cssRules +
-            `</head>
-                <body><style> p { color: red;}</style>` +
-            cssRules +
-            `</body>
-            </html>
-        `;
-        const doc = new DOMParser().parseFromString(html, "text/html");
-        expect(doc.styleSheets).toEqual("");
-        const result = getStyleRules(doc);
-        expect(result).toEqual("");
+        expect(sanitizeHtml(html)).toEqual(expectedResult);
     });
 });

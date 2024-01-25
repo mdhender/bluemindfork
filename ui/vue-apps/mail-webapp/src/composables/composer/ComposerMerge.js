@@ -1,6 +1,6 @@
 import { computed, ref } from "vue";
 import { InlineImageHelper, MimeType } from "@bluemind/email";
-import { sanitizeHtml } from "@bluemind/html-utils";
+import { preventStyleInvading, removeDuplicatedIds, sanitizeHtml } from "@bluemind/html-utils";
 import { draftUtils, messageUtils, partUtils } from "@bluemind/mail";
 import store from "@bluemind/store";
 
@@ -42,7 +42,9 @@ export function useComposerMerge() {
                 partsWithCid,
                 partsByMessageKey.value[previousMessage.key]
             );
-            content = sanitizeHtml(result.contentsWithImageInserted[0], true);
+            content = sanitizeHtml(result.contentsWithImageInserted[0]);
+            content = preventStyleInvading(content);
+            content = removeDuplicatedIds(content);
         }
         store.dispatch(`mail/${SET_DRAFT_CONTENT}`, { html: content, draft: message });
     }
