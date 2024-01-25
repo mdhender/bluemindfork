@@ -149,7 +149,7 @@ describe("conversationList", () => {
             expect(state._removed).toEqual([3, 4]);
         });
 
-        test("SET_CONVERSATION_LIST", () => {
+        test("SET_CONVERSATION_LIST, remove obsolete keys from _keys and _removed", () => {
             state._keys = [1, 2, 3];
             state._removed = [2];
             storeOptions.mutations[SET_CONVERSATION_LIST](state, {
@@ -157,6 +157,15 @@ describe("conversationList", () => {
             });
             expect(state._keys).toEqual([3, 4, 5]);
             expect(state._removed).toEqual([]);
+        });
+        test("SET_CONVERSATION_LIST keep previous _removed keys", () => {
+            state._keys = [1, 2, 3];
+            state._removed = [2];
+            storeOptions.mutations[SET_CONVERSATION_LIST](state, {
+                conversations: [{ key: 3 }, { key: 4 }, { key: 5 }, { key: 2 }]
+            });
+            expect(state._keys).toEqual([3, 4, 5, 2]);
+            expect(state._removed).toEqual([2]);
         });
         test("SET_CONVERSATION_LIST_STATUS", () => {
             storeOptions.mutations[SET_CONVERSATION_LIST_STATUS](state, "AnyStatus");

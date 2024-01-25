@@ -80,7 +80,16 @@ const mutations = {
         state.currentPage = 0;
     },
     [SET_CONVERSATION_LIST]: (state, { conversations }) => {
-        state._keys = Array.from(new Set(conversations.map(({ key }) => key).concat(state._removed)));
+        const oldRemoved = new Set(state._removed);
+        state._keys = [];
+        state._removed = [];
+        conversations.forEach(conversation => {
+            const key = conversation.key;
+            state._keys.push(key);
+            if (oldRemoved.has(key)) {
+                state._removed.push(key);
+            }
+        });
     },
     [RESET_CONVERSATION_LIST]: state => {
         state._removed = [];
