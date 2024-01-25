@@ -109,6 +109,7 @@ export { default as BmToggle } from "./directives/BmToggle";
 export { default as BmToolbar } from "./components/BmToolbar/BmToolbar";
 export { default as BmToolbarButton } from "./components/BmToolbar/BmToolbarButton";
 export { default as BmToolbarButtonGroup } from "./components/BmToolbar/BmToolbarButtonGroup";
+export { default as BmToolbarDivider } from "./components/BmToolbar/BmToolbarDivider";
 export { default as BmToolbarIconButton } from "./components/BmToolbar/BmToolbarIconButton";
 export { default as BmToolbarIconDropdown } from "./components/BmToolbar/BmToolbarIconDropdown";
 export { default as BmToolbarToggle } from "./components/BmToolbar/BmToolbarToggle";

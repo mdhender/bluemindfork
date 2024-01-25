@@ -1,6 +1,6 @@
 <script>
 import { BmExtension, useExtensions } from "@bluemind/extensions.vue";
-import BmToolbarMenuButton from "./BmToolbarMenuButton";
+import BmToolbarMenu from "./BmToolbarMenu";
 import BmIconDropdown from "../dropdown/BmIconDropdown";
 import OverflownElements from "../../directives/OverflownElements";
 import { computed, h, ref, useAttrs, useListeners, useSlots } from "vue";
@@ -58,7 +58,7 @@ export default {
                     "menu-button": buttonContentSlot
                 }
             };
-            const menuButton = menuEntries.length ? [h(BmToolbarMenuButton, menuButtonOptions, menuEntries)] : [];
+            const menuButton = menuEntries.length ? [h(BmToolbarMenu, menuButtonOptions, menuEntries)] : [];
             const toolbarEntries = [...items.slice(0, shown.value), ...menuButton, ...items.slice(shown.value)];
             const classes = menuEntries.length ? "bm-toolbar overflow" : "bm-toolbar";
 
@@ -90,6 +90,15 @@ export default {
     }
     .overflow-menu {
         order: 999;
+    }
+
+    .dropdown-menu {
+        > li:first-child,
+        > li:last-child {
+            .dropdown-divider {
+                display: none;
+            }
+        }
     }
 }
 </style>
