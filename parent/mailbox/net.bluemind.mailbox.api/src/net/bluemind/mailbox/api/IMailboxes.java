@@ -13,6 +13,7 @@ import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
+import net.bluemind.mailbox.api.rules.DelegationRule;
 import net.bluemind.mailbox.api.rules.MailFilterRule;
 
 @BMApi(version = "3")
@@ -124,6 +125,15 @@ public interface IMailboxes {
 	@Path("{mailboxUid}/_rulesByClient")
 	List<MailFilterRule> getMailboxRulesByClient(@PathParam("mailboxUid") String mailboxUid,
 			@QueryParam("client") String client) throws ServerFault;
+
+	@POST
+	@Path("{mailboxUid}/_delegationRule")
+	public void setMailboxDelegationRule(@PathParam("mailboxUid") String mailboxUid, DelegationRule delegationRule)
+			throws ServerFault;
+
+	@GET
+	@Path("{mailboxUid}/_delegationRule")
+	DelegationRule getMailboxDelegationRule(@PathParam("mailboxUid") String mailboxUid) throws ServerFault;
 
 	@GET
 	@Path("{mailboxUid}/_acls")

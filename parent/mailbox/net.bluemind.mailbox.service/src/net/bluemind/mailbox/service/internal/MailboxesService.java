@@ -65,6 +65,7 @@ import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailbox.api.MailboxConfig;
 import net.bluemind.mailbox.api.MailboxQuota;
+import net.bluemind.mailbox.api.rules.DelegationRule;
 import net.bluemind.mailbox.api.rules.MailFilterRule;
 import net.bluemind.mailbox.api.rules.MailFilterRuleForwardingMapper;
 import net.bluemind.mailbox.api.rules.MailFilterRuleVacationMapper;
@@ -79,6 +80,8 @@ import net.bluemind.role.api.BasicRoles;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
+import net.bluemind.user.api.IUser;
+import net.bluemind.user.api.User;
 
 public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 	private static final Logger logger = LoggerFactory.getLogger(MailboxesService.class);
@@ -707,4 +710,45 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 			storeService.deleteEmailByAlias(alias);
 		}
 	}
+
+	@Override
+	public DelegationRule getMailboxDelegationRule(String mailboxUid) throws ServerFault {
+		List<MailFilterRule> mailboxRulesByClient = getMailboxRulesByClient(mailboxUid, "system");
+		return DelegationFilter.getDelegationFilterRule(mailboxRulesByClient, mailboxUid);
+	}
+
+	@Override
+	public void setMailboxDelegationRule(String mailboxUid, DelegationRule delegationRule) throws ServerFault {
+		rbacManager.forEntry(mailboxUid).check(BasicRoles.ROLE_MANAGE_MAILBOX_FILTER);
+
+		ItemValue<Mailbox> mailbox = storeService.get(mailboxUid, null);
+		if (mailbox == null) {
+			throw new ServerFault("Mailbox " + mailboxUid + " not found", ErrorCode.NOT_FOUND);
+		}
+
+		MailFilter mailboxFilter = getMailboxFilter(mailboxUid);
+		List<MailFilterRule> imipFilterRules = mailboxFilter.rules.stream()
+				.filter(r -> DelegationFilter.isDelegationRule(r)).toList();
+		if (imipFilterRules.size() > 1) {
+			throw new ServerFault("Too many 'Copy iMIP to Delegates' rules found for mailbox " + mailboxUid);
+		}
+
+		DelegationFilter rule = DelegationFilter.createDelegateFilterWithConditions(delegationRule);
+
+		delegationRule.delegates.forEach(d -> {
+			User delegateUser = context.su().provider().instance(IUser.class, domain.uid).get(d.uid);
+			rule.addDelegateFilterRedirectAction(d, delegateUser.emails);
+		});
+
+		if (delegationRule.readOnly) {
+			rule.addDelegateFilterSetFlagAction();
+		}
+
+		if (imipFilterRules.size() == 1) {
+			mailboxFilter.rules.remove(imipFilterRules.get(0));
+		}
+		mailboxFilter.rules.add(rule);
+		setMailboxFilter(mailboxUid, mailboxFilter);
+	}
+
 }

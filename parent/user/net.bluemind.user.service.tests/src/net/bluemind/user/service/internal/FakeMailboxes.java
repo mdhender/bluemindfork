@@ -32,6 +32,7 @@ import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailbox.api.MailboxConfig;
 import net.bluemind.mailbox.api.MailboxQuota;
+import net.bluemind.mailbox.api.rules.DelegationRule;
 import net.bluemind.mailbox.api.rules.MailFilterRule;
 
 public class FakeMailboxes implements IMailboxes {
@@ -167,6 +168,16 @@ public class FakeMailboxes implements IMailboxes {
 
 	@Override
 	public List<MailFilterRule> getMailboxRulesByClient(String mailboxUid, String client) throws ServerFault {
+		throw new ServerFault("not implemented");
+	}
+
+	@Override
+	public void setMailboxDelegationRule(String mailboxUid, DelegationRule delegationRule) throws ServerFault {
+		throw new ServerFault("not implemented");
+	}
+
+	@Override
+	public DelegationRule getMailboxDelegationRule(String mailboxUid) throws ServerFault {
 		throw new ServerFault("not implemented");
 	}
 

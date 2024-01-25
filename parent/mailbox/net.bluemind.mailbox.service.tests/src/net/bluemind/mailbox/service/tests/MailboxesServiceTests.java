@@ -19,6 +19,7 @@
 package net.bluemind.mailbox.service.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -27,6 +28,7 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -64,6 +66,8 @@ import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailbox.api.MailboxBusAddresses;
 import net.bluemind.mailbox.api.MailboxConfig;
+import net.bluemind.mailbox.api.rules.Delegate;
+import net.bluemind.mailbox.api.rules.DelegationRule;
 import net.bluemind.mailbox.api.rules.MailFilterRule;
 import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleCondition;
 import net.bluemind.mailshare.api.IMailshare;
@@ -446,6 +450,10 @@ public class MailboxesServiceTests extends AbstractMailboxServiceTests {
 		return ServerSideServiceProvider.getProvider(context).instance(IMailboxes.class, domainUid);
 	}
 
+	protected IUser getUserService(SecurityContext context) throws ServerFault {
+		return ServerSideServiceProvider.getProvider(context).instance(IUser.class, domainUid);
+	}
+
 	@Test
 	public void setAndGetMailboxAcls() throws ServerFault {
 		String uid = UUID.randomUUID().toString();
@@ -724,5 +732,114 @@ public class MailboxesServiceTests extends AbstractMailboxServiceTests {
 		} catch (ServerFault e) {
 			assertEquals(ErrorCode.FORBIDDEN, e.getCode());
 		}
+	}
+
+	@Test
+	public void test_createDelegationRule() {
+		DelegationRule delegationRule = createDelegationRule();
+		ItemValue<Mailbox> mboxD = getService(defaultSecurityContext).getComplete(delegationRule.delegatorUid);
+		getService(defaultSecurityContext).setMailboxDelegationRule(mboxD.uid, delegationRule);
+
+		DelegationRule mailboxDelegationRule = getService(defaultSecurityContext).getMailboxDelegationRule(mboxD.uid);
+		assertNotNull(mailboxDelegationRule);
+		assertTrue(mailboxDelegationRule.readOnly);
+		assertEquals(2, mailboxDelegationRule.delegates.size());
+		assertEquals(mailboxDelegationRule.delegatorCalendarUid, "Calendar:default:" + delegationRule.delegatorUid);
+		assertEquals(mailboxDelegationRule.delegatorUid, mboxD.uid);
+	}
+
+	@Test
+	public void test_updateDelegationRule() {
+		DelegationRule delegationRule = createDelegationRule();
+		ItemValue<Mailbox> mboxD = getService(defaultSecurityContext).getComplete(delegationRule.delegatorUid);
+		getService(defaultSecurityContext).setMailboxDelegationRule(mboxD.uid, delegationRule);
+
+		DelegationRule mailboxDelegationRule = getService(defaultSecurityContext).getMailboxDelegationRule(mboxD.uid);
+		assertNotNull(mailboxDelegationRule);
+		assertTrue(mailboxDelegationRule.readOnly);
+		assertEquals(2, mailboxDelegationRule.delegates.size());
+		assertEquals(mailboxDelegationRule.delegatorCalendarUid, "Calendar:default:" + delegationRule.delegatorUid);
+		assertEquals(mailboxDelegationRule.delegatorUid, mboxD.uid);
+
+		mailboxDelegationRule.readOnly = false;
+		getService(defaultSecurityContext).setMailboxDelegationRule(delegationRule.delegatorUid, mailboxDelegationRule);
+
+		mailboxDelegationRule = getService(defaultSecurityContext).getMailboxDelegationRule(mboxD.uid);
+		assertNotNull(mailboxDelegationRule);
+		assertFalse(mailboxDelegationRule.readOnly);
+		assertEquals(2, mailboxDelegationRule.delegates.size());
+		assertEquals(mailboxDelegationRule.delegatorCalendarUid, "Calendar:default:" + delegationRule.delegatorUid);
+		assertEquals(mailboxDelegationRule.delegatorUid, mboxD.uid);
+	}
+
+	@Test
+	public void test_updateDelegationRule_withOthers() {
+
+		DelegationRule delegationRule = createDelegationRule();
+		ItemValue<Mailbox> mboxD = getService(defaultSecurityContext).getComplete(delegationRule.delegatorUid);
+
+		createMailFilter(mboxD.uid);
+		MailFilter mailboxFilters = getService(defaultSecurityContext).getMailboxFilter(mboxD.uid);
+		assertEquals(2, mailboxFilters.rules.size());
+
+		getService(defaultSecurityContext).setMailboxDelegationRule(mboxD.uid, delegationRule);
+
+		DelegationRule mailboxDelegationRule = getService(defaultSecurityContext).getMailboxDelegationRule(mboxD.uid);
+		assertNotNull(mailboxDelegationRule);
+		assertTrue(mailboxDelegationRule.readOnly);
+		assertEquals(2, mailboxDelegationRule.delegates.size());
+		assertEquals(mailboxDelegationRule.delegatorCalendarUid, "Calendar:default:" + delegationRule.delegatorUid);
+		assertEquals(mailboxDelegationRule.delegatorUid, mboxD.uid);
+
+		mailboxFilters = getService(defaultSecurityContext).getMailboxFilter(mboxD.uid);
+		System.err.println("final rules => " + mailboxFilters.rules.stream().map(r -> r.name).toList());
+		assertEquals(3, mailboxFilters.rules.size());
+	}
+
+	private void createMailFilter(String mailboxUid) {
+		MailFilterRule rule1 = new MailFilterRule();
+		rule1.name = "rule1";
+		rule1.client = "client1";
+		rule1.conditions.add(MailFilterRuleCondition.equal("subject", "SubjectTest"));
+		rule1.addMove("test");
+
+		MailFilterRule rule2 = new MailFilterRule();
+		rule2.name = "rule2";
+		rule1.client = "client1";
+		rule2.conditions.add(MailFilterRuleCondition.equal("subject", "Toto"));
+		rule2.addMove("totomails");
+
+		MailFilter filter = MailFilter.create(rule1, rule2);
+
+		getService(defaultSecurityContext).setMailboxFilter(mailboxUid, filter);
+	}
+
+	private DelegationRule createDelegationRule() {
+		String loginDelegate1 = "test." + System.nanoTime();
+		User userDelegate1 = defaultUser(loginDelegate1);
+		String uidDelegate1 = loginDelegate1;
+		getUserService(defaultSecurityContext).create(uidDelegate1, userDelegate1);
+
+		String loginDelegate2 = "test." + System.nanoTime();
+		User userDelegate2 = defaultUser(loginDelegate2);
+		String uidDelegate2 = loginDelegate2;
+		getUserService(defaultSecurityContext).create(uidDelegate2, userDelegate2);
+
+		String loginDelegator = "test." + System.nanoTime();
+		User userDelegator = defaultUser(loginDelegator);
+		String uidDelegator = loginDelegator;
+		getUserService(defaultSecurityContext).create(uidDelegator, userDelegator);
+
+		Delegate d1 = new Delegate(uidDelegate1, false);
+		Delegate d2 = new Delegate(uidDelegate2, true);
+		List<Delegate> delegates = Arrays.asList(d1, d2);
+
+		DelegationRule delegationRule = new DelegationRule();
+		delegationRule.delegates = delegates;
+		delegationRule.delegatorCalendarUid = "Calendar:default:" + uidDelegator;
+		delegationRule.delegatorUid = uidDelegator;
+		delegationRule.readOnly = true;
+
+		return delegationRule;
 	}
 }
