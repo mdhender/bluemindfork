@@ -20,7 +20,6 @@ package net.bluemind.system.ldap.export.objects;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -35,7 +34,6 @@ import org.apache.directory.api.ldap.model.message.ModifyRequest;
 import org.apache.directory.api.ldap.model.message.ModifyRequestImpl;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
 
 import net.bluemind.addressbook.api.VCard.Communications.Tel;
 import net.bluemind.addressbook.api.VCard.DeliveryAddressing.Address;
@@ -49,26 +47,29 @@ import net.bluemind.user.api.User;
 
 public class DomainDirectoryUser extends LdapObjects {
 	private static final String RDN_ATTRIBUTE = "uid";
-	private static final String USER_ARCHIVED_EMPLOYEETYPE = "archived";
+	private static final String BMUID = "bmUid";
+	private static final String PAGER = "pager";
+	private static final String VOICE = "voice";
+	private static final String SHADOWMAX = "shadowMax";
 
 	private final ItemValue<Domain> domain;
 	private final ItemValue<User> user;
 	private final byte[] userPhoto;
 	private final Optional<Integer> passwordLifetime;
 
-	public static final List<String> ldapAttrsStringsValues = ImmutableList.of( //
+	public static final List<String> ldapAttrsStringsValues = List.of( //
 			"objectclass",
 			// Identity
-			"bmUid", "bmHidden", "cn", "displayName", "sn", "employeeType", "givenName", "description", "o", "ou",
+			BMUID, "bmHidden", "cn", "displayName", "sn", "employeeType", "givenName", "description", "o", "ou",
 			"departmentNumber", "title", "jpegPhoto",
 			// Email
 			"mail",
 			// Phones
-			"telephoneNumber", "facsimileTelephoneNumber", "homePhone", "mobile", "pager",
+			"telephoneNumber", "facsimileTelephoneNumber", "homePhone", "mobile", PAGER,
 			// Address
 			"l", "postalCode", "postOfficeBox", "postalAddress", "street", "st", "registeredAddress",
 			// Password
-			"userPassword", "shadowLastChange", "shadowMax");
+			"userPassword", "shadowLastChange", SHADOWMAX);
 
 	public DomainDirectoryUser(ItemValue<Domain> domain, Optional<Integer> passwordLifetime, ItemValue<User> user,
 			byte[] userPhoto) {
@@ -94,14 +95,14 @@ public class DomainDirectoryUser extends LdapObjects {
 		}
 
 		if (user.value.passwordMustChange) {
-			ldapEntry.add("shadowMax", "0");
+			ldapEntry.add(SHADOWMAX, "0");
 		} else if (!user.value.passwordNeverExpires && passwordLifetime.isPresent()) {
-			ldapEntry.add("shadowMax", Integer.toString(passwordLifetime.get()));
+			ldapEntry.add(SHADOWMAX, Integer.toString(passwordLifetime.get()));
 		}
 	}
 
 	private void initAddress(Entry ldapEntry) throws LdapException {
-		if (user.value.contactInfos.deliveryAddressing.size() == 0) {
+		if (user.value.contactInfos.deliveryAddressing.isEmpty()) {
 			return;
 		}
 
@@ -129,7 +130,7 @@ public class DomainDirectoryUser extends LdapObjects {
 		}
 
 		String registeredAddress = getFormatedRegisteredAddress(address);
-		if (!Strings.isNullOrEmpty(registeredAddress)) {
+		if (registeredAddress != null) {
 			ldapEntry.add("registeredAddress", registeredAddress);
 		}
 	}
@@ -147,16 +148,16 @@ public class DomainDirectoryUser extends LdapObjects {
 		Set<String> params = parameters.stream().filter(p -> p.label.equals("TYPE")).map(p -> p.value.toLowerCase())
 				.collect(Collectors.toSet());
 
-		if (params.contains("work") && params.contains("voice")) {
+		if (params.contains("work") && params.contains(VOICE)) {
 			return "telephoneNumber";
 		} else if (params.contains("work") && params.contains("fax")) {
 			return "facsimileTelephoneNumber";
-		} else if (params.contains("home") && params.contains("voice")) {
+		} else if (params.contains("home") && params.contains(VOICE)) {
 			return "homePhone";
-		} else if (params.contains("cell") && params.contains("voice")) {
+		} else if (params.contains("cell") && params.contains(VOICE)) {
 			return "mobile";
-		} else if (params.contains("pager") && params.contains("voice")) {
-			return "pager";
+		} else if (params.contains(PAGER) && params.contains(VOICE)) {
+			return PAGER;
 		}
 
 		return null;
@@ -182,10 +183,6 @@ public class DomainDirectoryUser extends LdapObjects {
 			ldapEntry.add("sn", user.value.login);
 		}
 
-		if (user.value.archived) {
-			ldapEntry.add("employeeType", USER_ARCHIVED_EMPLOYEETYPE);
-		}
-
 		if (!Strings.isNullOrEmpty(user.value.contactInfos.identification.name.givenNames)) {
 			ldapEntry.add("givenName", user.value.contactInfos.identification.name.givenNames);
 		}
@@ -208,6 +205,10 @@ public class DomainDirectoryUser extends LdapObjects {
 
 		if (!Strings.isNullOrEmpty(user.value.contactInfos.organizational.title)) {
 			ldapEntry.add("title", user.value.contactInfos.organizational.title);
+		}
+
+		if (!Strings.isNullOrEmpty(user.value.contactInfos.organizational.role)) {
+			ldapEntry.add("employeeType", user.value.contactInfos.organizational.role);
 		}
 
 		if (userPhoto != null && userPhoto.length != 0) {
@@ -253,10 +254,10 @@ public class DomainDirectoryUser extends LdapObjects {
 				}
 			}
 
-			if (ldapEntry.get("bmUid") != null) {
-				ldapEntry.removeAttributes("bmUid");
+			if (ldapEntry.get(BMUID) != null) {
+				ldapEntry.removeAttributes(BMUID);
 			}
-			ldapEntry.add("bmUid", user.uid);
+			ldapEntry.add(BMUID, user.uid);
 		} catch (LdapException e) {
 			throw new ServerFault("Fail to manage user: " + getDn(), e);
 		}
@@ -265,7 +266,7 @@ public class DomainDirectoryUser extends LdapObjects {
 	}
 
 	private String getFormatedRegisteredAddress(Address address) {
-		ArrayList<String> registeredAddress = new ArrayList<String>();
+		ArrayList<String> registeredAddress = new ArrayList<>();
 		if (!Strings.isNullOrEmpty(address.streetAddress)) {
 			registeredAddress.add(address.streetAddress);
 		}
@@ -273,60 +274,50 @@ public class DomainDirectoryUser extends LdapObjects {
 			registeredAddress.add(address.postOfficeBox);
 		}
 
-		ArrayList<String> townCountry = new ArrayList<String>();
-		if (!Strings.isNullOrEmpty(address.locality)) {
-			townCountry.add(address.locality);
-		}
-
-		ArrayList<String> country = new ArrayList<String>();
-		if (!Strings.isNullOrEmpty(address.countryName)) {
-			country.add(address.countryName);
-		}
-
-		if (!Strings.isNullOrEmpty(address.postalCode)) {
-			country.add(address.postalCode);
-		}
-
-		StringBuilder formated = new StringBuilder();
-		Iterator<String> iter = country.iterator();
-		while (iter.hasNext()) {
-			formated.append(iter.next());
-			if (iter.hasNext()) {
-				formated.append(" ");
-			}
-		}
-
-		if (formated.length() != 0) {
-			townCountry.add(formated.toString());
-		}
-
-		formated = new StringBuilder();
-		iter = townCountry.iterator();
-		while (iter.hasNext()) {
-			formated.append(iter.next());
-			if (iter.hasNext()) {
-				formated.append(", ");
-			}
-		}
-
-		if (formated.length() != 0) {
-			registeredAddress.add(formated.toString());
+		StringBuilder townCountryPostal = townCountryPostal(address);
+		if (!townCountryPostal.isEmpty()) {
+			registeredAddress.add(townCountryPostal.toString());
 		}
 
 		if (!Strings.isNullOrEmpty(address.countryName)) {
 			registeredAddress.add(address.countryName);
 		}
 
-		formated = new StringBuilder();
-		iter = registeredAddress.iterator();
-		while (iter.hasNext()) {
-			formated.append(iter.next());
-			if (iter.hasNext()) {
-				formated.append("$");
-			}
+		if (registeredAddress.isEmpty()) {
+			return null;
 		}
 
-		return formated.toString();
+		return String.join("$", registeredAddress);
+	}
+
+	private StringBuilder townCountryPostal(Address address) {
+		StringBuilder townCountry = new StringBuilder();
+		if (!Strings.isNullOrEmpty(address.locality)) {
+			townCountry.append(address.locality);
+		}
+
+		StringBuilder countryPostal = new StringBuilder();
+		if (!Strings.isNullOrEmpty(address.countryName)) {
+			countryPostal.append(address.countryName);
+		}
+
+		if (!Strings.isNullOrEmpty(address.postalCode)) {
+			if (!countryPostal.isEmpty()) {
+				countryPostal.append(" ");
+			}
+
+			countryPostal.append(address.postalCode);
+		}
+
+		if (!countryPostal.isEmpty()) {
+			if (!townCountry.isEmpty()) {
+				townCountry.append(", ");
+			}
+
+			townCountry.append(countryPostal);
+		}
+
+		return townCountry;
 	}
 
 	@Override

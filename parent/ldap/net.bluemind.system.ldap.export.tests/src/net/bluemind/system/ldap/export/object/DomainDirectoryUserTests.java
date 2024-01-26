@@ -185,14 +185,8 @@ public class DomainDirectoryUserTests {
 		assertEquals("11119999", attrs.get(0));
 
 		attrs = getAttributeValues(entry, "employeeType");
-		assertEquals(0, attrs.size());
-
-		user.value.archived = true;
-		entry = new DomainDirectoryUser(domain, Optional.empty(), user, photo).getLdapEntry();
-
-		attrs = getAttributeValues(entry, "employeeType");
 		assertEquals(1, attrs.size());
-		assertEquals("archived", attrs.get(0));
+		assertEquals("organizational role", attrs.get(0));
 	}
 
 	@Test
@@ -316,6 +310,7 @@ public class DomainDirectoryUserTests {
 		vcard.organizational.org.division = "division";
 		vcard.organizational.org.department = "department number";
 		vcard.organizational.title = "title";
+		vcard.organizational.role = "organizational role";
 
 		net.bluemind.addressbook.api.VCard.Communications.Email email1 = new VCard.Communications.Email();
 		email1.value = "toto@yahoo.fr";
