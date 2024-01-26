@@ -44,9 +44,6 @@ import net.bluemind.icalendar.api.ICalendarElement.RRule;
 public class VEventUtil {
 	private static Logger logger = LoggerFactory.getLogger(VEventUtil.class);
 
-
-
-
 	public static <T extends VEvent> boolean eventChanged(T oldEvent, T newEvent) {
 		return eventChanges(oldEvent, newEvent).hasChanged();
 	}
@@ -236,7 +233,7 @@ public class VEventUtil {
 			return;
 		}
 
-		VEvent findCorrespondingEvent = findCorrespondingEvent(oldSeries, event);
+		VEvent findCorrespondingEvent = findOrCalculateCorrespondingEvent(oldSeries, event);
 		Map<String, Object> old = null != findCorrespondingEvent
 				? new CalendarMailHelper().extractVEventData(findCorrespondingEvent)
 				: new HashMap<>();
@@ -289,9 +286,6 @@ public class VEventUtil {
 		VEvent match = null;
 		if (evt.exception()) {
 			match = otherSeries.occurrence(((VEventOccurrence) evt).recurid);
-			if (match == null) {
-				match = calculateOldEventOfException(otherSeries, evt);
-			}
 		} else {
 			match = otherSeries.main;
 		}
@@ -299,6 +293,15 @@ public class VEventUtil {
 			return null;
 		}
 		return match;
+	}
+
+	public static VEvent findOrCalculateCorrespondingEvent(VEventSeries otherSeries, VEvent evt) {
+		VEvent match = findCorrespondingEvent(otherSeries, evt);
+		if (match == null && evt.exception()) {
+			match = calculateOldEventOfException(otherSeries, evt);
+		}
+		return match;
+
 	}
 
 	private static VEvent calculateOldEventOfException(VEventSeries oldSeries, VEvent evt) {

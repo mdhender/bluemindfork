@@ -210,7 +210,7 @@ public class VEventSeriesSanitizer implements ISanitizer<VEventSeries> {
 	private void sanitizeForward(VEventSeries current, VEventSeries old) {
 		List<VEvent> flatten = current.flatten();
 		for (VEvent event : flatten) {
-			VEvent oldEvent = VEventUtil.findCorrespondingEvent(old, event);
+			VEvent oldEvent = VEventUtil.findOrCalculateCorrespondingEvent(old, event);
 			sanitizeForward(current, event, oldEvent);
 		}
 	}

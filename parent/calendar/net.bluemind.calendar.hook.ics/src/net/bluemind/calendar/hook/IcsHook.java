@@ -227,7 +227,7 @@ public class IcsHook implements ICalendarHook {
 		Set<Attendee> userAttendingToSeries = new HashSet<>();
 		Set<Attendee> userDeletedFromSeries = new HashSet<>();
 		for (VEvent evt : flatten) {
-			VEvent oldEvent = VEventUtil.findCorrespondingEvent(oldEventSeries, evt);
+			VEvent oldEvent = VEventUtil.findOrCalculateCorrespondingEvent(oldEventSeries, evt);
 			if (null == oldEvent) {
 				oldEvent = new VEvent();
 			}
@@ -353,7 +353,7 @@ public class IcsHook implements ICalendarHook {
 		}
 
 		for (VEvent evt : flatten) {
-			VEvent oldEvent = VEventUtil.findCorrespondingEvent(oldEventSeries, evt);
+			VEvent oldEvent = VEventUtil.findOrCalculateCorrespondingEvent(oldEventSeries, evt);
 			if (!counterHandled) {
 				processAttendeeParticipation(message, oldEventSeries, dirEntry, evt, oldEvent);
 			}
@@ -386,7 +386,7 @@ public class IcsHook implements ICalendarHook {
 	private boolean hasAttendeeParticipationChanged(Attendee attendee, VEvent oldEvent) {
 		Optional<Attendee> oldAttendee = oldEvent.attendees.stream().filter(att -> attendee.dir.equals(att.dir))
 				.findAny();
-		return oldAttendee.isPresent() || oldAttendee.get().partStatus != attendee.partStatus;
+		return !oldAttendee.isPresent() || oldAttendee.get().partStatus != attendee.partStatus;
 	}
 
 	private void processAttendeeForward(VEventMessage message, DirEntry currentUser, VEvent event, VEvent oldEvent) {
