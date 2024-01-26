@@ -542,7 +542,8 @@
             "new_template_full": "Neue Vorlage erstellen",
             "print": {
                 "title": "Die letzte Nachricht der Konversation ausdrucken \"{subject}\""
-            }
+            },
+            "recover": "Nachrichten wiederherstellen"
         },
         "compose": {
             "save": {

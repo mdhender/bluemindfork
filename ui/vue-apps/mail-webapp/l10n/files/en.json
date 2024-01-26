@@ -542,7 +542,8 @@
             "new_template_full": "Create a new template",
             "print": {
                 "title": "Print the last message of the conversation \"{subject}\""
-            }
+            },
+            "recover": "Recover messages"
         },
         "compose": {
             "save": {
