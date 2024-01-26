@@ -103,6 +103,15 @@
                     </span>
                 </span>
             </bm-form-checkbox>
+            <div v-if="formData.copyImipToDelegate.current" class="ml-3 mt-4 text-warning d-flex">
+                <bm-icon icon="exclamation-circle-fill" class="mt-2" />
+                <span class="ml-4">
+                    {{ $t("preferences.account.delegates.calendar.invitations.no_private_event") }}
+                    <bm-read-more
+                        href="https://doc.bluemind.net/release/5.0/guide_de_l_utilisateur/parametrer_le_compte_utilisateur#2-donner-les-droits-de-gestion-des-invitations"
+                    />
+                </span>
+            </div>
             <bm-form-checkbox
                 v-model="formData.seePrivateEvents.current"
                 :disabled="!selectedDelegate || !isSeePrivateEventsPossible"
@@ -201,7 +210,8 @@ import {
     BmFormSelect,
     BmIcon,
     BmLabelIcon,
-    BmModal
+    BmModal,
+    BmReadMore
 } from "@bluemind/ui-components";
 import { Contact } from "@bluemind/business-components";
 import BmAppIcon from "../../../../BmAppIcon";
@@ -227,6 +237,7 @@ export default {
         BmIcon,
         BmLabelIcon,
         BmModal,
+        BmReadMore,
         Contact,
         ContactInput
     },
