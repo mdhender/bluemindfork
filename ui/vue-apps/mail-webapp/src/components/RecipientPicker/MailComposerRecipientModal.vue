@@ -171,7 +171,10 @@ export default {
                 return this.selected;
             },
             set(value) {
-                this.$emit("update:selected", value);
+                this.$emit("update:selected", {
+                    recipientType: this.recipientContactsType,
+                    values: value
+                });
             }
         },
         selectedAddressBook() {

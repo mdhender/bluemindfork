@@ -31,18 +31,14 @@ import { ContactInput } from "@bluemind/business-components";
 import { mailTipUtils } from "@bluemind/mail";
 
 import apiAddressbooks from "~/store/api/apiAddressbooks";
-import { SET_ADDRESS_WEIGHT, SET_MESSAGE_BCC, SET_MESSAGE_CC, SET_MESSAGE_TO } from "~/mutations";
 import { ADDRESS_AUTOCOMPLETE } from "~/getters";
 import { ComposerActionsMixin } from "~/mixins";
 import MailContactCardSlots from "../MailContactCardSlots";
 import MailComposerRecipientButton from "./MailComposerRecipientButton.vue";
 
-const { getMailTipContext } = mailTipUtils;
-
 export default {
     name: "MailComposerRecipient",
     components: { MailContactCardSlots, MailComposerRecipientButton },
-    mixins: [ComposerActionsMixin],
     props: {
         message: { type: Object, required: true },
         recipientType: { type: String, required: true, validator: value => ["to", "cc", "bcc"].includes(value) }
@@ -56,8 +52,13 @@ export default {
         };
     },
     computed: {
-        contacts() {
-            return RecipientAdaptor.toContacts(this.message[this.recipientType]);
+        contacts: {
+            get() {
+                return RecipientAdaptor.toContacts(this.message[this.recipientType]);
+            },
+            set(updatedContacts) {
+                this.$emit("update:contacts", updatedContacts);
+            }
         },
         autocompleteExpandedResults() {
             let autocompleteExpandedResults;
@@ -108,7 +109,6 @@ export default {
         }
     },
     methods: {
-        ...mapMutations("mail", { SET_ADDRESS_WEIGHT, SET_MESSAGE_TO, SET_MESSAGE_CC, SET_MESSAGE_BCC }),
         async expandContact(index) {
             const contacts = [...this.contacts];
             const contact = contacts[index];
@@ -129,29 +129,14 @@ export default {
         async search(searchedRecipient) {
             this.searchResults = searchedRecipient === "" ? null : await apiAddressbooks.search(searchedRecipient, -1);
         },
-        async update(contacts) {
-            this[`SET_MESSAGE_${this.recipientType.toUpperCase()}`]({
-                messageKey: this.message.key,
-                [this.recipientType]: contacts.map(c => ({
-                    dn: c.dn || "",
-                    address: c.address || "",
-                    kind: c.kind,
-                    memberCount: c.members?.length || 0,
-                    uid: c.uid,
-                    containerUid: c.urn?.split("@")[1]
-                }))
-            });
-            this.getMailTips();
-            this.debouncedSave();
+        update(contacts) {
+            this.contacts = contacts;
         },
         validateDnAndAddress(input, contact) {
             if (contact.kind === "group") {
                 return Boolean(contact.dn);
             }
             return contact.dn ? EmailValidator.validateDnAndAddress(input) : EmailValidator.validateAddress(input);
-        },
-        async getMailTips() {
-            await this.$execute("get-mail-tips", { context: getMailTipContext(this.message), message: this.message });
         }
     }
 };

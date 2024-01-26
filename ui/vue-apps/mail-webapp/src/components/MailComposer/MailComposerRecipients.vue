@@ -5,6 +5,7 @@
                 ref="toField"
                 :message="message"
                 recipient-type="to"
+                @update:contacts="updateMailRecipients($event, 'to')"
                 @open-picker="selectedContactsType = 'to'"
             >
                 <div class="end-buttons">
@@ -35,8 +36,9 @@
         <div v-if="showCc" class="d-flex align-items-center cc-contact-input">
             <mail-composer-recipient
                 ref="ccField"
-                :message="message"
                 recipient-type="cc"
+                :message="message"
+                @update:contacts="updateMailRecipients($event, 'cc')"
                 @open-picker="selectedContactsType = 'cc'"
             >
                 <div class="end-buttons">
@@ -59,6 +61,7 @@
             ref="bccField"
             :message="message"
             recipient-type="bcc"
+            @update:contacts="updateMailRecipients($event, 'bcc')"
             @open-picker="selectedContactsType = 'bcc'"
         />
         <mail-composer-recipient-modal
@@ -69,20 +72,24 @@
 </template>
 
 <script>
+import { mapMutations } from "vuex";
 import capitalize from "lodash.capitalize";
 import isEqual from "lodash.isequal";
 import { RecipientAdaptor } from "@bluemind/contact";
 import { BmButton, KeyNavGroup } from "@bluemind/ui-components";
-import { EditRecipientsMixin } from "~/mixins";
+import { EditRecipientsMixin, ComposerActionsMixin } from "~/mixins";
 import MailComposerRecipient from "./MailComposerRecipient";
 import MailComposerRecipientModal from "../RecipientPicker/MailComposerRecipientModal";
 import { MAX_RECIPIENTS } from "../../utils";
+import { SET_MESSAGE_BCC, SET_MESSAGE_CC, SET_MESSAGE_TO } from "~/mutations";
+import { mailTipUtils } from "@bluemind/mail";
+const { getMailTipContext } = mailTipUtils;
 
 export default {
     name: "MailComposerRecipients",
     components: { BmButton, MailComposerRecipient, MailComposerRecipientModal },
     directives: { KeyNavGroup },
-    mixins: [EditRecipientsMixin],
+    mixins: [EditRecipientsMixin, ComposerActionsMixin],
     data() {
         return { selectedContactsType: undefined };
     },
@@ -91,15 +98,28 @@ export default {
             get() {
                 return RecipientAdaptor.toContacts(this.message[this.selectedContactsType]);
             },
-            set(value) {
-                const newValue = RecipientAdaptor.fromContacts(value);
-                if (!isEqual(this.message[this.selectedContactsType], newValue)) {
-                    this.message[this.selectedContactsType] = newValue;
+            set(contacts) {
+                const updatedRecipients = RecipientAdaptor.fromContacts(contacts?.values ?? contacts);
+                const recipientType = contacts?.recipientType ?? this.selectedContactsType;
+
+                if (!isEqual(this.message[recipientType], updatedRecipients)) {
+                    this[`SET_MESSAGE_${recipientType.toUpperCase()}`]({
+                        messageKey: this.message.key,
+                        [recipientType]: updatedRecipients
+                    });
+                    this.$execute("get-mail-tips", { context: getMailTipContext(this.message), message: this.message });
                 }
             }
         }
     },
     watch: {
+        selectedContacts: {
+            handler(selection, previousSelection) {
+                if (!isEqual(selection, previousSelection)) {
+                    this.debouncedSave();
+                }
+            }
+        },
         maxRecipientsExceeded: {
             handler: function (exceeded) {
                 const alertInComposerUid = "MAX_RECIPIENTS";
@@ -116,6 +136,7 @@ export default {
         }
     },
     methods: {
+        ...mapMutations("mail", { SET_MESSAGE_TO, SET_MESSAGE_CC, SET_MESSAGE_BCC }),
         async showAndFocusRecipientField(recipientType) {
             this[`show${capitalize(recipientType)}`] = true;
             await this.$nextTick();
@@ -123,6 +144,10 @@ export default {
         },
         focusRecipientField(recipientType) {
             this.$refs[`${recipientType}Field`]?.$el.querySelector("input").focus();
+        },
+        updateMailRecipients(contacts, type) {
+            this.selectedContactsType = type;
+            this.selectedContacts = { recipientType: type, values: contacts };
         }
     }
 };
