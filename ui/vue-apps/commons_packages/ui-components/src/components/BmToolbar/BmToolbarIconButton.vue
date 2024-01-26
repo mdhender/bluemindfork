@@ -1,13 +1,9 @@
 <script>
-import { useExtensions } from "@bluemind/extensions.vue";
-
+import { computed, h, useAttrs, useListeners } from "vue";
 import BmIconButton from "../buttons/BmIconButton";
 import BmDropdownItemButton from "../dropdown/BmDropdownItemButton";
 import BmDropdown from "../dropdown/BmDropdown";
-import BmToolbarIconDropdown from "./BmToolbarIconDropdown";
-
-import { useToolbarContext } from "./toolbar";
-import { computed, h, useAttrs, useListeners, useSlots } from "vue";
+import BmToolbarElement from "./BmToolbarElement";
 
 export default {
     name: "BmToolbarIconButton",
@@ -20,43 +16,32 @@ export default {
             type: String,
             required: true
         },
-        overflownText: {
+        text: {
             type: String,
             required: true
         }
     },
     setup(props) {
-        const { renderWebAppExtensions } = useExtensions();
-
         const attrs = useAttrs();
         const listeners = useListeners();
-        const slots = useSlots();
-        const { isInToolbar } = useToolbarContext();
-        const extensions = computed(() => renderWebAppExtensions(props.extension));
         const options = computed(() => ({
             attrs,
+            on: listeners,
             props: {
                 icon: props.icon,
-                overflownText: props.overflownText,
-                text: props.overflownText
+                text: props.text
             },
-            on: listeners,
             class: "bm-toolbar-icon-button"
         }));
-
-        const buildDropdownWithExtensions = () => h(BmDropdown, { ...options.value }, [...extensions.value]);
-
         return function render() {
-            if (isInToolbar.value) {
-                return h(BmIconButton, {
-                    ...options.value,
-                    props: { ...options.value.props, extension: props.extension }
-                });
-            }
-            if (extensions.value.length) {
-                return buildDropdownWithExtensions();
-            }
-            return h(BmDropdownItemButton, options.value, props.overflownText);
+            return h(BmToolbarElement, {
+                props,
+                scopedSlots: {
+                    toolbar: () => h(BmIconButton, { ...options.value, props }),
+                    menu: () => h(BmDropdownItemButton, options.value, props.text),
+                    "menu-with-extensions": ({ extensions }) => h(BmDropdown, options.value, extensions)
+                }
+            });
         };
     }
 };

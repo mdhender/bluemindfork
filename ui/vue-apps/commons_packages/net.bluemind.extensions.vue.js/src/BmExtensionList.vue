@@ -21,7 +21,7 @@ export default {
                 h(props.decorator, { props: { ...extension.props }, attrs }, h(extension.name, { attrs }))
             );
         } else {
-            return props.extensions.map(extension => h(extension.name, { attrs }));
+            return props.extensions.map(extension => h(extension.name, { props: attrs }));
         }
     }
 };

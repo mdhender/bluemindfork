@@ -91,7 +91,7 @@ export default {
 <style lang="scss">
 @import "~@bluemind/ui-components/src/css/utils/variables";
 
-.file-item {
+.file-item-content {
     .container {
         position: relative;
 

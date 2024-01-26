@@ -3,7 +3,7 @@ import { BmExtension, useExtensions } from "@bluemind/extensions.vue";
 import BmToolbarMenu from "./BmToolbarMenu";
 import BmIconDropdown from "../dropdown/BmIconDropdown";
 import OverflownElements from "../../directives/OverflownElements";
-import { computed, h, ref, useAttrs, useListeners, useSlots } from "vue";
+import { computed, h, ref, useAttrs, useListeners, useSlots, watchPostEffect } from "vue";
 import BmToolbarInternal from "./BmToolbarInternal";
 
 export default {
@@ -21,6 +21,20 @@ export default {
         menuWithCaret: {
             type: Boolean,
             default: false
+        },
+        maxItems: {
+            type: Number,
+            default: Number.MAX_SAFE_INTEGER,
+            validator: function (value) {
+                return !value || value > 0;
+            }
+        },
+        minItems: {
+            type: Number,
+            default: 0,
+            validator: function (value) {
+                return !value || value >= 0;
+            }
         }
     },
     setup(props) {
@@ -31,16 +45,33 @@ export default {
 
         const hidden = ref(0);
         const shown = ref(0);
-        function overflown({ detail: nodes }) {
-            hidden.value = Math.min(
-                nodes.reduce((count, node) => (node.overflows ? ++count : count), 0),
-                nodes.length - 1
-            );
-            shown.value = nodes.length - hidden.value - 1;
-        }
 
         const extensions = computed(() => renderWebAppExtensions(props.extension));
         const menuExtensions = computed(() => renderWebAppExtensions(`${props.extension}.menu`));
+
+        function overflown({ detail: nodes }) {
+            let toHide = Math.min(
+                nodes.reduce((count, node) => (node.overflows ? ++count : count), 0),
+                nodes.length - 1 // Never hide the menu button
+            );
+
+            let toShow = nodes.length - toHide - 1;
+            if (toShow > props.maxItems) {
+                toShow = props.maxItems;
+                toHide = nodes.length - toShow - 1;
+            } else if (toShow < props.minItems) {
+                toShow = props.minItems;
+                toHide = nodes.length - toShow - 1;
+            }
+            hidden.value = toHide;
+            shown.value = toShow;
+        }
+
+        watchPostEffect(() => {
+            if (props.maxItems < props.minItems) {
+                throw new Error("maxItems should be greater than minItems");
+            }
+        });
 
         return function render() {
             const defaultSlot = slots.default ? normalizeSlot(slots.default()) : [];

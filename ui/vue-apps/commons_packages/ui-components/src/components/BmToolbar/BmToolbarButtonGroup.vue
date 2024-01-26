@@ -1,33 +1,29 @@
 <script>
 import { useAttrs, useListeners, useSlots, h, computed } from "vue";
-import { useExtensions } from "@bluemind/extensions.vue";
 import BmButtonGroup from "../buttons/BmButtonGroup";
-import { useToolbarContext } from "./toolbar";
-import BmDropdownItem from "../dropdown/BmDropdownItem";
-import BmDropdownDivider from "../dropdown/BmDropdownDivider";
-import BmToolbarButton from "./BmToolbarButton";
 import BmToolbarToggle from "./BmToolbarToggle";
+import BmToolbarElement from "./BmToolbarElement";
+
 export default {
     name: "BmToolbarButtonGroup",
-    components: { BmDropdownDivider, BmToolbarButton, BmToolbarToggle },
-    setup(props) {
-        const { renderWebAppExtensions } = useExtensions();
+    components: { BmToolbarElement, BmToolbarToggle },
+    setup() {
         const slots = useSlots();
-        const attrs = useAttrs();
-
         const options = computed(() => ({
-            attrs,
-            props,
+            attrs: useAttrs(),
             class: "bm-toolbar-button-group"
         }));
-        const { isInToolbar } = useToolbarContext();
 
         return function render() {
-            if (isInToolbar.value) {
-                return h(BmButtonGroup, options.value, slots.default());
-            }
-            const items = slots.default().filter(node => node.tag);
-            return h("div", options.value, items);
+            return h(BmToolbarElement, {
+                scopedSlots: {
+                    toolbar: () => h(BmButtonGroup, options.value, slots.default()),
+                    menu: () => {
+                        const items = slots.default().filter(node => node.tag);
+                        return h("div", options.value, items);
+                    }
+                }
+            });
         };
     }
 };

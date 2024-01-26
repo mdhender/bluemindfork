@@ -1,9 +1,8 @@
 <script setup>
 import { defineProps } from "vue";
 import BmToggleableButton from "../buttons/BmToggleableButton";
-import BmToggleableIconButton from "../buttons/BmToggleableIconButton";
+import BmToolbarElement from "./BmToolbarElement";
 import BmDropdownItemToggle from "../dropdown/BmDropdownItemToggle";
-import { useToolbarContext } from "./toolbar";
 
 defineProps({
     pressed: {
@@ -11,21 +10,24 @@ defineProps({
         default: false
     }
 });
-
-const { isInToolbar } = useToolbarContext();
 </script>
 
 <template>
-    <bm-toggleable-button v-if="isInToolbar" v-bind="$attrs" :pressed="pressed" v-on="$listeners">
-        <slot />
-    </bm-toggleable-button>
-    <bm-dropdown-item-toggle
-        v-else
-        v-bind="$attrs"
-        :checked="pressed"
-        v-on="$listeners"
-        @change="$emit('update:pressed', $event)"
-    >
-        <slot />
-    </bm-dropdown-item-toggle>
+    <bm-toolbar-element>
+        <template #toolbar>
+            <bm-toggleable-button v-bind="$attrs" :pressed="pressed" v-on="$listeners">
+                <slot />
+            </bm-toggleable-button>
+        </template>
+        <template #menu>
+            <bm-dropdown-item-toggle
+                v-bind="$attrs"
+                :checked="pressed"
+                v-on="$listeners"
+                @change="$emit('update:pressed', $event)"
+            >
+                <slot />
+            </bm-dropdown-item-toggle>
+        </template>
+    </bm-toolbar-element>
 </template>

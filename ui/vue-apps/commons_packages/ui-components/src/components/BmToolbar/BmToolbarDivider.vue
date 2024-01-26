@@ -1,13 +1,18 @@
 <template>
-    <div v-if="isInToolbar" :class="className" />
-    <bm-dropdown-divider v-else :class="className" />
+    <bm-toolbar-element>
+        <template #toolbar>
+            <div :class="className" />
+        </template>
+        <template #menu>
+            <bm-dropdown-divider :class="className" />
+        </template>
+    </bm-toolbar-element>
 </template>
 
 <script setup>
-import { useToolbarContext } from "./toolbar";
 import BmDropdownDivider from "../dropdown/BmDropdownDivider";
+import BmToolbarElement from "./BmToolbarElement";
 
-const { isInToolbar } = useToolbarContext();
 const className = "bm-toolbar-divider";
 </script>
 

@@ -1,8 +1,8 @@
 <script setup>
 import { defineProps } from "vue";
+import BmToolbarElement from "./BmToolbarElement";
 import BmToggleableIconButton from "../buttons/BmToggleableIconButton";
 import BmDropdownItemToggle from "../dropdown/BmDropdownItemToggle";
-import { useToolbarContext } from "./toolbar";
 
 defineProps({
     pressed: {
@@ -13,28 +13,31 @@ defineProps({
         type: String,
         required: true
     },
-    overflownText: {
+    text: {
         type: String,
         required: true
     }
 });
-
-const { isInToolbar } = useToolbarContext();
 </script>
 
 <template>
-    <bm-toggleable-icon-button v-if="isInToolbar" v-bind="$attrs" :icon="icon" :pressed="pressed" v-on="$listeners">
-        <slot />
-    </bm-toggleable-icon-button>
-    <bm-dropdown-item-toggle
-        v-else
-        v-bind="$attrs"
-        :icon="icon"
-        :text="overflownText"
-        :checked="pressed"
-        v-on="$listeners"
-        @change="$emit('update:pressed', $event)"
-    >
-        {{ overflownText }}
-    </bm-dropdown-item-toggle>
+    <bm-toolbar-element>
+        <template #toolbar>
+            <bm-toggleable-icon-button v-bind="$attrs" :icon="icon" :pressed="pressed" v-on="$listeners">
+                <slot />
+            </bm-toggleable-icon-button>
+        </template>
+        <template #menu>
+            <bm-dropdown-item-toggle
+                v-bind="$attrs"
+                :icon="icon"
+                :text="text"
+                :checked="pressed"
+                v-on="$listeners"
+                @change="$emit('update:pressed', $event)"
+            >
+                {{ text }}
+            </bm-dropdown-item-toggle>
+        </template>
+    </bm-toolbar-element>
 </template>
