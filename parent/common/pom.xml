@@ -35,6 +35,7 @@
 				<module>net.bluemind.retry.support.tests</module>
 				<module>net.bluemind.systemd.notify.tests</module>
 				<module>net.bluemind.vertx.common.tests</module>
+				<module>net.bluemind.jna.utils.tests</module>
 			</modules>
 		</profile>
 	</profiles>
