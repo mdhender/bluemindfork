@@ -721,7 +721,7 @@
   <div>
     <strong>{msg meaning="calendar.popup.forward.recipient" desc="Forward event to"}Recipient : {/msg}</strong>
     <div class="{css bm-ui-form-entry} {css bm-clearfix}">
-      <input type="text" class="{css forward-attendee}" label="{msg meaning="calendar.event.addAttendee" desc="Add an attendee to the event"}Add an attendee ...{/msg}" name="" value="" style="width:100%; display: block;"/>
+      <input type="text" class="{css forward-attendee}" label="{msg meaning="calendar.event.addAttendee" desc="Add an attendee to the event"}Add an attendee ...{/msg}" name="" value="" style="width:100%; display: block; padding: 4px 2px 5px;" />
       <div class={css forward-recipients-list} style="display: none;"></div>
     </div>
     <strong>{msg meaning="calendar.popup.forward.node" desc="Add an note to added attendee"}Add a note : {/msg}</strong>
@@ -733,12 +733,14 @@
  * @param attendee
  */
 {template .forwardRecipient}
-  <div style="border: 1px solid #ccc; width: 100%; border-radius: 3px; padding: 3px 2px; line-height: 1.2;">
-    <div class="{css forward-recipient-remove} {css fa} {css fa-close}" style="float: right; line-height: 1.2;">&nbsp;</div>
+  <div style="border: 1px solid #ccc; width: 100%; border-radius: 3px; padding-right: 3px; line-height: 22px; overflow: hidden;">
+    <div class="{css forward-recipient-remove} {css fa} {css fa-close}" style="float: right; line-height: 22px;">&nbsp;</div>
     {if isNonnull($attendee['icon'])}  
-	    <img src="{$attendee['icon']}" alt="" />
+	    <img src="{$attendee['icon']}" alt="" style="vertical-align: bottom; padding-right: 3px;"/>
 	  {/if}
+    <span style="padding-left: 3px;">
     {$attendee['commonName']} {if $attendee['mailto'] && $attendee['commonName'] != $attendee['mailto']} &lt;{$attendee['mailto']}&gt;{/if}
+    </span>
     <input type='hidden' value='{$attendee['uri']}' name='attendees' />
   </div>
 {/template}
