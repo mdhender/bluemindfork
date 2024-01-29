@@ -131,7 +131,7 @@ class bm_ics extends rcube_plugin {
     $header = is_array($header) ? $header[0]: $header;
     $values = explode(';', $header);
     $ics = trim(array_shift($values));
-    if (count($values) > 1) {
+    if (count($values) > 1 && strpos($values[0], "recurid") !== false) {
       preg_match_all('/"([^"]+)"/', array_shift($values), $matches);
       $recurid = $matches[1][0];
     }
