@@ -67,10 +67,11 @@ restart_exceptnode_bm() {
 
 function memory_report() {
     total_mem=0
-    for svc in $(systemctl list-dependencies --plain bluemind.target | grep -Fv bluemind.target | sort | uniq); do
+    for svc in $(systemctl list-dependencies --plain bluemind.target | grep -Fv bluemind.target | sort | uniq) bm-nginx.service telegraf.service chronograf.service influxdb.service kapacitor.service bm-kafka-broker.service bm-kafka-zookeeper.service; do
 	curmem=$(systemctl show -p MemoryCurrent ${svc} |cut -b15-)
 	if [[ $curmem =~ ^[0-9]+$ ]]; then
-	    echo "Usage for ${svc} is ${curmem}"
+	    curmb=$(($curmem / 1024 / 1024))
+	    echo "Usage for ${svc} is ${curmem} (${curmb} MB)"
 	    total_mem=$(($total_mem + $curmem))
 	fi
     done
