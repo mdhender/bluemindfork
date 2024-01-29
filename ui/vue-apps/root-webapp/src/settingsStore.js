@@ -37,14 +37,16 @@ const getters = {
         }
     },
     EXTRA_FONT_FAMILIES: state => {
-        return state.domain_composer_font_stack?.split(";").map(fontValue => {
-            const fontName = fontValue.split(",")[0];
-            return {
-                id: fontName.toLowerCase(),
-                text: fontName,
-                value: fontValue.replaceAll(",", ", ")
-            };
-        });
+        return state.domain_composer_font_stack?.split(";").reduce((fontValues, currentFont) => {
+            const fontName = currentFont.split(",")[0];
+            return fontName.trim()
+                ? fontValues.concat({
+                      id: fontName.toLowerCase(),
+                      text: fontName,
+                      value: currentFont.replaceAll(",", ", ")
+                  })
+                : fontValues;
+        }, []);
     }
 };
 
