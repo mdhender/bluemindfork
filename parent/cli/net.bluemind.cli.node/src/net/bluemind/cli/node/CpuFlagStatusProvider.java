@@ -85,12 +85,24 @@ public class CpuFlagStatusProvider implements IStatusProvider {
 		if (!flagsSet.contains("aes")) {
 			// java ssl has intrinsics to use that (eg. for node ssl connections)
 			ctx.warn("[{}] CPU is missing AES flag and will provide poor SSL performance", srv.value.address());
-			if (flagsSet.contains("hypervisor")) {
-				ctx.warn("[{}] If your virtualization host can expose better CPU flags, performance will improve",
-						srv.value.address());
-			}
+			hypervisorAdvice(ctx, srv, flagsSet);
 		}
 
+		if (!flagsSet.contains("sha_ni")) {
+			// SHA hashing to message bodies can be hardware accelerated
+			// https://github.com/openjdk/jdk11u/blob/6739881b2fa7e8e8c05198bc7d5d4834638bd7d1/test/hotspot/jtreg/compiler/testlibrary/sha/predicate/IntrinsicPredicates.java#L62
+			ctx.warn("[{}] CPU is missing sha_ni flag and will provide poor email writing performance",
+					srv.value.address());
+			hypervisorAdvice(ctx, srv, flagsSet);
+		}
+
+	}
+
+	private void hypervisorAdvice(CliContext ctx, ItemValue<Server> srv, Set<String> flagsSet) {
+		if (flagsSet.contains("hypervisor")) {
+			ctx.warn("[{}] If your virtualization host can expose better CPU flags, performance will improve",
+					srv.value.address());
+		}
 	}
 
 }
