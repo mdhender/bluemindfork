@@ -34,6 +34,7 @@ import java.util.Comparator;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 import org.junit.After;
 import org.junit.Before;
@@ -42,18 +43,18 @@ import org.junit.Test;
 
 import com.google.common.hash.Hashing;
 
-import io.vertx.core.json.JsonObject;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.core.rest.base.JsonStreams;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.sds.sync.api.ISdsSync;
 import net.bluemind.sds.sync.api.SdsSyncEvent;
 import net.bluemind.sds.sync.api.SdsSyncEvent.Body;
 import net.bluemind.sds.sync.service.internal.queue.SdsSyncQueue;
-import net.openhft.chronicle.queue.TailerDirection;
 
 public class SdsSyncServiceTests {
 	public static Path sdsSyncQueuePath;
@@ -67,7 +68,9 @@ public class SdsSyncServiceTests {
 
 	@After
 	public void afterQueueTests() throws Exception {
-		Files.walk(sdsSyncQueuePath).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+		try (Stream<Path> qstream = Files.walk(sdsSyncQueuePath)) {
+			qstream.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+		}
 		queue.close();
 	}
 
@@ -77,7 +80,7 @@ public class SdsSyncServiceTests {
 	}
 
 	@Before
-	public void populateQueue() throws Exception {
+	public void populateQueue() {
 		queue = new SdsSyncQueue();
 		byte[] x = { (byte) 0x01, (byte) 0x02 };
 		queue.putBody(SdsSyncEvent.BODYADD, new Body(x, "bm-master"));
@@ -87,23 +90,22 @@ public class SdsSyncServiceTests {
 	}
 
 	@Test(expected = ServerFault.class)
-	public void noAccess() throws InterruptedException {
+	public void noAccess() {
 		var sdsSyncApi = ServerSideServiceProvider.getProvider(SecurityContext.ANONYMOUS).instance(ISdsSync.class);
-		ReadStream<JsonObject> reader = VertxStream.read(sdsSyncApi.sync(-1L));
+		VertxStream.read(sdsSyncApi.sync(-1L));
 	}
 
 	@Test
 	public void streamReadall() throws InterruptedException {
 		var sdsSyncApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ISdsSync.class);
-		ReadStream<JsonObject> reader = VertxStream.read(sdsSyncApi.sync(-1L));
+		ReadStream<Buffer> reader = VertxStream.read(sdsSyncApi.sync(-1L));
 		var cdl = new CountDownLatch(4);
 		reader.endHandler(v -> System.err.println("ended"));
-		reader.handler(body -> {
+		reader.exceptionHandler(t -> t.printStackTrace(System.err));
+		JsonStreams.consume(reader, body -> {
 			System.err.println("body: " + body.encodePrettily());
 			cdl.countDown();
 		});
-		reader.exceptionHandler(t -> System.err.println("err: " + t));
-		reader.resume();
 
 		assertTrue(cdl.await(5, TimeUnit.SECONDS));
 	}
@@ -111,17 +113,17 @@ public class SdsSyncServiceTests {
 	@Test
 	public void streamReadFromindex() throws InterruptedException {
 		var sdsSyncApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ISdsSync.class);
-		var lastIndex = queue.createTailer().toEnd().direction(TailerDirection.BACKWARD).index() - 1;
-		ReadStream<JsonObject> reader = VertxStream.read(sdsSyncApi.sync(lastIndex));
+		var lastIndex = queue.queue().lastIndex() - 1;
 		var cdl = new CountDownLatch(1);
+		ReadStream<Buffer> reader = VertxStream.read(sdsSyncApi.sync(lastIndex));
 		reader.endHandler(v -> System.err.println("ended"));
-		reader.handler(body -> {
+		reader.exceptionHandler(t -> t.printStackTrace(System.err));
+
+		JsonStreams.consume(reader, body -> {
 			System.err.println("body: " + body.encodePrettily());
 			assertEquals(Long.valueOf(lastIndex), body.getLong("index"));
 			cdl.countDown();
 		});
-		reader.exceptionHandler(t -> System.err.println("err: " + t));
-		reader.resume();
 
 		assertTrue(cdl.await(5, TimeUnit.SECONDS));
 	}
@@ -137,13 +139,15 @@ public class SdsSyncServiceTests {
 			queue.putBody(SdsSyncEvent.BODYADD, new Body(randomHash, "bm-master"));
 		}
 		System.err.println("pushed 1 000 000 items in " + ((System.nanoTime() - start) / 1000000) + " ms");
-		Files.walk(sdsSyncQueuePath).forEach(p -> {
-			try {
-				// Expected ~ 62 bytes/message
-				System.err.println(p.toString() + " " + String.valueOf(Files.size(p)));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		});
+		try (Stream<Path> qstream = Files.walk(sdsSyncQueuePath)) {
+			qstream.forEach(p -> {
+				try {
+					// Expected ~ 62 bytes/message
+					System.err.println(p.toString() + " " + Files.size(p));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			});
+		}
 	}
 }

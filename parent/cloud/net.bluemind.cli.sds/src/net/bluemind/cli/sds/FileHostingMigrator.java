@@ -39,6 +39,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import io.netty.util.concurrent.DefaultThreadFactory;
 import io.vertx.core.json.JsonObject;
@@ -85,6 +86,7 @@ public class FileHostingMigrator {
 				.put("accessKey", conf.get(SysConfKeys.sds_filehosting_s3_access_key.name()))//
 				.put("secretKey", conf.get(SysConfKeys.sds_filehosting_s3_secret_key.name()))//
 				.put("region", conf.get(SysConfKeys.sds_filehosting_s3_region.name()))//
+				.put("insecure", Boolean.getBoolean(conf.get(SysConfKeys.sds_filehosting_s3_insecure.name())))//
 				.put("bucket", conf.get(SysConfKeys.sds_filehosting_s3_bucket.name()));
 
 		return factory.map(f -> f.syncStore(f.create(VertxPlatform.getVertx(), jsonconf, "not_a_valid_location")))
@@ -129,33 +131,35 @@ public class FileHostingMigrator {
 	public void migratePath(Path rootPath, Predicate<Path> filter, Function<Path, List<String>> getUid)
 			throws IOException {
 		ArrayBlockingQueue<Path> q = new ArrayBlockingQueue<>(workers);
-		ExecutorService pool = Executors.newFixedThreadPool(workers, new DefaultThreadFactory("cli-sds-filehosting"));
-
-		Files.walk(rootPath, FileVisitOption.FOLLOW_LINKS) //
-				.filter(filter::test) //
-				.forEach(p -> {
-					Path relativePath = rootPath.relativize(p);
-					List<String> uids = getUid.apply(relativePath);
-					for (String uid : uids) {
-						try {
-							q.put(p); // block until a slot is free
-						} catch (InterruptedException ie) {
-						}
-						pool.submit(() -> {
-							try {
-								ctx.info("{} -> {}", relativePath, uid);
-								store.upload(PutRequest.of(uid, p.toAbsolutePath().toString()));
-							} finally {
-								q.remove(); // NOSONAR: We don't care what path we remove
-							}
-						});
+		try (Stream<Path> walker = Files.walk(rootPath, FileVisitOption.FOLLOW_LINKS) //
+				.filter(filter::test);
+				ExecutorService pool = Executors.newFixedThreadPool(workers,
+						new DefaultThreadFactory("cli-sds-filehosting"))) {
+			walker.forEach(p -> {
+				Path relativePath = rootPath.relativize(p);
+				List<String> uids = getUid.apply(relativePath);
+				for (String uid : uids) {
+					try {
+						q.put(p); // block until a slot is free
+					} catch (InterruptedException ie) {
+						Thread.currentThread().interrupt();
 					}
-				});
-
-		pool.shutdown();
-		try {
-			pool.awaitTermination(1, TimeUnit.MINUTES);
-		} catch (InterruptedException e) {
+					pool.submit(() -> {
+						try {
+							ctx.info("{} -> {}", relativePath, uid);
+							store.upload(PutRequest.of(uid, p.toAbsolutePath().toString()));
+						} finally {
+							q.remove(); // NOSONAR: We don't care what path we remove
+						}
+					});
+				}
+			});
+			pool.shutdown();
+			try {
+				pool.awaitTermination(5, TimeUnit.MINUTES);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
 		}
 	}
 

@@ -23,8 +23,13 @@
 package net.bluemind.sds.sync.service.internal.stream;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
 
 import org.slf4j.Logger;
@@ -32,26 +37,29 @@ import org.slf4j.LoggerFactory;
 
 import io.netty.buffer.ByteBufUtil;
 import io.netty.util.concurrent.DefaultThreadFactory;
-import io.vertx.core.Context;
 import io.vertx.core.Handler;
-import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.streams.ReadStream;
 import net.bluemind.core.api.Stream;
-import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.core.api.fault.ErrorCode;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.sds.sync.service.internal.queue.SdsSyncQueue;
 import net.openhft.chronicle.queue.ExcerptTailer;
 
-public class CQSdsSyncReadStream implements ReadStream<JsonObject>, Stream {
+public class CQSdsSyncReadStream implements ReadStream<Buffer>, Stream {
 	private static final Logger logger = LoggerFactory.getLogger(CQSdsSyncReadStream.class);
 	private static final ExecutorService SSEXECUTOR = Executors
 			.newSingleThreadExecutor(new DefaultThreadFactory("sds-sync-cq-stream"));
 	private final SdsSyncQueue q;
 	private Handler<Throwable> exceptionHandler;
-	private boolean paused = true;
-	private Handler<JsonObject> handler;
+	private final AtomicBoolean paused = new AtomicBoolean(true);
+	private final AtomicBoolean ended = new AtomicBoolean(false);
+	private final AtomicLong lastIndex = new AtomicLong(0L);
+	private final AtomicLong currentIndex = new AtomicLong(0L);
+	private final ExcerptTailer tailer;
+	private Handler<Buffer> handler;
 	private Handler<Void> endHandler;
-	private final long fromIndex;
 
 	public CQSdsSyncReadStream() {
 		this(-1L);
@@ -59,7 +67,7 @@ public class CQSdsSyncReadStream implements ReadStream<JsonObject>, Stream {
 
 	public CQSdsSyncReadStream(long fromIndex) {
 		q = new SdsSyncQueue();
-		this.fromIndex = fromIndex;
+		this.tailer = getTailer(fromIndex);
 	}
 
 	private static <T> CompletableFuture<T> onCqThread(Supplier<T> r) {
@@ -69,6 +77,23 @@ public class CQSdsSyncReadStream implements ReadStream<JsonObject>, Stream {
 		});
 	}
 
+	private ExcerptTailer getTailer(long offset) {
+		try {
+			return onCqThread(() -> {
+				ExcerptTailer t = q.createTailer();
+				lastIndex.set(q.queue().lastIndex());
+				if (offset > 0) {
+					t.moveToIndex(offset);
+				} else {
+					t.toStart();
+				}
+				return t;
+			}).get(5, TimeUnit.SECONDS);
+		} catch (Exception e) { // NOSONAR
+			throw ServerFault.create(ErrorCode.TIMEOUT, e);
+		}
+	}
+
 	@Override
 	public CQSdsSyncReadStream exceptionHandler(Handler<Throwable> handler) {
 		this.exceptionHandler = handler;
@@ -76,31 +101,42 @@ public class CQSdsSyncReadStream implements ReadStream<JsonObject>, Stream {
 	}
 
 	@Override
-	public CQSdsSyncReadStream handler(Handler<JsonObject> handler) {
+	public CQSdsSyncReadStream handler(Handler<Buffer> handler) {
 		this.handler = handler;
 		return this;
 	}
 
 	@Override
 	public CQSdsSyncReadStream pause() {
-		paused = true;
+		paused.set(true);
 		return this;
 	}
 
-	private synchronized void read(Context ctx) {
-		if (handler == null) {
+	private void end() {
+		if (ended.compareAndSet(false, true)) {
+			logger.error("end() called but was already set", new Exception());
+		} else {
+			ended.set(true);
+			endHandler.handle(null);
+			close();
+		}
+	}
+
+	private void read() {
+		if (paused.get() || ended.get()) {
 			return;
 		}
-		try (ExcerptTailer tailer = q.createTailer()) {
-			long lastIndex = tailer.toEnd().index();
-			if (fromIndex > 0) {
-				tailer.moveToIndex(fromIndex);
-			} else {
-				tailer.toStart();
-			}
-			while (!paused && tailer.index() < lastIndex) {
-				tailer.readDocument(r -> r.read("sdssync").marshallable(m -> {
-					JsonObject jo = new JsonObject();
+		fetchPending();
+		if (currentIndex.get() >= lastIndex.get()) {
+			end();
+		}
+	}
+
+	private JsonObject fetchOne() throws InterruptedException, ExecutionException, TimeoutException {
+		return onCqThread(() -> {
+			try {
+				JsonObject jo = new JsonObject();
+				boolean ret = tailer.readDocument(r -> r.read("sdssync").marshallable(m -> {
 					String type = m.read("type").text();
 					jo.put("type", type);
 					if (type.equals("FHADD")) {
@@ -110,29 +146,44 @@ public class CQSdsSyncReadStream implements ReadStream<JsonObject>, Stream {
 						jo.put("srv", m.read("srv").text());
 					}
 					jo.put("index", tailer.index());
-					ctx.runOnContext(v -> handler.handle(jo));
 				}));
+				return ret ? jo : null;
+			} finally {
+				currentIndex.set(tailer.index());
 			}
-			close();
-			if (endHandler != null) {
-				ctx.runOnContext(v -> endHandler.handle(null));
+		}).get(5, TimeUnit.SECONDS);
+	}
+
+	private void fetchPending() {
+		if (handler == null) {
+			return;
+		}
+		try {
+			while (!paused.get() && !ended.get()) {
+				JsonObject data = fetchOne();
+				if (data == null) {
+					paused.set(true);
+					break;
+				} else {
+					handler.handle(Buffer.buffer(data.encode()));
+				}
 			}
-		} catch (Exception e) { // NOSONAR
+		} catch (Throwable e) {// NOSONAR
 			if (exceptionHandler != null) {
-				ctx.runOnContext(v -> exceptionHandler.handle(e));
+				logger.error("error throw: ", e);
+				exceptionHandler.handle(e);
+				end();
+			} else {
+				logger.error("no exception handler for {}", e.getMessage(), e);
 			}
 		}
+
 	}
 
 	@Override
 	public CQSdsSyncReadStream resume() {
-		paused = false;
-		Vertx vertx = VertxPlatform.getVertx();
-		Context vertxContext = vertx.getOrCreateContext();
-		onCqThread(() -> {
-			read(vertxContext);
-			return null;
-		});
+		paused.set(false);
+		read();
 		return this;
 	}
 
