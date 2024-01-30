@@ -14,7 +14,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.apache.xerces;bundle-version="2.9.0",
  org.jsoup,
  io.netty,
- com.sun.mail.jakarta.mail
+ com.sun.mail.jakarta.mail,
+ net.bluemind.jna.utils
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.mime4j.common

@@ -24,6 +24,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.nio.charset.Charset;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Supplier;
 
 import org.apache.james.mime4j.dom.BinaryBody;
 import org.apache.james.mime4j.dom.TextBody;
@@ -36,6 +38,8 @@ import com.google.common.io.ByteStreams;
 
 import io.netty.util.internal.PlatformDependent;
 import net.bluemind.common.io.FileBackedOutputStream;
+import net.bluemind.jna.utils.MemfdSupport;
+import net.bluemind.jna.utils.OffHeapTemporaryFile;
 
 public class OffloadedBodyFactory implements BodyFactory {
 
@@ -44,16 +48,32 @@ public class OffloadedBodyFactory implements BodyFactory {
 	private static final String TMP_PREFIX = System.getProperty("net.bluemind.property.product", "unknown-jvm") + "-"
 			+ OffloadedBodyFactory.class.getName();
 
-	private static final class SizeStorage {
+	private static final Supplier<SizeStorage> CREATOR = MemfdSupport.isAvailable() //
+			? OffHeapSizeStorage::new
+			: FbosSizeStorage::new;
+
+	private static interface SizeStorage {
+
+		void store(IStreamTransfer trans, InputStream in) throws IOException;
+
+		InputStream getInputStream() throws IOException;
+
+		int size();
+
+		void delete();
+
+	}
+
+	private static final class FbosSizeStorage implements SizeStorage {
 
 		private final FileBackedOutputStream fbos;
 		private long size;
 
-		public SizeStorage() {
+		public FbosSizeStorage() {
 			fbos = new FileBackedOutputStream(32768, TMP_PREFIX);
 		}
 
-		private void store(IStreamTransfer trans, InputStream in) throws IOException {
+		public void store(IStreamTransfer trans, InputStream in) throws IOException {
 			size = trans.transfer(in, fbos);
 		}
 
@@ -70,7 +90,39 @@ public class OffloadedBodyFactory implements BodyFactory {
 			try {
 				fbos.reset();
 			} catch (IOException e) {
+				// OK
 			}
+		}
+
+	}
+
+	private static final class OffHeapSizeStorage implements SizeStorage {
+
+		private static final AtomicLong CNT = new AtomicLong();
+		private final OffHeapTemporaryFile memFd;
+		private int size;
+
+		public OffHeapSizeStorage() {
+			memFd = MemfdSupport.newOffHeapTemporaryFile(TMP_PREFIX + "-" + CNT.incrementAndGet());
+		}
+
+		public void store(IStreamTransfer trans, InputStream in) throws IOException {
+			try (var out = memFd.openForWriting()) {
+				size = (int) trans.transfer(in, out);
+			}
+		}
+
+		public InputStream getInputStream() throws IOException {
+			return memFd.openForReading();
+		}
+
+		public int size() {
+			return size;
+		}
+
+		public void delete() {
+			logger.debug("FBOS reset.");
+			memFd.close();
 		}
 
 	}
@@ -121,7 +173,7 @@ public class OffloadedBodyFactory implements BodyFactory {
 	}
 
 	private SizeStorage store(InputStream in) throws IOException {
-		SizeStorage ret = new SizeStorage();
+		SizeStorage ret = CREATOR.get();
 		ret.store(trans, in);
 		in.close();
 		return ret;
