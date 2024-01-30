@@ -31,29 +31,27 @@ const perPage = ref(5);
 const currentPage = ref(1);
 const items = ref([]);
 const pattern = ref("");
-const fields = computed(() => {
-    const fields = [];
-    fields.push({
+const fields = [
+    {
         key: "contact",
         label: i18nInstance.t("preferences.account.delegates.delegate"),
         class: "contact-cell",
         sortable: true
-    });
-    fields.push({
+    },
+    {
         key: "calendarRight",
         label: i18nInstance.t("common.application.calendar"),
         class: "right-cell calendar-right-cell"
-    });
-    fields.push({ key: "todoListRight", label: i18nInstance.t("common.application.tasks"), class: "right-cell" });
-    fields.push({ key: "messageRight", label: i18nInstance.t("common.application.webmail"), class: "right-cell" });
-    fields.push({
+    },
+    { key: "todoListRight", label: i18nInstance.t("common.application.tasks"), class: "right-cell" },
+    { key: "messageRight", label: i18nInstance.t("common.application.webmail"), class: "right-cell" },
+    {
         key: "contactsRight",
         label: i18nInstance.t("common.application.contacts"),
         class: "right-cell"
-    });
-    fields.push({ key: "edit", label: "", class: "edit-cell" });
-    return fields;
-});
+    },
+    { key: "edit", label: "", class: "edit-cell" }
+];
 
 const filteredItems = computed(() =>
     items.value.filter(({ contact: { dn, address } }) => matchPattern(pattern.value, [dn, address]))
@@ -94,6 +92,7 @@ const remove = contact => {
         await removeDelegate(contact.uid);
         await fetchAcls();
         store.dispatch(`alert/${SUCCESS}`, SAVE_ALERT);
+        confirmDeleteModal.value?.hide();
     };
     confirmDeleteModal.value.show();
 };
