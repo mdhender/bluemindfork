@@ -1,11 +1,12 @@
 <script setup>
-import { computed } from "vue";
 import { inject } from "@bluemind/inject";
 import store from "@bluemind/store";
 import { BmToggleableButton } from "@bluemind/ui-components";
 import { SET_EVENT_STATUS } from "~/actions";
 import EventHeader from "./base/EventHeader";
 import EventDetail from "./base/EventDetail";
+import { onUnmounted } from "vue";
+import { REMOVE, WARNING } from "@bluemind/alert.store";
 import EventFooter from "./base/EventFooter";
 import { REPLY_ACTIONS } from "./replyActions";
 
@@ -23,6 +24,32 @@ const replyActions = [
 const setEventStatus = status => store.dispatch(`mail/${SET_EVENT_STATUS}`, { status });
 
 const user = inject("UserSession").userId;
+
+const privateEventNotSentToDelegatesAlert = {
+    alert: {
+        name: "mail.private_event_not_sent_to_delegates",
+        uid: "PRIVATE_EVENT_NOT_SENT_TO_DELEGATES",
+        payload: props.message
+    },
+    options: { area: "right-panel", renderer: "PrivateEventNotSentToDelegatesAlert" }
+};
+
+const fetchHasImipDelegates = async () => {
+    const mailboxFilter = await inject("MailboxesPersistence").getMailboxFilter(user);
+    hasImipDelegates = mailboxFilter.rules.some(rule => matchCopyImipMailboxRule(rule, user));
+};
+
+const showPrivateEventNotSentToDelegatesAlert = () => {
+    if (hasImipDelegates && props.event.private) {
+        store.dispatch(`alert/${WARNING}`, privateEventNotSentToDelegatesAlert);
+    }
+};
+
+hasImipDelegates === undefined
+    ? fetchHasImipDelegates().then(showPrivateEventNotSentToDelegatesAlert)
+    : showPrivateEventNotSentToDelegatesAlert();
+
+onUnmounted(() => store.dispatch(`alert/${REMOVE}`, privateEventNotSentToDelegatesAlert.alert));
 </script>
 
 <template>
@@ -61,6 +88,32 @@ const user = inject("UserSession").userId;
         </div>
     </div>
 </template>
+
+<script>
+import { messageUtils } from "@bluemind/mail";
+import { MailFilterRuleActionName, MailFilterRuleOperatorName } from "@bluemind/mailbox.api";
+
+let hasImipDelegates;
+
+const matchCopyImipMailboxRule = (rule, userId) => {
+    return (
+        rule.active === true &&
+        rule.client === "system" &&
+        rule.conditions.some(({ filter: { fields, operator, values } }) =>
+            fields.some(
+                f =>
+                    f === `headers.${messageUtils.MessageHeader.X_BM_CALENDAR}` &&
+                    operator === MailFilterRuleOperatorName.CONTAINS &&
+                    values[0]?.includes(`calendar:Default:${userId}`)
+            )
+        ) &&
+        rule.actions.some(
+            ({ name, emails, clientProperties: { type, delegate } }) =>
+                name === MailFilterRuleActionName.REDIRECT && emails?.length && type === "delegation" && delegate
+        )
+    );
+};
+</script>
 
 <style lang="scss">
 @import "~@bluemind/ui-components/src/css/utils/typography";

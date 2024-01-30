@@ -120,6 +120,9 @@
                 "error": "Failed to move \"{folder}\" to {destination}.",
                 "to_mailbox_root": "the root of {mailbox}"
             },
+            "private_event_not_sent_to_delegates": {
+                "warning": "Delegates did not receive this private invitation."
+            },
             "read_only_folder": {
                 "info": "Read-only message. Some actions (like Move or Remove) may not be available."
             },
