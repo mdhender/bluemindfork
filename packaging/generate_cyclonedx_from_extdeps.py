@@ -98,6 +98,8 @@ external_deps_mapping = {
 with open("./EXTDEPS", "r") as f:
     lines = f.readlines()
 
+bom_ref = f"extdep@{args.bluemind_version}"
+
 bom = {
     "bomFormat": "CycloneDX",
     "specVersion": "1.4",
@@ -109,13 +111,17 @@ bom = {
             {"vendor": "BlueMind", "name": "EXTDEPS_TO_SBOM", "version": "0.0.0"}
         ],
         "component": {
-            "name": "BlueMind",
+            "name": "extdeps",
             "version": args.bluemind_version,
             "type": "application",
+            "bom-ref": bom_ref
         },
     },
     "components": [],
-    "dependencies": [],
+    "dependencies": [{
+        "ref": bom_ref,
+        "dependsOn" : []
+    }],
 }
 
 
@@ -133,6 +139,8 @@ for line in lines:
             component = {}
             for key, template in parsing_data.component_template.items():
                 component[key] = template.format_map(parsed_version)
+            component["bom-ref"] = f"{bom_ref}:{component['cpe']}"
+            bom["dependencies"][0]["dependsOn"].append(component["bom-ref"])
             bom["components"].append(component)
 
 print(json.dumps(bom))
