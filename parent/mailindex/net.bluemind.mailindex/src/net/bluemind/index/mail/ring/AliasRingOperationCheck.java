@@ -72,7 +72,7 @@ public class AliasRingOperationCheck extends AbstractVerticle {
 		vertx.setTimer(60000, (id -> {
 			if (StateContext.getState() == SystemState.CORE_STATE_RUNNING) {
 				IMailIndexService service = MailIndexActivator.getService();
-				if (!service.isNoop()) {
+				if (service != null && !service.isNoop()) {
 					checkAliasCoherency(service);
 				}
 			} else {
