@@ -299,18 +299,17 @@ public class MailboxRecordExpungedStoreTests {
 			boxRecordStore.create(it, mb);
 			mb.internalFlags = Arrays.asList(MailboxRecord.InternalFlag.expunged);
 			boxRecordStore.update(it, mb);
-
-			try (Connection con = JdbcTestHelper.getInstance().getMailboxDataDataSource().getConnection();
-					PreparedStatement stm = con
-							.prepareStatement("UPDATE q_mailbox_record_expunged set created = ? WHERE item_id = ?;")) {
-				stm.setDate(1, adaptSqlDate(daysBeforeNow));
-				stm.setLong(2, it.id);
-				int updated = stm.executeUpdate();
-				assertEquals(1, updated);
-			}
 		} else {
 			mb.internalFlags = Arrays.asList(MailboxRecord.InternalFlag.expunged);
 			boxRecordStore.create(it, mb);
+		}
+		try (Connection con = JdbcTestHelper.getInstance().getMailboxDataDataSource().getConnection();
+				PreparedStatement stm = con
+						.prepareStatement("UPDATE q_mailbox_record_expunged set created = ? WHERE item_id = ?;")) {
+			stm.setDate(1, adaptSqlDate(daysBeforeNow));
+			stm.setLong(2, it.id);
+			int updated = stm.executeUpdate();
+			assertEquals(1, updated);
 		}
 		return it;
 	}
