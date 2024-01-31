@@ -65,7 +65,7 @@ watchEffect(() => {
             <div class="d-flex align-items-center pt-4 regular">
                 <bm-icon icon="open-envelope" class="mr-4 align-self-start" />
                 <span>
-                    <span class="mr-5">
+                    <span class="mr-5 align-top">
                         {{
                             delegatesWithCopyImipRuleCount > 0
                                 ? $t("preferences.account.delegates.receive_imip", {

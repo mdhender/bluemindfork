@@ -39,7 +39,7 @@
     "preferences.account.delegates.receive_imip.choice": "Voulez-vous recevoir également ces messages ?",
     "preferences.account.delegates.receive_imip.none": "Aucun délégué désigné pour recevoir les messages relatifs à mes réunions.",
     "preferences.account.delegates.receive_imip.none.notice": "Je continue donc à recevoir les messages relatifs à mes réunions.",
-    "preferences.account.delegates.receive_imip": "Les délégués désignés ({count}) reçoivent les messages relatifs à mes réunions.",
+    "preferences.account.delegates.receive_imip": "Les délégués désignés ({count}) reçoivent les messages relatifs à mes réunions, à l’exception des réunions privées.",
     "preferences.account.delegates.right.addressbook.can_read": "Peut voir mes contacts",
     "preferences.account.delegates.right.addressbook.can_edit": "Peut modifier mes contacts",
     "preferences.account.delegates.right.addressbook.can_edit_and_manage_shares": "Peut modifier mes contacts et gérer mes partages",

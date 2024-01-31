@@ -39,7 +39,7 @@
     "preferences.account.delegates.receive_imip.choice": "Do you also want to receive these messages?",
     "preferences.account.delegates.receive_imip.none": "No delegates designated to receive messages related to my meetings.",
     "preferences.account.delegates.receive_imip.none.notice": "I am still receiving messages related to my meetings.",
-    "preferences.account.delegates.receive_imip": "Designated delegates ({count}) receive messages related to my meetings.",
+    "preferences.account.delegates.receive_imip": "Designated delegates ({count}) receive messages related to my meetings, with the exception of private meetings.",
     "preferences.account.delegates.right.addressbook.can_read": "Can see my contacts",
     "preferences.account.delegates.right.addressbook.can_edit": "Can edit my contacts",
     "preferences.account.delegates.right.addressbook.can_edit_and_manage_shares": "Can edit my contacts and manage my shares",
