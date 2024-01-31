@@ -4,7 +4,11 @@ import { Verb } from "@bluemind/core.container.api";
 import { Flag } from "@bluemind/email";
 import i18n from "@bluemind/i18n";
 import { inject } from "@bluemind/inject";
+import { messageUtils } from "@bluemind/mail";
+import { MailFilterRuleActionName, MailFilterRuleCondition, MailFilterRuleOperatorName } from "@bluemind/mailbox.api";
 import store from "@bluemind/store";
+
+const { MessageHeader } = messageUtils;
 
 export function useDelegation() {
     const DELEGATION_VERBS = [Verb.SendOnBehalf, Verb.SendAs];
@@ -239,14 +243,14 @@ export function useDelegation() {
             rule.conditions.some(({ filter: { fields, operator, values } }) =>
                 fields.some(
                     f =>
-                        f === "headers.X-BM-Calendar" &&
-                        operator === "CONTAINS" &&
+                        f === `headers.${MessageHeader.X_BM_CALENDAR}` &&
+                        operator === MailFilterRuleOperatorName.CONTAINS &&
                         values[0]?.includes(calendarUid.value)
                 )
             ) &&
             rule.actions.some(
                 ({ name, emails, clientProperties: { type, delegate } }) =>
-                    name === "REDIRECT" && emails?.length && type === "delegation" && delegate
+                    name === MailFilterRuleActionName.REDIRECT && emails?.length && type === "delegation" && delegate
             )
         );
     };
@@ -286,7 +290,7 @@ export function useDelegation() {
     const addDelegateToCopyImipMailboxRule = async ({ uid, address, receiveImipOption }) => {
         let { mailboxFilterRules, copyImipMailboxRule } = copyRulesAndImipRule();
         const copyImipAction = {
-            name: "REDIRECT",
+            name: MailFilterRuleActionName.REDIRECT,
             keepCopy: receiveImipOption !== receiveImipOptions.ONLY_DELEGATE,
             emails: [address],
             clientProperties: { type: "delegation", delegate: uid }
@@ -307,12 +311,22 @@ export function useDelegation() {
             conditions: [
                 {
                     filter: {
-                        fields: ["headers.X-BM-Calendar"],
-                        operator: "CONTAINS",
+                        fields: [`headers.${MessageHeader.X_BM_CALENDAR}`],
+                        operator: `${MailFilterRuleOperatorName.CONTAINS}`,
                         values: [calendarUid.value]
                     },
                     negate: false,
-                    operator: "AND",
+                    operator: MailFilterRuleCondition.Operator.AND,
+                    conditions: []
+                },
+                {
+                    filter: {
+                        fields: [`headers.${MessageHeader.X_BM_EVENT_PRIVATE}`],
+                        operator: `${MailFilterRuleOperatorName.EQUALS}`,
+                        values: [true]
+                    },
+                    negate: true,
+                    operator: MailFilterRuleCondition.Operator.AND,
                     conditions: []
                 }
             ]
@@ -347,7 +361,7 @@ export function useDelegation() {
 
         // update all REDIRECT actions
         copyImipMailboxRule.actions.forEach(a => {
-            if (a.clientProperties?.type === "delegation" && a.name === "REDIRECT") {
+            if (a.clientProperties?.type === "delegation" && a.name === MailFilterRuleActionName.REDIRECT) {
                 a.keepCopy = receiveImipOption !== receiveImipOptions.ONLY_DELEGATE;
             }
         });
@@ -366,7 +380,7 @@ export function useDelegation() {
                     if (action.name === "SET_FLAGS") {
                         return receiveImipOptions.COPY;
                     }
-                    if (action.name === "REDIRECT" && action.keepCopy) {
+                    if (action.name === MailFilterRuleActionName.REDIRECT && action.keepCopy) {
                         keepCopy = true;
                     }
                 }
@@ -397,7 +411,9 @@ export function useDelegation() {
                 action => !matchCopyImipActionForDelegate(action, uid)
             );
 
-            const remainingRedirectActions = updatedActions.filter(({ name }) => name === "REDIRECT").length;
+            const remainingRedirectActions = updatedActions.filter(
+                ({ name }) => name === MailFilterRuleActionName.REDIRECT
+            ).length;
             if (remainingRedirectActions === 0) {
                 // remove the entire rule
                 mailboxFilterRules.splice(copyImipMailboxRuleIndex, 1);
@@ -410,7 +426,10 @@ export function useDelegation() {
     };
 
     const matchCopyImipActionForDelegate = ({ name, emails, clientProperties: { type, delegate } }, delegateUid) =>
-        name === "REDIRECT" && emails?.length && type === "delegation" && delegate === delegateUid;
+        name === MailFilterRuleActionName.REDIRECT &&
+        emails?.length &&
+        type === "delegation" &&
+        delegate === delegateUid;
 
     const canSeePrivateEvents = uid =>
         getCalendarAcl()?.some(({ subject, verb }) => subject === uid && verb === Verb.ReadExtended);
