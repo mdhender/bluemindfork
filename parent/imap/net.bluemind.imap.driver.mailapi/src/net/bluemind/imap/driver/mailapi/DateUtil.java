@@ -62,7 +62,7 @@ public final class DateUtil {
 
 	private static String getTimezoneString(Calendar cal) {
 		int tzoffset = (cal.get(Calendar.ZONE_OFFSET) + cal.get(Calendar.DST_OFFSET)) / 60000;
-		char tzsign = tzoffset > 0 ? '+' : '-';
+		char tzsign = tzoffset >= 0 ? '+' : '-';
 		tzoffset = Math.abs(tzoffset);
 
 		StringBuilder sb = new StringBuilder(5);
