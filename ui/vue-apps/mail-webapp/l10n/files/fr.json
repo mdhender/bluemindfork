@@ -494,7 +494,6 @@
     "mail.viewer.invitation.counter.attendees": "Votre invitation a été transférée.",
     "mail.viewer.invitation.not_found.title": "Impossible d'accéder aux informations de cet événement.",
     "mail.viewer.invitation.not_found.description": "Il a pu être supprimé, ou vous n'avez pas les droits sur le calendrier dans lequel il se trouve.",
-    "mail.viewer.invitation.private.restricted": "{user} ne vous a pas donné le droit de gérer ses événements privés.",
     "mail": {
         "actions": {
             "move_folder_to_trash": {

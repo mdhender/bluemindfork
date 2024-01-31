@@ -23,8 +23,6 @@ const replyActions = [
 const setEventStatus = status => store.dispatch(`mail/${SET_EVENT_STATUS}`, { status });
 
 const user = inject("UserSession").userId;
-
-const restrictedPrivateEvent = computed(() => props.event.private && !props.event.attendee);
 </script>
 
 <template>
@@ -58,12 +56,8 @@ const restrictedPrivateEvent = computed(() => props.event.private && !props.even
                 </div>
             </template>
         </event-header>
-        <event-header v-else-if="restrictedPrivateEvent">
-            <b>{{ $t("mail.viewer.invitation.private.restricted", { user: message.to[0].dn }) }}</b>
-        </event-header>
         <div>
             <event-detail :event="event" :message="message" />
-            <event-footer v-if="!restrictedPrivateEvent" :event="event" />
         </div>
     </div>
 </template>
