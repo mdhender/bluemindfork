@@ -1,6 +1,5 @@
 package net.bluemind.imap.command.parser;
 
-import java.text.ParseException;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -11,7 +10,8 @@ import org.slf4j.LoggerFactory;
 import net.bluemind.imap.Address;
 import net.bluemind.imap.EncodedWord;
 import net.bluemind.imap.Envelope;
-import net.bluemind.imap.impl.DateParser;
+import net.bluemind.imap.impl.ImapDateParser;
+import net.bluemind.imap.impl.ImapDateParser.DateParseException;
 import net.bluemind.imap.mime.impl.ParenListParser;
 import net.bluemind.imap.mime.impl.ParenListParser.TokenType;
 
@@ -55,8 +55,8 @@ public class EnvelopeParser {
 		String date = new String(parser.getLastReadToken());
 		Date d = null;
 		try {
-			d = DateParser.parse(date);
-		} catch (ParseException e) {
+			d = ImapDateParser.readDateTime(date);
+		} catch (DateParseException e) {
 		}
 
 		pos = parser.consumeToken(pos, env);

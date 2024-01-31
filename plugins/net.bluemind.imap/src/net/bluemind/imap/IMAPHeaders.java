@@ -19,7 +19,6 @@
 package net.bluemind.imap;
 
 import java.io.UnsupportedEncodingException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -31,7 +30,8 @@ import javax.mail.internet.MimeUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.bluemind.imap.impl.DateParser;
+import net.bluemind.imap.impl.ImapDateParser;
+import net.bluemind.imap.impl.ImapDateParser.DateParseException;
 
 public class IMAPHeaders {
 
@@ -68,11 +68,11 @@ public class IMAPHeaders {
 			try {
 				String rawD = getRawHeader("date");
 				if (rawD != null) {
-					date = DateParser.parse(rawD);
+					date = ImapDateParser.readDateTime(rawD);
 				} else {
 					date = new Date();
 				}
-			} catch (ParseException e) {
+			} catch (DateParseException e) {
 				date = new Date();
 			}
 		}

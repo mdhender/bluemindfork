@@ -18,7 +18,6 @@
 package net.bluemind.imap.endpoint.cmd;
 
 import java.nio.charset.StandardCharsets;
-import java.text.ParseException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -29,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Splitter;
 
 import io.netty.buffer.ByteBuf;
+import net.bluemind.imap.endpoint.cmd.ImapDateParser.DateParseException;
 import net.bluemind.lib.jutf7.UTF7Converter;
 
 public class AppendCommand extends AnalyzedCommand {
@@ -42,7 +42,6 @@ public class AppendCommand extends AnalyzedCommand {
 	protected AppendCommand(RawImapCommand raw) {
 		super(raw);
 		FlatCommand flat = flattenAtoms(false, 0);
-
 		int postFolderStart = -1;
 		int lastLiteralStart = flat.fullCmd.lastIndexOf('{');
 		this.buffer = flat.literals[flat.literals.length - 1];
@@ -98,9 +97,9 @@ public class AppendCommand extends AnalyzedCommand {
 		if (flagsAndDate.startsWith("\"") && flagsAndDate.length() > 10) {
 			String unquoted = flagsAndDate.substring(1, flagsAndDate.length() - 1);
 			try {
-				this.deliveryDate = DateParser.parse(unquoted);
-			} catch (ParseException e) {
-				logger.error(e.getMessage(), e);
+				this.deliveryDate = ImapDateParser.readDateTime(unquoted);
+			} catch (DateParseException e) {
+				logger.error("Parsing failed on {} ({})", unquoted, e.getMessage(), e);
 			}
 		}
 

@@ -23,7 +23,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.InputStream;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -48,6 +53,26 @@ public class AppendTests extends LoggedTestCase implements IMessageProducer {
 
 			assertEquals(0, ap1.getFailed());
 			assertEquals(0, ap2.getFailed());
+		}
+	}
+
+	@Test
+	public void testBM20597EnsureDateIsKept() throws IMAPException {
+		try (StoreClient sc = newStore(false)) {
+			InputStream bigInput = getUtf8Rfc822Message(32);
+			FlagsList fl = new FlagsList();
+			fl.add(Flag.SEEN);
+			ZonedDateTime zoned = LocalDateTime.of(2024, 1, 30, 15, 37).atZone(ZoneId.of("Europe/Paris"));
+			Date asDate = Date.from(zoned.toInstant());
+			int result = sc.append("INBOX", bigInput, fl, asDate);
+			assertTrue(result > 0);
+			assertTrue(sc.noop());
+			sc.select("INBOX");
+			Collection<Summary> summary = sc.uidFetchSummary(Integer.toString(result));
+			Summary sum = summary.iterator().next();
+			System.err.println("IN  id: " + asDate);
+			System.err.println("OUT id: " + sum.getDate());
+			assertEquals(asDate, sum.getDate());
 		}
 	}
 
