@@ -32,6 +32,8 @@ import { mailTipUtils } from "@bluemind/mail";
 
 import apiAddressbooks from "~/store/api/apiAddressbooks";
 import { ADDRESS_AUTOCOMPLETE } from "~/getters";
+import { SET_ADDRESS_WEIGHT } from "~/mutations";
+
 import { ComposerActionsMixin } from "~/mixins";
 import MailContactCardSlots from "../MailContactCardSlots";
 import MailComposerRecipientButton from "./MailComposerRecipientButton.vue";
@@ -109,6 +111,7 @@ export default {
         }
     },
     methods: {
+        ...mapMutations("mail", { SET_ADDRESS_WEIGHT }),
         async expandContact(index) {
             const contacts = [...this.contacts];
             const contact = contacts[index];
