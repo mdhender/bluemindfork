@@ -24,8 +24,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.safety.Safelist;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.CharMatcher;
 
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventSeries;
@@ -131,7 +136,8 @@ public class CalendarAuditLogMapper implements ILogMapperProvider<VEventSeries> 
 
 		VEvent event = (value.main != null) ? value.main : value.occurrences.get(0);
 
-		builder.description(event.summary);
+		builder.description(CharMatcher.whitespace()
+				.collapseFrom(event.summary.substring(0, Math.min(160, event.summary.length())), ' ').trim());
 		List<String> attendees = new ArrayList<>();
 		List<String> has = new ArrayList<>();
 		if (event.attendees != null) {
@@ -160,6 +166,16 @@ public class CalendarAuditLogMapper implements ILogMapperProvider<VEventSeries> 
 		}
 
 		try {
+			if (value.main != null && value.main.description != null) {
+				value.main.description = cleanedUpPlainText(value.main.description);
+			}
+			if (value.occurrences != null) {
+				value.occurrences.forEach(o -> {
+					if (o.description != null) {
+						o.description = cleanedUpPlainText(o.description);
+					}
+				});
+			}
 			String source = JsonUtils.asString(value);
 			builder.newValue(source);
 		} catch (ServerFault e) {
@@ -280,6 +296,12 @@ public class CalendarAuditLogMapper implements ILogMapperProvider<VEventSeries> 
 		}
 		return sBuilder.toString();
 
+	}
+
+	private String cleanedUpPlainText(String html) {
+		Document.OutputSettings outputSettings = new Document.OutputSettings();
+		outputSettings.prettyPrint(true);
+		return Jsoup.clean(html, "", Safelist.none(), outputSettings);
 	}
 
 }

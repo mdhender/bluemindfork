@@ -55,7 +55,9 @@ public class DbMailboxRecordsAuditLogMapper implements ILogMapperProvider<Mailbo
 	@Override
 	public ContentElement createContentElement(MailboxRecord itemValue) {
 		String mailboxUniqueId = container.uid.replace("mbox_records_", "");
-
+		if (itemValue == null) {
+			return null;
+		}
 		Map<String, Object> messageBodyMap = mailIndexService.fetchBody(mailboxUniqueId, itemValue);
 		if (messageBodyMap != null) {
 			return filterMessageBody(messageBodyMap, itemValue);
