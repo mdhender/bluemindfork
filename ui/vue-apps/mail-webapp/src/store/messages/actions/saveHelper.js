@@ -45,9 +45,9 @@ export async function save({ commit, dispatch }, draft) {
     try {
         commit(SET_MESSAGES_STATUS, [{ key: draft.key, status: MessageStatus.SAVING }]);
 
-        await expandGroups(draft);
+        const recipients = await expandGroups(draft);
         await manageDispositionNotification({ commit, dispatch }, draft);
-        await createEmlOnServer({ commit }, draft, service);
+        await createEmlOnServer({ commit }, { ...draft, ...recipients }, service);
 
         commit(SET_MESSAGES_STATUS, [{ key: draft.key, status: MessageStatus.IDLE }]);
         commit(SET_SAVE_ERROR, null);
@@ -105,9 +105,11 @@ function forceMailRewriteOnServer(draft) {
 
 /** Recursively convert groups having no address to recipients with an address.  */
 async function expandGroups(draft) {
-    draft.to = await expandGroupRecipients(draft.to);
-    draft.cc = await expandGroupRecipients(draft.cc);
-    draft.bcc = await expandGroupRecipients(draft.bcc);
+    const to = await expandGroupRecipients(draft.to);
+    const cc = await expandGroupRecipients(draft.cc);
+    const bcc = await expandGroupRecipients(draft.bcc);
+
+    return { to, cc, bcc };
 }
 
 async function expandGroupRecipients(recipients) {
