@@ -519,10 +519,11 @@ public abstract class Scanner {
 
 		Set<Member> members = new HashSet<>();
 
+		Set<String> memberIgnored = new HashSet<>();
 		for (String groupMember : groupMembers) {
 			Optional<Dn> memberDn = getMemberDn(groupMember);
 			if (!memberDn.isPresent()) {
-				importLogger.info(Messages.groupMemberNotFound(groupMember));
+				memberIgnored.add(groupMember);
 				continue;
 			}
 
@@ -534,9 +535,15 @@ public abstract class Scanner {
 				if (member.isPresent()) {
 					members.add(member.get());
 				} else {
-					importLogger.info(Messages.groupMemberNotFound(groupMember));
+					memberIgnored.add(groupMember);
 				}
 			}
+		}
+
+		if (!memberIgnored.isEmpty()) {
+			importLogger
+					.info(Messages.groupMembersNotFound(groupManager.entry.getDn().getName(), memberIgnored.size()));
+			logger.warn("Members ignored for group {}: {}", groupManager.entry.getDn(), memberIgnored);
 		}
 
 		return members;
@@ -549,7 +556,7 @@ public abstract class Scanner {
 	 * @param groupMember valid DN or user login
 	 * @return
 	 */
-	protected Optional<Dn> getMemberDn(String groupMember) {
+	private Optional<Dn> getMemberDn(String groupMember) {
 		try {
 			return Optional.of(new Dn(groupMember));
 		} catch (LdapInvalidDnException e) {
@@ -601,7 +608,6 @@ public abstract class Scanner {
 		try {
 			entry = getGroupFromDn(groupDn).orElse(null);
 		} catch (LdapException le) {
-			importLogger.info(Messages.groupMemberNotFound(groupDn.getName()));
 		}
 
 		if (entry == null) {

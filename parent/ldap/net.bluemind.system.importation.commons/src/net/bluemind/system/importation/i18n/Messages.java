@@ -104,10 +104,10 @@ public class Messages {
 		return messages;
 	}
 
-	public static Map<String, String> groupMemberNotFound(String groupMember) {
+	public static Map<String, String> groupMembersNotFound(String groupDn, int ignoredMembers) {
 		Map<String, String> messages = new HashMap<String, String>(2);
-		messages.put("en", "Group member not found: " + groupMember + " - Ignoring");
-		messages.put("fr", "Membre non trouvé: " + groupMember + " - Ignoré");
+		messages.put("en", "Group " + groupDn + ": " + ignoredMembers + " members not found in BlueMind");
+		messages.put("fr", ignoredMembers + " membres du groupe " + groupDn + " non trouvés dans BlueMind");
 		return messages;
 	}
 
