@@ -8,14 +8,6 @@
 		<groupId>net.bluemind</groupId>
 		<artifactId>settings</artifactId>
 	</parent>
-	<dependencies>
-		<dependency>
-			<groupId>net.bluemind</groupId>
-			<artifactId>net.bluemind.mozilla.tbird</artifactId>
-			<version>${project.version}</version>
-			<type>xpi</type>
-		</dependency>
-	</dependencies>
 	<build>
 		<plugins>
 			<plugin>
@@ -28,14 +20,6 @@
 						</goals>
 						<configuration>
 							<artifactItems>
-								<artifactItem>
-									<groupId>net.bluemind</groupId>
-									<artifactId>net.bluemind.mozilla.tbird</artifactId>
-									<version>${project.version}</version>
-									<type>xpi</type>
-									<outputDirectory>web-resources/downloads</outputDirectory>
-									<destFileName>tbird.xpi</destFileName>
-								</artifactItem>
 								<artifactItem>
 									<groupId>net.bluemind</groupId>
 									<artifactId>net.bluemind.mozilla.tbird</artifactId>

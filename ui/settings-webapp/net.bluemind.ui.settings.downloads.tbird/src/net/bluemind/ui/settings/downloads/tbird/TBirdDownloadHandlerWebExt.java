@@ -40,7 +40,6 @@ import com.google.common.io.ByteStreams;
 
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.system.api.SysConfKeys;
@@ -58,12 +57,6 @@ public class TBirdDownloadHandlerWebExt implements Handler<HttpServerRequest> {
 
 	@Override
 	public void handle(HttpServerRequest request) {
-		String userAgent = request.getHeader(HttpHeaders.USER_AGENT);
-		if (userAgent.contains("Thunderbird/68")) {
-			TBirdDownloadHandler legacy = new TBirdDownloadHandler();
-			legacy.handle(request);
-			return;
-		}
 		String externalUrl = getExternalUrl();
 		try {
 			Buffer repacked = repack(externalUrl);

@@ -50,9 +50,9 @@ public class TBirdUpdateJsonWebExt implements Handler<HttpServerRequest> {
 		StringWriter sw = new StringWriter();
 
 		Map<String, Object> model = new HashMap<>();
-		model.put("version", Activator.bundle.getVersion().toString() + ".1");
+		model.put("version", Activator.bundle.getVersion().toString() + ".0");
 		model.put("url", String.format("https://%s/settings/settings/download/tbird-webext.xpi",
-				TBirdDownloadHandler.getExternalUrl()));
+				TBirdDownloadHandlerWebExt.getExternalUrl()));
 
 		try {
 			template.process(model, sw);
