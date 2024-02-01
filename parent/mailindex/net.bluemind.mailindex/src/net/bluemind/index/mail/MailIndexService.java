@@ -18,6 +18,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -80,6 +82,7 @@ import net.bluemind.backend.mail.replica.indexing.IndexedMessageBody;
 import net.bluemind.backend.mail.replica.indexing.MailSummary;
 import net.bluemind.backend.mail.replica.indexing.MessageFlagsHelper;
 import net.bluemind.core.api.Stream;
+import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
@@ -207,7 +210,8 @@ public class MailIndexService implements IMailIndexService {
 	@Override
 	public long resetMailboxIndex(String mailboxUid) {
 		String index = getWriteIndexAliasName(mailboxUid);
-		return bulkDelete(index, q -> q.term(t -> t.field("owner").value(mailboxUid)));
+		return bulkDelete(index, q -> q.term(t -> t.field("owner").value(mailboxUid))).orTimeout(30, TimeUnit.SECONDS)
+				.join();
 	}
 
 	@Override
@@ -217,34 +221,12 @@ public class MailIndexService implements IMailIndexService {
 		getUserAliasIndex(boxAlias, esClient).ifPresentOrElse(boxIndex -> {
 			long count = bulkDelete(boxAlias, q -> q.bool(b -> b //
 					.must(m -> m.term(t -> t.field("owner").value(box.uid)))
-					.must(m -> m.term(t -> t.field("in").value(folderUid)))));
+					.must(m -> m.term(t -> t.field("in").value(folderUid))))).orTimeout(30, TimeUnit.SECONDS).join();
 			logger.info("deleteBox {}:{} :  {} deleted", box.uid, folderUid, count);
 			cleanupParents(boxAlias, boxIndex);
 		}, () -> logger.error("Unable to delete mails in elasticsearch, alias not found (mailbox:{}, folder:{})",
 				box.uid, folderUid));
 
-	}
-
-	private long deleteSet(ItemValue<Mailbox> box, ItemValue<MailboxFolder> f, IDSet set) {
-		ElasticsearchClient esClient = getIndexClient();
-		String boxAlias = getWriteIndexAliasName(box.uid);
-		return getUserAliasIndex(boxAlias, esClient).map(boxIndex -> {
-			ESearchActivator.refreshIndex(boxIndex);
-			long deletedCount = 0;
-			Iterator<IDRange> iter = set.iterator();
-			while (iter.hasNext()) {
-				deletedCount += bulkDelete(boxAlias, q -> q.bool(b -> b //
-						.must(m -> m.term(t -> t.field("owner").value(box.uid)))
-						.must(m -> m.term(t -> t.field("in").value(f.uid))) //
-						.must(asFilter(iter, 1000))));
-			}
-			cleanupParents(boxAlias, boxIndex);
-			return deletedCount;
-		}).orElseGet(() -> {
-			logger.error("Unable to delete mails in elasticsearch, alias not found (mailbox:{}, folder:{}, set:{})",
-					box.uid, f.uid, set);
-			return 0l;
-		});
 	}
 
 	private void cleanupParents(String boxAlias, String boxIndex) {
@@ -270,8 +252,34 @@ public class MailIndexService implements IMailIndexService {
 		}
 	}
 
-	public long bulkDelete(String indexName, Function<Query.Builder, ObjectBuilder<Query>> filter) {
+	public CompletableFuture<Long> bulkDelete(String indexName, Function<Query.Builder, ObjectBuilder<Query>> filter) {
 		ElasticsearchClient esClient = getIndexClient();
+		CompletableFuture<Long> comp = new CompletableFuture<>();
+		invokeLaterWithRetries(comp, () -> bulkDeleteImpl(esClient, indexName, filter), 20);
+		return comp;
+	}
+
+	private static <T> void invokeLaterWithRetries(CompletableFuture<T> comp, Callable<T> call, int retries) {
+		if (comp.isDone()) {
+			return;
+		}
+		if (retries == 0) {
+			comp.completeExceptionally(
+					new ServerFault("Deletion on index provoques constant conflicts. Giving up.", ErrorCode.TIMEOUT));
+			return;
+		}
+		var vx = VertxPlatform.getVertx();
+		vx.setTimer(1000L, tid -> vx.executeBlocking(call).andThen(ar -> {
+			if (ar.failed()) {
+				invokeLaterWithRetries(comp, null, retries - 1);
+			} else {
+				comp.complete(ar.result());
+			}
+		}));
+	}
+
+	public long bulkDeleteImpl(ElasticsearchClient esClient, String indexName,
+			Function<Query.Builder, ObjectBuilder<Query>> filter) {
 		try {
 			return esClient.deleteByQuery(d -> d.index(indexName) //
 					.query(t -> t.constantScore(s -> s.filter(filter)))).deleted();
@@ -450,10 +458,29 @@ public class MailIndexService implements IMailIndexService {
 
 	@Override
 	public void expunge(ItemValue<Mailbox> box, ItemValue<MailboxFolder> f, IDSet set) {
-		logger.info("(expunge) expunge: {} {}", f.displayName, set);
+		VertxPlatform.getVertx().setTimer(1500, id -> VertxPlatform.getVertx().executeBlocking(() -> {
+			logger.info("(expunge) expunge: {} {}", f.displayName, set);
+			ElasticsearchClient esClient = getIndexClient();
+			String boxAlias = getWriteIndexAliasName(box.uid);
+			getUserAliasIndex(boxAlias, esClient).ifPresent(boxIndex -> {
+				Iterator<IDRange> iter = set.iterator();
+				expungeIteration(boxAlias, box.uid, f.uid, iter).thenRun(() -> cleanupParents(boxAlias, boxIndex));
+			});
+			return null;
+		}));
+	}
 
-		long deletedCount = deleteSet(box, f, set);
-		logger.info("expunge {} ({}) : {} deleted", f.displayName, set, deletedCount);
+	private CompletableFuture<Void> expungeIteration(String boxAlias, String boxUid, String folderUid,
+			Iterator<IDRange> iter) {
+		if (!iter.hasNext()) {
+			return CompletableFuture.completedFuture(null);
+		} else {
+			CompletableFuture<Long> bulkDelete = bulkDelete(boxAlias, q -> q.bool(b -> b //
+					.must(m -> m.term(t -> t.field("owner").value(boxUid)))
+					.must(m -> m.term(t -> t.field("in").value(folderUid))) //
+					.must(asFilter(iter, 1000))));
+			return bulkDelete.thenCompose(c -> expungeIteration(boxAlias, boxUid, folderUid, iter));
+		}
 	}
 
 	@Override
@@ -467,7 +494,6 @@ public class MailIndexService implements IMailIndexService {
 		return fetchSummary(builder.build()._toQuery(), box.uid);
 	}
 
-	@SuppressWarnings("unchecked")
 	private List<MailSummary> fetchSummary(Query query, String entityId) {
 		final ElasticsearchClient esClient = getIndexClient();
 

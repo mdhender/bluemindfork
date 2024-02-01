@@ -34,9 +34,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.apache.james.mime4j.MimeIOException;
+import org.awaitility.Awaitility;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -292,12 +294,13 @@ public abstract class MailIndexServiceTests extends AbstractSearchTests {
 		IDSet set = IDSet.create(Arrays.asList(imapUid));
 		MailIndexActivator.getService().expunge(ItemValue.create(userUid, null), ItemValue.create(folderUid, null),
 				set);
-		refreshAllIndices();
 
-		resp = c.search(s -> s //
-				.index(IndexAliasMapping.get().getReadAliasByMailboxUid(userUid)) //
-				.query(q -> q.queryString(qs -> qs.query("id:\"" + entryId(44) + "\""))), ObjectNode.class);
-		assertEquals(0L, resp.hits().total().value());
+		refreshAllIndices();
+		Awaitility.await().atMost(10, TimeUnit.SECONDS).with().pollDelay(1500, TimeUnit.MILLISECONDS).and()
+				.pollInterval(1, TimeUnit.SECONDS).until(() -> c.search(s -> s //
+						.index(IndexAliasMapping.get().getReadAliasByMailboxUid(userUid)) //
+						.query(q -> q.queryString(qs -> qs.query("id:\"" + entryId(44) + "\""))), ObjectNode.class)
+						.hits().total().value() == 0l);
 	}
 
 	@Test

@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.concurrent.TimeUnit;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.ElasticsearchException;
@@ -56,7 +57,8 @@ public class CopyDocumentsAction implements IndexAction {
 		var concernedMailboxes = getConcernedMailboxes(concernedAliases);
 		concernedMailboxes.forEach(box -> {
 			service.moveMailspoolBox(esClient, box, sourceIndex.name(), targetIndex);
-			service.bulkDelete(sourceIndex.name(), q -> q.term(t -> t.field("owner").value(box)));
+			service.bulkDelete(sourceIndex.name(), q -> q.term(t -> t.field("owner").value(box)))
+					.orTimeout(30, TimeUnit.SECONDS).join();
 		});
 	}
 
