@@ -30,19 +30,21 @@ import net.bluemind.core.api.BMApi;
 public class DelegationRule {
 
 	public String delegatorCalendarUid;
-	public List<Delegate> delegates;
+	public List<String> delegateUids;
 	public String delegatorUid;
+	public boolean keepCopy;
 	public boolean readOnly;
 
 	public DelegationRule() {
 
 	}
 
-	public DelegationRule(String delegatorCalendarUid, List<Delegate> delegates, String delegatorUid,
+	public DelegationRule(String delegatorCalendarUid, List<String> delegateUids, String delegatorUid, boolean keepCopy,
 			boolean readOnly) {
 		this.delegatorCalendarUid = delegatorCalendarUid;
-		this.delegates = delegates;
+		this.delegateUids = delegateUids;
 		this.delegatorUid = delegatorUid;
+		this.keepCopy = keepCopy;
 		this.readOnly = readOnly;
 	}
 

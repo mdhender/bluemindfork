@@ -735,9 +735,9 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 
 		DelegationFilter rule = DelegationFilter.createDelegateFilterWithConditions(delegationRule);
 
-		delegationRule.delegates.forEach(d -> {
-			User delegateUser = context.su().provider().instance(IUser.class, domain.uid).get(d.uid);
-			rule.addDelegateFilterRedirectAction(d, delegateUser.emails);
+		delegationRule.delegateUids.forEach(uid -> {
+			User delegateUser = context.su().provider().instance(IUser.class, domain.uid).get(uid);
+			rule.addDelegateFilterRedirectAction(uid, delegateUser.emails, delegationRule.keepCopy);
 		});
 
 		if (delegationRule.readOnly) {

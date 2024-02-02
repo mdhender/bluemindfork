@@ -66,7 +66,6 @@ import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailbox.api.MailboxBusAddresses;
 import net.bluemind.mailbox.api.MailboxConfig;
-import net.bluemind.mailbox.api.rules.Delegate;
 import net.bluemind.mailbox.api.rules.DelegationRule;
 import net.bluemind.mailbox.api.rules.MailFilterRule;
 import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleCondition;
@@ -743,7 +742,7 @@ public class MailboxesServiceTests extends AbstractMailboxServiceTests {
 		DelegationRule mailboxDelegationRule = getService(defaultSecurityContext).getMailboxDelegationRule(mboxD.uid);
 		assertNotNull(mailboxDelegationRule);
 		assertTrue(mailboxDelegationRule.readOnly);
-		assertEquals(2, mailboxDelegationRule.delegates.size());
+		assertEquals(2, mailboxDelegationRule.delegateUids.size());
 		assertEquals(mailboxDelegationRule.delegatorCalendarUid, "Calendar:default:" + delegationRule.delegatorUid);
 		assertEquals(mailboxDelegationRule.delegatorUid, mboxD.uid);
 	}
@@ -757,7 +756,7 @@ public class MailboxesServiceTests extends AbstractMailboxServiceTests {
 		DelegationRule mailboxDelegationRule = getService(defaultSecurityContext).getMailboxDelegationRule(mboxD.uid);
 		assertNotNull(mailboxDelegationRule);
 		assertTrue(mailboxDelegationRule.readOnly);
-		assertEquals(2, mailboxDelegationRule.delegates.size());
+		assertEquals(2, mailboxDelegationRule.delegateUids.size());
 		assertEquals(mailboxDelegationRule.delegatorCalendarUid, "Calendar:default:" + delegationRule.delegatorUid);
 		assertEquals(mailboxDelegationRule.delegatorUid, mboxD.uid);
 
@@ -767,7 +766,7 @@ public class MailboxesServiceTests extends AbstractMailboxServiceTests {
 		mailboxDelegationRule = getService(defaultSecurityContext).getMailboxDelegationRule(mboxD.uid);
 		assertNotNull(mailboxDelegationRule);
 		assertFalse(mailboxDelegationRule.readOnly);
-		assertEquals(2, mailboxDelegationRule.delegates.size());
+		assertEquals(2, mailboxDelegationRule.delegateUids.size());
 		assertEquals(mailboxDelegationRule.delegatorCalendarUid, "Calendar:default:" + delegationRule.delegatorUid);
 		assertEquals(mailboxDelegationRule.delegatorUid, mboxD.uid);
 	}
@@ -787,7 +786,7 @@ public class MailboxesServiceTests extends AbstractMailboxServiceTests {
 		DelegationRule mailboxDelegationRule = getService(defaultSecurityContext).getMailboxDelegationRule(mboxD.uid);
 		assertNotNull(mailboxDelegationRule);
 		assertTrue(mailboxDelegationRule.readOnly);
-		assertEquals(2, mailboxDelegationRule.delegates.size());
+		assertEquals(2, mailboxDelegationRule.delegateUids.size());
 		assertEquals(mailboxDelegationRule.delegatorCalendarUid, "Calendar:default:" + delegationRule.delegatorUid);
 		assertEquals(mailboxDelegationRule.delegatorUid, mboxD.uid);
 
@@ -830,12 +829,8 @@ public class MailboxesServiceTests extends AbstractMailboxServiceTests {
 		String uidDelegator = loginDelegator;
 		getUserService(defaultSecurityContext).create(uidDelegator, userDelegator);
 
-		Delegate d1 = new Delegate(uidDelegate1, false);
-		Delegate d2 = new Delegate(uidDelegate2, true);
-		List<Delegate> delegates = Arrays.asList(d1, d2);
-
 		DelegationRule delegationRule = new DelegationRule();
-		delegationRule.delegates = delegates;
+		delegationRule.delegateUids = Arrays.asList(uidDelegate1, uidDelegate2);
 		delegationRule.delegatorCalendarUid = "Calendar:default:" + uidDelegator;
 		delegationRule.delegatorUid = uidDelegator;
 		delegationRule.readOnly = true;

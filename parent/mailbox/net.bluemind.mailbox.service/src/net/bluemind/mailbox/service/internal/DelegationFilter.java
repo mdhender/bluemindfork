@@ -33,7 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.api.Email;
-import net.bluemind.mailbox.api.rules.Delegate;
 import net.bluemind.mailbox.api.rules.DelegationRule;
 import net.bluemind.mailbox.api.rules.MailFilterRule;
 import net.bluemind.mailbox.api.rules.actions.MailFilterRuleActionName;
@@ -99,18 +98,18 @@ public class DelegationFilter extends MailFilterRule {
 			return null;
 		}
 
-		List<Delegate> delegates = new ArrayList<>();
+		List<String> delegates = new ArrayList<>();
 		redirectActions.forEach(redirectAction -> {
 			boolean delegateActionRule = redirectAction.clientProperties.entrySet().stream()
 					.anyMatch(e -> e.getKey().equals("type") && e.getValue().equals("delegation"));
 			if (delegateActionRule) {
 				redirectAction.clientProperties.entrySet().stream().filter(e -> e.getKey().equals("delegate"))
-						.map(e -> e.getValue()).findFirst()
-						.ifPresent(uid -> delegates.add(new Delegate(uid, redirectAction.keepCopy)));
+						.map(e -> e.getValue()).findFirst().ifPresent(uid -> delegates.add(uid));
 			}
 		});
 
-		return new DelegationRule(containerCalUid.get(), delegates, mailboxUid, getBmEventReadOnlyFlag());
+		return new DelegationRule(containerCalUid.get(), delegates, mailboxUid, redirectActions.get(0).keepCopy,
+				getBmEventReadOnlyFlag());
 	}
 
 	public static boolean isDelegationRule(MailFilterRule rule) {
@@ -141,18 +140,17 @@ public class DelegationFilter extends MailFilterRule {
 			return null;
 		}
 
-		List<Delegate> delegates = new ArrayList<>();
+		List<String> delegates = new ArrayList<>();
 		redirectActions.forEach(redirectAction -> {
 			boolean delegateActionRule = redirectAction.clientProperties.entrySet().stream()
 					.anyMatch(e -> e.getKey().equals("type") && e.getValue().equals("delegation"));
 			if (delegateActionRule) {
 				redirectAction.clientProperties.entrySet().stream().filter(e -> e.getKey().equals("delegate"))
-						.map(e -> e.getValue()).findFirst()
-						.ifPresent(uid -> delegates.add(new Delegate(uid, redirectAction.keepCopy)));
+						.map(e -> e.getValue()).findFirst().ifPresent(uid -> delegates.add(uid));
 			}
 		});
 
-		return new DelegationRule(containerCalUid.get(), delegates, mailboxUid,
+		return new DelegationRule(containerCalUid.get(), delegates, mailboxUid, redirectActions.get(0).keepCopy,
 				delegationFilter.getBmEventReadOnlyFlag());
 	}
 
@@ -173,15 +171,15 @@ public class DelegationFilter extends MailFilterRule {
 		return filter;
 	}
 
-	public void addDelegateFilterRedirectAction(Delegate delegate, Collection<Email> emails) {
+	public void addDelegateFilterRedirectAction(String delegatUid, Collection<Email> emails, boolean keepCopy) {
 		MailFilterRuleActionRedirect redirect = new MailFilterRuleActionRedirect(
 				emails.stream().map(e -> e.address).toList(), true);
 
 		Map<String, String> clientProps = new HashMap<>();
 		clientProps.put("type", "delegation");
-		clientProps.put("delegate", delegate.uid);
+		clientProps.put("delegate", delegatUid);
 		redirect.clientProperties.putAll(clientProps);
-		redirect.keepCopy = delegate.keepCopy;
+		redirect.keepCopy = keepCopy;
 		super.actions.add(redirect);
 	}
 
