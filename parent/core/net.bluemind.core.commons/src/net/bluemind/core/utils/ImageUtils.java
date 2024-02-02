@@ -74,7 +74,7 @@ public class ImageUtils {
 					return Files.readAllBytes(tmpFile);
 				} else {
 					throw new ServerFault("Image is too big, original size is " + icon.length + " byte(s), new size is "
-							+ newLen + " byte(s)");
+							+ newLen + " byte(s)", ErrorCode.ENTITY_TOO_LARGE);
 				}
 			}
 		} catch (IOException e) {
@@ -137,6 +137,8 @@ public class ImageUtils {
 			subsampling = 8;
 		} else if (w > 2000 || h > 2000) {
 			subsampling = 4;
+		} else if (w > 1000 || h > 1000) {
+			subsampling = 2;
 		}
 
 		ImageReadParam param = reader.getDefaultReadParam();

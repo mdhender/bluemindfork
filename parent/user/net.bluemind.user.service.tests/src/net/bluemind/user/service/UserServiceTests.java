@@ -1815,6 +1815,22 @@ public class UserServiceTests {
 	}
 
 	@Test
+	public void setUserPhoto() throws IOException {
+		byte[] userPhoto;
+
+		try (InputStream in = UserServiceTests.class.getResourceAsStream("/data/photoTooBigAsPng.jpg")) {
+			userPhoto = ByteStreams.toByteArray(in);
+		}
+
+		IUser service = getService(domainAdminSecurityContext);
+
+		String login = "test." + System.nanoTime();
+		User user = defaultUser(login);
+		service.create(login, user);
+		service.setPhoto(login, userPhoto);
+	}
+
+	@Test
 	public void deletePhoto_userWithPhoto() throws IOException {
 		byte[] userPhoto;
 
