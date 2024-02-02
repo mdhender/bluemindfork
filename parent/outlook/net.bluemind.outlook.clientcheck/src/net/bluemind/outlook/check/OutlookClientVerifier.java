@@ -18,15 +18,11 @@
  */
 package net.bluemind.outlook.check;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.api.BMVersion;
-import net.bluemind.core.api.VersionInfo;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.base.RestRequest;
 import net.bluemind.core.rest.base.RestResponse;
@@ -35,7 +31,6 @@ import net.bluemind.outlook.check.IClientCompatibilityCheck.ClientCompatibility;
 
 public class OutlookClientVerifier extends RestFilterAdapter {
 
-	private final Pattern clientVersion = Pattern.compile("^bm-connector-outlook-(.+?)\\s.*");
 	private static final Logger logger = LoggerFactory.getLogger(OutlookClientVerifier.class);
 
 	@Override
@@ -57,35 +52,16 @@ public class OutlookClientVerifier extends RestFilterAdapter {
 		String origin = securityContext.getOrigin();
 
 		if (isOutlookRequest(origin)) {
+			// Outlook connector is deprecated in BM 5
 			String coreVersion = getCoreVersion();
-			if (!isValid(origin, coreVersion)) {
-				return new ClientCompatibility(false, String
-						.format("Client version %s is not compatible with server version %s", origin, coreVersion));
-			}
+			return new ClientCompatibility(false,
+					String.format("Client version %s is not compatible with server version %s", origin, coreVersion));
 		}
 		return ClientCompatibility.Ok();
 	}
 
 	private String getCoreVersion() {
 		return BMVersion.getVersion();
-	}
-
-	private boolean isValid(String origin, String coreVersion) {
-		if (origin.contains("qualifier") || coreVersion.contains("qualifier")) {
-			return true;
-		}
-		if (origin.startsWith("bm-connector-outlook-DEV")) {
-			return true;
-		}
-		if (origin.equals(coreVersion)) {
-			return true;
-		}
-		Matcher clientVersionMatcher = clientVersion.matcher(origin);
-		if (clientVersionMatcher.find()) {
-			VersionInfo client = VersionInfo.create(clientVersionMatcher.group(1));
-			return client.greaterThan(VersionInfo.create("4.1.47241"));
-		}
-		return false;
 	}
 
 	private boolean isOutlookRequest(String origin) {
