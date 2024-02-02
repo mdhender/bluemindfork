@@ -8,5 +8,11 @@
             priority="500">
       </mailbox-storage>
    </extension>
+   <extension
+         point="net.bluemind.directory.repairSupport">
+      <repairSupport
+            factory="net.bluemind.backend.mailapi.storage.DefaultFoldersRepair$Factory">
+      </repairSupport>
+   </extension>
 
 </plugin>

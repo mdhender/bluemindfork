@@ -18,7 +18,8 @@ Require-Bundle: org.eclipse.core.runtime,
  com.google.guava,
  net.bluemind.mailindex,
  net.bluemind.backend.mail.replica.indexing,
- net.bluemind.utils
+ net.bluemind.utils,
+ net.bluemind.directory.service
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.backend.mailapi.storage
 Bundle-ActivationPolicy: lazy

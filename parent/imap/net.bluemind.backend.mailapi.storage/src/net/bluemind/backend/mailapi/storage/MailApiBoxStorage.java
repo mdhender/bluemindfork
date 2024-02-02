@@ -121,12 +121,16 @@ public class MailApiBoxStorage implements IMailboxesStorage {
 		IDbReplicatedMailboxes foldersApi = context.su().provider().instance(IDbReplicatedMailboxes.class,
 				partition.name, boxItem.value.type.nsPrefix + boxItem.value.name);
 
+		ensureDefaultFolders(domainUid, boxItem, foldersApi);
+
+	}
+
+	void ensureDefaultFolders(String domainUid, ItemValue<Mailbox> boxItem, IDbReplicatedMailboxes foldersApi) {
 		if (boxItem.value.type.sharedNs) {
 			mailshareFolders(domainUid, boxItem, foldersApi);
 		} else {
 			userFolders(domainUid, boxItem, foldersApi);
 		}
-
 	}
 
 	private void userFolders(String domainUid, ItemValue<Mailbox> boxItem, IDbReplicatedMailboxes foldersApi) {
