@@ -1,0 +1,8 @@
+[
+	{
+		"name": "bluemind/s3"
+	},
+	{
+		"name": "bluemind/postgres-tests"
+	}
+]

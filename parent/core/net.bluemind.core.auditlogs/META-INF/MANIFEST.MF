@@ -11,7 +11,8 @@ Automatic-Module-Name: net.bluemind.core.auditlogs
 Bundle-ClassPath: schema/,
  .
 Bundle-RequiredExecutionEnvironment: JavaSE-21
-Require-Bundle: com.fasterxml.jackson.core.jackson-annotations,
+Require-Bundle: net.bluemind.eclipse.common;visibility:=reexport,
+ com.fasterxml.jackson.core.jackson-annotations,
  net.bluemind.core.container.persistence,
  slf4j.api,
  net.bluemind.directory.api,

@@ -751,4 +751,5 @@
    <bundle id="net.bluemind.webmodule.openidhandler"/>
    <bundle id="net.bluemind.imap.endpoint.notifications"/>
    <bundle id="net.bluemind.system.application.registration"/>
+   <bundle id="net.bluemind.core.auditlogs.client.kafka"/>
 </site>

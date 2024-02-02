@@ -15,6 +15,7 @@
 		<module>net.bluemind.core.annotationvalidator</module>
 		<module>net.bluemind.core.auditlog</module>
                 <module>net.bluemind.core.auditlogs.client.es</module>
+                <module>net.bluemind.core.auditlogs.client.kafka</module>
 		<module>net.bluemind.core.auditlogs.client.loader</module>
 		<module>net.bluemind.core.auditlogs</module>
 		<module>net.bluemind.core.backup.continuous.api</module>
@@ -70,6 +71,7 @@
 			<id>tests</id>
 			<modules>
 				<module>net.bluemind.core.auditlogs.client.es.tests</module>
+				<module>net.bluemind.core.auditlogs.client.kafka.tests</module>
 		                <module>net.bluemind.core.auditlogs.tests</module>
 				<module>net.bluemind.core.annotationvalidator.tests</module>
 				<module>net.bluemind.core.backup.continuous.events.tests</module>

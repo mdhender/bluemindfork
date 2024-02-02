@@ -42,4 +42,9 @@ public class ElasticSearchAuditLogFactory implements IAuditLogFactory {
 		return new DataStreamActivator();
 	}
 
+	@Override
+	public int priority() {
+		return 1;
+	}
+
 }

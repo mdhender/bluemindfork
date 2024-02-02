@@ -39,13 +39,13 @@ public class AuditLogLoader {
 
 	private static IAuditLogFactory loadAuditLog() {
 		RunnableExtensionLoader<IAuditLogFactory> rel = new RunnableExtensionLoader<>();
-		List<IAuditLogFactory> plugins = rel.loadExtensions("net.bluemind.core", "auditlogs", "store", "factory");
-
+		List<IAuditLogFactory> plugins = rel.loadExtensionsWithPriority("net.bluemind.core", "auditlogs", "store",
+				"factory");
 		if (!AuditLogConfig.isActivated()) {
 			logger.warn("Audit log has been deactivated: no audit log data will be stored");
 			return noopAuditLogFactory();
 		}
-		if (plugins != null && plugins.size() == 1) {
+		if (plugins != null && !plugins.isEmpty()) {
 			return plugins.get(0);
 		}
 		logger.warn("Cannot find plugin 'net.bluemind.core.auditlogs', load NoopAuditLogClient");
@@ -68,6 +68,11 @@ public class AuditLogLoader {
 			@Override
 			public IItemChangeLogClient createItemChangelogClient() {
 				return NoopItemChangeLogClient.INSTANCE;
+			}
+
+			@Override
+			public int priority() {
+				return 0;
 			}
 
 		};

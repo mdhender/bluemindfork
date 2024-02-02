@@ -17,7 +17,8 @@ Require-Bundle: org.eclipse.core.runtime,
  com.fasterxml.jackson.core.jackson-databind,
  net.bluemind.core.backup.continuous.dto,
  net.bluemind.core.backup.continuous.leader;visibility:=reexport,
- net.bluemind.directory.api
+ net.bluemind.directory.api,
+ net.bluemind.core.auditlogs
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.core.backup.continuous
 Bundle-ActivationPolicy: lazy

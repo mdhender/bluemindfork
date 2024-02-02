@@ -16,12 +16,6 @@
       </verticle>
    </extension>
    <extension
-         point="net.bluemind.domain.domainHook">
-      <hook
-            class="net.bluemind.core.auditlogs.client.es.hooks.DataStreamDomainsHook">
-      </hook>
-   </extension>
-   <extension
          point="net.bluemind.maintenance.scripts">
       <java
             code="net.bluemind.core.auditlogs.client.es.maintenance.DataStreamConsistency"

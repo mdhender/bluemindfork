@@ -19,7 +19,9 @@
 
 package net.bluemind.core.auditlogs;
 
-public interface IAuditLogFactory {
+import net.bluemind.eclipse.common.IHasPriority;
+
+public interface IAuditLogFactory extends IHasPriority {
 
 	public IAuditLogClient createClient();
 

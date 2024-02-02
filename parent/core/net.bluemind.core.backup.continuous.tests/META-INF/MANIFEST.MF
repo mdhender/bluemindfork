@@ -62,7 +62,12 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.backup.continuous.events;bundle-version="5.0.0",
  net.bluemind.webappdata.service;bundle-version="5.0.0",
  net.bluemind.common.task,
- slf4j.api
+ slf4j.api,
+ net.bluemind.core.auditlogs,
+ net.bluemind.core.auditlogs.client.loader,
+ net.bluemind.core.auditlogs.client.es,
+ net.bluemind.core.auditlogs.schema,
+ net.bluemind.core.auditlogs.client.kafka
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.core.backup.continuous.tests
 Bundle-ActivationPolicy: lazy

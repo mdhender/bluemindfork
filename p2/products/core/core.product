@@ -131,7 +131,7 @@
       <plugin id="net.bluemind.common.freemarker"/>
       <plugin id="net.bluemind.common.hollow"/>
       <plugin id="net.bluemind.common.io"/>
-      <plugin id="net.bluemind.common.logback" fragment="true"/>
+      <plugin id="net.bluemind.common.logback"/>
       <plugin id="net.bluemind.common.logback.listener"/>
       <plugin id="net.bluemind.common.reflect"/>
       <plugin id="net.bluemind.common.vertx.contextlogging"/>
@@ -142,6 +142,7 @@
       <plugin id="net.bluemind.core.auditlog"/>
       <plugin id="net.bluemind.core.auditlogs"/>
       <plugin id="net.bluemind.core.auditlogs.client.es"/>
+      <plugin id="net.bluemind.core.auditlogs.client.kafka"/>
       <plugin id="net.bluemind.core.auditlogs.client.loader"/>
       <plugin id="net.bluemind.core.auditlogs.schema"/>
       <plugin id="net.bluemind.core.backup.continuous"/>
@@ -293,7 +294,7 @@
       <plugin id="net.bluemind.imap.driver.mailapi"/>
       <plugin id="net.bluemind.imap.endpoint"/>
       <plugin id="net.bluemind.imap.endpoint.notifications"/>
-      <plugin id="net.bluemind.jdbc.driver.pgsql" fragment="true"/>
+      <plugin id="net.bluemind.jdbc.driver.pgsql"/>
       <plugin id="net.bluemind.jdbc.pgsql.provider"/>
       <plugin id="net.bluemind.kafka.client"/>
       <plugin id="net.bluemind.keycloak.service"/>
@@ -395,7 +396,7 @@
       <plugin id="net.bluemind.sds.store.scalityring"/>
       <plugin id="net.bluemind.sds.sync.api"/>
       <plugin id="net.bluemind.sds.sync.service"/>
-      <plugin id="net.bluemind.sentry" fragment="true"/>
+      <plugin id="net.bluemind.sentry"/>
       <plugin id="net.bluemind.sentry.settings"/>
       <plugin id="net.bluemind.sentry.settings.core"/>
       <plugin id="net.bluemind.sentry.settings.upgrade"/>
@@ -412,7 +413,7 @@
       <plugin id="net.bluemind.signature.commons"/>
       <plugin id="net.bluemind.signature.commons.core"/>
       <plugin id="net.bluemind.slf4j"/>
-      <plugin id="net.bluemind.slf4j.configuration" fragment="true"/>
+      <plugin id="net.bluemind.slf4j.configuration"/>
       <plugin id="net.bluemind.smime.cacerts.api"/>
       <plugin id="net.bluemind.smime.cacerts.persistence"/>
       <plugin id="net.bluemind.smime.cacerts.service"/>
@@ -543,7 +544,7 @@
       <plugin id="org.eclipse.equinox.simpleconfigurator"/>
       <plugin id="org.eclipse.equinox.simpleconfigurator.manipulator"/>
       <plugin id="org.eclipse.osgi"/>
-      <plugin id="org.eclipse.osgi.compatibility.state" fragment="true"/>
+      <plugin id="org.eclipse.osgi.compatibility.state"/>
       <plugin id="org.eclipse.osgi.services"/>
       <plugin id="org.eclipse.osgi.util"/>
       <plugin id="org.freemarker.freemarker"/>

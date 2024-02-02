@@ -16,7 +16,7 @@
   * END LICENSE
   */
 
-package net.bluemind.core.auditlogs.client.es.hooks;
+package net.bluemind.core.auditlogs.client.loader.hooks;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

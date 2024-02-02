@@ -150,6 +150,7 @@ public class MailApiTestsBase {
 			cleanupHollowData();
 		}
 		JdbcTestHelper.getInstance().beforeTest();
+		ElasticsearchTestHelper.getInstance().beforeTest();
 
 		Server pipo = new Server();
 		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
@@ -172,8 +173,6 @@ public class MailApiTestsBase {
 		this.domUid = "devenv" + time + ".blue";
 		this.alias = "devenv" + time + ".red";
 		PopulateHelper.addDomain(domUid, Routing.internal, alias);
-
-		ElasticsearchTestHelper.getInstance().beforeTest();
 
 		this.serverProv = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 

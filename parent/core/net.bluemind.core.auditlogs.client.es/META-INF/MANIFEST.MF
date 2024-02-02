@@ -5,7 +5,6 @@ Bundle-SymbolicName: net.bluemind.core.auditlogs.client.es;singleton:=true
 Bundle-Version: 5.0.0.qualifier
 Export-Package: net.bluemind.core.auditlogs.client.es,
  net.bluemind.core.auditlogs.client.es.datastreams,
- net.bluemind.core.auditlogs.client.es.hooks,
  net.bluemind.core.auditlogs.client.es.maintenance
 Require-Bundle: net.bluemind.core.auditlogs,
  slf4j.api,
@@ -20,13 +19,13 @@ Require-Bundle: net.bluemind.core.auditlogs,
  net.bluemind.system.state,
  net.bluemind.chronicle.queue,
  net.bluemind.retry.support,
- net.bluemind.domain.hook,
  net.bluemind.core.auditlogs.client.loader,
  net.bluemind.scheduledjob.scheduler,
  net.bluemind.maintenance,
  net.bluemind.core.task.spi,
  net.bluemind.core.caches.registry,
- com.github.ben-manes.caffeine
+ com.github.ben-manes.caffeine,
+ net.bluemind.domain.api
 Bundle-Vendor: net.bluemind
 Automatic-Module-Name: net.bluemind.core.auditlogs.client.es
 Bundle-ActivationPolicy: lazy
