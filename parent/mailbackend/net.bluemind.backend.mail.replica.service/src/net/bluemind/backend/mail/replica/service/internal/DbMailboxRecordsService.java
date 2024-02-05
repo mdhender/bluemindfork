@@ -263,20 +263,23 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 
 	@Override
 	public void delete(String uid) {
-		SubtreeLocation recordsLocation = locationOrFault();
-		ItemValue<MailboxRecord> prev = storeService.get(uid, null);
-		ItemVersion iv = storeService.delete(uid);
-		if (prev != null) {
+		deleteIfExists(storeService.get(uid, null));
+	}
+
+	@Override
+	public void deleteById(long id) {
+		deleteIfExists(storeService.get(id, null));
+	}
+
+	private void deleteIfExists(ItemValue<MailboxRecord> prev) {
+		if (prev != null && prev.value != null) {
+			SubtreeLocation recordsLocation = locationOrFault();
+			ItemVersion iv = storeService.delete(prev.uid);
 			expungeIndex(Collections.singletonList(prev.value.imapUid));
 			prev.value.flags.add(MailboxItemFlag.System.Deleted.value());
 			EmitReplicationEvents.mailboxChanged(recordsLocation, container, mailboxUniqueId, iv.version,
 					ItemIdImapUid.arrayOf(iv.id, prev.value));
 		}
-	}
-
-	@Override
-	public void deleteById(long id) {
-		delete(storeService.get(id, null).uid);
 	}
 
 	@Override
