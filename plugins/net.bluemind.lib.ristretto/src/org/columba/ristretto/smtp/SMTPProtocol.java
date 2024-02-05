@@ -421,7 +421,8 @@ public class SMTPProtocol implements AuthenticationServer, AutoCloseable {
 	 */
 	public void rcptWithDeliveryReport(Address address) throws IOException, SMTPException {
 		try {
-			sendCommand("RCPT", new String[] { "TO:" + address.getCanonicalMailAddress() + " NOTIFY=SUCCESS,FAILURE,DELAY" });
+			sendCommand("RCPT",
+					new String[] { "TO:" + address.getCanonicalMailAddress() + " NOTIFY=SUCCESS,FAILURE,DELAY" });
 
 			SMTPResponse response = readSingleLineResponse();
 			if (response.isERR())
@@ -478,6 +479,17 @@ public class SMTPProtocol implements AuthenticationServer, AutoCloseable {
 	}
 
 	/**
+	 * JDK BufferedOutputStream does expensive locking when not subclassed
+	 */
+	private static class UnlockedBufferedOutputStream extends BufferedOutputStream {
+
+		public UnlockedBufferedOutputStream(OutputStream out, int size) {
+			super(out, size);
+		}
+
+	}
+
+	/**
 	 * Sends a DATA command which sends the mail to the recipients specified by the
 	 * RCPT command. Can be cancelled with #dropConnection().
 	 * 
@@ -499,7 +511,7 @@ public class SMTPProtocol implements AuthenticationServer, AutoCloseable {
 
 			response = readSingleLineResponse();
 			if (response.getCode() == 354) {
-				BufferedOutputStream wrapped = new BufferedOutputStream(out, 65536);
+				BufferedOutputStream wrapped = new UnlockedBufferedOutputStream(out, 65536);
 				try {
 					copyStream(data, new SMTPOutputStream(wrapped));
 					wrapped.write(STOPWORD);
