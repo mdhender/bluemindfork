@@ -197,7 +197,7 @@ public class BaseMailboxRecordsService implements IChangelogSupport, ICountingSu
 	protected ByteBuf fetchCompleteMmap(long imapUid) {
 		String guid = null;
 		try {
-			guid = recordStore.getImapUidReferences(imapUid, container.owner);
+			guid = recordStore.getImapUidReferences(imapUid);
 		} catch (SQLException e1) {
 			throw ServerFault.sqlFault(e1);
 		}

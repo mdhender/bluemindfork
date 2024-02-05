@@ -189,6 +189,9 @@ public class MailboxRecordStoreTests {
 		assertNotNull(reloaded.flags);
 		assertEquals(mb.messageBody, reloaded.messageBody);
 
+		String imapToGuid = boxRecordStore.getImapUidReferences(mb.imapUid);
+		assertEquals(reloaded.messageBody, imapToGuid);
+
 		List<MailboxRecord> multiple = boxRecordStore.getMultiple(Arrays.asList(it));
 		assertTrue(multiple.size() == 1);
 

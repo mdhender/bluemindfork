@@ -289,15 +289,13 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 		}, new Object[] { guid });
 	}
 
-	public String getImapUidReferences(long uid, String owner) throws SQLException {
+	public String getImapUidReferences(long imapUid) throws SQLException {
 		String query = "SELECT encode(mbr.message_body_guid, 'hex') " //
 				+ "FROM t_mailbox_record mbr " //
-				+ "JOIN t_container_item ci ON ci.id = mbr.item_id " //
-				+ "JOIN t_container c ON c.id = ci.container_id " //
-				+ "WHERE mbr.subtree_id = ? AND c.id = ? AND mbr.imap_uid = ? AND c.owner = ? ORDER BY ci.created";
+				+ "WHERE mbr.subtree_id = ? AND mbr.container_id = ? AND mbr.imap_uid = ? LIMIT 1";
 
 		return unique(query, StringCreator.FIRST, Collections.emptyList(),
-				new Object[] { subtreeContainer.id, folderContainer.id, uid, owner });
+				new Object[] { subtreeContainer.id, folderContainer.id, imapUid });
 	}
 
 	private int adaptFlag(ItemFlag flag) {
