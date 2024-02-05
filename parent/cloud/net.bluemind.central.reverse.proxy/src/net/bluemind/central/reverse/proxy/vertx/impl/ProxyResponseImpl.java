@@ -10,6 +10,7 @@
  */
 package net.bluemind.central.reverse.proxy.vertx.impl;
 
+import java.nio.channels.ClosedChannelException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -284,11 +285,14 @@ class ProxyResponseImpl implements ProxyResponse {
 		pipe.endOnFailure(false);
 		pipe.to(outboundResponse, ar -> {
 			if (ar.failed()) {
-				logger.error("Failed piping outbound: {}", ar.cause().getMessage());
+				if (!(ar.cause() instanceof ClosedChannelException)) {
+					logger.error("Failed piping outbound: {}", ar.cause().getMessage(), ar.cause());
+				}
 				request.inboundRequest.reset();
 				outboundResponse.reset();
+			} else {
+				completionHandler.handle(ar);
 			}
-			completionHandler.handle(ar);
 		});
 	}
 }

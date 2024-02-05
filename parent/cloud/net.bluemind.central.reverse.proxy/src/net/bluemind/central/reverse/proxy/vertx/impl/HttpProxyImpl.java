@@ -174,7 +174,8 @@ public class HttpProxyImpl implements HttpProxy {
 			return contextToSession(proxyRequest, requestContext) //
 					.flatMap(session -> sessionToRequest(session) //
 							.flatMap(request -> sendProxyRequest(proxyRequest, requestContext, request) //
-									.flatMap(response -> sendProxyResponse(requestContext, response))
+									.flatMap(response -> sendProxyResponse(requestContext, response) //
+											.recover(h -> Future.succeededFuture()))
 									.onComplete(v -> session.end()))
 							.onFailure(t -> failUnsendProxyRequest(proxyRequest)))
 					.onFailure(t -> failUnsendProxyRequest(proxyRequest));
