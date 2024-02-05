@@ -46,6 +46,17 @@ public class LmtpDataCommand extends BaseCommand {
 		super("DATA", "Following text is collected as the message.\n" + "End data with <CR><LF>.<CR><LF>");
 	}
 
+	/**
+	 * The JDK BufferedInputStream class does something different when subclassed...
+	 */
+	private static class UnlockedBufferedInputStream extends BufferedInputStream {
+
+		public UnlockedBufferedInputStream(InputStream in, int size) {
+			super(in, size);
+		}
+
+	}
+
 	/** */
 	@Override
 	public void execute(String commandString, Session sess) throws IOException, DropConnectionException {
@@ -60,7 +71,7 @@ public class LmtpDataCommand extends BaseCommand {
 		sess.sendResponse("354 End data with <CR><LF>.<CR><LF>");
 
 		InputStream stream = sess.getRawInput();
-		stream = new BufferedInputStream(stream, BUFFER_SIZE);
+		stream = new UnlockedBufferedInputStream(stream, BUFFER_SIZE);
 		stream = new DotTerminatedInputStream(stream);
 		stream = new DotUnstuffingInputStream(stream);
 		if (!sess.getServer().getDisableReceivedHeaders()) {
