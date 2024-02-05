@@ -141,6 +141,9 @@ public class BackupDataProvider implements AutoCloseable {
 
 		String bjDataDatalocation = restorable.datalocation != null ? restorable.datalocation
 				: dpg.parts.stream().filter(g -> g.tag.equals(pgsqlDataTag)).findFirst().get().server;
+		if (bjDataDatalocation == null) {
+			bjDataDatalocation = "shard";
+		}
 		// This seems weird, but we force the servername aka datalocation to be master
 		// for bj
 		String bjDatalocation = "master";
