@@ -31,6 +31,7 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.utils.JsonUtils;
+import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
 import net.bluemind.icalendar.api.ICalendarElement.CUType;
 import net.bluemind.icalendar.api.ICalendarElement.Organizer;
@@ -147,9 +148,13 @@ public final class ResourceTemplateHandler {
 
 	private String organizerLanguage(final VEvent vEvent, final String domainUid) {
 		final Organizer organizer = vEvent.organizer;
-		final String userId = organizer.dir.substring(organizer.dir.lastIndexOf('/') + 1);
-		final IUserSettings userSettingsService = this.provider().instance(IUserSettings.class, domainUid);
-		return userSettingsService.get(userId).get("lang");
+		if (!Strings.isNullOrEmpty(organizer.dir)) {
+			String userId = organizer.dir.substring(organizer.dir.lastIndexOf('/') + 1);
+			IUserSettings userSettingsService = this.provider().instance(IUserSettings.class, domainUid);
+			return userSettingsService.get(userId).get("lang");
+		} else {
+			return this.provider().instance(IDomainSettings.class, domainUid).get().get("lang");
+		}
 	}
 
 	private Optional<String> toResourceId(final Attendee resourceAttendee) {
