@@ -36,13 +36,14 @@ import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.netty.util.concurrent.DefaultThreadFactory;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.task.service.internal.ISubscriber;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.io.AbstractReferenceCounted;
+import net.openhft.chronicle.core.threads.CleaningThread;
 import net.openhft.chronicle.queue.ExcerptAppender;
 import net.openhft.chronicle.queue.ExcerptTailer;
 import net.openhft.chronicle.queue.impl.single.SingleChronicleQueue;
@@ -56,13 +57,15 @@ public class PersistentQueue implements AutoCloseable {
 	private static final Logger logger = LoggerFactory.getLogger(PersistentQueue.class);
 
 	private static final ExecutorService TAIL_LOOP = Executors
-			.newSingleThreadExecutor(new DefaultThreadFactory("cq-tail-loop"));
+			.newSingleThreadExecutor(r -> new CleaningThread(r, "cq-tail-loop", true));
 
 	private static final AtomicLong uid = new AtomicLong();
 
 	static {
-		AbstractReferenceCounted.disableReferenceTracing();
+		System.setProperty("chronicle.disk.monitor.disable", "true");
 		System.setProperty("chronicle.analytics.disable", "true");
+		Jvm.setResourceTracing(false);
+		AbstractReferenceCounted.disableReferenceTracing();
 		try {
 			Files.walk(Paths.get(QUEUES_ROOT)).sorted(Comparator.reverseOrder()).map(Path::toFile)
 					.forEach(File::delete);
@@ -85,17 +88,13 @@ public class PersistentQueue implements AutoCloseable {
 	private final SingleChronicleQueue queue;
 	private final String tid;
 	private final long subId;
-
 	private final ExcerptAppender appender;
 
 	private PersistentQueue(String tid, long id, SingleChronicleQueue queue) {
 		this.tid = tid;
 		this.subId = id;
 		this.queue = queue;
-		this.appender = onCqThread(queue::acquireAppender).join();
-		if (appender == null) {
-			throw new ServerFault("Appender cannot be null");
-		}
+		this.appender = onCqThread(queue::createAppender).orTimeout(10, TimeUnit.SECONDS).join();
 	}
 
 	@Override
@@ -217,8 +216,11 @@ public class PersistentQueue implements AutoCloseable {
 	@Override
 	public void close() {
 		File toDelete = queue.file();
-		appender.close();
-		queue.close();
+		onCqThread(() -> {
+			appender.close();
+			queue.close();
+			return true;
+		}).orTimeout(10, TimeUnit.SECONDS).join();
 		VertxPlatform.getVertx().executeBlocking(() -> {
 			try {
 				File[] files = toDelete.listFiles();

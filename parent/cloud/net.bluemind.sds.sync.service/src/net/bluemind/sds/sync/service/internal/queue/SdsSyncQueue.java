@@ -33,6 +33,7 @@ import com.google.common.base.Suppliers;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.sds.sync.api.SdsSyncEvent;
 import net.bluemind.sds.sync.api.SdsSyncEvent.Body;
+import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.io.AbstractReferenceCounted;
 import net.openhft.chronicle.queue.ExcerptAppender;
 import net.openhft.chronicle.queue.ExcerptTailer;
@@ -47,8 +48,10 @@ public class SdsSyncQueue implements AutoCloseable {
 	private final SingleChronicleQueue queue;
 
 	static {
-		AbstractReferenceCounted.disableReferenceTracing();
+		System.setProperty("chronicle.disk.monitor.disable", "true");
 		System.setProperty("chronicle.analytics.disable", Boolean.TRUE.toString());
+		Jvm.setResourceTracing(false);
+		AbstractReferenceCounted.disableReferenceTracing();
 	}
 
 	public SdsSyncQueue() {
