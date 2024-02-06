@@ -290,9 +290,8 @@ class ProxyResponseImpl implements ProxyResponse {
 				}
 				request.inboundRequest.reset();
 				outboundResponse.reset();
-			} else {
-				completionHandler.handle(ar);
 			}
+			completionHandler.handle(ar);
 		});
 	}
 }

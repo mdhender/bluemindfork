@@ -174,11 +174,8 @@ public class HttpProxyImpl implements HttpProxy {
 			return contextToSession(proxyRequest, requestContext) //
 					.flatMap(session -> sessionToRequest(session) //
 							.flatMap(request -> sendProxyRequest(proxyRequest, requestContext, request) //
-									.flatMap(response -> sendProxyResponse(requestContext, response) //
-											.recover(h -> Future.succeededFuture()))
-									.onComplete(v -> session.end()))
-							.onFailure(t -> failUnsendProxyRequest(proxyRequest)))
-					.onFailure(t -> failUnsendProxyRequest(proxyRequest));
+									.flatMap(response -> sendProxyResponse(requestContext, response))
+									.onComplete(v -> session.end())));
 		}
 
 		private Future<ProxyResponse> sendProxyRequest(ProxyRequest proxyRequest, HttpServerRequestContext context,
@@ -205,15 +202,6 @@ public class HttpProxyImpl implements HttpProxy {
 
 			context.handleProxyResponse(response, promiseOfResponse);
 			return promiseOfResponse.future();
-		}
-
-		private void failUnsendProxyRequest(ProxyRequest proxyRequest) {
-			HttpServerRequest outboundRequest = proxyRequest.outboundRequest();
-			outboundRequest.resume();
-			Promise<Void> promise = Promise.promise();
-			outboundRequest.exceptionHandler(promise::tryFail);
-			outboundRequest.endHandler(promise::tryComplete);
-			promise.future().onComplete(ar2 -> end(proxyRequest, 502));
 		}
 
 		@Override
