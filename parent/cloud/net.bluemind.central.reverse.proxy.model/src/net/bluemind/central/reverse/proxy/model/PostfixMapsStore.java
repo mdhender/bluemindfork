@@ -1,28 +1,17 @@
 package net.bluemind.central.reverse.proxy.model;
 
 import static net.bluemind.central.reverse.proxy.model.common.PostfixMapsStoreEventBusAddress.ADDRESS;
-import static net.bluemind.central.reverse.proxy.model.common.PostfixMapsStoreEventBusAddress.ADD_DIR_NAME;
-import static net.bluemind.central.reverse.proxy.model.common.PostfixMapsStoreEventBusAddress.ADD_DOMAIN_NAME;
-import static net.bluemind.central.reverse.proxy.model.common.PostfixMapsStoreEventBusAddress.ADD_INSTALLATION_NAME;
-import static net.bluemind.central.reverse.proxy.model.common.PostfixMapsStoreEventBusAddress.ALIAS_TO_MAILBOX;
-import static net.bluemind.central.reverse.proxy.model.common.PostfixMapsStoreEventBusAddress.DEL_DIR_NAME;
-import static net.bluemind.central.reverse.proxy.model.common.PostfixMapsStoreEventBusAddress.DEL_DOMAIN_NAME;
 import static net.bluemind.central.reverse.proxy.model.common.PostfixMapsStoreEventBusAddress.HEADER_ACTION;
 import static net.bluemind.central.reverse.proxy.model.common.PostfixMapsStoreEventBusAddress.HEADER_TS;
-import static net.bluemind.central.reverse.proxy.model.common.PostfixMapsStoreEventBusAddress.MAILBOX_DOMAIN_MANAGED;
-import static net.bluemind.central.reverse.proxy.model.common.PostfixMapsStoreEventBusAddress.MAILBOX_EXISTS;
-import static net.bluemind.central.reverse.proxy.model.common.PostfixMapsStoreEventBusAddress.MAILBOX_STORE;
-import static net.bluemind.central.reverse.proxy.model.common.PostfixMapsStoreEventBusAddress.MANAGE_MEMBER_NAME;
-import static net.bluemind.central.reverse.proxy.model.common.PostfixMapsStoreEventBusAddress.SRS_RECIPIENT;
 import static net.bluemind.central.reverse.proxy.model.common.PostfixMapsStoreEventBusAddress.TIME_MANAGE_WARN;
 import static net.bluemind.central.reverse.proxy.model.common.PostfixMapsStoreEventBusAddress.TIME_PROCES_WARN;
-import static net.bluemind.central.reverse.proxy.model.common.PostfixMapsStoreEventBusAddress.UPDATE_DOMAIN_SETTINGS_NAME;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.curator.shaded.com.google.common.annotations.VisibleForTesting;
 import org.apache.curator.shaded.com.google.common.base.Strings;
+import org.apache.curator.shaded.com.google.common.util.concurrent.RateLimiter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,9 +24,11 @@ import net.bluemind.central.reverse.proxy.model.common.DomainInfo;
 import net.bluemind.central.reverse.proxy.model.common.DomainSettings;
 import net.bluemind.central.reverse.proxy.model.common.InstallationInfo;
 import net.bluemind.central.reverse.proxy.model.common.MemberInfo;
+import net.bluemind.central.reverse.proxy.model.common.PostfixMapsStoreEventBusAddress.PostfixActionHeader;
 
 public class PostfixMapsStore {
 	private final Logger logger = LoggerFactory.getLogger(PostfixMapsStore.class);
+	private final RateLimiter rlLogLag = RateLimiter.create(1);
 
 	private final PostfixMapsStorage storage;
 
@@ -58,29 +49,29 @@ public class PostfixMapsStore {
 	public PostfixMapsStore setupService(Vertx vertx) {
 		consumer = vertx.eventBus().<JsonObject>consumer(ADDRESS).handler(event -> {
 			logEventProcessDuration(event);
-			long time = System.currentTimeMillis();
+			long start = System.nanoTime();
 
-			String action = event.headers().get(HEADER_ACTION);
+			PostfixActionHeader action = PostfixActionHeader.fromString(event.headers().get(HEADER_ACTION));
 			switch (action) {
-			case ADD_INSTALLATION_NAME:
+			case ADD_INSTALLATION:
 				addInstallation(event);
 				break;
-			case ADD_DIR_NAME:
+			case ADD_DIR:
 				addDir(event);
 				break;
-			case DEL_DIR_NAME:
+			case DEL_DIR:
 				delDir(event);
 				break;
-			case ADD_DOMAIN_NAME:
+			case ADD_DOMAIN:
 				addDomain(event);
 				break;
-			case UPDATE_DOMAIN_SETTINGS_NAME:
+			case UPDATE_DOMAIN_SETTINGS:
 				updateDomainSettings(event);
 				break;
-			case DEL_DOMAIN_NAME:
+			case DEL_DOMAIN:
 				delDomain(event);
 				break;
-			case MANAGE_MEMBER_NAME:
+			case MANAGE_MEMBER:
 				manageMember(event);
 				break;
 			case ALIAS_TO_MAILBOX:
@@ -102,12 +93,12 @@ public class PostfixMapsStore {
 				event.fail(404, "Unknown action '" + action + "'");
 			}
 
-			time = System.currentTimeMillis() - time;
+			long processedTime = System.nanoTime() - start;
 			if (logger.isDebugEnabled()) {
-				logger.debug("PostfixMapsStore: vertx event consumption took {}ms long", time);
-			} else if (time > TIME_MANAGE_WARN) {
+				logger.debug("PostfixMapsStore: vertx event consumption took {}ms long", processedTime / 1000);
+			} else if (processedTime > TIME_MANAGE_WARN && rlLogLag.tryAcquire()) {
 				logger.warn("PostfixMapsStore: vertx event consumption took more than {}ms long: {}ms",
-						TIME_MANAGE_WARN, time);
+						TIME_MANAGE_WARN / 1000, processedTime / 1000);
 			}
 		});
 
@@ -118,10 +109,10 @@ public class PostfixMapsStore {
 		try {
 			long ts = Long.parseLong(event.headers().get(HEADER_TS));
 
-			long processTime = System.currentTimeMillis() - ts;
-			if (processTime > TIME_PROCES_WARN) {
-				logger.warn("PostfixMapsStore: vertx event process took more than {}ms long: {}ms", TIME_PROCES_WARN,
-						ts);
+			long processTime = System.nanoTime() - ts;
+			if (processTime > TIME_PROCES_WARN && rlLogLag.tryAcquire()) {
+				logger.warn("PostfixMapsStore: vertx event process took more than {}ms long: {}ms",
+						TIME_PROCES_WARN / 1000, processTime / 1000);
 			}
 		} catch (NumberFormatException nfe) {
 			// Ignore bad event timestamp

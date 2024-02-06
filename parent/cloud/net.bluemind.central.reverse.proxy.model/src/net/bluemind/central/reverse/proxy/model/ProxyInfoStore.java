@@ -1,14 +1,8 @@
 package net.bluemind.central.reverse.proxy.model;
 
 import static net.bluemind.central.reverse.proxy.model.common.ProxyInfoStoreEventBusAddress.ADDRESS;
-import static net.bluemind.central.reverse.proxy.model.common.ProxyInfoStoreEventBusAddress.ADD_DIR_NAME;
-import static net.bluemind.central.reverse.proxy.model.common.ProxyInfoStoreEventBusAddress.ADD_DOMAIN_NAME;
-import static net.bluemind.central.reverse.proxy.model.common.ProxyInfoStoreEventBusAddress.ADD_INSTALLATION_NAME;
-import static net.bluemind.central.reverse.proxy.model.common.ProxyInfoStoreEventBusAddress.ALL_IPS_NAME;
-import static net.bluemind.central.reverse.proxy.model.common.ProxyInfoStoreEventBusAddress.ANY_IP_NAME;
 import static net.bluemind.central.reverse.proxy.model.common.ProxyInfoStoreEventBusAddress.HEADER_ACTION;
 import static net.bluemind.central.reverse.proxy.model.common.ProxyInfoStoreEventBusAddress.HEADER_TS;
-import static net.bluemind.central.reverse.proxy.model.common.ProxyInfoStoreEventBusAddress.IP_NAME;
 import static net.bluemind.central.reverse.proxy.model.common.ProxyInfoStoreEventBusAddress.TIME_MANAGE_WARN;
 import static net.bluemind.central.reverse.proxy.model.common.ProxyInfoStoreEventBusAddress.TIME_PROCES_WARN;
 
@@ -20,6 +14,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.curator.shaded.com.google.common.annotations.VisibleForTesting;
+import org.apache.curator.shaded.com.google.common.util.concurrent.RateLimiter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,9 +26,11 @@ import net.bluemind.central.reverse.proxy.model.common.DirInfo;
 import net.bluemind.central.reverse.proxy.model.common.DirInfo.DirEmail;
 import net.bluemind.central.reverse.proxy.model.common.DomainInfo;
 import net.bluemind.central.reverse.proxy.model.common.InstallationInfo;
+import net.bluemind.central.reverse.proxy.model.common.ProxyInfoStoreEventBusAddress.ActionHeader;
 
 public class ProxyInfoStore {
 	private final Logger logger = LoggerFactory.getLogger(ProxyInfoStore.class);
+	private final RateLimiter rlLogLag = RateLimiter.create(1);
 
 	private final ProxyInfoStorage storage;
 
@@ -54,38 +51,38 @@ public class ProxyInfoStore {
 	public ProxyInfoStore setupService(Vertx vertx) {
 		consumer = vertx.eventBus().<JsonObject>consumer(ADDRESS).handler(event -> {
 			logEventProcessDuration(event);
-			long time = System.currentTimeMillis();
+			long start = System.nanoTime();
 
-			String action = event.headers().get(HEADER_ACTION);
+			ActionHeader action = ActionHeader.fromString(event.headers().get(HEADER_ACTION));
 			switch (action) {
-			case ADD_DIR_NAME:
+			case ADD_DIR:
 				addDir(event);
 				break;
-			case ADD_DOMAIN_NAME:
+			case ADD_DOMAIN:
 				addDomain(event);
 				break;
-			case ADD_INSTALLATION_NAME:
+			case ADD_INSTALLATION:
 				addInstallation(event);
 				break;
-			case IP_NAME:
+			case IP:
 				ip(event);
 				break;
-			case ANY_IP_NAME:
+			case ANY_IP:
 				anyIp(event);
 				break;
-			case ALL_IPS_NAME:
+			case ALL_IPS:
 				allIps(event);
 				break;
 			default:
 				event.fail(404, "Unknown action '" + action + "'");
 			}
 
-			time = System.currentTimeMillis() - time;
+			long processedTime = System.nanoTime() - start;
 			if (logger.isDebugEnabled()) {
-				logger.debug("ProxyInfoStore: vertx event management took {}ms long", time);
-			} else if (time > TIME_MANAGE_WARN) {
-				logger.warn("ProxyInfoStore: vertx event management took more than {}ms long: {}ms", TIME_MANAGE_WARN,
-						time);
+				logger.debug("ProxyInfoStore: vertx event management took {}ms long", processedTime / 1000);
+			} else if (processedTime > TIME_MANAGE_WARN && rlLogLag.tryAcquire()) {
+				logger.warn("ProxyInfoStore: vertx event management took more than {}ms long: {}ms",
+						TIME_MANAGE_WARN / 1000, processedTime / 1000);
 			}
 		});
 
@@ -96,9 +93,10 @@ public class ProxyInfoStore {
 		try {
 			long ts = Long.parseLong(event.headers().get(HEADER_TS));
 
-			long processTime = System.currentTimeMillis() - ts;
-			if (processTime > TIME_PROCES_WARN) {
-				logger.warn("ProxyInfoStore: vertx event process took more than {}ms long: {}ms", TIME_PROCES_WARN, ts);
+			long processTime = System.nanoTime() - ts;
+			if (processTime > TIME_PROCES_WARN && rlLogLag.tryAcquire()) {
+				logger.warn("ProxyInfoStore: vertx event process took more than {}ms long: {}ms",
+						TIME_PROCES_WARN / 1000, processTime / 1000);
 			}
 		} catch (NumberFormatException nfe) {
 			// Ignore bad event timestamp
