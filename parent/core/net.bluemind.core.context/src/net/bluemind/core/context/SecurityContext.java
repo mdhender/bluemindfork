@@ -126,7 +126,13 @@ public class SecurityContext {
 		this.subject = subject;
 		this.subjectDisplayName = subjectDisplayName;
 		this.memberOf = Collections.unmodifiableList(memberOf);
+<<<<<<< Updated upstream
 		this.roles = Collections.unmodifiableList(roles);
+=======
+		// this is visible in gwt, to not change to toList()
+		this.roles = roles == null ? Collections.emptyList()
+				: Collections.unmodifiableList(roles.stream().map(interner::intern).collect(Collectors.toList()));
+>>>>>>> Stashed changes
 		this.orgUnitsRoles = Collections.unmodifiableMap(rolesByOrgUnit);
 		this.domainUid = domainUid;
 		this.lang = lang;
