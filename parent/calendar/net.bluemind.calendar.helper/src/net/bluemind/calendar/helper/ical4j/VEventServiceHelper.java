@@ -102,7 +102,6 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 	 * @param method
 	 * @return
 	 */
-	// FIXME Object... should be Property...
 	public static Calendar convertToIcal4jCalendar(Method method, List<ItemValue<VEventSeries>> vevents,
 			Property... paramProperties) {
 		Calendar calendar = initCalendar();

@@ -18,7 +18,7 @@
  */
 package net.bluemind.lmtp.filter.imip;
 
-import java.util.HashSet;
+import java.util.Arrays;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
-import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
@@ -35,6 +34,7 @@ import net.bluemind.delivery.lmtp.common.LmtpAddress;
 import net.bluemind.delivery.lmtp.common.ResolvedBox;
 import net.bluemind.delivery.lmtp.filters.PermissionDeniedException.MailboxInvitationDeniedException;
 import net.bluemind.domain.api.Domain;
+import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.icalendar.api.ICalendarElement.Classification;
 import net.bluemind.imip.parser.IMIPInfos;
 import net.bluemind.mailbox.api.Mailbox;
@@ -92,36 +92,41 @@ public class EventCancelHandler extends CancelHandler implements IIMIPHandler {
 				if (currentSeries.size() == 1 && currentSeries.get(0).value.main != null) {
 					ItemValue<VEventSeries> master = currentSeries.get(0);
 					for (VEventOccurrence occurrence : occurrences) {
-						// Add exdate
-						// BM-10462
-						logger.info("[{}] Remove event exception id {}, reccurid {}, in calendar {} ", imip.messageId,
-								imip.uid, occurrence.recurid, calUid);
-						if (master.value.main.exdate == null) {
-							master.value.main.exdate = new HashSet<BmDateTime>(1);
+						logger.info("[{}] Cancelling event exception id {}, reccurid {}, in calendar {} ",
+								imip.messageId, imip.uid, occurrence.recurid, calUid);
+						VEventOccurrence occ = master.value.occurrence(occurrence.recurid);
+						if (occ != null) {
+							occ.status = ICalendarElement.Status.Cancelled;
+							occ.sequence = occurrence.sequence;
+						} else {
+							if (master.value.occurrences.isEmpty()) {
+								master.value.occurrences = Arrays.asList(occurrence);
+							} else {
+								master.value.occurrences.add(occurrence);
+							}
 						}
-						master.value.main.exdate.add(occurrence.recurid);
-
-						master.value.occurrences.remove(master.value.occurrence(occurrence.recurid));
 					}
-					if (master.value.main == null && master.value.occurrences.isEmpty()) {
-						cal.delete(master.uid, false);
-					} else {
-						cal.update(master.uid, master.value, false);
-					}
+					cal.update(master.uid, master.value, false);
 				} else {
 					// only occurence
 					for (VEventOccurrence occurrence : occurrences) {
-						for (ItemValue<VEventSeries> oneOccurence : currentSeries) {
-							if (oneOccurence.value.occurrence(occurrence.recurid) != null) {
-								cal.delete(oneOccurence.uid, false);
+						for (ItemValue<VEventSeries> occurenceSerie : currentSeries) {
+							VEventOccurrence oneOccurrence = occurenceSerie.value.occurrence(occurrence.recurid);
+							if (occurenceSerie.value.occurrence(occurrence.recurid) != null) {
+								oneOccurrence.status = ICalendarElement.Status.Cancelled;
+								oneOccurrence.sequence = occurrence.sequence;
+								cal.update(occurenceSerie.uid, occurenceSerie.value, false);
 							}
 						}
 					}
 				}
 			} else {
-				logger.info("[{}] Deleting BM Event with ics uid {} in calendar {} ", imip.messageId, imip.uid, calUid);
+				logger.info("[{}] Cancelling BM Event with ics uid {} in calendar {} ", imip.messageId, imip.uid,
+						calUid);
 				for (ItemValue<VEventSeries> oneOccurence : currentSeries) {
-					cal.delete(oneOccurence.uid, false);
+					oneOccurence.value.main.status = ICalendarElement.Status.Cancelled;
+					oneOccurence.value.main.sequence = series.main.sequence;
+					cal.update(oneOccurence.uid, oneOccurence.value, false);
 				}
 			}
 

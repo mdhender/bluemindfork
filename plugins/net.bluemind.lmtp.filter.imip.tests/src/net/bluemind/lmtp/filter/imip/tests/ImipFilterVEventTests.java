@@ -840,29 +840,22 @@ public class ImipFilterVEventTests {
 	public void testRequestHandlerChangingMaster_ShouldAdjustExceptionsAttendees() throws Exception {
 		IIMIPHandler handler = new FakeEventRequestHandlerFactory().create();
 
+		// Create a recurring series with 2 attendees
 		ItemValue<VEvent> master = defaultVEvent();
 		VEvent evt = master.value.copy();
 		IMIPInfos imip = imip(ITIPMethod.REQUEST, defaultExternalSenderVCard(), master.uid);
-
 		master.value.summary = "summary";
 		master.value.description = "description";
 		master.value.location = "@home";
-
 		RRule daily = new RRule();
 		daily.frequency = Frequency.DAILY;
 		master.value.rrule = daily;
-
 		imip.iCalendarElements = Arrays.asList(master.value);
 		ResolvedBox recipient = EnvelopeBuilder.lookupEmail("user1@domain.lan");
-
 		handler.handle(imip, recipient, domain, user1Mailbox);
 
+		// Create an exception to this recurring series with 2 attendees
 		ItemValue<VEventSeries> series = user1Calendar.getComplete(master.uid);
-
-		VEvent.Attendee additionalAttendee = VEvent.Attendee.create(VEvent.CUType.Individual, "", VEvent.Role.Chair,
-				VEvent.ParticipationStatus.Accepted, true, "", "", "", "external", "", "", null,
-				"external2@ext-domain.lan");
-
 		VEventOccurrence exception = VEventOccurrence.fromEvent(master.value.copy(),
 				BmDateTimeWrapper.fromTimestamp(System.currentTimeMillis()));
 		exception.summary = "summary - modified - exception 1";
@@ -871,60 +864,64 @@ public class ImipFilterVEventTests {
 
 		exception.recurid = BmDateTimeWrapper.fromTimestamp(System.currentTimeMillis());
 		imip.iCalendarElements = Arrays.asList(exception);
-
 		handler.handle(imip, recipient, domain, user1Mailbox);
 
+		// Add an additional attendee to this series (so 3 attendees)
+		VEvent.Attendee additionalAttendee = VEvent.Attendee.create(VEvent.CUType.Individual, "", VEvent.Role.Chair,
+				VEvent.ParticipationStatus.Accepted, true, "", "", "", "external", "", "", null,
+				"external2@ext-domain.lan");
 		series = user1Calendar.getComplete(series.uid);
 		series.value.main.attendees = copyListAndAdd(series.value.main.attendees, additionalAttendee);
-
 		imip.iCalendarElements = Arrays.asList(series.value.main);
-
 		handler.handle(imip, recipient, domain, user1Mailbox);
 
 		series = user1Calendar.getComplete(series.uid);
-
 		assertEquals(3, series.value.main.attendees.size());
 
+		// Remove all attendee to this series (so 0+1 attendees)
 		series.value.main.attendees = new ArrayList<>();
 		imip.iCalendarElements = Arrays.asList(series.value.main);
-
 		handler.handle(imip, recipient, domain, user1Mailbox);
 
 		series = user1Calendar.getComplete(series.uid);
-		assertEquals(1, series.value.main.attendees.size()); // main has no attendees but an organizer, recipient has
-																// been auto-added
+		// main has no attendees but an organizer, recipient has been auto-added
+		assertEquals(1, series.value.main.attendees.size());
 		for (VEventOccurrence occurrence : series.value.occurrences) {
 			assertEquals(0, occurrence.attendees.size());
 		}
 
+		// Cancel this series exception
 		imip.method = ITIPMethod.CANCEL;
 		imip.iCalendarElements = Arrays.asList(exception);
 		IIMIPHandler cancelHandler = new EventCancelHandler(recipient, null);
 		cancelHandler.handle(imip, recipient, domain, user1Mailbox);
 
+		series = user1Calendar.getComplete(series.uid);
+		assertEquals(1, series.value.occurrences.size());
+		assertEquals(ICalendarElement.Status.Cancelled, series.value.occurrences.get(0).status);
+
+		// Create a new exception to this recurring series with 3 attendees
 		imip.method = ITIPMethod.REQUEST;
 		exception = VEventOccurrence.fromEvent(evt.copy(), BmDateTimeWrapper.fromTimestamp(System.currentTimeMillis()));
 		exception.organizer = defaultVEvent().value.organizer;
 		exception.summary = "summary - modified - exception 1";
 		exception.description = "description - modified - exception 1";
 		exception.location = "@home - modified - exception 1";
-
 		VEvent.Attendee additionalAttendee3 = VEvent.Attendee.create(VEvent.CUType.Individual, "", VEvent.Role.Chair,
 				VEvent.ParticipationStatus.Accepted, true, "", "", "", "external", "", "", null,
 				"external3@ext-domain.lan");
-
 		exception.attendees = copyListAndAdd(exception.attendees, additionalAttendee3);
 		imip.iCalendarElements = Arrays.asList(exception);
-
 		handler.handle(imip, recipient, domain, user1Mailbox);
 
 		series = user1Calendar.getComplete(series.uid);
-
-		assertEquals(1, series.value.main.attendees.size()); // main has no attendees but an organizer, recipient has
-																// been auto-added
-		for (VEventOccurrence occurrence : series.value.occurrences) {
-			assertEquals(3, occurrence.attendees.size());
-		}
+		// main has no attendees but an organizer, recipient has been auto-added
+		assertEquals(1, series.value.main.attendees.size());
+		assertEquals(2, series.value.occurrences.size());
+		assertEquals(ICalendarElement.Status.Cancelled, series.value.occurrences.get(0).status);
+		assertEquals(0, series.value.occurrences.get(0).attendees.size());
+		assertNotEquals(ICalendarElement.Status.Cancelled, series.value.occurrences.get(1).status);
+		assertEquals(3, series.value.occurrences.get(1).attendees.size());
 
 	}
 
@@ -1084,7 +1081,8 @@ public class ImipFilterVEventTests {
 		cancelHandler.handle(imip, recipient, domain, user1Mailbox);
 		evt = user1Calendar.getComplete(event.uid);
 
-		assertNull(evt);
+		assertNotNull(evt);
+		assertEquals(ICalendarElement.Status.Cancelled, evt.value.main.status);
 
 	}
 
@@ -1124,7 +1122,9 @@ public class ImipFilterVEventTests {
 
 		cancelHandler.handle(imip, recipient, domain, resourceMailbox);
 		evt = resourceCalendar.getComplete(event.uid);
-		assertNull(evt);
+
+		assertNotNull(evt);
+		assertEquals(evt.value.main.status, ICalendarElement.Status.Cancelled);
 	}
 
 	@Test
@@ -1519,8 +1519,9 @@ public class ImipFilterVEventTests {
 
 		evt = user1Calendar.getComplete(event.uid);
 		assertNotNull(evt.value.main.rrule);
-		assertEquals(1, evt.value.main.exdate.size());
-		assertEquals(exception.value.occurrences.get(0).recurid, evt.value.main.exdate.iterator().next());
+		assertNull(evt.value.main.exdate);
+		assertEquals(1, evt.value.occurrences.size());
+		assertEquals(ICalendarElement.Status.Cancelled, evt.value.occurrences.get(0).status);
 	}
 
 	@Test
@@ -1557,6 +1558,7 @@ public class ImipFilterVEventTests {
 		List<ItemValue<VEventSeries>> all = user2Calendar.getByIcsUid(imipUid);
 		assertEquals(1, all.size());
 		assertEquals(1, all.get(0).value.occurrences.size());
+		assertNotEquals(ICalendarElement.Status.Cancelled, all.get(0).value.occurrences.get(0).status);
 
 		// cancel (new attendee)
 		IIMIPHandler cancelHandler = new EventCancelHandler(recipient, null);
@@ -1565,7 +1567,9 @@ public class ImipFilterVEventTests {
 		cancelHandler.handle(imip, recipient, domain, user2Mailbox);
 
 		all = user2Calendar.getByIcsUid(imipUid);
-		assertEquals(0, all.size());
+		assertEquals(1, all.size());
+		assertEquals(1, all.get(0).value.occurrences.size());
+		assertEquals(ICalendarElement.Status.Cancelled, all.get(0).value.occurrences.get(0).status);
 
 	}
 
@@ -1602,8 +1606,8 @@ public class ImipFilterVEventTests {
 		evt = user1Calendar.getComplete(events.get(0).uid);
 
 		assertNotNull(evt.value.main.rrule);
-		assertEquals(1, evt.value.main.exdate.size());
-		assertEquals(exception.recurid, evt.value.main.exdate.iterator().next());
+		assertEquals(1, evt.value.occurrences.size());
+		assertNull(evt.value.main.exdate);
 
 	}
 

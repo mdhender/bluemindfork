@@ -20,6 +20,7 @@ package net.bluemind.calendar.hook;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -66,6 +67,7 @@ import net.bluemind.common.freemarker.FreeMarkerMsg;
 import net.bluemind.common.freemarker.MessagesResolver;
 import net.bluemind.common.freemarker.MessagesResolverProvider;
 import net.bluemind.core.api.date.BmDateTime;
+import net.bluemind.core.api.date.BmDateTime.Precision;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.auditlog.IAuditManager;
@@ -673,6 +675,7 @@ public class IcsHook implements ICalendarHook {
 			return;
 		}
 
+		series.main.sequence++;
 		MailData md = MailData.cancel(message, series.main);
 		for (ICalendarElement.Attendee attendee : series.main.attendees) {
 			if (attendeeIsOrganizer(attendee, md.organizer) || !attendsToSeries(series, attendee)) {
@@ -698,6 +701,7 @@ public class IcsHook implements ICalendarHook {
 		List<VEvent> events = message.vevent.flatten();
 
 		for (VEvent evt : events) {
+			evt.sequence++;
 			for (Attendee attendee : evt.attendees) {
 				if (!seriesAttendees.contains(attendee)) {
 					MailData md = MailData.cancel(message, evt);
@@ -716,6 +720,7 @@ public class IcsHook implements ICalendarHook {
 	}
 
 	private void sendCancelToAttendees(VEventMessage message, VEvent evt, List<Attendee> deletedAttendees) {
+		evt.sequence++;
 		MailData md = MailData.cancel(message, evt);
 		for (ICalendarElement.Attendee attendee : deletedAttendees) {
 			Mailbox recipient = SendmailHelper.formatAddress(attendee.commonName, attendee.mailto);
@@ -778,7 +783,14 @@ public class IcsHook implements ICalendarHook {
 			// add some magic
 			VEventOccurrence occurrence = VEventOccurrence.fromEvent(message.vevent.main, exdate);
 			occurrence.dtstart = exdate;
+			ZonedDateTime mainStartDate = new BmDateTimeWrapper(message.vevent.main.dtstart).toDateTime();
+			ZonedDateTime mainEndDate = new BmDateTimeWrapper(message.vevent.main.dtend).toDateTime();
+			ZonedDateTime occStartDate = new BmDateTimeWrapper(occurrence.dtstart).toDateTime();
+			long mainDuration = mainStartDate.until(mainEndDate, ChronoUnit.SECONDS);
+			occurrence.dtend = BmDateTimeWrapper.create(occStartDate.plusSeconds(mainDuration), Precision.DateTime);
 			occurrence.exdate = null;
+			occurrence.rrule = null;
+			occurrence.sequence++;
 
 			String ics = getIcsPart(Optional.of(message.vevent.acceptCounters), message.vevent.icsUid, Method.CANCEL,
 					occurrence);

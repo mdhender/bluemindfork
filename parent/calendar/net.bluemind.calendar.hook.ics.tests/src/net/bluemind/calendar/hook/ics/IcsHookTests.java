@@ -33,6 +33,7 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -1736,7 +1737,15 @@ public class IcsHookTests {
 		assertNull(series.value.main);
 		assertNotNull(series.value.occurrences);
 		assertEquals(1, series.value.occurrences.size());
-		assertNull(series.value.occurrences.get(0).exdate);
+		VEventOccurrence occurrence = series.value.occurrences.get(0);
+		assertNull(occurrence.exdate);
+		ZonedDateTime mainStart = new BmDateTimeWrapper(newEvent.value.main.dtstart).toDateTime();
+		ZonedDateTime occStart = new BmDateTimeWrapper(occurrence.dtstart).toDateTime();
+		assertEquals(mainStart.plusDays(1).truncatedTo(ChronoUnit.SECONDS), occStart);
+		ZonedDateTime mainEnd = new BmDateTimeWrapper(newEvent.value.main.dtend).toDateTime();
+		ZonedDateTime occEnd = new BmDateTimeWrapper(occurrence.dtend).toDateTime();
+		assertEquals(mainEnd.plusDays(1).truncatedTo(ChronoUnit.SECONDS), occEnd);
+
 	}
 
 	@Test
@@ -2724,6 +2733,7 @@ public class IcsHookTests {
 		assertNull(series.value.main);
 		assertNotNull(series.value.occurrences);
 		assertEquals(1, series.value.occurrences.size());
+
 	}
 
 	@Test

@@ -65,7 +65,6 @@ import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.icalendar.api.ICalendarElement.Attendee;
 import net.bluemind.icalendar.api.ICalendarElement.Classification;
 import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;
 import net.bluemind.icalendar.api.ICalendarElement.Status;
@@ -181,12 +180,12 @@ public class VFreebusyService implements IVFreebusy {
 
 	private Status getStatusForAttendee(VEvent event) {
 		String owner = IFreebusyUids.extractUserUid(container.uid);
-		for (Attendee a : event.attendees) {
-			if (a.dir != null && a.dir.endsWith("/" + owner)) {
-				return getStatusForPartStatus(a.partStatus);
-			}
-		}
-		return event.status;
+		return (event.status == Status.Cancelled) //
+				? Status.Cancelled //
+				: event.attendees.stream() //
+						.filter(attendee -> attendee.dir != null && attendee.dir.endsWith("/" + owner)).findFirst()
+						.map(attendee -> getStatusForPartStatus(attendee.partStatus)) //
+						.orElse(event.status);
 	}
 
 	private Status getStatusForPartStatus(ParticipationStatus partStatus) {
