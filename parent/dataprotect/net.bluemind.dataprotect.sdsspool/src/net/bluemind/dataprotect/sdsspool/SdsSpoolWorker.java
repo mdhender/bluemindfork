@@ -38,12 +38,12 @@ import org.slf4j.LoggerFactory;
 
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.streams.ReadStream;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.core.rest.base.JsonStreams;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.dataprotect.api.IBackupWorker;
 import net.bluemind.dataprotect.api.IDPContext;
@@ -107,12 +107,7 @@ public class SdsSpoolWorker implements IBackupWorker {
 		AtomicLong lastIndex = new AtomicLong(readLastIndex(nc));
 		Stream sdsSyncStream = sdsSyncApi.sync(lastIndex.get());
 		ProgressPrinter progress = new ProgressPrinter(sdsSyncApi.count(lastIndex.get()));
-		ReadStream<JsonObject> reader = VertxStream.read(sdsSyncStream);
-		reader.pause();
-
-		CompletableFuture<Void> future = new CompletableFuture<>();
-		reader.endHandler(v -> future.complete(null));
-		reader.handler(body -> {
+		CompletableFuture<Void> future = JsonStreams.consume(VertxStream.read(sdsSyncStream), body -> {
 			progress.add();
 			String type = body.getString("type");
 			if (type.equals("BODYADD") || type.equals("BODYDEL")) {
@@ -146,8 +141,6 @@ public class SdsSpoolWorker implements IBackupWorker {
 				saveLastIndex(nc, lastIndex.get());
 			}
 		});
-		reader.exceptionHandler(future::completeExceptionally);
-		reader.resume();
 		try {
 			future.orTimeout(23, TimeUnit.HOURS).join();
 		} finally {
