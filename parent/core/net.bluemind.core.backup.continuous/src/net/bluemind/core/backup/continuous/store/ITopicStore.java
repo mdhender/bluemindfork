@@ -18,8 +18,10 @@
 package net.bluemind.core.backup.continuous.store;
 
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Splitter;
@@ -27,6 +29,27 @@ import com.google.common.base.Splitter;
 import io.vertx.core.json.JsonObject;
 
 public interface ITopicStore {
+
+	public static final CHMInterner interner = new CHMInterner();
+
+	/**
+	 * https://shipilev.net/jvm-anatomy-park/10-string-intern/
+	 */
+	public static class CHMInterner {
+		private final Map<String, String> map;
+
+		public CHMInterner() {
+			map = new ConcurrentHashMap<>();
+		}
+
+		public String intern(String s) {
+			if (s == null) {
+				return s;
+			}
+			String exist = map.putIfAbsent(s, s);
+			return (exist == null) ? s : exist;
+		}
+	}
 
 	Set<String> topicNames();
 
@@ -70,7 +93,7 @@ public interface ITopicStore {
 			StringBuilder b = new StringBuilder();
 			b.append(installation().replace("bluemind-", "").replace("-", "")).append("-").append(domainUid());
 			suffix().ifPresent(suffix -> b.append("__").append(suffix));
-			return b.toString();
+			return interner.intern(b.toString());
 		}
 
 		default String partitionKey(String uid) {
@@ -89,10 +112,10 @@ public interface ITopicStore {
 
 		public DefaultTopicDescriptor(String install, String dom, String own, String type, String uid,
 				Optional<String> suffix) {
-			this.install = install;
-			this.domainUid = dom;
+			this.install = interner.intern(install);
+			this.domainUid = interner.intern(dom);
 			this.owner = own;
-			this.type = type;
+			this.type = interner.intern(type);
 			this.uid = uid;
 			this.suffix = suffix;
 		}

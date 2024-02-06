@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public class SecurityContext {
 
@@ -41,6 +43,27 @@ public class SecurityContext {
 			Arrays.<String>asList(ROLE_SYSTEM), Collections.emptyMap(), "global.virt", "en", "internal-system", false);
 
 	public static final String TOKEN_FAKE_DOMAIN = "token-fake-domain";
+
+	private static final CHMInterner interner = new CHMInterner();
+
+	/**
+	 * https://shipilev.net/jvm-anatomy-park/10-string-intern/
+	 */
+	public static class CHMInterner {
+		private final Map<String, String> map;
+
+		public CHMInterner() {
+			map = new ConcurrentHashMap<>();
+		}
+
+		public String intern(String s) {
+			if (s == null) {
+				return s;
+			}
+			String exist = map.putIfAbsent(s, s);
+			return (exist == null) ? s : exist;
+		}
+	}
 
 	private final long created;
 	private final String sessionId;
@@ -126,13 +149,9 @@ public class SecurityContext {
 		this.subject = subject;
 		this.subjectDisplayName = subjectDisplayName;
 		this.memberOf = Collections.unmodifiableList(memberOf);
-<<<<<<< Updated upstream
-		this.roles = Collections.unmodifiableList(roles);
-=======
 		// this is visible in gwt, to not change to toList()
 		this.roles = roles == null ? Collections.emptyList()
 				: Collections.unmodifiableList(roles.stream().map(interner::intern).collect(Collectors.toList()));
->>>>>>> Stashed changes
 		this.orgUnitsRoles = Collections.unmodifiableMap(rolesByOrgUnit);
 		this.domainUid = domainUid;
 		this.lang = lang;
