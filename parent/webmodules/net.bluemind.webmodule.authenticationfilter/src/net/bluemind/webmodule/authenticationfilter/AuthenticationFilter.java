@@ -19,6 +19,7 @@ package net.bluemind.webmodule.authenticationfilter;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -283,7 +284,7 @@ public class AuthenticationFilter implements IWebFilter, NeedVertx {
 
 		Optional<String> redirUrl = Optional.empty();
 		try {
-			URL reqUrl = new URL(request.absoluteURI());
+			URL reqUrl = URI.create(request.absoluteURI()).toURL();
 			redirUrl = Optional.ofNullable(URLEncoder.encode(REDIRECT_PROTO + reqUrl.getHost() + "/",
 					java.nio.charset.StandardCharsets.UTF_8.toString()));
 		} catch (MalformedURLException | UnsupportedEncodingException e) {
