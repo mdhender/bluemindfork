@@ -1,10 +1,6 @@
 package net.bluemind.central.reverse.proxy.model;
 
 import static net.bluemind.central.reverse.proxy.model.common.ProxyInfoStoreEventBusAddress.ADDRESS;
-import static net.bluemind.central.reverse.proxy.model.common.ProxyInfoStoreEventBusAddress.ADD_DIR;
-import static net.bluemind.central.reverse.proxy.model.common.ProxyInfoStoreEventBusAddress.ADD_INSTALLATION;
-import static net.bluemind.central.reverse.proxy.model.common.ProxyInfoStoreEventBusAddress.ANY_IP;
-import static net.bluemind.central.reverse.proxy.model.common.ProxyInfoStoreEventBusAddress.IP;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -25,6 +21,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.ReplyException;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import net.bluemind.central.reverse.proxy.model.common.ProxyInfoStoreEventBusAddress.ActionHeader;
 import net.bluemind.central.reverse.proxy.model.impl.AsyncTestContext;
 import net.bluemind.lib.vertx.VertxPlatform;
 
@@ -55,11 +52,12 @@ public class ProxyInfoStoreTests {
 			JsonObject emails = new JsonObject().put("address", "anyLogin").put("allAliases", false);
 			JsonObject json = new JsonObject().put("emails", new JsonArray().add(emails))
 					.put("dataLocation", "anyDataLocation").put("domainUid", "anyDomains");
-			vertx.eventBus().request(ADDRESS, json, ADD_DIR, ar -> context.assertions(() -> {
-				assertTrue(ar.succeeded());
-				assertNull(ar.result().body());
-				verify(storage, times(1)).addLogin("anyLogin", "anyDataLocation");
-			}));
+			vertx.eventBus().request(ADDRESS, json, ActionHeader.ADD_DIR.getDeliveryOptions(),
+					ar -> context.assertions(() -> {
+						assertTrue(ar.succeeded());
+						assertNull(ar.result().body());
+						verify(storage, times(1)).addLogin("anyLogin", "anyDataLocation");
+					}));
 		});
 	}
 
@@ -67,12 +65,13 @@ public class ProxyInfoStoreTests {
 	public void testAddLogin_withWrongParameterName() {
 		AsyncTestContext.asyncTest(context -> {
 			JsonObject json = new JsonObject().put("wrongProperty", "value").put("dataLocation", "anyDataLocation");
-			vertx.eventBus().request(ADDRESS, json, ADD_DIR, ar -> context.assertions(() -> {
-				assertTrue(ar.failed());
-				assertTrue(ar.cause() instanceof ReplyException);
-				assertEquals(500, ((ReplyException) ar.cause()).failureCode());
-				verify(storage, times(0)).addLogin(any(), any());
-			}));
+			vertx.eventBus().request(ADDRESS, json, ActionHeader.ADD_DIR.getDeliveryOptions(),
+					ar -> context.assertions(() -> {
+						assertTrue(ar.failed());
+						assertTrue(ar.cause() instanceof ReplyException);
+						assertEquals(500, ((ReplyException) ar.cause()).failureCode());
+						verify(storage, times(0)).addLogin(any(), any());
+					}));
 		});
 	}
 
@@ -80,12 +79,13 @@ public class ProxyInfoStoreTests {
 	public void testAddLogin_withWrongParameterValue() {
 		AsyncTestContext.asyncTest(context -> {
 			JsonObject json = new JsonObject().put("emails", new JsonObject()).put("dataLocation", "anyDataLocation");
-			vertx.eventBus().request(ADDRESS, json, ADD_DIR, ar -> context.assertions(() -> {
-				assertTrue(ar.failed());
-				assertTrue(ar.cause() instanceof ReplyException);
-				assertEquals(500, ((ReplyException) ar.cause()).failureCode());
-				verify(storage, times(0)).addLogin(any(), any());
-			}));
+			vertx.eventBus().request(ADDRESS, json, ActionHeader.ADD_DIR.getDeliveryOptions(),
+					ar -> context.assertions(() -> {
+						assertTrue(ar.failed());
+						assertTrue(ar.cause() instanceof ReplyException);
+						assertEquals(500, ((ReplyException) ar.cause()).failureCode());
+						verify(storage, times(0)).addLogin(any(), any());
+					}));
 		});
 	}
 
@@ -94,11 +94,12 @@ public class ProxyInfoStoreTests {
 		org.mockito.Mockito.when(storage.ip(Mockito.anyString())).thenReturn("1.2.3.4");
 		AsyncTestContext.asyncTest(context -> {
 			JsonObject json = new JsonObject().put("login", "any");
-			vertx.eventBus().<JsonObject>request(ADDRESS, json, IP, ar -> context.assertions(() -> {
-				assertTrue(ar.succeeded());
-				assertEquals("1.2.3.4", ar.result().body().getString("ip"));
-				verify(storage, times(1)).ip("any");
-			}));
+			vertx.eventBus().<JsonObject>request(ADDRESS, json, ActionHeader.IP.getDeliveryOptions(),
+					ar -> context.assertions(() -> {
+						assertTrue(ar.succeeded());
+						assertEquals("1.2.3.4", ar.result().body().getString("ip"));
+						verify(storage, times(1)).ip("any");
+					}));
 		});
 	}
 
@@ -107,12 +108,13 @@ public class ProxyInfoStoreTests {
 		org.mockito.Mockito.when(storage.ip(Mockito.anyString())).thenReturn(null);
 		AsyncTestContext.asyncTest(context -> {
 			JsonObject json = new JsonObject().put("login", "any");
-			vertx.eventBus().request(ADDRESS, json, IP, ar -> context.assertions(() -> {
-				assertTrue(ar.failed());
-				assertTrue(ar.cause() instanceof ReplyException);
-				assertEquals(404, ((ReplyException) ar.cause()).failureCode());
-				verify(storage, times(1)).ip("any");
-			}));
+			vertx.eventBus().request(ADDRESS, json, ActionHeader.IP.getDeliveryOptions(),
+					ar -> context.assertions(() -> {
+						assertTrue(ar.failed());
+						assertTrue(ar.cause() instanceof ReplyException);
+						assertEquals(404, ((ReplyException) ar.cause()).failureCode());
+						verify(storage, times(1)).ip("any");
+					}));
 		});
 	}
 
@@ -120,12 +122,13 @@ public class ProxyInfoStoreTests {
 	public void testIp_withWrongParameterName() {
 		AsyncTestContext.asyncTest(context -> {
 			JsonObject json = new JsonObject().put("wrongProperty", "any");
-			vertx.eventBus().request(ADDRESS, json, IP, ar -> context.assertions(() -> {
-				assertTrue(ar.failed());
-				assertTrue(ar.cause() instanceof ReplyException);
-				assertEquals(500, ((ReplyException) ar.cause()).failureCode());
-				verify(storage, times(0)).ip(any());
-			}));
+			vertx.eventBus().request(ADDRESS, json, ActionHeader.IP.getDeliveryOptions(),
+					ar -> context.assertions(() -> {
+						assertTrue(ar.failed());
+						assertTrue(ar.cause() instanceof ReplyException);
+						assertEquals(500, ((ReplyException) ar.cause()).failureCode());
+						verify(storage, times(0)).ip(any());
+					}));
 		});
 	}
 
@@ -133,11 +136,12 @@ public class ProxyInfoStoreTests {
 	public void testAnyIp() {
 		org.mockito.Mockito.when(storage.anyIp()).thenReturn("1.2.3.4");
 		AsyncTestContext.asyncTest(context -> {
-			vertx.eventBus().<JsonObject>request(ADDRESS, null, ANY_IP, ar -> context.assertions(() -> {
-				assertTrue(ar.succeeded());
-				assertEquals("1.2.3.4", ar.result().body().getString("ip"));
-				verify(storage, times(1)).anyIp();
-			}));
+			vertx.eventBus().<JsonObject>request(ADDRESS, null, ActionHeader.ANY_IP.getDeliveryOptions(),
+					ar -> context.assertions(() -> {
+						assertTrue(ar.succeeded());
+						assertEquals("1.2.3.4", ar.result().body().getString("ip"));
+						verify(storage, times(1)).anyIp();
+					}));
 		});
 	}
 
@@ -145,12 +149,13 @@ public class ProxyInfoStoreTests {
 	public void testAnyIp_whenNoIpAvailable() {
 		org.mockito.Mockito.when(storage.anyIp()).thenReturn(null);
 		AsyncTestContext.asyncTest(context -> {
-			vertx.eventBus().request(ADDRESS, null, ANY_IP, ar -> context.assertions(() -> {
-				assertTrue(ar.failed());
-				assertTrue(ar.cause() instanceof ReplyException);
-				assertEquals(404, ((ReplyException) ar.cause()).failureCode());
-				verify(storage, times(1)).anyIp();
-			}));
+			vertx.eventBus().request(ADDRESS, null, ActionHeader.ANY_IP.getDeliveryOptions(),
+					ar -> context.assertions(() -> {
+						assertTrue(ar.failed());
+						assertTrue(ar.cause() instanceof ReplyException);
+						assertEquals(404, ((ReplyException) ar.cause()).failureCode());
+						verify(storage, times(1)).anyIp();
+					}));
 		});
 	}
 
@@ -158,14 +163,15 @@ public class ProxyInfoStoreTests {
 	public void testAddDataLocation() {
 		AsyncTestContext.asyncTest(context -> {
 			JsonObject json = new JsonObject().put("dataLocation", "anyDataLocation").put("ip", "1.2.3.4");
-			vertx.eventBus().request(ADDRESS, json, ADD_INSTALLATION, ar -> context.assertions(() -> {
-				if (ar.failed()) {
-					ar.cause().printStackTrace();
-				}
-				assertTrue(ar.succeeded());
-				assertNull(ar.result().body());
-				verify(storage, times(1)).addDataLocation("anyDataLocation", "1.2.3.4");
-			}));
+			vertx.eventBus().request(ADDRESS, json, ActionHeader.ADD_INSTALLATION.getDeliveryOptions(),
+					ar -> context.assertions(() -> {
+						if (ar.failed()) {
+							ar.cause().printStackTrace();
+						}
+						assertTrue(ar.succeeded());
+						assertNull(ar.result().body());
+						verify(storage, times(1)).addDataLocation("anyDataLocation", "1.2.3.4");
+					}));
 		});
 	}
 
@@ -173,12 +179,13 @@ public class ProxyInfoStoreTests {
 	public void testAddDataLocation_withWrongParameterName() {
 		AsyncTestContext.asyncTest(context -> {
 			JsonObject json = new JsonObject().put("wrongProperty", "anyDataLocation").put("ip", "1.2.3.4");
-			vertx.eventBus().request(ADDRESS, json, ADD_INSTALLATION, ar -> context.assertions(() -> {
-				assertTrue(ar.failed());
-				assertTrue(ar.cause() instanceof ReplyException);
-				assertEquals(500, ((ReplyException) ar.cause()).failureCode());
-				verify(storage, times(0)).addDataLocation(any(), any());
-			}));
+			vertx.eventBus().request(ADDRESS, json, ActionHeader.ADD_INSTALLATION.getDeliveryOptions(),
+					ar -> context.assertions(() -> {
+						assertTrue(ar.failed());
+						assertTrue(ar.cause() instanceof ReplyException);
+						assertEquals(500, ((ReplyException) ar.cause()).failureCode());
+						verify(storage, times(0)).addDataLocation(any(), any());
+					}));
 		});
 	}
 
