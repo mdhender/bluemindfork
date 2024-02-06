@@ -268,9 +268,23 @@ export function useDelegation() {
         clientProperties: { type: "delegation" }
     };
 
+    const copyRulesAndImipRule = () => {
+        const mailboxFilterRules = [...store.state.preferences.mailboxFilter.rules];
+        const copyImipMailboxRuleIndex = mailboxFilterRules.findIndex(matchCopyImipMailboxRule);
+        let copyImipMailboxRule;
+        if (copyImipMailboxRuleIndex > -1) {
+            const actions = mailboxFilterRules[copyImipMailboxRuleIndex].actions || [];
+            copyImipMailboxRule = {
+                ...mailboxFilterRules[copyImipMailboxRuleIndex],
+                actions: structuredClone(actions)
+            };
+            mailboxFilterRules.splice(copyImipMailboxRuleIndex, 1, copyImipMailboxRule);
+        }
+        return { mailboxFilterRules, copyImipMailboxRule, copyImipMailboxRuleIndex };
+    };
+
     const addDelegateToCopyImipMailboxRule = async ({ uid, address, receiveImipOption }) => {
-        const mailboxFilter = store.state.preferences.mailboxFilter;
-        let copyImipMailboxRule = mailboxFilter.rules.find(matchCopyImipMailboxRule);
+        let { mailboxFilterRules, copyImipMailboxRule } = copyRulesAndImipRule();
         const copyImipAction = {
             name: "REDIRECT",
             keepCopy: receiveImipOption !== receiveImipOptions.ONLY_DELEGATE,
@@ -281,7 +295,7 @@ export function useDelegation() {
             copyImipMailboxRule = {
                 actions: [copyImipAction]
             };
-            mailboxFilter.rules.push(copyImipMailboxRule);
+            mailboxFilterRules.push(copyImipMailboxRule);
         } else if (!copyImipMailboxRule.actions.some(a => matchCopyImipActionForDelegate(a, uid))) {
             copyImipMailboxRule.actions.push(copyImipAction);
         }
@@ -313,14 +327,13 @@ export function useDelegation() {
             copyImipMailboxRule.actions.push(setFlagsAction);
         }
 
-        store.dispatch("preferences/SAVE_RULES", mailboxFilter.rules);
+        store.dispatch("preferences/SAVE_RULES", mailboxFilterRules);
     };
 
     const receiveImipOptions = { ONLY_DELEGATE: 0, BOTH: 1, COPY: 2 };
 
     const updateReceiveImipOption = async receiveImipOption => {
-        const mailboxFilter = store.state.preferences.mailboxFilter;
-        const copyImipMailboxRule = mailboxFilter.rules.find(matchCopyImipMailboxRule);
+        const { mailboxFilterRules, copyImipMailboxRule } = copyRulesAndImipRule();
         const setFlagsActionIndex = copyImipMailboxRule.actions.findIndex(
             ({ clientProperties, name }) => clientProperties?.type === "delegation" && name === "SET_FLAGS"
         );
@@ -339,7 +352,7 @@ export function useDelegation() {
             }
         });
 
-        store.dispatch("preferences/SAVE_RULES", mailboxFilter.rules);
+        store.dispatch("preferences/SAVE_RULES", mailboxFilterRules);
     };
 
     const computeReceiveImipOption = async () => {
@@ -377,11 +390,8 @@ export function useDelegation() {
     };
 
     const removeDelegateFromCopyImipMailboxRule = async uid => {
-        const mailboxFilter = store.state.preferences.mailboxFilter;
-        const copyImipMailboxRuleIndex = mailboxFilter.rules.findIndex(matchCopyImipMailboxRule);
-        if (copyImipMailboxRuleIndex > -1) {
-            const copyImipMailboxRule = mailboxFilter.rules[copyImipMailboxRuleIndex];
-
+        const { mailboxFilterRules, copyImipMailboxRule, copyImipMailboxRuleIndex } = copyRulesAndImipRule();
+        if (copyImipMailboxRule) {
             // remove the redirect action for the given delegate
             const updatedActions = copyImipMailboxRule.actions.filter(
                 action => !matchCopyImipActionForDelegate(action, uid)
@@ -390,11 +400,11 @@ export function useDelegation() {
             const remainingRedirectActions = updatedActions.filter(({ name }) => name === "REDIRECT").length;
             if (remainingRedirectActions === 0) {
                 // remove the entire rule
-                mailboxFilter.rules.splice(copyImipMailboxRuleIndex, 1);
-                store.dispatch("preferences/SAVE_RULES", mailboxFilter.rules);
+                mailboxFilterRules.splice(copyImipMailboxRuleIndex, 1);
+                store.dispatch("preferences/SAVE_RULES", mailboxFilterRules);
             } else if (updatedActions.length < copyImipMailboxRule.actions.length) {
-                mailboxFilter.rules[copyImipMailboxRuleIndex].actions = updatedActions;
-                store.dispatch("preferences/SAVE_RULES", mailboxFilter.rules);
+                mailboxFilterRules[copyImipMailboxRuleIndex].actions = updatedActions;
+                store.dispatch("preferences/SAVE_RULES", mailboxFilterRules);
             }
         }
     };
