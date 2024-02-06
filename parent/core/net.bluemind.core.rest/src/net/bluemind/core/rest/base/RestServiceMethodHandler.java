@@ -28,27 +28,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.interfaces.DecodedJWT;
-
 import io.netty.handler.codec.http.QueryStringDecoder;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
-import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import io.vertx.core.MultiMap;
 import io.vertx.core.http.HttpHeaders;
-import io.vertx.core.json.JsonObject;
 import net.bluemind.common.vertx.contextlogging.ContextualData;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.api.fault.ServerFault;
@@ -59,7 +52,6 @@ import net.bluemind.core.rest.model.RestService;
 import net.bluemind.core.rest.model.RestServiceApiDescriptor.MethodDescriptor;
 import net.bluemind.core.rest.utils.ErrorLogBuilder;
 import net.bluemind.core.sessions.Sessions;
-import net.bluemind.openid.utils.AccessTokenValidator;
 
 public class RestServiceMethodHandler implements IRestCallHandler {
 
@@ -75,7 +67,6 @@ public class RestServiceMethodHandler implements IRestCallHandler {
 	private final boolean async;
 	private static final Pattern pathParamsMatcher = Pattern.compile(Pattern.quote("{") + "(.*?)" + Pattern.quote("}"));
 	private static final CharSequence X_BM_API_KEY = HttpHeaders.createOptimized("X-BM-ApiKey");
-	private static final ServerCookieDecoder cookieDecoder = ServerCookieDecoder.LAX;
 	private static final String OPENID_COOKIE = "OpenIdSession";
 	private static final String ACCESS_COOKIE = "AccessToken";
 	private static final String REFRESH_COOKIE = "RefreshToken";
@@ -144,90 +135,8 @@ public class RestServiceMethodHandler implements IRestCallHandler {
 
 	@Override
 	public void call(RestRequest request, AsyncHandler<RestResponse> response) {
-		String key = null;
-		String cookieStr = Optional.ofNullable(request.headers.get("cookie")).orElse("");
-		Set<Cookie> cookies = cookieDecoder.decode(cookieStr);
-		Optional<Cookie> oidc = cookies.stream().filter(c -> OPENID_COOKIE.equals(c.name())).findFirst();
 		MultiMap headers = MultiMap.caseInsensitiveMultiMap();
-
-		if (oidc.isPresent()) {
-			JsonObject token = new JsonObject(oidc.get().value());
-			key = token.getString("sid");
-			String domainUid = token.getString("domain_uid");
-
-			Optional<Cookie> atc = cookies.stream().filter(c -> ACCESS_COOKIE.equals(c.name())).findFirst();
-			if (atc.isEmpty()) {
-				error(response, key, new ServerFault("No access token cookie"));
-				return;
-			}
-			DecodedJWT accessToken = JWT.decode(atc.get().value());
-			try {
-				AccessTokenValidator.validateSignature(domainUid, accessToken);
-			} catch (ServerFault sf) {
-				error(response, key, sf);
-				return;
-			}
-			try {
-				AccessTokenValidator.validate(domainUid, accessToken);
-			} catch (ServerFault sf) {
-				Optional<Cookie> rtc = cookies.stream().filter(c -> REFRESH_COOKIE.equals(c.name())).findFirst();
-				if (rtc.isEmpty()) {
-					error(response, key, new ServerFault("No refresh token cookie"));
-					return;
-				}
-				CompletableFuture<Optional<JsonObject>> future = AccessTokenValidator.refreshToken(domainUid,
-						rtc.get().value());
-				Optional<JsonObject> refreshedToken;
-				try {
-					refreshedToken = future.get(10, TimeUnit.SECONDS);
-				} catch (Exception e) {
-					error(response, key, e);
-					return;
-				}
-
-				if (refreshedToken.isEmpty()) {
-					error(response, key, sf);
-					return;
-				}
-
-				JsonObject rt = new JsonObject(refreshedToken.get().encode());
-				JsonObject cookie = new JsonObject();
-				cookie.put("sid", key);
-				cookie.put("domain_uid", domainUid);
-
-				Cookie openIdCookie = new DefaultCookie(OPENID_COOKIE, cookie.encode());
-				openIdCookie.setPath("/");
-				openIdCookie.setHttpOnly(true);
-				openIdCookie.setSecure(true);
-				headers.add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(openIdCookie));
-
-				Cookie accessCookie = new DefaultCookie(ACCESS_COOKIE, rt.getString("access_token"));
-				accessCookie.setPath("/");
-				accessCookie.setHttpOnly(true);
-				accessCookie.setSecure(true);
-				headers.add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(accessCookie));
-
-				String refreshToken = rtc.get().value();
-				if (rt.containsKey("refresh_token")) {
-					refreshToken = rt.getString("refresh_token");
-				}
-
-				Cookie refreshCookie = new DefaultCookie(REFRESH_COOKIE, refreshToken);
-				refreshCookie.setPath("/");
-				refreshCookie.setHttpOnly(true);
-				refreshCookie.setSecure(true);
-				headers.add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(refreshCookie));
-
-				Cookie idCookie = new DefaultCookie(ID_COOKIE, rt.getString("id_token"));
-				idCookie.setPath("/");
-				idCookie.setHttpOnly(true);
-				idCookie.setSecure(true);
-				headers.add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(idCookie));
-			}
-		}
-
-		key = Optional.ofNullable(key)
-				.orElse(Optional.ofNullable(request.headers.get(X_BM_API_KEY)).orElse(request.params.get("apikey")));
+		String key = Optional.ofNullable(request.headers.get(X_BM_API_KEY)).orElse(request.params.get("apikey"));
 
 		logger.debug("handle request {} from {}) with key {}", request.path, request.remoteAddresses, key);
 

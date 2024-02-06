@@ -52,7 +52,6 @@
 		<module>milter</module>
 		<module>node</module>
 		<module>notes</module>
-		<module>openid</module>
 		<module>outlook</module>
 		<module>pop</module>
 		<module>proxy</module>
