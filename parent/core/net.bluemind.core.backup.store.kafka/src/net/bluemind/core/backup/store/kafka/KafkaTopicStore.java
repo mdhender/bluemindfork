@@ -34,6 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.apache.kafka.clients.admin.AdminClient;
@@ -73,28 +74,35 @@ public class KafkaTopicStore implements ITopicStore, TopicManager {
 	public static final int PARTITION_COUNT = KafkaStoreConfig.get().getInt("kafka.topic.partitionCount");
 	static final short REPL_FACTOR = (short) KafkaStoreConfig.get().getInt("kafka.topic.replicationFactor");
 
-	private AdminClient adminClient;
+	private static record Bootstrap(String zookeeper, String brokers) {
 
-	private String zkBootstrap;
-	private String bootstrap;
-	private String cid;
+		public boolean valid() {
+			return zookeeper != null && brokers != null;
+		}
+	}
+
+	private final Supplier<AdminClient> adminClient;
+
+	private final Bootstrap bootstrap;
 
 	private final Map<TopicDescriptor, KafkaTopicPublisher> knownPublisher = new ConcurrentHashMap<>();
 	private final Registry reg;
 
 	public KafkaTopicStore() {
-		kafkaBootstrapServers();
+		bootstrap = kafkaBootstrapServers();
 
 		String loc = DataLocation.current();
-		logger.warn("kafka.bootstrap {}, zk {}", bootstrap, zkBootstrap);
-		if (bootstrap != null && zkBootstrap != null) {
+		logger.warn("kafka.bootstrap {}, zk {}", bootstrap.brokers(), bootstrap.zookeeper());
+		if (bootstrap.valid()) {
 			Properties properties = new Properties();
-			properties.put("bootstrap.servers", bootstrap);
-			this.cid = jvm() + "_" + InstallationId.getIdentifier() + "_" + loc + "_" + cidAlloc.incrementAndGet();
+			properties.put("bootstrap.servers", bootstrap.brokers());
+			String cid = jvm() + "_" + InstallationId.getIdentifier() + "_" + loc + "_" + cidAlloc.incrementAndGet();
 			properties.put("client.id", cid);
-
-			this.adminClient = AdminClient.create(properties);
+			this.adminClient = () -> AdminClient.create(properties);
+		} else {
+			this.adminClient = null;
 		}
+
 		this.reg = MetricsRegistry.get();
 	}
 
@@ -102,10 +110,10 @@ public class KafkaTopicStore implements ITopicStore, TopicManager {
 		return System.getProperty("net.bluemind.property.product", "unknown");
 	}
 
-	private void kafkaBootstrapServers() {
-		this.bootstrap = System.getProperty("bm.kafka.bootstrap.servers");
-		this.zkBootstrap = System.getProperty("bm.zk.servers");
-		if (bootstrap == null || zkBootstrap == null) {
+	private Bootstrap kafkaBootstrapServers() {
+		String brokersBootstrap = System.getProperty("bm.kafka.bootstrap.servers");
+		String zkBootstrap = System.getProperty("bm.zk.servers");
+		if (brokersBootstrap == null || zkBootstrap == null) {
 			File local = new File("/etc/bm/kafka.properties");
 			if (!local.exists()) {
 				local = new File(System.getProperty("user.home") + "/kafka.properties");
@@ -117,10 +125,11 @@ public class KafkaTopicStore implements ITopicStore, TopicManager {
 				} catch (Exception e) {
 					logger.warn(e.getMessage());
 				}
-				bootstrap = tmp.getProperty("bootstrap.servers");
+				brokersBootstrap = tmp.getProperty("bootstrap.servers");
 				zkBootstrap = tmp.getProperty("zookeeper.servers");
 			}
 		}
+		return new Bootstrap(zkBootstrap, brokersBootstrap);
 	}
 
 	@Override
@@ -130,10 +139,10 @@ public class KafkaTopicStore implements ITopicStore, TopicManager {
 
 	@Override
 	public Set<String> topicNames() {
-		try {
+		try (var ac = adminClient.get()) {
 			ListTopicsOptions opts = new ListTopicsOptions();
 			opts.listInternal(false);
-			Map<String, TopicListing> existing = adminClient.listTopics(opts).namesToListings().get();
+			Map<String, TopicListing> existing = ac.listTopics(opts).namesToListings().get();
 			logger.info("topic names:{}", existing.keySet());
 			return existing.keySet();
 		} catch (Exception e) {
@@ -149,7 +158,7 @@ public class KafkaTopicStore implements ITopicStore, TopicManager {
 
 	@Override
 	public TopicSubscriber getSubscriber(String topicName) {
-		return new KafkaTopicSubscriber(bootstrap, topicName, reg,
+		return new KafkaTopicSubscriber(bootstrap.brokers(), topicName, reg,
 				new IdFactory("kafka.consumer", reg, KafkaTopicSubscriber.class));
 	}
 
@@ -163,15 +172,15 @@ public class KafkaTopicStore implements ITopicStore, TopicManager {
 
 		logger.info("{} bound to physical topic '{}'", td, physicalTopic);
 		ensureKafkaTopic(physicalTopic);
-		return new KafkaTopicPublisher(bootstrap, physicalTopic);
+		return new KafkaTopicPublisher(bootstrap.brokers(), physicalTopic);
 
 	}
 
 	private void ensureKafkaTopic(String name) {
-		try {
+		try (var ac = adminClient.get()) {
 			ListTopicsOptions opts = new ListTopicsOptions();
 			opts.listInternal(false);
-			Map<String, TopicListing> existing = adminClient.listTopics(opts).namesToListings().get();
+			Map<String, TopicListing> existing = ac.listTopics(opts).namesToListings().get();
 			if (!existing.containsKey(name)) {
 				Config conf = KafkaStoreConfig.get();
 				NewTopic nt = new NewTopic(name, PARTITION_COUNT, REPL_FACTOR);
@@ -188,7 +197,7 @@ public class KafkaTopicStore implements ITopicStore, TopicManager {
 				));
 				CreateTopicsOptions cto = new CreateTopicsOptions();
 
-				CreateTopicsResult res = adminClient.createTopics(Arrays.asList(nt), cto);
+				CreateTopicsResult res = ac.createTopics(Arrays.asList(nt), cto);
 				Uuid created = res.topicId(name).get();
 				logger.info("Created topic {}: {}", name, created);
 			}
@@ -203,23 +212,26 @@ public class KafkaTopicStore implements ITopicStore, TopicManager {
 
 	@Override
 	public void delete(String topic) {
-		Iterator<Entry<TopicDescriptor, KafkaTopicPublisher>> it = knownPublisher.entrySet().iterator();
-		while (it.hasNext()) {
-			Entry<TopicDescriptor, KafkaTopicPublisher> entry = it.next();
-			if (entry.getKey().physicalTopic().equals(topic)) {
-				it.remove();
+		try (var ac = adminClient.get()) {
+			Iterator<Entry<TopicDescriptor, KafkaTopicPublisher>> it = knownPublisher.entrySet().iterator();
+			while (it.hasNext()) {
+				Entry<TopicDescriptor, KafkaTopicPublisher> entry = it.next();
+				if (entry.getKey().physicalTopic().equals(topic)) {
+					it.remove();
+				}
 			}
+			Optional.ofNullable(KafkaTopicPublisher.perPhyTopicProd.remove(topic)).ifPresent(prod -> {
+				logger.info("Closing {}", prod);
+				prod.close(Duration.ofSeconds(20));
+			});
+			DeleteTopicsOptions opts = new DeleteTopicsOptions();
+			DeleteTopicsResult result = ac.deleteTopics(Collections.singleton(topic), opts);
+			result.all().toCompletionStage().thenAccept(v -> logger.info("Topic {} deleted.", topic))
+					.exceptionally(ex -> {
+						logger.error("Deletion of {} failed ({})", topic, ex.getMessage(), ex);
+						return null;
+					}).toCompletableFuture().orTimeout(30, TimeUnit.SECONDS).join();
 		}
-		Optional.ofNullable(KafkaTopicPublisher.perPhyTopicProd.remove(topic)).ifPresent(prod -> {
-			logger.info("Closing {}", prod);
-			prod.close(Duration.ofSeconds(20));
-		});
-		DeleteTopicsOptions opts = new DeleteTopicsOptions();
-		DeleteTopicsResult result = adminClient.deleteTopics(Collections.singleton(topic), opts);
-		result.all().toCompletionStage().thenAccept(v -> logger.info("Topic {} deleted.", topic)).exceptionally(ex -> {
-			logger.error("Deletion of {} failed ({})", topic, ex.getMessage(), ex);
-			return null;
-		}).toCompletableFuture().join();
 	}
 
 	@Override
@@ -235,6 +247,18 @@ public class KafkaTopicStore implements ITopicStore, TopicManager {
 			logger.info("Closing {}", prod);
 			prod.close(Duration.ofSeconds(20));
 		});
+	}
+
+	public void flushAll() {
+		Set<String> topics = knownPublisher.keySet().stream().map(TopicDescriptor::physicalTopic)
+				.collect(Collectors.toSet());
+		for (String topic : topics) {
+			logger.info("Flushing {}", topics);
+			Optional.ofNullable(KafkaTopicPublisher.perPhyTopicProd.remove(topic)).ifPresent(prod -> {
+				logger.info("Closing {}", prod);
+				prod.close(Duration.ofSeconds(20));
+			});
+		}
 	}
 
 	@Override

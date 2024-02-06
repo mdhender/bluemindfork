@@ -51,6 +51,7 @@ import net.bluemind.lib.vertx.VertxPlatform;
 public class KafkaTopicStoreTests {
 
 	private ZkKafkaContainer container;
+	private KafkaTopicStore store;
 
 	@Before
 	public void before() {
@@ -63,10 +64,17 @@ public class KafkaTopicStoreTests {
 
 		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
+		this.store = new KafkaTopicStore();
+		assertNotNull(store);
+
 	}
 
 	@After
 	public void after() {
+
+		store.flushAll();
+		System.err.println("*** flush all done ***");
+
 		if (container != null) {
 			container.close();
 		}
@@ -74,10 +82,8 @@ public class KafkaTopicStoreTests {
 		KafkaTopicMetrics.get().clearAllPublishMetrics();
 	}
 
-	@Test
+	@Test(timeout = 30000)
 	public void testStartStore() throws Exception {
-		KafkaTopicStore store = new KafkaTopicStore();
-		assertNotNull(store);
 		assertTrue(store.isEnabled());
 
 		TopicDescriptor descriptor = DefaultTopicDescriptor.of("bluemind-toto/dom.com/owner/calendar/a_cal_uid");
@@ -138,22 +144,8 @@ public class KafkaTopicStoreTests {
 		assertTrue(called.get());
 	}
 
-	@Test
-	public void testMappingPersists() {
-		KafkaTopicStore store = new KafkaTopicStore();
-		TopicPublisher anotherOne = store.getPublisher(DefaultTopicDescriptor.of("inst-dead-beef/dom/owner/type/uid"));
-		assertNotNull(anotherOne);
-
-		System.err.println("check persistent name mapping...");
-		KafkaTopicStore restore = new KafkaTopicStore();
-		TopicPublisher reloaded = restore.getPublisher(DefaultTopicDescriptor.of("inst-dead-beef/dom/owner/type/uid"));
-		assertNotNull(reloaded);
-		// FIXME does not test anything
-	}
-
-	@Test
+	@Test(timeout = 30000)
 	public void testListTopicNames() {
-		KafkaTopicStore store = new KafkaTopicStore();
 		TopicPublisher orphansPublisher = store
 				.getPublisher(DefaultTopicDescriptor.of("inst/__orphans__/owner/type/uid2"));
 		assertNotNull(orphansPublisher);
@@ -176,11 +168,9 @@ public class KafkaTopicStoreTests {
 		assertTrue(called.get());
 	}
 
-	@Test
+	@Test(timeout = 30000)
 	public void testMetrics_producer() throws Exception {
 
-		KafkaTopicStore store = new KafkaTopicStore();
-		assertNotNull(store);
 		assertTrue(store.isEnabled());
 
 		TopicDescriptor descriptor = DefaultTopicDescriptor.of("bluemind-toto/dom.com/owner/calendar/a_cal_uid");
@@ -214,11 +204,9 @@ public class KafkaTopicStoreTests {
 		return another.store(partitionKey, bs, ("yeah " + UUID.randomUUID().toString()).getBytes());
 	}
 
-	@Test
+	@Test(timeout = 30000)
 	public void testMetrics_consumer() throws Exception {
 
-		KafkaTopicStore store = new KafkaTopicStore();
-		assertNotNull(store);
 		assertTrue(store.isEnabled());
 
 		TopicDescriptor descriptor = DefaultTopicDescriptor.of("bluemind-toto/dom.com/owner/calendar/a_cal_uid");
