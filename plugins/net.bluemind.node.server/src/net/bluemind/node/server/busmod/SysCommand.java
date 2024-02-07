@@ -18,7 +18,6 @@
  */
 package net.bluemind.node.server.busmod;
 
-import java.lang.reflect.Field;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -323,12 +322,6 @@ public class SysCommand extends AbstractVerticle {
 	}
 
 	private long getPid(Process p) {
-		try {
-			Field field = p.getClass().getDeclaredField("pid");
-			field.setAccessible(true); // NOSONAR
-			return Integer.class.cast(field.get(p)).intValue();
-		} catch (Exception e) {
-			throw new RuntimeException(e); // NOSONAR
-		}
+		return p.pid();
 	}
 }
