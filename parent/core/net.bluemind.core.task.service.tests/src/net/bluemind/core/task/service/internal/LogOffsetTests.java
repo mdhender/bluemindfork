@@ -26,12 +26,14 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
+import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
-import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.core.task.service.ITasksManager;
 
 public class LogOffsetTests {
 
@@ -39,7 +41,8 @@ public class LogOffsetTests {
 
 	@Before
 	public void before() {
-		taskManager = new TasksManager(VertxPlatform.getVertx());
+		taskManager = (TasksManager) ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(ITasksManager.class);
 	}
 
 	@Test

@@ -42,10 +42,13 @@ import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.streams.ReadStream;
+import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
+import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.lib.vertx.VertxPlatform;
 
 public class TaskManagerTests {
@@ -54,7 +57,8 @@ public class TaskManagerTests {
 
 	@BeforeClass
 	public static void beforeClass() {
-		taskManager = new TasksManager(VertxPlatform.getVertx());
+		taskManager = (TasksManager) ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(ITasksManager.class);
 	}
 
 	@Before

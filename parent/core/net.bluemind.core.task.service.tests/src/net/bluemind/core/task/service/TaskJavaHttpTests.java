@@ -48,6 +48,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
+import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.service.internal.TasksManager;
 import net.bluemind.lib.vertx.VertxPlatform;
@@ -58,7 +60,8 @@ public class TaskJavaHttpTests {
 	@BeforeClass
 	public static void before() {
 		VertxPlatform.spawnBlocking(60, TimeUnit.SECONDS);
-		taskManager = new TasksManager(VertxPlatform.getVertx());
+		taskManager = (TasksManager) ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(ITasksManager.class);
 	}
 
 	@After

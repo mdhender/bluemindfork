@@ -19,36 +19,38 @@
 package net.bluemind.core.task.service.internal;
 
 import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.MessageProducer;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.task.service.AbstractTaskMonitor;
 import net.bluemind.core.task.service.LoggingTaskMonitor;
 
 public class TaskMonitor extends AbstractTaskMonitor {
-	private EventBus eventBus;
-	private String taskId;
+	private final String taskId;
+	private final MessageProducer<JsonObject> publisher;
 	private boolean ended;
 
 	public TaskMonitor(EventBus eventBus, String taskId) {
 		super(0);
-		this.eventBus = eventBus;
 		this.taskId = taskId;
+		this.publisher = eventBus.publisher(TasksManager.TASKS_MANAGER_EVENT);
 	}
 
 	@Override
 	public void begin(double work, String log) {
 		LoggingTaskMonitor.logger.debug("send begin {} {}", work, log);
-		eventBus.publish(TasksManager.TASKS_MANAGER_EVENT, MonitorMessage.begin(taskId, work, log));
+		publisher.write(MonitorMessage.begin(taskId, work, log));
 	}
 
 	@Override
 	public void progress(double step, String log) {
 		LoggingTaskMonitor.logger.debug("send progress {} {}", step, log);
-		eventBus.publish(TasksManager.TASKS_MANAGER_EVENT, MonitorMessage.progress(taskId, step, log));
+		publisher.write(MonitorMessage.progress(taskId, step, log));
 	}
 
 	@Override
 	public void log(String log) {
 		LoggingTaskMonitor.logger.debug("send log {}", log);
-		eventBus.publish(TasksManager.TASKS_MANAGER_EVENT, MonitorMessage.log(taskId, log));
+		publisher.write(MonitorMessage.log(taskId, log));
 	}
 
 	@Override
@@ -58,7 +60,7 @@ public class TaskMonitor extends AbstractTaskMonitor {
 		}
 		ended = true;
 		LoggingTaskMonitor.logger.info("[{}] send end {} result {}", taskId, log, result);
-		eventBus.publish(TasksManager.TASKS_MANAGER_EVENT, MonitorMessage.end(taskId, success, log, result));
+		publisher.write(MonitorMessage.end(taskId, success, log, result));
 
 	}
 
