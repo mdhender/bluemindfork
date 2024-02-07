@@ -30,9 +30,8 @@ public class KafkaPublishMetrics extends AbstractVerticle {
 	public void start(Promise<Void> startPromise) throws Exception {
 		vertx.setPeriodic(3000, id -> {
 			try {
-				KafkaTopicMetrics.get().clearAllPublishMetrics();
-				KafkaTopicMetrics.get().publish();
-				vertx.eventBus().publish("bm.monitoring.kafka.metrics", KafkaTopicMetrics.get().toJson());
+				var js = KafkaTopicMetrics.get().publish().toJson();
+				vertx.eventBus().publish("bm.monitoring.kafka.metrics", js);
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 			}

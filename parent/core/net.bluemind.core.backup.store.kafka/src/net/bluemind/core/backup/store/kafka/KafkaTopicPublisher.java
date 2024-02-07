@@ -10,10 +10,12 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
+import org.apache.kafka.common.Metric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.MoreObjects;
+import com.google.common.util.concurrent.RateLimiter;
 import com.typesafe.config.Config;
 
 import net.bluemind.core.backup.continuous.store.TopicPublisher;
@@ -30,13 +32,21 @@ public class KafkaTopicPublisher implements TopicPublisher {
 	private final String bootstrapServer;
 	private final String physicalTopic;
 	private final KafkaProducer<byte[], byte[]> producer;
+	private final RateLimiter metricLimiter;
+	private final Metric recordSendRate;
 
 	static final Map<String, KafkaProducer<byte[], byte[]>> perPhyTopicProd = new ConcurrentHashMap<>();
+	private static final Map<String, RateLimiter> metricsLimiter = new ConcurrentHashMap<>();
 
 	public KafkaTopicPublisher(String bootstrapServer, String physicalTopic) {
 		this.bootstrapServer = bootstrapServer;
 		this.physicalTopic = physicalTopic;
 		this.producer = perPhyTopicProd.computeIfAbsent(physicalTopic, s -> createKafkaProducer());
+		this.metricLimiter = metricsLimiter.computeIfAbsent(physicalTopic, t -> RateLimiter.create(1.0));
+		this.recordSendRate = producer.metrics().entrySet().stream()
+				.filter(m -> KafkaTopicMetrics.SEND_RATE.equals(m.getKey().name())
+						&& "producer-metrics".equals(m.getKey().group()))
+				.map(e -> (Metric) e.getValue()).findFirst().orElseThrow();
 	}
 
 	@Override
@@ -56,13 +66,11 @@ public class KafkaTopicPublisher implements TopicPublisher {
 			}
 		});
 
-		long sendRate = producer.metrics().entrySet().stream()
-				.filter(m -> KafkaTopicMetrics.SEND_RATE.equals(m.getKey().name()))
-				.map(e -> (double) e.getValue().metricValue()).reduce(0d, (sum, val) -> sum + val).longValue();
-
-		KafkaMetric metric = new KafkaMetric(new String(key), KafkaTopicMetrics.SEND_RATE, sendRate,
-				ClientEnum.PRODUCER.name());
-		VertxPlatform.eventBus().publish("bm.monitoring.fw.kafka.metrics", metric.toJsonObj());
+		if (metricLimiter.tryAcquire() && recordSendRate.metricValue() instanceof Double sendRate) {
+			KafkaMetric metric = new KafkaMetric(physicalTopic, KafkaTopicMetrics.SEND_RATE, sendRate.longValue(),
+					ClientEnum.PRODUCER.name());
+			VertxPlatform.eventBus().publish("bm.monitoring.fw.kafka.metrics", metric.toJsonObj());
+		}
 		return comp;
 	}
 

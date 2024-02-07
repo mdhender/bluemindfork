@@ -23,16 +23,16 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.curator.shaded.com.google.common.base.Stopwatch;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -79,7 +79,6 @@ public class KafkaTopicStoreTests {
 			container.close();
 		}
 
-		KafkaTopicMetrics.get().clearAllPublishMetrics();
 	}
 
 	@Test(timeout = 30000)
@@ -109,7 +108,6 @@ public class KafkaTopicStoreTests {
 		TopicSubscriber subscriber = store.getSubscriber("toto-dom.com");
 		IResumeToken token = subscriber.subscribe((key, value, p, o) -> {
 			count.incrementAndGet();
-			System.err.println("de.payload: " + value);
 		});
 		fetch = System.currentTimeMillis() - fetch;
 		System.err.println("Fetched " + count.get() + " in " + fetch + "ms.");
@@ -177,26 +175,26 @@ public class KafkaTopicStoreTests {
 		TopicPublisher another = store.getPublisher(descriptor);
 		assertNotNull(another);
 
-		int cnt = 1000;
-		ExecutorService executor = Executors.newFixedThreadPool(cnt);
-		CompletableFuture<?>[] comps = new CompletableFuture<?>[cnt];
-		CompletableFuture<?>[] compss = new CompletableFuture<?>[cnt];
-		for (int i = 0; i < cnt; i++) {
-			comps[i] = CompletableFuture.supplyAsync(() -> publishMessage("any", ("key").getBytes(), another),
-					executor);
-			compss[i] = CompletableFuture.supplyAsync(() -> publishMessage("any" + UUID.randomUUID().toString(),
-					("key" + UUID.randomUUID().toString()).getBytes(), another), executor);
+		var duration = Duration.ofSeconds(2);
+		var chrono = Stopwatch.createStarted();
+		CompletableFuture<Void> lastSent = CompletableFuture.completedFuture(null);
+		while (chrono.elapsed().compareTo(duration) <= 0) {
+			publishMessage("any", ("key").getBytes(), another);
+			lastSent = publishMessage("any" + UUID.randomUUID().toString(),
+					("key" + UUID.randomUUID().toString()).getBytes(), another);
 		}
-		CompletableFuture.allOf(comps).orTimeout(10, TimeUnit.MINUTES).join();
-		CompletableFuture.allOf(compss).orTimeout(10, TimeUnit.MINUTES).join();
+		lastSent.orTimeout(10, TimeUnit.MINUTES).join();
 
-		Thread.sleep(3000);
-
-		KafkaTopicMetrics.get().publish();
-		List<KafkaMetric> publishMetrics = KafkaTopicMetrics.get().getPublishMetrics();
+		List<KafkaMetric> publishMetrics = KafkaTopicMetrics.get().publish();
 		assertNotNull(publishMetrics);
+		for (var km : publishMetrics) {
+			System.err.println("Got " + km.toJson());
+		}
 		assertFalse(publishMetrics.isEmpty());
-		assertTrue(publishMetrics.size() > cnt - 100 && publishMetrics.size() < cnt + 100);
+		KafkaMetric myTopicMetrics = publishMetrics.stream().filter(km -> km.id.equals(descriptor.physicalTopic()))
+				.findAny().orElseThrow();
+		assertTrue(myTopicMetrics.value > 0);
+
 		assertTrue(publishMetrics.stream().allMatch(m -> m.client.equals("PRODUCER")));
 	}
 
@@ -214,11 +212,10 @@ public class KafkaTopicStoreTests {
 		assertNotNull(another);
 
 		int cnt = 1000;
-		ExecutorService executor = Executors.newFixedThreadPool(cnt);
 		CompletableFuture<?>[] comps = new CompletableFuture<?>[cnt];
 		for (int i = 0; i < cnt; i++) {
-			comps[i] = CompletableFuture.supplyAsync(() -> publishMessage("any" + UUID.randomUUID().toString(),
-					("key" + UUID.randomUUID().toString()).getBytes(), another), executor);
+			comps[i] = publishMessage("any" + UUID.randomUUID().toString(),
+					("key" + UUID.randomUUID().toString()).getBytes(), another);
 		}
 		CompletableFuture.allOf(comps).orTimeout(10, TimeUnit.MINUTES).join();
 
@@ -229,9 +226,11 @@ public class KafkaTopicStoreTests {
 		});
 		assertTrue(called.get());
 
-		KafkaTopicMetrics.get().publish();
-		List<KafkaMetric> publishMetrics = KafkaTopicMetrics.get().getPublishMetrics();
+		List<KafkaMetric> publishMetrics = KafkaTopicMetrics.get().publish();
 		assertNotNull(publishMetrics);
+		for (var km : publishMetrics) {
+			System.err.println("Got " + km.toJson());
+		}
 		assertFalse(publishMetrics.isEmpty());
 		assertTrue(publishMetrics.stream().anyMatch(m -> m.client.equals("CONSUMER")));
 

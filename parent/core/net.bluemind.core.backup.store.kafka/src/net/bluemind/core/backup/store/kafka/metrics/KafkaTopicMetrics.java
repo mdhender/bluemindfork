@@ -20,6 +20,7 @@ package net.bluemind.core.backup.store.kafka.metrics;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
@@ -34,10 +35,8 @@ public class KafkaTopicMetrics {
 	public static final String SEND_RATE = "record-send-rate";
 	public static final String LAG = "lag";
 
-	Map<String, KafkaMetric> rateList = new ConcurrentHashMap<>();
-	Map<String, KafkaMetric> lagList = new ConcurrentHashMap<>();
-
-	List<KafkaMetric> publishMetrics = new ArrayList<>();
+	final Map<String, KafkaMetric> rateList = new ConcurrentHashMap<>();
+	final Map<String, KafkaMetric> lagList = new ConcurrentHashMap<>();
 
 	private static final KafkaTopicMetrics INSTANCE = new KafkaTopicMetrics();
 
@@ -67,39 +66,40 @@ public class KafkaTopicMetrics {
 				(keyy, metric) -> metric == null ? new KafkaMetric(id, key, value, client) : metric.avgValue(value));
 	}
 
-	public void publish() throws Exception {
-		publishSendRateMetrics();
-		publishLagMetrics();
-	}
+	@SuppressWarnings("serial")
+	public static class PublishedMetrics extends ArrayList<KafkaMetric> {
 
-	private void publishSendRateMetrics() throws Exception {
-		List<KafkaMetric> list = rateList.entrySet().stream().map(m -> m.getValue()).toList();
-		publishMetrics.addAll(list);
-		rateList.clear();
-	}
-
-	private void publishLagMetrics() throws Exception {
-		List<KafkaMetric> list = lagList.entrySet().stream().map(m -> m.getValue()).toList();
-		publishMetrics.addAll(list);
-		lagList.clear();
-	}
-
-	public JsonObject toJson() {
-		JsonObject jObj = new JsonObject();
-		JsonArray jArr = new JsonArray();
-		for (KafkaMetric m : publishMetrics) {
-			jArr.add(new JsonObject(m.toJson()));
+		public JsonObject toJson() {
+			JsonObject jObj = new JsonObject();
+			JsonArray jArr = new JsonArray();
+			for (KafkaMetric m : this) {
+				jArr.add(m.toJsonObj());
+			}
+			jObj.put("metrics", jArr);
+			return jObj;
 		}
-		jObj.put("metrics", jArr);
-		return jObj;
 	}
 
-	public List<KafkaMetric> getPublishMetrics() {
-		return publishMetrics;
+	public PublishedMetrics publish() {
+		PublishedMetrics target = new PublishedMetrics();
+		target.addAll(publishSendRateMetrics());
+		target.addAll(publishLagMetrics());
+		if (logger.isDebugEnabled()) {
+			logger.debug("publishing {} metric(s)", target.size());
+		}
+		return target;
 	}
 
-	public void clearAllPublishMetrics() {
-		publishMetrics.clear();
+	private List<KafkaMetric> publishSendRateMetrics() {
+		List<KafkaMetric> list = rateList.entrySet().stream().map(Entry::getValue).toList();
+		rateList.clear();
+		return list;
+	}
+
+	private List<KafkaMetric> publishLagMetrics() {
+		List<KafkaMetric> list = lagList.entrySet().stream().map(Entry::getValue).toList();
+		lagList.clear();
+		return list;
 	}
 
 }
