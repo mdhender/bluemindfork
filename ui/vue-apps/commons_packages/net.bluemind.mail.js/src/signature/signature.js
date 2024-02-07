@@ -1,7 +1,8 @@
 import { MailTipTypes } from "../mailTip";
 import * as CorporateSignature from "./corporateSignature";
-import escapeRegExp from "lodash.escaperegexp";
+import { PersonnalSignatureHtml } from "./PersonnalSignature";
 
+import escapeRegExp from "lodash.escaperegexp";
 export function removeSignature(content, userPrefTextOnly, signature) {
     return userPrefTextOnly ? removeTextSignature(content, signature) : removeHtmlSignature(content);
 }
@@ -76,52 +77,7 @@ export function isCorporateSignature(mailTip) {
 
 /** Remove leading and trailing empty lines. */
 function trimSignature(signature) {
-    if (!signature?.length) {
-        return;
-    }
-
-    let node = new DOMParser().parseFromString(signature, "text/html")?.body;
-    while (node.childElementCount === 1 && node.children[0].hasChildNodes()) {
-        node = node.children[0];
-    }
-
-    const lines = node && Array.from(node.childNodes);
-    if (lines) {
-        for (const line of lines) {
-            if (isSignatureLineEmpty(line)) {
-                node.removeChild(line);
-            } else {
-                break;
-            }
-        }
-        if (node.hasChildNodes()) {
-            for (const line of lines.reverse()) {
-                if (isSignatureLineEmpty(line)) {
-                    node.removeChild(line);
-                } else {
-                    break;
-                }
-            }
-        }
-        return node.innerHTML;
-    }
-    return signature;
-}
-
-function isSignatureLineEmpty(node) {
-    if (!node || node.nodeType !== Node.ELEMENT_NODE) {
-        return true;
-    }
-    return !node.textContent?.trim() && !containsImage(node);
-}
-
-function containsImage(node) {
-    return (
-        (node.tagName === "IMG" && node.getAttribute("src")) ||
-        node.querySelector("img[src]:not([src=''])") ||
-        node.style.getPropertyValue("background-image") ||
-        node.querySelector("[style*='background-image']")?.style.getPropertyValue("background-image")
-    );
+    return new PersonnalSignatureHtml(signature).trim();
 }
 
 export default {
@@ -130,7 +86,6 @@ export default {
     DISCLAIMER_SELECTOR,
     isCorporateSignature,
     isDisclaimer,
-    isSignatureLineEmpty,
     PERSONAL_SIGNATURE_SELECTOR,
     removeCorporateSignatureContent,
     removeSignature,
