@@ -1,4 +1,5 @@
 shared_buffers = 16GB
-work_mem = 1GB
+work_mem = 32MB
 maintenance_work_mem = 1GB
 effective_cache_size = 24GB
+log_temp_files = 1024
