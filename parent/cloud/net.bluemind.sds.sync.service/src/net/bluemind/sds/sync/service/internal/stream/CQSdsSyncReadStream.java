@@ -114,11 +114,10 @@ public class CQSdsSyncReadStream implements ReadStream<Buffer>, Stream {
 
 	private void end() {
 		if (ended.compareAndSet(false, true)) {
-			logger.error("end() called but was already set", new Exception());
-		} else {
-			ended.set(true);
 			endHandler.handle(null);
 			close();
+		} else {
+			logger.error("end() called but was already set", new Exception());
 		}
 	}
 
