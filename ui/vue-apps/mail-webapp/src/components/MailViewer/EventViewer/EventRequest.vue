@@ -35,8 +35,8 @@ const privateEventNotSentToDelegatesAlert = {
 };
 
 const fetchHasImipDelegates = async () => {
-    const mailboxFilter = await inject("MailboxesPersistence").getMailboxFilter(user);
-    hasImipDelegates = mailboxFilter.rules.some(rule => matchCopyImipMailboxRule(rule, user));
+    const mailboxDelegationRule = await inject("MailboxesPersistence").getMailboxDelegationRule(user);
+    hasImipDelegates = mailboxDelegationRule?.delegateUids.length;
 };
 
 const showPrivateEventNotSentToDelegatesAlert = () => {
@@ -90,29 +90,7 @@ onUnmounted(() => store.dispatch(`alert/${REMOVE}`, privateEventNotSentToDelegat
 </template>
 
 <script>
-import { messageUtils } from "@bluemind/mail";
-import { MailFilterRuleActionName, MailFilterRuleOperatorName } from "@bluemind/mailbox.api";
-
 let hasImipDelegates;
-
-const matchCopyImipMailboxRule = (rule, userId) => {
-    return (
-        rule.active === true &&
-        rule.client === "system" &&
-        rule.conditions.some(({ filter: { fields, operator, values } }) =>
-            fields.some(
-                f =>
-                    f === `headers.${messageUtils.MessageHeader.X_BM_CALENDAR}` &&
-                    operator === MailFilterRuleOperatorName.CONTAINS &&
-                    values[0]?.includes(`calendar:Default:${userId}`)
-            )
-        ) &&
-        rule.actions.some(
-            ({ name, emails, clientProperties: { type, delegate } }) =>
-                name === MailFilterRuleActionName.REDIRECT && emails?.length && type === "delegation" && delegate
-        )
-    );
-};
 </script>
 
 <style lang="scss">
