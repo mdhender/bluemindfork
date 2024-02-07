@@ -31,6 +31,8 @@ import java.util.stream.Collectors;
 
 public class SecurityContext {
 
+	private static final CHMInterner interner = new CHMInterner();
+
 	public static final String ROLE_SYSTEM = "systemManagement";
 
 	public static final String ROLE_ADMIN = "admin";
@@ -43,8 +45,6 @@ public class SecurityContext {
 			Arrays.<String>asList(ROLE_SYSTEM), Collections.emptyMap(), "global.virt", "en", "internal-system", false);
 
 	public static final String TOKEN_FAKE_DOMAIN = "token-fake-domain";
-
-	private static final CHMInterner interner = new CHMInterner();
 
 	/**
 	 * https://shipilev.net/jvm-anatomy-park/10-string-intern/
