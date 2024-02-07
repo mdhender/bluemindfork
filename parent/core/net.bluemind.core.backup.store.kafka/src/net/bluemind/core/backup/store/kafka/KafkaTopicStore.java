@@ -94,11 +94,14 @@ public class KafkaTopicStore implements ITopicStore, TopicManager {
 		String loc = DataLocation.current();
 		logger.warn("kafka.bootstrap {}, zk {}", bootstrap.brokers(), bootstrap.zookeeper());
 		if (bootstrap.valid()) {
-			Properties properties = new Properties();
-			properties.put("bootstrap.servers", bootstrap.brokers());
-			String cid = jvm() + "_" + InstallationId.getIdentifier() + "_" + loc + "_" + cidAlloc.incrementAndGet();
-			properties.put("client.id", cid);
-			this.adminClient = () -> AdminClient.create(properties);
+			this.adminClient = () -> {
+				Properties properties = new Properties();
+				properties.put("bootstrap.servers", bootstrap.brokers());
+				String cid = jvm() + "_" + InstallationId.getIdentifier() + "_" + loc + "_"
+						+ cidAlloc.incrementAndGet();
+				properties.put("client.id", cid);
+				return AdminClient.create(properties);
+			};
 		} else {
 			this.adminClient = null;
 		}
@@ -220,10 +223,7 @@ public class KafkaTopicStore implements ITopicStore, TopicManager {
 					it.remove();
 				}
 			}
-			Optional.ofNullable(KafkaTopicPublisher.perPhyTopicProd.remove(topic)).ifPresent(prod -> {
-				logger.info("Closing {}", prod);
-				prod.close(Duration.ofSeconds(20));
-			});
+			closePublisher(topic);
 			DeleteTopicsOptions opts = new DeleteTopicsOptions();
 			DeleteTopicsResult result = ac.deleteTopics(Collections.singleton(topic), opts);
 			result.all().toCompletionStage().thenAccept(v -> logger.info("Topic {} deleted.", topic))
@@ -243,6 +243,10 @@ public class KafkaTopicStore implements ITopicStore, TopicManager {
 				it.remove();
 			}
 		}
+		closePublisher(topic);
+	}
+
+	private void closePublisher(String topic) {
 		Optional.ofNullable(KafkaTopicPublisher.perPhyTopicProd.remove(topic)).ifPresent(prod -> {
 			logger.info("Closing {}", prod);
 			prod.close(Duration.ofSeconds(20));
@@ -254,16 +258,13 @@ public class KafkaTopicStore implements ITopicStore, TopicManager {
 				.collect(Collectors.toSet());
 		for (String topic : topics) {
 			logger.info("Flushing {}", topics);
-			Optional.ofNullable(KafkaTopicPublisher.perPhyTopicProd.remove(topic)).ifPresent(prod -> {
-				logger.info("Closing {}", prod);
-				prod.close(Duration.ofSeconds(20));
-			});
+			closePublisher(topic);
 		}
 	}
 
 	@Override
 	public void reconfigure(String topic, Map<String, String> updatedProps) {
-		logger.info("reconfigure {} is not implemented.");
+		logger.info("reconfigure {} is not implemented.", topic);
 
 //		Map<ConfigResource, Collection<AlterConfigOp>> matchTopic=new HashMap<>();
 //		ConfigResource cr=new ConfigResource(Type.TOPIC, topic);
