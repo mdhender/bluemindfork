@@ -106,12 +106,6 @@ export default {
             return !this.isExpanded && this.hasMoreThan3Files;
         }
     },
-    watch: {
-        files() {
-            this.isExpanded = this.expanded;
-        }
-    },
-
     methods: {
         async toggleExpand() {
             this.isExpanded = !this.isExpanded;
