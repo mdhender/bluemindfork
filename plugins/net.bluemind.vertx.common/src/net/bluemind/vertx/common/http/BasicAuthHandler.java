@@ -19,10 +19,14 @@
 
 package net.bluemind.vertx.common.http;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Base64;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +37,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.CharMatcher;
 import com.google.common.base.MoreObjects;
+import com.google.common.collect.Iterables;
 
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
@@ -51,6 +56,8 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.http.HttpClientProvider;
 import net.bluemind.core.rest.http.ILocator;
 import net.bluemind.core.rest.http.VertxPromiseServiceProvider;
+import net.bluemind.domain.api.Domain;
+import net.bluemind.domain.api.IDomainsPromise;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.lib.vertx.utils.PasswordDecoder;
 import net.bluemind.mailbox.api.IMailboxesPromise;
@@ -68,6 +75,7 @@ public class BasicAuthHandler implements Handler<HttpServerRequest> {
 	private final String role;
 	private IAuthenticationPromise authApi;
 	private VertxPromiseServiceProvider adminProv;
+	private IDomainsPromise domainsApi;
 	private static final Logger logger = LoggerFactory.getLogger(BasicAuthHandler.class);
 
 	/**
@@ -136,6 +144,7 @@ public class BasicAuthHandler implements Handler<HttpServerRequest> {
 				null);
 		this.authApi = prov.instance(IAuthenticationPromise.class);
 		adminProv = new VertxPromiseServiceProvider(new HttpClientProvider(vertx), topoLocator, Token.admin0());
+		this.domainsApi = adminProv.instance(IDomainsPromise.class);
 	}
 
 	@VisibleForTesting
@@ -207,6 +216,7 @@ public class BasicAuthHandler implements Handler<HttpServerRequest> {
 		}
 
 		MultiMap headers = r.headers();
+
 		final String auth = headers.get(HttpHeaders.AUTHORIZATION);
 
 		if (auth == null) {
@@ -218,18 +228,10 @@ public class BasicAuthHandler implements Handler<HttpServerRequest> {
 				lh.handle(new AuthenticatedRequest(r, cached.login, cached.sid, cached.routing));
 				return;
 			}
-			final Creds creds = getCredentials(auth);
-			if (creds == null) {
-				if (logger.isDebugEnabled()) {
-					logger.debug("401 for auth header '{}', cookies: {}", auth, headers.get("Cookie"));
-				}
-				r.response().putHeader(WWW_AUTHENTICATE, WWW_AUTHENTICATE_VALUE).setStatusCode(401).end();
-				return;
-			}
 			r.pause();
 
-			CompletableFuture<WithRouting> loginResp = authApi.login(creds.getLogin(), creds.getPassword(), origin)
-					.thenApply(lr -> {
+			CompletableFuture<WithRouting> loginResp = getCredentials(r.absoluteURI(), auth)
+					.thenCompose(creds -> authApi.login(creds.getLogin(), creds.getPassword(), origin).thenApply(lr -> {
 						if (lr.status == Status.Ok) {
 							// check role then
 							return roleCheck(role, lr) ? lr : null;
@@ -246,7 +248,7 @@ public class BasicAuthHandler implements Handler<HttpServerRequest> {
 							return mboxesApi.byName(lrOrNull.authUser.value.login)
 									.thenApply(mbox -> new WithRouting(lrOrNull, mbox));
 						}
-					});
+					}));
 
 			loginResp.whenComplete((loginRespAndRouting, ex) -> {
 				r.resume();
@@ -267,9 +269,9 @@ public class BasicAuthHandler implements Handler<HttpServerRequest> {
 	}
 
 	@VisibleForTesting
-	public Creds getCredentials(String auth) {
+	public CompletableFuture<Creds> getCredentials(String url, String auth) {
 		if (!auth.startsWith("Basic ")) {
-			return null;
+			return CompletableFuture.failedFuture(new NullPointerException("No Basic auth header found"));
 		}
 		byte[] chars = Base64.getDecoder().decode(auth.substring(6));
 		int idx = 0;
@@ -278,7 +280,8 @@ public class BasicAuthHandler implements Handler<HttpServerRequest> {
 		int pwdLen = chars.length - (idx + 1);
 		if (pwdLen <= 0) {
 			logger.warn("Can't extract password bytes from {}", auth);
-			return null;
+			return CompletableFuture
+					.failedFuture(new NullPointerException("Can't extract password bytes from " + auth));
 		}
 		byte[] tgt = new byte[pwdLen];
 		System.arraycopy(chars, idx + 1, tgt, 0, pwdLen);
@@ -300,15 +303,53 @@ public class BasicAuthHandler implements Handler<HttpServerRequest> {
 			login = tmpLogin;
 		}
 
+		String loginToLowerCase = login.toLowerCase();
+		logger.info("creds: {}", loginToLowerCase);
 		if (!login.contains("@")) {
-			logger.warn("Missing domainpart in login '{}'", login);
-			return null;
+			return resolveDomainPart(url, pass, loginToLowerCase);
+		} else {
+			return CompletableFuture.completedFuture(new Creds(loginToLowerCase, pass));
 		}
 
-		login = login.toLowerCase();
+	}
 
-		logger.info("creds: {}", login);
-		return new Creds(login, pass);
+	private CompletableFuture<Creds> resolveDomainPart(String url, String pass, String loginToLowerCase) {
+		try {
+			URI uri = new URI(url);
+			String host = uri.getHost();
+			logger.info("login {} does not contain domain part, trying to detect using host: {}", loginToLowerCase,
+					host);
+
+			return domainsApi.all().thenCompose(uids -> {
+				List<CompletableFuture<DomainInfo>> promises = uids.stream()
+						.map(d -> getDomainInfo(d, domainsApi.getExternalUrl(d.uid))).collect(Collectors.toList());
+
+				return CompletableFuture.allOf(Iterables.toArray(promises, CompletableFuture.class))
+						.thenApply(v -> {
+							Optional<DomainInfo> matchingDomain = promises.stream().map(CompletableFuture::join) //
+									.filter(dInfo -> dInfo.externalUrl.equals(host)).findAny();
+
+							if (matchingDomain.isPresent()) {
+								String composedLogin = loginToLowerCase + "@" + matchingDomain.get().defaultAlias;
+								return new Creds(composedLogin, pass);
+							} else {
+								logger.warn("Missing domainpart in login '{}'", loginToLowerCase);
+								throw new NullPointerException("Missing domainpart in login " + loginToLowerCase);
+							}
+						});
+
+			});
+		} catch (URISyntaxException e) {
+			return CompletableFuture.failedFuture(e);
+		}
+	}
+
+	private CompletableFuture<DomainInfo> getDomainInfo(ItemValue<Domain> domain,
+			CompletableFuture<String> externalUrl) {
+		return externalUrl.thenApply(extUrl -> new DomainInfo(domain.value.defaultAlias, extUrl));
+	}
+
+	record DomainInfo(String defaultAlias, String externalUrl) {
 	}
 
 	public static void purgeSessions() {
