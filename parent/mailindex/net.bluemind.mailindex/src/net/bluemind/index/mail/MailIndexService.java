@@ -269,9 +269,9 @@ public class MailIndexService implements IMailIndexService {
 			return;
 		}
 		var vx = VertxPlatform.getVertx();
-		vx.setTimer(1000L, tid -> vx.executeBlocking(call).andThen(ar -> {
+		vx.setTimer(1000L, tid -> vx.executeBlocking(call, false).andThen(ar -> {
 			if (ar.failed()) {
-				invokeLaterWithRetries(comp, null, retries - 1);
+				invokeLaterWithRetries(comp, call, retries - 1);
 			} else {
 				comp.complete(ar.result());
 			}
