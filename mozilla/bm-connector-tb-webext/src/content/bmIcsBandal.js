@@ -626,6 +626,7 @@ var gBMIcsBandal = {
                     attendee.partStatus = "NeedsAction";
                     attendee.rsvp = true;
                 }
+                vevent.sequence++;
             } else {
                 let i = 0;
                 for (let c of seriesAndEvent.series.counters) {
