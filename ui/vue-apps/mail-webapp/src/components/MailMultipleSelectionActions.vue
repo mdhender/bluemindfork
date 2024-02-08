@@ -256,13 +256,13 @@ export default {
                 content: "";
             }
             &:after {
-                flex: 0 1 base-px-to-rem(136);
+                flex: 0 1 base-px-to-rem(182);
                 content: "";
             }
         }
         &.with-call-to-action .cancel-selection-btn-wrapper {
             &:after {
-                flex: 0 1 base-px-to-rem(86);
+                flex: 0 1 base-px-to-rem(132);
             }
         }
 

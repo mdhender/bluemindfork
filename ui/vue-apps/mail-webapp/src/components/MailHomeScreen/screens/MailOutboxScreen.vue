@@ -26,6 +26,7 @@
                 </div>
             </div>
             <bm-illustration value="outbox" size="lg" over-background />
+            <active-folder-count class="after-illustration" />
         </section>
     </chain-of-responsibility>
 </template>
@@ -36,10 +37,11 @@ import { MY_INBOX, MY_OUTBOX, MY_SENT } from "~/getters";
 import { BmButton, BmIcon, BmIllustration } from "@bluemind/ui-components";
 
 import ChainOfResponsibility from "../../ChainOfResponsibility";
+import ActiveFolderCount from "../ActiveFolderCount";
 
 export default {
     name: "MailOutboxScreen",
-    components: { ChainOfResponsibility, BmButton, BmIllustration },
+    components: { ActiveFolderCount, BmButton, BmIllustration, ChainOfResponsibility },
     computed: {
         ...mapState("mail", ["activeFolder"]),
         ...mapGetters("mail", { MY_INBOX, MY_OUTBOX, MY_SENT })

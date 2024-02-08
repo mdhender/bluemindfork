@@ -23,6 +23,7 @@
                 </div>
             </div>
             <bm-illustration value="spam" size="lg" over-background />
+            <active-folder-count class="after-illustration" />
         </section>
     </chain-of-responsibility>
 </template>
@@ -34,10 +35,11 @@ import { BmButton, BmIcon, BmIllustration } from "@bluemind/ui-components";
 
 import EmptyFolderAction from "~/components/MailFolder/EmptyFolderAction";
 import ChainOfResponsibility from "../../ChainOfResponsibility";
+import ActiveFolderCount from "../ActiveFolderCount";
 
 export default {
     name: "MailJunkScreen",
-    components: { ChainOfResponsibility, EmptyFolderAction, BmButton, BmIllustration },
+    components: { ActiveFolderCount, EmptyFolderAction, BmButton, BmIllustration, ChainOfResponsibility },
     computed: {
         ...mapState("mail", ["activeFolder"]),
         ...mapGetters("mail", { MY_INBOX, MY_JUNK })

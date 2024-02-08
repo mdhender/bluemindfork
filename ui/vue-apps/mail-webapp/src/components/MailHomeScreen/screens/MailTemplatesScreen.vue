@@ -28,6 +28,7 @@
                 </div>
             </div>
             <bm-illustration value="templates" size="lg" over-background />
+            <active-folder-count class="after-illustration" />
         </section>
     </chain-of-responsibility>
 </template>
@@ -39,10 +40,11 @@ import { BmButton, BmIcon, BmIllustration } from "@bluemind/ui-components";
 
 import NewMessage from "~/components/NewMessage";
 import ChainOfResponsibility from "../../ChainOfResponsibility";
+import ActiveFolderCount from "../ActiveFolderCount";
 
 export default {
     name: "MailTemplatesScreen",
-    components: { ChainOfResponsibility, BmButton, BmIllustration, NewMessage },
+    components: { ActiveFolderCount, BmButton, BmIllustration, ChainOfResponsibility, NewMessage },
     computed: {
         ...mapState("mail", ["activeFolder"]),
         ...mapGetters("mail", { MY_INBOX, MY_DRAFTS, MY_TEMPLATES })

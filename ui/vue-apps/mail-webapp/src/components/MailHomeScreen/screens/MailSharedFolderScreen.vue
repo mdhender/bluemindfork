@@ -13,6 +13,7 @@
                 </div>
             </div>
             <bm-illustration value="folder-shared" size="lg" over-background />
+            <active-folder-count class="after-illustration" />
         </section>
     </chain-of-responsibility>
 </template>
@@ -24,10 +25,11 @@ import { BmIllustration } from "@bluemind/ui-components";
 
 import MailMailboxIcon from "../../MailMailboxIcon";
 import ChainOfResponsibility from "../../ChainOfResponsibility";
+import ActiveFolderCount from "../ActiveFolderCount";
 
 export default {
     name: "MailSharedFolderScreen",
-    components: { MailMailboxIcon, ChainOfResponsibility, BmIllustration },
+    components: { ActiveFolderCount, BmIllustration, ChainOfResponsibility, MailMailboxIcon },
     computed: {
         ...mapState("mail", ["activeFolder"]),
         ...mapGetters("mail", { CURRENT_MAILBOX, MY_MAILBOX }),

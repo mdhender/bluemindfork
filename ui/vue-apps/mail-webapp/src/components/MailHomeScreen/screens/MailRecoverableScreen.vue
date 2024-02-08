@@ -17,6 +17,7 @@
                 </div>
             </div>
             <bm-illustration value="recoverable-messages" size="lg" over-background />
+            <div class="after-illustration" />
         </section>
     </chain-of-responsibility>
 </template>

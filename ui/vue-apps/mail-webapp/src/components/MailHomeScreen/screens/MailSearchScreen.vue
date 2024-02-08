@@ -11,6 +11,7 @@
                 <div class="starter-links"></div>
             </div>
             <bm-illustration :value="illustration" size="lg" over-background />
+            <div class="after-illustration" />
         </section>
     </chain-of-responsibility>
 </template>

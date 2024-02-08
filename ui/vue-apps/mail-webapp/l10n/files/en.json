@@ -394,6 +394,7 @@
     "mail.message.starter.display.templates": "View templates",
     "mail.message.starter.draft.details": "This folder contains messages you have started composing and have not yet sent.",
     "mail.message.starter.recoverable.details": "to recover from trash",
+    "mail.message.starter.elements_counts": "1 item|{count} items",
     "mail.message.starter.outbox.details": "This folder contains the messages that have not yet reached your mail server for technical reasons (connection, server state).",
     "mail.message.starter.sent.details": "This folder contains the messages that have reached your mail server to be sent to their recipients.",
     "mail.message.starter.shared.info": "You are in a shared folder.",

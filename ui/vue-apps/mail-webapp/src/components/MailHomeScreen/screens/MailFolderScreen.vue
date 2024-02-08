@@ -7,6 +7,7 @@
                 </div>
             </div>
             <bm-illustration value="folder" size="lg" over-background />
+            <active-folder-count class="after-illustration" />
         </section>
     </chain-of-responsibility>
 </template>
@@ -17,10 +18,11 @@ import { CURRENT_MAILBOX, MY_MAILBOX } from "~/getters";
 import { BmIllustration } from "@bluemind/ui-components";
 
 import ChainOfResponsibility from "../../ChainOfResponsibility";
+import ActiveFolderCount from "../ActiveFolderCount";
 
 export default {
     name: "MailFolderScreen",
-    components: { ChainOfResponsibility, BmIllustration },
+    components: { ActiveFolderCount, BmIllustration, ChainOfResponsibility },
     computed: {
         ...mapState("mail", ["folders", "activeFolder"]),
         ...mapGetters("mail", { CURRENT_MAILBOX, MY_MAILBOX }),

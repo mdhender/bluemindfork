@@ -37,6 +37,7 @@
                 </div>
             </div>
             <bm-illustration :value="isTrashEmpty ? 'trash-empty' : 'trash-filled'" size="lg" over-background />
+            <active-folder-count class="after-illustration" />
         </section>
     </chain-of-responsibility>
 </template>
@@ -48,10 +49,11 @@ import { BmButton, BmIcon, BmIllustration } from "@bluemind/ui-components";
 
 import EmptyFolderAction from "~/components/MailFolder/EmptyFolderAction";
 import ChainOfResponsibility from "../../ChainOfResponsibility";
+import ActiveFolderCount from "../ActiveFolderCount";
 
 export default {
     name: "MailTrashScreen",
-    components: { ChainOfResponsibility, EmptyFolderAction, BmButton, BmIllustration },
+    components: { ActiveFolderCount, BmButton, BmIllustration, ChainOfResponsibility, EmptyFolderAction },
     computed: {
         ...mapState("mail", ["activeFolder", "folders"]),
         ...mapGetters("mail", { CONVERSATION_LIST_COUNT, FOLDER_HAS_CHILDREN, MY_INBOX, MY_TRASH }),

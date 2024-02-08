@@ -122,6 +122,11 @@ export default {
         }
     }
 
+    .after-illustration {
+        height: base-px-to-rem(46);
+        flex: none;
+    }
+
     &.minimalist {
         $space-saved-over-illustration: 50px;
         $space-saved-under-illustration: 100px;
