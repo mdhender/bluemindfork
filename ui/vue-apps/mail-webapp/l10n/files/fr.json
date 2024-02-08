@@ -121,7 +121,7 @@
                 "to_mailbox_root": "la racine de {mailbox}"
             },
             "private_event_not_sent_to_delegates": {
-                "warning": "Les délégués n’ont pas reçu cette invitation privée."
+                "warning": "Les délégués n'ont pas reçu cette invitation privée."
             },
             "read_only_folder": {
                 "info": "Message en lecture seule. Certaines actions (comme Supprimer ou Déplacer) peuvent être indisponibles."

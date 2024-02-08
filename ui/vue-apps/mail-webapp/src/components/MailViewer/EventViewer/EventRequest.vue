@@ -85,6 +85,7 @@ onUnmounted(() => store.dispatch(`alert/${REMOVE}`, privateEventNotSentToDelegat
         </event-header>
         <div>
             <event-detail :event="event" :message="message" />
+            <event-footer :event="event" />
         </div>
     </div>
 </template>

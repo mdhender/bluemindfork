@@ -76,7 +76,7 @@
             <bm-form-checkbox
                 v-model="formData.copyImipToDelegate.current"
                 :disabled="copyImipToDelegateDisabled"
-                class="mt-2 ml-3"
+                class="my-2 ml-3"
             >
                 <span
                     :title="
@@ -103,7 +103,7 @@
                     </span>
                 </span>
             </bm-form-checkbox>
-            <div v-if="formData.copyImipToDelegate.current" class="ml-3 mt-4 text-warning d-flex">
+            <div v-if="formData.copyImipToDelegate.current" class="ml-3 pt-3 pb-2 text-warning d-flex">
                 <bm-icon icon="exclamation-circle-fill" class="mt-2" />
                 <span class="ml-4">
                     {{ $t("preferences.account.delegates.calendar.invitations.no_private_event") }}

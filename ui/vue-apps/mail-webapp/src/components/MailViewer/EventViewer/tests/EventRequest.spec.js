@@ -1,6 +1,5 @@
 import { mount } from "@vue/test-utils";
 import EventRequest from "../EventRequest.vue";
-
 import { EventBuilder } from "./EventBuilder";
 import store from "@bluemind/store";
 jest.mock("@bluemind/store", () => ({
@@ -9,6 +8,19 @@ jest.mock("@bluemind/store", () => ({
     _reset() {
         this.dispatch = jest.fn();
     }
+}));
+
+jest.mock("@bluemind/inject", () => ({
+    inject: service => {
+        if (service === "MailboxesPersistence") {
+            return { getMailboxDelegationRule: () => ({ delegateUids: [] }) };
+        }
+        if (service === "UserSession") {
+            return { userId: () => "userId" };
+        }
+    },
+    getProvider: () => ({ get: () => {} }),
+    register: () => {}
 }));
 
 describe("Event request insert", () => {
