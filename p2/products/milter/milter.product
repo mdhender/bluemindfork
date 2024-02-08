@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="milter" uid="milter" id="net.bluemind.milter.milter" application="net.bluemind.milter.milter" version="5.0.0.qualifier" useFeatures="false" includeLaunchers="true">
+<product name="milter" uid="milter" id="net.bluemind.milter.milter" application="net.bluemind.milter.milter" version="5.0.0.qualifier" type="bundles" includeLaunchers="true" autoIncludeRequirements="true">
 
    <configIni use="default">
    </configIni>
@@ -38,7 +38,7 @@
       <plugin id="com.google.guava"/>
       <plugin id="com.google.guava.failureaccess"/>
       <plugin id="com.hazelcast"/>
-      <plugin id="com.hazelcast.client" fragment="true"/>
+      <plugin id="com.hazelcast.client"/>
       <plugin id="com.netflix.spectator.api"/>
       <plugin id="com.sun.mail.jakarta.mail"/>
       <plugin id="com.typesafe.netty.reactive-streams"/>
@@ -46,10 +46,10 @@
       <plugin id="io.vertx.core"/>
       <plugin id="io.vertx.web"/>
       <plugin id="jakarta.activation-api"/>
+      <plugin id="jakarta.validation.jakarta.validation-api"/>
       <plugin id="jakarta.ws.rs-api"/>
       <plugin id="jakarta.xml.bind-api"/>
       <plugin id="javax.activation"/>
-      <plugin id="jakarta.validation.jakarta.validation-api"/>
       <plugin id="javax.xml"/>
       <plugin id="jcl.over.slf4j"/>
       <plugin id="jul.to.slf4j"/>
@@ -59,7 +59,7 @@
       <plugin id="net.bluemind.calendar.api"/>
       <plugin id="net.bluemind.common.cache.persistence"/>
       <plugin id="net.bluemind.common.io"/>
-      <plugin id="net.bluemind.common.logback" fragment="true"/>
+      <plugin id="net.bluemind.common.logback"/>
       <plugin id="net.bluemind.common.reflect"/>
       <plugin id="net.bluemind.config"/>
       <plugin id="net.bluemind.core.caches.registry"/>
@@ -79,6 +79,7 @@
       <plugin id="net.bluemind.hornetq.client"/>
       <plugin id="net.bluemind.icalendar.api"/>
       <plugin id="net.bluemind.jilter"/>
+      <plugin id="net.bluemind.jna.utils"/>
       <plugin id="net.bluemind.lib.jackson"/>
       <plugin id="net.bluemind.lib.jutf7"/>
       <plugin id="net.bluemind.lib.srs"/>
@@ -95,14 +96,14 @@
       <plugin id="net.bluemind.metrics.agent-api"/>
       <plugin id="net.bluemind.metrics.registry"/>
       <plugin id="net.bluemind.milter"/>
-      <plugin id="net.bluemind.milter.action.journaling"/>
       <plugin id="net.bluemind.milter.action.delegation"/>
+      <plugin id="net.bluemind.milter.action.eventforwarding"/>
+      <plugin id="net.bluemind.milter.action.journaling"/>
       <plugin id="net.bluemind.milter.action.misc"/>
       <plugin id="net.bluemind.milter.action.signature"/>
       <plugin id="net.bluemind.milter.metrics"/>
       <plugin id="net.bluemind.milter.srs"/>
       <plugin id="net.bluemind.mime4j.common"/>
-      <plugin id="net.bluemind.milter.action.eventforwarding"/>
       <plugin id="net.bluemind.network.topology"/>
       <plugin id="net.bluemind.network.topology.consumer"/>
       <plugin id="net.bluemind.node.api"/>
@@ -111,13 +112,13 @@
       <plugin id="net.bluemind.osgi.log"/>
       <plugin id="net.bluemind.resource.api"/>
       <plugin id="net.bluemind.role.api"/>
-      <plugin id="net.bluemind.sentry" fragment="true"/>
+      <plugin id="net.bluemind.sentry"/>
       <plugin id="net.bluemind.sentry.settings"/>
       <plugin id="net.bluemind.server.api"/>
       <plugin id="net.bluemind.signature.commons"/>
       <plugin id="net.bluemind.slf4j"/>
-      <plugin id="net.bluemind.slf4j.configuration" fragment="true"/>
-      <plugin id="net.bluemind.startup.dropins" />
+      <plugin id="net.bluemind.slf4j.configuration"/>
+      <plugin id="net.bluemind.startup.dropins"/>
       <plugin id="net.bluemind.system.api"/>
       <plugin id="net.bluemind.system.stateobserver"/>
       <plugin id="net.bluemind.systemd.notify"/>
@@ -170,7 +171,7 @@
       <plugin id="org.eclipse.equinox.simpleconfigurator"/>
       <plugin id="org.eclipse.equinox.simpleconfigurator.manipulator"/>
       <plugin id="org.eclipse.osgi"/>
-      <plugin id="org.eclipse.osgi.compatibility.state" fragment="true"/>
+      <plugin id="org.eclipse.osgi.compatibility.state"/>
       <plugin id="org.eclipse.osgi.services"/>
       <plugin id="org.eclipse.osgi.util"/>
       <plugin id="org.jsoup"/>
@@ -184,12 +185,12 @@
 
    <configurations>
       <plugin id="net.bluemind.sentry.settings" autoStart="true" startLevel="4" />
+      <plugin id="net.bluemind.startup.dropins" autoStart="true" startLevel="1" />
       <plugin id="org.apache.felix.scr" autoStart="true" startLevel="3" />
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="3" />
       <plugin id="org.eclipse.equinox.event" autoStart="true" startLevel="3" />
       <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="2" />
-      <plugin id="net.bluemind.startup.dropins" autoStart="true" startLevel="1" />
       <property name="osgi.noShutdown" value="true" />
       <property name="osgi.instance.area" value="/var/lib/bm-milter/" />
       <property name="eclipse.registry.MultiLanguage" value="true" />

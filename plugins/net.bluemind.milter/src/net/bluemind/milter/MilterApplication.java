@@ -18,14 +18,14 @@ public class MilterApplication implements IApplication {
 	@Override
 	public Object start(IApplicationContext context) throws Exception {
 		logger.info("Starting MILTER...");
-		if (SystemD.isAvailable()) {
-			SystemD.get().notifyReady();
-		}
 
 		launchVerticles().whenComplete((v, ex) -> {
 			if (ex != null) {
 				logger.warn("Cannot spawn verticles", ex);
 			} else {
+				if (SystemD.isAvailable()) {
+					SystemD.get().notifyReady();
+				}
 				logger.info("Startup complete.");
 			}
 
