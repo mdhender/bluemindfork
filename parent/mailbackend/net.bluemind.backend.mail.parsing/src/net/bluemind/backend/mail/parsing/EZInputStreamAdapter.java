@@ -37,10 +37,15 @@ import io.vertx.core.streams.ReadStream;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.core.rest.vertx.VertxStream.LocalPathStream;
+import net.bluemind.jna.utils.MemfdSupport;
+import net.bluemind.lib.vertx.utils.MemfdWriteStream;
 
 public class EZInputStreamAdapter {
 
 	private static final Logger logger = LoggerFactory.getLogger(EZInputStreamAdapter.class);
+
+	private EZInputStreamAdapter() {
+	}
 
 	@SuppressWarnings("serial")
 	private static class AdaptException extends RuntimeException {
@@ -139,20 +144,22 @@ public class EZInputStreamAdapter {
 
 	private static <T> void setupStreamHandlers(final Function<CountingInputStream, T> streamConsumer,
 			CompletableFuture<T> ret, ReadStream<Buffer> vxStream) {
-		if (vxStream instanceof LocalPathStream) {
-			LocalPathStream lps = (LocalPathStream) vxStream;
-			try (CountingInputStream toConsume = new CountingInputStream(Files.newInputStream(lps.path()))) {
-				T output = streamConsumer.apply(toConsume);
-				ret.complete(output);
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-				ret.completeExceptionally(e);
-			}
+		if (vxStream instanceof LocalPathStream lps) {
+			processLocalPath(streamConsumer, ret, lps);
 			return;
 		}
 
-		ResetableOutput diskCopy = output();
+		if (MemfdSupport.isAvailable()) {
+			processWithMemfd(streamConsumer, ret, vxStream);
+			return;
+		}
 
+		processWithTemporaryFile(streamConsumer, ret, vxStream);
+	}
+
+	private static <T> void processWithTemporaryFile(final Function<CountingInputStream, T> streamConsumer,
+			CompletableFuture<T> ret, ReadStream<Buffer> vxStream) {
+		ResetableOutput diskCopy = output();
 		vxStream.endHandler(gotIt -> {
 			diskCopy.close();
 			try (CountingInputStream toConsume = new CountingInputStream(diskCopy.input())) {
@@ -181,6 +188,41 @@ public class EZInputStreamAdapter {
 
 		logger.debug("resume {}...", vxStream);
 		vxStream.resume();
+	}
+
+	private static <T> void processWithMemfd(final Function<CountingInputStream, T> streamConsumer,
+			CompletableFuture<T> ret, ReadStream<Buffer> vxStream) {
+		MemfdWriteStream target = new MemfdWriteStream();
+		vxStream.pipeTo(target);
+		target.result().whenComplete((tmp, x) -> {
+			if (x != null) {
+				logger.error(x.getMessage(), x);
+				ret.completeExceptionally(x);
+				return;
+			}
+			try (CountingInputStream cin = new CountingInputStream(tmp.openForReading())) {
+				T output = streamConsumer.apply(cin);
+				logger.debug("MEMFD adapted for {}", cin.getCount());
+				ret.complete(output);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+				ret.completeExceptionally(x);
+			} finally {
+				tmp.close();
+			}
+		});
+		vxStream.resume();
+	}
+
+	private static <T> void processLocalPath(final Function<CountingInputStream, T> streamConsumer,
+			CompletableFuture<T> ret, LocalPathStream lps) {
+		try (CountingInputStream toConsume = new CountingInputStream(Files.newInputStream(lps.path()))) {
+			T output = streamConsumer.apply(toConsume);
+			ret.complete(output);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			ret.completeExceptionally(e);
+		}
 	}
 
 }
