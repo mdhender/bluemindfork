@@ -336,6 +336,9 @@
             "numbered_list": {
                 "tooltip": "Liste numérotée"
             },
+            "align": {
+                "tooltip": "Aligner"
+            },
             "align_left": {
                 "tooltip": "Aligner à gauche"
             },
@@ -367,7 +370,7 @@
                 "tooltip": "Couleur d'arrière-plan"
             },
             "underline": {
-                "tooltip": "Souligner"
+                "tooltip": "Souligné"
             },
             "hint": {
                 "tab": "Navigation clavier : Appuyez sur Échap puis Tab pour déplacer le focus"

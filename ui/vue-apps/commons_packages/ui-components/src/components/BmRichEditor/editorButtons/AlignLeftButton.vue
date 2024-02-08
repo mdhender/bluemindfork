@@ -1,13 +1,16 @@
 <script>
 import { Alignment } from "roosterjs-editor-types";
 import { setAlignment } from "roosterjs-editor-api";
-import CommandIconButton from "./CommandIconButton";
+import CommandDropdownItemButton from "./CommandDropdownItemButton";
 
 export default {
     name: "AlignLeftButton",
-    extends: CommandIconButton,
+    extends: CommandDropdownItemButton,
     data() {
-        return { title: this.$t("styleguide.rich_editor.align_left.tooltip"), icon: "rich-editor-align-left" };
+        return {
+            text: this.$t("styleguide.rich_editor.align_left.tooltip"),
+            icon: "rich-editor-align-left"
+        };
     },
     methods: {
         action() {

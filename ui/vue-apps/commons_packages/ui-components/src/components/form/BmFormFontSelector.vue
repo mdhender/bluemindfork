@@ -1,6 +1,6 @@
 <template>
     <bm-form-select
-        class="font-family-button flex-fill"
+        class="font-family-button"
         :value="fontFamily"
         :options="families"
         :variant="variant"

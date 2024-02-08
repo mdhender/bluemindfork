@@ -1,60 +1,57 @@
 <template>
-    <bm-button-toolbar class="bm-rich-editor-toolbar-base full-toolbar" :class="{ disabled: disabled }" key-nav>
-        <bm-button-group>
-            <undo-button :editor="editor" :disabled="disabled || !formatState.canUndo" />
-            <redo-button :editor="editor" :disabled="disabled || !formatState.canRedo" />
-        </bm-button-group>
+    <bm-toolbar class="bm-rich-editor-toolbar-base full-toolbar" :class="{ disabled: disabled }" key-nav align-right>
+        <undo-button :editor="editor" :disabled="disabled || !formatState.canUndo" />
+        <redo-button :editor="editor" :disabled="disabled || !formatState.canRedo" />
+        <bm-toolbar-divider />
 
-        <bm-button-group>
-            <font-family-button
-                :editor="editor"
-                :disabled="disabled"
-                :selection-font-family="formatState.fontName"
-                :default-font="defaultFont"
-                :extra-font-families="extraFontFamilies"
-            />
-            <font-size-button :editor="editor" :disabled="disabled" :selection-font-size="formatState.fontSize" />
-            <bold-button :editor="editor" :disabled="disabled" :is-bold="!!formatState.isBold" />
-            <italic-button :editor="editor" :disabled="disabled" :is-italic="!!formatState.isItalic" />
-            <underline-button :editor="editor" :disabled="disabled" :is-underline="!!formatState.isUnderline" />
-        </bm-button-group>
+        <font-family-button
+            :editor="editor"
+            :disabled="disabled"
+            :selection-font-family="formatState.fontName"
+            :default-font="defaultFont"
+            :extra-font-families="extraFontFamilies"
+        />
+        <font-size-button :editor="editor" :disabled="disabled" :selection-font-size="formatState.fontSize" />
+        <bold-button :editor="editor" :disabled="disabled" :is-bold="!!formatState.isBold" />
+        <italic-button :editor="editor" :disabled="disabled" :is-italic="!!formatState.isItalic" />
+        <underline-button :editor="editor" :disabled="disabled" :is-underline="!!formatState.isUnderline" />
+        <bm-toolbar-divider />
 
-        <bm-button-group class="color-group">
-            <text-color-button :editor="editor" :disabled="disabled" />
-            <background-color-button :editor="editor" :disabled="disabled" />
-        </bm-button-group>
+        <text-color-button :editor="editor" :disabled="disabled" />
+        <background-color-button :editor="editor" :disabled="disabled" />
+        <bm-toolbar-divider />
 
-        <bm-button-group>
-            <align-button :editor="editor" :disabled="disabled" />
+        <align-button :editor="editor" :disabled="disabled" />
+        <bm-toolbar-button-group>
             <indent-less-button :editor="editor" :disabled="disabled" />
             <indent-more-button :editor="editor" :disabled="disabled" />
-            <bullet-list-button :editor="editor" :disabled="disabled" :is-bullet="!!formatState.isBullet" />
-            <number-list-button :editor="editor" :disabled="disabled" :is-numbering="!!formatState.isNumbering" />
-        </bm-button-group>
-        <bm-button-group>
-            <image-button :editor="editor" :disabled="disabled" />
-            <link-button
-                :editor="editor"
-                :disabled="disabled"
-                :is-link="!!formatState.canUnlink"
-                @open-link-modal="$emit('open-link-modal', $event)"
-            />
-        </bm-button-group>
-        <bm-button-group>
-            <strike-through-button
-                :editor="editor"
-                :disabled="disabled"
-                :is-strike-through="!!formatState.isStrikeThrough"
-            />
-            <block-quote-button :editor="editor" :disabled="disabled" :is-block-quote="!!formatState.isBlockQuote" />
-            <table-button :editor="editor" :disabled="disabled" />
-        </bm-button-group>
-    </bm-button-toolbar>
+        </bm-toolbar-button-group>
+        <bullet-list-button :editor="editor" :disabled="disabled" :is-bullet="!!formatState.isBullet" />
+        <number-list-button :editor="editor" :disabled="disabled" :is-numbering="!!formatState.isNumbering" />
+        <bm-toolbar-divider />
+        <image-button :editor="editor" :disabled="disabled" />
+        <link-button
+            :editor="editor"
+            :disabled="disabled"
+            :is-link="!!formatState.canUnlink"
+            @open-link-modal="$emit('open-link-modal', $event)"
+        />
+        <bm-toolbar-divider />
+        <strike-through-button
+            :editor="editor"
+            :disabled="disabled"
+            :is-strike-through="!!formatState.isStrikeThrough"
+        />
+        <block-quote-button :editor="editor" :disabled="disabled" :is-block-quote="!!formatState.isBlockQuote" />
+        <table-button :editor="editor" :disabled="disabled" />
+    </bm-toolbar>
 </template>
 
 <script>
-import BmButtonGroup from "../../buttons/BmButtonGroup";
-import BmButtonToolbar from "../../buttons/BmButtonToolbar";
+import BmToolbarButtonGroup from "../../BmToolbar/BmToolbarButtonGroup";
+import BmToolbarDivider from "../../BmToolbar/BmToolbarDivider";
+
+import BmToolbar from "../../BmToolbar/BmToolbar";
 import AlignButton from "../editorButtons/AlignButton";
 import BackgroundColorButton from "../editorButtons/BackgroundColorButton";
 import BlockQuoteButton from "../editorButtons/BlockQuoteButton";
@@ -63,8 +60,8 @@ import BulletListButton from "../editorButtons/BulletListButton";
 import FontFamilyButton from "../editorButtons/FontFamilyButton";
 import FontSizeButton from "../editorButtons/FontSizeButton";
 import ImageButton from "../editorButtons/ImageButton";
-import IndentLessButton from "../editorButtons/IndentLessButton.vue";
-import IndentMoreButton from "../editorButtons/IndentMoreButton.vue";
+import IndentLessButton from "../editorButtons/IndentLessButton";
+import IndentMoreButton from "../editorButtons/IndentMoreButton";
 import ItalicButton from "../editorButtons/ItalicButton";
 import LinkButton from "../editorButtons/LinkButton";
 import NumberListButton from "../editorButtons/NumberListButton";
@@ -78,8 +75,9 @@ import UndoButton from "../editorButtons/UndoButton";
 export default {
     name: "FullToolbar",
     components: {
-        BmButtonGroup,
-        BmButtonToolbar,
+        BmToolbarButtonGroup,
+        BmToolbarDivider,
+        BmToolbar,
         AlignButton,
         BackgroundColorButton,
         BlockQuoteButton,

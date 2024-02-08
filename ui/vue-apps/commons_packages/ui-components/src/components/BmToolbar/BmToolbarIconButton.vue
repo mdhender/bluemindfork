@@ -1,5 +1,5 @@
 <script>
-import { computed, h, useAttrs, useListeners } from "vue";
+import { computed, h, useAttrs, useListeners, useSlots } from "vue";
 import BmIconButton from "../buttons/BmIconButton";
 import BmDropdownItemButton from "../dropdown/BmDropdownItemButton";
 import BmDropdown from "../dropdown/BmDropdown";
@@ -7,6 +7,7 @@ import BmToolbarElement from "./BmToolbarElement";
 
 export default {
     name: "BmToolbarIconButton",
+    inheritAttrs: false,
     props: {
         extension: {
             type: String,
@@ -14,32 +15,37 @@ export default {
         },
         icon: {
             type: String,
-            required: true
+            default: undefined
         },
         text: {
             type: String,
-            required: true
+            default: undefined
         }
     },
     setup(props) {
         const attrs = useAttrs();
+        const slots = useSlots();
         const listeners = useListeners();
-        const options = computed(() => ({
-            attrs,
-            on: listeners,
-            props: {
-                icon: props.icon,
-                text: props.text
-            },
-            class: "bm-toolbar-icon-button"
-        }));
+
         return function render() {
+            const text = props.text || attrs.title;
+            const options = {
+                on: listeners,
+                props: {
+                    icon: props.icon,
+                    text
+                },
+                class: "bm-toolbar-icon-button",
+                scopedSlots: slots
+            };
+
             return h(BmToolbarElement, {
                 props,
                 scopedSlots: {
-                    toolbar: () => h(BmIconButton, { ...options.value, props }),
-                    menu: () => h(BmDropdownItemButton, options.value, props.text),
-                    "menu-with-extensions": ({ extensions }) => h(BmDropdown, options.value, extensions)
+                    toolbar: () => h(BmIconButton, { ...options, attrs, props }),
+                    menu: () => h(BmDropdownItemButton, { ...options, attrs }, text),
+                    "menu-with-extensions": ({ extensions }) =>
+                        h(BmDropdown, { ...options, attrs: { ...attrs, variant: undefined, split: true } }, extensions)
                 }
             });
         };

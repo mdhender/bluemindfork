@@ -113,7 +113,7 @@
         }
     }
 
-    .show > &.dropdown-toggle {
+    .dropdown.show > &.dropdown-toggle { 
         @include bm-button-state($hovered-text, $hovered-bg, $hovered-stroke, $important: $important);
 
         &:focus,

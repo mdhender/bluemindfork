@@ -1,8 +1,8 @@
 <template>
-    <div class="mail-toolbar-selected-conversations" :class="{ compact }">
+    <bm-toolbar class="mail-toolbar-selected-conversations" :class="{ compact }">
         <template v-if="ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE && !CONVERSATION_LIST_DELETED_FILTER_ENABLED">
             <mail-toolbar-responsive-button
-                v-show="isTemplate"
+                v-if="isTemplate"
                 :title="$t('mail.actions.edit_from_template.aria', { subject })"
                 icon="plus-enveloppe"
                 :label="$t('mail.actions.edit_from_template')"
@@ -10,7 +10,7 @@
                 @click="editFromTemplate"
             />
             <mail-toolbar-responsive-button
-                v-show="showMarkAsReadInMain(isTemplate)"
+                v-if="showMarkAsReadInMain(isTemplate)"
                 :title="markAsReadAriaText()"
                 icon="read"
                 :label="markAsReadText"
@@ -18,7 +18,7 @@
                 @click="markAsRead()"
             />
             <mail-toolbar-responsive-button
-                v-show="showMarkAsUnreadInMain(isTemplate)"
+                v-if="showMarkAsUnreadInMain(isTemplate)"
                 :title="markAsUnreadAriaText()"
                 icon="unread"
                 :label="markAsUnreadText"
@@ -35,7 +35,7 @@
                 @click.shift.exact="remove()"
             />
             <mail-toolbar-responsive-button
-                v-show="showMarkAsFlaggedInMain"
+                v-if="showMarkAsFlaggedInMain"
                 :title="markAsFlaggedAriaText()"
                 icon="flag-outline"
                 :label="$t('mail.state.flagging')"
@@ -43,7 +43,7 @@
                 @click="markAsFlagged()"
             />
             <mail-toolbar-responsive-button
-                v-show="showMarkAsUnflaggedInMain"
+                v-if="showMarkAsUnflaggedInMain"
                 :title="markAsUnflaggedAriaText()"
                 icon="flag-fill"
                 class="mark-as-unflagged-btn"
@@ -51,7 +51,6 @@
                 :compact="compact"
                 @click="markAsUnflagged()"
             />
-            <mail-toolbar-selected-conversations-other-actions :compact="compact" />
         </template>
         <template v-else-if="CONVERSATION_LIST_DELETED_FILTER_ENABLED">
             <mail-toolbar-responsive-button
@@ -62,15 +61,24 @@
                 @click="unexpunge()"
             />
         </template>
-    </div>
+
+        <template #menu-button>
+            <mail-toolbar-menu-button :compact="compact" />
+        </template>
+        <template #menu>
+            <mail-toolbar-selected-conversations-other-actions
+                v-if="ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE && !CONVERSATION_LIST_DELETED_FILTER_ENABLED"
+            />
+        </template>
+    </bm-toolbar>
 </template>
 
 <script>
 import { mapGetters, mapState } from "vuex";
 import { messageUtils } from "@bluemind/mail";
+import { BmToolbar } from "@bluemind/ui-components";
 import MailToolbarResponsiveButton from "../MailToolbarResponsiveButton";
 import MailToolbarSelectedConversationsMoveAction from "./MailToolbarSelectedConversationsMoveAction";
-import MailToolbarSelectedConversationsOtherActions from "./MailToolbarSelectedConversationsOtherActions";
 import { ActionTextMixin, FlagMixin, RemoveMixin, SelectionMixin, MailRoutesMixin } from "~/mixins";
 import {
     ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE,
@@ -80,15 +88,19 @@ import {
     MY_TEMPLATES
 } from "~/getters";
 import MessagePathParam from "~/router/MessagePathParam";
+import MailToolbarSelectedConversationsOtherActions from "./MailToolbarSelectedConversationsOtherActions";
+import MailToolbarMenuButton from "../MailToolbarMenuButton";
 
 const { MessageCreationModes } = messageUtils;
 
 export default {
     name: "MailToolbarSelectedConversations",
     components: {
+        BmToolbar,
         MailToolbarResponsiveButton,
         MailToolbarSelectedConversationsMoveAction,
-        MailToolbarSelectedConversationsOtherActions
+        MailToolbarSelectedConversationsOtherActions,
+        MailToolbarMenuButton
     },
     mixins: [ActionTextMixin, FlagMixin, SelectionMixin, RemoveMixin, MailRoutesMixin],
     props: {
@@ -151,6 +163,9 @@ export default {
                 color: $warning-fg;
             }
         }
+    }
+    .overflow-menu > .dropdown-toggle {
+        padding: 0 !important;
     }
 }
 </style>

@@ -5,11 +5,11 @@ function useExtensions() {
     const normalizeSlot = slot => {
         return (Array.isArray(slot) ? slot : slot ? [slot] : []).filter(vnode => Boolean(vnode.tag));
     };
-    const renderWebAppExtensions = extension => {
+    const renderWebAppExtensions = (extension, attrs = {}, id = "webapp") => {
         if (!extension) {
             return [];
         }
-        return normalizeSlot(h(BmExtension, { props: { id: "webapp", path: extension } }));
+        return normalizeSlot(h(BmExtension, { props: { id, path: extension }, attrs }));
     };
 
     return { renderWebAppExtensions, normalizeSlot };

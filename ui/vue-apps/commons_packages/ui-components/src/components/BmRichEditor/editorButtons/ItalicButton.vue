@@ -12,7 +12,10 @@ export default {
         }
     },
     data() {
-        return { title: this.$t("styleguide.rich_editor.italic.tooltip"), icon: "rich-editor-italic" };
+        return {
+            title: this.$t("styleguide.rich_editor.italic.tooltip"),
+            icon: "rich-editor-italic"
+        };
     },
     computed: {
         isActive() {

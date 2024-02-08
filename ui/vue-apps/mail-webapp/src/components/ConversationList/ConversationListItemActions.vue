@@ -1,17 +1,12 @@
 <template>
-    <bm-button-toolbar class="conversation-list-item-actions">
+    <div class="conversation-list-item-actions">
         <slot name="actions" />
-    </bm-button-toolbar>
+    </div>
 </template>
 
 <script>
-import { BmButtonToolbar } from "@bluemind/ui-components";
-
 export default {
-    name: "ConversationListItemActions",
-    components: {
-        BmButtonToolbar
-    }
+    name: "ConversationListItemActions"
 };
 </script>
 <style lang="scss">
@@ -32,7 +27,7 @@ export default {
             display: none !important;
         }
 
-        .btn-group,
+        .bm-toolbar,
         .btn {
             height: 100%;
         }

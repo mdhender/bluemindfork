@@ -1,21 +1,19 @@
 <template>
-    <bm-button-toolbar v-if="displayed" key-nav class="mail-toolbar flex-nowrap h-100">
-        <mail-toolbar-compose-message
-            v-if="MESSAGE_IS_LOADED(ACTIVE_MESSAGE) && ACTIVE_MESSAGE.composing"
-            :message="ACTIVE_MESSAGE"
-            :compact="compact"
-        />
-        <mail-toolbar-selected-conversations
-            v-else-if="currentConversationIsLoaded || SEVERAL_CONVERSATIONS_SELECTED"
-            :compact="compact"
-        />
-    </bm-button-toolbar>
+    <mail-toolbar-compose-message
+        v-if="displayed && MESSAGE_IS_LOADED(ACTIVE_MESSAGE) && ACTIVE_MESSAGE.composing"
+        :class="className"
+        :message="ACTIVE_MESSAGE"
+        :compact="compact"
+    />
+    <mail-toolbar-selected-conversations
+        v-else-if="(displayed && currentConversationIsLoaded) || SEVERAL_CONVERSATIONS_SELECTED"
+        :class="className"
+        :compact="compact"
+    />
 </template>
 
 <script>
 import { mapGetters, mapState } from "vuex";
-
-import { BmButtonToolbar } from "@bluemind/ui-components";
 
 import MailToolbarComposeMessage from "./MailToolbarComposeMessage";
 import MailToolbarSelectedConversations from "./MailToolbarSelectedConversations";
@@ -31,7 +29,6 @@ import {
 export default {
     name: "MailToolbar",
     components: {
-        BmButtonToolbar,
         MailToolbarComposeMessage,
         MailToolbarSelectedConversations
     },
@@ -40,6 +37,11 @@ export default {
             type: Boolean,
             default: false
         }
+    },
+    data() {
+        return {
+            className: "mail-toolbar flex-nowrap h-100"
+        };
     },
     computed: {
         ...mapState("mail", { messages: ({ conversations }) => conversations.messages }),
@@ -82,8 +84,8 @@ export default {
         margin-bottom: auto;
     }
 
-    .mail-toolbar-compose-message,
-    .mail-toolbar-selected-conversations {
+    &.mail-toolbar-compose-message,
+    &.mail-toolbar-selected-conversations {
         @include until-lg {
             gap: $sp-6;
         }

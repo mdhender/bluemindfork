@@ -1,6 +1,6 @@
 <template>
     <div class="image-button">
-        <bm-icon-button
+        <bm-toolbar-icon-button
             variant="compact"
             size="lg"
             icon="image"
@@ -15,10 +15,10 @@
 <script>
 import { insertImage } from "roosterjs-editor-api";
 import { MimeType } from "@bluemind/email";
-import BmIconButton from "../../buttons/BmIconButton";
+import BmToolbarIconButton from "../../BmToolbar/BmToolbarIconButton";
 
 export default {
-    components: { BmIconButton },
+    components: { BmToolbarIconButton },
     props: {
         editor: {
             type: Object,

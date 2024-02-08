@@ -1,5 +1,5 @@
 <template>
-    <bm-button-group class="mail-toolbar-compose-message">
+    <bm-toolbar class="mail-toolbar-compose-message" :class="{ compact }">
         <mail-toolbar-responsive-button
             v-if="isDraft"
             :aria-label="$t('mail.actions.send.aria')"
@@ -28,14 +28,6 @@
             :compact="compact"
             @click="openFilePicker()"
         />
-        <input
-            ref="attachInputRef"
-            type="file"
-            multiple
-            hidden
-            @change="$execute('add-attachments', { files: $event.target.files, message })"
-            @click="closeFilePicker()"
-        />
         <mail-toolbar-responsive-dropdown
             :aria-label="saveActionTitle"
             :title="saveActionTitle"
@@ -57,21 +49,15 @@
             :title="$tc('mail.actions.remove.compose.aria')"
             :disabled="isSaving || isSending"
             icon="trash"
+            :text="$tc('mail.actions.remove')"
             :label="$tc('mail.actions.remove')"
             :compact="compact"
             @click="deleteDraft"
         />
-        <mail-toolbar-responsive-dropdown
-            ref="other-dropdown"
-            :aria-label="$tc('mail.toolbar.more.aria')"
-            :title="$tc('mail.toolbar.more.aria')"
-            icon="3dots"
-            :label="$t('mail.toolbar.more')"
-            no-caret
-            class="other-viewer-actions"
-            :compact="compact"
-            right
-        >
+        <template #menu-button>
+            <mail-toolbar-menu-button :compact="compact" />
+        </template>
+        <template #menu>
             <bm-dropdown-item :disabled="isSenderShown" @click="showSender">
                 {{ $tc("mail.actions.show_sender", 1) }}
             </bm-dropdown-item>
@@ -80,15 +66,23 @@
             </bm-dropdown-item>
             <bm-dropdown-item icon="download" :disabled="!canShowOrDownloadEml" @click.stop="downloadEml(message)">
                 {{ $t("mail.actions.download_eml") }}
-            </bm-dropdown-item>
-        </mail-toolbar-responsive-dropdown>
-    </bm-button-group>
+            </bm-dropdown-item></template
+        >
+        <input
+            ref="attachInputRef"
+            type="file"
+            multiple
+            hidden
+            @change="$execute('add-attachments', { files: $event.target.files, message })"
+            @click="closeFilePicker()"
+        />
+    </bm-toolbar>
 </template>
 
 <script>
 import { mapGetters, mapMutations } from "vuex";
 
-import { BmButtonGroup, BmDropdownItem } from "@bluemind/ui-components";
+import { BmToolbar, BmDropdownItem } from "@bluemind/ui-components";
 import { messageUtils } from "@bluemind/mail";
 import MailToolbarResponsiveButton from "./MailToolbarResponsiveButton";
 import MailToolbarResponsiveDropdown from "./MailToolbarResponsiveDropdown";
@@ -96,16 +90,18 @@ import { ComposerActionsMixin, EmlMixin } from "~/mixins";
 import { AddAttachmentsCommand } from "~/commands";
 import { IS_SENDER_SHOWN, MY_DRAFTS } from "~/getters";
 import { SHOW_SENDER } from "~/mutations";
+import MailToolbarMenuButton from "./MailToolbarMenuButton";
 
 const { MessageStatus } = messageUtils;
 
 export default {
     name: "MailToolbarComposeMessage",
     components: {
+        BmToolbar,
         MailToolbarResponsiveButton,
         MailToolbarResponsiveDropdown,
-        BmButtonGroup,
-        BmDropdownItem
+        BmDropdownItem,
+        MailToolbarMenuButton
     },
     mixins: [AddAttachmentsCommand, ComposerActionsMixin, EmlMixin],
     props: {
@@ -171,9 +167,13 @@ export default {
 <style lang="scss">
 @import "~@bluemind/ui-components/src/css/utils/variables";
 
-.mail-toolbar-compose-message.compact {
-    gap: $sp-5;
-    padding-left: $sp-5;
-    padding-right: $sp-5;
+.mail-toolbar-compose-message {
+    &.compact {
+        padding-left: $sp-5;
+        padding-right: $sp-5;
+    }
+    .overflow-menu > .dropdown-toggle {
+        padding: 0 !important;
+    }
 }
 </style>

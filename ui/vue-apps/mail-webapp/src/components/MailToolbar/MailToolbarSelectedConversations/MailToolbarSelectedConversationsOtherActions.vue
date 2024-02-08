@@ -1,5 +1,5 @@
 <template>
-    <mail-toolbar-responsive-dropdown
+    <div
         :aria-label="$tc('mail.toolbar.more.aria')"
         :title="$tc('mail.toolbar.more.aria')"
         toggle-class="btn-lg-simple-neutral"
@@ -82,7 +82,7 @@
                 {{ $t("mail.actions.forward_eml") }}
             </bm-dropdown-item>
         </template>
-    </mail-toolbar-responsive-dropdown>
+    </div>
 </template>
 
 <script>

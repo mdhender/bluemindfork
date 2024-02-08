@@ -1,77 +1,71 @@
 <template>
-    <bm-button-toolbar key-nav class="mail-viewer-toolbar bg-surface">
-        <template v-if="!CONVERSATION_LIST_DELETED_FILTER_ENABLED">
-            <bm-icon-dropdown
-                variant="regular-accent"
-                size="sm"
-                icon="3dots-v"
-                no-caret
-                class="mail-viewer-toolbar-for-mobile d-flex justify-content-end"
-                :aria-label="$tc('mail.toolbar.more.aria')"
-                :title="$tc('mail.toolbar.more.aria')"
-                v-on="$listeners"
-            >
-                <bm-dropdown-item-button
-                    icon="reply"
-                    @click="initRelatedMessage(MY_DRAFTS, MessageCreationModes.REPLY, message)"
-                >
-                    {{ $t("mail.content.reply.aria") }}
-                </bm-dropdown-item-button>
-                <bm-dropdown-divider />
-                <bm-dropdown-item-button
-                    icon="reply-all"
-                    @click="initRelatedMessage(MY_DRAFTS, MessageCreationModes.REPLY_ALL, message)"
-                >
-                    {{ $t("mail.content.reply_all.aria") }}
-                </bm-dropdown-item-button>
-                <bm-dropdown-divider />
-                <bm-dropdown-item-button
-                    icon="forward"
-                    @click="initRelatedMessage(MY_DRAFTS, MessageCreationModes.FORWARD, message)"
-                >
-                    {{ $t("common.forward") }}
-                </bm-dropdown-item-button>
-                <bm-dropdown-divider />
-                <bm-dropdown-item-button
-                    v-if="message.flags && !message.flags.includes(Flag.SEEN)"
-                    icon="read"
-                    @click="MARK_MESSAGE_AS_READ(message)"
-                >
-                    {{ $tc("mail.actions.mark_read", 1) }}
-                </bm-dropdown-item-button>
-                <bm-dropdown-item-button v-else icon="unread" @click="MARK_MESSAGE_AS_UNREAD(message)">
-                    {{ $tc("mail.actions.mark_unread", 1) }}
-                </bm-dropdown-item-button>
-                <bm-dropdown-divider />
-                <bm-dropdown-item-button
-                    v-if="message.flags && !message.flags.includes(Flag.FLAGGED)"
-                    icon="flag-outline"
-                    @click.prevent.stop="MARK_MESSAGE_AS_FLAGGED(message)"
-                >
-                    {{ $t("mail.actions.mark_flagged") }}
-                </bm-dropdown-item-button>
-                <bm-dropdown-item-button
-                    v-else
-                    icon="flag-fill"
-                    class="flag-fill"
-                    @click.prevent.stop="MARK_MESSAGE_AS_UNFLAGGED(message)"
-                >
-                    {{ $t("mail.actions.mark_unflagged") }}
-                </bm-dropdown-item-button>
-                <bm-dropdown-divider />
-                <bm-dropdown-item-button
-                    icon="trash"
-                    @click.exact.prevent.stop="MOVE_MESSAGES_TO_TRASH(message, conversation)"
-                >
-                    {{ $t("mail.actions.remove") }}
-                </bm-dropdown-item-button>
-            </bm-icon-dropdown>
-        </template>
-    </bm-button-toolbar>
+    <bm-icon-dropdown
+        v-if="!CONVERSATION_LIST_DELETED_FILTER_ENABLED"
+        variant="regular-accent"
+        size="sm"
+        icon="3dots-v"
+        no-caret
+        class="mail-viewer-toolbar-for-mobile d-flex justify-content-end"
+        :aria-label="$tc('mail.toolbar.more.aria')"
+        :title="$tc('mail.toolbar.more.aria')"
+        v-on="$listeners"
+    >
+        <bm-dropdown-item-button
+            icon="reply"
+            @click="initRelatedMessage(MY_DRAFTS, MessageCreationModes.REPLY, message)"
+        >
+            {{ $t("mail.content.reply.aria") }}
+        </bm-dropdown-item-button>
+        <bm-dropdown-divider />
+        <bm-dropdown-item-button
+            icon="reply-all"
+            @click="initRelatedMessage(MY_DRAFTS, MessageCreationModes.REPLY_ALL, message)"
+        >
+            {{ $t("mail.content.reply_all.aria") }}
+        </bm-dropdown-item-button>
+        <bm-dropdown-divider />
+        <bm-dropdown-item-button
+            icon="forward"
+            @click="initRelatedMessage(MY_DRAFTS, MessageCreationModes.FORWARD, message)"
+        >
+            {{ $t("common.forward") }}
+        </bm-dropdown-item-button>
+        <bm-dropdown-divider />
+        <bm-dropdown-item-button
+            v-if="message.flags && !message.flags.includes(Flag.SEEN)"
+            icon="read"
+            @click="MARK_MESSAGE_AS_READ(message)"
+        >
+            {{ $tc("mail.actions.mark_read", 1) }}
+        </bm-dropdown-item-button>
+        <bm-dropdown-item-button v-else icon="unread" @click="MARK_MESSAGE_AS_UNREAD(message)">
+            {{ $tc("mail.actions.mark_unread", 1) }}
+        </bm-dropdown-item-button>
+        <bm-dropdown-divider />
+        <bm-dropdown-item-button
+            v-if="message.flags && !message.flags.includes(Flag.FLAGGED)"
+            icon="flag-outline"
+            @click.prevent.stop="MARK_MESSAGE_AS_FLAGGED(message)"
+        >
+            {{ $t("mail.actions.mark_flagged") }}
+        </bm-dropdown-item-button>
+        <bm-dropdown-item-button
+            v-else
+            icon="flag-fill"
+            class="flag-fill"
+            @click.prevent.stop="MARK_MESSAGE_AS_UNFLAGGED(message)"
+        >
+            {{ $t("mail.actions.mark_unflagged") }}
+        </bm-dropdown-item-button>
+        <bm-dropdown-divider />
+        <bm-dropdown-item-button icon="trash" @click.exact.prevent.stop="MOVE_MESSAGES_TO_TRASH(message, conversation)">
+            {{ $t("mail.actions.remove") }}
+        </bm-dropdown-item-button>
+    </bm-icon-dropdown>
 </template>
 
 <script>
-import { BmButtonToolbar, BmIconDropdown, BmDropdownDivider, BmDropdownItemButton } from "@bluemind/ui-components";
+import { BmIconDropdown, BmDropdownDivider, BmDropdownItemButton } from "@bluemind/ui-components";
 import { mapActions, mapGetters } from "vuex";
 import { Flag } from "@bluemind/email";
 import {
@@ -90,7 +84,6 @@ const { MessageCreationModes } = messageUtils;
 export default {
     name: "MailViewerToolbarForMobile",
     components: {
-        BmButtonToolbar,
         BmIconDropdown,
         BmDropdownDivider,
         BmDropdownItemButton

@@ -336,6 +336,9 @@
             "numbered_list": {
                 "tooltip": "Numbered list"
             },
+            "align": {
+                "tooltip": "Align"
+            },
             "align_left": {
                 "tooltip": "Align left"
             },

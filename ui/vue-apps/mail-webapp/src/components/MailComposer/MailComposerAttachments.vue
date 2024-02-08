@@ -1,6 +1,6 @@
 <template>
     <bm-file-drop-zone
-        class="mail-composer-attachments z-index-110 attachments"
+        class="mail-composer-attachments attachments"
         :should-activate-fn="shouldActivateForImages"
         adapt-to-content
         v-on="$listeners"

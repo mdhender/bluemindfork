@@ -1,6 +1,6 @@
 <template>
     <div class="mail-toolbar-responsive-dropdown mail-toolbar-item" :class="{ compact }">
-        <bm-icon-dropdown
+        <bm-toolbar-icon-dropdown
             ref="icon-dropdown"
             :variant="compact ? 'compact' : 'compact-on-fill-primary'"
             size="lg"
@@ -9,24 +9,24 @@
             v-on="$listeners"
         >
             <slot />
-        </bm-icon-dropdown>
-        <bm-captioned-icon-dropdown
+        </bm-toolbar-icon-dropdown>
+        <bm-toolbar-captioned-icon-dropdown
             ref="captioned-icon-dropdown"
             v-bind="[$attrs, $props]"
             :caption="label"
             v-on="$listeners"
         >
             <slot />
-        </bm-captioned-icon-dropdown>
+        </bm-toolbar-captioned-icon-dropdown>
     </div>
 </template>
 
 <script>
-import { BmIconDropdown, BmCaptionedIconDropdown } from "@bluemind/ui-components";
+import { BmToolbarIconDropdown, BmToolbarCaptionedIconDropdown } from "@bluemind/ui-components";
 
 export default {
     name: "MailToolbarResponsiveDropdown",
-    components: { BmIconDropdown, BmCaptionedIconDropdown },
+    components: { BmToolbarIconDropdown, BmToolbarCaptionedIconDropdown },
     props: {
         icon: {
             type: String,

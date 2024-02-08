@@ -430,6 +430,8 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
             </div>
           </form>
         </li>
+         
+        <!---->
       </ul>
     </div>
      
@@ -1068,6 +1070,8 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
             <!---->
           </a>
         </li>
+         
+        <!---->
       </ul>
     </div>
      

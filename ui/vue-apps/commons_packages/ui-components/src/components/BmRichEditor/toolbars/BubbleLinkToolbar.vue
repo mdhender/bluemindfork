@@ -1,5 +1,5 @@
 <template>
-    <bm-button-toolbar class="bm-rich-editor-toolbar-base bubble-link-toolbar">
+    <bm-toolbar class="bm-rich-editor-toolbar-base bubble-link-toolbar">
         <bm-button variant="link" class="link" icon="popup" @click="open">
             {{ url }}
         </bm-button>
@@ -10,7 +10,7 @@
         <bm-button variant="text" icon="unlink" @click.stop="removeLink(editor)">
             {{ $t("styleguide.rich_editor.link.unlink") }}
         </bm-button>
-    </bm-button-toolbar>
+    </bm-toolbar>
 </template>
 
 <script>
@@ -18,11 +18,11 @@ import { removeLink } from "roosterjs-editor-api";
 import { QueryScope } from "roosterjs-editor-types";
 
 import BmButton from "../../buttons/BmButton";
-import BmButtonToolbar from "../../buttons/BmButtonToolbar";
+import BmToolbar from "../../BmToolbar/BmToolbar";
 
 export default {
     name: "BubbleLinkToolbar",
-    components: { BmButton, BmButtonToolbar },
+    components: { BmButton, BmToolbar },
     props: {
         editor: {
             type: Object,

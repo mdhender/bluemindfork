@@ -455,11 +455,4 @@ function getTableParentNode(node, containerNode) {
         transform: translateY(20px);
     }
 }
-
-// Toolbar common styles
-.bm-rich-editor-toolbar-base {
-    & > .btn-group:not(:last-child) {
-        border-right: 1px $neutral-fg-lo3 solid;
-    }
-}
 </style>

@@ -1,19 +1,37 @@
 <template>
-    <b-button v-bind="[$attrs, $props]" class="bm-captioned-icon-button" variant="captioned-icon" v-on="$listeners">
+    <b-button
+        v-if="!extension || !extensions.length"
+        v-bind="[$attrs, $props]"
+        class="bm-captioned-icon-button"
+        variant="captioned-icon"
+        v-on="$listeners"
+    >
         <slot>
             <bm-icon :icon="icon" />
         </slot>
         <span class="caption">{{ caption }}</span>
     </b-button>
+    <bm-captioned-icon-dropdown
+        v-else
+        class="bm-captioned-icon-button"
+        v-bind="[$attrs, childProps]"
+        split
+        v-on="$listeners"
+    >
+        <v-nodes :vnodes="extensions" />
+    </bm-captioned-icon-dropdown>
 </template>
 
 <script>
 import { BButton } from "bootstrap-vue";
+import { useExtensions } from "@bluemind/extensions.vue";
 import BmIcon from "../BmIcon";
+import BmCaptionedIconDropdown from "../dropdown/BmCaptionedIconDropdown";
+import VNodes from "../VNodes";
 
 export default {
     name: "BmCaptionedIconButton",
-    components: { BButton, BmIcon },
+    components: { BButton, BmIcon, BmCaptionedIconDropdown, VNodes },
     props: {
         icon: {
             type: String,
@@ -22,6 +40,21 @@ export default {
         caption: {
             type: String,
             required: true
+        },
+        extension: {
+            type: String,
+            default: undefined
+        }
+    },
+    setup(props) {
+        const { renderWebAppExtensions } = useExtensions();
+        const extensions = renderWebAppExtensions(props.extension);
+        return { extensions };
+    },
+    computed: {
+        childProps() {
+            const { extension, ...childProps } = this.$props;
+            return childProps;
         }
     }
 };

@@ -1,15 +1,17 @@
-<script setup>
-import { defineProps } from "vue";
+<script>
 import BmToggleableButton from "../buttons/BmToggleableButton";
 import BmToolbarElement from "./BmToolbarElement";
 import BmDropdownItemToggle from "../dropdown/BmDropdownItemToggle";
-
-defineProps({
-    pressed: {
-        type: Boolean,
-        default: false
+export default {
+    components: { BmDropdownItemToggle, BmToggleableButton, BmToolbarElement },
+    inheritAttrs: false,
+    props: {
+        pressed: {
+            type: Boolean,
+            default: false
+        }
     }
-});
+};
 </script>
 
 <template>

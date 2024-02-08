@@ -1,12 +1,13 @@
 <script>
 import { computed, h, useAttrs, useListeners, useSlots } from "vue";
 import BmButton from "../buttons/BmButton";
+import BmCaptionedIconButton from "../buttons/BmCaptionedIconButton";
 import BmDropdownItemButton from "../dropdown/BmDropdownItemButton";
 import BmDropdown from "../dropdown/BmDropdown";
 import BmToolbarElement from "./BmToolbarElement";
 
 export default {
-    name: "BmToolbarButton",
+    name: "BmToolbarCaptionedIconButton",
     components: {
         BmButton,
         BmDropdown,
@@ -18,33 +19,43 @@ export default {
         extension: {
             type: String,
             default: undefined
+        },
+        caption: {
+            type: String,
+            required: true
+        },
+        icon: {
+            type: String,
+            required: true
         }
     },
     setup(props) {
         const attrs = useAttrs();
         const options = computed(() => ({
             on: useListeners(),
-            class: "bm-toolbar-button"
+            class: "bm-toolbar-captioned-icon-button"
         }));
         const slots = useSlots();
 
         return function render() {
-            const text = slots.default()?.[0].text.trim();
-
             return h(BmToolbarElement, {
                 props,
                 scopedSlots: {
-                    toolbar: () => h(BmButton, { ...options.value, attrs, props, scopedSlots: slots }),
+                    toolbar: () => h(BmCaptionedIconButton, { ...options.value, attrs, props, scopedSlots: slots }),
                     menu: () =>
                         h(
                             BmDropdownItemButton,
-                            { ...options.value, attrs: { ...attrs, variant: undefined }, props: { text } },
-                            text
+                            { ...options.value, attrs: { ...attrs, variant: undefined }, props: { icon: props.icon } },
+                            props.caption
                         ),
                     "menu-with-extensions": ({ extensions }) =>
                         h(
                             BmDropdown,
-                            { ...options.value, attrs: { ...attrs, variant: undefined, split: true }, props: { text } },
+                            {
+                                ...options.value,
+                                attrs: { ...attrs, variant: undefined },
+                                props: { icon: props.icon, text: props.caption, split: true }
+                            },
                             extensions
                         )
                 }

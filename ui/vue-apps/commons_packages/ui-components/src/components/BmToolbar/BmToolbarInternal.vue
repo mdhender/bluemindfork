@@ -1,10 +1,10 @@
 <script>
 import { provide } from "vue";
-import BmButtonToolbar from "../buttons/BmButtonToolbar";
+import { BButtonToolbar } from "bootstrap-vue";
 
 export default {
     name: "BmToolbarInternal",
-    extends: BmButtonToolbar,
+    extends: BButtonToolbar,
     setup() {
         provide("$context", "toolbar");
     }

@@ -1,5 +1,5 @@
 <template>
-    <bm-icon-dropdown
+    <bm-toolbar-icon-dropdown
         ref="dropdown"
         class="background-color-button"
         variant="compact"
@@ -13,7 +13,7 @@
         <template #icon>
             <bm-font-highlight-icon :color="disabled ? undefined : selectedBackgroundColor" />
         </template>
-    </bm-icon-dropdown>
+    </bm-toolbar-icon-dropdown>
 </template>
 
 <script>
@@ -21,7 +21,7 @@ import { setBackgroundColor } from "roosterjs-editor-api";
 import { getDarkColor } from "roosterjs-color-utils";
 import darkifyingBaseLvalue from "../../../js/theming/darkifyingBaseLvalue";
 
-import BmIconDropdown from "../../dropdown/BmIconDropdown";
+import BmToolbarIconDropdown from "../../BmToolbar/BmToolbarIconDropdown";
 import BmFontHighlightIcon from "../../BmFontHighlightIcon";
 import BmFormColorPicker from "../../form/BmFormColorPicker";
 import colors from "../../../css/exports/picker.scss";
@@ -30,7 +30,7 @@ const defaultColors = Object.values(colors);
 
 export default {
     name: "BackgroundColorButton",
-    components: { BmIconDropdown, BmFontHighlightIcon, BmFormColorPicker },
+    components: { BmToolbarIconDropdown, BmFontHighlightIcon, BmFormColorPicker },
     props: {
         disabled: {
             type: Boolean,

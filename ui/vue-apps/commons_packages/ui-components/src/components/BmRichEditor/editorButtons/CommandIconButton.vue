@@ -1,18 +1,20 @@
 <template>
-    <bm-icon-button
+    <bm-toolbar-icon-button
         v-if="isActive === null"
         variant="compact"
         size="lg"
         :icon="icon"
+        :text="text"
         :disabled="disabled"
         :title="title"
         @click="action"
     />
-    <bm-toggleable-icon-button
+    <bm-toolbar-toggle-icon
         v-else
         variant="compact"
         size="lg"
         :icon="icon"
+        :text="text"
         :pressed="isActive"
         :disabled="disabled"
         :title="title"
@@ -21,11 +23,12 @@
 </template>
 <script>
 import BmIconButton from "../../buttons/BmIconButton";
-import BmToggleableIconButton from "../../buttons/BmToggleableIconButton";
+import BmToolbarIconButton from "../../BmToolbar/BmToolbarIconButton";
+import BmToolbarToggleIcon from "../../BmToolbar/BmToolbarToggleIcon";
 
 export default {
     name: "CommandIconButton",
-    components: { BmIconButton, BmToggleableIconButton },
+    components: { BmToolbarIconButton, BmToolbarToggleIcon },
     props: {
         disabled: {
             type: Boolean,
@@ -37,7 +40,7 @@ export default {
         }
     },
     data() {
-        return { icon: "", title: "" };
+        return { icon: "", title: "", text: "" };
     },
     computed: {
         isActive: () => null

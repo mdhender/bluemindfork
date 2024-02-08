@@ -1,7 +1,7 @@
 <template>
     <bm-form-select
         :value="fontSize"
-        class="font-size-button flex-fill"
+        class="font-size-button"
         :options="sizes"
         variant="inline"
         :disabled="disabled"

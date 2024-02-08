@@ -1,7 +1,7 @@
 <template>
-    <bm-button-toolbar v-if="!CONVERSATION_LIST_DELETED_FILTER_ENABLED" key-nav class="mail-viewer-toolbar bg-surface">
+    <bm-toolbar v-if="!CONVERSATION_LIST_DELETED_FILTER_ENABLED" key-nav class="mail-viewer-toolbar bg-surface">
         <mail-open-in-popup-with-shift v-slot="action" :href="replyRoute(message)">
-            <bm-icon-button
+            <bm-toolbar-icon-button
                 variant="regular-accent"
                 :size="size"
                 :title="action.label($t('mail.content.reply.aria'))"
@@ -10,7 +10,7 @@
             />
         </mail-open-in-popup-with-shift>
         <mail-open-in-popup-with-shift v-slot="action" :href="replyAllRoute(message)">
-            <bm-icon-button
+            <bm-toolbar-icon-button
                 variant="regular-accent"
                 :size="size"
                 :title="action.label($t('mail.content.reply_all.aria'))"
@@ -30,7 +30,7 @@
             </mail-open-in-popup-with-shift>
         </forward-event-button>
         <mail-open-in-popup-with-shift v-else v-slot="action" :href="forwardRoute(message)">
-            <bm-icon-button
+            <bm-toolbar-icon-button
                 variant="regular-accent"
                 :size="size"
                 :title="action.label($t('common.forward'))"
@@ -44,13 +44,13 @@
             :message="message"
             :conversation="conversation"
         />
-    </bm-button-toolbar>
+    </bm-toolbar>
 </template>
 
 <script>
 import { mapGetters, mapState } from "vuex";
 import { messageUtils, partUtils } from "@bluemind/mail";
-import { BmButtonToolbar, BmIconButton, BmIconDropdown, BmDropdownItem } from "@bluemind/ui-components";
+import { BmToolbar, BmToolbarIconButton, BmDropdownItem } from "@bluemind/ui-components";
 import { ReplyAndForwardRoutesMixin } from "~/mixins";
 import { CONVERSATION_LIST_DELETED_FILTER_ENABLED } from "~/getters";
 import MailViewerToolbarOtherActions from "./MailViewerToolbarOtherActions";
@@ -64,8 +64,8 @@ const { hasCalendarPart } = partUtils;
 export default {
     name: "MailViewerToolbar",
     components: {
-        BmButtonToolbar,
-        BmIconButton,
+        BmToolbar,
+        BmToolbarIconButton,
         ForwardEventButton,
         BmDropdownItem,
         MailViewerToolbarOtherActions,

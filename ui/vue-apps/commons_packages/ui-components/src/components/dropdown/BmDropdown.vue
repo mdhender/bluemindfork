@@ -4,15 +4,16 @@
         v-bind="[$attrs, childProps]"
         :dropright="isSubMenu"
         class="bm-dropdown"
+        :variant="variant_"
+        :size="isSubMenu ? 'lg' : size"
         :class="{
-            'dropdown-text': variant.startsWith('text'),
-            'dropdown-on-fill-primary': variant.endsWith('on-fill-primary'),
+            'dropdown-text': variant_.startsWith('text'),
+            'dropdown-on-fill-primary': variant_.endsWith('on-fill-primary'),
             'dropdown-split': split,
             'dropdown-sub-menu': isSubMenu
         }"
         v-on="$listeners"
         @click="onClick"
-        @hide="onHide"
     >
         <template slot="button-content">
             <slot name="button-content">
@@ -101,6 +102,9 @@ export default {
         childProps() {
             const { extension, ...props } = this.$props;
             return props;
+        },
+        variant_() {
+            return this.isSubMenu ? (this.split ? "text" : "text-thin") : this.variant;
         }
     },
     methods: {
@@ -111,9 +115,6 @@ export default {
                 parent.hide(event);
                 parent = parent.$parent.getBvDropdown?.();
             }
-        },
-        onHide(event) {
-            console.log("on hide", this._uid, event);
         }
     }
 };
@@ -137,18 +138,28 @@ export default {
         @include bm-button-all-sizes("fill");
     }
 
-    // As a submenu
     &.b-dropdown.dropdown-sub-menu {
         width: 100%;
 
         .dropdown-toggle-split {
             flex: 0;
         }
+        &.dropright > .dropdown-menu {
+            top: -$sp-2 !important;
+        }
+        > .btn {
+            white-space: nowrap;
+            > .dropdown-button-text,
+            > .dropdown-button-content {
+                flex: 1;
+                text-align: left;
+            }
+        }
 
-        > .btn > .dropdown-button-text,
-        > .btn > .dropdown-button-content {
-            flex: 1;
-            text-align: left;
+        .bm-icon {
+            $icon-size: map-get($icon-sizes, "md");
+            width: $icon-size !important;
+            height: $icon-size !important;
         }
     }
 

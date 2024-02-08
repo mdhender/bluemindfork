@@ -6,7 +6,7 @@
         <div class="search">
             <mail-search-box @active="activeSearch = $event" />
         </div>
-        <div class="toolbar h-100 w-100">
+        <div class="toolbar">
             <mail-toolbar :compact="activeSearch" />
         </div>
     </div>
@@ -64,7 +64,6 @@ export default {
     .toolbar {
         flex: 0 1;
         order: 2;
-        width: 100%;
         @include until-lg {
             display: none;
         }

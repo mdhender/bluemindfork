@@ -1,7 +1,7 @@
 <template>
     <bm-toolbar-element>
         <template #toolbar>
-            <div :class="className" />
+            <div :class="className" class="vertical-divider" />
         </template>
         <template #menu>
             <bm-dropdown-divider :class="className" />
@@ -20,6 +20,8 @@ const className = "bm-toolbar-divider";
 @import "~@bluemind/ui-components/src/css/utils/variables";
 
 .bm-toolbar-divider {
-    border-right: 1px $neutral-fg-lo3 solid;
+    &.vertical-divider {
+        border-right: 1px $neutral-fg-lo3 solid;
+    }
 }
 </style>

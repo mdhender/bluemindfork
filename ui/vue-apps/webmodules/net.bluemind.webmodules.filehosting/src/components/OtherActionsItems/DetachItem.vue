@@ -1,23 +1,23 @@
 <template>
-    <bm-dropdown-item
-        v-if="!fhFile && !isReadOnly"
+    <bm-toolbar-icon-button
+        v-if="!fhFile && !isReadOnly && !message.composing"
         class="detach-item"
         :disabled="isToolarge"
         icon="cloud-up"
         @click.stop="detach"
     >
         {{ $t("filehosting.detach") }}
-    </bm-dropdown-item>
+    </bm-toolbar-icon-button>
 </template>
 
 <script>
-import { BmDropdownItem } from "@bluemind/ui-components";
+import { BmToolbarIconButton } from "@bluemind/ui-components";
 import { DETACH_ATTACHMENT } from "~/store/types/actions";
 import OtherActionsMixin from "~/mixins/OtherActionsMixin";
 
 export default {
     name: "DetachItem",
-    components: { BmDropdownItem },
+    components: { BmToolbarIconButton },
     mixins: [OtherActionsMixin],
     props: {
         message: {

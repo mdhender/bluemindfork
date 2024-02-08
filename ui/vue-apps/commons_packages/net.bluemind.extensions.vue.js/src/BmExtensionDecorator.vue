@@ -1,5 +1,5 @@
 <script>
-export default {
+const BmExtensionDecorator = {
     name: "BmExtensionDecorator",
     functional: true,
     props: {
@@ -12,7 +12,7 @@ export default {
         const extension = props.extensions[0];
         if (extension) {
             return h(extension.name, { attrs: { ...data.attrs } }, [
-                h("bm-extension-decorator", {
+                h(BmExtensionDecorator, {
                     props: { extensions: props.extensions.slice(1) },
                     attrs: { ...data.attrs },
                     scopedSlots: { ...scopedSlots }
@@ -23,4 +23,6 @@ export default {
         }
     }
 };
+
+export default BmExtensionDecorator;
 </script>

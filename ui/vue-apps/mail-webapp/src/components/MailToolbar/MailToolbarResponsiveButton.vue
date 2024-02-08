@@ -1,38 +1,38 @@
 <template>
-    <div class="mail-toolbar-responsive-button mail-toolbar-item">
-        <bm-icon-button
-            v-if="compact"
-            variant="compact"
+    <bm-toolbar-icon-button
+        v-if="compact"
+        :class="className"
+        variant="compact"
+        size="lg"
+        :icon="icon"
+        v-bind="[$attrs, $props]"
+        :title="title ? title : label"
+        v-on="$listeners"
+    />
+    <div v-else :class="className">
+        <bm-toolbar-icon-button
+            class="mobile-only"
+            variant="compact-on-fill-primary"
             size="lg"
             v-bind="[$attrs, $props]"
             :title="title ? title : label"
             v-on="$listeners"
         />
-        <template v-else>
-            <bm-icon-button
-                class="mobile-only"
-                variant="compact-on-fill-primary"
-                size="lg"
-                v-bind="[$attrs, $props]"
-                :title="title ? title : label"
-                v-on="$listeners"
-            />
-            <bm-captioned-icon-button
-                class="desktop-only"
-                v-bind="[$attrs, $props]"
-                :caption="label"
-                v-on="$listeners"
-            />
-        </template>
+        <bm-toolbar-captioned-icon-button
+            class="desktop-only"
+            v-bind="[$attrs, $props]"
+            :caption="label"
+            v-on="$listeners"
+        />
     </div>
 </template>
 
 <script>
-import { BmIconButton, BmCaptionedIconButton } from "@bluemind/ui-components";
+import { BmToolbarIconButton, BmToolbarCaptionedIconButton } from "@bluemind/ui-components";
 
 export default {
     name: "MailToolbarResponsiveButton",
-    components: { BmIconButton, BmCaptionedIconButton },
+    components: { BmToolbarIconButton, BmToolbarCaptionedIconButton },
     props: {
         icon: {
             type: String,
@@ -50,6 +50,11 @@ export default {
             type: Boolean,
             default: false
         }
+    },
+    data() {
+        return {
+            className: "mail-toolbar-responsive-button mail-toolbar-item"
+        };
     }
 };
 </script>

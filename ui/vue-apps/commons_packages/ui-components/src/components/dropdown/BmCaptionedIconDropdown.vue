@@ -1,5 +1,5 @@
 <template>
-    <b-dropdown
+    <bv-dropdown
         ref="b_dropdown"
         v-bind="[$attrs, $props]"
         class="bm-captioned-icon-dropdown"
@@ -16,17 +16,20 @@
             <span class="caption">{{ caption }}</span>
         </template>
         <slot />
-    </b-dropdown>
+        <v-nodes v-if="extension && extensions.length" :vnodes="extensions" />
+    </bv-dropdown>
 </template>
 
 <script>
-import { BDropdown } from "bootstrap-vue";
+import { useExtensions } from "@bluemind/extensions.vue";
+import { BvDropdown } from "./BDropdown";
 import BmDropdownMixin from "./mixins/BmDropdownMixin";
 import BmIcon from "../BmIcon";
+import VNodes from "../VNodes";
 
 export default {
     name: "BmCaptionedIconDropdown",
-    components: { BDropdown, BmIcon },
+    components: { BvDropdown, BmIcon, VNodes },
     mixins: [BmDropdownMixin],
     props: {
         icon: {
@@ -40,7 +43,16 @@ export default {
         split: {
             type: Boolean,
             default: false
+        },
+        extension: {
+            type: String,
+            default: undefined
         }
+    },
+    setup(props) {
+        const { renderWebAppExtensions } = useExtensions();
+        const extensions = renderWebAppExtensions(props.extension);
+        return { extensions };
     }
 };
 </script>

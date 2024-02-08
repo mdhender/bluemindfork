@@ -1,23 +1,31 @@
-<script setup>
-import { defineProps } from "vue";
+<script>
+import { defineProps, useAttrs } from "vue";
 import BmToolbarElement from "./BmToolbarElement";
 import BmToggleableIconButton from "../buttons/BmToggleableIconButton";
 import BmDropdownItemToggle from "../dropdown/BmDropdownItemToggle";
-
-defineProps({
-    pressed: {
-        type: Boolean,
-        default: false
+export default {
+    components: { BmDropdownItemToggle, BmToggleableIconButton, BmToolbarElement },
+    inheritAttrs: false,
+    props: {
+        pressed: {
+            type: Boolean,
+            default: false
+        },
+        icon: {
+            type: String,
+            required: true
+        },
+        text: {
+            type: String,
+            default: undefined
+        }
     },
-    icon: {
-        type: String,
-        required: true
-    },
-    text: {
-        type: String,
-        required: true
+    computed: {
+        text_() {
+            return this.text || this.$attrs.title;
+        }
     }
-});
+};
 </script>
 
 <template>
@@ -31,12 +39,11 @@ defineProps({
             <bm-dropdown-item-toggle
                 v-bind="$attrs"
                 :icon="icon"
-                :text="text"
                 :checked="pressed"
                 v-on="$listeners"
                 @change="$emit('update:pressed', $event)"
             >
-                {{ text }}
+                {{ text_ }}
             </bm-dropdown-item-toggle>
         </template>
     </bm-toolbar-element>

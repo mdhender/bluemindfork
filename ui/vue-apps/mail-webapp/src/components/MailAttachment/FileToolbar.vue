@@ -1,30 +1,40 @@
 <template>
-    <bm-button-toolbar key-nav class="file-toolbar">
-        <preview-button
-            v-if="hasButton(ActionButtons.PREVIEW) && isViewable(file)"
+    <div class="file-toolbar">
+        <bm-toolbar
+            key-nav
+            extension-id="webapp.mail"
+            extension="file.actions"
+            class="d-flex align-items-center"
             :file="file"
-            :disabled="!isAllowedToPreview(file)"
-            @preview="preview(file)"
-        />
-        <download-button v-if="hasButton(ActionButtons.DOWNLOAD)" :ref="`download-button-${file.key}`" :file="file" />
-        <bm-extension id="webapp" type="list" path="file.actions" :file="file" class="d-flex align-items-center" />
-        <other-button v-if="hasButton(ActionButtons.OTHER)" :file="file" :message="message" />
-        <template v-if="hasButton(ActionButtons.REMOVE)">
-            <remove-button @remove="removeAttachment(file)" />
-        </template>
-    </bm-button-toolbar>
+            :message="message"
+            menu-icon="3dots-v"
+            menu-icon-variant="compact"
+            :max-items="2"
+        >
+            <preview-button
+                v-if="hasButton(ActionButtons.PREVIEW) && isViewable(file)"
+                :file="file"
+                :disabled="!isAllowedToPreview(file)"
+                @preview="preview(file)"
+            />
+            <download-button
+                v-if="hasButton(ActionButtons.DOWNLOAD)"
+                :ref="`download-button-${file.key}`"
+                :file="file"
+            />
+        </bm-toolbar>
+        <remove-button v-if="hasButton(ActionButtons.REMOVE)" @remove="removeAttachment(file)" />
+    </div>
 </template>
 
 <script>
 import { mapActions, mapMutations } from "vuex";
-import { BmButtonToolbar } from "@bluemind/ui-components";
+import { BmToolbar } from "@bluemind/ui-components";
 import { SET_PREVIEW } from "~/actions";
 import { RemoveAttachmentCommand } from "~/commands";
 import { fileUtils, partUtils } from "@bluemind/mail";
-import { BmExtension } from "@bluemind/extensions.vue";
 import PreviewButton from "./ActionButtons/PreviewButton";
 import DownloadButton from "./ActionButtons/DownloadButton";
-import OtherButton from "./ActionButtons/OtherButton";
 import RemoveButton from "./ActionButtons/RemoveButton";
 
 const { isAllowedToPreview, ActionButtons } = fileUtils;
@@ -33,10 +43,8 @@ const { isViewable } = partUtils;
 export default {
     name: "FileToolbar",
     components: {
-        BmButtonToolbar,
-        BmExtension,
+        BmToolbar,
         DownloadButton,
-        OtherButton,
         PreviewButton,
         RemoveButton
     },

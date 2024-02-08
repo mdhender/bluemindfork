@@ -1,5 +1,5 @@
 <template>
-    <bm-icon-dropdown
+    <bm-toolbar-icon-dropdown
         ref="text-color-button"
         class="text-color-button"
         variant="compact"
@@ -7,13 +7,14 @@
         :disabled="disabled"
         split
         :title="$t('styleguide.rich_editor.text_color.tooltip')"
+        :text="$t('styleguide.rich_editor.text_color.tooltip')"
         @click="setTextColor"
     >
         <bm-form-color-picker v-model="pickerColor" :colors="textColors" @input="setTextColor" />
         <template #icon>
             <bm-font-color-icon :color="disabled ? undefined : selectedTextColor" />
         </template>
-    </bm-icon-dropdown>
+    </bm-toolbar-icon-dropdown>
 </template>
 
 <script>
@@ -21,7 +22,7 @@ import { setTextColor } from "roosterjs-editor-api";
 import { getDarkColor } from "roosterjs-color-utils";
 import darkifyingBaseLvalue from "../../../js/theming/darkifyingBaseLvalue";
 
-import BmIconDropdown from "../../dropdown/BmIconDropdown";
+import BmToolbarIconDropdown from "../../BmToolbar/BmToolbarIconDropdown";
 import BmFontColorIcon from "../../BmFontColorIcon";
 import BmFormColorPicker from "../../form/BmFormColorPicker";
 import colors from "../../../css/exports/picker.scss";
@@ -30,7 +31,7 @@ const defaultColors = Object.values(colors);
 
 export default {
     name: "TextColorButton",
-    components: { BmIconDropdown, BmFontColorIcon, BmFormColorPicker },
+    components: { BmToolbarIconDropdown, BmFontColorIcon, BmFormColorPicker },
     props: {
         disabled: {
             type: Boolean,

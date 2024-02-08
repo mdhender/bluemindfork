@@ -1,38 +1,33 @@
 <template>
-    <bm-button-toolbar class="bm-rich-editor-toolbar-base bubble-text-toolbar" :class="{ disabled }">
-        <bm-button-group>
-            <font-family-button
-                :editor="editor"
-                :disabled="disabled"
-                :selection-font-family="formatState.fontName"
-                :default-font="defaultFont"
-                :extra-font-families="extraFontFamilies"
-            />
-            <font-size-button :editor="editor" :disabled="disabled" :selection-font-size="formatState.fontSize" />
-            <bold-button :editor="editor" :disabled="disabled" :is-bold="!!formatState.isBold" />
-            <italic-button :editor="editor" :disabled="disabled" :is-italic="!!formatState.isItalic" />
-            <underline-button :editor="editor" :disabled="disabled" :is-underline="!!formatState.isUnderline" />
-        </bm-button-group>
+    <bm-toolbar class="bm-rich-editor-toolbar-base bubble-text-toolbar" :class="{ disabled }">
+        <font-family-button
+            :editor="editor"
+            :disabled="disabled"
+            :selection-font-family="formatState.fontName"
+            :default-font="defaultFont"
+            :extra-font-families="extraFontFamilies"
+        />
+        <font-size-button :editor="editor" :disabled="disabled" :selection-font-size="formatState.fontSize" />
+        <bold-button :editor="editor" :disabled="disabled" :is-bold="!!formatState.isBold" />
+        <italic-button :editor="editor" :disabled="disabled" :is-italic="!!formatState.isItalic" />
+        <underline-button :editor="editor" :disabled="disabled" :is-underline="!!formatState.isUnderline" />
+        <bm-toolbar-divider />
 
-        <bm-button-group class="color-group">
-            <text-color-button :editor="editor" :disabled="disabled" />
-            <background-color-button :editor="editor" :disabled="disabled" />
-        </bm-button-group>
-
-        <bm-button-group>
-            <link-button
-                :editor="editor"
-                :disabled="disabled"
-                :is-link="!!formatState.canUnlink"
-                @open-link-modal="$emit('open-link-modal', $event)"
-            />
-        </bm-button-group>
-    </bm-button-toolbar>
+        <text-color-button :editor="editor" :disabled="disabled" />
+        <background-color-button :editor="editor" :disabled="disabled" />
+        <bm-toolbar-divider />
+        <link-button
+            :editor="editor"
+            :disabled="disabled"
+            :is-link="!!formatState.canUnlink"
+            @open-link-modal="$emit('open-link-modal', $event)"
+        />
+    </bm-toolbar>
 </template>
 
 <script>
-import BmButtonGroup from "../../buttons/BmButtonGroup";
-import BmButtonToolbar from "../../buttons/BmButtonToolbar";
+import BmToolbar from "../../BmToolbar/BmToolbar";
+import BmToolbarDivider from "../../BmToolbar/BmToolbarDivider";
 import BackgroundColorButton from "../editorButtons/BackgroundColorButton";
 import BoldButton from "../editorButtons/BoldButton";
 import FontFamilyButton from "../editorButtons/FontFamilyButton";
@@ -45,8 +40,8 @@ import UnderlineButton from "../editorButtons/UnderlineButton";
 export default {
     name: "BubbleTextToolbar",
     components: {
-        BmButtonGroup,
-        BmButtonToolbar,
+        BmToolbar,
+        BmToolbarDivider,
         BackgroundColorButton,
         BoldButton,
         FontSizeButton,

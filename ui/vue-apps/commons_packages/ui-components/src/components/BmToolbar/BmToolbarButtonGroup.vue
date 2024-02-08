@@ -7,10 +7,12 @@ import BmToolbarElement from "./BmToolbarElement";
 export default {
     name: "BmToolbarButtonGroup",
     components: { BmToolbarElement, BmToolbarToggle },
+    inheritAttrs: false,
     setup() {
+        const attrs = useAttrs();
         const slots = useSlots();
         const options = computed(() => ({
-            attrs: useAttrs(),
+            attrs: { ...attrs },
             class: "bm-toolbar-button-group"
         }));
 

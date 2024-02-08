@@ -1,26 +1,27 @@
 <template>
-    <bm-icon-dropdown
+    <bm-toolbar-icon-dropdown
         class="align-button"
         variant="compact"
         size="lg"
         icon="rich-editor-align-left"
         :disabled="disabled"
+        :text="$t('styleguide.rich_editor.align.tooltip')"
     >
-        <bm-dropdown-item> <align-left-button :editor="editor" :disabled="disabled" /></bm-dropdown-item>
-        <bm-dropdown-item> <align-center-button :editor="editor" :disabled="disabled" /></bm-dropdown-item>
-        <bm-dropdown-item> <align-right-button :editor="editor" :disabled="disabled" /></bm-dropdown-item>
-    </bm-icon-dropdown>
+        <align-left-button :editor="editor" :disabled="disabled" />
+        <align-center-button :editor="editor" :disabled="disabled" />
+        <align-right-button :editor="editor" :disabled="disabled" />
+    </bm-toolbar-icon-dropdown>
 </template>
 
 <script>
-import BmIconDropdown from "../../dropdown/BmIconDropdown";
 import AlignLeftButton from "./AlignLeftButton";
 import AlignCenterButton from "./AlignCenterButton";
 import AlignRightButton from "./AlignRightButton";
-import BmDropdownItem from "../../dropdown/BmDropdownItem.vue";
+import BmToolbarIconDropdown from "../../BmToolbar/BmToolbarIconDropdown";
 
 export default {
-    components: { AlignLeftButton, AlignCenterButton, AlignRightButton, BmIconDropdown, BmDropdownItem },
+    components: { AlignLeftButton, AlignCenterButton, AlignRightButton, BmToolbarIconDropdown },
+
     props: {
         disabled: {
             type: Boolean,
@@ -45,12 +46,6 @@ export default {
     .dropdown-menu {
         min-width: 0;
         padding: 0;
-    }
-    .dropdown-item {
-        padding: 0;
-        .btn {
-            padding: $sp-2 $sp-3;
-        }
     }
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-    <bm-button-toolbar class="bm-choice-group" key-nav>
+    <b-button-toolbar class="bm-choice-group" key-nav>
         <bm-button-group>
             <bm-button
                 v-for="option in options"
@@ -20,16 +20,16 @@
                 {{ option.text }}
             </bm-button>
         </bm-button-group>
-    </bm-button-toolbar>
+    </b-button-toolbar>
 </template>
 <script>
-import BmButtonToolbar from "./buttons/BmButtonToolbar";
+import { BButtonToolbar } from "bootstrap-vue";
 import BmButtonGroup from "./buttons/BmButtonGroup";
 import BmButton from "./buttons/BmButton";
 export default {
     name: "BmChoiceGroup",
     components: {
-        BmButtonToolbar,
+        BButtonToolbar,
         BmButtonGroup,
         BmButton
     },

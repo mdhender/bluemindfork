@@ -1,7 +1,7 @@
 <template>
-    <bm-button-group v-if="isWritable">
+    <bm-toolbar v-if="isWritable" class="conversation-list-item-quick-action-buttons">
         <template v-if="isDeleted">
-            <bm-icon-button
+            <bm-toolbar-icon-button
                 :aria-label="unexpungeAriaText(1, subject)"
                 :title="unexpungeAriaText(1, subject)"
                 variant="compact"
@@ -10,7 +10,7 @@
             />
         </template>
         <template v-else>
-            <bm-icon-button
+            <bm-toolbar-icon-button
                 :aria-label="removeAriaText(1, subject)"
                 :title="removeAriaText(1, subject)"
                 variant="compact"
@@ -18,7 +18,7 @@
                 @click.shift.exact.prevent.stop="REMOVE_CONVERSATIONS([conversation])"
                 @click.exact.prevent.stop="MOVE_CONVERSATIONS_TO_TRASH([conversation])"
             />
-            <bm-icon-button
+            <bm-toolbar-icon-button
                 v-if="isTemplate"
                 :aria-label="$tc('mail.actions.edit_from_template.aria')"
                 :title="$tc('mail.actions.edit_from_template.aria')"
@@ -26,7 +26,7 @@
                 icon="plus-enveloppe"
                 @click.prevent.stop="editFromTemplate(conversation)"
             />
-            <bm-icon-button
+            <bm-toolbar-icon-button
                 v-if="showMarkAsReadInMain(isTemplate)"
                 :aria-label="markAsReadAriaText(1, subject)"
                 :title="markAsReadAriaText(1, subject)"
@@ -34,7 +34,7 @@
                 icon="read"
                 @click.prevent.stop="markAsRead(conversation)"
             />
-            <bm-icon-button
+            <bm-toolbar-icon-button
                 v-if="showMarkAsUnreadInMain(isTemplate)"
                 :aria-label="markAsUnreadAriaText(1, subject)"
                 :title="markAsUnreadAriaText(1, subject)"
@@ -42,7 +42,7 @@
                 icon="unread"
                 @click.prevent.stop="markAsUnread(conversation)"
             />
-            <bm-icon-button
+            <bm-toolbar-icon-button
                 v-if="showMarkAsFlaggedInMain"
                 :aria-label="markAsFlaggedAriaText(1, subject)"
                 :title="markAsFlaggedAriaText(1, subject)"
@@ -50,7 +50,7 @@
                 icon="flag-outline"
                 @click.prevent.stop="markAsFlagged(conversation)"
             />
-            <bm-icon-button
+            <bm-toolbar-icon-button
                 v-if="showMarkAsUnflaggedInMain"
                 :aria-label="markAsUnflaggedAriaText(1, subject)"
                 :title="markAsUnflaggedAriaText(1, subject)"
@@ -60,11 +60,11 @@
                 @click.prevent.stop="markAsUnflagged(conversation)"
             />
         </template>
-    </bm-button-group>
+    </bm-toolbar>
 </template>
 
 <script>
-import { BmButtonGroup, BmIconButton } from "@bluemind/ui-components";
+import { BmToolbar, BmToolbarIconButton } from "@bluemind/ui-components";
 import { mapState, mapGetters, mapActions } from "vuex";
 import { messageUtils } from "@bluemind/mail";
 import { Flag } from "@bluemind/email";
@@ -78,8 +78,8 @@ const { MessageCreationModes } = messageUtils;
 export default {
     name: "ConversationListItemQuickActionButtons",
     components: {
-        BmButtonGroup,
-        BmIconButton
+        BmToolbar,
+        BmToolbarIconButton
     },
     mixins: [ActionTextMixin, FlagMixin, RemoveMixin, MailRoutesMixin],
     props: {

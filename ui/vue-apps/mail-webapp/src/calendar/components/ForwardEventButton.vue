@@ -1,6 +1,6 @@
 <template>
     <mail-open-in-popup-with-shift v-slot="action" :href="routeToForwardEventMessage">
-        <bm-icon-dropdown
+        <bm-toolbar-icon-dropdown
             icon="forward"
             variant="regular-accent"
             right
@@ -10,7 +10,7 @@
             @click.stop="action.execute(() => gotToForwarEventMessage())"
         >
             <slot />
-        </bm-icon-dropdown>
+        </bm-toolbar-icon-dropdown>
     </mail-open-in-popup-with-shift>
 </template>
 
@@ -18,7 +18,7 @@
 import { mapGetters } from "vuex";
 import router from "@bluemind/router";
 import { messageUtils } from "@bluemind/mail";
-import { BmIconDropdown } from "@bluemind/ui-components";
+import { BmToolbarIconDropdown } from "@bluemind/ui-components";
 import { MY_DRAFTS } from "~/getters";
 import { MailRoutesMixin } from "~/mixins";
 import MailOpenInPopupWithShift from "~/components/MailOpenInPopupWithShift";
@@ -26,7 +26,7 @@ import MessagePathParam from "~/router/MessagePathParam";
 const { MessageCreationModes } = messageUtils;
 
 export default {
-    components: { MailOpenInPopupWithShift, BmIconDropdown },
+    components: { MailOpenInPopupWithShift, BmToolbarIconDropdown },
     mixins: [MailRoutesMixin],
     props: {
         size: {

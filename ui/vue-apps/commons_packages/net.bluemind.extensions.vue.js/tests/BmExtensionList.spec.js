@@ -16,7 +16,7 @@ describe("BmExtensionList", () => {
         }
     };
     test("To be empty if there is no extensions", () => {
-        let wrapper = mount(BmExtensionList, {
+        let wrapper = mount(WrappedBmExtensionList, {
             propsData: {
                 id: "test.dummy.id",
                 path: "dummy-element",
@@ -24,7 +24,7 @@ describe("BmExtensionList", () => {
             }
         });
         expect(wrapper.element).toBeEmptyDOMElement();
-        wrapper = mount(BmExtensionList, {
+        wrapper = mount(WrappedBmExtensionList, {
             stubs: { DummyComponent },
             propsData: {
                 id: "test.dummy.id",
@@ -34,7 +34,7 @@ describe("BmExtensionList", () => {
             }
         });
         expect(wrapper.element).toBeEmptyDOMElement();
-        wrapper = mount(BmExtensionList, {
+        wrapper = mount(WrappedBmExtensionList, {
             propsData: {
                 id: "test.dummy.id",
                 path: "dummy-element",
@@ -49,7 +49,7 @@ describe("BmExtensionList", () => {
     });
 
     test("To insert component defined within extension", () => {
-        let wrapper = mount(BmExtensionList, {
+        let wrapper = mount(WrappedBmExtensionList, {
             stubs: { DummyComponent, AnotherComponent },
             propsData: {
                 id: "test.dummy.id",
@@ -66,7 +66,7 @@ describe("BmExtensionList", () => {
         expect(wrapper.findAllComponents(DummyComponent).length).toBe(2);
     });
     test("To wrap component inside Decorator if a decorator is used", () => {
-        let wrapper = mount(BmExtensionList, {
+        let wrapper = mount(WrappedBmExtensionList, {
             stubs: { DummyComponent, DecoratorComponent },
             propsData: {
                 id: "test.dummy.id",
@@ -82,7 +82,7 @@ describe("BmExtensionList", () => {
         expect(wrapper.findComponent(DecoratorComponent).find(".dummy").exists).toBeTruthy();
     });
     test("To use default slot to decorate component", () => {
-        let wrapper = mount(BmExtensionList, {
+        let wrapper = mount(WrappedBmExtensionList, {
             stubs: { DummyComponent, DecoratorComponent },
             propsData: {
                 id: "test.dummy.id",
@@ -94,10 +94,24 @@ describe("BmExtensionList", () => {
                 ]
             },
             scopedSlots: {
-                default: '<div class="slot"><component :is="props.name" /></div>'
+                default: '<div class="slot"><component :is="props.extension.name" /></div>'
             }
         });
         expect(wrapper.findAll(".slot").length).toBe(2);
         expect(wrapper.find(".slot").find(".dummy").exists()).toBeTruthy();
     });
 });
+
+// To test functional component and workaround 'Multiple root nodes returned from render
+// function. Render function should return a single root node' error
+const WrappedBmExtensionList = {
+    components: { BmExtensionList },
+    render(h) {
+        return h("div", [
+            h(BmExtensionList, {
+                attrs: this.$attrs,
+                scopedSlots: this.$scopedSlots
+            })
+        ]);
+    }
+};

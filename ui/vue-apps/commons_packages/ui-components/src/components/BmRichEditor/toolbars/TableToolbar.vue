@@ -1,24 +1,22 @@
 <template>
-    <bm-button-toolbar
+    <bm-toolbar
         class="bm-rich-editor-toolbar-base table-toolbar position-fixed mb-3 shadow-sm"
         :style="`top: ${position.top}px; left: ${position.left}px;`"
         @click.native="setPosition"
     >
-        <bm-button-group>
-            <insert-column-button :editor="editor" />
-            <delete-column-button :editor="editor" />
-        </bm-button-group>
-        <bm-button-group>
-            <insert-row-button :editor="editor" />
-            <delete-row-button :editor="editor" />
-        </bm-button-group>
+        <insert-column-button :editor="editor" />
+        <delete-column-button :editor="editor" />
+        <bm-toolbar-divider />
+        <insert-row-button :editor="editor" />
+        <delete-row-button :editor="editor" />
+        <bm-toolbar-divider />
         <delete-table-button :editor="editor" />
-    </bm-button-toolbar>
+    </bm-toolbar>
 </template>
 
 <script>
-import BmButtonToolbar from "../../buttons/BmButtonToolbar";
-import BmButtonGroup from "../../buttons/BmButtonGroup";
+import BmToolbar from "../../BmToolbar/BmToolbar";
+import BmToolbarDivider from "../../BmToolbar/BmToolbarDivider";
 import InsertColumnButton from "../editorButtons/table/InsertColumnButton";
 import DeleteTableButton from "../editorButtons/table/DeleteTableButton";
 import InsertRowButton from "../editorButtons/table/InsertRowButton";
@@ -28,8 +26,8 @@ import DeleteColumnButton from "../editorButtons/table/DeleteColumnButton";
 export default {
     name: "TableToolbar",
     components: {
-        BmButtonToolbar,
-        BmButtonGroup,
+        BmToolbar,
+        BmToolbarDivider,
         InsertColumnButton,
         DeleteTableButton,
         InsertRowButton,
@@ -80,9 +78,6 @@ export default {
     .dropdown .btn {
         padding-right: $sp-1;
         padding-left: $sp-1;
-    }
-    & > .btn-group {
-        border-right: ($sp-1 * 0.25) $neutral-fg-lo3 solid;
     }
 }
 </style>

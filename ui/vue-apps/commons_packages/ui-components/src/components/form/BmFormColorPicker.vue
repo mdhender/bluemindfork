@@ -1,10 +1,10 @@
 <template>
     <div class="bm-form-color-picker">
-        <bm-button-toolbar key-nav :aria-label="$t('styleguide.color-picker.toolbar.aria')">
+        <b-button-toolbar key-nav :aria-label="$t('styleguide.color-picker.toolbar.aria')">
             <bm-button v-for="color in allColors" :key="color" variant="text" @click="select(color)">
                 <bm-color-badge :value="color" :selected="value === color" />
             </bm-button>
-        </bm-button-toolbar>
+        </b-button-toolbar>
         <bm-button class="open-customizer-btn" variant="text" size="lg" @click="openCustomizer">
             {{ $t("styleguide.color-picker.customize") }}
         </bm-button>
@@ -18,17 +18,16 @@
 </template>
 
 <script>
-import { BFormInput } from "bootstrap-vue";
+import { BFormInput, BButtonToolbar } from "bootstrap-vue";
 import colors from "../../css/exports/picker.scss";
 import BmButton from "../buttons/BmButton";
-import BmButtonToolbar from "../buttons/BmButtonToolbar";
 import BmColorBadge from "../BmColorBadge";
 
 const defaultColors = Object.values(colors);
 
 export default {
     name: "BmFormColorPicker",
-    components: { BFormInput, BmButton, BmButtonToolbar, BmColorBadge },
+    components: { BButtonToolbar, BFormInput, BmButton, BmColorBadge },
     props: {
         value: {
             type: String,

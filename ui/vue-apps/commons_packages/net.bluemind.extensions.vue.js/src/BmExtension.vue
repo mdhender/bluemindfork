@@ -36,9 +36,10 @@ export default {
             props: {
                 extensions
             },
-            attrs: data.attrs,
+            attrs: { ...data.attrs },
             on: listeners,
-            scopedSlots: scopedSlots
+            scopedSlots: scopedSlots,
+            class: data.staticClass
         };
         switch (props.type) {
             case BmExtensionType.DECORATOR:

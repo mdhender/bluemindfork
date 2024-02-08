@@ -10,26 +10,26 @@
         <div class="preview-header-desktop desktop-only">
             <preview-message-header :expanded="expanded" @click.native="$emit('update:expanded', !expanded)" />
             <div class="main-part">
-                <bm-button-toolbar class="px-5">
-                    <bm-icon-button
+                <bm-toolbar class="px-5">
+                    <bm-toolbar-icon-button
                         :disabled="filesCount <= 1"
                         tab-index="0"
                         :title="$t('mail.preview.previous')"
                         icon="chevron-left"
                         @click="$emit('previous')"
                     />
-                    <bm-icon-button
+                    <bm-toolbar-icon-button
                         :disabled="filesCount <= 1"
                         :title="$t('mail.preview.next')"
                         icon="chevron-right"
                         @click="$emit('next')"
                     />
-                </bm-button-toolbar>
+                </bm-toolbar>
 
                 <preview-file-header :file="context.file" />
 
-                <bm-button-toolbar>
-                    <bm-icon-button
+                <bm-toolbar>
+                    <bm-toolbar-icon-button
                         :disabled="!isPreviewable(context.file)"
                         :title="
                             $t('mail.content.print', {
@@ -40,7 +40,7 @@
                         icon="printer"
                         @click="print(file)"
                     />
-                    <bm-icon-button
+                    <bm-toolbar-icon-button
                         :href="file.url"
                         :download="file.name"
                         :title="
@@ -51,27 +51,29 @@
                         "
                         icon="download"
                     />
-                    <bm-icon-button
+                    <bm-toolbar-icon-button
                         :title="$t('mail.content.open-new-tab', { name: file.name })"
                         :disabled="!isPreviewable(context.file)"
                         icon="popup"
                         @click="open(context.file)"
                     />
+                </bm-toolbar>
+                <div class="d-flex align-items-center">
                     <bm-button-close
                         size="lg"
                         class="ml-5"
                         :title="$t('common.close_window')"
                         @click="$emit('close')"
                     />
-                </bm-button-toolbar>
+                </div>
             </div>
         </div>
 
         <bm-navbar class="preview-header-mobile mobile-only">
             <bm-navbar-back @click="$emit('close')" />
             <preview-file-header :file="context.file" />
-            <bm-button-toolbar class="pl-3">
-                <bm-icon-button
+            <bm-toolbar class="pl-3">
+                <bm-toolbar-icon-button
                     :disabled="filesCount <= 1"
                     variant="compact-on-fill-primary"
                     size="lg"
@@ -80,7 +82,7 @@
                     icon="chevron-left"
                     @click="$emit('previous')"
                 />
-                <bm-icon-button
+                <bm-toolbar-icon-button
                     :disabled="filesCount <= 1"
                     variant="compact-on-fill-primary"
                     size="lg"
@@ -89,7 +91,7 @@
                     icon="chevron-right"
                     @click="$emit('next')"
                 />
-                <bm-icon-dropdown
+                <bm-toolbar-icon-dropdown
                     variant="compact-on-fill-primary"
                     size="lg"
                     no-caret
@@ -112,8 +114,8 @@
                     <bm-dropdown-item :disabled="!isPreviewable(context.file)" icon="popup" @click="open(context.file)">
                         {{ $t("mail.content.open-new-tab", { name: file.name }) }}
                     </bm-dropdown-item>
-                </bm-icon-dropdown>
-            </bm-button-toolbar>
+                </bm-toolbar-icon-dropdown>
+            </bm-toolbar>
         </bm-navbar>
     </bm-extension>
 </template>
@@ -121,10 +123,10 @@
 <script>
 import {
     BmButtonClose,
-    BmButtonToolbar,
+    BmToolbar,
+    BmToolbarIconButton,
     BmDropdownItem,
-    BmIconButton,
-    BmIconDropdown,
+    BmToolbarIconDropdown,
     BmNavbar,
     BmNavbarBack
 } from "@bluemind/ui-components";
@@ -142,10 +144,10 @@ export default {
         PreviewMessageHeader,
         PreviewFileHeader,
         BmButtonClose,
-        BmButtonToolbar,
+        BmToolbar,
+        BmToolbarIconButton,
+        BmToolbarIconDropdown,
         BmDropdownItem,
-        BmIconButton,
-        BmIconDropdown,
         BmNavbar,
         BmNavbarBack
     },
@@ -208,9 +210,9 @@ export default {
         > .btn-toolbar {
             flex: none;
             align-items: center;
-            .bm-button-close {
-                margin-right: $sp-4;
-            }
+        }
+        .bm-button-close {
+            margin-right: $sp-4;
         }
     }
 }

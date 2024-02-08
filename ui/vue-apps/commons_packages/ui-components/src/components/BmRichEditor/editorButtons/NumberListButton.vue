@@ -12,7 +12,10 @@ export default {
         }
     },
     data() {
-        return { title: this.$t("styleguide.rich_editor.numbered_list.tooltip"), icon: "rich-editor-numbered-list" };
+        return {
+            title: this.$t("styleguide.rich_editor.numbered_list.tooltip"),
+            icon: "rich-editor-numbered-list"
+        };
     },
     computed: {
         isActive() {

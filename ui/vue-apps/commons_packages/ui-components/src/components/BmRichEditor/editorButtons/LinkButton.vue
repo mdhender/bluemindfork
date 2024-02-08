@@ -11,7 +11,10 @@ export default {
         }
     },
     data() {
-        return { title: this.$t("styleguide.rich_editor.link.tooltip"), icon: "link" };
+        return {
+            title: this.$t("styleguide.rich_editor.link.tooltip"),
+            icon: "link"
+        };
     },
     computed: {
         isActive() {

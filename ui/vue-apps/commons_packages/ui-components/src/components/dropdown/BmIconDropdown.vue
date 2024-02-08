@@ -9,7 +9,7 @@
             'dropdown-split': split,
             'dropdown-no-caret': noCaret
         }"
-        :variant="'icon-' + variant"
+        :variant="'icon-' + variant_"
         v-on="$listeners"
     >
         <template slot="button-content">
@@ -33,6 +33,9 @@ export default {
     name: "BmIconDropdown",
     components: { BvDropdown, BmIcon, VNodes },
     mixins: [BmDropdownMixin],
+    inject: {
+        getBvDropdown: { default: () => () => null }
+    },
     props: {
         variant: {
             type: String,
@@ -78,15 +81,21 @@ export default {
         return { extensions };
     },
     computed: {
+        isSubMenu() {
+            return !!this.getBvDropdown();
+        },
         regular() {
-            return this.variant.startsWith("regular");
+            return this.variant_.startsWith("regular");
         },
         compact() {
-            return this.variant.startsWith("compact");
+            return this.variant_.startsWith("compact");
         },
         childProps() {
             const { extension, ...props } = this.$props;
             return props;
+        },
+        variant_() {
+            return this.isSubMenu ? "regular" : this.variant;
         }
     }
 };

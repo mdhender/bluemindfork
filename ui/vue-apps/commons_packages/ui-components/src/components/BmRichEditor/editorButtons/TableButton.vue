@@ -1,5 +1,5 @@
 <template>
-    <bm-icon-dropdown
+    <bm-toolbar-icon-dropdown
         class="table-button"
         variant="compact"
         size="lg"
@@ -9,22 +9,22 @@
         right
         :title="$t('styleguide.rich_editor.table.insert_table')"
     >
-        <bm-dropdown-item>
+        <bm-dropdown-item variant="text">
             <bm-table-size-chooser @selected="insertTable" />
         </bm-dropdown-item>
-    </bm-icon-dropdown>
+    </bm-toolbar-icon-dropdown>
 </template>
 
 <script>
 import { insertTable } from "roosterjs-editor-api";
 
-import BmIconDropdown from "../../dropdown/BmIconDropdown";
+import BmToolbarIconDropdown from "../../BmToolbar/BmToolbarIconDropdown";
 import BmDropdownItem from "../../dropdown/BmDropdownItem";
 import BmTableSizeChooser from "../BmTableSizeChooser";
 
 export default {
     name: "TableButton",
-    components: { BmIconDropdown, BmDropdownItem, BmTableSizeChooser },
+    components: { BmToolbarIconDropdown, BmDropdownItem, BmTableSizeChooser },
     props: {
         disabled: {
             type: Boolean,
@@ -46,7 +46,7 @@ export default {
 <style lang="scss">
 @import "../../../css/utils/variables.scss";
 
-.table-button {
+.table-button.bm-toolbar-icon-dropdown {
     .dropdown-item {
         background: none !important;
         height: initial;

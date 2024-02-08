@@ -1,38 +1,38 @@
 <template>
-    <bm-button-toolbar key-nav class="mail-conversation-viewer-footer">
+    <bm-toolbar class="mail-conversation-viewer-footer">
         <mail-open-in-popup-with-shift v-slot="action" :href="replyRoute(lastNonDraft)">
-            <bm-button
+            <bm-toolbar-button
                 variant="fill-accent"
                 :title="action.label($t('mail.content.reply.aria'))"
                 :icon="action.icon('reply')"
                 @click="action.execute(() => reply(lastNonDraft, conversation))"
             >
                 {{ $t("mail.content.reply.aria") }}
-            </bm-button>
+            </bm-toolbar-button>
         </mail-open-in-popup-with-shift>
         <mail-open-in-popup-with-shift v-slot="action" :href="replyAllRoute(lastNonDraft)">
-            <bm-button
+            <bm-toolbar-button
                 variant="fill-accent"
                 :title="action.label($t('mail.content.reply_all.aria'))"
                 :icon="action.icon('reply-all')"
                 @click="action.execute(() => replyAll(lastNonDraft, conversation))"
             >
                 {{ $t("mail.content.reply_all.aria") }}
-            </bm-button>
+            </bm-toolbar-button>
         </mail-open-in-popup-with-shift>
-    </bm-button-toolbar>
+    </bm-toolbar>
 </template>
 
 <script>
 import { mapState } from "vuex";
-import { BmButtonToolbar, BmButton } from "@bluemind/ui-components";
+import { BmToolbar, BmToolbarButton } from "@bluemind/ui-components";
 import { ReplyAndForwardRoutesMixin } from "~/mixins";
 import MailOpenInPopupWithShift from "../../MailOpenInPopupWithShift";
 import { useComposerInit } from "~/composables/composer/ComposerInit";
 
 export default {
     name: "MailConversationViewerFooter",
-    components: { BmButtonToolbar, BmButton, MailOpenInPopupWithShift },
+    components: { BmToolbar, BmToolbarButton, MailOpenInPopupWithShift },
     mixins: [ReplyAndForwardRoutesMixin],
     props: {
         lastNonDraft: {
