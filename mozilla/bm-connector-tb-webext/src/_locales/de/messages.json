@@ -239,6 +239,9 @@
     "extensions.bm.errors.imip.counter-counter-not-found": {
         "message": "Vorschlag bereits bearbeitet."
     },
+    "extensions.bm.errors.imip.warn-private-event-with-delegates": {
+        "message": "Die Delegierten haben diese private Einladung nicht erhalten."
+    },
     "extensions.bm.filehosting.expireOn": {
         "message": "Läuft ab am"
     },

@@ -242,6 +242,9 @@
     "extensions.bm.errors.imip.counter-counter-not-found": {
         "message": "Proposition already handled."
     },
+    "extensions.bm.errors.imip.warn-private-event-with-delegates": {
+        "message": "Delegates did not receive this private invitation."
+    },
     "extensions.bm.filehosting.expireOn": {
         "message": "expires on"
     },

@@ -175,11 +175,13 @@ var gBMIcsBandal = {
                 let resourceId = aMimeMsg.headers["x-bm-resourcebooking"];
                 let counter = aMimeMsg.headers["x-bm-event-countered"];
                 let calendarUid = aMimeMsg.headers["x-bm-calendar"];
+                let private = aMimeMsg.headers["x-bm-event-private"];
                 gBMIcsBandal._logger.debug("x-bm-event:" + uids);
                 gBMIcsBandal._logger.debug("x-bm-event-canceled:" + cancel);
                 gBMIcsBandal._logger.debug("x-bm-resourcebooking:" + resourceId);
                 gBMIcsBandal._logger.debug("x-bm-event-countered:" + counter);
                 gBMIcsBandal._logger.debug("x-bm-calendar:" + calendarUid);
+                gBMIcsBandal._logger.debug("x-bm-event-private:" + private);
                 if (uids || cancel || resourceId || counter) {
                     gBMIcsBandal._hideLightingImipBar();
                 }
@@ -189,6 +191,7 @@ var gBMIcsBandal = {
                         let msg = {};
                         msg.bmResourceId = resourceId;
                         msg.bmCalendar = calendarUid;
+                        msg.bmPrivate = private;
                         msg.bmBandalKind = "PART";
                         gBMIcsBandal.onBmIcsMail(msg);
                     }
@@ -287,6 +290,9 @@ var gBMIcsBandal = {
                 if (msg.bmCalendar && self._containerUid != msg.bmCalendar) {
                     return self._getOtherCalendar(msg.bmCalendar);
                 }
+                if (msg.bmPrivate) {
+                    return self._checkPrivateEventNotSentToDelegates();
+                }
                 return;
             }).then(function() {
                 return self._getSeriesAndEvent(self._event);
@@ -321,6 +327,7 @@ var gBMIcsBandal = {
         loader.loadSubScript("chrome://bm/content/core2/client/ContainersClient.js");
         loader.loadSubScript("chrome://bm/content/core2/client/DirectoryClient.js");
         loader.loadSubScript("chrome://bm/content/core2/client/UserClient.js");
+        loader.loadSubScript("chrome://bm/content/core2/client/MailboxesClient.js");
         this._logger.debug("init");
     },
     _onError: function(aError) {
@@ -352,6 +359,16 @@ var gBMIcsBandal = {
                 }
             }
             return Promise.resolve();
+        });
+    },
+    _checkPrivateEventNotSentToDelegates: function() {
+        let client = new MailboxesClient(this._srv.value, this._authKey, this._user.domainUid);
+        let self = this;
+        let result = client.getMailboxDelegationRule(this._user.uid);
+        return result.then(function(rule) {
+            if (rule?.delegateUids.length) {
+                self._showNotification(new BMError("errors.imip.warn-private-event-with-delegates"), "WARNING");
+            }
         });
     },
     _showNotification: function(aErr, aPriority) {
