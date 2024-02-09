@@ -1,6 +1,7 @@
 package net.bluemind.backend.mail.replica.service.internal;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -19,7 +20,9 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Iterables;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
+import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import net.bluemind.addressbook.api.IAddressBook;
@@ -151,15 +154,12 @@ public class OutboxService implements IOutbox {
 
 	private CompletableFuture<FlushInfo> flushOne(FlushContext ctx, ItemValue<MailboxItem> item) {
 		return SyncStreamDownload.read(ctx.mailboxItemsService.fetchComplete(item.value.imapUid)).thenApply(buf -> {
-			var forParsing = buf.duplicate();
-			int endOfHeaders = ByteBufUtil.indexOf(Unpooled.wrappedBuffer(END_OF_HEADERS), forParsing);
-			if (endOfHeaders > 0) {
-				forParsing = forParsing.readSlice(endOfHeaders + 2);
-			}
-			InputStream in = new ByteBufInputStream(forParsing);
-			InputStream forSend = new ByteBufInputStream(buf);
+			int endOfHeaders = ByteBufUtil.indexOf(Unpooled.wrappedBuffer(END_OF_HEADERS), buf);
+			var headersBuffer = endOfHeaders > 0 ? buf.duplicate().readSlice(endOfHeaders + END_OF_HEADERS.length)
+					: buf.duplicate();
+			InputStream headersInputStream = new ByteBufInputStream(headersBuffer);
 			FlushInfo ret = new FlushInfo();
-			try (Message msg = Mime4JHelper.parse(in, false)) {
+			try (Message msg = Mime4JHelper.parse(headersInputStream, false)) {
 				if (msg.getFrom() == null) {
 					org.apache.james.mime4j.dom.address.Mailbox fromCtx = SendmailHelper
 							.formatAddress(ctx.user.displayName, ctx.user.value.defaultEmail().address);
@@ -167,6 +167,7 @@ public class OutboxService implements IOutbox {
 				}
 				String fromMail = msg.getFrom().iterator().next().getAddress();
 				MailboxList rcptTo = allRecipients(msg);
+				InputStream forSend = removeXBmDraftHeaders(msg, buf, endOfHeaders);
 				SendmailResponse sendmailResponse = send(ctx.user.value, forSend, fromMail, rcptTo, msg,
 						requestDSN(item.value));
 				ret.requestedDSN = sendmailResponse.getRequestedDSNs() > 0;
@@ -179,7 +180,7 @@ public class OutboxService implements IOutbox {
 				ctx.monitor.progress(1,
 						String.format(
 								"FLUSHING OUTBOX - mail %s sent"
-										+ (moveToSent ? "and moved in Sent folder." : ". Requested DSN: %b"),
+										+ (moveToSent ? " and moved in Sent folder." : ". Requested DSN: %b"),
 								msg.getMessageId(), ret.requestedDSN));
 			} catch (Exception e) {
 				logger.warn("ItemId {}: ", item.internalId, e);
@@ -187,6 +188,36 @@ public class OutboxService implements IOutbox {
 			}
 			return ret;
 		});
+	}
+
+	private InputStream removeXBmDraftHeaders(Message message, ByteBuf buffer, int endOfHeaders) {
+		ByteBuf result = buffer;
+		if (endOfHeaders > 0) {
+			// modify header data
+			// getFields() returns an unmodifiable list, removeIf is not usable
+			new ArrayList<>(message.getHeader().getFields()).forEach(field -> {
+				if (field.getName().toLowerCase().startsWith("x-bm-draft")) {
+					message.getHeader().removeFields(field.getName());
+				}
+			});
+
+			// write modified header data
+			ByteBufOutputStream out = new ByteBufOutputStream(Unpooled.buffer());
+			Mime4JHelper.serialize(message, out);
+			ByteBuf headers = out.buffer();
+			int newEndOfHeaders = ByteBufUtil.indexOf(Unpooled.wrappedBuffer(END_OF_HEADERS), headers);
+			result = Unpooled.buffer(buffer.capacity());
+			headers.readBytes(result, 0, newEndOfHeaders + END_OF_HEADERS.length);
+
+			// write body data
+			int sliceIndex = endOfHeaders + END_OF_HEADERS.length;
+			int sliceLength = buffer.writerIndex() - sliceIndex;
+			buffer.slice(sliceIndex, sliceLength).readBytes(result, newEndOfHeaders + END_OF_HEADERS.length,
+					sliceLength);
+
+			result.writerIndex(newEndOfHeaders + END_OF_HEADERS.length + sliceLength);
+		}
+		return new ByteBufInputStream(result);
 	}
 
 	/**
@@ -275,20 +306,20 @@ public class OutboxService implements IOutbox {
 	}
 
 	/**
-	 * Move to default Sent folder or the one given in the X-BM-SENT-FOLDER header.
-	 * Fall back to default Sent folder if an error occurs.
+	 * Move to default Sent folder or the one given in the X-BM-DRAFT-SENT-FOLDER
+	 * header. Fall back to default Sent folder if an error occurs.
 	 */
 	private Optional<FlushResult> moveToSent(ItemValue<MailboxItem> item, ItemValue<MailboxFolder> sentFolder,
 			ItemValue<MailboxFolder> outboxFolder) {
-		Optional<String> xBmSentFolder = extractXBmSentFolder(item);
+		Optional<String> xBmDraftSentFolder = extractXBmDraftSentFolder(item);
 		FlushResult flushResult;
-		if (xBmSentFolder.isPresent()) {
+		if (xBmDraftSentFolder.isPresent()) {
 			try {
-				flushResult = moveTo(item, outboxFolder.uid, xBmSentFolder.get());
+				flushResult = moveTo(item, outboxFolder.uid, xBmDraftSentFolder.get());
 			} catch (ServerFault e) {
 				logger.warn(String.format(
 						"Could not move sent messages to separate Sent folder %s, fall back to default Sent folder.",
-						xBmSentFolder.get()));
+						xBmDraftSentFolder.get()));
 				flushResult = moveTo(item, outboxFolder.uid, sentFolder.uid);
 			}
 		} else {
@@ -323,9 +354,15 @@ public class OutboxService implements IOutbox {
 		return flushResult;
 	}
 
-	private Optional<String> extractXBmSentFolder(ItemValue<MailboxItem> item) {
-		return item.value.body.headers.stream().filter(header -> header.name.equalsIgnoreCase("X-BM-SENT-FOLDER"))
-				.findFirst().map(MessageBody.Header::firstValue);
+	private static final String X_BM_DRAFT_SENT_FOLDER_HEADER = "x-bm-draft-sent-folder";
+	private static final String OLD_X_BM_DRAFT_SENT_FOLDER_HEADER = "x-bm-sent-folder";
+
+	private Optional<String> extractXBmDraftSentFolder(ItemValue<MailboxItem> item) {
+		return item.value.body.headers.stream()
+				.filter(header -> header.name.equalsIgnoreCase(X_BM_DRAFT_SENT_FOLDER_HEADER)
+						|| header.name.equalsIgnoreCase(OLD_X_BM_DRAFT_SENT_FOLDER_HEADER))
+				.findFirst()
+				.map(MessageBody.Header::firstValue);
 	}
 
 	private void sendNonDeliveryReport(ItemValue<Domain> domain, String to, List<FailedRecipient> failedRecipients,

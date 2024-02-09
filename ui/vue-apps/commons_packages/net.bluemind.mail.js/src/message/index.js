@@ -117,19 +117,20 @@ export const MessageHeader = {
     X_ORIGINAL_TO: "X-Original-To",
 
     X_BM_CALENDAR: "X-BM-Calendar",
+    X_BM_COUNTER_ATTENDEE: "X-BM-Counter-Attendee",
+    X_BM_DRAFT_IDENTITY: "X-Bm-Draft-Identity",
     X_BM_DRAFT_INFO: "X-Bm-Draft-Info",
     X_BM_DRAFT_REFRESH_DATE: "X-Bm-Draft-Refresh-Date",
-    X_BM_DRAFT_IDENTITY: "X-Bm-Draft-Identity",
+    X_BM_DRAFT_SENT_FOLDER: "X-Bm-Draft-Sent-Folder",
+    X_BM_EVENT_CANCELED: "X-BM-Event-Canceled",
     X_BM_EVENT_COUNTERED: "X-BM-Event-Countered",
     X_BM_EVENT_PRIVATE: "X-BM-Event-Private",
-    X_BM_COUNTER_ATTENDEE: "X-BM-Counter-Attendee",
     X_BM_EVENT_DECLINECOUNTER: "X-BM-Counter-Declined",
     X_BM_EVENT_REPLIED: "X-BM-Event-Replied",
-    X_BM_EVENT_CANCELED: "X-BM-Event-Canceled",
     X_BM_EVENT: "X-BM-Event",
+    X_MAILER: "X-Mailer",
     X_BM_RESOURCEBOOKING: "X-BM-ResourceBooking",
-    X_BM_REWRITE: "X-BM-Rewrite",
-    X_BM_SENT_FOLDER: "X-BM-Sent-Folder"
+    X_BM_REWRITE: "X-BM-Rewrite"
 };
 
 export const MessageReplyAttributeSeparator = "data-bm-reply-separator";

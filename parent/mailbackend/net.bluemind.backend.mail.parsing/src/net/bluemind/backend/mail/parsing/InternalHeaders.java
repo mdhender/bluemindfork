@@ -32,11 +32,11 @@ public class InternalHeaders implements HeaderList {
 			"CONTENT-TYPE", "REPLY-TO", "MAIL-REPLY-TO", "MAIL-FOLLOWUP-TO", "LIST-POST", "DISPOSITION-NOTIFICATION-TO",
 			"X-PRIORITY", "X-BM_HSM_ID", "X-BM_HSM_DATETIME", "X-BM-EVENT", "X-BM-TODO", "X-BM-EVENT-CANCELED",
 			"X-BM-EVENT-REPLIED", "X-BM-RESOURCEBOOKING", "X-BM-FOLDERSHARING", "X-ASTERISK-CALLERID",
-			"X-BM-EVENT-COUNTERED");
+			"X-BM-EVENT-COUNTERED", "X-MAILER");
 
 	private static final Set<String> fromMailApi = Sets.newHashSet(MailApiHeaders.ALL);
 
-	private static final Set<String> toAdd = Sets.newHashSet("IN-REPLY-TO", "REFERENCES", "X-BM-SENT-FOLDER");
+	private static final Set<String> toAdd = Sets.newHashSet("IN-REPLY-TO", "REFERENCES", "X-BM-DRAFT-SENT-FOLDER");
 
 	@Override
 	public Set<String> getWhiteList() {

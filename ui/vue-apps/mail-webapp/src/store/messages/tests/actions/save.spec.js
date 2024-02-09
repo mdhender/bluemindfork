@@ -15,6 +15,9 @@ const draftInternalId = "draft-internal-id";
 const draftFolderKey = "draft-folder-key";
 const messageCompose = { editorContent: "", collapsedContent: null, inlineImagesSaved: [] };
 
+global.structuredClone = val => JSON.parse(JSON.stringify(val));
+ServiceLocator.register({ provide: "UserSession", factory: () => ({ bmBrandVersion: "TestVersion" }) });
+
 describe("[Mail-WebappStore][actions] :  save", () => {
     beforeEach(() => {
         itemsService = new MockMailboxItemsClient();

@@ -33,9 +33,9 @@ export async function setFrom(identity, message) {
     if (sentFolderUid) {
         store.commit(`mail/${REMOVE_MESSAGE_HEADER}`, {
             messageKey: message.key,
-            headerName: MessageHeader.X_BM_SENT_FOLDER
+            headerName: MessageHeader.X_BM_DRAFT_SENT_FOLDER
         });
-        const xBmSentFolder = { name: MessageHeader.X_BM_SENT_FOLDER, values: [sentFolderUid] };
+        const xBmSentFolder = { name: MessageHeader.X_BM_DRAFT_SENT_FOLDER, values: [sentFolderUid] };
         store.commit("mail/" + SET_MESSAGE_HEADERS, {
             messageKey: message.key,
             headers: [...message.headers, xBmSentFolder]

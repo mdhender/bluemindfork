@@ -87,17 +87,24 @@ async function createEmlOnServer({ commit }, draft, service) {
  * Needed by BM core to detect if mail has changed when using IMailboxItems.updateById
  */
 function forceMailRewriteOnServer(draft) {
-    const headers = JSON.parse(JSON.stringify(draft.headers));
+    const headers = structuredClone(draft.headers);
     const saveDate = new Date();
 
-    const hasXBmDraftKeyHeader = headers.find(header => header.name === MessageHeader.X_BM_DRAFT_REFRESH_DATE);
-    if (hasXBmDraftKeyHeader) {
-        hasXBmDraftKeyHeader.values = [saveDate.getTime()];
+    const xBmDraftKeyHeader = headers.find(header => header.name === MessageHeader.X_BM_DRAFT_REFRESH_DATE);
+    if (xBmDraftKeyHeader) {
+        xBmDraftKeyHeader.values = [saveDate.getTime()];
     } else {
-        headers.push({
-            name: MessageHeader.X_BM_DRAFT_REFRESH_DATE,
-            values: [saveDate.getTime()]
-        });
+        headers.push({ name: MessageHeader.X_BM_DRAFT_REFRESH_DATE, values: [saveDate.getTime()] });
+    }
+
+    // X-Mailer rfc2076 @see https://www.rfc-editor.org/rfc/rfc2076#section-3.4
+    const xMailerHeader = headers.find(header => header.name === MessageHeader.X_MAILER);
+    const versionMajorNumber = inject("UserSession").bmBrandVersion.split(".")[0];
+    const version = `BlueMind-MailApp-v${versionMajorNumber}`;
+    if (xMailerHeader) {
+        xMailerHeader.values = [version];
+    } else {
+        headers.push({ name: MessageHeader.X_MAILER, values: [version] });
     }
 
     return { saveDate, headers };
