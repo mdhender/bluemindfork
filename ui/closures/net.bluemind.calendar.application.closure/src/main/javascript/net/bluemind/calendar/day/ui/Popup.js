@@ -387,7 +387,7 @@ net.bluemind.calendar.day.ui.Popup.prototype.buildTitle = function() {
       ret = this.format.date.format(model.dtstart) + ' - ' + this.format.date.format(end);
     }
   }
-  if (model.states.canceled) {
+  if (model.states.cancelled) {
     /** @meaning general.cancelled */
     var MSG_CANCEL = goog.getMsg('Cancelled');
     ret += " - " + MSG_CANCEL;

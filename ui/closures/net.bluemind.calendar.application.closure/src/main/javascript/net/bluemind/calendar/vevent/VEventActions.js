@@ -397,6 +397,7 @@ net.bluemind.calendar.vevent.VEventActions.prototype.duplicate = function(e) {
       this.resetAttendeesStatus_(model.attendees);
     }
     model.exdate = [];
+    model.sequence = 0;
     model.states.updatable = true;
     model.uid = net.bluemind.mvp.UID.generate();
     model.calendar = calendar.uid;
@@ -525,6 +526,9 @@ net.bluemind.calendar.vevent.VEventActions.prototype.update_ = function(e, vseri
     }
     if (model.states.master && adaptor.isSignificantlyModified(old, model)) {    
       this.resetAttendeesStatus_(model.attendees);
+      if (model.sendNotification) {
+        model.sequence = (model.sequence || 0) + 1;
+      }
     }
     vseries = this.adaptor_.fromVEventModelView(model, vseries);
     var updated = this.adaptor_.getRawOccurrence(model.recurrenceId, vseries);
@@ -588,10 +592,14 @@ net.bluemind.calendar.vevent.VEventActions.prototype.createThisAndFutureExceptio
     var until = this.ctx_.helper('date').fromIsoString(model.thisAndFuture, dtstart.timezone);
     until.add(new goog.date.Interval(0, 0, -1));
     vseries['value']['main']['rrule']['until'] = this.adaptor_.adaptUntil(dtstart, until);
+    if (model.sendNotification) {
+      vseries['value']['main']['sequence'] = (model.sequence || 0) + 1;
+    }
     this.sanitizeDraft_(vseries, model.sendNotification);
     return this.doUpdate_(vseries, model.sendNotification)
   }, null, this).then(function() {
     this.resetAttendeesStatus_(model.attendees);
+    model.sequence = 0;
     var vseries = this.adaptor_.fromVEventModelView(model);
     this.sanitizeDraft_(vseries, model.sendNotification);
     return this.doCreate_(vseries, model.sendNotification);
