@@ -56,7 +56,7 @@
     "preferences.advanced.notifications.explanations": "Las notificaciones de escritorio se muestran directamente en su pantalla cuando llegan nuevos mensajes o recordatorios de eventos.",
     "preferences.advanced.notifications.enable_checkbox": "Permitir notificaciones",
     "preferences.calendar.main.working_days": "Días laborables",
-    "preferences.calendar.main.show_declined_events": "Mostrar eventos rechazados",
+    "preferences.calendar.main.show_declined_events": "Mostrar eventos rechazados o cancelados",
     "preferences.calendar.main.default_reminder_kind": "Tipo de notificación de alerta predeterminado",
     "preferences.calendar.main.configure_view": "Visualización de calendario",
     "preferences.calendar.main.reminder": "Recordatorio de evento",

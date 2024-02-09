@@ -180,7 +180,7 @@ net.bluemind.calendar.list.ListPresenter.prototype.buildModelView_ = function(ev
   // filter declined events
   if (this.ctx.settings.get('show_declined_events') == 'false') {
     events = goog.array.filter(events, function(event) {
-      return event.participation != 'Declined';
+      return !event.states.declined;
     });
   }
 

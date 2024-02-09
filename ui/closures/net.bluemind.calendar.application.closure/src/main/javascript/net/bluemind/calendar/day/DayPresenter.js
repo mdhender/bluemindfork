@@ -222,7 +222,7 @@ net.bluemind.calendar.day.DayPresenter.prototype.buildEventModelView_ = function
   // filter declined events
   if (this.ctx.settings.get('show_declined_events') == 'false') {
     events = goog.array.filter(events, function(event) {
-      return event.participation != 'Declined';
+      return !event.states.declined;
     });
   }
 

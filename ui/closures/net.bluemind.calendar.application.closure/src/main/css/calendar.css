@@ -1581,6 +1581,10 @@ span.declined {
   text-decoration:line-through;
 }
 
+a.declined {
+  text-decoration:line-through;
+}
+
 #bm-ui-form-print-preview table {
   width: auto;
 }

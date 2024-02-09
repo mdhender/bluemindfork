@@ -256,7 +256,7 @@
     "preferences.calendar.main.day_starts_at": "Day starts at",
     "preferences.calendar.main.day_ends_at": "Day ends at",
     "preferences.calendar.main.whole_day": "All day",
-    "preferences.calendar.main.show_declined_events": "Show declined events",
+    "preferences.calendar.main.show_declined_events": "Show declined or cancelled events",
     "preferences.calendar.main.default_reminder": "Default event reminder, before event",
     "preferences.calendar.main.default_allday_reminder": "Reminder at fixed time for \"all-day\" event",
     "preferences.calendar.main.default_reminder_kind": "Default reminder notification type",

@@ -256,7 +256,7 @@
     "preferences.calendar.main.day_starts_at": "La journée commence à",
     "preferences.calendar.main.day_ends_at": "La journée se termine à",
     "preferences.calendar.main.whole_day": "Journée entière",
-    "preferences.calendar.main.show_declined_events": "Afficher les évènements refusés",
+    "preferences.calendar.main.show_declined_events": "Afficher les évènements refusés ou annulés",
     "preferences.calendar.main.default_reminder": "Rappel par défaut, avant l'évènement",
     "preferences.calendar.main.default_allday_reminder": "Rappel à heure fixe pour un évènement \"journée complète\"",
     "preferences.calendar.main.default_reminder_kind": "Type de rappel par défaut",

@@ -270,12 +270,13 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.updateStates = function(mod
   model.states.allday = !(model.dtstart instanceof goog.date.DateTime);
   model.states.private_ = (model.class != 'Public');
   model.states.busy = (model.transp == 'Opaque');
-  model.states.meeting = !!model.attendees.length;
+  model.states.cancelled = model.status == 'Cancelled';
+  model.states.meeting = !!model.attendees.length && !model.states.cancelled;
   model.states.master = model.states.master || !model.organizer && !model.states.meeting;
   model.states.master = model.states.master || this.ownCalendar_(model.organizer, calendar.dir);
   model.states.pending = (model.participation == 'NeedsAction');
   model.states.tentative = (model.participation == 'Tentative' || (!model.states.meeting && model.status == 'Tentative'));
-  model.states.declined = (model.participation == 'Declined');
+  model.states.declined = (model.participation == 'Declined' || model.states.cancelled);
   model.states.repeat = !!(model.rrule && model.rrule.freq);
   model.states.main = !goog.isDefAndNotNull(model.recurrenceId);
   model.states.occurrence = !model.states.main && model.states.repeat;

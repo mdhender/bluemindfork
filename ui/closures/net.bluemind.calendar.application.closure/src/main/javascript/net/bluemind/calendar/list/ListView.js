@@ -197,6 +197,16 @@ net.bluemind.calendar.list.ListView.prototype.drawEvent = function(event, parent
   }
   dom.appendChild(tdDetail, evtDetail);
   
+  if (model.states.canceled) {
+    /** @meaning general.cancelled */
+    var MSG_CANCEL = goog.getMsg('Cancelled');
+    var cancelled = dom.createDom('strong');
+    cancelled.innertText = " - " + MSG_CANCEL ;
+    dom.appendChild(tdDetail, cancelled);
+  }
+  if (model.states.declined) {
+    goog.dom.classlist.add(evtDetail, goog.getCssName('declined'));
+  }
 
   if (event.states.meeting) {
     var meeting = dom.createDom('span', [ goog.getCssName('fa'), goog.getCssName('fa-users') ]);

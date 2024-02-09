@@ -256,7 +256,7 @@
     "preferences.calendar.main.day_starts_at": "Tag startet um",
     "preferences.calendar.main.day_ends_at": "Tag endet um",
     "preferences.calendar.main.whole_day": "Ganztägig",
-    "preferences.calendar.main.show_declined_events": "Abgesagte Termine anzeigen",
+    "preferences.calendar.main.show_declined_events": "Abgelehnte oder abgesagte Termine anzeigen",
     "preferences.calendar.main.default_reminder": "Standard Terminerinnerung, vor dem Termin",
     "preferences.calendar.main.default_allday_reminder": "Erinnerung zu einer festen Zeit für den ganztätigen Termin",
     "preferences.calendar.main.default_reminder_kind": "Standard Erinnerungstyp",
