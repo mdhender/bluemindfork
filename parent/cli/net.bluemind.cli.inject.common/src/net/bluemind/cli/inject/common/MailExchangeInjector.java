@@ -41,7 +41,6 @@ import com.google.common.util.concurrent.RateLimiter;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import net.bluemind.authentication.api.IAuthentication;
 import net.bluemind.authentication.api.LoginResponse;
-import net.bluemind.cli.inject.common.TargetMailbox.Auth;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.Verb;
@@ -109,7 +108,7 @@ public class MailExchangeInjector {
 						ItemValue<Mailbox> mbox = mboxApi.getComplete(uid);
 						LoginResponse lr = provider.instance(IAuthentication.class)
 								.su(mbox.value.name + "@" + domainUid);
-						return tmf.create(new TargetMailbox.Auth(lr.latd, lr.authKey, box.value));
+						return tmf.create(new TargetMailbox.Auth(entry.email, lr.authKey, box.value));
 					}).orElse(null);
 				}).filter(Objects::nonNull).collect(Collectors.toCollection(ArrayList::new));
 

@@ -28,7 +28,6 @@ import org.columba.ristretto.smtp.SMTPResponse;
 import net.bluemind.cli.inject.common.IMessageProducer;
 import net.bluemind.cli.inject.common.MailExchangeInjector;
 import net.bluemind.cli.inject.common.TargetMailbox;
-import net.bluemind.cli.inject.common.TargetMailbox.Auth;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.network.topology.Topology;
@@ -65,11 +64,11 @@ public class SmtpInjector extends MailExchangeInjector {
 				prot.startTLS();
 				prot.auth("PLAIN", auth.email(), auth.sid().toCharArray());
 				prot.helo(InetAddress.getLocalHost());
-				prot.mail(new Address(from.auth.email()));
-				prot.rcpt(new Address(auth.email()));
+				prot.mail(new Address(auth.email()));
+				prot.rcpt(new Address(from.auth.email()));
 				SMTPResponse sendResp = prot.data(new ByteArrayInputStream(emlContent));
 				prot.quit();
-				logger.debug("Added {} to {}", sendResp.getMessage(), auth.email());
+				logger.debug("Added {} to {}", sendResp.getMessage(), from.auth.email());
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			} finally {
