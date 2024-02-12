@@ -12,6 +12,7 @@
             :disabled="disabled"
             :placeholder="placeholder"
             @input="onInput"
+            @paste="$emit('paste', $event)"
             @keyup.esc="
                 if (!closeAutocomplete) {
                     closeAutocomplete = true;

@@ -113,6 +113,7 @@
                     @keydown.native.space="value.includes('@') && forceCreate($event)"
                     @autocompleteShown="$emit('autocompleteShown')"
                     @autocompleteHidden="$emit('autocompleteHidden')"
+                    @paste="onPaste"
                 >
                     <template #default="{ item }">
                         <bm-contact-input-autocomplete-item
@@ -261,17 +262,11 @@ export default {
                 }
             }
         },
-        value(value) {
-            const values = EmailExtractor.extractEmails(this.value);
-            if (values.length) {
-                this.$emit("update:contacts", normalizeContacts(this.contacts_).concat(values));
-                this.$nextTick(() => (this.value = ""));
-            } else {
-                if (this.value !== "") {
-                    this.showAutocomplete(true);
-                }
-                this.$emit("search", this.value);
+        value() {
+            if (this.value !== "") {
+                this.showAutocomplete(true);
             }
+            this.$emit("search", this.value);
         }
     },
     created() {
@@ -450,6 +445,13 @@ export default {
                 this.focusNext();
             }
             this.remove(contact);
+        },
+        onPaste(event) {
+            const values = EmailExtractor.extractEmails(event.clipboardData.getData("text"));
+            if (values.length) {
+                this.$emit("update:contacts", normalizeContacts(this.contacts_).concat(values));
+                event.preventDefault();
+            }
         },
 
         // Autocomplete methods
