@@ -7,7 +7,7 @@ Group:              Applications/messaging
 URL:                http://www.bluemind.net/
 ExcludeArch:        s390 s390x
 Requires(post):     systemd systemd-sysv
-Requires:           bm-jdk = 21.0.1+12-bluemind409, bm-conf = %{version}-%{release}, bm-nginx = 1.24.0-bluemind109, bm-client-access = %{version}-%{release}
+Requires:           bm-jdk = 21.0.2+13-bluemind1099, bm-conf = %{version}-%{release}, bm-nginx = 1.24.0-bluemind109, bm-client-access = %{version}-%{release}
 Requires(post):     /bin/bash, initscripts
 Conflicts:          bm-tomcat
 Obsoletes:          bm-tomcat

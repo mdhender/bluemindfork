@@ -6,7 +6,7 @@ Standards-Version: 3.9.1
 
 Package: bm-webserver
 Architecture: amd64
-Depends: bm-jdk (= 21.0.1+12-bluemind409), bm-conf (= ${binary:Version}), bm-nginx (= 1.24.0-bluemind109), bm-client-access (= ${binary:Version})
+Depends: bm-jdk (= 21.0.2+13-bluemind1099), bm-conf (= ${binary:Version}), bm-nginx (= 1.24.0-bluemind109), bm-client-access (= ${binary:Version})
 Description: BlueMind web server
  BlueMind web server
 
