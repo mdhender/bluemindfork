@@ -41,6 +41,7 @@ import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailApiHeaders;
 import net.bluemind.backend.mail.replica.service.internal.tools.EnvelopFrom;
+import net.bluemind.config.Token;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemIdentifier;
 import net.bluemind.core.container.model.ItemValue;
@@ -107,8 +108,8 @@ public class OutboxService implements IOutbox {
 			List<ItemValue<MailboxItem>> mails = retrieveOutboxItems(mailboxItemsService);
 			int mailCount = mails.size();
 			enumerate = System.currentTimeMillis() - enumerate;
-			logger.info("[{}] Flushing {} outbox item(s), took {}ms.",
-					context.getSecurityContext().getSubject(), mails.size(), enumerate);
+			logger.info("[{}] Flushing {} outbox item(s), took {}ms.", context.getSecurityContext().getSubject(),
+					mails.size(), enumerate);
 			monitor.begin(mails.size(), "FLUSHING OUTBOX - have " + mailCount + " mails to send.");
 
 			AuthUser user = serviceProvider.instance(IAuthentication.class).getCurrentUser();
@@ -249,7 +250,7 @@ public class OutboxService implements IOutbox {
 	private SendmailResponse send(User user, InputStream forSend, String fromMail, MailboxList rcptTo,
 			Message relatedMsg, boolean requestDSN) {
 		SendmailCredentials creds = SendmailCredentials.as(String.format("%s@%s", user.login, domainUid),
-				context.getSecurityContext().getSessionId());
+				Token.admin0());
 
 		ItemValue<Domain> domain = serviceProvider.instance(IDomains.class).get(domainUid);
 		String from = new EnvelopFrom(domain).getFor(creds, user, fromMail);

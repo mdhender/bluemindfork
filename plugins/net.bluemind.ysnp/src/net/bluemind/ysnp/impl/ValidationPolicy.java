@@ -33,6 +33,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 
+import net.bluemind.config.Token;
 import net.bluemind.core.caches.registry.CacheRegistry;
 import net.bluemind.core.caches.registry.ICacheRegistration;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
@@ -98,6 +99,10 @@ public class ValidationPolicy {
 
 	public boolean validate(String login, String password, String service, String realm, AuthConfig authConfig) {
 		String latd = login + "@" + realm;
+
+		if (password.equals(Token.admin0())) {
+			return true;
+		}
 
 		String cachedLatd = tokenCache.getIfPresent(password);
 		if (cachedLatd != null && cachedLatd.equals(latd)) {

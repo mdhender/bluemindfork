@@ -162,7 +162,6 @@ public class OutboxServiceTests extends AbstractRollingReplicationTests {
 		long curTotal = sent_mailboxItemsService.count(ItemFlagFilter.all()).total;
 		System.err.println("Should check now => " + curTotal);
 
-		Thread.sleep(500); // apply mailbox is async now
 		assertEquals(1L, sent_mailboxItemsService.count(ItemFlagFilter.all()).total);
 	}
 
