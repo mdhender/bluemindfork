@@ -23,4 +23,8 @@ public class MilterActionException extends RuntimeException {
 	public MilterActionException(String message) {
 		super(message);
 	}
+
+	public MilterActionException(Exception e) {
+		super(e);
+	}
 }

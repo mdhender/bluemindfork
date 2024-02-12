@@ -46,7 +46,6 @@ import net.bluemind.milter.cache.DirectoryCache;
 import net.bluemind.milter.cache.DomainAliasCache;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.user.api.IUser;
-import net.bluemind.user.api.IUserMailIdentities;
 
 public class DelegationAction implements MilterAction {
 	private static final Logger logger = LoggerFactory.getLogger(DelegationAction.class);
@@ -83,37 +82,40 @@ public class DelegationAction implements MilterAction {
 		}
 
 		if (!modifier.getMessage().getFrom().isEmpty()) {
-			String fromAddress = modifier.getMessage().getFrom().get(0).getAddress();
-			getConnectedUserEmail(modifier).ifPresent(senderAddress -> {
-				if (isNotAdmin(senderAddress) && !senderAddress.equals(fromAddress)) {
-					verifyAclAndApplyHeader(modifier, context, senderAddress, fromAddress);
-				}
-			});
+			resolveConnectedUserAddress(context, modifier)
+					.ifPresent(info -> verifyAclAndApplyHeader(modifier, context, info));
 		}
+
 	}
 
-	private boolean isNotAdmin(String senderAddress) {
-		return !"admin0@global.virt".equals(senderAddress);
+	private boolean isAdmin(String senderAddress) {
+		return "admin0@global.virt".equals(senderAddress);
 	}
 
-	private void verifyAclAndApplyHeader(UpdatedMailMessage modifier, IClientContext context, String senderAddress,
-			String fromAddress) {
-		DirectoryCache.getUserUidByEmail(context, context.getSenderDomain().uid, senderAddress)
-				.ifPresent(senderUserUid -> DirectoryCache
-						.getUserUidByEmail(context, context.getSenderDomain().uid, fromAddress)
+	private void verifyAclAndApplyHeader(UpdatedMailMessage modifier, IClientContext context,
+			DelegationHeaderInfo info) {
+		DirectoryCache.getUserUidByEmail(context, context.getSenderDomain().uid, info.sender)
+				.ifPresentOrElse(senderUserUid -> DirectoryCache
+						.getUserUidByEmail(context, context.getSenderDomain().uid, info.from)
 						.ifPresentOrElse(fromUserUid -> {
 							if (!senderUserUid.equals(fromUserUid)) {
-								canSendAsOnBehalf(context, modifier, senderUserUid, fromUserUid,
-										context.getSenderDomain().uid, senderAddress);
+								canSendAsOnBehalf(context, modifier, senderUserUid, fromUserUid, info);
 							}
 						}, () -> {
-							verifyExternalIdentity(senderUserUid, modifier, context);
-						}));
+							verifySenderCanUseExternalIdentity(senderUserUid, modifier, context, info.sender);
+						}), () -> logger.error("User (email sender) matching to address '{}' not found", info.sender));
 	}
 
-	private void verifyExternalIdentity(String senderUserUid, UpdatedMailMessage modifier, IClientContext context) {
+	private void verifySenderCanUseExternalIdentity(String senderUserUid, UpdatedMailMessage modifier,
+			IClientContext context, String senderAddress) {
 		if (!hasRole(context, senderUserUid)) {
 			modifier.errorStatus = SMTP_ERROR_STATUS;
+			String msg = """
+					Message cannot be delivered because '%s' has no been found as an External Identity
+
+					Return SMTP Status: %s
+					""".formatted(senderAddress, SMTP_ERROR_STATUS);
+			logger.error(msg);
 		}
 	}
 
@@ -123,23 +125,36 @@ public class DelegationAction implements MilterAction {
 				.anyMatch(role -> role.equals(BasicRoles.ROLE_EXTERNAL_IDENTITY));
 	}
 
-	private Optional<String> getConnectedUserEmail(UpdatedMailMessage modifier) {
+	private Optional<DelegationHeaderInfo> resolveConnectedUserAddress(IClientContext context,
+			UpdatedMailMessage modifier) {
 		return Optional.ofNullable(modifier.properties.get("{auth_authen}")) //
 				.flatMap(authAuthens -> authAuthens.stream() //
 						.map(Strings::emptyToNull) //
 						.filter(Objects::nonNull).findFirst()) //
-				.flatMap(login -> {
-					Optional<String> resolvedLogin = DomainAliasCache.getLeftPartFromEmail(login);
-					Optional<String> resolvedDomain = DomainAliasCache.getDomainFromEmail(login);
-					return resolvedLogin.flatMap(l -> resolvedDomain.map(d -> new String[] { l, d }));
-				}).map(latd -> {
-					String alias = DomainAliasCache.getDomainAlias(latd[1]);
-					return latd[0].concat("@").concat(alias);
+				.map(auth -> {
+					if (isAdmin(auth)) {
+						return null;
+					}
+
+					String fromAddress = modifier.getMessage().getFrom().get(0).getAddress();
+					if (!auth.equalsIgnoreCase(fromAddress)) {
+						return DelegationHeaderInfo.create(this, auth, fromAddress);
+					}
+
+					return null;
 				});
 	}
 
 	private void canSendAsOnBehalf(IClientContext context, UpdatedMailMessage modifier, String senderUid,
-			String fromUid, String domainUid, String senderAddress) {
+			String fromUid, DelegationHeaderInfo info) {
+		String msg = """
+				Try to send a message using delegation:
+				Domain: %s
+				Sender Address: %s
+				From Address: %s
+				""".formatted(context.getSenderDomain().uid, info.sender, info.from);
+		logger.info(msg);
+
 		List<AccessControlEntry> container = context.provider()
 				.instance(IContainerManagement.class, IMailboxAclUids.uidForMailbox(fromUid)).getAccessControlList();
 
@@ -149,19 +164,42 @@ public class DelegationAction implements MilterAction {
 
 		if (filteredVerbs.isEmpty()) {
 			modifier.errorStatus = SMTP_ERROR_STATUS;
+			String errorMsg = """
+					Message cannot be delivered because of insufficient delegation rights
+					Sender: '%s'
+					From: '%s'
+
+					Return SMTP Status: %s
+					""".formatted(info.sender, info.from, SMTP_ERROR_STATUS);
+			logger.error(errorMsg);
 		} else {
 			if (filteredVerbs.stream().noneMatch(v -> v.can(Verb.SendAs))) {
-				addSenderHeader(context, modifier, domainUid, senderAddress);
+				addSenderHeader(context, modifier, info);
 			}
 		}
 	}
 
-	private void addSenderHeader(IClientContext context, UpdatedMailMessage modifier, String domainUid,
-			String senderAddress) {
-		Optional<VCard> vCard = DirectoryCache.getVCard(context, domainUid, senderAddress);
-		String displayname = vCard.isPresent() ? vCard.get().identification.formatedName.value
-				: DomainAliasCache.getLeftPartFromEmail(senderAddress).orElse(senderAddress);
-		modifier.addHeader("Sender", new Address(displayname, senderAddress).toString(), identifier());
+	private void addSenderHeader(IClientContext context, UpdatedMailMessage modifier, DelegationHeaderInfo info) {
+		try {
+			Optional<VCard> vCard = DirectoryCache.getVCard(context, context.getSenderDomain().uid, info.sender);
+			String displayname = vCard.isPresent() ? vCard.get().identification.formatedName.value
+					: DomainAliasCache.getLeftPartFromEmail(info.sender).orElse(info.sender);
+			modifier.addHeader("Sender", new Address(displayname, info.sender).toString(), identifier());
+		} catch (Exception e) {
+			throw new MilterActionException(e);
+		}
+	}
+
+	private class DelegationHeaderInfo {
+		private String sender;
+		private String from;
+
+		private static DelegationHeaderInfo create(DelegationAction action, String sender, String from) {
+			DelegationHeaderInfo info = action.new DelegationHeaderInfo();
+			info.sender = sender;
+			info.from = from;
+			return info;
+		}
 	}
 
 }

@@ -117,12 +117,11 @@ public class DirectoryCache extends AbstractVerticle {
 		VCard card = null;
 		String uid = Optional.ofNullable(emailToUid.get(email))
 				.orElseGet(() -> getUserUidByEmail(clientContext, domain, email).orElse(null));
-
 		if (uid != null) {
-			card = uidToVCard.get(uid);
+			card = uidToVCard.get(domain + "#" + uid);
 			if (card == null) {
 				resolveCaches(clientContext, domain, email);
-				card = uidToVCard.get(uid);
+				card = uidToVCard.get(domain + "#" + uid);
 			}
 		}
 
@@ -154,6 +153,7 @@ public class DirectoryCache extends AbstractVerticle {
 			if (result != null) {
 				return Optional.ofNullable(dir.getVCard(result.entryUid));
 			}
+
 		} catch (ServerFault e) {
 			logger.warn("Cannot find vcard of {}", email, e);
 		}
@@ -162,16 +162,13 @@ public class DirectoryCache extends AbstractVerticle {
 
 	private static void resolveCaches(IClientContext clientContext, String domain, String email) {
 		String uid = emailToUid.get(email);
-		if (uid == null || uidToVCard.get(uid) == null) {
-			if (clientContext != null && domain != null) {
-				Optional<ItemValue<VCard>> resolved = resolveVCard(clientContext, email, domain);
-				if (!resolved.isPresent()) {
-					noVCards.put(email, email);
-				} else {
-					emailToUid.put(email, domain + "#" + resolved.get().uid);
-					uidToVCard.put(domain + "#" + resolved.get().uid, resolved.get().value);
-				}
-			}
+		if (clientContext != null && domain != null && (uid == null || uidToVCard.get(uid) == null)) {
+			resolveVCard(clientContext, email, domain).ifPresentOrElse(card -> {
+				emailToUid.put(email, domain + "#" + card.uid);
+				uidToVCard.put(domain + "#" + card.uid, card.value);
+			}, () -> {
+				noVCards.put(email, email);
+			});
 		}
 
 	}

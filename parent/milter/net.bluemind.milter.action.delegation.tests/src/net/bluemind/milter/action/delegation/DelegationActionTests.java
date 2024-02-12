@@ -33,7 +33,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -75,6 +74,7 @@ import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.IUserMailIdentities;
 import net.bluemind.user.api.IUserSettings;
+import net.bluemind.user.api.User;
 import net.bluemind.user.api.UserMailIdentity;
 
 public class DelegationActionTests {
@@ -86,13 +86,12 @@ public class DelegationActionTests {
 	private ItemValue<Mailbox> mailboxWrite;
 	private ItemValue<Mailbox> mailboxRead;
 	private ItemValue<Mailbox> mailboxAll;
-	private ItemValue<Server> dataLocation;
 
 	private String domainUid;
-	private List<String> emails = new ArrayList<>();
 
 	private static final String DOMAIN_ALIAS = "test.bm.lan";
 	private static final String DOMAIN_ALIAS_1 = "test1.bm.lan";
+
 	private static final String IDENTITY_ID = "test_identity";
 
 	public static class DomainAliasCacheFiller extends DomainAliasCache {
@@ -117,15 +116,20 @@ public class DelegationActionTests {
 
 		PopulateHelper.initGlobalVirt(imapServer);
 
-		dataLocation = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+		ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IServer.class, InstallationId.getIdentifier()).getComplete(PopulateHelper.FAKE_CYRUS_IP);
 
-		ItemValue<Domain> domainItem = PopulateHelper.createTestDomain(DOMAIN_ALIAS);
+		ItemValue<Domain> domainTestItem = PopulateHelper.createTestDomain("tester.internal");
+		domainTestItem.value.aliases.add("tester.internal");
+		DomainAliasCacheFiller.addDomain(domainTestItem);
+
+		ItemValue<Domain> domainItem = PopulateHelper.createTestDomain("test.internal");
+		domainItem.value.aliases.add("test.internal");
 		domainItem.value.aliases.add(DOMAIN_ALIAS);
 		domainItem.value.aliases.add(DOMAIN_ALIAS_1);
 		DomainAliasCacheFiller.addDomain(domainItem);
 
-		cliContext = new CoreClientContext(domainItem);
+		cliContext = new CoreClientContext(domainTestItem);
 		domainUid = cliContext.getSenderDomain().uid;
 
 		assertNotNull(cliContext.getSenderDomain().value.defaultAlias);
@@ -137,19 +141,36 @@ public class DelegationActionTests {
 		PopulateHelper.addUser("rogue", domainUid);
 		PopulateHelper.addUser("voldemort", domainUid);
 
-		emails.add("hpot@" + DOMAIN_ALIAS);
-		emails.add("h-pot@" + DOMAIN_ALIAS);
-		emails.add("harry@" + DOMAIN_ALIAS_1);
-		mailboxFrom = getServiceMailbox(domainUid).byEmail(emails.get(0));
-		mailboxFrom.value.emails.add(Email.create(emails.get(1), false));
-		mailboxFrom.value.emails.add(Email.create(emails.get(2), false));
+		mailboxFrom = getServiceMailbox(domainUid).byEmail("hpot@" + domainUid);
+		mailboxFrom.value.emails.add(Email.create("hpot@" + DOMAIN_ALIAS, false));
+		mailboxFrom.value.emails.add(Email.create("h-pot@" + DOMAIN_ALIAS, false));
+		mailboxFrom.value.emails.add(Email.create("harry@" + DOMAIN_ALIAS_1, false));
 		getServiceMailbox(domainUid).update(mailboxFrom.uid, mailboxFrom.value);
 
-		mailboxSendAs = getServiceMailbox(domainUid).byEmail("dumbledore@test.bm.lan");
-		mailboxSendOnBehalf = getServiceMailbox(domainUid).byEmail("mcgonagal@test.bm.lan");
-		mailboxWrite = getServiceMailbox(domainUid).byEmail("rogue@test.bm.lan");
-		mailboxRead = getServiceMailbox(domainUid).byEmail("malefoy@test.bm.lan");
-		mailboxAll = getServiceMailbox(domainUid).byEmail("voldemort@test.bm.lan");
+		mailboxSendAs = getServiceMailbox(domainUid).byEmail("dumbledore@" + domainUid);
+		mailboxSendAs.value.emails.add(Email.create("dumbledore@" + DOMAIN_ALIAS, false));
+		mailboxSendAs.value.emails.add(Email.create("dumbledore@" + DOMAIN_ALIAS_1, false));
+		getServiceMailbox(domainUid).update(mailboxSendAs.uid, mailboxSendAs.value);
+
+		mailboxSendOnBehalf = getServiceMailbox(domainUid).byEmail("mcgonagal@" + domainUid);
+		mailboxSendOnBehalf.value.emails.add(Email.create("mcgonagal@" + DOMAIN_ALIAS, false));
+		mailboxSendOnBehalf.value.emails.add(Email.create("mcgonagal@" + DOMAIN_ALIAS_1, false));
+		getServiceMailbox(domainUid).update(mailboxSendOnBehalf.uid, mailboxSendOnBehalf.value);
+
+		mailboxWrite = getServiceMailbox(domainUid).byEmail("rogue@" + domainUid);
+		mailboxWrite.value.emails.add(Email.create("rogue@" + DOMAIN_ALIAS, false));
+		mailboxWrite.value.emails.add(Email.create("rogue@" + DOMAIN_ALIAS_1, false));
+		getServiceMailbox(domainUid).update(mailboxWrite.uid, mailboxWrite.value);
+
+		mailboxRead = getServiceMailbox(domainUid).byEmail("malefoy@" + domainUid);
+		mailboxRead.value.emails.add(Email.create("malefoy@" + DOMAIN_ALIAS, false));
+		mailboxRead.value.emails.add(Email.create("malefoy@" + DOMAIN_ALIAS_1, false));
+		getServiceMailbox(domainUid).update(mailboxRead.uid, mailboxRead.value);
+
+		mailboxAll = getServiceMailbox(domainUid).byEmail("voldemort@" + domainUid);
+		mailboxAll.value.emails.add(Email.create("voldemort@" + DOMAIN_ALIAS, false));
+		mailboxAll.value.emails.add(Email.create("voldemort@" + DOMAIN_ALIAS_1, false));
+		getServiceMailbox(domainUid).update(mailboxAll.uid, mailboxAll.value);
 
 		addUserSettings("malefoy");
 		getServiceIdentity(domainUid, "malefoy").create(IDENTITY_ID, defaultIdentity());
@@ -231,6 +252,28 @@ public class DelegationActionTests {
 	}
 
 	@Test
+	public void testWithSenderAs_internal() throws Exception {
+		getServiceManagement(IMailboxAclUids.uidForMailbox("hpot"))
+				.setAccessControlList(Arrays.asList(AccessControlEntry.create("dumbledore", Verb.SendAs)));
+
+		String senderAddress = "dumbledore@" + domainUid; // mailboxSendAs
+		UpdatedMailMessage mm = loadTemplate("sendAs.eml", senderAddress);
+
+		SmtpAddress sender = new SmtpAddress(senderAddress);
+		SmtpAddress from = new SmtpAddress(mailboxFrom.value.defaultEmail().address);
+		SmtpAddress recipient = new SmtpAddress("hgran@test.bm.lan");
+
+		assertMessage(mm, from, recipient);
+
+		new DelegationAction().execute(mm, null, null, cliContext);
+
+		assertEnvelop(mm, sender);
+		assertMessage(mm, from, recipient);
+		assertMessageHeaders(mm, sender, Verb.SendAs);
+		assertFalse(smtpError(mm));
+	}
+
+	@Test
 	public void testWithAll() throws Exception {
 		getServiceManagement(IMailboxAclUids.uidForMailbox("hpot"))
 				.setAccessControlList(Arrays.asList(AccessControlEntry.create("voldemort", Verb.All)));
@@ -257,7 +300,8 @@ public class DelegationActionTests {
 		getServiceManagement(IMailboxAclUids.uidForMailbox("hpot"))
 				.setAccessControlList(Arrays.asList(AccessControlEntry.create("mcgonagal", Verb.SendOnBehalf)));
 
-		String senderAddress = mailboxSendOnBehalf.value.defaultEmail().address;
+		String senderAddress = mailboxSendOnBehalf.value.emails.stream()
+				.filter(e -> e.domainPart().equals(DOMAIN_ALIAS_1)).map(e -> e.address).findFirst().get();
 		UpdatedMailMessage mm = loadTemplate("sendAs.eml", senderAddress);
 
 		SmtpAddress sender = new SmtpAddress(senderAddress);
@@ -265,6 +309,30 @@ public class DelegationActionTests {
 		SmtpAddress recipient = new SmtpAddress("hgran@test.bm.lan");
 
 		assertMessage(mm, from, recipient);
+
+		new DelegationAction().execute(mm, null, null, cliContext);
+
+		assertEnvelop(mm, sender);
+		assertMessage(mm, from, recipient);
+		assertMessageHeaders(mm, sender, Verb.SendOnBehalf);
+		assertFalse(smtpError(mm));
+	}
+
+	@Test
+	public void testWithSenderOnBehalf_internal() throws Exception {
+		getServiceManagement(IMailboxAclUids.uidForMailbox("hpot"))
+				.setAccessControlList(Arrays.asList(AccessControlEntry.create("mcgonagal", Verb.SendOnBehalf)));
+
+		String senderAddress = "mcgonagal@" + domainUid; // mailboxSendOnBehalf
+		UpdatedMailMessage mm = loadTemplate("sendAs.eml", senderAddress);
+
+		SmtpAddress sender = new SmtpAddress(senderAddress);
+		SmtpAddress from = new SmtpAddress(mailboxFrom.value.defaultEmail().address);
+		SmtpAddress recipient = new SmtpAddress("hgran@test.bm.lan");
+
+		assertMessage(mm, from, recipient);
+
+		System.err.println("auth_authen => " + mm.properties.get("{auth_authen}"));
 
 		new DelegationAction().execute(mm, null, null, cliContext);
 
@@ -320,11 +388,30 @@ public class DelegationActionTests {
 
 	@Test
 	public void testWithMySelf_sameAlias() throws Exception {
-		String senderAddress = emails.get(0);
+		String senderAddress = "hpot@" + domainUid;
 		UpdatedMailMessage mm = loadTemplate("sendMe_sameAlias.eml", senderAddress);
 
 		SmtpAddress sender = new SmtpAddress(senderAddress);
-		SmtpAddress from = new SmtpAddress(emails.get(1));
+		SmtpAddress from = new SmtpAddress("hpot@" + DOMAIN_ALIAS);
+		SmtpAddress recipient = new SmtpAddress("hgran@test.bm.lan");
+
+		assertMessage(mm, from, recipient);
+
+		new DelegationAction().execute(mm, null, null, cliContext);
+
+		assertEnvelop(mm, sender);
+		assertMessage(mm, from, recipient);
+		assertMessageHeaders(mm, sender, null);
+		assertFalse(smtpError(mm));
+	}
+
+	@Test
+	public void testWithMySelf_differentAlias_domainuid() throws Exception {
+		String senderAddress = "hpot@" + domainUid;
+		UpdatedMailMessage mm = loadTemplate("sendMe_otherAlias.eml", senderAddress);
+
+		SmtpAddress sender = new SmtpAddress(senderAddress);
+		SmtpAddress from = new SmtpAddress("h-pot@" + DOMAIN_ALIAS);
 		SmtpAddress recipient = new SmtpAddress("hgran@test.bm.lan");
 
 		assertMessage(mm, from, recipient);
@@ -339,11 +426,11 @@ public class DelegationActionTests {
 
 	@Test
 	public void testWithMySelf_differentAlias() throws Exception {
-		String senderAddress = emails.get(0);
+		String senderAddress = "hpot@" + DOMAIN_ALIAS;
 		UpdatedMailMessage mm = loadTemplate("sendMe_otherAlias.eml", senderAddress);
 
 		SmtpAddress sender = new SmtpAddress(senderAddress);
-		SmtpAddress from = new SmtpAddress(emails.get(2));
+		SmtpAddress from = new SmtpAddress("h-pot@" + DOMAIN_ALIAS);
 		SmtpAddress recipient = new SmtpAddress("hgran@test.bm.lan");
 
 		assertMessage(mm, from, recipient);
@@ -451,8 +538,9 @@ public class DelegationActionTests {
 	}
 
 	private void assertMessageFrom(UpdatedMailMessage mm, SmtpAddress from) {
-		assertTrue(mm.getMessage().getFrom().stream()
-				.anyMatch(m -> m.getAddress().equalsIgnoreCase(from.getEmailAddress())));
+		ItemValue<User> userbyEmail = getServiceUser(domainUid).byEmail(from.getEmailAddress());
+		assertTrue(userbyEmail.value.emails.stream().map(e -> e.address)
+				.filter(e -> mm.getMessage().getFrom().get(0).getAddress().equals(e)).findAny().isPresent());
 	}
 
 	private void assertMessageTo(UpdatedMailMessage mm, SmtpAddress recipient) {
