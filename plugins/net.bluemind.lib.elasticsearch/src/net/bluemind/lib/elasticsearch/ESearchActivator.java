@@ -329,6 +329,14 @@ public final class ESearchActivator implements BundleActivator {
 		initIndex(esClient, index);
 	}
 
+	public static void deleteIndex(String index) {
+		waitForElasticsearchHosts();
+		ElasticsearchClient esClient = ESearchActivator.getClient();
+
+		logger.info("Deleting index {}", index);
+		deleteIndex(esClient, index);
+	}
+
 	private static void deleteIndex(ElasticsearchClient esClient, String index) {
 		deleteIfExists(esClient, index);
 		IndexDefinition indexDefinition = indexes.get(index);
