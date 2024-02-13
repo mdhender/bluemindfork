@@ -2,24 +2,22 @@ package net.bluemind.milter.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.james.mime4j.dom.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Throwables;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
-import net.bluemind.jna.utils.MemfdSupport;
-import net.bluemind.jna.utils.OffHeapTemporaryFile;
+import net.bluemind.common.io.FileBackedOutputStream;
 import net.bluemind.milter.SmtpAddress;
 import net.bluemind.milter.SmtpEnvelope;
 import net.bluemind.mime4j.common.Mime4JHelper;
@@ -30,24 +28,22 @@ import net.bluemind.mime4j.common.Mime4JHelper;
  * 
  */
 public class MessageAccumulator {
+	private Logger logger = LoggerFactory.getLogger(MessageAccumulator.class);
 
-	private static final Logger logger = LoggerFactory.getLogger(MessageAccumulator.class);
+	private FileBackedOutputStream current = new FileBackedOutputStream(32768, "message-accu");
 
-	private DataSink current;
-	private Multimap<String, String> properties;
-	private SmtpEnvelope currentEnvelope;
+	private Multimap<String, String> properties = ArrayListMultimap.create();
+	private SmtpEnvelope currentEnvelope = new SmtpEnvelope();
 	private Message message;
 
 	private static final byte[] CRLF = "\r\n".getBytes();
 
 	public MessageAccumulator() {
-		this.current = new DataSink();
-		this.properties = ArrayListMultimap.create();
-		this.currentEnvelope = new SmtpEnvelope();
+		logger.debug("new accumulator");
 	}
 
 	void connect(String hostname, InetAddress hostaddr, Properties properties) {
-		logger.debug("connect({}, {}, {})", hostname, hostaddr, properties);
+
 	}
 
 	void envfrom(String[] argv, Properties properties) {
@@ -76,7 +72,7 @@ public class MessageAccumulator {
 			current.write(headerv.getBytes());
 			current.write(CRLF);
 		} catch (IOException e) {
-			throw new AccumulatorException(e);
+			Throwables.propagate(e);
 		}
 	}
 
@@ -84,7 +80,7 @@ public class MessageAccumulator {
 		try {
 			current.write(CRLF);
 		} catch (IOException e) {
-			throw new AccumulatorException(e);
+			Throwables.propagate(e);
 		}
 	}
 
@@ -92,21 +88,24 @@ public class MessageAccumulator {
 		try {
 			current.write(bodyp.array(), bodyp.arrayOffset(), bodyp.limit());
 		} catch (IOException e) {
-			throw new AccumulatorException(e);
+			Throwables.propagate(e);
 		}
 	}
 
 	void done(Properties properties) {
 		storeProperties(properties);
 
-		try (InputStream in = current.flipToReading()) {
+		try (InputStream in = current.asByteSource().openStream()) {
 			message = Mime4JHelper.parse(in);
 		} catch (IOException e) {
-			throw new AccumulatorException(e);
+			Throwables.propagate(e);
 		} finally {
-			current.reset();
+			try {
+				current.reset();
+			} catch (IOException e) {
+			}
 		}
-		current = new DataSink();
+		current = new FileBackedOutputStream(32768, "message-accu-done");
 	}
 
 	public SmtpEnvelope getEnvelope() {
@@ -132,7 +131,10 @@ public class MessageAccumulator {
 		}
 		currentEnvelope = new SmtpEnvelope();
 		properties.clear();
-		current.reset();
+		try {
+			current.reset();
+		} catch (IOException e) {
+		}
 	}
 
 	public void helo(Properties properties) {
@@ -145,52 +147,7 @@ public class MessageAccumulator {
 					.forEach(entry -> logger.debug("Accumulator new property {} {}", entry.getKey(), entry.getValue()));
 		}
 
-		properties.keySet().stream().map(k -> k instanceof String casted ? casted : null).filter(Objects::nonNull)
+		properties.keySet().stream().map(k -> k instanceof String ? (String) k : null).filter(Objects::nonNull)
 				.forEach(k -> this.properties.put(k, properties.getProperty(k)));
-	}
-
-	private static class DataSink {
-		private static final AtomicLong ALLOC = new AtomicLong();
-		private final OffHeapTemporaryFile offHeap;
-		private OutputStream output;
-
-		public DataSink() {
-			this.offHeap = MemfdSupport.newOffHeapTemporaryFile(fdName());
-			try {
-				this.output = offHeap.openForWriting();
-			} catch (IOException e) {
-				throw new AccumulatorException(e);
-			}
-		}
-
-		public void write(byte[] bytes) throws IOException {
-			output.write(bytes);
-		}
-
-		public void write(byte[] bytes, int off, int len) throws IOException {
-			output.write(bytes, off, len);
-		}
-
-		public InputStream flipToReading() throws IOException {
-			output.flush();
-			output.close();
-			return offHeap.openForReading();
-		}
-
-		private static final String fdName() {
-			return "accum-" + ALLOC.incrementAndGet();
-		}
-
-		public void reset() {
-			offHeap.close();
-		}
-	}
-
-	@SuppressWarnings("serial")
-	private static class AccumulatorException extends RuntimeException {
-		public AccumulatorException(Throwable t) {
-			super(t);
-		}
-
 	}
 }
