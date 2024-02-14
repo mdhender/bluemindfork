@@ -65,7 +65,7 @@ export function addLocalAttachment({ commit }, { message, attachment, content })
     const files = AttachmentAdaptor.extractFiles([attachment], message);
     const file = files.pop();
     const attachmentPart = PartsBuilder.createAttachmentPart(file);
-    const newFile = {};
+    const newFile = { key: file.key };
     if (content instanceof ArrayBuffer ? !content.byteLength : !content.length) {
         newFile.url = null;
         newFile.size = 0;

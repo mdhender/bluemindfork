@@ -88,7 +88,9 @@ export default {
                 : undefined;
         },
         file() {
-            return this.files.find(({ key }) => key === this.fileKeyToPreview);
+            const file = this.files.find(({ key }) => key === this.fileKeyToPreview);
+            const uploadingFile = this.$store.state.mail.messageCompose.uploadingFiles[this.fileKeyToPreview];
+            return uploadingFile ? Object.assign(file, uploadingFile) : file;
         },
         fileIndex() {
             return this.files.findIndex(({ key }) => this.fileKeyToPreview === key);
