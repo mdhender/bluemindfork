@@ -499,7 +499,7 @@
     "mail.viewer.invitation.not_found.description": "Il a pu être supprimé, ou vous n'avez pas les droits sur le calendrier dans lequel il se trouve.",
     "mail.viewer.invitation.private.restricted": "{user} ne vous a pas donné le droit de consulter ses événements privés.",
     "mail.viewer.invitation.remove_event": "Supprimer du calendrier",
-    "mail.viewer.invitation.confirm_remove_event": "Etes-vous sur de vouloir supprimer cet événment du calendrier ?",
+    "mail.viewer.invitation.confirm_remove_event": "Êtes-vous sûr de vouloir supprimer cet événement du calendrier ?",
     "mail.viewer.invitation.private_event": "Le contenu de cet événement est privé",
     "mail": {
         "actions": {

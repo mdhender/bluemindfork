@@ -71,6 +71,7 @@ export default {
         eventToModify.dtstart = counter.dtstart;
         eventToModify.dtend = counter.dtend;
         eventToModify.rrule = counter.rrule;
+        eventToModify.sequence = (eventToModify.sequence || 0) + 1;
 
         // remove applied counter and reset obsolete data
         if (applyToMainEvent) {
@@ -83,6 +84,7 @@ export default {
                 .map((c, index) => index);
             allCountersForThisOccurrence.forEach(c => event.value.counters.splice(c, 1));
         }
+
         resetParticipationStatuses(adaptedEvent.serverEvent, recuridIsoDate);
     },
 
