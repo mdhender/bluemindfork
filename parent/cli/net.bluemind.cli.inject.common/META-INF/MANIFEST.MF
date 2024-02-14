@@ -15,7 +15,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.cli.utils,
  org.apache.james.apache-mime4j-dom,
  net.bluemind.mime4j.common,
- net.datafaker;bundle-version="1.8.0"
+ net.datafaker;bundle-version="1.8.0",
+ net.bluemind.backend.mail.replica.api
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.cli.inject.common
 Bundle-ActivationPolicy: lazy

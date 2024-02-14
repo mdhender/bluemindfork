@@ -13,6 +13,8 @@
       </registration>
       <registration impl="net.bluemind.cli.inject.imap.SmtpInjectCommand$Reg"
             priority="102"></registration>
+      <registration impl="net.bluemind.cli.inject.imap.FlushInjectCommand$Reg"
+            priority="103"></registration>
    </extension>
 
 </plugin>

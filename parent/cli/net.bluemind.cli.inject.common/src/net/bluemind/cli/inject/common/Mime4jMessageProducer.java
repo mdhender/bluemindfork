@@ -25,6 +25,7 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.zip.GZIPInputStream;
 
+import org.apache.james.mime4j.MimeException;
 import org.apache.james.mime4j.dom.BinaryBody;
 import org.apache.james.mime4j.dom.TextBody;
 import org.apache.james.mime4j.dom.field.ContentDispositionField;
@@ -41,6 +42,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.ByteStreams;
 
+import net.bluemind.backend.mail.replica.api.MailApiHeaders;
 import net.bluemind.mime4j.common.Mime4JHelper;
 import net.datafaker.Faker;
 import net.datafaker.providers.entertainment.GameOfThrones;
@@ -79,7 +81,12 @@ public class Mime4jMessageProducer implements IMessageProducer {
 			logger.error(e.getMessage(), e);
 		}
 		msg.setSubject("[" + gotFaker.city() + "] News from " + gotFaker.character() + " with " + gotFaker.dragon());
-
+		try {
+			msg.getHeader().addField(LenientFieldParser
+					.parse(MailApiHeaders.X_BM_DRAFT_REFRESH_DATE + ": " + System.currentTimeMillis()));
+		} catch (MimeException e) {
+			// ok
+		}
 		MultipartImpl mixed = new MultipartImpl("mixed");
 
 		MultipartImpl related = new MultipartImpl("related");

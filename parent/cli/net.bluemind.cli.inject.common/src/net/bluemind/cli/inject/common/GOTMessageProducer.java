@@ -20,6 +20,7 @@ package net.bluemind.cli.inject.common;
 
 import java.util.UUID;
 
+import net.bluemind.backend.mail.replica.api.MailApiHeaders;
 import net.datafaker.Faker;
 import net.datafaker.providers.entertainment.GameOfThrones;
 
@@ -41,6 +42,8 @@ public class GOTMessageProducer implements IMessageProducer {
 		StringBuilder sb = new StringBuilder();
 		sb.append("From: ").append(from.auth.email()).append("\r\n");
 		sb.append("To: ").append(to.auth.email()).append("\r\n");
+		sb.append(MailApiHeaders.X_BM_DRAFT_REFRESH_DATE + ": ").append(Long.toString(System.nanoTime()))
+				.append("\r\n");
 		sb.append("Content-Type: text/html; charset=utf-8\r\n");
 		sb.append("Subject: Rand Message ").append(UUID.randomUUID()).append("\r\n\r\n");
 		sb.append("<html><body><p>Yeah this is   body   </p>\r\n");
