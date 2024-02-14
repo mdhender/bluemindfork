@@ -3,6 +3,7 @@ import pathlib
 import uuid
 from datetime import datetime
 from typing import Callable, NamedTuple, Optional
+from functools import partial
 import argparse
 
 
@@ -19,13 +20,25 @@ class ParsingConfiguration(NamedTuple):
     version_parser: Callable[[str], Optional[dict]]
     component_template: dict[str, str]
 
+def direct_version_parser(version: str) -> dict:
+    """Returns the version passed as argument in the right dict format.
+    No processing is done on the version number
+    """
+    return {"version": version}
+
+def split_str_version_parser(split_string: str, version:str) -> Optional[dict]:
+    """Splits the input verions on split_string then returns the first part
+    Use partial to "pre-fill" the split_string argument.
+    ex : partial(split_str_version_parser, "-something")
+    """
+    return direct_version_parser(version.split(split_string)[0])
 
 def dash_bluemind_version_parser(version: str) -> Optional[dict]:
     """parses versions in the following format {ORIGINAL_VERSION}-bluemind{BUILD_NUMBER}
     returns ORIGINAL_VERSION
     example : 3.0.8-bluemind107 -> 3.0.8
     """
-    return {"version": version.split("-bluemind")[0]}
+    return split_str_version_parser("-bluemind", version)
 
 
 def cyrus_version_parser(version: str) -> Optional[dict]:
@@ -93,6 +106,110 @@ external_deps_mapping = {
             "cpe": "cpe:2.3:a:oracle:openjdk:{version}:*:*:*:*:*:*:*",
         },
     ),
+    "BMKEYCLOAK": ParsingConfiguration(
+        dash_bluemind_version_parser,
+        {
+            **base_component,
+            "name": "Keycloak",
+            "cpe": "cpe:2.3:a:redhat:keycloak:{version}:*:*:*:*:*:*:*",
+        }
+    ),
+    "BMNGINX": ParsingConfiguration(
+        dash_bluemind_version_parser,
+        {
+            **base_component,
+            "name": "NGINX",
+            "cpe": "cpe:2.3:a:f5:nginx:{version}:*:*:*:*:*:*:*",
+        }
+    ),
+    "BMPHP": ParsingConfiguration(
+        dash_bluemind_version_parser,
+        {
+            **base_component,
+            "name": "PHP",
+            "cpe": "cpe:2.3:a:php:php:{version}:*:*:*:*:*:*:*",
+        }
+    ),
+    "BMPHPMEMCACHE": ParsingConfiguration(
+        dash_bluemind_version_parser,
+        {
+            **base_component,
+            "name": "PHP Memcache",
+            "cpe": "cpe:2.3:a:php:memcached:{version}:*:*:*:*:*:*:*",
+        }
+    ),
+    "TELEGRAF": ParsingConfiguration(
+        partial(split_str_version_parser, "-"),
+        {
+            **base_component,
+            "name": "Telegraf",
+            "cpe": "cpe:2.3:a:influxdata:telegraf:{version}:*:*:*:*:*:*:*",
+        }
+    ),
+    "KAPACITOR": ParsingConfiguration(
+        partial(split_str_version_parser,".bm4"),
+        {
+            **base_component,
+            "name": "Kapacitor",
+            "cpe": "cpe:2.3:a:influxdata:kapacitor:{version}:*:*:*:*:*:*:*",
+        }
+    ),
+    "CHRONOGRAF": ParsingConfiguration(
+        partial(split_str_version_parser,".bm4"),
+        {
+            **base_component,
+            "name": "Chronograf",
+            "cpe": "cpe:2.3:a:influxdata:chronograf:{version}:*:*:*:*:*:*:*",
+        }
+    ),
+    "INFLUXDB": ParsingConfiguration(
+        partial(split_str_version_parser,".bm4"),
+        {
+            **base_component,
+            "name": "Chronograf",
+            "cpe": "cpe:2.3:a:influxdata:chronograf:{version}:*:*:*:*:*:*:*",
+        }
+    ),
+    "TELEMETRY": ParsingConfiguration(
+        dash_bluemind_version_parser,
+        {
+            **base_component,
+            "name": "OpenTelemetry",
+            "cpe": "cpe:2.3:a:linuxfoundation:opentelemetry_instrumentation_for_java:{version}:*:*:*:*:*:*:*",
+        }
+    ),
+    "GRAFANA": ParsingConfiguration(
+        direct_version_parser,
+        {
+            **base_component,
+            "name": "Grafana",
+            "cpe": "cpe:2.3:a:grafana:grafana:{version}:*:*:*:*:*:*:*",
+        }
+    ), 
+    "GRAFANA_MIMIR": ParsingConfiguration(
+        direct_version_parser,
+        {
+            **base_component,
+            "name": "Grafana Mimir",
+            "cpe": "cpe:2.3:a:grafana:mimir:{version}:*:*:*:*:*:*:*",
+        }
+    ),
+    "GRAFANA_TEMPO": ParsingConfiguration(
+        direct_version_parser,
+        {
+            **base_component,
+            "name": "Grafana",
+            "cpe": "cpe:2.3:a:grafana:tempo:{version}:*:*:*:*:*:*:*",
+        }
+    ),
+    "GRAFANA_AGENT": ParsingConfiguration(
+        direct_version_parser,
+        {
+            **base_component,
+            "name": "Grafana",
+            "cpe": "cpe:2.3:a:grafana:agent:{version}:*:*:*:*:*:*:*",
+        }
+    )
 }
 
 with open("./EXTDEPS", "r") as f:
