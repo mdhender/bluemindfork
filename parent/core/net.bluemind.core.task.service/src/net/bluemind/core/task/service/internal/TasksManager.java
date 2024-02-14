@@ -46,6 +46,7 @@ import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.task.api.ITask;
 import net.bluemind.core.task.api.TaskRef;
+import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.core.task.service.LoggingTaskMonitor;
@@ -62,6 +63,7 @@ public class TasksManager implements ITasksManager {
 	public static final String TASKS_MANAGER_EVENT = "tasks-manager";
 
 	private static final Cache<String, TaskManager> completedTasks;
+	private static final Cache<String, TaskStatus> statusHistory;
 	private static final ConcurrentHashMap<String, TaskManager> tasks = new ConcurrentHashMap<>();
 	private static final ConcurrentHashMap<String, FutureThreadInfo> futures = new ConcurrentHashMap<>();
 	private static final FastThreadLocal<Object> threadLocal = new FastThreadLocal<>();
@@ -74,21 +76,22 @@ public class TasksManager implements ITasksManager {
 		Config coreConfig = CoreConfig.get();
 		executor = new WorkerExecutorService("bm-tasks", coreConfig.getInt(CoreConfig.Pool.TASKS_SIZE), 1,
 				TimeUnit.DAYS, () -> threadLocal.set(ROOT_TASK_MARKER));
+		statusHistory = Caffeine.newBuilder().maximumSize(4096).build();
 		completedTasks = Caffeine.newBuilder()//
 				.maximumSize(512)//
 				.expireAfterWrite(coreConfig.getDuration(CoreConfig.Pool.TASKS_COMPLETED_TIMEOUT))//
 				.evictionListener((String key, TaskManager value, RemovalCause cause) -> {
 					if (value != null) {
-						VertxPlatform.getVertx().setTimer(5000, tid -> {
-							VertxPlatform.getVertx().executeBlocking(() -> {
-								VertxPlatform.eventBus().publish("tasks.manager.cleanups.expire", key);
-								cleanupTask(value);
-								return null;
-							});
-						});
+						statusHistory.put(key, value.status);
+						VertxPlatform.getVertx().setTimer(5000, tid -> VertxPlatform.getVertx().executeBlocking(() -> {
+							VertxPlatform.eventBus().publish("tasks.manager.cleanups.expire", key);
+							cleanupTask(value);
+							return null;
+						}));
 					}
 				})//
 				.build();
+
 	}
 
 	public static class EventBusReceiveVerticle extends AbstractVerticle {
@@ -217,6 +220,11 @@ public class TasksManager implements ITasksManager {
 		TaskManager task = tasks.get(taskId);
 		if (task != null) {
 			return new TaskService(task);
+		} else {
+			TaskStatus oldStatus = statusHistory.getIfPresent(taskId);
+			if (oldStatus != null) {
+				return new ExpiredTaskService(taskId, oldStatus);
+			}
 		}
 		return null;
 	}
