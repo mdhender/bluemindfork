@@ -122,7 +122,8 @@ export const MessageHeader = {
     X_BM_DRAFT_INFO: "X-Bm-Draft-Info",
     X_BM_DRAFT_REFRESH_DATE: "X-Bm-Draft-Refresh-Date",
     X_BM_DRAFT_SENT_FOLDER: "X-Bm-Draft-Sent-Folder",
-    X_BM_EVENT_CANCELED: "X-BM-Event-Canceled",
+    // Header match american spelling.
+    X_BM_EVENT_CANCELLED: "X-BM-Event-Canceled",
     X_BM_EVENT_COUNTERED: "X-BM-Event-Countered",
     X_BM_EVENT_PRIVATE: "X-BM-Event-Private",
     X_BM_EVENT_DECLINECOUNTER: "X-BM-Counter-Declined",
@@ -179,7 +180,7 @@ const XBM_EVENTS_HEADERS = [
     MessageHeader.X_BM_EVENT.toUpperCase(),
     MessageHeader.X_BM_EVENT_COUNTERED.toUpperCase(),
     MessageHeader.X_BM_EVENT_DECLINECOUNTER.toUpperCase(),
-    MessageHeader.X_BM_EVENT_CANCELED.toUpperCase()
+    MessageHeader.X_BM_EVENT_CANCELLED.toUpperCase()
 ];
 
 /** Extract multi-valued / whitespace separated values from given header. */

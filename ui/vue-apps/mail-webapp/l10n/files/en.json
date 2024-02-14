@@ -476,10 +476,10 @@
     "mail.viewer.invitation.reply.status.occurrence.declined": "declined an occurrence",
     "mail.viewer.invitation.reply.status.event.needs_action": "not yet answered",
     "mail.viewer.invitation.reply.status.occurrence.needs_action": "not yet answered an occurence",
-    "mail.viewer.invitation.canceled.event": "{name} has {status}.",
-    "mail.viewer.invitation.canceled.status": "canceled the event",
-    "mail.viewer.invitation.canceled.occurrence": "{name} has {status} of the event.",
-    "mail.viewer.invitation.canceled.status.occurrence": "canceled an occurrence",
+    "mail.viewer.invitation.cancelled.event": "{name} has {status}.",
+    "mail.viewer.invitation.cancelled.status": "cancelled the event",
+    "mail.viewer.invitation.cancelled.occurrence": "{name} has {status} of the event.",
+    "mail.viewer.invitation.cancelled.status.occurrence": "cancelled an occurrence",
     "mail.viewer.invitation.not_found.event": "This message refers to an event that {status}.",
     "mail.viewer.invitation.not_found.status": "does not exist in your calendar",
     "mail.viewer.invitation.counter.added_attendees": "Added attendee ({count}) | Added attendees ({count})",
@@ -497,6 +497,10 @@
     "mail.viewer.invitation.counter.attendees": "Your invitation has been forwarded.",
     "mail.viewer.invitation.not_found.title": "Unable to access information for this event.",
     "mail.viewer.invitation.not_found.description": "It may have been deleted, or you do not have access to its calendar.",
+    "mail.viewer.invitation.private.restricted": "{user} has not given you the permission to see his private events",
+    "mail.viewer.invitation.remove_event": "Remove from calendar",
+    "mail.viewer.invitation.confirm_remove_event": "Remove this event from the calendar?",
+    "mail.viewer.invitation.private_event": "The content of this event is private",
     "mail": {
         "actions": {
             "move_folder_to_trash": {

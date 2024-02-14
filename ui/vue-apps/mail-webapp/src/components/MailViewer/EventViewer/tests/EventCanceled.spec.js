@@ -1,7 +1,7 @@
 import { createLocalVue, mount } from "@vue/test-utils";
 import VueI18n from "vue-i18n";
 import tradFiles from "../../../../../l10n";
-import EventCanceled from "../EventCanceled.vue";
+import EventCancelled from "../EventCancelled.vue";
 
 describe("Event request insert", () => {
     const localVue = createLocalVue();
@@ -10,9 +10,9 @@ describe("Event request insert", () => {
         locale: "fr",
         messages: tradFiles
     });
-    let eventCanceled;
+    let eventCancelled;
     beforeEach(() => {
-        eventCanceled = mount(EventCanceled, {
+        eventCancelled = mount(EventCancelled, {
             localVue,
             i18n: i18nFake,
             propsData: {
@@ -25,9 +25,9 @@ describe("Event request insert", () => {
     });
 
     it("is a vue Instance", () => {
-        expect(eventCanceled.vm).toBeDefined();
+        expect(eventCancelled.vm).toBeDefined();
     });
     it("should have the name of the person canceling the event", () => {
-        expect(eventCanceled.text()).toEqual("Alice a annulé l'événement.");
+        expect(eventCancelled.text()).toEqual("Alice a annulé l'événement.");
     });
 });

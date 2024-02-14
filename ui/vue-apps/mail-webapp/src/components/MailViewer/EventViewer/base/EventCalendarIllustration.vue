@@ -18,6 +18,8 @@ const props = defineProps({
             [
                 "edited",
                 "countered",
+                "private",
+                "cancelled",
                 REPLY_ACTIONS.ACCEPTED,
                 REPLY_ACTIONS.TENTATIVE,
                 REPLY_ACTIONS.DECLINED,
@@ -29,6 +31,8 @@ const props = defineProps({
 const iconStatus = {
     edited: "pencil",
     countered: "interrogation",
+    private: "lock-fill",
+    cancelled: "trash-cross",
     [REPLY_ACTIONS.ACCEPTED]: "check",
     [REPLY_ACTIONS.TENTATIVE]: "interrogation",
     [REPLY_ACTIONS.DECLINED]: "cross",
@@ -43,11 +47,21 @@ const repeatIcon = computed(() => {
     }
     return "repeat" + exceptionIconSuffix;
 });
+const illustration = computed(() => {
+    switch (props.status) {
+        case "cancelled":
+            return "calendar-cancelled";
+        case "private":
+            return "calendar-disabled";
+        default:
+            return "calendar";
+    }
+});
 </script>
 
 <template>
     <div class="event-calendar-illustration">
-        <bm-responsive-illustration over-background value="calendar" />
+        <bm-responsive-illustration over-background :value="illustration" />
         <div v-if="dateStart" class="event-calendar-illustration-text">
             <div class="event-calendar-illustration-year">{{ $d(dateStart, "year") }}</div>
             <div>
@@ -139,7 +153,6 @@ const repeatIcon = computed(() => {
         .event-calendar-illustration-icon-repeat {
             position: absolute;
             bottom: 0;
-
             @include until-lg {
                 $size: map-get($icon-sizes, "sm");
                 width: $size;
@@ -177,6 +190,9 @@ const repeatIcon = computed(() => {
             &.icon-pencil {
                 color: $neutral-fg-lo1;
             }
+            &.icon-lock-fill {
+                color: $neutral-fg;
+            }
             &.icon-check {
                 color: $success-fg;
             }
@@ -186,6 +202,9 @@ const repeatIcon = computed(() => {
                 &.event-calendar-illustration-countered {
                     color: $info-fg;
                 }
+            }
+            &.icon-trash-cross {
+                color: $danger-fg;
             }
             &.icon-cross {
                 color: $danger-fg;

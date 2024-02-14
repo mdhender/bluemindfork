@@ -40,6 +40,10 @@ const counterTimeRange = computed(() => {
 const hasHeader = header => props.message?.headers?.some(({ name }) => name.toUpperCase() === header.toUpperCase());
 
 const calendarStatus = computed(() => {
+    if (props.event?.cancelled) {
+        return "cancelled";
+    }
+
     if (counterTimeRange.value) {
         return "countered";
     }
@@ -51,7 +55,9 @@ const calendarStatus = computed(() => {
     if (hasHeader(MessageHeader.X_BM_EVENT_REPLIED)) {
         return props.event?.attendees?.find(attendee => attendee.mail === props.message.from.address)?.status ?? null;
     }
-
+    if (props.event?.restricted) {
+        return "private";
+    }
     return null;
 });
 const isReply = computed(() => hasHeader(MessageHeader.X_BM_EVENT_REPLIED));
@@ -71,18 +77,19 @@ const withDetails = computed(() => {
 </script>
 
 <template>
-    <div class="event-detail" :class="{ 'with-details': withDetails, 'no-summary': !event.attendee }">
+    <div class="event-detail" :class="{ 'with-details': withDetails, 'event-detail-cancelled': event?.cancelled }">
         <event-calendar-illustration
             :status="calendarStatus"
             :date="eventValue?.counter?.dtstart.iso8601 ?? eventValue?.dtstart.iso8601"
             :is-recurring="isRecurring"
             :only-occurrence="Boolean(event.recuridIsoDate)"
         />
-        <div v-if="event.attendee" class="event-row-icon summary">
+        <div class="event-row-icon summary">
             <bm-icon v-if="event.private" icon="lock-fill" />
-            <h3>{{ event.summary }}</h3>
+            <h3 v-if="!event.restricted">{{ event.summary }}</h3>
+            <h3 v-else>{{ $t("mail.viewer.invitation.private_event") }}</h3>
         </div>
-        <div class="event-time title" :class="{ 'no-summary': !event.attendee }">
+        <div class="event-time title">
             <span :class="{ 'event-time-current regular': counterTimeRange }">
                 {{ eventTimeRange }}
             </span>
@@ -135,10 +142,6 @@ const withDetails = computed(() => {
         "illustration summary"
         "illustration time";
 
-    &.no-summary {
-        grid-template-areas: "illustration time";
-    }
-
     @include until-lg {
         $row-time-height: $sp-6 + $sp-3;
         $row-title-height: $sp-7 + $sp-5;
@@ -147,11 +150,6 @@ const withDetails = computed(() => {
                 "illustration summary"
                 "illustration time"
                 "details details";
-            &.no-summary {
-                grid-template-areas:
-                    "illustration time"
-                    "details details";
-            }
             margin-left: 0;
         }
 
@@ -164,11 +162,6 @@ const withDetails = computed(() => {
                 "illustration summary"
                 "illustration time"
                 "illustration details";
-            &.no-summary {
-                grid-template-areas:
-                    "illustration time"
-                    "details details";
-            }
         }
     }
 
@@ -209,9 +202,6 @@ const withDetails = computed(() => {
     .event-time.title {
         grid-area: time;
         align-self: start;
-        &.no-summary {
-            align-self: center;
-        }
         margin-bottom: 0;
 
         @include until-lg {
@@ -256,6 +246,15 @@ const withDetails = computed(() => {
         gap: $sp-4;
         @include until-lg {
             gap: $sp-5;
+        }
+    }
+    &.event-detail-cancelled {
+        .summary {
+            color: $neutral-fg-lo1;
+        }
+        .details,
+        .title {
+            color: $neutral-fg;
         }
     }
 }

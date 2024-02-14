@@ -54,7 +54,10 @@ onUnmounted(() => store.dispatch(`alert/${REMOVE}`, privateEventNotSentToDelegat
 
 <template>
     <div class="event-request">
-        <event-header v-if="event.needsResponse && event.attendee">
+        <event-header v-if="event.restricted">
+            <b>{{ $t("mail.viewer.invitation.private.restricted", { user: message.to[0].dn }) }}</b>
+        </event-header>
+        <event-header v-else-if="event.needsResponse && event.attendee">
             <template v-if="user !== event.calendarOwner">
                 <i18n path="mail.viewer.invitation.request.delegate">
                     <template #for>
@@ -85,7 +88,7 @@ onUnmounted(() => store.dispatch(`alert/${REMOVE}`, privateEventNotSentToDelegat
         </event-header>
         <div>
             <event-detail :event="event" :message="message" />
-            <event-footer :event="event" />
+            <event-footer v-if="!event.restricted" :event="event" />
         </div>
     </div>
 </template>

@@ -104,6 +104,7 @@ export { default as BmSkeletonImg } from "./components/BmSkeletonImg";
 export { default as BmSortControl } from "./components/BmSortControl";
 export { default as BmSpinner } from "./components/BmSpinner";
 export { default as BmTable } from "./components/table/BmTable";
+export { default as useModal } from "./composable/useModal";
 export { default as BmToggle } from "./directives/BmToggle";
 export { default as BmToggleableButton } from "./components/buttons/BmToggleableButton";
 export { default as BmToggleableIconButton } from "./components/buttons/BmToggleableIconButton";

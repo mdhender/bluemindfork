@@ -38,11 +38,14 @@ const eventInsert = computed(() => {
     if (event.value.loading === LoadingStatus.LOADING) {
         return EVENT_COMPONENT.EventLoading;
     }
-    if (typeIs(MessageHeader.X_BM_EVENT_CANCELED)) {
-        return EVENT_COMPONENT.EventCanceled;
+    if (typeIs(MessageHeader.X_BM_EVENT_CANCELLED) && event.value.loading === LoadingStatus.ERROR) {
+        return EVENT_COMPONENT.EventCancelledAndRemoved;
     }
     if (event.value.loading === LoadingStatus.ERROR) {
         return EVENT_COMPONENT.EventNotFound;
+    }
+    if (event.value.cancelled) {
+        return EVENT_COMPONENT.EventCancelled;
     }
     if (typeIs(MessageHeader.X_BM_EVENT_DECLINECOUNTER)) {
         return EVENT_COMPONENT.EventDeclineCounter;

@@ -140,7 +140,7 @@ export default {
             return this.count > countLimit;
         },
         boundedCount() {
-            return this.countOverflows ? "+" + countLimit : this.count.toString();
+            return this.countOverflows ? "+" + countLimit : this.count?.toString();
         },
         hasStatus() {
             return this.status && typeof this.status === "object" && this.status.color && this.status.label;

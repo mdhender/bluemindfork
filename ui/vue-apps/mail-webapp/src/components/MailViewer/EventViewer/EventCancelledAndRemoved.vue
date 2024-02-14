@@ -6,20 +6,22 @@ const props = defineProps({ message: { type: Object, required: true } });
 
 const isOccurrence = computed(() => !!props.message.eventInfo.recuridIsoDate);
 const eventKey = computed(() =>
-    isOccurrence.value ? "mail.viewer.invitation.canceled.occurrence" : "mail.viewer.invitation.canceled.event"
+    isOccurrence.value ? "mail.viewer.invitation.cancelled.occurrence" : "mail.viewer.invitation.cancelled.event"
 );
 const statusKey = computed(() =>
-    isOccurrence.value ? "mail.viewer.invitation.canceled.status.occurrence" : "mail.viewer.invitation.canceled.status"
+    isOccurrence.value
+        ? "mail.viewer.invitation.cancelled.status.occurrence"
+        : "mail.viewer.invitation.cancelled.status"
 );
 </script>
 
 <template>
-    <div class="event-canceled">
+    <div class="event-cancelled-and-removed">
         <bm-responsive-illustration over-background value="calendar-removed" />
-        <i18n :path="eventKey" tag="span" class="bold event-canceled-text">
+        <i18n :path="eventKey" tag="span" class="bold event-cancelled-text">
             <template #name>{{ message.from.dn }}</template>
             <template #status>
-                <span class="event-canceled-status">{{ $t(statusKey) }}</span>
+                <span class="event-cancelled-status">{{ $t(statusKey) }}</span>
             </template>
         </i18n>
     </div>
@@ -29,8 +31,8 @@ const statusKey = computed(() =>
 @import "~@bluemind/ui-components/src/css/utils/responsiveness";
 @import "~@bluemind/ui-components/src/css/utils/variables";
 
-.event-canceled {
-    .event-canceled-text .event-canceled-status {
+.event-cancelled-and-removed {
+    .event-cancelled-text .event-cancelled-status {
         color: $danger-fg-hi1;
     }
     display: flex;

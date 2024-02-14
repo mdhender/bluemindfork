@@ -476,10 +476,10 @@
     "mail.viewer.invitation.reply.status.occurrence.declined": "refusé une occurrence",
     "mail.viewer.invitation.reply.status.event.needs_action": "n'a pas encore répondu",
     "mail.viewer.invitation.reply.status.occurrence.needs_action": "n'a pas encore répondu à une occurence",
-    "mail.viewer.invitation.canceled.event": "{name} a {status}.",
-    "mail.viewer.invitation.canceled.status": "annulé l'événement",
-    "mail.viewer.invitation.canceled.occurrence": "{name} a {status} de l'événement.",
-    "mail.viewer.invitation.canceled.status.occurrence": "annulé une occurrence",
+    "mail.viewer.invitation.cancelled.event": "{name} a {status}.",
+    "mail.viewer.invitation.cancelled.status": "annulé l'événement",
+    "mail.viewer.invitation.cancelled.occurrence": "{name} a {status} de l'événement.",
+    "mail.viewer.invitation.cancelled.status.occurrence": "annulé une occurrence",
     "mail.viewer.invitation.not_found.event": "Ce message fait référence à un événement qui {status}.",
     "mail.viewer.invitation.not_found.status": "n'existe pas dans votre calendrier",
     "mail.viewer.invitation.counter.added_attendees": "Participant ajouté ({count}) | Participants ajoutés ({count})",
@@ -497,6 +497,10 @@
     "mail.viewer.invitation.counter.attendees": "Votre invitation a été transférée.",
     "mail.viewer.invitation.not_found.title": "Impossible d'accéder aux informations de cet événement.",
     "mail.viewer.invitation.not_found.description": "Il a pu être supprimé, ou vous n'avez pas les droits sur le calendrier dans lequel il se trouve.",
+    "mail.viewer.invitation.private.restricted": "{user} ne vous a pas donné le droit de consulter ses événements privés.",
+    "mail.viewer.invitation.remove_event": "Supprimer du calendrier",
+    "mail.viewer.invitation.confirm_remove_event": "Etes-vous sur de vouloir supprimer cet événment du calendrier ?",
+    "mail.viewer.invitation.private_event": "Le contenu de cet événement est privé",
     "mail": {
         "actions": {
             "move_folder_to_trash": {

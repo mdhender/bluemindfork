@@ -5,15 +5,11 @@ import { preventStyleInvading, sanitizeHtml } from "@bluemind/html-utils";
 import { ICalendarElement } from "@bluemind/icalendar.api";
 const { LoadingStatus } = loadingStatusUtils;
 
-const CLASSIFICATIONS = {
-    PUBLIC: "Public",
-    PRIVATE: "Private",
-    CONFIDENTIAL: "Confidential"
-};
 export default {
     adapt(event, mailboxOwner, originator, recuridIsoDate, calendarUid, calendarOwner, isWritable) {
         const infos = this.eventInfos(event, recuridIsoDate);
         const attendee = this.findAttendee(infos.attendees, calendarOwner);
+        const isPrivate = infos.classification !== ICalendarElement.Classification.Public;
         return {
             summary: infos.summary,
             organizer: adaptOrganizer(infos.organizer),
@@ -33,7 +29,9 @@ export default {
             url: infos.url,
             calendarUid,
             calendarOwner,
-            private: infos.classification === CLASSIFICATIONS.PRIVATE,
+            private: isPrivate,
+            restricted: isPrivate && !attendee && infos.summary === "Private",
+            cancelled: infos.status === ICalendarElement.Status.Cancelled,
             isWritable,
             needsResponse: isWritable && attendee != null
         };

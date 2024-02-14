@@ -4,6 +4,7 @@ import { loadingStatusUtils, messageUtils } from "@bluemind/mail";
 import EventHelper from "./helpers/EventHelper";
 import {
     FETCH_EVENT,
+    REMOVE_EVENT,
     SET_EVENT_STATUS,
     ACCEPT_COUNTER_EVENT,
     DECLINE_COUNTER_EVENT,
@@ -73,7 +74,14 @@ export default {
                 throw "Event not found";
             }
         },
-
+        async [REMOVE_EVENT]({ commit }, { event }) {
+            try {
+                commit(SET_CURRENT_EVENT, { loading: LoadingStatus.ERROR });
+                await inject("CalendarPersistence", event.calendarUid).delete(event.uid, false);
+            } catch {
+                commit(SET_CURRENT_EVENT, event);
+            }
+        },
         async [REJECT_ATTENDEES]({ commit, state }, { rejectedAttendees }) {
             const updatedEvent = EventHelper.removeAttendees(state.currentEvent, rejectedAttendees);
 
