@@ -62,10 +62,10 @@ public class SmtpInjector extends MailExchangeInjector {
 			try {
 				prot.openPort();
 				prot.startTLS();
-				prot.auth("PLAIN", auth.email(), auth.sid().toCharArray());
+				prot.auth("PLAIN", from.auth.email(), from.auth.sid().toCharArray());
 				prot.helo(InetAddress.getLocalHost());
-				prot.mail(new Address(auth.email()));
-				prot.rcpt(new Address(from.auth.email()));
+				prot.mail(new Address(from.auth.email()));
+				prot.rcpt(new Address(auth.email()));
 				SMTPResponse sendResp = prot.data(new ByteArrayInputStream(emlContent));
 				prot.quit();
 				logger.debug("Added {} to {}", sendResp.getMessage(), from.auth.email());
