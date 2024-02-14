@@ -21,6 +21,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.RandomAccessFile;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel.MapMode;
 import java.nio.file.Files;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -52,8 +55,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.file.AsyncFile;
-import io.vertx.core.file.OpenOptions;
 import io.vertx.core.streams.ReadStream;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.api.IMailboxItems;
@@ -101,7 +102,6 @@ import net.bluemind.core.rest.vertx.BufferReadStream;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.delivery.conversationreference.api.IConversationReference;
-import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mime4j.common.Mime4JHelper;
 import net.bluemind.mime4j.common.Mime4JHelper.HashedBuffer;
 import net.bluemind.mime4j.common.OffloadedBodyFactory;
@@ -415,14 +415,14 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		for (ItemValue<MailboxRecord> iv : records) {
 			MailboxRecord copy = createUnexpunge(iv.value, count++);
 			copies.add(copy);
-		}		
+		}
 		List<Long> createdIds = writeDelegate.get().multiCreate(copies).stream().map(item -> item.id).toList();
 		List<ItemValue<MailboxItem>> fullFresh = multipleGetById(createdIds);
 
 		IMailboxRecordExpunged expungeApi = context.provider().instance(IMailboxRecordExpunged.class,
 				IMailReplicaUids.uniqueId(container.uid));
 		expungeApi.multipleDelete(itemIds);
-		
+
 		return fullFresh.stream().map(fresh -> fresh.identifier()).toList();
 	}
 
@@ -458,16 +458,15 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		if (!tmpPart.exists()) {
 			throw new ServerFault("Trying to fetch tmp part " + address + " which doesnt exist");
 		}
-		// temporary parts are already decoded because getForUpdate already did it
-		AsyncFile openBlocking = VertxPlatform.getVertx().fileSystem().openBlocking(tmpPart.getAbsolutePath(),
-				new OpenOptions());
-		openBlocking.endHandler(v -> {
-			try {
-				openBlocking.close();
-			} catch (IllegalStateException e) {
-			}
-		});
-		return openBlocking;
+		try (RandomAccessFile raf = new RandomAccessFile(tmpPart, "r")) {
+			MappedByteBuffer mapped = raf.getChannel().map(MapMode.READ_ONLY, 0, raf.length());
+			ByteBuf wrapped = Unpooled.wrappedBuffer(mapped);
+			wrapped.readerIndex(0);
+			Buffer asVxBuf = Buffer.buffer(wrapped);
+			return new BufferReadStream(asVxBuf);
+		} catch (Exception e) {
+			throw new ServerFault(e);
+		}
 	}
 
 	private ReadStream<Buffer> imapFetch(long imapUid, String address) {
