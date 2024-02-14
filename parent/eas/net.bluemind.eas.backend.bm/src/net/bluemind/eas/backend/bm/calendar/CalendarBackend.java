@@ -125,7 +125,6 @@ public class CalendarBackend extends CoreConnect {
 	 */
 	public Changes getContentChanges(BackendSession bs, long version, CollectionId collectionId)
 			throws ActiveSyncException {
-
 		Changes changes = new Changes();
 
 		try {
@@ -519,7 +518,6 @@ public class CalendarBackend extends CoreConnect {
 	}
 
 	public Availability fetchAvailability(BackendSession bs, String entryUid, Date start, Date end) {
-
 		StringBuilder sb = new StringBuilder();
 		Calendar cal = new GregorianCalendar();
 		cal.setTime(start);
@@ -603,7 +601,6 @@ public class CalendarBackend extends CoreConnect {
 
 	public List<MoveItemsResponse.Response> move(BackendSession bs, HierarchyNode srcFolder, HierarchyNode dstFolder,
 			List<CollectionItem> items) {
-
 		List<MoveItemsResponse.Response> ret = new ArrayList<>(items.size());
 		items.forEach(item -> {
 			MoveItemsResponse.Response resp = new MoveItemsResponse.Response();

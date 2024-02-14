@@ -48,6 +48,7 @@ public class MSEvent implements IApplicationData {
 	private BusyStatus busyStatus;
 	private Sensitivity sensitivity;
 	private MeetingStatus meetingStatus;
+	private boolean isMeetingCancelled = false;
 	private Integer reminder;
 	private Set<MSAttendee> attendees;
 	private List<String> categories;
@@ -84,6 +85,14 @@ public class MSEvent implements IApplicationData {
 
 	public String getOrganizerEmail() {
 		return organizerEmail;
+	}
+
+	public boolean isMeetingCancelled() {
+		return isMeetingCancelled;
+	}
+
+	public void setMeetingCancelled(boolean mc) {
+		isMeetingCancelled = mc;
 	}
 
 	public void setOrganizerEmail(String organizerEmail) {

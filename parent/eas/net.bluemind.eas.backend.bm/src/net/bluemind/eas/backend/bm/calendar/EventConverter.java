@@ -66,6 +66,7 @@ import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;
 import net.bluemind.icalendar.api.ICalendarElement.RRule;
 import net.bluemind.icalendar.api.ICalendarElement.RRule.WeekDay;
 import net.bluemind.icalendar.api.ICalendarElement.Role;
+import net.bluemind.icalendar.api.ICalendarElement.Status;
 import net.bluemind.icalendar.api.ICalendarElement.VAlarm;
 import net.bluemind.icalendar.api.ICalendarElement.VAlarm.Action;
 
@@ -263,6 +264,8 @@ public class EventConverter {
 
 		mse.setBusyStatus(busyStatus(vevent));
 		mse.setSensitivity(getSensitivity(vevent));
+
+		mse.setMeetingCancelled(vevent.status == Status.Cancelled);
 
 		if (vevent.attachments != null) {
 			convertAttachments(vevent, mse);

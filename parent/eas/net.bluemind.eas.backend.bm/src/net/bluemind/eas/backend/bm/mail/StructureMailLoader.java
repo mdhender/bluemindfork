@@ -183,7 +183,6 @@ public class StructureMailLoader extends CoreConnect {
 		ItemValue<VEventSeries> vevent = new EventProvider(bs).get(calendarUid, eventUid);
 		if (vevent != null) {
 			boolean isInvitationASimpleMessage = userCanRespond(item, vevent, ret, calendarUid);
-			logger.info("SCL - isInvitationASimpleMessage: {}", isInvitationASimpleMessage);
 			EventConverter converter = new EventConverter();
 			MSEvent msEvent = converter.convert(bs.getUser(), vevent);
 			// FIXME add meetingMessageType into MeetingRequest

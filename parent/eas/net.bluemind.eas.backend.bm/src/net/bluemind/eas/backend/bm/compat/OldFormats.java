@@ -138,8 +138,14 @@ public class OldFormats {
 		if (!cr.attendees.isEmpty()) {
 			if (organize) {
 				cr.meetingStatus = MeetingStatus.MEETING_AND_USER_IS_ORGANIZER;
+				if (event.isMeetingCancelled()) {
+					cr.meetingStatus = MeetingStatus.CANCELED_AND_USER_WAS_ORGANIZER;
+				}
 			} else {
 				cr.meetingStatus = MeetingStatus.MEETING_AND_USER_IS_NOT_ORGANIZER;
+				if (event.isMeetingCancelled()) {
+					cr.meetingStatus = MeetingStatus.CANCEL_RECEIVED;
+				}
 			}
 			cr.responseRequested = ResponseRequestedHelper.isResponseRequested(event);
 		} else {
@@ -184,7 +190,6 @@ public class OldFormats {
 
 	public static CalendarResponse update(BackendSession bs, MSEvent event, MSUser user, CollectionId collectionId) {
 		CalendarResponse cr = update(event, user);
-
 		// BM-6571
 		try {
 			HierarchyNode node = Backends.internalStorage().getHierarchyNode(bs, collectionId);
