@@ -26,9 +26,8 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -40,10 +39,10 @@ import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.task.service.internal.ISubscriber;
+import net.bluemind.core.task.service.internal.cq.LoopProvider.Loop;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.io.AbstractReferenceCounted;
-import net.openhft.chronicle.core.threads.CleaningThread;
 import net.openhft.chronicle.queue.ExcerptAppender;
 import net.openhft.chronicle.queue.ExcerptTailer;
 import net.openhft.chronicle.queue.impl.single.SingleChronicleQueue;
@@ -55,9 +54,6 @@ public class PersistentQueue implements AutoCloseable {
 			"/var/cache/bm-core/tasks-queues");
 
 	private static final Logger logger = LoggerFactory.getLogger(PersistentQueue.class);
-
-	private static final ExecutorService TAIL_LOOP = Executors
-			.newSingleThreadExecutor(r -> new CleaningThread(r, "cq-tail-loop", true));
 
 	private static final AtomicLong uid = new AtomicLong();
 
@@ -89,12 +85,16 @@ public class PersistentQueue implements AutoCloseable {
 	private final String tid;
 	private final long subId;
 	private final ExcerptAppender appender;
+	private final Loop loop;
+	private final AtomicBoolean closeOnce;
 
 	private PersistentQueue(String tid, long id, SingleChronicleQueue queue) {
 		this.tid = tid;
 		this.subId = id;
 		this.queue = queue;
-		this.appender = onCqThread(queue::createAppender).orTimeout(10, TimeUnit.SECONDS).join();
+		this.loop = LoopProvider.get();
+		this.closeOnce = new AtomicBoolean(false);
+		this.appender = onCqThread(loop, queue::createAppender).orTimeout(10, TimeUnit.SECONDS).join();
 	}
 
 	@Override
@@ -110,7 +110,7 @@ public class PersistentQueue implements AutoCloseable {
 			return false;
 		}
 		try {
-			return onCqThread(() -> {
+			return onCqThread(loop, () -> {
 				appender.writeText(js.encode());
 				return true;
 			}).get(10, TimeUnit.SECONDS);
@@ -119,8 +119,8 @@ public class PersistentQueue implements AutoCloseable {
 		}
 	}
 
-	private static <T> CompletableFuture<T> onCqThread(Supplier<T> r) {
-		return CompletableFuture.supplyAsync(r, TAIL_LOOP).exceptionally(t -> {
+	private static <T> CompletableFuture<T> onCqThread(Loop loop, Supplier<T> r) {
+		return CompletableFuture.supplyAsync(r, loop.pool()).exceptionally(t -> {
 			logger.error("failure on CQ thread", t);
 			return null;
 		});
@@ -130,15 +130,17 @@ public class PersistentQueue implements AutoCloseable {
 
 		private final ExcerptTailer tail;
 		private final String tid;
+		private final Loop loop;
 
-		private Subscriber(String tid, ExcerptTailer excerptTailer) {
+		private Subscriber(String tid, ExcerptTailer excerptTailer, Loop loop) {
 			this.tid = tid;
 			this.tail = excerptTailer;
+			this.loop = loop;
 		}
 
 		public void fetchAll(Consumer<JsonObject> handler) {
 			try {
-				onCqThread(() -> {
+				onCqThread(loop, () -> {
 					fetchAllImpl(handler);
 					return null;
 				}).get(20, TimeUnit.SECONDS);
@@ -161,7 +163,7 @@ public class PersistentQueue implements AutoCloseable {
 
 		public JsonObject fetchOne() {
 			try {
-				return onCqThread(this::fetchOneImpl).get(10, TimeUnit.SECONDS);
+				return onCqThread(loop, this::fetchOneImpl).get(10, TimeUnit.SECONDS);
 			} catch (Exception e) { // NOSONAR
 				throw ServerFault.create(ErrorCode.TIMEOUT, e);
 			}
@@ -192,7 +194,7 @@ public class PersistentQueue implements AutoCloseable {
 	}
 
 	public ISubscriber subscriber(int offset) {
-		CompletableFuture<ExcerptTailer> tailerRef = onCqThread(() -> {
+		CompletableFuture<ExcerptTailer> tailerRef = onCqThread(loop, () -> {
 			ExcerptTailer tailer = queue.createTailer();
 			if (offset > 0) {
 				long curPos = tailer.index();
@@ -207,7 +209,7 @@ public class PersistentQueue implements AutoCloseable {
 		});
 
 		try {
-			return new Subscriber(tid, tailerRef.get(10, TimeUnit.SECONDS));
+			return new Subscriber(tid, tailerRef.get(10, TimeUnit.SECONDS), loop);
 		} catch (Exception e) { // NOSONAR
 			throw ServerFault.create(ErrorCode.TIMEOUT, e);
 		}
@@ -216,11 +218,14 @@ public class PersistentQueue implements AutoCloseable {
 	@Override
 	public void close() {
 		File toDelete = queue.file();
-		onCqThread(() -> {
-			appender.close();
-			queue.close();
-			return true;
-		}).orTimeout(10, TimeUnit.SECONDS).join();
+		if (closeOnce.compareAndSet(false, true)) {
+			onCqThread(loop, () -> {
+				appender.close();
+				queue.close();
+				loop.unRef();
+				return true;
+			}).orTimeout(10, TimeUnit.SECONDS).join();
+		}
 		VertxPlatform.getVertx().executeBlocking(() -> {
 			try {
 				File[] files = toDelete.listFiles();
