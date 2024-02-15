@@ -35,6 +35,7 @@ import io.vertx.core.net.SocketAddress;
 import io.vertx.core.spi.VertxMetricsFactory;
 import io.vertx.core.spi.metrics.EventBusMetrics;
 import io.vertx.core.spi.metrics.HttpServerMetrics;
+import io.vertx.core.spi.metrics.PoolMetrics;
 import io.vertx.core.spi.metrics.TCPMetrics;
 import io.vertx.core.spi.metrics.VertxMetrics;
 import io.vertx.core.spi.observability.HttpRequest;
@@ -47,11 +48,13 @@ public class SpectatorMetricsOptions extends MetricsOptions implements VertxMetr
 	private final SpectatorEventBusMetrics eventBusMetrics;
 	private final Map<String, SpectatorTcpMetrics> netServerMetricsByPort;
 	private final Map<String, SpectatorHttpMetrics> httpServerMetricsByPort;
+	private final Map<String, SpectatorPoolMetrics> poolByTypeSlashName;
 
 	public SpectatorMetricsOptions() {
 		this.eventBusMetrics = new SpectatorEventBusMetrics();
 		this.netServerMetricsByPort = new ConcurrentHashMap<>(8);
 		this.httpServerMetricsByPort = new ConcurrentHashMap<>(8);
+		this.poolByTypeSlashName = new ConcurrentHashMap<>(8);
 	}
 
 	@Override
@@ -67,6 +70,11 @@ public class SpectatorMetricsOptions extends MetricsOptions implements VertxMetr
 	@Override
 	public EventBusMetrics<Void> createEventBusMetrics() {
 		return eventBusMetrics;
+	}
+
+	@Override
+	public PoolMetrics<?> createPoolMetrics(String poolType, String poolName, int maxPoolSize) {
+		return poolByTypeSlashName.computeIfAbsent(poolType + "-" + poolName, SpectatorPoolMetrics::new);
 	}
 
 	@Override
@@ -116,6 +124,51 @@ public class SpectatorMetricsOptions extends MetricsOptions implements VertxMetr
 				pubRecv.increment();
 			} else {
 				privRecv.increment();
+			}
+		}
+
+	}
+
+	public static class SpectatorPoolMetrics implements PoolMetrics<Stopwatch> {
+
+		private final Timer inQueue;
+		private final Timer runSuccess;
+		private final Timer runFailed;
+		private final Counter rejections;
+
+		private static final String LBL_TAG = "label";
+
+		public SpectatorPoolMetrics(String typeDashName) {
+			Registry reg = MetricsRegistry.get();
+			IdFactory idf = new IdFactory("pool", reg, SpectatorPoolMetrics.class);
+			this.inQueue = reg.timer(idf.name("queue-latency", LBL_TAG, typeDashName));
+			this.rejections = reg.counter(idf.name("queue-rejects", LBL_TAG, typeDashName));
+			this.runSuccess = reg.timer(idf.name("runtime", LBL_TAG, typeDashName, "status", "success"));
+			this.runFailed = reg.timer(idf.name("runtime", LBL_TAG, typeDashName, "status", "failed"));
+		}
+
+		@Override
+		public Stopwatch submitted() {
+			return Stopwatch.createStarted();
+		}
+
+		@Override
+		public void rejected(Stopwatch t) {
+			rejections.increment();
+		}
+
+		@Override
+		public Stopwatch begin(Stopwatch t) {
+			inQueue.record(t.elapsed());
+			return t.reset().start();
+		}
+
+		@Override
+		public void end(Stopwatch t, boolean succeeded) {
+			if (succeeded) {
+				runSuccess.record(t.elapsed());
+			} else {
+				runFailed.record(t.elapsed());
 			}
 		}
 
