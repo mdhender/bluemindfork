@@ -17,9 +17,9 @@
  */
 package net.bluemind.delivery.lmtp.quota.tests;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -41,8 +41,9 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import com.google.common.io.ByteStreams;
 
@@ -69,10 +70,10 @@ public class DeliveryOverQuotaTests extends MailApiTestsBase {
 	private ItemValue<User> nearFull;
 	private String noProblemMail;
 
-	@Before
+	@BeforeEach
 	@Override
-	public void before() throws Exception {
-		super.before();
+	public void before(TestInfo info) throws Exception {
+		super.before(info);
 
 		this.overQ = sharedUser("over.quota", domUid, userUid, 100, ByteSizeUnit.KB);
 		IMailboxes mboxApi = serverProv.instance(IMailboxes.class, domUid);
@@ -91,7 +92,7 @@ public class DeliveryOverQuotaTests extends MailApiTestsBase {
 		});
 		MailboxQuota curQuota = mboxApi.getMailboxQuota(overQ.uid);
 		System.err.println("curQuota: " + curQuota);
-		assertTrue("should me overquota, but is " + curQuota, curQuota.used > curQuota.quota);
+		assertTrue(curQuota.used > curQuota.quota, "should me overquota, but is " + curQuota);
 		this.overquotaNowMail = overQ.value.defaultEmailAddress();
 
 		this.nearFull = sharedUser("near.full", domUid, userUid, 32, ByteSizeUnit.KB);

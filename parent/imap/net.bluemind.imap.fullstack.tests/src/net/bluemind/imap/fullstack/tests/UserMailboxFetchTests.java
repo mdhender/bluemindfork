@@ -17,9 +17,9 @@
  */
 package net.bluemind.imap.fullstack.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,10 +29,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.Lists;
 
@@ -54,12 +54,12 @@ import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class UserMailboxFetchTests {
 
-	@BeforeClass
+	@BeforeAll
 	public static void sysprop() {
 		System.setProperty("node.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
 	}
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		ElasticsearchTestHelper.getInstance().beforeTest();
 		JdbcTestHelper.getInstance().beforeTest();
@@ -85,7 +85,7 @@ public class UserMailboxFetchTests {
 
 	}
 
-	@After
+	@AfterEach
 	public void after() throws Exception {
 		System.err.println("===== AFTER =====");
 		ElasticsearchTestHelper.getInstance().afterTest();

@@ -20,6 +20,10 @@ package net.bluemind.core.backup.continuous.tests;
 
 import java.util.Collection;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestInfo;
+
 import net.bluemind.backend.mailapi.testhelper.MailApiTestsBase;
 import net.bluemind.core.backup.continuous.DefaultBackupStore;
 import net.bluemind.core.backup.continuous.IBackupManager;
@@ -33,7 +37,8 @@ public abstract class MailApiWithKafkaBaseTests extends MailApiTestsBase {
 	private ZkKafkaContainer kafka;
 
 	@Override
-	public void before() throws Exception {
+	@BeforeEach
+	public void before(TestInfo info) throws Exception {
 		kafka = new ZkKafkaContainer();
 		kafka.start();
 		String ip = kafka.inspectAddress();
@@ -41,11 +46,12 @@ public abstract class MailApiWithKafkaBaseTests extends MailApiTestsBase {
 		System.setProperty("bm.zk.servers", ip + ":2181");
 		DefaultLeader.reset();
 
-		super.before();
+		super.before(info);
 	}
 
 	@Override
-	public void after() throws Exception {
+	@AfterEach
+	public void after(TestInfo info) throws Exception {
 		dropTopics();
 
 		DefaultLeader.leader().releaseLeadership();
@@ -56,7 +62,7 @@ public abstract class MailApiWithKafkaBaseTests extends MailApiTestsBase {
 		kafka.stop();
 		kafka.close();
 
-		super.after();
+		super.after(info);
 	}
 
 	private void dropTopics() {

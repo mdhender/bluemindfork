@@ -17,9 +17,9 @@
   */
 package net.bluemind.backend.mail.replica.service.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -28,7 +28,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
@@ -53,9 +55,10 @@ public class RepairSupportTests extends AbstractRollingReplicationTests {
 
 	private ClientSideServiceProvider provider;
 
+	@BeforeEach
 	@Override
-	public void before() throws Exception {
-		super.before();
+	public void before(TestInfo testInfo) throws Exception {
+		super.before(testInfo);
 		this.provider = ClientSideServiceProvider.getProvider("http://127.0.0.1:8090", apiKey);
 		RecordIndexActivator.reload();
 	}
@@ -101,7 +104,7 @@ public class RepairSupportTests extends AbstractRollingReplicationTests {
 		TaskRef taskRef = maintenanceApi.repair(config);
 		TaskStatus status = TaskUtils.wait(adminProv, taskRef);
 		System.err.println("status " + status);
-		assertEquals("State should be success", State.Success, status.state);
+		assertEquals(State.Success, status.state, "State should be success");
 	}
 
 }

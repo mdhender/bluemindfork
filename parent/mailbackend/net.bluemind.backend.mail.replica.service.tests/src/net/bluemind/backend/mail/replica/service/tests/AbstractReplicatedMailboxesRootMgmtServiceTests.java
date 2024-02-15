@@ -22,10 +22,11 @@
  */
 package net.bluemind.backend.mail.replica.service.tests;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import net.bluemind.backend.mail.replica.api.IReplicatedMailboxesRootMgmt;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
@@ -37,9 +38,9 @@ public abstract class AbstractReplicatedMailboxesRootMgmtServiceTests extends Ma
 
 	protected String partition;
 
-	@Before
-	public void before() throws Exception {
-		super.before();
+	@BeforeEach
+	public void before(TestInfo testInfo) throws Exception {
+		super.before(testInfo);
 		partition = domUid;
 	}
 

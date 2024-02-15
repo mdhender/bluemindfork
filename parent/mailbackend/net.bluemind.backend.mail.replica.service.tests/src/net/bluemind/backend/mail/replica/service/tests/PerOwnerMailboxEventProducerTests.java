@@ -17,8 +17,8 @@
   */
 package net.bluemind.backend.mail.replica.service.tests;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,8 +29,9 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.IMailboxItems;
@@ -43,10 +44,10 @@ public class PerOwnerMailboxEventProducerTests extends AbstractRollingReplicatio
 
 	private ItemValue<MailboxFolder> inbox;
 
-	@Before
+	@BeforeEach
 	@Override
-	public void before() throws Exception {
-		super.before();
+	public void before(TestInfo testInfo) throws Exception {
+		super.before(testInfo);
 
 		addMessageInUserInbox();
 		inbox = waitForInbox();
@@ -83,21 +84,21 @@ public class PerOwnerMailboxEventProducerTests extends AbstractRollingReplicatio
 	public void expectEventOnCreate() throws InterruptedException {
 		CountDownLatch latch = expectOwnerEvent();
 		addMessageInUserInbox();
-		assertTrue("Expected 1 specific update to occur on owner bus", latch.await(10, TimeUnit.SECONDS));
+		assertTrue(latch.await(10, TimeUnit.SECONDS), "Expected 1 specific update to occur on owner bus");
 	}
 
 	@Test
 	public void expectEventOnUpdate() throws InterruptedException {
 		CountDownLatch latch = expectOwnerEvent();
 		flagMessageInUserInbox(Flag.SEEN);
-		assertTrue("Expected 1 specific update to occur on owner bus", latch.await(10, TimeUnit.SECONDS));
+		assertTrue(latch.await(10, TimeUnit.SECONDS), "Expected 1 specific update to occur on owner bus");
 	}
 
 	@Test
 	public void expectEventOnDelete() throws InterruptedException {
 		CountDownLatch latch = expectOwnerEvent();
 		flagMessageInUserInbox(Flag.DELETED);
-		assertTrue("Expected 1 specific update to occur on owner bus", latch.await(10, TimeUnit.SECONDS));
+		assertTrue(latch.await(10, TimeUnit.SECONDS), "Expected 1 specific update to occur on owner bus");
 	}
 
 	private void addMessageInUserInbox() {

@@ -17,10 +17,10 @@
  */
 package net.bluemind.imap.fullstack.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -43,11 +43,10 @@ import java.util.concurrent.TimeUnit;
 import org.columba.ristretto.message.Address;
 import org.columba.ristretto.smtp.SMTPProtocol;
 import org.columba.ristretto.smtp.SMTPResponse;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.Lists;
 import com.typesafe.config.Config;
@@ -95,7 +94,7 @@ import net.bluemind.user.api.User;
 
 public class SharedMailboxTests {
 
-	@BeforeClass
+	@BeforeAll
 	public static void sysprop() {
 		System.setProperty("node.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
 	}
@@ -104,7 +103,7 @@ public class SharedMailboxTests {
 	private ItemValue<User> userShare;
 	private ItemValue<Mailshare> mboxShare;
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		System.err.println("==== BEFORE starts ====");
 		DomainBookVerticle.suspended = true;
@@ -116,7 +115,7 @@ public class SharedMailboxTests {
 
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
-		Assert.assertNotNull(esServer.ip);
+		assertNotNull(esServer.ip);
 		esServer.tags = Lists.newArrayList(TagDescriptor.bm_es.getTag());
 
 		VertxPlatform.spawnBlocking(25, TimeUnit.SECONDS);
@@ -142,7 +141,7 @@ public class SharedMailboxTests {
 
 	}
 
-	@After
+	@AfterEach
 	public void after() throws Exception {
 		System.err.println("===== AFTER starts =====");
 		JdbcTestHelper.getInstance().afterTest();
@@ -217,13 +216,13 @@ public class SharedMailboxTests {
 
 					TaggedResult statusOk = sc.tagged(
 							"STATUS \"" + UTF7Converter.encode(li.getName()) + "\" (UIDNEXT MESSAGES UNSEEN RECENT)");
-					assertTrue("status on '" + li.getName() + "' failed: " + statusOk.getOutput(), statusOk.isOk());
-					assertTrue("could not select " + li.getName(), sc.select(li.getName()));
+					assertTrue(statusOk.isOk(), "status on '" + li.getName() + "' failed: " + statusOk.getOutput());
+					assertTrue(sc.select(li.getName()), "could not select " + li.getName());
 				}
 			}
 			assertEquals(0, noselect);
-			assertTrue("other users folders should appear in imap hierarchy", otherUsers > 0);
-			assertTrue("mailshares should appear in imap hierarchy", mailshares > 0);
+			assertTrue(otherUsers > 0, "other users folders should appear in imap hierarchy");
+			assertTrue(mailshares > 0, "mailshares should appear in imap hierarchy");
 		}
 	}
 
@@ -382,7 +381,7 @@ public class SharedMailboxTests {
 
 	private void assertEml(StoreClient sc, String folder, String inEmlText, int imapUid)
 			throws IMAPException, IOException {
-		assertTrue("imap uid returned by append must be > 0 when successful", imapUid > 0);
+		assertTrue(imapUid > 0, "imap uid returned by append must be > 0 when successful");
 		assertTrue(sc.select(folder));
 		try (IMAPByteSource eml = sc.uidFetchMessage(imapUid)) {
 			assertNotNull(eml);
@@ -430,23 +429,23 @@ public class SharedMailboxTests {
 			Set<String> foldersFromThisTest = Set.of(folder1, folder2, folder3, folder4);
 			long inTheList = sc.listAll().stream().filter(ListInfo::isSelectable).map(ListInfo::getName)
 					.filter(foldersFromThisTest::contains).count();
-			assertEquals("One of the fresh folders is not listed ", foldersFromThisTest.size(), inTheList);
+			assertEquals(foldersFromThisTest.size(), inTheList, "One of the fresh folders is not listed ");
 
 			CreateMailboxResult delRes = sc.deleteMailbox(folder4);
-			assertTrue("del folder4 failed", delRes.isOk());
+			assertTrue(delRes.isOk(), "del folder4 failed");
 
 			delRes = sc.deleteMailbox(folder3);
-			assertTrue("del folder3 failed", delRes.isOk());
+			assertTrue(delRes.isOk(), "del folder3 failed");
 
 			delRes = sc.deleteMailbox(folder2);
-			assertTrue("del folder2 failed", delRes.isOk());
+			assertTrue(delRes.isOk(), "del folder2 failed");
 
 			delRes = sc.deleteMailbox(folder1);
-			assertTrue("del folder1 failed", delRes.isOk());
+			assertTrue(delRes.isOk(), "del folder1 failed");
 
 			boolean listsDeletedFolder = sc.listAll().stream().filter(ListInfo::isSelectable).map(ListInfo::getName)
 					.anyMatch(foldersFromThisTest::contains);
-			assertFalse("One of " + foldersFromThisTest + " is still present", listsDeletedFolder);
+			assertFalse(listsDeletedFolder, "One of " + foldersFromThisTest + " is still present");
 		}
 	}
 
@@ -523,9 +522,9 @@ public class SharedMailboxTests {
 				}
 			}
 
-			assertFalse("INBOX must not be deletable over imap", deletedFolders.contains("INBOX"));
+			assertFalse(deletedFolders.contains("INBOX"), "INBOX must not be deletable over imap");
 			DefaultFolder.USER_FOLDERS_NAME
-					.forEach(f -> assertFalse(f + " must not be deletable", deletedFolders.contains(f)));
+					.forEach(f -> assertFalse(deletedFolders.contains(f), f + " must not be deletable"));
 			System.err.println("We did " + deletedFolders.size() + " deletions: " + deletedFolders);
 			assertEquals(3, deletedFolders.size());
 		}

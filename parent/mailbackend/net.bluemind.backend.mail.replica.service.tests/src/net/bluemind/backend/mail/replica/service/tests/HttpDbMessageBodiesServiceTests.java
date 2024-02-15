@@ -24,7 +24,8 @@ package net.bluemind.backend.mail.replica.service.tests;
 
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestInfo;
 
 import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
 import net.bluemind.core.context.SecurityContext;
@@ -34,9 +35,9 @@ import net.bluemind.lib.vertx.VertxPlatform;
 
 public class HttpDbMessageBodiesServiceTests extends DbMessageBodiesServiceTests {
 
-	@Before
-	public void before() throws Exception {
-		super.before();
+	@BeforeEach
+	public void before(TestInfo testInfo) throws Exception {
+		super.before(testInfo);
 		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 		Sessions.get().put("yeah", SecurityContext.SYSTEM);
 	}

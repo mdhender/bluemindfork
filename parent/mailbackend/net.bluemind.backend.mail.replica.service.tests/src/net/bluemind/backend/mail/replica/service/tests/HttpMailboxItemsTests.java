@@ -17,8 +17,8 @@
   */
 package net.bluemind.backend.mail.replica.service.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -30,8 +30,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
@@ -48,10 +49,10 @@ import net.bluemind.core.sessions.Sessions;
 
 public class HttpMailboxItemsTests extends MailboxItemsTests {
 
-	@Before
+	@BeforeEach
 	@Override
-	public void before() throws Exception {
-		super.before();
+	public void before(TestInfo testInfo) throws Exception {
+		super.before(testInfo);
 
 	}
 

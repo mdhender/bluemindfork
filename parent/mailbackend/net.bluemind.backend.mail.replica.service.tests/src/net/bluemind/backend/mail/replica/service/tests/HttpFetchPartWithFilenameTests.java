@@ -17,8 +17,8 @@
   */
 package net.bluemind.backend.mail.replica.service.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -31,8 +31,9 @@ import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.DefaultAsyncHttpClient;
 import org.asynchttpclient.RequestBuilder;
 import org.asynchttpclient.Response;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.MailboxFolder;
@@ -46,9 +47,9 @@ import net.bluemind.imap.mime.MimeTree;
 
 public class HttpFetchPartWithFilenameTests extends AbstractRollingReplicationTests {
 
-	@Before
-	public void before() throws Exception {
-		super.before();
+	@BeforeEach
+	public void before(TestInfo testInfo) throws Exception {
+		super.before(testInfo);
 
 		imapAsUser(sc -> {
 			int added = sc.append("INBOX", testEml(), new FlagsList());

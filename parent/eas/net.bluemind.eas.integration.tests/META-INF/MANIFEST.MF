@@ -13,7 +13,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.hornetq.client,
  net.bluemind.network.topology,
  net.bluemind.pool,
- org.junit,
  net.bluemind.eas.client,
  net.bluemind.eas.config.global,
  net.bluemind.eas.backend.bm;bundle-version="5.0.0",
@@ -37,7 +36,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.system.api,
  net.bluemind.backend.mailapi.testhelper;bundle-version="5.0.0",
  org.awaitility,
- org.hamcrest
+ org.hamcrest,
+ junit-jupiter-api
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.eas.integration.tests
 Export-Package: net.bluemind.eas.integration.tests

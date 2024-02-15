@@ -1,10 +1,10 @@
 package net.bluemind.backend.mail.replica.service.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,9 +20,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import net.bluemind.addressbook.api.IAddressBook;
 import net.bluemind.addressbook.api.IAddressBookUids;
@@ -64,10 +65,10 @@ public class OutboxServiceTests extends AbstractRollingReplicationTests {
 
 	private static final int ALLOC_COUNT = 42;
 
-	@Before
+	@BeforeEach
 	@Override
-	public void before() throws Exception {
-		super.before();
+	public void before(TestInfo testInfo) throws Exception {
+		super.before(testInfo);
 
 		FakeSendmailGlobalState.EML.clear();
 
@@ -139,10 +140,10 @@ public class OutboxServiceTests extends AbstractRollingReplicationTests {
 		return box.uid;
 	}
 
-	@After
-	public void after() throws Exception {
+	@AfterEach
+	public void after(TestInfo testInfo) throws Exception {
 		System.err.println("Test is over, after starts...");
-		super.after();
+		super.after(testInfo);
 	}
 
 	@Test
@@ -428,10 +429,10 @@ public class OutboxServiceTests extends AbstractRollingReplicationTests {
 		CompletableFuture<Void> applyMailboxCompletetion = new ExpectCommand().onNextApplyMailbox(outboxUid);
 		TaskUtils.wait(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM), outboxService.flush());
 		applyMailboxCompletetion.get(5, TimeUnit.SECONDS);
-		assertEquals("MDN should not be copied to Sent", 0L,
-				sent_mailboxItemsService.count(ItemFlagFilter.all()).total);
-		assertEquals("MDN should be removed from Outbox", 0L,
-				outboxMailboxItemsService.count(ItemFlagFilter.create().mustNot(ItemFlag.Deleted)).total);
+		assertEquals(0L, sent_mailboxItemsService.count(ItemFlagFilter.all()).total,
+				"MDN should not be copied to Sent");
+		assertEquals(0L, outboxMailboxItemsService.count(ItemFlagFilter.create().mustNot(ItemFlag.Deleted)).total,
+				"MDN should be removed from Outbox");
 	}
 
 	@Test
@@ -452,8 +453,8 @@ public class OutboxServiceTests extends AbstractRollingReplicationTests {
 				outboxService.flush());
 		applyMailboxCompletetion.get(5, TimeUnit.SECONDS);
 		assertEquals(1L, sent_mailboxItemsService.count(ItemFlagFilter.all()).total);
-		assertTrue(String.format("Expected to find '\"requestedDSNds\": 1' in '%s'", taskStatus.result),
-				taskStatus.result.contains("\"requestedDSNs\": 1"));
+		assertTrue(taskStatus.result.contains("\"requestedDSNs\": 1"),
+				String.format("Expected to find '\"requestedDSNds\": 1' in '%s'", taskStatus.result));
 	}
 
 }

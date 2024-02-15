@@ -8,7 +8,6 @@ Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.rest;visibility:=reexport,
  net.bluemind.tests.defaultdata,
- org.junit;visibility:=reexport,
  net.bluemind.imap.driver.mailapi,
  com.typesafe.config,
  net.bluemind.core.elasticsearch.testshelper,
@@ -34,6 +33,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.authentication.service;bundle-version="5.0.0",
  net.bluemind.utils;visibility:=reexport,
  net.bluemind.role.api,
+ junit-jupiter-api;visibility:=reexport,
  net.bluemind.authentication.mgmt.service;bundle-version="5.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.backend.mailapi.testhelper

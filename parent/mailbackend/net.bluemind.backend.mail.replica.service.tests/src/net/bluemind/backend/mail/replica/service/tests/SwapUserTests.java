@@ -17,16 +17,17 @@
   */
 package net.bluemind.backend.mail.replica.service.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
@@ -61,11 +62,10 @@ public class SwapUserTests extends AbstractRollingReplicationTests {
 	private String apiKey;
 	private ItemValue<Mailbox> replMbox;
 
-	@Before
+	@BeforeEach
 	@Override
-	public void before() throws Exception {
-		super.before();
-
+	public void before(TestInfo testInfo) throws Exception {
+		super.before(testInfo);
 		// populate another user to do the mailbox swap
 		String willReplace = PopulateHelper.addUser(userUid + ".replacement", domainUid);
 		SecurityContext replSc = new SecurityContext("repsid", willReplace, Collections.emptyList(),
@@ -83,7 +83,7 @@ public class SwapUserTests extends AbstractRollingReplicationTests {
 			Thread.sleep(50);
 			replInbox = replFolders.byName("INBOX");
 		}
-		assertNotNull("inbox for second user not replicated in time", replInbox);
+		assertNotNull(replInbox, "inbox for second user not replicated in time");
 		System.err.println("Second user populated in " + (System.currentTimeMillis() - wait) + "ms.");
 
 		System.err.println("before is complete, starting test.");
@@ -227,7 +227,7 @@ public class SwapUserTests extends AbstractRollingReplicationTests {
 			Thread.sleep(50);
 			replInbox = replFolders.byName("INBOX");
 		}
-		assertNotNull("inbox for replacement user not replicated in time", replInbox);
+		assertNotNull(replInbox, "inbox for replacement user not replicated in time");
 		System.err.println("Replacement populated in " + (System.currentTimeMillis() - wait) + "ms.");
 
 //		SyncClient sc2 = new SyncClient("127.0.0.1", 2501);

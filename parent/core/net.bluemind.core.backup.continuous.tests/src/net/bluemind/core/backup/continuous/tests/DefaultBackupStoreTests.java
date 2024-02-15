@@ -17,20 +17,19 @@
  */
 package net.bluemind.core.backup.continuous.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collection;
 import java.util.concurrent.ThreadLocalRandom;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestName;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import com.google.common.hash.Hashing;
 
@@ -52,10 +51,7 @@ public class DefaultBackupStoreTests {
 
 	private static ZkKafkaContainer kafka;
 
-	@Rule
-	public final TestName testName = new TestName();
-
-	@BeforeClass
+	@BeforeAll
 	public static void beforeClass() {
 		kafka = new ZkKafkaContainer();
 		kafka.start();
@@ -65,21 +61,21 @@ public class DefaultBackupStoreTests {
 		DefaultLeader.reset();
 	}
 
-	@Before
-	public void before() {
+	@BeforeEach
+	public void before(TestInfo info) {
 		System.clearProperty("bm.mcast.id");
 		InstallationId.reload();
-		System.setProperty("zk.participant", testName.getMethodName());
+		System.setProperty("zk.participant", info.getTestMethod().get().getName());
 		DefaultLeader.reset();
 		DefaultBackupStore.reset();
 	}
 
-	@After
+	@AfterEach
 	public void after() {
 		DefaultLeader.leader().releaseLeadership();
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void afterClass() {
 		DefaultLeader.leader().releaseLeadership();
 
@@ -92,14 +88,14 @@ public class DefaultBackupStoreTests {
 	@Test
 	public void testWriteSomething() {
 		IBackupStoreFactory store = DefaultBackupStore.store();
-		assertNotNull("store must not be null", store);
+		assertNotNull(store, "store must not be null");
 		long time = 1;
 		ItemValue<Foo> rand = ItemValue.create("yeah" + time, Foo.random());
 		rand.internalId = time;
 		BaseContainerDescriptor container = BaseContainerDescriptor.create("dir_devenv.blue", "devenv.blue directory",
 				"system", "dir", "devenv.blue", true);
 		IBackupStore<Foo> topic = store.forContainer(container);
-		assertNotNull("topic must not be null", topic);
+		assertNotNull(topic, "topic must not be null");
 		System.err.println("got topic " + topic);
 		topic.store(rand);
 
@@ -123,7 +119,7 @@ public class DefaultBackupStoreTests {
 		assertEquals(iid, setIid);
 		IBackupStoreFactory store = DefaultBackupStore.store();
 		IBackupReader reader = DefaultBackupStore.reader();
-		assertNotNull("store must not be null", store);
+		assertNotNull(store, "store must not be null");
 		BaseContainerDescriptor container = BaseContainerDescriptor.create(
 				"bluemind-0536412c-4151-45ad-bdb3-16e91e2b8f55", "install Moisie", "system", "installation", null,
 				true);
@@ -143,7 +139,7 @@ public class DefaultBackupStoreTests {
 	public void testReReadSomething() throws InterruptedException {
 		IBackupStoreFactory store = DefaultBackupStore.store();
 		IBackupReader reader = DefaultBackupStore.reader();
-		assertNotNull("store must not be null", store);
+		assertNotNull(store, "store must not be null");
 		System.err.println("LEADER: " + store.leadership().isLeader());
 		long time = 1;
 		RecordKey expectedKey = randomKey();
@@ -152,7 +148,7 @@ public class DefaultBackupStoreTests {
 		BaseContainerDescriptor container = BaseContainerDescriptor.create("install_moisie", "install Moisie", "system",
 				"installation", null, true);
 		IBackupStore<RecordKey> topic = store.forContainer(container);
-		assertNotNull("topic must not be null", topic);
+		assertNotNull(topic, "topic must not be null");
 
 		topic.store(rand);
 

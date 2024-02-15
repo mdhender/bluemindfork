@@ -17,16 +17,17 @@
   */
 package net.bluemind.backend.mail.replica.service.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import net.bluemind.backend.mail.api.IMailboxFoldersByContainer;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
@@ -46,10 +47,10 @@ import net.bluemind.user.api.User;
 
 public class RecreateUserTests extends AbstractRollingReplicationTests {
 
-	@Before
+	@BeforeEach
 	@Override
-	public void before() throws Exception {
-		super.before();
+	public void before(TestInfo testInfo) throws Exception {
+		super.before(testInfo);
 	}
 
 	private IServiceProvider suProvider() {
@@ -86,13 +87,13 @@ public class RecreateUserTests extends AbstractRollingReplicationTests {
 
 		// +1 for the root (aka INBOX)
 		int expected = DefaultFolder.USER_FOLDERS.size() + 1;
-		assertEquals("we should have at least " + expected, expected, freshFolders.size());
+		assertEquals(expected, freshFolders.size(), "we should have at least " + expected);
 
 		boolean intersect = currentFolders.stream().anyMatch(freshFolders::contains);
-		assertFalse("fresh folder internalId must all be different", intersect);
+		assertFalse(intersect, "fresh folder internalId must all be different");
 
 		long brokenInTest = CircuitBreaksCounter.breaks() - brokenCircuits;
-		assertEquals("circuit breaker should not trigger", 0, brokenInTest);
+		assertEquals(0, brokenInTest, "circuit breaker should not trigger");
 
 	}
 

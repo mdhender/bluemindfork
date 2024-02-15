@@ -17,9 +17,9 @@
  */
 package net.bluemind.imap.fullstack.tests;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import net.bluemind.backend.mail.api.MessageBody.Part;
 import net.bluemind.core.utils.JsonUtils;

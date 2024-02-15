@@ -17,14 +17,15 @@
   */
 package net.bluemind.backend.mail.replica.service.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import com.google.common.base.Strings;
 
@@ -47,10 +48,10 @@ public class ManyMailboxesTests extends AbstractRollingReplicationTests {
 	public static final int TOTAL = 6;
 	public static final int SHARED_EVERY_N = 2;
 
-	@Before
+	@BeforeEach
 	@Override
-	public void before() throws Exception {
-		super.before();
+	public void before(TestInfo testInfo) throws Exception {
+		super.before(testInfo);
 		int CNT = TOTAL;
 		this.mailboxes = new ArrayList<>(10 * CNT);
 		for (int i = 1; i <= CNT; i++) {
@@ -85,8 +86,8 @@ public class ManyMailboxesTests extends AbstractRollingReplicationTests {
 	}
 
 	@Override
-	public void after() throws Exception {
-		super.after();
+	public void after(TestInfo testInfo) throws Exception {
+		super.after(testInfo);
 	}
 
 	@Test

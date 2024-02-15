@@ -17,8 +17,8 @@
  */
 package net.bluemind.core.backup.continuous.tests;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -26,7 +26,9 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.LongAdder;
 
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,12 +50,13 @@ import net.bluemind.user.api.User;
 public class DeletionsWithKafkaTests extends MailApiWithKafkaBaseTests {
 
 	@Override
-	public void before() throws Exception {
+	@BeforeEach
+	public void before(TestInfo info) throws Exception {
 		// fast compaction
 		System.setProperty("kafka.topic.maxCompactionLag", "5s");
 		System.setProperty("kafka.topic.maxSegmentDuration", "5s");
 
-		super.before();
+		super.before(info);
 	}
 
 	@Test

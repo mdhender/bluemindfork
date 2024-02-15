@@ -17,9 +17,9 @@
   */
 package net.bluemind.backend.mail.replica.service.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -36,9 +36,10 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -74,20 +75,20 @@ public class ReplicationIndexingTests extends AbstractRollingReplicationTests {
 
 	private ExpectCommand expectCommand;
 
-	@Before
-	public void before() throws Exception {
-		super.before();
+	@BeforeEach
+	public void before(TestInfo testInfo) throws Exception {
+		super.before(testInfo);
 		RecordIndexActivator.reload();
 		Optional<IMailIndexService> indexer = RecordIndexActivator.getIndexer();
-		assertTrue("Indexing support is missing", indexer.isPresent());
+		assertTrue(indexer.isPresent(), "Indexing support is missing");
 
 		this.expectCommand = new ExpectCommand();
 	}
 
-	@After
-	public void after() throws Exception {
+	@AfterEach
+	public void after(TestInfo testInfo) throws Exception {
 		System.err.println("Test is over, after starts...");
-		super.after();
+		super.after(testInfo);
 	}
 
 	private IServiceProvider suProvider() {
@@ -137,8 +138,8 @@ public class ReplicationIndexingTests extends AbstractRollingReplicationTests {
 					.index("mailspool_alias_" + userUid) //
 					.query(q -> q.bool(b -> b.must(m -> m.term(t -> t.field("uid").value(finalLastUid))))), Void.class);
 		} while (found.hits().total().value() == 0 && ++attempt < 400);
-		assertTrue("We tried " + attempt + " times & didn't found the doc with uid " + lastUid,
-				found.hits().total().value() > 0);
+		assertTrue(found.hits().total().value() > 0,
+				"We tried " + attempt + " times & didn't found the doc with uid " + lastUid);
 
 		System.err.println("Flags change starts");
 		long time = System.currentTimeMillis();
@@ -195,8 +196,8 @@ public class ReplicationIndexingTests extends AbstractRollingReplicationTests {
 					.index("mailspool_alias_" + userUid) //
 					.query(q -> q.bool(b -> b.must(m -> m.term(t -> t.field("uid").value(addedUid))))), Void.class);
 		} while (found.hits().total().value() == 0 && ++attempt < 200);
-		assertTrue("We tried " + attempt + " times & didn't found the doc with uid " + addedUid,
-				found.hits().total().value() > 0);
+		assertTrue(found.hits().total().value() > 0,
+				"We tried " + attempt + " times & didn't found the doc with uid " + addedUid);
 
 		FlagsList trashed = new FlagsList();
 		trashed.add(Flag.SEEN);
@@ -253,8 +254,8 @@ public class ReplicationIndexingTests extends AbstractRollingReplicationTests {
 							.must(m -> m.term(t -> t.field("uid").value(addedUid))))),
 					Void.class);
 		} while (found.hits().total().value() == 0 && ++attempt < 200);
-		assertTrue("We tried " + attempt + " times & didn't find the doc with uid " + addedUid,
-				found.hits().total().value() > 0);
+		assertTrue(found.hits().total().value() > 0,
+				"We tried " + attempt + " times & didn't find the doc with uid " + addedUid);
 
 		ESearchActivator.refreshIndex(index);
 
@@ -357,8 +358,8 @@ public class ReplicationIndexingTests extends AbstractRollingReplicationTests {
 							.must(m -> m.term(t -> t.field("uid").value(addedUid))))),
 					ObjectNode.class);
 		} while (found.hits().total().value() == 0 && ++attempt < 200);
-		assertTrue("We tried " + attempt + " times & didn't find the doc with uid " + addedUid,
-				found.hits().total().value() > 0);
+		assertTrue(found.hits().total().value() > 0,
+				"We tried " + attempt + " times & didn't find the doc with uid " + addedUid);
 
 		Hit<ObjectNode> hit = found.hits().hits().get(0);
 		List<String> isValue = Streams.stream(hit.source().get("is").elements()).map(n -> n.asText()).toList();

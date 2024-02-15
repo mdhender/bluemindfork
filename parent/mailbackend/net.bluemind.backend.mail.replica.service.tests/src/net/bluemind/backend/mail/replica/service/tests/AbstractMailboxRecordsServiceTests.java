@@ -22,7 +22,7 @@
  */
 package net.bluemind.backend.mail.replica.service.tests;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.InputStream;
 import java.time.LocalDate;
@@ -34,9 +34,10 @@ import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
@@ -72,7 +73,7 @@ public abstract class AbstractMailboxRecordsServiceTests<T> {
 
 	protected Vertx vertx;
 
-	@BeforeClass
+	@BeforeAll
 	public static void beforeClass() {
 		System.setProperty("node.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP + "," + PopulateHelper.FAKE_CYRUS_IP_2);
 		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP + "," + PopulateHelper.FAKE_CYRUS_IP_2);
@@ -82,7 +83,7 @@ public abstract class AbstractMailboxRecordsServiceTests<T> {
 		StateContext.setState("core.started");
 	}
 
-	@BeforeClass
+	@AfterAll
 	public static void afterClass() {
 		System.clearProperty("node.local.ipaddr");
 		System.clearProperty("imap.local.ipaddr");
@@ -96,7 +97,7 @@ public abstract class AbstractMailboxRecordsServiceTests<T> {
 		return new InputReadStream(inputStream);
 	}
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 		JdbcTestHelper.getInstance().getDbSchemaService().initialize();
@@ -131,7 +132,7 @@ public abstract class AbstractMailboxRecordsServiceTests<T> {
 		});
 	}
 
-	@After
+	@AfterEach
 	public void after() throws Exception {
 		JdbcTestHelper.getInstance().afterTest();
 		ElasticsearchTestHelper.getInstance().afterTest();

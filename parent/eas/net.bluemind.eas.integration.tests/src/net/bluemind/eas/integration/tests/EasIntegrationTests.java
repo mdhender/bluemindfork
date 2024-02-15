@@ -17,16 +17,17 @@
   */
 package net.bluemind.eas.integration.tests;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import net.bluemind.backend.mailapi.testhelper.MailApiTestsBase;
 import net.bluemind.eas.client.FolderSyncResponse;
@@ -38,9 +39,9 @@ public class EasIntegrationTests extends MailApiTestsBase {
 	private EasServerSetup setup;
 	private OPClient client;
 
-	@Before
-	public void before() throws Exception {
-		super.before();
+	@BeforeEach
+	public void before(TestInfo info) throws Exception {
+		super.before(info);
 
 		this.setup = new EasServerSetup("toto" + System.currentTimeMillis(), domUid);
 		setup.beforeTest();
@@ -49,11 +50,11 @@ public class EasIntegrationTests extends MailApiTestsBase {
 
 	}
 
-	@After
-	public void after() throws Exception {
+	@AfterEach
+	public void after(TestInfo info) throws Exception {
 		client.destroy();
 		setup.afterTest();
-		super.after();
+		super.after(info);
 	}
 
 	@Test

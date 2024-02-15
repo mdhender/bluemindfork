@@ -22,11 +22,12 @@
  */
 package net.bluemind.backend.mail.replica.service.tests;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import net.bluemind.backend.mail.api.IBaseMailboxFolders;
 import net.bluemind.backend.mail.replica.api.IReplicatedMailboxesRootMgmt;
@@ -46,10 +47,10 @@ public abstract class AbstractReplicatedMailboxesServiceTests<T extends IBaseMai
 	protected MailboxReplicaRootDescriptor mboxDescriptor;
 	protected Subtree subtreeDescriptor;
 
-	@Before
+	@BeforeEach
 	@Override
-	public void before() throws Exception {
-		super.before();
+	public void before(TestInfo testInfo) throws Exception {
+		super.before(testInfo);
 
 		partition = domUid.replace('.', '_');
 		mboxDescriptor = MailboxReplicaRootDescriptor.create(Namespace.users, userUid);
@@ -59,7 +60,7 @@ public abstract class AbstractReplicatedMailboxesServiceTests<T extends IBaseMai
 		this.subtreeDescriptor = SubtreeContainer.mailSubtreeUid(domUid, Namespace.users, userUid);
 	}
 
-	@After
+	@AfterEach
 	public void after() throws Exception {
 		JdbcTestHelper.getInstance().afterTest();
 	}

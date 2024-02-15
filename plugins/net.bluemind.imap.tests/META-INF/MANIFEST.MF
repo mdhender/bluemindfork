@@ -41,6 +41,7 @@ Require-Bundle: net.bluemind.imap,
  net.bluemind.core.auditlogs,
  net.bluemind.core.auditlogs.client.es,
  net.bluemind.system.state,
+ junit-jupiter-api,
  net.bluemind.core.auditlogs.client.loader,
  net.bluemind.authentication.mgmt.service;bundle-version="5.0.0",
  junit-jupiter-api

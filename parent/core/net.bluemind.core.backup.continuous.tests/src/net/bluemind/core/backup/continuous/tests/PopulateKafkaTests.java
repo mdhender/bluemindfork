@@ -19,11 +19,11 @@
 package net.bluemind.core.backup.continuous.tests;
 
 import static org.awaitility.Awaitility.await;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -53,9 +53,9 @@ import javax.sql.DataSource;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Streams;
@@ -141,7 +141,7 @@ public class PopulateKafkaTests {
 	private PopulatedContent dumpData;
 
 	@SuppressWarnings("resource")
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		// osx might have port 8021 in use
 		// launchctl unload -w /System/Library/LaunchDaemons/com.apple.ftp-proxy.plist
@@ -360,15 +360,15 @@ public class PopulateKafkaTests {
 		CyrusPartition partition = CyrusPartition.forServerAndDomain(mailboxSylvain.value.dataLocation, domFound.uid);
 
 		IDbMessageBodies apiMessageBodies = prov.instance(IDbMessageBodies.class, partition.name);
-		assertFalse("we need some bodies in the dump or this test is irrelevant", dumpContent.bodiesLoaded.isEmpty());
+		assertFalse(dumpContent.bodiesLoaded.isEmpty(), "we need some bodies in the dump or this test is irrelevant");
 		for (String guid : dumpContent.bodiesLoaded) {
-			assertTrue("ensure " + guid + " from kafka dump was cloned", apiMessageBodies.exists(guid));
+			assertTrue(apiMessageBodies.exists(guid), "ensure " + guid + " from kafka dump was cloned");
 
 			SearchResponse<Void> resp = client.search(s -> s //
 					.index("mailspool_pending_read_alias") //
 					.query(q -> q.ids(i -> i.values(guid))), Void.class);
 			long totalHits = resp.hits().total().value();
-			assertEquals("check " + guid + " exists in mailspool_pending", 1L, totalHits);
+			assertEquals(1L, totalHits, "check " + guid + " exists in mailspool_pending");
 
 		}
 
@@ -443,14 +443,14 @@ public class PopulateKafkaTests {
 				String loc = DataSourceRouter.location(ctx, cd.uid);
 				System.err.println("* " + cd.name + ", o: " + cd.owner + ", u: " + cd.uid + " loc: " + loc);
 			}
-			assertEquals("Expected no containers of type " + type + " on directory DB", 0, dirByType.size());
+			assertEquals(0, dirByType.size(), "Expected no containers of type " + type + " on directory DB");
 		}
 		if (noneOnShardExcepted) {
 			for (Container cd : shardByType) {
 				String loc = DataSourceRouter.location(ctx, cd.uid);
 				System.err.println("* " + cd.name + ", o: " + cd.owner + ", u: " + cd.uid + " loc: " + loc);
 			}
-			assertEquals("Expected no containers of type " + type + " on shard DB", 0, shardByType.size());
+			assertEquals(0, shardByType.size(), "Expected no containers of type " + type + " on shard DB");
 		}
 	}
 
@@ -467,7 +467,7 @@ public class PopulateKafkaTests {
 		System.err.println("finished publisher reset part.");
 	}
 
-	@After
+	@AfterEach
 	public void after() throws Exception {
 		try {
 			StateContext.setState("core.cloning.end");

@@ -17,11 +17,11 @@
   */
 package net.bluemind.backend.mail.replica.service.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,8 +30,9 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.mail.api.IMailboxFolders;
@@ -61,10 +62,10 @@ public class MailItemUpdateTests extends AbstractRollingReplicationTests {
 	private IMailboxItems mailApi;
 	private ItemValue<MailboxItem> mailObject;
 
-	@Before
+	@BeforeEach
 	@Override
-	public void before() throws Exception {
-		super.before();
+	public void before(TestInfo testInfo) throws Exception {
+		super.before(testInfo);
 
 		imapAsUser(sc -> {
 			int added = sc.append("INBOX", testEml(), new FlagsList());
@@ -199,7 +200,7 @@ public class MailItemUpdateTests extends AbstractRollingReplicationTests {
 		String newFlag = "fresh" + System.currentTimeMillis();
 		mailObject.value.flags = Arrays.asList(new MailboxItemFlag(newFlag));
 		Ack ack = mailApi.updateById(mailObject.internalId, mailObject.value);
-		assertEquals("version was not bumped", mailObject.version + 1, ack.version);
+		assertEquals(mailObject.version + 1, ack.version, "version was not bumped");
 	}
 
 }

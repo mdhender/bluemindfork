@@ -22,13 +22,13 @@
   */
 package net.bluemind.backend.mail.replica.service.tests.tools;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import net.bluemind.backend.mail.replica.service.internal.tools.EnvelopFrom;
 import net.bluemind.core.api.Email;
@@ -42,7 +42,7 @@ public class EnvelopFromTest {
 	private String domainUid;
 	private ItemValue<Domain> domain;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		domainUid = "domain-uid";
 		domain = ItemValue.create(Item.create(domainUid, 0), Domain.create("domain.internal", "domain.internal",

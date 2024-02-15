@@ -17,15 +17,16 @@
   */
 package net.bluemind.backend.mail.replica.service.tests;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.InputStream;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import net.bluemind.backend.mail.api.IItemsTransfer;
 import net.bluemind.backend.mail.api.IMailboxFolders;
@@ -51,10 +52,10 @@ public class ItemTransfersTests extends AbstractRollingReplicationTests {
 	private IItemsTransfer txApi;
 	private IItemsTransfer txApiPolo;
 
-	@Before
+	@BeforeEach
 	@Override
-	public void before() throws Exception {
-		super.before();
+	public void before(TestInfo testInfo) throws Exception {
+		super.before(testInfo);
 
 		IMailboxFolders foldersApi = foldersApi();
 		foldersApi.createBasic(MailboxFolder.of("marco"));
@@ -121,23 +122,23 @@ public class ItemTransfersTests extends AbstractRollingReplicationTests {
 		List<Long> inMarco = mailApi.filteredChangesetById(0L,
 				ItemFlagFilter.create().mustNot(ItemFlag.Deleted)).created.stream().map(iv -> iv.id)
 				.collect(Collectors.toList());
-		assertTrue("Must move more than 100 messages", inMarco.size() > 100);
+		assertTrue(inMarco.size() > 100, "Must move more than 100 messages");
 
 		IItemsTransfer curApi = txApi;
 		List<ItemIdentifier> moved = curApi.move(inMarco);
-		assertTrue("The returned message list size do not match the moved message list size",
-				moved.size() == inMarco.size());
+		assertTrue(moved.size() == inMarco.size(),
+				"The returned message list size do not match the moved message list size");
 		List<Long> inPolo = mailApiPolo.filteredChangesetById(0L,
 				ItemFlagFilter.create().mustNot(ItemFlag.Deleted)).created.stream().map(iv -> iv.id)
 				.collect(Collectors.toList());
-		assertTrue("All messages are not present in destination mailbox", inPolo.size() == inMarco.size());
+		assertTrue(inPolo.size() == inMarco.size(), "All messages are not present in destination mailbox");
 
 		// wait for flags to be applied
 		Thread.sleep(100);
 
 		inMarco = mailApi.filteredChangesetById(0L, ItemFlagFilter.create().mustNot(ItemFlag.Deleted)).created.stream()
 				.map(iv -> iv.id).collect(Collectors.toList());
-		assertTrue("Some messages still present in source mailbox " + inMarco.size(), inMarco.isEmpty());
+		assertTrue(inMarco.isEmpty(), "Some messages still present in source mailbox " + inMarco.size());
 
 	}
 }

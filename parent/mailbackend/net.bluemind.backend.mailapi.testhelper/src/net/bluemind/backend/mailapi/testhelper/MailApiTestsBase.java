@@ -18,8 +18,8 @@
  */
 package net.bluemind.backend.mailapi.testhelper;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.nio.file.FileVisitOption;
@@ -33,12 +33,11 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.rules.TestName;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestInfo;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
@@ -95,10 +94,7 @@ public class MailApiTestsBase {
 
 	protected IServiceProvider userProvider;
 
-	@Rule
-	public TestName testName = new TestName();
-
-	@BeforeClass
+	@BeforeAll
 	public static void beforeClass() {
 		System.setProperty("node.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP + "," + PopulateHelper.FAKE_CYRUS_IP_2);
 		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP + "," + PopulateHelper.FAKE_CYRUS_IP_2);
@@ -106,7 +102,7 @@ public class MailApiTestsBase {
 		System.setProperty("mapi.notification.fresh", "true");
 	}
 
-	@BeforeClass
+	@AfterAll
 	public static void afterClass() {
 		System.clearProperty("node.local.ipaddr");
 		System.clearProperty("imap.local.ipaddr");
@@ -143,9 +139,9 @@ public class MailApiTestsBase {
 		}
 	}
 
-	@Before
-	public void before() throws Exception {
-		System.err.println("==== BEFORE " + testName.getMethodName() + " starts ====");
+	@BeforeEach
+	public void before(TestInfo testInfo) throws Exception {
+		System.err.println("==== BEFORE " + testInfo.getDisplayName() + " starts ====");
 		DomainBookVerticle.suspended = suspendBookSync();
 		if (!suspendBookSync()) {
 			cleanupHollowData();
@@ -159,7 +155,7 @@ public class MailApiTestsBase {
 
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
-		Assert.assertNotNull(esServer.ip);
+		assertNotNull(esServer.ip);
 		esServer.tags = Lists.newArrayList(TagDescriptor.bm_es.getTag());
 
 		VertxPlatform.spawnBlocking(25, TimeUnit.SECONDS);
@@ -189,13 +185,13 @@ public class MailApiTestsBase {
 			this.userProvider = ServerSideServiceProvider.getProvider(userSec);
 		}
 
-		System.err.println("==== BEFORE " + testName.getMethodName() + " ends ====");
+		System.err.println("==== BEFORE " + testInfo.getDisplayName() + " ends ====");
 
 	}
 
-	@After
-	public void after() throws Exception {
-		System.err.println("===== AFTER " + testName.getMethodName() + " starts =====");
+	@AfterEach
+	public void after(TestInfo testInfo) throws Exception {
+		System.err.println("===== AFTER " + testInfo.getDisplayName() + " starts =====");
 		ElasticsearchTestHelper.getInstance().afterTest();
 		JdbcTestHelper.getInstance().afterTest();
 		if (!suspendBookSync()) {

@@ -25,7 +25,8 @@ package net.bluemind.backend.mail.replica.service.tests;
 import java.io.InputStream;
 import java.util.Objects;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestInfo;
 
 import com.google.common.io.ByteStreams;
 
@@ -53,10 +54,10 @@ public abstract class AbstractMessageBodiesServiceTests extends MailApiTestsBase
 		}
 	}
 
-	@Before
+	@BeforeEach
 	@Override
-	public void before() throws Exception {
-		super.before();
+	public void before(TestInfo testInfo) throws Exception {
+		super.before(testInfo);
 		partition = CyrusPartition.forServerAndDomain(PopulateHelper.FAKE_CYRUS_IP, domUid).name;
 	}
 

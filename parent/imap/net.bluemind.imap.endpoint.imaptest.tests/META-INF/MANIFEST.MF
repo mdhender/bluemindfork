@@ -7,14 +7,14 @@ Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.backend.mailapi.testhelper;bundle-version="5.0.0",
  net.bluemind.imap.docker.imaptest;bundle-version="5.0.0",
- org.junit,
  com.google.guava,
  net.bluemind.testcontainers,
  net.bluemind.network.utils,
  slf4j.api;bundle-version="1.7.36",
  net.bluemind.imap.endpoint,
  net.bluemind.tests.defaultdata,
- net.bluemind.role.api
+ net.bluemind.role.api,
+ junit-jupiter-api
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.imap.endpoint.imaptests.tests
 Bundle-ActivationPolicy: lazy

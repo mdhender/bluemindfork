@@ -17,9 +17,9 @@
  */
 package net.bluemind.delivery.lmtp.quota.tests;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -41,8 +41,9 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,10 +69,10 @@ public class DeliverySignedMessageTests extends MailApiTestsBase {
 	private ItemValue<User> nearFull;
 	private String rcptEmail;
 
-	@Before
+	@BeforeEach
 	@Override
-	public void before() throws Exception {
-		super.before();
+	public void before(TestInfo info) throws Exception {
+		super.before(info);
 		IMailboxes mboxApi = serverProv.instance(IMailboxes.class, domUid);
 
 		this.nearFull = sharedUser("near.full", domUid, userUid, 32, ByteSizeUnit.KB);

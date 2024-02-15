@@ -17,14 +17,14 @@
  */
 package net.bluemind.imap.endpoint.imaptest.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.time.Duration;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.base.Splitter;
 
@@ -52,7 +52,7 @@ public class FullPlanTests extends MailApiTestsBase {
 				.toList();
 		System.err.println("justErrors.size: " + justErrors.size());
 		justErrors.forEach(s -> System.err.println(" - " + s));
-		assertEquals("We expected 0 errors from imaptest run", 0, justErrors.size());
+		assertEquals(0, justErrors.size(), "We expected 0 errors from imaptest run");
 	}
 
 }

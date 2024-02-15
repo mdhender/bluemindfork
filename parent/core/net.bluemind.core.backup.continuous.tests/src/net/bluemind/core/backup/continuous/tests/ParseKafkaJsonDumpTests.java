@@ -17,7 +17,7 @@
  */
 package net.bluemind.core.backup.continuous.tests;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.LongAdder;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.io.ByteStreams;
 

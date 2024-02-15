@@ -17,10 +17,10 @@
   */
 package net.bluemind.backend.mail.replica.service.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,9 +31,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import com.google.common.io.ByteStreams;
 
@@ -72,9 +73,9 @@ import net.bluemind.mailshare.api.Mailshare;
 
 public class InboxSubFolderReplicationTests extends AbstractRollingReplicationTests {
 
-	@Before
-	public void before() throws Exception {
-		super.before();
+	@BeforeEach
+	public void before(TestInfo testInfo) throws Exception {
+		super.before(testInfo);
 
 		imapAsUser(sc -> {
 			int added = sc.append("INBOX", testEml(), new FlagsList());
@@ -92,10 +93,10 @@ public class InboxSubFolderReplicationTests extends AbstractRollingReplicationTe
 		Sessions.get().put(apiKey, secCtx);
 	}
 
-	@After
-	public void after() throws Exception {
+	@AfterEach
+	public void after(TestInfo testInfo) throws Exception {
 		System.err.println("Test is over, after starts...");
-		super.after();
+		super.after(testInfo);
 	}
 
 	protected IServiceProvider provider() {

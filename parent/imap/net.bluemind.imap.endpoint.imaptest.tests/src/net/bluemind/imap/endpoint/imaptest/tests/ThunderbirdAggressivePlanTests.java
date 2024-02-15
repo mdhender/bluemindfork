@@ -17,16 +17,17 @@
  */
 package net.bluemind.imap.endpoint.imaptest.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.testcontainers.images.builder.Transferable;
 
 import com.google.common.base.Splitter;
@@ -43,8 +44,8 @@ public class ThunderbirdAggressivePlanTests extends MailApiTestsBase {
 	private int userCount = 10;
 
 	@Override
-	public void before() throws Exception {
-		super.before();
+	public void before(TestInfo info) throws Exception {
+		super.before(info);
 		for (int i = 0; i < userCount; i++) {
 			PopulateHelper.addUser("test" + (i + 1), "test", domUid, Routing.internal, BasicRoles.ROLE_OUTLOOK);
 		}
@@ -71,7 +72,7 @@ public class ThunderbirdAggressivePlanTests extends MailApiTestsBase {
 				.toList();
 		System.err.println("justErrors.size: " + justErrors.size());
 		justErrors.forEach(s -> System.err.println(" - " + s));
-		assertEquals("We expected 0 errors from imaptest run", 0, justErrors.size());
+		assertEquals(0, justErrors.size(), "We expected 0 errors from imaptest run");
 	}
 
 	private byte[] res(String pathInBundle) throws IOException {

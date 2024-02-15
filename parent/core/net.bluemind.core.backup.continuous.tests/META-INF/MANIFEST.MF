@@ -5,7 +5,6 @@ Bundle-SymbolicName: net.bluemind.core.backup.continuous.tests;singleton:=true
 Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
- org.junit,
  net.bluemind.imap.endpoint,
  net.bluemind.backend.mailapi.storage,
  net.bluemind.core.jdbc.testshelper,
@@ -67,7 +66,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.auditlogs.client.loader,
  net.bluemind.core.auditlogs.client.es,
  net.bluemind.core.auditlogs.schema,
- net.bluemind.core.auditlogs.client.kafka
+ net.bluemind.core.auditlogs.client.kafka,
+ junit-jupiter-api
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.core.backup.continuous.tests
 Bundle-ActivationPolicy: lazy

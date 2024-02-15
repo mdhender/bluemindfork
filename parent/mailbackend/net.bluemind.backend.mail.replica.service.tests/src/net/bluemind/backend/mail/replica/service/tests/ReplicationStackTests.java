@@ -17,13 +17,13 @@
   */
 package net.bluemind.backend.mail.replica.service.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,8 +46,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.awaitility.Awaitility;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.io.ByteStreams;
@@ -138,10 +139,10 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 
 	private int knownInboxUid;
 
-	@Before
+	@BeforeEach
 	@Override
-	public void before() throws Exception {
-		super.before();
+	public void before(TestInfo testInfo) throws Exception {
+		super.before(testInfo);
 
 		imapAsUser(sc -> {
 			int added = sc.append("INBOX", testEml(), new FlagsList());
@@ -414,7 +415,7 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 			}
 			Thread.sleep(200);
 		} while (retry++ < 10);
-		assertTrue("record was not marked as deleted", retry < 10);
+		assertTrue(retry < 10, "record was not marked as deleted");
 	}
 
 	@Test
@@ -565,7 +566,7 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 			folder.parentUid = root.uid; // NOSONAR
 			ItemIdentifier createAck = mboxesApi.createForHierarchy(folderId, folder);
 			ItemValue<MailboxFolder> folderItem = mboxesApi.getCompleteById(createAck.id);
-			assertEquals("round " + i, folderName, folderItem.displayName);
+			assertEquals(folderName, folderItem.displayName, "round " + i);
 
 			String subFolderName = "mss" + System.currentTimeMillis();
 			MailboxFolder subFolder = new MailboxFolder();
@@ -575,7 +576,7 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 			subFolder.parentUid = folderItem.uid;
 			createAck = mboxesApi.createForHierarchy(folderId + 1, subFolder);
 			ItemValue<MailboxFolder> subFolderItem = mboxesApi.getCompleteById(createAck.id);
-			assertEquals("round " + i, subFolderName, subFolderItem.displayName);
+			assertEquals(subFolderName, subFolderItem.displayName, "round " + i);
 
 		}
 	}
@@ -665,7 +666,7 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 
 		ItemValue<MailboxFolder> folderItem = mboxesApi.byName(folderName);
 
-		assertNotNull("Cannot find '" + folderName + "' by its name.", folderItem);
+		assertNotNull(folderItem, "Cannot find '" + folderName + "' by its name.");
 
 		System.err.println("Before delete of " + folderItem + "...");
 		mboxesApi.deleteById(folderItem.internalId);
@@ -696,7 +697,7 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 
 		ItemValue<MailboxFolder> folderItem = mboxesApi.byName(folderName);
 
-		assertNotNull("Cannot find '" + folderName + "' by its name.", folderItem);
+		assertNotNull(folderItem, "Cannot find '" + folderName + "' by its name.");
 
 		System.err.println("Before delete of " + folderItem + "...");
 		mboxesApi.deleteById(folderItem.internalId);
@@ -1064,13 +1065,13 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 		imapAsUser(sc -> {
 
 			boolean ren = sc.rename(imapRoot(mailshareIv) + "/Sent", imapRoot(mailshareIv) + "/Middle/Sent");
-			assertFalse("we should not create a hole in the hierarchy", ren);
+			assertFalse(ren, "we should not create a hole in the hierarchy");
 
 			sc.create(imapRoot(mailshareIv) + "/Middle");
 			sc.create(imapRoot(mailshareIv) + "/Middle/Finger");
 			CompletableFuture<ItemIdentifier> onMsSubtree = ReplicationEvents.onSubtreeUpdate(subtreeUid);
 			ren = sc.rename(imapRoot(mailshareIv) + "/Middle/Finger", imapRoot(mailshareIv) + "/Middle/Ground");
-			assertTrue("middle/finger -> middle/ground should work", ren);
+			assertTrue(ren, "middle/finger -> middle/ground should work");
 			onMsSubtree.orTimeout(20, TimeUnit.SECONDS).join();
 			return null;
 		});
@@ -1632,7 +1633,7 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 			nestedCrap.add(freshFolder);
 
 			checkFolderTreeThenReturnRoot(mailshare, folders);
-			assertEquals("Created with wrong parent", nested.parentUid, freshFolder.value.parentUid);
+			assertEquals(nested.parentUid, freshFolder.value.parentUid, "Created with wrong parent");
 		}
 
 		System.err.println("Before delete........");
@@ -1666,7 +1667,7 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 			}
 		}
 		assertNotNull(root);
-		assertEquals("Only one folder should have a null parentUid", 1, nullParents);
+		assertEquals(1, nullParents, "Only one folder should have a null parentUid");
 		return root;
 	}
 
@@ -1970,8 +1971,8 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 		mboxesApi.deepDelete(foundItem.internalId);
 		System.err.println("deep delete ends.");
 
-		assertTrue("Expected 3 updates to occur on the hierarchy, last is at " + hierUpdLock.getCount(),
-				hierUpdLock.await(10, TimeUnit.SECONDS));
+		assertTrue(hierUpdLock.await(10, TimeUnit.SECONDS),
+				"Expected 3 updates to occur on the hierarchy, last is at " + hierUpdLock.getCount());
 		imapAsUser(sc -> {
 			System.err.println("try imap listing...");
 			ListResult foundFolders = sc.listAll();
@@ -2032,6 +2033,7 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 
 		mboxesApi.emptyFolder(foundItem.internalId);
 
+
 		imapAsUser(sc -> {
 			ListResult foundFolders = sc.listAll();
 			for (ListInfo f : foundFolders) {
@@ -2080,7 +2082,7 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 
 		mboxesApi.emptyFolder(foundItem.internalId);
 
-		assertTrue("Expected 2 updates to occur on the hierarchy", hierUpdLock.await(10, TimeUnit.SECONDS));
+		assertTrue(hierUpdLock.await(10, TimeUnit.SECONDS), "Expected 2 updates to occur on the hierarchy");
 		imapAsUser(sc -> {
 			ListResult foundFolders = sc.listAll();
 			for (ListInfo f : foundFolders) {
@@ -2144,6 +2146,7 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 
 		mboxesApi.removeMessages(foundItem.internalId);
 
+
 		imapAsUser(sc -> {
 			ListResult foundFolders = sc.listAll();
 			for (ListInfo f : foundFolders) {
@@ -2196,7 +2199,7 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 		Ack updated = mboxesApi.updateById(foundItem.internalId, foundItem.value);
 		System.out.println("version after update: " + updated.version);
 
-		assertTrue("Expected 3 updates to occur on the hierarchy", hierUpdLock.await(10, TimeUnit.SECONDS));
+		assertTrue(hierUpdLock.await(10, TimeUnit.SECONDS), "Expected 3 updates to occur on the hierarchy");
 		imapAsUser(sc -> {
 			ListResult foundFolders = sc.listAll();
 			for (ListInfo f : foundFolders) {
@@ -2253,7 +2256,7 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 			sc.rename(base + "/b/" + child, base + "/a/" + child);
 			return null;
 		});
-		assertTrue("Expected 1 update to occur on the hierarchy", hierUpdLock.await(10, TimeUnit.SECONDS));
+		assertTrue(hierUpdLock.await(10, TimeUnit.SECONDS), "Expected 1 update to occur on the hierarchy");
 		ItemValue<MailboxFolder> postRename = mboxesApi.getCompleteById(created.id);
 		while (postRename == null || postRename.version == preRename.version) {
 			Thread.sleep(100);
@@ -2301,7 +2304,7 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 			sc.rename(src, dst);
 			return null;
 		});
-		assertTrue("Expected 1 update to occur on the hierarchy", hierUpdLock.await(10, TimeUnit.SECONDS));
+		assertTrue(hierUpdLock.await(10, TimeUnit.SECONDS), "Expected 1 update to occur on the hierarchy");
 
 		ItemValue<MailboxFolder> postRename = mboxesApi.getCompleteById(created.id);
 		int iter = 0;
@@ -2310,7 +2313,7 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 			System.out.println("waiting for rename of " + src + " to " + dst + " " + iter + "...");
 			postRename = mboxesApi.getCompleteById(created.id);
 		}
-		assertFalse("took too long", iter >= 50);
+		assertFalse(iter >= 50, "took too long");
 		assertEquals(toRename.uid, postRename.uid);
 		System.err.println("Before: " + toRename.value + ", after: " + postRename.value);
 		assertNotEquals(toRename.value.parentUid, postRename.value.parentUid);
@@ -3102,7 +3105,7 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 		Count cnt = recordsApi.count(UNREAD_NOT_DELETED);
 		System.err.println("perUser: " + cnt.total);
 
-		assertTrue("Expected 1 update to occur on the hierarchy", hierUpdLock.await(10, TimeUnit.SECONDS));
+		assertTrue(hierUpdLock.await(10, TimeUnit.SECONDS), "Expected 1 update to occur on the hierarchy");
 
 		checkMessageIsSeen(message, folderItem.uid);
 	}
@@ -3172,7 +3175,7 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 		folders.markFolderAsRead(sharedSent.internalId);
 		System.err.println("Mark as read done.");
 
-		assertTrue("Expected 1 update to occur on the hierarchy", hierUpdLock.await(10, TimeUnit.SECONDS));
+		assertTrue(hierUpdLock.await(10, TimeUnit.SECONDS), "Expected 1 update to occur on the hierarchy");
 
 		IMailboxItems mailboxItemsService = provider().instance(IMailboxItems.class, sharedSent.uid);
 
@@ -3250,7 +3253,7 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 		System.err.println(String.format("Waited %dms %s", maxWait - (maxTime - time),
 				time < maxTime ? "" : " (max wait reached)"));
 
-		assertTrue("Expected the message to have a 'Seen' flag", messageIsSeen(message));
+		assertTrue(messageIsSeen(message), "Expected the message to have a 'Seen' flag");
 	}
 
 	@Test

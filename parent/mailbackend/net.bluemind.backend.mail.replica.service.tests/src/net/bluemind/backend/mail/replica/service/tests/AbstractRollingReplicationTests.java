@@ -17,7 +17,7 @@
   */
 package net.bluemind.backend.mail.replica.service.tests;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,7 +29,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestInfo;
 
 import com.google.common.io.ByteStreams;
 
@@ -86,10 +87,10 @@ public abstract class AbstractRollingReplicationTests extends MailApiTestsBase {
 		return System.currentTimeMillis() + "";
 	}
 
-	@Before
+	@BeforeEach
 	@Override
-	public void before() throws Exception {
-		super.before();
+	public void before(TestInfo testInfo) throws Exception {
+		super.before(testInfo);
 		domainUid = domUid;
 		cyrusIp = "127.0.0.1";
 		AuthUser testUser = userProvider.instance(IAuthentication.class).getCurrentUser();

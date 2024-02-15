@@ -17,16 +17,18 @@
   */
 package net.bluemind.backend.mail.replica.service.tests;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,14 +63,14 @@ public class MessageBodyRepairTests {
 
 	private IMailboxItems mailboxItemService;
 
-	@BeforeClass
+	@BeforeAll
 	public static void oneShotBefore() {
 		originalBodyStreamProcessorBodyVersion = BodyStreamProcessor.BODY_VERSION;
 	}
 
-	@Before
-	public void before() throws Exception {
-		replicationStackTests.before();
+	@BeforeEach
+	public void before(TestInfo testInfo) throws Exception {
+		replicationStackTests.before(testInfo);
 		this.mailboxFolderService = replicationStackTests.provider().instance(IMailboxFolders.class,
 				replicationStackTests.partition, replicationStackTests.mboxRoot);
 		this.mailboxFolder = this.mailboxFolderService.byName("INBOX");
@@ -76,9 +78,9 @@ public class MessageBodyRepairTests {
 				this.mailboxFolder.uid);
 	}
 
-	@After
-	public void after() throws Exception {
-		replicationStackTests.after();
+	@AfterEach
+	public void after(TestInfo testInfo) throws Exception {
+		replicationStackTests.after(testInfo);
 		BodyStreamProcessor.BODY_VERSION = originalBodyStreamProcessorBodyVersion;
 	}
 
@@ -117,7 +119,7 @@ public class MessageBodyRepairTests {
 		this.repair();
 		ItemValue<MailboxItem> mailboxItemAfterRepair = this.mailboxItemService.getCompleteById(mailboxItem.internalId);
 		// body version should not have changed
-		Assert.assertTrue(mailboxItemAfterRepair.value.body.bodyVersion == mailboxItem.value.body.bodyVersion);
+		assertTrue(mailboxItemAfterRepair.value.body.bodyVersion == mailboxItem.value.body.bodyVersion);
 	}
 
 	@Test
@@ -132,7 +134,7 @@ public class MessageBodyRepairTests {
 		final ItemValue<MailboxItem> mailboxItemAfterRepair = this.mailboxItemService
 				.getCompleteById(mailboxItem.internalId);
 		// body version should be the current one (in BodyStreamProcessor.BODY_VERSION)
-		Assert.assertTrue(mailboxItemAfterRepair.value.body.bodyVersion == BodyStreamProcessor.BODY_VERSION);
+		assertTrue(mailboxItemAfterRepair.value.body.bodyVersion == BodyStreamProcessor.BODY_VERSION);
 	}
 
 	@Test
@@ -151,7 +153,7 @@ public class MessageBodyRepairTests {
 		mailboxItems.forEach(mailboxItem -> {
 			final ItemValue<MailboxItem> mailboxItemAfterRepair = this.mailboxItemService
 					.getCompleteById(mailboxItem.internalId);
-			Assert.assertTrue(mailboxItemAfterRepair.value.body.bodyVersion == BodyStreamProcessor.BODY_VERSION);
+			assertTrue(mailboxItemAfterRepair.value.body.bodyVersion == BodyStreamProcessor.BODY_VERSION);
 		});
 	}
 

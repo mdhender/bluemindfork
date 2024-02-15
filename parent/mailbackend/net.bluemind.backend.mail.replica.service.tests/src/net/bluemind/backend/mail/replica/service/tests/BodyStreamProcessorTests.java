@@ -17,10 +17,11 @@
   */
 package net.bluemind.backend.mail.replica.service.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -37,8 +38,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import org.apache.james.mime4j.dom.Message;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.io.ByteStreams;
 
@@ -183,9 +183,9 @@ public class BodyStreamProcessorTests {
 
 		Optional<Part> excelPart = result.body.structure.children.stream()
 				.filter(p -> p.fileName != null && p.fileName.endsWith(".xlsx")).findFirst();
-		Assert.assertTrue(excelPart.isPresent());
+		assertTrue(excelPart.isPresent());
 		DispositionType excelPartDispoType = excelPart.isPresent() ? excelPart.get().dispositionType : null;
-		Assert.assertEquals(DispositionType.ATTACHMENT, excelPartDispoType);
+		assertEquals(DispositionType.ATTACHMENT, excelPartDispoType);
 	}
 
 	@Test
@@ -201,7 +201,7 @@ public class BodyStreamProcessorTests {
 			JsonObject o = (JsonObject) obj;
 			String dn = o.getString("dn");
 			if (dn != null) {
-				assertFalse("DN should not contain encoded words: " + dn, dn.contains("=?"));
+				assertFalse(dn.contains("=?"), "DN should not contain encoded words: " + dn);
 			}
 		});
 
@@ -237,9 +237,9 @@ public class BodyStreamProcessorTests {
 
 		Optional<Part> excelPart = result.body.structure.children.stream()
 				.filter(p -> p.fileName != null && p.fileName.endsWith(".xlsx")).findFirst();
-		Assert.assertTrue(excelPart.isPresent());
+		assertTrue(excelPart.isPresent());
 		DispositionType excelPartDispoType = excelPart.isPresent() ? excelPart.get().dispositionType : null;
-		Assert.assertEquals(DispositionType.ATTACHMENT, excelPartDispoType);
+		assertEquals(DispositionType.ATTACHMENT, excelPartDispoType);
 	}
 
 	@Test
@@ -289,15 +289,15 @@ public class BodyStreamProcessorTests {
 		// the second and third children of the multipart should have a fixed attachment
 		// disposition type
 		final DispositionType secondChildDispositionType = result.body.structure.children.get(1).dispositionType;
-		Assert.assertEquals(DispositionType.ATTACHMENT, secondChildDispositionType);
+		assertEquals(DispositionType.ATTACHMENT, secondChildDispositionType);
 		final DispositionType thirdChildDispositionType = result.body.structure.children.get(2).dispositionType;
-		Assert.assertEquals(DispositionType.ATTACHMENT, thirdChildDispositionType);
+		assertEquals(DispositionType.ATTACHMENT, thirdChildDispositionType);
 		// the first child should not have one
 		final DispositionType firstChildDispositionType = result.body.structure.children.get(0).dispositionType;
-		Assert.assertNull(firstChildDispositionType);
+		assertNull(firstChildDispositionType);
 		// should have real attachments (it is based on disposition type)
-		Assert.assertTrue(result.body.structure.hasRealAttachments());
-		Assert.assertEquals(2, result.body.structure.nonInlineAttachments().size());
+		assertTrue(result.body.structure.hasRealAttachments());
+		assertEquals(2, result.body.structure.nonInlineAttachments().size());
 	}
 
 	@Test
@@ -311,11 +311,11 @@ public class BodyStreamProcessorTests {
 
 		Part bodyPart = result.body.structure.children.get(0).children.get(0);
 		DispositionType firstChildDispositionType = bodyPart.dispositionType;
-		Assert.assertEquals("text/html", bodyPart.mime);
-		Assert.assertEquals("<CZT9PGZUJFU4.ZWYKFCEACM0U3@valerie>", bodyPart.contentId);
-		Assert.assertEquals(DispositionType.INLINE, firstChildDispositionType);
+		assertEquals("text/html", bodyPart.mime);
+		assertEquals("<CZT9PGZUJFU4.ZWYKFCEACM0U3@valerie>", bodyPart.contentId);
+		assertEquals(DispositionType.INLINE, firstChildDispositionType);
 		DispositionType secondChildDispositionType = result.body.structure.children.get(1).dispositionType;
-		Assert.assertEquals(DispositionType.ATTACHMENT, secondChildDispositionType);
+		assertEquals(DispositionType.ATTACHMENT, secondChildDispositionType);
 	}
 
 	@Test
@@ -329,11 +329,11 @@ public class BodyStreamProcessorTests {
 
 		Part bodyPart = result.body.structure.children.get(0).children.get(0);
 		DispositionType firstChildDispositionType = bodyPart.dispositionType;
-		Assert.assertEquals("text/html", bodyPart.mime);
-		Assert.assertEquals("<CZT9PGZUJFU4.ZWYKFCEACM0U3@valerie>", bodyPart.contentId);
-		Assert.assertEquals(DispositionType.INLINE, firstChildDispositionType);
+		assertEquals("text/html", bodyPart.mime);
+		assertEquals("<CZT9PGZUJFU4.ZWYKFCEACM0U3@valerie>", bodyPart.contentId);
+		assertEquals(DispositionType.INLINE, firstChildDispositionType);
 		DispositionType secondChildDispositionType = result.body.structure.children.get(1).dispositionType;
-		Assert.assertEquals(DispositionType.ATTACHMENT, secondChildDispositionType);
+		assertEquals(DispositionType.ATTACHMENT, secondChildDispositionType);
 	}
 
 	/**
@@ -352,9 +352,9 @@ public class BodyStreamProcessorTests {
 		System.out.println("JS: " + asJs.encodePrettily());
 
 		final DispositionType firstChildDispositionType = result.body.structure.children.get(0).dispositionType;
-		Assert.assertEquals(null, firstChildDispositionType);
+		assertEquals(null, firstChildDispositionType);
 		final DispositionType secondChildDispositionType = result.body.structure.children.get(1).dispositionType;
-		Assert.assertEquals(null, secondChildDispositionType);
+		assertEquals(null, secondChildDispositionType);
 	}
 
 	/**
@@ -404,11 +404,11 @@ public class BodyStreamProcessorTests {
 		System.out.println("JS: " + asJs.encodePrettily());
 
 		Part secondChild = result.body.structure.children.get(1);
-		Assert.assertEquals(DispositionType.ATTACHMENT, secondChild.dispositionType);
-		Assert.assertEquals("details.txt", secondChild.fileName);
+		assertEquals(DispositionType.ATTACHMENT, secondChild.dispositionType);
+		assertEquals("details.txt", secondChild.fileName);
 		Part thirdChild = result.body.structure.children.get(2);
-		Assert.assertEquals(DispositionType.ATTACHMENT, thirdChild.dispositionType);
-		Assert.assertEquals("Forwarded message.eml", thirdChild.fileName);
+		assertEquals(DispositionType.ATTACHMENT, thirdChild.dispositionType);
+		assertEquals("Forwarded message.eml", thirdChild.fileName);
 	}
 
 	@Test
@@ -421,11 +421,11 @@ public class BodyStreamProcessorTests {
 		System.out.println("JS: " + asJs.encodePrettily());
 
 		Part secondChild = result.body.structure.children.get(1);
-		Assert.assertEquals(DispositionType.ATTACHMENT, secondChild.dispositionType);
-		Assert.assertEquals("details.txt", secondChild.fileName);
+		assertEquals(DispositionType.ATTACHMENT, secondChild.dispositionType);
+		assertEquals("details.txt", secondChild.fileName);
 		Part thirdChild = result.body.structure.children.get(2);
-		Assert.assertEquals(DispositionType.ATTACHMENT, thirdChild.dispositionType);
-		Assert.assertEquals("Original Message Headers.txt", thirdChild.fileName);
+		assertEquals(DispositionType.ATTACHMENT, thirdChild.dispositionType);
+		assertEquals("Original Message Headers.txt", thirdChild.fileName);
 	}
 
 	@Test
@@ -455,7 +455,7 @@ public class BodyStreamProcessorTests {
 		// part 0 is multipart/alternative
 
 		Part attachment = result.body.structure.children.get(1);
-		Assert.assertEquals("application/pdf", attachment.mime);
+		assertEquals("application/pdf", attachment.mime);
 
 	}
 }

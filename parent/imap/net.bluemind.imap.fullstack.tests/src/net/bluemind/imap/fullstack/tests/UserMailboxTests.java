@@ -17,10 +17,10 @@
  */
 package net.bluemind.imap.fullstack.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -33,11 +33,10 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.Lists;
 import com.google.common.hash.HashCode;
@@ -84,14 +83,14 @@ import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class UserMailboxTests {
 
-	@BeforeClass
+	@BeforeAll
 	public static void sysprop() {
 		System.setProperty("node.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
 	}
 
 	private String userUid;
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 
@@ -101,7 +100,7 @@ public class UserMailboxTests {
 
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
-		Assert.assertNotNull(esServer.ip);
+		assertNotNull(esServer.ip);
 		esServer.tags = Lists.newArrayList(TagDescriptor.bm_es.getTag());
 
 		VertxPlatform.spawnBlocking(25, TimeUnit.SECONDS);
@@ -126,7 +125,7 @@ public class UserMailboxTests {
 
 	}
 
-	@After
+	@AfterEach
 	public void after() throws Exception {
 		System.err.println("===== AFTER =====");
 		JdbcTestHelper.getInstance().afterTest();
@@ -157,7 +156,7 @@ public class UserMailboxTests {
 		try (StoreClient sc = new StoreClient("127.0.0.1", 1143, "john@devenv.blue", "john")) {
 			assertTrue(sc.login());
 			ListResult userFolders = sc.listAll();
-			assertFalse("user folders list must not be empty", userFolders.isEmpty());
+			assertFalse(userFolders.isEmpty(), "user folders list must not be empty");
 		}
 	}
 
@@ -378,7 +377,7 @@ public class UserMailboxTests {
 				System.err.println("S: " + s);
 				fetched |= s.contains("FETCH");
 			}
-			assertTrue("deleted message should be fetched by non-silent store", fetched);
+			assertTrue(fetched, "deleted message should be fetched by non-silent store");
 
 		}
 	}

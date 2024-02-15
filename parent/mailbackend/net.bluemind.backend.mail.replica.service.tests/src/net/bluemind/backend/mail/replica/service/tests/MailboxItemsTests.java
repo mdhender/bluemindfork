@@ -17,9 +17,9 @@
   */
 package net.bluemind.backend.mail.replica.service.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.InputStream;
 import java.util.Arrays;
@@ -27,8 +27,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,10 +61,10 @@ public class MailboxItemsTests extends AbstractRollingReplicationTests {
 
 	protected IMailboxItems mailApi;
 
-	@Before
+	@BeforeEach
 	@Override
-	public void before() throws Exception {
-		super.before();
+	public void before(TestInfo testInfo) throws Exception {
+		super.before(testInfo);
 
 		this.partition = domainUid.replace('.', '_');
 		this.mboxRoot = "user." + userUid.replace('.', '^');
@@ -194,6 +195,7 @@ public class MailboxItemsTests extends AbstractRollingReplicationTests {
 			assertTrue(itemInTrash.value.flags.contains(MailboxItemFlag.System.Deleted.value()));
 		}
 	}
+
 	@Test
 	public void multipleUnexpungeById() {
 		SortDescriptor sortDescriptor = createSortDescriptor(ItemFlagFilter.create().mustNot(ItemFlag.Deleted));
@@ -210,13 +212,14 @@ public class MailboxItemsTests extends AbstractRollingReplicationTests {
 				.filter(r -> r.value.flags.contains(MailboxItemFlag.System.Deleted.value())).count());
 
 		List<Long> unexpungedIds = trashService.multipleUnexpungeById(expungedIds).stream()
-				.map(identifier -> identifier.id)
-				.toList();
+				.map(identifier -> identifier.id).toList();
 		List<ItemValue<MailboxItem>> unexpungedRecords = trashService.multipleGetById(unexpungedIds);
-		assertEquals("Should not contain 'Deleted' flag", unexpungedIds.size(), unexpungedRecords.stream()
-				.filter(r -> !r.value.flags.contains(MailboxItemFlag.System.Deleted.value())).count());
+		assertEquals(
+				unexpungedIds.size(), unexpungedRecords.stream()
+						.filter(r -> !r.value.flags.contains(MailboxItemFlag.System.Deleted.value())).count(),
+				"Should not contain 'Deleted' flag");
 
 		List<ItemValue<MailboxItem>> expunged = trashService.multipleGetById(expungedIds);
-		assertEquals("Should have deleted expunged items", 0, expunged.size());
+		assertEquals(0, expunged.size(), "Should have deleted expunged items");
 	}
 }

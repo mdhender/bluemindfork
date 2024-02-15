@@ -18,11 +18,11 @@
  */
 package net.bluemind.imap.endpoint.imaptest.tests;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import net.bluemind.imap.IMAPException;
 import net.bluemind.imap.StoreClient;
@@ -32,13 +32,13 @@ public class DovecotCheckTests {
 
 	private DovecotContainer dc;
 
-	@Before
+	@BeforeEach
 	public void before() {
 		this.dc = new DovecotContainer();
 		dc.start();
 	}
 
-	@After
+	@AfterEach
 	public void after() {
 		dc.stop();
 	}

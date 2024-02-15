@@ -22,7 +22,7 @@
   */
 package net.bluemind.backend.mail.conversation.service.tests;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,9 +35,9 @@ import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
@@ -94,14 +94,14 @@ public class AbstractConversationTests {
 	protected String user1InboxUid;
 	protected String user2InboxUid;
 
-	@BeforeClass
+	@BeforeAll
 	public static void sysprop() {
 		System.setProperty("node.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
 		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
 		System.setProperty("imap.port", "1144");
 	}
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 		ElasticsearchTestHelper.getInstance().beforeTest();
@@ -141,7 +141,7 @@ public class AbstractConversationTests {
 		System.err.println("==== BEFORE ====");
 	}
 
-	@After
+	@AfterEach
 	public void after() throws Exception {
 		System.err.println("===== AFTER =====");
 		JdbcTestHelper.getInstance().afterTest();

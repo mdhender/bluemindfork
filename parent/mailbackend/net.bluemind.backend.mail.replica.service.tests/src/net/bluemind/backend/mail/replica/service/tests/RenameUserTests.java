@@ -17,15 +17,15 @@
   */
 package net.bluemind.backend.mail.replica.service.tests;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import net.bluemind.backend.mail.api.IOutbox;
 import net.bluemind.backend.mail.api.MailboxFolder;
@@ -68,7 +68,7 @@ public class RenameUserTests extends AbstractRollingReplicationTests {
 		IContainers contApi = suProvider().instance(IContainers.class);
 		ContainerDescriptor fetched = contApi.getIfPresent(subtree);
 		System.err.println("fetched " + fetched.name);
-		assertTrue("subtree name should include 'renamed.' but got " + fetched.name, fetched.name.contains("renamed."));
+		assertTrue(fetched.name.contains("renamed."), "subtree name should include 'renamed.' but got " + fetched.name);
 
 		String eml = "From: john.doe@gmail.com\r\nTo: " + theUser.value.defaultEmailAddress()
 				+ "\r\nX-Bm-Draft-Refresh-Date: 1632837985361\r\n\r\nYeah\r\n";
