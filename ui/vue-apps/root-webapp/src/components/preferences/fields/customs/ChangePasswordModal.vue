@@ -72,7 +72,7 @@
 import { mapActions } from "vuex";
 import { inject } from "@bluemind/inject";
 import { BmForm, BmFormGroup, BmFormInput, BmModal } from "@bluemind/ui-components";
-import { SUCCESS } from "@bluemind/alert.store";
+import { ERROR, SUCCESS } from "@bluemind/alert.store";
 import { SAVE_ALERT } from "../../Alerts/defaultAlerts";
 
 export default {
@@ -127,7 +127,7 @@ export default {
         }
     },
     methods: {
-        ...mapActions("alert", { SUCCESS }),
+        ...mapActions("alert", { ERROR, SUCCESS }),
         async open() {
             this.show = true;
         },
@@ -144,8 +144,12 @@ export default {
 
                 this.cancel();
             } catch (error) {
-                if (error.message.includes("password is not valid")) {
+                if (error.message?.includes("password is not valid")) {
                     this.isOldPasswordValid = false;
+                } else {
+                    this.show = false;
+                    this.ERROR(SAVE_ALERT);
+                    throw error;
                 }
             }
         },
