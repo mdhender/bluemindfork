@@ -180,6 +180,9 @@ public class KafkaTopicStore implements ITopicStore, TopicManager {
 	}
 
 	private void ensureKafkaTopic(String name) {
+		if (KafkaTopicPublisher.perPhyTopicProd.containsKey(name)) {
+			return;
+		}
 		try (var ac = adminClient.get()) {
 			ListTopicsOptions opts = new ListTopicsOptions();
 			opts.listInternal(false);
