@@ -1,7 +1,7 @@
 BMCYRUS="5.0.0-bluemind370"
 BMSDS="5.0.0-370"
 
-BMES="7.17.18-bluemind1156"
+BMES="1:7.17.18-bluemind1156"
 
 BMKEYCLOAK="22.0.5-bluemind892"
 
