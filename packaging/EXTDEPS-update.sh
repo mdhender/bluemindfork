@@ -69,7 +69,7 @@ function updateDependencies() {
         updatePomFile ${file} bm-cyrus-imapd ${BMCYRUS}
         updatePomFile ${file} bm-postgresql ${BMPOSTGRESQL}
         updatePomFile ${file} bm-jdk ${BMJDK}
-        updatePomFile ${file} bm-elasticsearch ${BMES}
+        updatePomFile ${file} bm-elasticsearch 1:${BMES}
         updatePomFile ${file} bm-php ${BMPHP}
         updatePomFile ${file} bm-keycloak ${BMKEYCLOAK}
 
@@ -88,7 +88,7 @@ function updateDependencies() {
         updateControlFile ${file} bm-cyrus-imapd ${BMCYRUS}
         updateControlFile ${file} bm-postgresql ${BMPOSTGRESQL}
         updateControlFile ${file} bm-jdk ${BMJDK}
-        updateControlFile ${file} bm-elasticsearch ${BMES}
+        updateControlFile ${file} bm-elasticsearch 1:${BMES}
         updateControlFile ${file} bm-php ${BMPHP}
         updateControlFile ${file} bm-keycloak ${BMKEYCLOAK}
     fi
@@ -108,7 +108,7 @@ function updateDependencies() {
         updateSpecFile ${file} bm-cyrus-imapd 1:${BMCYRUS}
         updateSpecFile ${file} bm-postgresql ${BMPOSTGRESQL}
         updateSpecFile ${file} bm-jdk ${BMJDK}
-        updateSpecFile ${file} bm-elasticsearch ${BMES}
+        updateSpecFile ${file} bm-elasticsearch 1:${BMES}
         updateSpecFile ${file} bm-php ${BMPHP}
         updateSpecFile ${file} bm-keycloak ${BMKEYCLOAK}
     done
