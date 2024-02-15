@@ -34,6 +34,8 @@ import net.bluemind.mailbox.api.MailboxConfig;
 import net.bluemind.mailbox.api.MailboxQuota;
 import net.bluemind.mailbox.api.rules.DelegationRule;
 import net.bluemind.mailbox.api.rules.MailFilterRule;
+import net.bluemind.mailbox.api.rules.RuleMoveDirection;
+import net.bluemind.mailbox.api.rules.RuleMoveRelativePosition;
 
 public class FakeMailboxes implements IMailboxes {
 
@@ -97,6 +99,16 @@ public class FakeMailboxes implements IMailboxes {
 
 	@Override
 	public void setMailboxVacation(String mailboxUid, MailFilter.Vacation vacation) throws ServerFault {
+		throw new ServerFault("not implemented");
+	}
+
+	@Override
+	public MailFilter.Forwarding getMailboxForwarding(String mailboxUid) throws ServerFault {
+		throw new ServerFault("not implemented");
+	}
+
+	@Override
+	public void setMailboxForwarding(String mailboxUid, MailFilter.Forwarding forwarding) throws ServerFault {
 		throw new ServerFault("not implemented");
 	}
 
@@ -178,6 +190,68 @@ public class FakeMailboxes implements IMailboxes {
 
 	@Override
 	public DelegationRule getMailboxDelegationRule(String mailboxUid) throws ServerFault {
+		throw new ServerFault("not implemented");
+	}
+
+	@Override
+	public List<MailFilterRule> getDomainRules() throws ServerFault {
+		throw new ServerFault("not implemented");
+	}
+
+	@Override
+	public MailFilterRule getDomainRule(long id) throws ServerFault {
+		throw new ServerFault("not implemented");
+	}
+
+	@Override
+	public Long addDomainRule(MailFilterRule rule) throws ServerFault {
+		throw new ServerFault("not implemented");
+	}
+
+	@Override
+	public void updateDomainRule(long id, MailFilterRule rule) throws ServerFault {
+		throw new ServerFault("not implemented");
+	}
+
+	@Override
+	public void deleteDomainRule(long id) throws ServerFault {
+		throw new ServerFault("not implemented");
+	}
+
+	@Override
+	public MailFilterRule getMailboxRule(String mailboxUid, long id) throws ServerFault {
+		throw new ServerFault("not implemented");
+	}
+
+	@Override
+	public Long addMailboxRule(String mailboxUid, MailFilterRule rule) throws ServerFault {
+		throw new ServerFault("not implemented");
+	}
+
+	@Override
+	public void updateMailboxRule(String mailboxUid, long id, MailFilterRule rule) throws ServerFault {
+		throw new ServerFault("not implemented");
+	}
+
+	@Override
+	public void deleteMailboxRule(String mailboxUid, long id) throws ServerFault {
+		throw new ServerFault("not implemented");
+	}
+
+	@Override
+	public void moveMailboxRule(String mailboxUid, long id, RuleMoveDirection direction) throws ServerFault {
+		throw new ServerFault("not implemented");
+	}
+
+	@Override
+	public Long addMailboxRuleRelative(String mailboxUid, RuleMoveRelativePosition position, long anchorId,
+			MailFilterRule rule) throws ServerFault {
+		throw new ServerFault("not implemented");
+	}
+
+	@Override
+	public void moveMailboxRuleRelative(String mailboxUid, long id, RuleMoveRelativePosition position, long anchorId)
+			throws ServerFault {
 		throw new ServerFault("not implemented");
 	}
 

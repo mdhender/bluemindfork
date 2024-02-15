@@ -328,6 +328,34 @@ public class JdbcAbstractStore {
 		}
 	}
 
+	protected <T, V> List<V> updateAndReturn(String query, Object[] parameters, Creator<V> returnCreator,
+			EntityPopulator<V> returnPopulator) throws SQLException {
+		Connection conn = getConnection();
+		PreparedStatement st = null;
+		ResultSet rs = null;
+		try {
+			st = conn.prepareStatement(query);
+			int index = 1;
+			setStatementParameters(parameters, conn, st, index);
+			List<V> result = new ArrayList<>();
+			rs = retryOnDeadlock(st::executeQuery);
+			while (rs.next()) {
+				V v = null;
+				if (returnCreator != null) {
+					v = returnCreator.create(rs);
+				}
+				if (returnPopulator != null) {
+					returnPopulator.populate(rs, index, v);
+					index++;
+				}
+				result.add(v);
+			}
+			return result;
+		} finally {
+			JdbcHelper.cleanup(conn, rs, st);
+		}
+	}
+
 	protected <T> void insert(String query, T value, StatementValues<T> values) throws SQLException {
 		insert(query, value, Arrays.asList(values));
 	}

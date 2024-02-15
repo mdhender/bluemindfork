@@ -42,6 +42,7 @@ CREATE TYPE enum_mailbox_rule_type AS ENUM (
 );
 
 CREATE TABLE t_domainmailfilter_rule (
+	id bigserial primary key,
     container_id		int4 references t_container(id),
     name text,
     client text,
@@ -58,6 +59,7 @@ CREATE TABLE t_domainmailfilter_rule (
 CREATE INDEX idx_domainfilter_rule_item_id ON t_domainmailfilter_rule(container_id);
 
 CREATE TABLE t_mailfilter_rule (
+	id bigserial primary key,
     item_id		bigint references t_container_item(id) on delete cascade,
     name text,
     client text,

@@ -27,10 +27,17 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.function.ToIntFunction;
 
 import org.junit.Test;
 
@@ -62,12 +69,17 @@ import net.bluemind.directory.api.IDirectory;
 import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.MailFilter;
+import net.bluemind.mailbox.api.MailFilter.Forwarding;
+import net.bluemind.mailbox.api.MailFilter.Vacation;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailbox.api.MailboxBusAddresses;
 import net.bluemind.mailbox.api.MailboxConfig;
 import net.bluemind.mailbox.api.rules.DelegationRule;
 import net.bluemind.mailbox.api.rules.MailFilterRule;
+import net.bluemind.mailbox.api.rules.MailFilterRule.Type;
+import net.bluemind.mailbox.api.rules.RuleMoveDirection;
+import net.bluemind.mailbox.api.rules.RuleMoveRelativePosition;
 import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleCondition;
 import net.bluemind.mailshare.api.IMailshare;
 import net.bluemind.mailshare.api.Mailshare;
@@ -625,6 +637,89 @@ public class MailboxesServiceTests extends AbstractMailboxServiceTests {
 	}
 
 	@Test
+	public void testDomainMailFilterRuleCrud() throws Exception {
+		IMailboxes service = getService(defaultSecurityContext);
+
+		MailFilterRule rule1 = new MailFilterRule();
+		rule1.name = "rule1";
+		rule1.client = "client1";
+		rule1.conditions.add(MailFilterRuleCondition.equal("subject", "SubjectTest"));
+		rule1.addMove("test");
+
+		// ADD rule1
+		long rule1Id = service.addDomainRule(rule1);
+		MailFilterRule rule1WithId = service.getDomainRule(rule1Id);
+		assertEquals(rule1.name, rule1WithId.name);
+
+		List<MailFilterRule> rules = service.getDomainRules();
+		assertEquals(1, rules.size());
+
+		// UPDATE rule1
+		rule1WithId.name = "rule1Updated";
+		service.updateDomainRule(rule1WithId.id, rule1WithId);
+		rule1WithId = service.getDomainRule(rule1Id);
+		assertEquals("rule1Updated", rule1WithId.name);
+
+		rules = service.getDomainRules();
+		assertEquals(1, rules.size());
+
+		// ADD rule2
+		MailFilterRule rule2 = new MailFilterRule();
+		rule2.name = "rule2";
+		rule2.conditions.add(MailFilterRuleCondition.equal("subject", "Toto"));
+		rule2.addMove("totomails");
+		long rule2Id = service.addDomainRule(rule2);
+
+		MailFilterRule rule2WithId = service.getDomainRule(rule2Id);
+		assertEquals(rule2.name, rule2WithId.name);
+
+		rules = service.getDomainRules();
+		assertEquals(2, rules.size());
+		assertEquals("rule1Updated", rules.get(0).name);
+		assertEquals(rule2.name, rules.get(1).name);
+
+		// DELETE rule1
+		service.deleteDomainRule(rule1Id);
+		try {
+			rule1WithId = service.getDomainRule(rule1Id);
+			assertTrue(false);
+		} catch (Exception e) {
+			assertTrue(e instanceof ServerFault);
+			assertEquals(ErrorCode.NOT_FOUND, ((ServerFault) e).getCode());
+		}
+
+		rules = service.getDomainRules();
+		assertEquals(1, rules.size());
+
+		rule2WithId = service.getDomainRule(rule2Id);
+		assertEquals(rule2.name, rule2WithId.name);
+
+		// DELETE with missing rule id
+		service.deleteDomainRule(rule1Id);
+		rules = service.getDomainRules();
+		assertEquals(1, rules.size());
+
+		// UPDATE with missing rule id
+		try {
+			service.updateDomainRule(rule1Id, rule1WithId);
+			assertTrue(false);
+		} catch (Exception e) {
+			assertTrue(e instanceof ServerFault);
+			assertEquals(ErrorCode.NOT_FOUND, ((ServerFault) e).getCode());
+		}
+
+		// ADD rule1
+		rule1Id = service.addDomainRule(rule1);
+		rule1WithId = service.getDomainRule(rule1Id);
+		assertEquals(rule1.name, rule1WithId.name);
+
+		rules = service.getDomainRules();
+		assertEquals(2, rules.size());
+		assertEquals(rule2.name, rules.get(0).name);
+		assertEquals(rule1.name, rules.get(1).name);
+	}
+
+	@Test
 	public void testGetMailboxRules() throws Exception {
 		IMailboxes service = getService(defaultSecurityContext);
 		String uid1 = UUID.randomUUID().toString();
@@ -652,6 +747,360 @@ public class MailboxesServiceTests extends AbstractMailboxServiceTests {
 		mailboxRules = service.getMailboxRulesByClient(uid1, "client1");
 		assertTrue(mailboxRules.stream().anyMatch(r -> rule1.name.equals(r.name)));
 		assertTrue(mailboxRules.stream().noneMatch(r -> rule2.name.equals(r.name)));
+	}
+
+	@Test
+	public void testMailFilterRuleOrder() throws Exception {
+		IMailboxes service = getService(defaultSecurityContext);
+		String uid1 = UUID.randomUUID().toString();
+		Mailbox mbox1 = defaultMailshare("mbox1");
+		service.create(uid1, mbox1);
+
+		MailFilterRule rule = new MailFilterRule();
+		rule.name = "";
+		rule.conditions.add(MailFilterRuleCondition.equal("subject", "SubjectTest"));
+		rule.addMove("test");
+
+		Map<Integer, Long> ids = new HashMap<>();
+		rule.client = "client0";
+		for (int i = 0; i < 5; i++) {
+			rule.name = "" + i;
+			ids.put(i, service.addMailboxRule(uid1, rule));
+		}
+
+		rule.client = "client1";
+		for (int i = 5; i < 10; i++) {
+			rule.name = "" + i;
+			ids.put(i, service.addMailboxRule(uid1, rule));
+		}
+
+		rule.client = "client2";
+		for (int i = 15; i < 20; i++) {
+			rule.name = "" + i;
+			ids.put(i, service.addMailboxRule(uid1, rule));
+		}
+
+		ToIntFunction<String> indexOf = name -> {
+			List<MailFilterRule> rules = service.getMailboxRules(uid1);
+			MailFilterRule found = rules.stream().filter(r -> name.equals(r.name)).findFirst().orElse(null);
+			return rules.indexOf(found);
+		};
+
+		service.moveMailboxRule(uid1, ids.get(8), RuleMoveDirection.TOP);
+		assertEquals(5, indexOf.applyAsInt("8"));
+
+		service.moveMailboxRule(uid1, ids.get(8), RuleMoveDirection.TOP);
+		assertEquals(5, indexOf.applyAsInt("8"));
+
+		service.moveMailboxRule(uid1, ids.get(8), RuleMoveDirection.BOTTOM);
+		assertEquals(9, indexOf.applyAsInt("8"));
+
+		service.moveMailboxRule(uid1, ids.get(8), RuleMoveDirection.BOTTOM);
+		assertEquals(9, indexOf.applyAsInt("8"));
+
+		for (int i = 3; i >= 0; i--) {
+			service.moveMailboxRule(uid1, ids.get(8), RuleMoveDirection.UP);
+			assertEquals(i + 5, indexOf.applyAsInt("8"));
+		}
+
+		for (int i = 1; i < 5; i++) {
+			service.moveMailboxRule(uid1, ids.get(8), RuleMoveDirection.DOWN);
+			assertEquals(i + 5, indexOf.applyAsInt("8"));
+		}
+
+		rule.client = "client1";
+		for (int i = 10; i < 15; i++) {
+			rule.name = "" + i;
+			ids.put(i, service.addMailboxRule(uid1, rule));
+		}
+		assertEquals(10, indexOf.applyAsInt("10"));
+		assertEquals(14, indexOf.applyAsInt("14"));
+		assertEquals(15, indexOf.applyAsInt("15"));
+	}
+
+	@Test
+	public void testMailFilterRuleOrderRelative() throws Exception {
+		IMailboxes service = getService(defaultSecurityContext);
+		String uid1 = UUID.randomUUID().toString();
+		Mailbox mbox1 = defaultMailshare("mbox1");
+		service.create(uid1, mbox1);
+
+		MailFilterRule rule = new MailFilterRule();
+		rule.name = "";
+		rule.conditions.add(MailFilterRuleCondition.equal("subject", "SubjectTest"));
+		rule.addMove("test");
+
+		Map<Integer, Long> ids = new HashMap<>();
+		rule.client = "client0";
+		for (int i = 0; i < 5; i++) {
+			rule.name = "" + i;
+			ids.put(i, service.addMailboxRule(uid1, rule));
+		}
+
+		rule.client = "client1";
+		for (int i = 5; i < 10; i++) {
+			rule.name = "" + i;
+			ids.put(i, service.addMailboxRule(uid1, rule));
+		}
+
+		rule.client = "client2";
+		for (int i = 15; i < 20; i++) {
+			rule.name = "" + i;
+			ids.put(i, service.addMailboxRule(uid1, rule));
+		}
+
+		ToIntFunction<String> indexOf = name -> {
+			List<MailFilterRule> rules = service.getMailboxRules(uid1);
+			MailFilterRule found = rules.stream().filter(r -> name.equals(r.name)).findFirst().orElse(null);
+			return rules.indexOf(found);
+		};
+
+		List<MailFilterRule> rules = service.getMailboxRules(uid1);
+		rules.forEach(r -> System.out.println(r.name));
+		rule.client = "client1";
+		rule.name = "" + 10;
+		ids.put(10, service.addMailboxRuleRelative(uid1, RuleMoveRelativePosition.AFTER, ids.get(5), rule));
+		assertEquals(5, indexOf.applyAsInt("5"));
+		assertEquals(6, indexOf.applyAsInt("10"));
+		assertEquals(7, indexOf.applyAsInt("6"));
+		rules = service.getMailboxRules(uid1);
+		rules.forEach(r -> System.out.println(r.name));
+
+		rule.name = "" + 11;
+		ids.put(11, service.addMailboxRuleRelative(uid1, RuleMoveRelativePosition.AFTER, ids.get(9), rule));
+		assertEquals(10, indexOf.applyAsInt("9"));
+		assertEquals(11, indexOf.applyAsInt("11"));
+		assertEquals(12, indexOf.applyAsInt("15"));
+
+		service.moveMailboxRuleRelative(uid1, ids.get(10), RuleMoveRelativePosition.AFTER, ids.get(9));
+		assertEquals(9, indexOf.applyAsInt("9"));
+		assertEquals(10, indexOf.applyAsInt("10"));
+		assertEquals(11, indexOf.applyAsInt("11"));
+
+		rule.name = "" + 12;
+		ids.put(12, service.addMailboxRuleRelative(uid1, RuleMoveRelativePosition.BEFORE, ids.get(11), rule));
+		assertEquals(10, indexOf.applyAsInt("10"));
+		assertEquals(11, indexOf.applyAsInt("12"));
+		assertEquals(12, indexOf.applyAsInt("11"));
+
+		rule.name = "" + 13;
+		ids.put(13, service.addMailboxRuleRelative(uid1, RuleMoveRelativePosition.BEFORE, ids.get(5), rule));
+		assertEquals(4, indexOf.applyAsInt("4"));
+		assertEquals(5, indexOf.applyAsInt("13"));
+		assertEquals(6, indexOf.applyAsInt("5"));
+
+		service.moveMailboxRuleRelative(uid1, ids.get(11), RuleMoveRelativePosition.AFTER, ids.get(10));
+		assertEquals(11, indexOf.applyAsInt("10"));
+		assertEquals(12, indexOf.applyAsInt("11"));
+		assertEquals(13, indexOf.applyAsInt("12"));
+
+		service.moveMailboxRuleRelative(uid1, ids.get(13), RuleMoveRelativePosition.BEFORE, ids.get(12));
+		assertEquals(11, indexOf.applyAsInt("11"));
+		assertEquals(12, indexOf.applyAsInt("13"));
+		assertEquals(13, indexOf.applyAsInt("12"));
+
+		service.moveMailboxRuleRelative(uid1, ids.get(12), RuleMoveRelativePosition.BEFORE, ids.get(13));
+		assertEquals(11, indexOf.applyAsInt("11"));
+		assertEquals(12, indexOf.applyAsInt("12"));
+		assertEquals(13, indexOf.applyAsInt("13"));
+
+		try {
+			service.addMailboxRuleRelative(uid1, RuleMoveRelativePosition.AFTER, 9999, rule);
+			assertFalse(true);
+		} catch (Exception e) {
+			assertEquals(ServerFault.class, e.getClass());
+			assertEquals(ErrorCode.NOT_FOUND, ((ServerFault) e).getCode());
+		}
+
+		try {
+			service.moveMailboxRuleRelative(uid1, ids.get(12), RuleMoveRelativePosition.BEFORE, 9999);
+			assertFalse(true);
+		} catch (Exception e) {
+			assertEquals(ServerFault.class, e.getClass());
+			assertEquals(ErrorCode.NOT_FOUND, ((ServerFault) e).getCode());
+		}
+
+		try {
+			service.moveMailboxRuleRelative(uid1, 9999, RuleMoveRelativePosition.AFTER, ids.get(13));
+			assertFalse(true);
+		} catch (Exception e) {
+			assertEquals(ServerFault.class, e.getClass());
+			assertEquals(ErrorCode.NOT_FOUND, ((ServerFault) e).getCode());
+		}
+
+		try {
+			service.moveMailboxRuleRelative(uid1, ids.get(10), RuleMoveRelativePosition.AFTER, ids.get(15));
+		} catch (Exception e) {
+			assertEquals(ServerFault.class, e.getClass());
+			assertEquals(ErrorCode.INVALID_PARAMETER, ((ServerFault) e).getCode());
+		}
+	}
+
+	@Test
+	public void testMailFilterVacation() throws Exception {
+		IMailboxes service = getService(defaultSecurityContext);
+		String uid1 = UUID.randomUUID().toString();
+		Mailbox mbox1 = defaultMailbox("mbox1");
+		service.create(uid1, mbox1);
+
+		Vacation vacation = new MailFilter.Vacation();
+		vacation.enabled = true;
+		vacation.start = Date.from(LocalDate.of(2020, 01, 01).atStartOfDay(ZoneId.of("UTC")).toInstant());
+		vacation.end = Date.from(LocalDate.of(2020, 01, 02).atStartOfDay(ZoneId.of("UTC")).toInstant());
+		vacation.subject = "created";
+		vacation.text = "somewhere";
+
+		service.setMailboxVacation(uid1, vacation);
+		MailFilterRule created = service.getMailboxRules(uid1).stream() //
+				.filter(rule -> rule.type == Type.VACATION).findFirst().orElse(null);
+		assertNotNull(created);
+
+		vacation.subject = "updated";
+		service.setMailboxVacation(uid1, vacation);
+		MailFilterRule updated = service.getMailboxRules(uid1).stream() //
+				.filter(rule -> rule.type == Type.VACATION).findFirst().orElse(null);
+		assertNotNull(updated);
+		assertEquals(created.id, updated.id);
+	}
+
+	@Test
+	public void testMailFilterForwarding() throws Exception {
+		IMailboxes service = getService(defaultSecurityContext);
+		String uid1 = UUID.randomUUID().toString();
+		Mailbox mbox1 = defaultMailbox("mbox1");
+		service.create(uid1, mbox1);
+
+		Forwarding forwarding = new Forwarding();
+		forwarding.enabled = true;
+		forwarding.emails = new HashSet<>(Arrays.asList("checkthat@gmail.com"));
+
+		service.setMailboxForwarding(uid1, forwarding);
+		MailFilterRule created = service.getMailboxRules(uid1).stream() //
+				.filter(rule -> rule.type == Type.FORWARD).findFirst().orElse(null);
+		assertNotNull(created);
+		assertTrue(created.active);
+
+		forwarding.enabled = false;
+		service.setMailboxForwarding(uid1, forwarding);
+		MailFilterRule updated = service.getMailboxRules(uid1).stream() //
+				.filter(rule -> rule.type == Type.FORWARD).findFirst().orElse(null);
+		assertNotNull(updated);
+		assertFalse(updated.active);
+		assertEquals(created.id, updated.id);
+	}
+
+	@Test
+	public void testMailFilterRuleCrud() throws Exception {
+		IMailboxes service = getService(defaultSecurityContext);
+		String uid1 = UUID.randomUUID().toString();
+		Mailbox mbox1 = defaultMailshare("mbox1");
+		service.create(uid1, mbox1);
+
+		MailFilterRule rule1 = new MailFilterRule();
+		rule1.name = "rule1";
+		rule1.client = "client1";
+		rule1.conditions.add(MailFilterRuleCondition.equal("subject", "SubjectTest"));
+		rule1.addMove("test");
+
+		// ADD rule1
+		long rule1Id = service.addMailboxRule(uid1, rule1);
+		MailFilterRule rule1WithId = service.getMailboxRule(uid1, rule1Id);
+		assertEquals(rule1.name, rule1WithId.name);
+
+		List<MailFilterRule> rules = service.getMailboxRules(uid1);
+		assertEquals(1, rules.size());
+
+		// UPDATE rule1
+		rule1WithId.name = "rule1Updated";
+		service.updateMailboxRule(uid1, rule1WithId.id, rule1WithId);
+		rule1WithId = service.getMailboxRule(uid1, rule1Id);
+		assertEquals("rule1Updated", rule1WithId.name);
+
+		rules = service.getMailboxRules(uid1);
+		assertEquals(1, rules.size());
+
+		// ADD rule2
+		MailFilterRule rule2 = new MailFilterRule();
+		rule2.name = "rule2";
+		rule2.conditions.add(MailFilterRuleCondition.equal("subject", "Toto"));
+		rule2.addMove("totomails");
+		long rule2Id = service.addMailboxRule(uid1, rule2);
+
+		MailFilterRule rule2WithId = service.getMailboxRule(uid1, rule2Id);
+		assertEquals(rule2.name, rule2WithId.name);
+
+		rules = service.getMailboxRules(uid1);
+		assertEquals(2, rules.size());
+		assertEquals("rule1Updated", rules.get(0).name);
+		assertEquals(rule2.name, rules.get(1).name);
+
+		// ADD rule3
+		MailFilterRule rule3 = new MailFilterRule();
+		rule3.name = "rule3";
+		rule3.conditions.add(MailFilterRuleCondition.equal("subject", "Toto"));
+		rule3.addMove("totomails");
+		long rule3Id = service.addMailboxRule(uid1, rule3);
+
+		MailFilterRule rule3WithId = service.getMailboxRule(uid1, rule3Id);
+		assertEquals(rule3.name, rule3WithId.name);
+
+		rules = service.getMailboxRules(uid1);
+		assertEquals(3, rules.size());
+		assertEquals("rule1Updated", rules.get(0).name);
+		assertEquals(rule2.name, rules.get(1).name);
+		assertEquals(rule3.name, rules.get(2).name);
+
+		// UPDATE rule3
+		rule3WithId.name = "rule3Updated";
+		service.updateMailboxRule(uid1, rule3WithId.id, rule3WithId);
+		rule3WithId = service.getMailboxRule(uid1, rule3Id);
+		assertEquals("rule3Updated", rule3WithId.name);
+
+		rules = service.getMailboxRules(uid1);
+		assertEquals(3, rules.size());
+		assertEquals("rule1Updated", rules.get(0).name);
+		assertEquals(rule2.name, rules.get(1).name);
+		assertEquals("rule3Updated", rules.get(2).name);
+
+		// DELETE rule1
+		service.deleteMailboxRule(uid1, rule1Id);
+		try {
+			rule1WithId = service.getMailboxRule(uid1, rule1Id);
+			assertTrue(false);
+		} catch (Exception e) {
+			assertTrue(e instanceof ServerFault);
+			assertEquals(ErrorCode.NOT_FOUND, ((ServerFault) e).getCode());
+		}
+
+		rules = service.getMailboxRules(uid1);
+		assertEquals(2, rules.size());
+		assertEquals(rule2.name, rules.get(0).name);
+		assertEquals("rule3Updated", rules.get(1).name);
+
+		// DELETE with missing rule id
+		service.deleteMailboxRule(uid1, rule1Id);
+		rules = service.getMailboxRules(uid1);
+		assertEquals(2, rules.size());
+
+		// UPDATE with missing rule id
+		try {
+			service.updateMailboxRule(uid1, rule1Id, rule1WithId);
+			assertTrue(false);
+		} catch (Exception e) {
+			assertTrue(e instanceof ServerFault);
+			assertEquals(ErrorCode.NOT_FOUND, ((ServerFault) e).getCode());
+		}
+
+		// ADD rule1
+		rule1Id = service.addMailboxRule(uid1, rule1);
+		rule1WithId = service.getMailboxRule(uid1, rule1Id);
+		assertEquals(rule1.name, rule1WithId.name);
+
+		rules = service.getMailboxRules(uid1);
+		assertEquals(3, rules.size());
+		assertEquals(rule2.name, rules.get(0).name);
+		assertEquals("rule3Updated", rules.get(1).name);
+		assertEquals(rule1.name, rules.get(2).name);
 	}
 
 	private void doUserSetAcls(boolean mustFail, String uid, ArrayList<AccessControlEntry> accessControlEntries)

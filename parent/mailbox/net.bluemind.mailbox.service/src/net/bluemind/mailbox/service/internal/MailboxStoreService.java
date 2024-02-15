@@ -32,6 +32,9 @@ import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.mailbox.api.Mailbox;
+import net.bluemind.mailbox.api.rules.MailFilterRule;
+import net.bluemind.mailbox.api.rules.RuleMoveDirection;
+import net.bluemind.mailbox.api.rules.RuleMoveRelativePosition;
 import net.bluemind.mailbox.identity.persistence.MailboxIdentityStore;
 import net.bluemind.mailbox.persistence.MailFilterStore;
 import net.bluemind.mailbox.persistence.MailboxStore;
@@ -93,7 +96,7 @@ public class MailboxStoreService extends ContainerStoreService<Mailbox> {
 		doOrFail(() -> {
 			Item item = getItemStore().getForUpdate(mailboxUid);
 			if (item == null) {
-				throw ServerFault.notFound("mailbox " + mailboxUid + " not found");
+				throw ServerFault.notFound("Mailbox uid=" + mailboxUid + " not found");
 			} else {
 				mailFilterStore.set(item, filter);
 				item = itemStore.touch(item.uid);
@@ -101,6 +104,82 @@ public class MailboxStoreService extends ContainerStoreService<Mailbox> {
 						securityContext.getSubject(), origin, item.id, 0));
 			}
 			return null;
+		});
+	}
+
+	public MailFilterRule getFilterRule(String mailboxUid, long id) throws ServerFault {
+		try {
+			Item item = getItemStore().get(mailboxUid);
+			return (item == null) ? null : mailFilterStore.getRule(item, id);
+		} catch (SQLException e) {
+			throw ServerFault.sqlFault(e);
+		}
+	}
+
+	public Long addFilterRule(String mailboxUid, MailFilterRule rule) throws ServerFault {
+		return doOrFail(() -> {
+			Item item = getItemStore().getForUpdate(mailboxUid);
+			if (item == null) {
+				throw ServerFault.notFound("Mailbox uid=" + mailboxUid + " not found");
+			} else {
+				long id = mailFilterStore.addRule(item, rule);
+				item = itemStore.touch(item.uid);
+				changelogStore.itemUpdated(LogEntry.create(item.version, item.uid, item.externalId,
+						securityContext.getSubject(), origin, item.id, 0));
+				return id;
+			}
+		});
+	}
+
+	public Long addFilterRule(String mailboxUid, RuleMoveRelativePosition position, long anchorId, MailFilterRule rule)
+			throws ServerFault {
+		return doOrFail(() -> {
+			Item item = getItemStore().getForUpdate(mailboxUid);
+			if (item == null) {
+				throw ServerFault.notFound("Mailbox uid=" + mailboxUid + " not found");
+			} else {
+				long newId = mailFilterStore.addRule(item, position, anchorId, rule);
+				item = itemStore.touch(item.uid);
+				changelogStore.itemUpdated(LogEntry.create(item.version, item.uid, item.externalId,
+						securityContext.getSubject(), origin, item.id, 0));
+				return newId;
+			}
+		});
+	}
+
+	public void updateFilterRule(String mailboxUid, long id, MailFilterRule rule) throws ServerFault {
+		filterRuleAction(mailboxUid, item -> mailFilterStore.updateRule(item, id, rule));
+	}
+
+	public void deleteFilterRule(String mailboxUid, long id) throws ServerFault {
+		filterRuleAction(mailboxUid, item -> mailFilterStore.deleteRule(item, id));
+	}
+
+	public void moveFilterRule(String mailboxUid, long id, RuleMoveDirection direction) throws ServerFault {
+		filterRuleAction(mailboxUid, item -> mailFilterStore.moveRule(item, id, direction));
+	}
+
+	public void moveFilterRule(String mailboxUid, long id, RuleMoveRelativePosition position, long anchorId)
+			throws ServerFault {
+		filterRuleAction(mailboxUid, item -> mailFilterStore.moveRule(item, id, position, anchorId));
+	}
+
+	private interface RuleAction {
+		void accept(Item t) throws SQLException;
+	}
+
+	private void filterRuleAction(String mailboxUid, RuleAction action) throws ServerFault {
+		doOrFail(() -> {
+			Item item = getItemStore().getForUpdate(mailboxUid);
+			if (item == null) {
+				throw ServerFault.notFound("Mailbox uid=" + mailboxUid + " not found");
+			} else {
+				action.accept(item);
+				item = itemStore.touch(item.uid);
+				changelogStore.itemUpdated(LogEntry.create(item.version, item.uid, item.externalId,
+						securityContext.getSubject(), origin, item.id, 0));
+				return null;
+			}
 		});
 	}
 

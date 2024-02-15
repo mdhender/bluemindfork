@@ -22,6 +22,7 @@ import static java.util.stream.Collectors.toSet;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -33,7 +34,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.annotations.VisibleForTesting;
 
-import jakarta.ws.rs.PathParam;
 import net.bluemind.backend.mail.api.IUserInbox;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.utils.SubtreeContainerItemIdsCache;
@@ -61,14 +61,19 @@ import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.MailFilter;
+import net.bluemind.mailbox.api.MailFilter.Forwarding;
+import net.bluemind.mailbox.api.MailFilter.Vacation;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailbox.api.MailboxConfig;
 import net.bluemind.mailbox.api.MailboxQuota;
 import net.bluemind.mailbox.api.rules.DelegationRule;
 import net.bluemind.mailbox.api.rules.MailFilterRule;
+import net.bluemind.mailbox.api.rules.MailFilterRule.Type;
 import net.bluemind.mailbox.api.rules.MailFilterRuleForwardingMapper;
 import net.bluemind.mailbox.api.rules.MailFilterRuleVacationMapper;
+import net.bluemind.mailbox.api.rules.RuleMoveDirection;
+import net.bluemind.mailbox.api.rules.RuleMoveRelativePosition;
 import net.bluemind.mailbox.hook.IMailboxHook;
 import net.bluemind.mailbox.persistence.DomainMailFilterStore;
 import net.bluemind.mailbox.persistence.MailboxStore;
@@ -286,6 +291,85 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 	}
 
 	@Override
+	public List<MailFilterRule> getDomainRules() throws ServerFault {
+		rbacManager.check(BasicRoles.ROLE_READ_DOMAIN_FILTER, BasicRoles.ROLE_MANAGE_MAILBOX_FILTER);
+		try {
+			return domainMailFilterStore.get().rules;
+		} catch (SQLException e) {
+			throw ServerFault.sqlFault(e);
+		}
+	}
+
+	@Override
+	public MailFilterRule getDomainRule(long id) throws ServerFault {
+		rbacManager.check(BasicRoles.ROLE_READ_DOMAIN_FILTER, BasicRoles.ROLE_MANAGE_MAILBOX_FILTER);
+		MailFilterRule rule;
+		try {
+			rule = domainMailFilterStore.getRule(id);
+		} catch (SQLException e) {
+			throw ServerFault.sqlFault(e);
+		}
+		if (rule == null) {
+			throw new ServerFault("Rule with id " + id + " not found", ErrorCode.NOT_FOUND);
+		}
+		return rule;
+	}
+
+	@Override
+	public Long addDomainRule(MailFilterRule rule) throws ServerFault {
+		rbacManager.check(BasicRoles.ROLE_READ_DOMAIN_FILTER, BasicRoles.ROLE_MANAGE_MAILBOX_FILTER);
+		try {
+			validateDomainMailFilterRule(rule);
+			long id = domainMailFilterStore.addRule(rule);
+			onDomainMailFilterRuleChanged();
+			return id;
+		} catch (SQLException e) {
+			throw ServerFault.sqlFault(e);
+		}
+	}
+
+	@Override
+	public void updateDomainRule(long id, MailFilterRule rule) throws ServerFault {
+		rbacManager.check(BasicRoles.ROLE_READ_DOMAIN_FILTER, BasicRoles.ROLE_MANAGE_MAILBOX_FILTER);
+		try {
+			MailFilterRule previousRule = domainMailFilterStore.getRule(id);
+			if (previousRule == null) {
+				throw new ServerFault("Rule with id " + id + " not found", ErrorCode.NOT_FOUND);
+			}
+
+			validateDomainMailFilterRule(rule);
+			domainMailFilterStore.updateRule(id, rule);
+			onDomainMailFilterRuleChanged();
+		} catch (SQLException e) {
+			throw ServerFault.sqlFault(e);
+		}
+	}
+
+	@Override
+	public void deleteDomainRule(long id) throws ServerFault {
+		rbacManager.check(BasicRoles.ROLE_READ_DOMAIN_FILTER, BasicRoles.ROLE_MANAGE_MAILBOX_FILTER);
+		try {
+			domainMailFilterStore.deleteRule(id);
+			onDomainMailFilterRuleChanged();
+		} catch (SQLException e) {
+			throw ServerFault.sqlFault(e);
+		}
+	}
+
+	private void validateDomainMailFilterRule(MailFilterRule rule) {
+		MailFilter filter = new MailFilter();
+		filter.rules = Arrays.asList(rule);
+		objectValidator.create(filter);
+	}
+
+	private void onDomainMailFilterRuleChanged() {
+		MailFilter filter = getDomainFilter();
+		for (IMailboxHook hook : hooks) {
+			hook.onDomainMailFilterChanged(context, domainUid, filter);
+		}
+	}
+
+	@Override
 	public MailFilter.Vacation getMailboxVacation(String mailboxUid) throws ServerFault {
 		MailFilter filter = getMailboxFilter(mailboxUid);
 		return filter.vacation;
@@ -295,9 +379,28 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 	public void setMailboxVacation(String mailboxUid, MailFilter.Vacation vacation) throws ServerFault {
 		rbacManager.forEntry(mailboxUid).check(BasicRoles.ROLE_MANAGE_MAILBOX_FILTER);
 
+		validateMailFilterVacation(mailboxUid, vacation);
+		vacationMapper.map(vacation)
+				.ifPresent(rule -> getMailboxRules(mailboxUid).stream().filter(r -> r.type == Type.VACATION).findFirst()
+						.ifPresentOrElse(existingRule -> updateMailboxRule(mailboxUid, existingRule.id, rule),
+								() -> addMailboxRule(mailboxUid, rule)));
+	}
+
+	@Override
+	public MailFilter.Forwarding getMailboxForwarding(String mailboxUid) {
 		MailFilter filter = getMailboxFilter(mailboxUid);
-		filter.vacation = vacation;
-		setMailboxFilter(mailboxUid, filter);
+		return filter.forwarding;
+	}
+
+	@Override
+	public void setMailboxForwarding(String mailboxUid, MailFilter.Forwarding forwarding) throws ServerFault {
+		rbacManager.forEntry(mailboxUid).check(BasicRoles.ROLE_MANAGE_MAILBOX_FILTER);
+
+		validateMailFilterForwarding(mailboxUid, forwarding);
+		forwardingMapper.map(forwarding)
+				.ifPresent(rule -> getMailboxRules(mailboxUid).stream().filter(r -> r.type == Type.FORWARD).findFirst()
+						.ifPresentOrElse(existingRule -> updateMailboxRule(mailboxUid, existingRule.id, rule),
+								() -> addMailboxRule(mailboxUid, rule)));
 	}
 
 	@Override
@@ -358,9 +461,139 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 	}
 
 	@Override
-	public List<MailFilterRule> getMailboxRules(@PathParam("mailboxUid") String mailboxUid) throws ServerFault {
+	public List<MailFilterRule> getMailboxRules(String mailboxUid) throws ServerFault {
 		rbacManager.forEntry(mailboxUid).check(BasicRoles.ROLE_MANAGE_MAILBOX_FILTER);
 		return storeService.getFilter(mailboxUid).rules;
+	}
+
+	@Override
+	public MailFilterRule getMailboxRule(String mailboxUid, long id) throws ServerFault {
+		rbacManager.forEntry(mailboxUid).check(BasicRoles.ROLE_MANAGE_MAILBOX_FILTER);
+		MailFilterRule rule = storeService.getFilterRule(mailboxUid, id);
+		if (rule == null) {
+			throw new ServerFault("Rule with id " + id + " not found", ErrorCode.NOT_FOUND);
+		}
+		return rule;
+	}
+
+	@Override
+	public Long addMailboxRule(String mailboxUid, MailFilterRule rule) throws ServerFault {
+		rbacManager.forEntry(mailboxUid).check(BasicRoles.ROLE_MANAGE_MAILBOX_FILTER);
+
+		validateMailFilterRule(mailboxUid, rule);
+		long id = storeService.addFilterRule(mailboxUid, rule);
+		onMailFilterRuleChanged(mailboxUid);
+		return id;
+	}
+
+	@Override
+	public Long addMailboxRuleRelative(String mailboxUid, RuleMoveRelativePosition movePosition, long anchorId,
+			MailFilterRule rule) throws ServerFault {
+		rbacManager.forEntry(mailboxUid).check(BasicRoles.ROLE_MANAGE_MAILBOX_FILTER);
+
+		MailFilterRule anchorRule = storeService.getFilterRule(mailboxUid, anchorId);
+		if (anchorRule == null) {
+			throw new ServerFault("Rule with id " + anchorId + " not found", ErrorCode.NOT_FOUND);
+		}
+
+		if (!rule.client.equals(anchorRule.client)) {
+			throw new ServerFault(
+					"New rule can't be added relative to rule id=" + anchorId + " as they don't share the same client",
+					ErrorCode.INVALID_PARAMETER);
+		}
+
+		validateMailFilterRule(mailboxUid, rule);
+		long newId = storeService.addFilterRule(mailboxUid, movePosition, anchorId, rule);
+		onMailFilterRuleChanged(mailboxUid);
+		return newId;
+	}
+
+	@Override
+	public void updateMailboxRule(String mailboxUid, long id, MailFilterRule rule) throws ServerFault {
+		rbacManager.forEntry(mailboxUid).check(BasicRoles.ROLE_MANAGE_MAILBOX_FILTER);
+		MailFilterRule previousRule = storeService.getFilterRule(mailboxUid, id);
+		if (previousRule == null) {
+			throw new ServerFault("Rule with id " + id + " not found", ErrorCode.NOT_FOUND);
+		}
+
+		validateMailFilterRule(mailboxUid, rule);
+		storeService.updateFilterRule(mailboxUid, id, rule);
+		onMailFilterRuleChanged(mailboxUid);
+	}
+
+	@Override
+	public void deleteMailboxRule(String mailboxUid, long id) throws ServerFault {
+		rbacManager.forEntry(mailboxUid).check(BasicRoles.ROLE_MANAGE_MAILBOX_FILTER);
+
+		storeService.deleteFilterRule(mailboxUid, id);
+		onMailFilterRuleChanged(mailboxUid);
+	}
+
+	@Override
+	public void moveMailboxRule(String mailboxUid, long id, RuleMoveDirection moveDirection) {
+		rbacManager.forEntry(mailboxUid).check(BasicRoles.ROLE_MANAGE_MAILBOX_FILTER);
+
+		MailFilterRule previousRule = storeService.getFilterRule(mailboxUid, id);
+		if (previousRule == null) {
+			throw new ServerFault("Rule with id " + id + " not found", ErrorCode.NOT_FOUND);
+		}
+
+		storeService.moveFilterRule(mailboxUid, id, moveDirection);
+		onMailFilterRuleChanged(mailboxUid);
+	}
+
+	@Override
+	public void moveMailboxRuleRelative(String mailboxUid, long id, RuleMoveRelativePosition movePosition,
+			long anchorId) throws ServerFault {
+		rbacManager.forEntry(mailboxUid).check(BasicRoles.ROLE_MANAGE_MAILBOX_FILTER);
+
+		MailFilterRule previousRule = storeService.getFilterRule(mailboxUid, id);
+		if (previousRule == null) {
+			throw new ServerFault("Rule with id " + id + " not found", ErrorCode.NOT_FOUND);
+		}
+
+		MailFilterRule anchorRule = storeService.getFilterRule(mailboxUid, anchorId);
+		if (anchorRule == null) {
+			throw new ServerFault("Rule with id " + id + " not found", ErrorCode.NOT_FOUND);
+		}
+
+		if (!previousRule.client.equals(anchorRule.client)) {
+			throw new ServerFault("Rule with id " + id + " can't be ordered relative to rule id=" + anchorId
+					+ " as they don't share the same client", ErrorCode.INVALID_PARAMETER);
+		}
+
+		storeService.moveFilterRule(mailboxUid, id, movePosition, anchorId);
+		onMailFilterRuleChanged(mailboxUid);
+	}
+
+	private void validateMailFilterVacation(String mailboxUid, Vacation vacation) {
+		validateMailFilterRule(mailboxUid, Collections.emptyList(), vacation, new Forwarding());
+	}
+
+	private void validateMailFilterForwarding(String mailboxUid, Forwarding forwarding) {
+		validateMailFilterRule(mailboxUid, Collections.emptyList(), new Vacation(), forwarding);
+	}
+
+	private void validateMailFilterRule(String mailboxUid, MailFilterRule rule) {
+		validateMailFilterRule(mailboxUid, Arrays.asList(rule), new Vacation(), new Forwarding());
+	}
+
+	private void validateMailFilterRule(String mailboxUid, List<MailFilterRule> rules, Vacation vacation,
+			Forwarding forwarding) {
+		MailFilter filter = new MailFilter();
+		filter.rules = rules;
+		objectSanitizer.update(null, filter);
+		objectValidator.update(null, filter);
+		var specificMailFilterValidator = new MailFilterForwardRoleValidator(context, domain, mailboxUid);
+		specificMailFilterValidator.update(null, filter);
+	}
+
+	private void onMailFilterRuleChanged(String mailboxUid) {
+		MailFilter updatedFilter = getMailboxFilter(mailboxUid);
+		ItemValue<Mailbox> mailbox = storeService.get(mailboxUid, null);
+		for (IMailboxHook hook : hooks) {
+			hook.onMailFilterChanged(context, domainUid, mailbox, updatedFilter);
+		}
 	}
 
 	@Override

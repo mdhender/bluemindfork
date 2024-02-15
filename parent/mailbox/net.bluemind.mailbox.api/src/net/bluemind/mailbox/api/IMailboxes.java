@@ -15,6 +15,8 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.mailbox.api.rules.DelegationRule;
 import net.bluemind.mailbox.api.rules.MailFilterRule;
+import net.bluemind.mailbox.api.rules.RuleMoveDirection;
+import net.bluemind.mailbox.api.rules.RuleMoveRelativePosition;
 
 @BMApi(version = "3")
 @Path("/mailboxes/{domainUid}")
@@ -97,16 +99,45 @@ public interface IMailboxes {
 	public void setDomainFilter(MailFilter filter) throws ServerFault;
 
 	@GET
+	@Path("_rules")
+	List<MailFilterRule> getDomainRules() throws ServerFault;
+
+	@GET
+	@Path("_rules/{id}")
+	MailFilterRule getDomainRule(@PathParam("id") long id) throws ServerFault;
+
+	@PUT
+	@Path("_rules")
+	Long addDomainRule(MailFilterRule rule) throws ServerFault;
+
+	@POST
+	@Path("_rules/{id}")
+	void updateDomainRule(@PathParam("id") long id, MailFilterRule rule) throws ServerFault;
+
+	@DELETE
+	@Path("_rules/{id}")
+	void deleteDomainRule(@PathParam("id") long id) throws ServerFault;
+
+	@GET
 	@Path("_byType")
 	public List<String> byType(@QueryParam("email") Mailbox.Type type) throws ServerFault;
 
 	@GET
 	@Path("{mailboxUid}/_vacation")
-	MailFilter.Vacation getMailboxVacation(String mailboxUid);
+	MailFilter.Vacation getMailboxVacation(@PathParam("mailboxUid") String mailboxUid);
 
 	@POST
 	@Path("{mailboxUid}/_vacation")
 	public void setMailboxVacation(@PathParam("mailboxUid") String mailboxUid, MailFilter.Vacation vacation)
+			throws ServerFault;
+
+	@GET
+	@Path("{mailboxUid}/_forwarding")
+	MailFilter.Forwarding getMailboxForwarding(@PathParam("mailboxUid") String mailboxUid);
+
+	@POST
+	@Path("{mailboxUid}/_forwarding")
+	public void setMailboxForwarding(@PathParam("mailboxUid") String mailboxUid, MailFilter.Forwarding forwarding)
 			throws ServerFault;
 
 	@GET
@@ -125,6 +156,41 @@ public interface IMailboxes {
 	@Path("{mailboxUid}/_rulesByClient")
 	List<MailFilterRule> getMailboxRulesByClient(@PathParam("mailboxUid") String mailboxUid,
 			@QueryParam("client") String client) throws ServerFault;
+
+	@GET
+	@Path("{mailboxUid}/_rules/{id}")
+	MailFilterRule getMailboxRule(@PathParam("mailboxUid") String mailboxUid, @PathParam("id") long id)
+			throws ServerFault;
+
+	@PUT
+	@Path("{mailboxUid}/_rules")
+	Long addMailboxRule(@PathParam("mailboxUid") String mailboxUid, MailFilterRule rule) throws ServerFault;
+
+	@PUT
+	@Path("{mailboxUid}/_rules/{position}/{anchorId}")
+	Long addMailboxRuleRelative(@PathParam("mailboxUid") String mailboxUid,
+			@PathParam("position") RuleMoveRelativePosition position, @PathParam("anchorId") long anchorId,
+			MailFilterRule rule) throws ServerFault;
+
+	@POST
+	@Path("{mailboxUid}/_rules/{id}")
+	void updateMailboxRule(@PathParam("mailboxUid") String mailboxUid, @PathParam("id") long id, MailFilterRule rule)
+			throws ServerFault;
+
+	@DELETE
+	@Path("{mailboxUid}/_rules/{id}")
+	void deleteMailboxRule(@PathParam("mailboxUid") String mailboxUid, @PathParam("id") long id) throws ServerFault;
+
+	@POST
+	@Path("{mailboxUid}/_rules/{id}/{direction}")
+	void moveMailboxRule(@PathParam("mailboxUid") String mailboxUid, @PathParam("id") long id,
+			@PathParam("direction") RuleMoveDirection direction) throws ServerFault;
+
+	@POST
+	@Path("{mailboxUid}/_rules/{id}/{position}/{anchorId}")
+	void moveMailboxRuleRelative(@PathParam("mailboxUid") String mailboxUid, @PathParam("id") long id,
+			@PathParam("position") RuleMoveRelativePosition position, @PathParam("anchorId") long anchorId)
+			throws ServerFault;
 
 	@POST
 	@Path("{mailboxUid}/_delegationRule")

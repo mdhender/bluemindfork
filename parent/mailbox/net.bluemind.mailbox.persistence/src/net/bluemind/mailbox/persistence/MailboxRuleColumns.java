@@ -70,6 +70,7 @@ public final class MailboxRuleColumns {
 
 			@Override
 			public int populate(ResultSet rs, int index, MailFilterRule value) throws SQLException {
+				value.id = rs.getLong(index++);
 				value.client = rs.getString(index++);
 				value.type = MailFilterRule.Type.valueOf(rs.getString(index++));
 				value.trigger = MailFilterRule.Trigger.valueOf(rs.getString(index++));
