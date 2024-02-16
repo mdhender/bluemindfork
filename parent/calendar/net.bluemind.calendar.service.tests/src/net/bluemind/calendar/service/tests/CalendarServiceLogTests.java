@@ -345,6 +345,56 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 	}
 
 	@Test
+	public void testUpdateDescription() throws ServerFault, ElasticsearchException, IOException {
+
+		ElasticsearchClient esClient = ESearchActivator.getClient();
+		VEventSeries event = defaultVEvent();
+		String uid = "test_" + System.nanoTime();
+		Attendee sylvain = Attendee.create(CUType.Individual, "", Role.Chair, ParticipationStatus.NeedsAction, true, "",
+				"", "", "sylvain", null, null, null, "sylvain@attendee.lan");
+		Attendee nico = Attendee.create(CUType.Individual, "", Role.Chair, ParticipationStatus.NeedsAction, true, "",
+				"", "", "nico", null, null, null, "nico@attendee.lan");
+		event.main.attendees.addAll(Arrays.asList(sylvain, nico));
+		getCalendarService(userSecurityContext, userCalendarContainer).create(uid, event, sendNotifications);
+
+		// change description
+		event.main.description = """
+				<META HTTP-EQUIV=\\\"Content-Type\\\" CONTENT=\\\"text/html; charset=iso-8857-1\\\">
+							\\r\\n<div style=\\\"font-family: Montserrat, montserrat, &quot;Source Sans&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; font-size: 9.75pt; color: rgb(31, 31, 31);\\\"><br></div>
+							<div data-bm-signature=\\\"a9cbedd6-76b7-4cbd-a9c9-b693cb7d77fc\\\">
+							   <div>-- <br></div>
+							   <img src=\\\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA+gAAAFoCAYAAADEjNEVAAAACXBIWXMAAAsTAAALEwEAmpwYAAAHP2lUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS42LWMxNDIgNzkuMTYwOTI0LCAyMDE3LzA3LzEzLTAxOjA2OjM5ICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgeG1sbnM6cGhvdG9zaG9wPSJodHRwOi8vbnMuYWRvYmUuY29tL3Bob3Rvc2hvcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RFdnQ9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZUV2ZW50IyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ0MgMjAxOCAoV2luZG93cykiIHhtcDpDcmVhdGVEYXRlPSIyMDE4LTA2LTA4VDEyOjAwOjU1KzAyOjAwIiB4bXA6TW9kaWZ5RGF0ZT0iMjAxOS0wMy0yOFQxNTowNTowNiswMTowMCIgeG1wOk1ldGFkYXRhRGF0ZT0iMjAxOS0wMy0yOFQxNTowNTowNiswMTowMCIgZGM6Zm9ybWF0PSJpbWFnZS9wbmciIHBob3Rvc2hvcDpDb2xvck1vZGU9IjMiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6ZGQzM2Q4ZmUtZGVkYy1mMzRhLTlkZTktMTc5MDA2YTM3OTlkIiB4bXBNTTpEb2N1bWVudElEPSJhZG9iZTpkb2NpZDpwaG90b3Nob3A6YzY3NGU2N2EtOGM5Yy1hNDQ1LWE2YjktODU3Yzc3NTIxY2Q5IiB4bXBNTTpPcmlnaW5hbERvY3VtZW50SUQ9InhtcC5kaWQ6M2RiODZjMTItZDIzZi05NDQ1LThlYmQtNTBlZTU2MmYzYTQ1Ij4gPHBob3Rvc2hvcDpEb2N1bWVudEFuY2VzdG9ycz4gPHJkZjpCYWc+IDxyZGY6bGk+YWRvYmU6ZG9jaWQ6cGhvdG9zaG9wOjhmNjExZmIwLTgyNDItNDg0Mi05MjBhLTY5NTQyN2M1MTQxZjwvcmRmOmxpPiA8L3JkZjpCYWc+IDwvcGhvdG9zaG9wOkRvY3VtZW50QW5jZXN0b3JzPiA8eG1wTU06SGlzdG9yeT4gPHJkZjpTZXE+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJjcmVhdGVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOjNkYjg2YzEyLWQyM2YtOTQ0NS04ZWJkLTUwZWU1NjJmM2E0NSIgc3RFdnQ6d2hlbj0iMjAxOC0wNi0wOFQxMjowMDo1NSswMjowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTggKFdpbmRvd3MpIi8+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJzYXZlZCIgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDoyOTE1NGUzMi1kYWM0LWJmNDgtYmM4Yy02MGI4YTQ3Yjk1YmYiIHN0RXZ0OndoZW49IjIwMTktMDItMDdUMTQ6Mzk6MTkrMDE6MDAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIFBob3Rvc2hvcCBDQyAyMDE4IChXaW5kb3dzKSIgc3RFdnQ6Y2hhbmdlZD0iLyIvPiA8cmRmOmxpIHN0RXZ0OmFjdGlvbj0ic2F2ZWQiIHN0RXZ0Omluc3RhbmNlSUQ9InhtcC5paWQ6ZGQzM2Q4ZmUtZGVkYy1mMzRhLTlkZTktMTc5MDA2YTM3OTlkIiBzdEV2dDp3aGVuPSIyMDE5LTAzLTI4VDE1OjA1OjA2KzAxOjAwIiBzdEV2dDpzb2Z0d2FyZUFnZW50PSJBZG9iZSBQaG90b3Nob3AgQ0MgMjAxOCAoV2luZG93cykiIHN0RXZ0OmNoYW5nZWQ9Ii8iLz4gPC9yZGY6U2VxPiA8L3htcE1NOkhpc3Rvcnk+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+lSVN2AAAO0JJREFUeJzt3V1sVFe+9/mf7XIRF8a97fgBEgLYEERbg+kYHrWPhKi2UVojHakdAhdzroJJpHP1DODk9ig2Gc08Vzm86JmrUXiJNFKkURLDkXou0gLHEVITdTCNOeMgAjYmhJd27B1jyrhe8FzscmNoMLZr7dprV30/EiIO9qrlsl3ev73+/7VKpqenBQAAAAAAglUa9AQAAAAAAAABHQAAAAAAKxDQAQAAAACwAAEdAAAAAAALENABAAAAALAAAR0AAAAAAAsQ0AEAAAAAsAABHQAAAAAACxDQAQAAAACwAAEdAAAAAAALENABAAAAALAAAR0AAAAAAAsQ0AEAAAAAsAABHQAAAAAACxDQAQAAAACwAAEdAAAAAAALENABAAAAALAAAR0AAAAAAAsQ0AEAAAAAsAABHQAAAAAACxDQAQAAAACwAAEdAAAAAAALENABAAAAALAAAR0AAAAAAAsQ0AEAAAAAsAABHQAAAAAACxDQAQAAAACwAAEdAAAAAAALENABAAAAALAAAR0AAAAAAAsQ0AEAAAAAsAABHQAAAAAACxDQAQAAAACwAAEdAAAAAAALENABAAAAALAAAR0AAAAAAAsQ0AEAAAAAsAABHQAAAAAACxDQAQAAAACwAAEdAAAAAAALENABAAAAALAAAR0AAAAAAAsQ0AEAAAAAsAABHQAAAAAACxDQAQAAAACwAAEdAAAAAAALENABAAAAALAAAR0AAAAAAAsQ0AEAAAAAsAABHQAAAAAACxDQAQAAAACwAAEdAAAAAAALENABAAAAALAAAR0AAAAAAAsQ0AEAAAAAsAABHQAAAAAACxDQAQAAAACwAAEdAAAAAAALENABAAAAALAAAR0AAAAAAAsQ0AEAAAAAsAABHQAAAAAACxDQAQAAAACwAAEdAAAAAAALENABAAAAALAAAR0AAAAAAAsQ0AEAAAAAsAABHQAAAAAACxDQAQAAAACwAAEdAAAAAAALENABAAAAALAAAR0AAAAAAAsQ0AEAAAAAsAABHQAAAAAACxDQAQAAAACwAAEdAAAAAAALENABAAAAALAAAR0AAAAAAAsQ0AEAAAAAsEAk6AkANvn23tT624nMq+WlJclNNeX9ayojiaDnBAAAAKA4lExPTwc9ByBw37up2ituqiH7Zm/27/ivoqVuy6sv9Qc1LwAAAADFg4COojY8kY5dHk01ph5NR/U4mM8Wl6RXYmU//Xb5kmv5nR0AAACAYkJAR9E6d2eqYeRhplbPDuZPi5eXliTXVUWu/dopH/F7bgAAAACKDwEdRadvJLl2eCK9JvvmfML5bPFYpCSx0SkfoD8dAAAAgEkEdBSN791U7fXx9Po5ytkXIl77UtnItpVLBkzMDQAAAAAI6Ch4txOZ6OXRZGMiPR1T7sF8trgkramMDDfVRm8YHBcAAABAESKgo6AtsM98sehPBwAAAJAzAjoKUo595osVj0VKEptqov2vxMqSeXpMAAAAAAWCgI6Ccm087VxxUxsN9ZkvFv3pAAAAABaMgI6C8dWPk1t96DNfrLgkra+KXN1UE70T9GQAAAAA2I+AjtCb1Wcu2RHOZ4uXl5YkNzrlV9ZXRdygJwMAAADAXgR0hNbl0eTKa+PpDdk3bQvmT4vHIiWJ379W8V3QEwEAAABgJwI6Qmd4Ih27PJpqDLjPfDHikvRKrOyn3y5fci3oyQAAAACwCwEdodLz08PGX5KPHIUrmD8tLkkbnfIBjmUDAAAAMIOAjlD49t7U+tuJzKvZN8MczmeLl5eWJDfVlPevqYwkgp4MAAAAgGAR0GG1791U7RU31ZB9s1CC+dPiv4qWui2vvtQf9EQAAAAABIeADisNT6RjV9xUg0XHpvktLklrKiPDTbXRG0FPBgAAAED+EdBhnVnHphVDMH9avLy0JLmuKnKN/nQAAACguBDQYY2+keTa4Yn0muybxRjOZ4vHIiWJTTXR/ldiZcmgJwMAAADAfwR0BO57N1V7fTy9PoTHpuVDvPalspFtK5cMBD0RAAAAAP4ioCMwtxOZ6OXRZGMR9ZkvFv3pAAAAQBEgoCMQRd5nvlj0pwMAAAAFjICOvLo8mlx5bTy9IfumbeE8LkmvxMp+Gnn4qNbikvt4LFKS+P1rFd8FPREAAAAA5hDQkRfXxtPOFTe1MUyhNww3E+hPBwAAAAoHAR2+++rHya0W95nHy0tLkhud8ivrqyLus95hVjm+ZN/nEJek9VWRq5tqoneCngwAAACAxSOgwzeFFmzDfqMBAAAAgN0I6DDuezdVe8VNNWTftDLMLrY0PAyl+r+Klrotr77UH/REAAAAACwMAR3GDE+kY5dHU402h9dYpCSxqSba/0qsLJnLQH0jybXDE+k12Tdt+1z/vtn
+							   <div>
+							      <pre><b><span style=\\\"font-family: arial, sans-serif; white-space: normal;\\\">toto </span><br style=\\\"font-family: arial, sans-serif; white-space: normal;\\\"></b><div style=\\\"white-space: normal; font-family: Helvetica; font-size: 12px; word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;\\\"><span style=\\\"orphans: 2; widows: 2;\\\">toto@devenv.blue</span>
+							   </div>
+							   <div style=\\\"white-space: normal; font-family: Helvetica; font-size: 12px; word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;\\\"><br>
+							</div>
+							'\r\n;
+							""";
+		getCalendarService(userSecurityContext, userCalendarContainer).update(uid, event, sendNotifications);
+		ESearchActivator.refreshIndex(dataStreamName);
+
+		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
+					.index(dataStreamName) //
+					.query(q -> q.bool(b -> b
+							.must(TermQuery.of(t -> t.field("logtype").value(userCalendarContainer.type))._toQuery())
+							.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
+					AuditLogEntry.class);
+			return 1L == response.hits().total().value();
+		});
+
+		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
+				.index(dataStreamName) //
+				.query(q -> q.bool(
+						b -> b.must(TermQuery.of(t -> t.field("logtype").value(userCalendarContainer.type))._toQuery())
+								.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
+				AuditLogEntry.class);
+		AuditLogEntry firstEntry = response.hits().hits().get(0).source();
+		assertTrue(firstEntry.updatemessage.startsWith("event description changed: 'Lorem ipsum' -> '\\r\\n"));
+	}
+
+	@Test
 	public void testUpdateChangedLocation() throws ServerFault, ElasticsearchException, IOException {
 
 		ElasticsearchClient esClient = ESearchActivator.getClient();

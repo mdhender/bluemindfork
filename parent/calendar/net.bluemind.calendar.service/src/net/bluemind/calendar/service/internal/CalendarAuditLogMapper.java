@@ -114,8 +114,8 @@ public class CalendarAuditLogMapper implements ILogMapperProvider<VEventSeries> 
 
 		if (newEvent.description != null && oldEvent.description != null
 				&& !newEvent.description.equals(oldEvent.description)) {
-			sBuilder.append("event description changed: '" + oldEvent.description + "' -> '" + newEvent.description
-					+ "'" + CRLF);
+			sBuilder.append("event description changed: '" + cleanedUpPlainText(oldEvent.description) + "' -> '"
+					+ cleanedUpPlainText(newEvent.description) + "'" + CRLF);
 			sBuilder.append(';');
 		}
 
