@@ -3,9 +3,6 @@
  */
 export const WRAPPER_CLASS = "bm-composer-content-wrapper";
 
-/**
- * WARNING: this is an internal method, it's exported just for testing purpose
- */
 export default function preventStyleInvading(html) {
     const tmpDoc = new DOMParser().parseFromString(html, "text/html");
 

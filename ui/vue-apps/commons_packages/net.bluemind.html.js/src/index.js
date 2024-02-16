@@ -1,25 +1,13 @@
-import { blockRemoteImages, hasRemoteImages, unblockRemoteImages } from "./blockRemoteImages";
-import html2text from "./Html2Text";
-import text2html from "./text2html";
-import preventStyleInvading from "./preventStyleInvading";
-import removeDuplicatedIds from "./removeDuplicatedIds";
-import sanitizeHtml from "./sanitizeHtml";
-import EmptyTransformer from "./transformers/EmptyTransformer";
-import createDocumentFragment from "./createDocumentFragment";
-export {
-    blockRemoteImages,
-    containsHtml,
-    createDocumentFragment,
-    EmptyTransformer,
-    hasRemoteImages,
-    html2text,
-    preventStyleInvading,
-    removeDuplicatedIds,
-    sanitizeHtml,
-    text2html,
-    unblockRemoteImages
-};
+export { blockRemoteImages, hasRemoteImages, unblockRemoteImages } from "./blockRemoteImages";
+export { removeXDisclaimer } from "./removeXDisclaimer";
+export { default as html2text } from "./Html2Text";
+export { default as text2html } from "./text2html";
+export { default as preventStyleInvading } from "./preventStyleInvading";
+export { default as removeDuplicatedIds } from "./removeDuplicatedIds";
+export { default as sanitizeHtml } from "./sanitizeHtml";
+export { default as EmptyTransformer } from "./transformers/EmptyTransformer";
+export { default as createDocumentFragment } from "./createDocumentFragment";
 
-function containsHtml(str) {
+export function containsHtml(str) {
     return /<[a-z][\s\S]*>/i.test(str);
 }
