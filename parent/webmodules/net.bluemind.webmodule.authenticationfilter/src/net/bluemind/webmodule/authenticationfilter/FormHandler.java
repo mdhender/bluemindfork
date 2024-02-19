@@ -44,6 +44,7 @@ import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.webmodule.authenticationfilter.internal.AuthenticationCookie;
 import net.bluemind.webmodule.authenticationfilter.internal.ExternalCreds;
+import net.bluemind.webmodule.authenticationfilter.internal.SessionData;
 import net.bluemind.webmodule.server.CSRFTokenManager;
 import net.bluemind.webmodule.server.NeedVertx;
 import net.bluemind.webmodule.server.SecurityConfig;
@@ -106,13 +107,13 @@ public class FormHandler implements Handler<HttpServerRequest>, NeedVertx {
 		List<String> forwadedFor = new ArrayList<>(request.headers().getAll("X-Forwarded-For"));
 		forwadedFor.add(request.remoteAddress().host());
 
-		prov.sessionId(login, pass, forwadedFor, new AsyncHandler<String>() {
+		prov.sessionId(login, pass, forwadedFor, new AsyncHandler<SessionData>() {
 
 			@Override
-			public void success(String sid) {
+			public void success(SessionData sessionData) {
 				MultiMap headers = request.response().headers();
 
-				if (sid == null) {
+				if (sessionData == null) {
 					logger.error("Error during auth, {} login not valid (not found/archived or not user)", login);
 					headers.add(HttpHeaders.LOCATION, "/errors-pages/deniedAccess.html?login=" + login);
 					request.response().setStatusCode(302);
@@ -120,7 +121,7 @@ public class FormHandler implements Handler<HttpServerRequest>, NeedVertx {
 					return;
 				}
 
-				Cookie co = new DefaultCookie(AuthenticationCookie.BMSID, sid);
+				Cookie co = new DefaultCookie(AuthenticationCookie.BMSID, sessionData.authKey);
 				co.setPath("/");
 				co.setHttpOnly(true);
 				if (SecurityConfig.secureCookies) {

@@ -37,7 +37,6 @@ public class SessionsCache {
 			SessionData::fromJson);
 
 	private SessionsCache() {
-
 	}
 
 	public static CacheBackingStore<SessionData> get() {

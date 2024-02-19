@@ -40,6 +40,7 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.keycloak.api.IKeycloakClientAdmin;
 import net.bluemind.keycloak.api.IKeycloakUids;
 import net.bluemind.keycloak.api.OidcClient;
+import net.bluemind.keycloak.utils.KeycloakAdminClient;
 import net.bluemind.keycloak.utils.adapters.OidcClientAdapter;
 import net.bluemind.role.api.BasicRoles;
 

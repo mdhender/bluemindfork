@@ -21,7 +21,7 @@ public class EmptyTrashLogoutHook implements ISessionDeletionListener {
 
 	@Override
 	public void deleted(String identity, String sid, SecurityContext securityContext) {
-		if (securityContext.isInteractive()) {
+		if (securityContext != null && securityContext.isInteractive()) {
 			String domainUid = securityContext.getContainerUid();
 			String userUid = securityContext.getSubject();
 			String userLogin = getUserLogin(securityContext);
@@ -58,5 +58,4 @@ public class EmptyTrashLogoutHook implements ISessionDeletionListener {
 		ItemValue<MailboxFolder> trashItemValue = mailboxFoldersService.byName("Trash");
 		mailboxFoldersService.emptyFolder(trashItemValue.internalId);
 	}
-
 }

@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.webmodule.server.handlers.StaticFileHandler;
 import net.bluemind.webmodule.server.js.JsEntry;
@@ -261,10 +262,10 @@ public class WebModuleResolver {
 		return resources;
 	}
 
-	public static List<WebModule> build(Vertx vertx, List<WebModuleBuilder> modules) {
+	public static List<WebModule> build(Vertx vertx, HttpClient httpClient, List<WebModuleBuilder> modules) {
 		List<WebModule> ret = new ArrayList<>(modules.size());
 		for (WebModuleBuilder builder : modules) {
-			WebModule m = builder.build(vertx);
+			WebModule m = builder.build(vertx, httpClient);
 			m.defaultHandler = new StaticFileHandler(vertx, m.root, m.index, m.resources, true, true);
 			ret.add(m);
 		}

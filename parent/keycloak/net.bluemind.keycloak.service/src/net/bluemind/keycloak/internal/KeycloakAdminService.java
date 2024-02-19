@@ -36,6 +36,7 @@ import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.keycloak.api.IKeycloakAdmin;
 import net.bluemind.keycloak.api.Realm;
+import net.bluemind.keycloak.utils.KeycloakAdminClient;
 import net.bluemind.keycloak.utils.KeycloakHelper;
 import net.bluemind.keycloak.utils.adapters.RealmAdapter;
 import net.bluemind.role.api.BasicRoles;

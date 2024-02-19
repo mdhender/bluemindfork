@@ -33,6 +33,8 @@ import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.keycloak.api.AuthenticationFlow;
 import net.bluemind.keycloak.api.IKeycloakFlowAdmin;
+import net.bluemind.keycloak.utils.BlueMindFlowManager;
+import net.bluemind.keycloak.utils.KeycloakAdminClient;
 import net.bluemind.role.api.BasicRoles;
 
 public class KeycloakFlowAdminService extends KeycloakAdminClient implements IKeycloakFlowAdmin {
@@ -51,60 +53,7 @@ public class KeycloakFlowAdminService extends KeycloakAdminClient implements IKe
 		rbacManager.check(BasicRoles.ROLE_MANAGE_DOMAIN);
 		logger.info("Realm {}: Create flow {}", domainId, newFlowAlias);
 
-		// Copy original browser flow
-		String copyUri = "/admin/realms/" + domainId + "/authentication/flows/" + flowToCopyAlias + "/copy";
-		JsonObject reqData = new JsonObject();
-		reqData.put("newName", newFlowAlias);
-		call(copyUri, HttpMethod.POST, reqData);
-
-		// List flow executions to get form exec id
-		String execsUri = "/admin/realms/" + domainId + "/authentication/flows/" + newFlowAlias + "/executions";
-		JsonObject origExecs = call(execsUri, HttpMethod.GET, null);
-		String formExecId = null;
-		JsonArray results = origExecs.getJsonArray("results");
-		for (int i = 0; i < results.size(); i++) {
-			JsonObject curExec = results.getJsonObject(i);
-			if ("auth-username-password-form".equals(curExec.getString("providerId"))) {
-				formExecId = curExec.getString("id");
-			}
-		}
-
-		// Read form exec to get parent flow id
-		String oneExecUri = "/admin/realms/" + domainId + "/authentication/executions/" + formExecId;
-		JsonObject origFormExec = call(oneExecUri, HttpMethod.GET, null);
-		String parentFlowId = origFormExec.getString("parentFlow");
-
-		// Add new exec
-		JsonObject bmFormExec = new JsonObject();
-		bmFormExec.put("authenticator", "bm-auth-usr-pwd-pubpriv-form");
-		bmFormExec.put("authenticatorFlow", false);
-		bmFormExec.put("requirement", "REQUIRED");
-		bmFormExec.put("priority", 10);
-		bmFormExec.put("parentFlow", parentFlowId);
-		String addExecUri = "/admin/realms/" + domainId + "/authentication/executions";
-		call(addExecUri, HttpMethod.POST, bmFormExec);
-
-		// List flow executions again to get new form exec id
-		String execsUri2 = "/admin/realms/" + domainId + "/authentication/flows/" + newFlowAlias + "/executions";
-		JsonObject origExecs2 = call(execsUri2, HttpMethod.GET, null);
-		String formExecId2 = null;
-		JsonArray results2 = origExecs2.getJsonArray("results");
-		for (int i = 0; i < results2.size(); i++) {
-			JsonObject curExec = results2.getJsonObject(i);
-			if ("bm-auth-usr-pwd-pubpriv-form".equals(curExec.getString("providerId"))) {
-				formExecId2 = curExec.getString("id");
-			}
-		}
-
-		// Move new form exec up
-		String moveUpUri = "/admin/realms/" + domainId + "/authentication/executions/" + formExecId2
-				+ "/raise-priority";
-		call(moveUpUri, HttpMethod.POST, null);
-
-		// Delete original form exec
-		String delExecUri = "/admin/realms/" + domainId + "/authentication/executions/" + formExecId;
-		call(delExecUri, HttpMethod.DELETE, null);
-
+		BlueMindFlowManager.fromCopy(domainId).setupBluemindAuthenticator().setupSessionLimits();
 	}
 
 	@Override

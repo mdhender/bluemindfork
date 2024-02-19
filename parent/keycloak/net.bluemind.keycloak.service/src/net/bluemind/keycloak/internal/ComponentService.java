@@ -32,6 +32,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.keycloak.api.Component;
+import net.bluemind.keycloak.utils.KeycloakAdminClient;
 
 public abstract class ComponentService extends KeycloakAdminClient {
 	private static final Logger logger = LoggerFactory.getLogger(ComponentService.class);

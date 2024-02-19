@@ -58,7 +58,8 @@ public class SessionsBackingStore {
 				});
 
 		return new CacheBackingStore<>(cache, coreConfig.getString(CoreConfig.Sessions.STORAGE_PATH),
-				sessionBackingStore::toJson, sessionBackingStore::fromJson);
+				sessionBackingStore::toJson, sessionBackingStore::fromJson,
+				sessionBackingStore::notifyUnkonwnSessionRemovalListeners);
 	}
 
 	private JsonObject toJson(SecurityContext sc) {
@@ -107,22 +108,37 @@ public class SessionsBackingStore {
 		return json == null ? null : json.stream().map(String.class::cast).collect(Collectors.toList());
 	}
 
-	private void notifySessionRemovalListeners(String sessionId, SecurityContext securityContext) {
-		Context vertxContext = VertxContext.getOrCreateDuplicatedContext(VertxPlatform.getVertx());
+	private Context getVertxContext() {
+		return VertxContext.getOrCreateDuplicatedContext(VertxPlatform.getVertx());
+	}
+
+	private void notifyUnkonwnSessionRemovalListeners(String sessionId) {
+		Context vertxContext = getVertxContext();
 		for (ISessionDeletionListener listener : SessionDeletionListeners.get()) {
-			notifySessionRemovalListener(listener, sessionId, securityContext, vertxContext);
+			vertxContext.executeBlocking(() -> {
+				listener.deleted(IDENTITY, sessionId, null);
+				return null;
+			}, true).andThen(asyncResult -> {
+				if (!asyncResult.succeeded()) {
+					logger.error("Unknown session deletion listener {} failed", listener.getClass().getName(),
+							asyncResult.cause());
+				}
+			});
 		}
 	}
 
-	private void notifySessionRemovalListener(ISessionDeletionListener listener, String sessionId,
-			SecurityContext securityContext, Context vertxContext) {
-		vertxContext.executeBlocking(() -> {
-			listener.deleted(IDENTITY, sessionId, securityContext);
-			return null;
-		}, true).andThen(asyncResult -> {
-			if (!asyncResult.succeeded()) {
-				logger.error("Session deletion listener {} failed", listener.getClass().getName(), asyncResult.cause());
-			}
-		});
+	private void notifySessionRemovalListeners(String sessionId, SecurityContext securityContext) {
+		Context vertxContext = getVertxContext();
+		for (ISessionDeletionListener listener : SessionDeletionListeners.get()) {
+			vertxContext.executeBlocking(() -> {
+				listener.deleted(IDENTITY, sessionId, securityContext);
+				return null;
+			}, true).andThen(asyncResult -> {
+				if (!asyncResult.succeeded()) {
+					logger.error("Session deletion listener {} failed", listener.getClass().getName(),
+							asyncResult.cause());
+				}
+			});
+		}
 	}
 }

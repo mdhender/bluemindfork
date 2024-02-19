@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.lib.vertx.RouteMatcher;
 import net.bluemind.webmodule.server.handlers.MaintenanceHandler;
@@ -167,7 +168,8 @@ public final class WebModuleRootHandler implements Handler<HttpServerRequest> {
 	}
 
 	public static WebModuleRootHandler build(Vertx vertx) {
-		List<WebModule> roots = WebModuleResolver.build(vertx, WebModuleServerActivator.getModules());
+		HttpClient httpClient = vertx.createHttpClient();
+		List<WebModule> roots = WebModuleResolver.build(vertx, httpClient, WebModuleServerActivator.getModules());
 
 		// load filters
 		List<IWebFilter> filters = WebModuleServerActivator.getFilters();

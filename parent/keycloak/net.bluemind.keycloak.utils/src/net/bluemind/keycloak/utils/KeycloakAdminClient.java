@@ -15,8 +15,9 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.keycloak.internal;
+package net.bluemind.keycloak.utils;
 
+import java.net.ConnectException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -26,6 +27,8 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,8 +43,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.server.api.TagDescriptor;
 
-public abstract class KeycloakAdminClient {
-
+public class KeycloakAdminClient {
 	private static final Logger logger = LoggerFactory.getLogger(KeycloakAdminClient.class);
 
 	protected static final String BASE_URL = "http://"
@@ -54,7 +56,11 @@ public abstract class KeycloakAdminClient {
 	protected static final String CLIENTS_CREDS_URL = CLIENTS_URL + "/%s/client-secret";
 	protected static final String COMPONENTS_URL = REALMS_ADMIN_URL + "/%s/components";
 
-	protected static final int TIMEOUT = 5;
+	private static final int GET_TOKEN_MAX_ATTEMPTS = 5;
+	private static final int GET_TOKEN_RETRY_INTERVAL = 3;
+	protected static final int TIMEOUT = GET_TOKEN_RETRY_INTERVAL * (GET_TOKEN_MAX_ATTEMPTS + 1);
+
+	private AtomicInteger attempts = new AtomicInteger();
 
 	private HttpClient cli = HttpClient.newBuilder().version(HttpClient.Version.HTTP_2)
 			.connectTimeout(Duration.ofSeconds(TIMEOUT)).build();
@@ -70,6 +76,7 @@ public abstract class KeycloakAdminClient {
 			requestBuilder.header("Authorization", "bearer " + token);
 			requestBuilder.header("Charset", StandardCharsets.UTF_8.name());
 			requestBuilder.header("Content-Type", "application/json");
+
 			if (body != null) {
 				byte[] data = body.toString().getBytes();
 				requestBuilder.method(method.name(), HttpRequest.BodyPublishers.ofByteArray(data));
@@ -80,8 +87,10 @@ public abstract class KeycloakAdminClient {
 
 			return cli.sendAsync(request, BodyHandlers.ofString()).thenApply(response -> {
 				if (response.statusCode() > 400) {
+					logger.error("Error: {} {}", response.statusCode(), response.body());
 					return null;
 				}
+
 				JsonObject ret = new JsonObject();
 				if (!Strings.isNullOrEmpty(response.body())) {
 					try {
@@ -90,6 +99,7 @@ public abstract class KeycloakAdminClient {
 						ret.put("results", new JsonArray(response.body()));
 					}
 				}
+
 				return ret;
 			}).exceptionally(t -> {
 				logger.error("Failed to request {} {}: {}", method.name(), spec, t.getMessage());
@@ -99,6 +109,7 @@ public abstract class KeycloakAdminClient {
 	}
 
 	private CompletableFuture<String> getToken() {
+		attempts = new AtomicInteger();
 		String parameters = "grant_type=password&client_id=admin-cli&username=admin&password=" + Token.admin0();
 		byte[] postData = parameters.getBytes(StandardCharsets.UTF_8);
 
@@ -109,16 +120,30 @@ public abstract class KeycloakAdminClient {
 		requestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(postData));
 		HttpRequest request = requestBuilder.build();
 
+		return invoke(request);
+	}
+
+	private CompletableFuture<String> invoke(HttpRequest request) {
+		attempts.getAndIncrement();
 		return cli.sendAsync(request, BodyHandlers.ofString()).thenApply(response -> {
 			if (response.statusCode() > 400) {
 				return null;
 			}
-			return new JsonObject(response.body()).getString("access_token");
-		}).exceptionally(t -> {
-			logger.error("Failed to fetch admin token: {}", t.getMessage());
-			return null;
-		});
 
+			return new JsonObject(response.body()).getString("access_token");
+		}).exceptionallyCompose(t -> {
+			if (attempts.get() < GET_TOKEN_MAX_ATTEMPTS && t.getCause() != null
+					&& t.getCause() instanceof ConnectException) {
+				logger.warn("Keycloak connection refused, retrying attempt={}", attempts.get());
+				return CompletableFuture
+						.supplyAsync(() -> this.invoke(request),
+								CompletableFuture.delayedExecutor(GET_TOKEN_RETRY_INTERVAL, TimeUnit.SECONDS))
+						.thenCompose(Function.identity());
+			}
+
+			logger.error("Failed to fetch admin token", t);
+			return CompletableFuture.completedFuture(null);
+		});
 	}
 
 	protected JsonObject call(String callUri, HttpMethod method, JsonObject body) {
@@ -131,8 +156,7 @@ public abstract class KeycloakAdminClient {
 		} catch (Exception e) {
 			throw new ServerFault(e);
 		}
+
 		return json;
-
 	}
-
 }

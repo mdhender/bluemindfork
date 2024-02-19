@@ -36,6 +36,9 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.interfaces.Claim;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.google.common.base.Strings;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
@@ -46,11 +49,15 @@ import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.Message;
+import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpHeaders;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
+import net.bluemind.common.cache.persistence.CacheBackingStore;
 import net.bluemind.core.api.BMVersion;
 import net.bluemind.core.api.auth.AuthDomainProperties;
 import net.bluemind.core.api.auth.AuthTypes;
@@ -84,24 +91,41 @@ public class AuthenticationFilter implements IWebFilter, NeedVertx {
 	private static class InvalidIdToken extends Exception {
 	}
 
+	@SuppressWarnings("serial")
+	private static class JWTInvalidSid extends RuntimeException {
+	}
+
+	private Vertx vertx;
+	private HttpClient httpClient;
+
 	public AuthenticationFilter() {
 		logger.info("AuthenticationFilter filter created.");
 	}
 
 	@Override
 	public void setVertx(Vertx vertx) {
+		this.vertx = vertx;
+		this.httpClient = vertx.createHttpClient();
+
 		// Every day, remove sessions files from disk that are not in cache
 		vertx.setPeriodic(TimeUnit.DAYS.toMillis(1), i -> SessionsCache.get().cleanUp());
 
+		// TODO: Must logout KC too
 		vertx.eventBus().consumer(Topic.CORE_SESSIONS, (Message<JsonObject> event) -> {
 			JsonObject cm = event.body();
 			String op = cm.getString("operation");
 			if ("logout".equals(op)) {
 				String sid = cm.getString("sid");
+
+				SessionData sessionData = SessionsCache.get().getIfPresent(sid);
+				if (sessionData != null && sessionData.refreshTimerId > 0) {
+					logger.info("Remove refresh timer {} for {}", sessionData.refreshTimerId, sid);
+					vertx.cancelTimer(sessionData.refreshTimerId);
+				}
+
 				SessionsCache.get().invalidate(sid);
 			}
 		});
-
 	}
 
 	@Override
@@ -118,6 +142,10 @@ public class AuthenticationFilter implements IWebFilter, NeedVertx {
 
 		if (request.path().endsWith("/bluemind_sso_logout")) {
 			return logout(request);
+		}
+
+		if (request.path().endsWith("/bluemind_sso_logout/backchannel")) {
+			return backChannelLogout(request);
 		}
 
 		return forwardedLocation.flatMap(fl -> fl.resolve()).map(resolved -> forwardedLocation(request))
@@ -152,10 +180,21 @@ public class AuthenticationFilter implements IWebFilter, NeedVertx {
 	}
 
 	private Optional<CompletableFuture<HttpServerRequest>> sessionExists(HttpServerRequest request) {
-		return sessionId(request).map(sessionId -> SessionsCache.get().getIfPresent(sessionId)).map(sessionData -> {
-			decorate(request, sessionData);
-			return CompletableFuture.completedFuture(request);
-		});
+		CacheBackingStore<SessionData> cache = SessionsCache.get();
+
+		synchronized (cache) {
+			return sessionId(request).map(sessionId -> cache.getIfPresent(sessionId)).map(sessionData -> {
+				decorate(request, sessionData);
+				if (sessionData.refreshTimerId < 0 && sessionData.jwtToken != null && sessionData.realm != null
+						&& sessionData.openIdClientSecret != null) {
+					long timerId = new OpenIdRefreshHandler(vertx, httpClient, sessionData.authKey).setRefreshTimer();
+					cache.put(sessionData.authKey, sessionData.setOpenId(sessionData.jwtToken,
+							sessionData.realm, sessionData.openIdClientSecret, timerId));
+
+				}
+				return CompletableFuture.completedFuture(request);
+			});
+		}
 	}
 
 	private void redirectToOpenIdServer(HttpServerRequest request, String domainUid) {
@@ -271,25 +310,17 @@ public class AuthenticationFilter implements IWebFilter, NeedVertx {
 	}
 
 	private CompletableFuture<HttpServerRequest> logout(HttpServerRequest request) {
-		Optional<String> sessionId = sessionId(request);
-		if (sessionId.isPresent()) {
-			SessionsCache.get().invalidate(sessionId.get());
-		}
-
 		AuthenticationCookie.purge(request);
 
 		String domainUid = DomainsHelper.getDomainUid(request);
 		Map<String, String> domainSettings = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
 				.get(domainUid);
 
-		Optional<String> redirUrl = Optional.empty();
-		try {
-			URL reqUrl = URI.create(request.absoluteURI()).toURL();
-			redirUrl = Optional.ofNullable(URLEncoder.encode(REDIRECT_PROTO + reqUrl.getHost() + "/",
-					java.nio.charset.StandardCharsets.UTF_8.toString()));
-		} catch (MalformedURLException | UnsupportedEncodingException e) {
-			logger.warn("Unable to get logout redirect URL", e);
-			redirUrl = Optional.empty();
+		if (!AuthTypes.INTERNAL.name().equals(domainSettings.get(AuthDomainProperties.AUTH_TYPE.name()))) {
+			// Redirect to external authentication server logout URL before logout BM
+			// session
+			sessionId(request).ifPresent(sessionId -> vertx.setTimer(TimeUnit.SECONDS.toMillis(10),
+					i -> new AuthProvider(vertx).logout(sessionId)));
 		}
 
 		String logoutUrl = null;
@@ -300,22 +331,17 @@ public class AuthenticationFilter implements IWebFilter, NeedVertx {
 				} else {
 					logoutUrl = domainSettings.get(AuthDomainProperties.OPENID_END_SESSION_ENDPOINT.name());
 				}
-				logoutUrl += redirUrl.map(url -> "?post_logout_redirect_uri=" + url).orElse("");
-				logoutUrl += request.cookies(AuthenticationCookie.ID_TOKEN).stream().findFirst()
-						.map(io.vertx.core.http.Cookie::getValue).map(it -> {
-							try {
-								return URLEncoder.encode(it, java.nio.charset.StandardCharsets.UTF_8.toString());
-							} catch (UnsupportedEncodingException e) {
-								logger.warn("Unable to get ID token", e);
-								return null;
-							}
-						}).map(encodedIdToken -> "&id_token_hint=" + encodedIdToken).orElseThrow(InvalidIdToken::new);
+
+				logoutUrl += getRedirectUrl(request).map(url -> "?post_logout_redirect_uri=" + url).orElse("");
+				logoutUrl += sessionId(request).map(sessionId -> SessionsCache.get().getIfPresent(sessionId))
+						.map(sessionData -> "&id_token_hint=" + sessionData.jwtToken.getString("id_token"))
+						.orElseThrow(InvalidIdToken::new);
 			} catch (InvalidIdToken iIT) {
 				logoutUrl = "/";
 			}
 		} else {
 			logoutUrl = domainSettings.get(AuthDomainProperties.CAS_URL.name()) + "logout";
-			logoutUrl += redirUrl.map(url -> "?url=" + url).orElse("");
+			logoutUrl += getRedirectUrl(request).map(url -> "?url=" + url).orElse("");
 		}
 
 		request.response().headers().add(HttpHeaders.LOCATION, logoutUrl);
@@ -323,7 +349,96 @@ public class AuthenticationFilter implements IWebFilter, NeedVertx {
 		request.response().end();
 
 		return CompletableFuture.completedFuture(null);
+	}
 
+	/**
+	 * https://openid.net/specs/openid-connect-backchannel-1_0.html
+	 * 
+	 * Errors: https://www.rfc-editor.org/rfc/inline-errata/rfc6749.html
+	 * 
+	 * @param request
+	 * @return
+	 */
+	private CompletableFuture<HttpServerRequest> backChannelLogout(HttpServerRequest request) {
+		if (!isValidRequest(request)) {
+			logger.info("backchannel log out: invalid session");
+			return CompletableFuture.completedFuture(null);
+		}
+
+		request.setExpectMultipart(true).endHandler(v1 -> {
+			DecodedJWT jwtLogoutToken = JWT.decode(request.getFormAttribute("logout_token"));
+
+			Claim jwtSid = jwtLogoutToken.getClaim("sid");
+			if (jwtSid.isMissing() || jwtSid.isNull()) {
+				throw new JWTInvalidSid();
+			}
+
+			SessionsCache.get().asMap().values().stream()
+					.filter(value -> jwtSid.asString().equals(value.jwtToken.getValue("session_state"))).findAny()
+					.ifPresentOrElse(sessionData -> new AuthProvider(vertx).logout(sessionData), () -> logger
+							.warn("Backchannel logout: session not found for JWTSid {}", jwtSid.asString()));
+			backChannelLogoutSuccess(request);
+		}).exceptionHandler(e -> {
+			logger.info("JWT logout token process error from {}: {}", request.headers().getAll("X-Forwarded-For"),
+					e.getMessage(), e);
+			backChannelLogoutError(request, "JWT logout token process error: " + e.getMessage());
+		});
+
+		return CompletableFuture.completedFuture(null);
+	}
+
+	public void backChannelLogoutSuccess(HttpServerRequest request) {
+		logger.debug("Bachchannel logout successfully");
+		backChannelResponse(request, 200, new JsonObject().put("status", "ok").toBuffer());
+	}
+
+	public void backChannelLogoutError(HttpServerRequest request, String errorDescription) {
+		backChannelResponse(request, 400,
+				new JsonObject().put("error", "invalid_request").put("error_description", errorDescription).toBuffer());
+	}
+
+	public void backChannelResponse(HttpServerRequest request, int httpStatusCode, Buffer body) {
+		request.response().putHeader(HttpHeaders.CACHE_CONTROL, "no-store").setStatusCode(httpStatusCode).end(body);
+	}
+
+	private boolean isValidRequest(HttpServerRequest request) {
+		if (request.method() != HttpMethod.POST) {
+			backChannelLogoutError(request, "Request must use POST method");
+			return false;
+		}
+
+		if (!request.headers().get(HttpHeaders.CONTENT_TYPE)
+				.contentEquals(HttpHeaders.APPLICATION_X_WWW_FORM_URLENCODED.toString())) {
+			backChannelLogoutError(request, "Invalid request content");
+			return false;
+		}
+
+		String clAsString = request.headers().get(HttpHeaders.CONTENT_LENGTH);
+		Long contentLength = null;
+		try {
+			contentLength = Long.parseLong(clAsString);
+		} catch (NumberFormatException e) {
+			// Do nothing
+		}
+
+		if (contentLength == null || contentLength > 1000 * 100) {
+			logger.info("TOO BIG: {}", contentLength);
+			backChannelLogoutError(request, "Too big");
+			return false;
+		}
+
+		return true;
+	}
+
+	private Optional<String> getRedirectUrl(HttpServerRequest request) {
+		try {
+			URL reqUrl = URI.create(request.absoluteURI()).toURL();
+			return Optional.ofNullable(URLEncoder.encode(REDIRECT_PROTO + reqUrl.getHost() + "/",
+					java.nio.charset.StandardCharsets.UTF_8.toString()));
+		} catch (MalformedURLException | UnsupportedEncodingException e) {
+			logger.warn("Unable to get logout redirect URL", e);
+			return Optional.empty();
+		}
 	}
 
 	private String createCodeVerifier() {
@@ -337,7 +452,7 @@ public class AuthenticationFilter implements IWebFilter, NeedVertx {
 		MultiMap headers = request.headers();
 
 		headers.add("BMSessionId", sd.authKey);
-		headers.add("BMUserId", sd.getUserUid());
+		headers.add("BMUserId", sd.userUid);
 		headers.add("BMUserLogin", sd.login);
 		headers.add("BMAccountType", sd.accountType);
 		headers.add("BMUserLATD", sd.loginAtDomain);
@@ -347,7 +462,7 @@ public class AuthenticationFilter implements IWebFilter, NeedVertx {
 
 		// Used to order the client to reset it's local data if guid specified
 		// in sessionsInfos is different from the one in the local application data
-		headers.add("BMMailboxCopyGuid", sd.getMailboxCopyGuid());
+		headers.add("BMMailboxCopyGuid", sd.mailboxCopyGuid);
 
 		headers.add("BMUserDomainId", sd.domainUid);
 
@@ -362,7 +477,7 @@ public class AuthenticationFilter implements IWebFilter, NeedVertx {
 		// needed by rouncube ?
 
 		headers.add("bmMailPerms", "true");
-		Map<String, String> settings = sd.getSettings();
+		Map<String, String> settings = sd.settings;
 		String lang = settings.get("lang");
 		headers.add("BMLang", lang == null ? "en" : lang);
 		String defaultApp = settings.get("default_app");
@@ -370,7 +485,7 @@ public class AuthenticationFilter implements IWebFilter, NeedVertx {
 			defaultApp = "/adminconsole/";
 		}
 		headers.add("BMDefaultApp", defaultApp != null ? defaultApp : "/webapp/mail/");
-		headers.add("BMPrivateComputer", "" + sd.isPrivateComputer());
+		headers.add("BMPrivateComputer", "" + sd.privateComputer);
 
 		headers.add("BMHasIM", "true");
 		headers.add("BMVersion", BMVersion.getVersion());
@@ -385,7 +500,6 @@ public class AuthenticationFilter implements IWebFilter, NeedVertx {
 				headers.add("bmTopoEs", topo.any("bm/es").value.address());
 				headers.add("bmTopoImap", topo.datalocation(sd.dataLocation).value.address());
 				topo.anyIfPresent("cti/frontend").ifPresent(cti -> headers.add("bmTopoCti", cti.value.address()));
-
 			});
 		}
 	}

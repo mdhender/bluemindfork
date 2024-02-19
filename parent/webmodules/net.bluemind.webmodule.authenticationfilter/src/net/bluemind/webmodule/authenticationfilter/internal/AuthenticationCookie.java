@@ -50,7 +50,6 @@ public class AuthenticationCookie {
 	}
 
 	public static void purge(HttpServerRequest request) {
-
 		MultiMap headers = request.response().headers();
 
 		delete(headers, AuthenticationCookie.BMSID);
@@ -59,7 +58,6 @@ public class AuthenticationCookie {
 		delete(headers, AuthenticationCookie.ID_TOKEN);
 		delete(headers, AuthenticationCookie.BMPRIVACY);
 		delete(headers, AuthenticationCookie.BMREDIRECT);
-
 	}
 
 	private static void delete(MultiMap headers, String cookieName) {

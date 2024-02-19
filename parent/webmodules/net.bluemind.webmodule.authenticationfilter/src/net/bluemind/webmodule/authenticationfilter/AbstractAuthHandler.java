@@ -17,15 +17,11 @@
   */
 package net.bluemind.webmodule.authenticationfilter;
 
-import java.net.URI;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.interfaces.Claim;
-import com.auth0.jwt.interfaces.DecodedJWT;
 
 import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
@@ -33,10 +29,10 @@ import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServerRequest;
-import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.webmodule.authenticationfilter.internal.AuthenticationCookie;
 import net.bluemind.webmodule.authenticationfilter.internal.ExternalCreds;
+import net.bluemind.webmodule.authenticationfilter.internal.SessionData;
 import net.bluemind.webmodule.server.NeedVertx;
 
 public abstract class AbstractAuthHandler implements NeedVertx {
@@ -44,33 +40,29 @@ public abstract class AbstractAuthHandler implements NeedVertx {
 	private static final Logger logger = LoggerFactory.getLogger(AbstractAuthHandler.class);
 
 	protected Vertx vertx;
+	protected HttpClient httpClient;
 
 	@Override
 	public void setVertx(Vertx vertx) {
 		this.vertx = vertx;
-
-	}
-
-	protected void createSession(HttpServerRequest request, AuthProvider prov, List<String> forwadedFor,
-			ExternalCreds creds, String redirectTo, String domainUid) {
-		createSession(request, prov, forwadedFor, creds, redirectTo, domainUid, null);
+		this.httpClient = vertx.createHttpClient(new HttpClientOptions().setTrustAll(true).setVerifyHost(false));
 	}
 
 	protected void createSession(HttpServerRequest request, AuthProvider prov, List<String> forwadedFor,
 			ExternalCreds creds, String redirectTo) {
-		createSession(request, prov, forwadedFor, creds, redirectTo, null, null);
+		createSession(request, prov, forwadedFor, creds, redirectTo, sessionData -> AuthenticationCookie
+				.add(request.response().headers(), AuthenticationCookie.BMSID, sessionData.authKey));
 	}
 
 	protected void createSession(HttpServerRequest request, AuthProvider prov, List<String> forwadedFor,
-			ExternalCreds creds, String redirectTo, String domainUid, JsonObject token) {
+			ExternalCreds creds, String redirectTo, Consumer<SessionData> handlerSessionConsumer) {
 		logger.info("Create session for {}", creds.getLoginAtDomain());
-		prov.sessionId(creds, forwadedFor, new AsyncHandler<String>() {
+		prov.sessionId(creds, forwadedFor, new AsyncHandler<SessionData>() {
 			@Override
-			public void success(String sid) {
-
+			public void success(SessionData sessionData) {
 				MultiMap headers = request.response().headers();
 
-				if (sid == null) {
+				if (sessionData == null) {
 					logger.error("Error during auth, {} login not valid (not found/archived or not user)",
 							creds.getLoginAtDomain());
 					headers.add(HttpHeaders.LOCATION,
@@ -80,26 +72,7 @@ public abstract class AbstractAuthHandler implements NeedVertx {
 					return;
 				}
 
-				if (token != null) {
-					JsonObject cookie = new JsonObject();
-					cookie.put("sid", sid);
-					cookie.put("domain_uid", domainUid);
-					AuthenticationCookie.add(headers, AuthenticationCookie.OPENID_SESSION, cookie.encode());
-
-					AuthenticationCookie.add(headers, AuthenticationCookie.ACCESS_TOKEN,
-							token.getString("access_token"));
-					AuthenticationCookie.add(headers, AuthenticationCookie.REFRESH_TOKEN,
-							token.getString("refresh_token"));
-					AuthenticationCookie.add(headers, AuthenticationCookie.ID_TOKEN, token.getString("id_token"));
-
-					DecodedJWT accessToken = JWT.decode(token.getString("access_token"));
-					Claim pubpriv = accessToken.getClaim("bm_pubpriv");
-					boolean privateComputer = "private".equals(pubpriv.asString());
-					AuthenticationCookie.add(headers, AuthenticationCookie.BMPRIVACY,
-							Boolean.toString(privateComputer));
-				} else {
-					AuthenticationCookie.add(headers, AuthenticationCookie.BMSID, sid);
-				}
+				handlerSessionConsumer.accept(sessionData);
 
 				if ("admin0@global.virt".equals(creds.getLoginAtDomain())) {
 					headers.add(HttpHeaders.LOCATION, "/");
@@ -115,7 +88,6 @@ public abstract class AbstractAuthHandler implements NeedVertx {
 			public void failure(Throwable e) {
 				error(request, e);
 			}
-
 		});
 	}
 
@@ -126,18 +98,4 @@ public abstract class AbstractAuthHandler implements NeedVertx {
 		req.response().setStatusCode(302);
 		req.response().end();
 	}
-
-	protected HttpClient initHttpClient(URI uri) {
-		HttpClientOptions opts = new HttpClientOptions();
-		opts.setDefaultHost(uri.getHost());
-		opts.setSsl(uri.getScheme().equalsIgnoreCase("https"));
-		opts.setDefaultPort(
-				uri.getPort() != -1 ? uri.getPort() : (uri.getScheme().equalsIgnoreCase("https") ? 443 : 80));
-		if (opts.isSsl()) {
-			opts.setTrustAll(true);
-			opts.setVerifyHost(false);
-		}
-		return vertx.createHttpClient(opts);
-	}
-
 }

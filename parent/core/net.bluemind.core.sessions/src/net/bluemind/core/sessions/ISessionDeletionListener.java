@@ -21,6 +21,11 @@ import net.bluemind.core.context.SecurityContext;
 
 public interface ISessionDeletionListener {
 
+	/**
+	 * 
+	 * @param identity
+	 * @param sid
+	 * @param securityContext may be null
+	 */
 	void deleted(String identity, String sid, SecurityContext securityContext);
-
 }

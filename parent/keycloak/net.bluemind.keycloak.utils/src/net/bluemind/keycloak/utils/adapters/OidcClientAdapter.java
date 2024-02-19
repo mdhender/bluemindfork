@@ -32,6 +32,8 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.keycloak.api.OidcClient;
 import net.bluemind.keycloak.utils.KeycloakHelper;
+import net.bluemind.network.topology.Topology;
+import net.bluemind.server.api.TagDescriptor;
 
 public class OidcClientAdapter {
 	private static class ProtocolMapper {
@@ -77,7 +79,17 @@ public class OidcClientAdapter {
 	}
 
 	public final static String POST_LOGOUT_REDIRECT_URIS = "post.logout.redirect.uris";
-	public final static Set<String> MANAGED_ATTRIBUTES = Set.of(POST_LOGOUT_REDIRECT_URIS);
+
+	private final static String BACK_CHANNEL_URL_KEY = "backchannel.logout.url";
+	private final static String BACK_CHANNEL_URL = "http://"
+			+ Topology.get().any(TagDescriptor.bm_core.getTag()).value.address()
+			+ ":8080/bluemind_sso_logout/backchannel";
+
+	private final static String BACK_CHANNEL_SID_REQUIRED_KEY = "backchannel.logout.session.required";
+	private final static String BACK_CHANNEL_SID_REQUIRED = "true";
+
+	public final static Set<String> MANAGED_ATTRIBUTES = Set.of(POST_LOGOUT_REDIRECT_URIS, BACK_CHANNEL_URL_KEY,
+			BACK_CHANNEL_SID_REQUIRED_KEY);
 
 	public final OidcClient oidcClient;
 	public final Optional<String> flowId;
@@ -107,7 +119,9 @@ public class OidcClientAdapter {
 		oidcClient.directAccessGrantsEnabled = true;
 		oidcClient.redirectUris = KeycloakHelper.getDomainUrls(domainUid);
 		oidcClient.webOrigins = Set.of("+");
-		oidcClient.attributes = Map.of(POST_LOGOUT_REDIRECT_URIS, "*");
+		oidcClient.attributes = Map.of(POST_LOGOUT_REDIRECT_URIS, "*", //
+				BACK_CHANNEL_URL_KEY, BACK_CHANNEL_URL, //
+				BACK_CHANNEL_SID_REQUIRED_KEY, BACK_CHANNEL_SID_REQUIRED);
 		oidcClient.baseUrl = KeycloakHelper.getExternalUrl(domainUid);
 
 		return new OidcClientAdapter(oidcClient, flowId, Optional.of(ProtocolMapper.build()));

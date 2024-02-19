@@ -90,9 +90,9 @@ public class KeycloakHelper {
 			domain.value.properties.put(AuthDomainProperties.AUTH_TYPE.name(), authType);
 		}
 
-		IKeycloakClientAdmin keycloakRealmAdminService = provider.instance(IKeycloakClientAdmin.class, domain.uid);
-		keycloakRealmAdminService.create(clientId);
-		String secret = keycloakRealmAdminService.getSecret(clientId);
+		IKeycloakClientAdmin keycloakClientAdmin = provider.instance(IKeycloakClientAdmin.class, domain.uid);
+		keycloakClientAdmin.create(clientId);
+		String secret = keycloakClientAdmin.getSecret(clientId);
 		Map<String, String> properties = domain.value.properties != null ? domain.value.properties : new HashMap<>();
 		properties.put(AuthDomainProperties.OPENID_CLIENT_SECRET.name(), secret);
 		provider.instance(IInCoreDomains.class).setProperties(domain.uid, properties);

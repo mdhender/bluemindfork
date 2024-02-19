@@ -17,7 +17,6 @@
   */
 package net.bluemind.webmodule.authenticationfilter;
 
-import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -25,6 +24,7 @@ import java.util.Base64;
 import java.util.Base64.Decoder;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,26 +37,70 @@ import com.google.common.base.Strings;
 
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
+import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientRequest;
 import io.vertx.core.http.HttpClientResponse;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.RequestOptions;
 import io.vertx.core.json.JsonObject;
+import net.bluemind.common.cache.persistence.CacheBackingStore;
 import net.bluemind.core.api.auth.AuthDomainProperties;
 import net.bluemind.core.api.auth.AuthTypes;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.Shared;
 import net.bluemind.keycloak.api.IKeycloakUids;
 import net.bluemind.keycloak.utils.endpoints.KeycloakEndpoints;
+import net.bluemind.webmodule.authenticationfilter.internal.AuthenticationCookie;
 import net.bluemind.webmodule.authenticationfilter.internal.CodeVerifierCache;
 import net.bluemind.webmodule.authenticationfilter.internal.ExternalCreds;
+import net.bluemind.webmodule.authenticationfilter.internal.SessionData;
+import net.bluemind.webmodule.authenticationfilter.internal.SessionsCache;
 
 public class OpenIdHandler extends AbstractAuthHandler implements Handler<HttpServerRequest> {
-
 	private static final Logger logger = LoggerFactory.getLogger(OpenIdHandler.class);
+
+	private class SessionConsumer implements Consumer<SessionData> {
+		private final Vertx vertx;
+		private final HttpServerRequest request;
+		private final String realm;
+		private final JsonObject jwtToken;
+		private final String openIdClientSecret;
+
+		public SessionConsumer(Vertx vertx, HttpServerRequest request, String realm, String openIdClientSecret,
+				JsonObject jwtToken) {
+			this.vertx = vertx;
+			this.request = request;
+			this.realm = realm;
+			this.openIdClientSecret = openIdClientSecret;
+			this.jwtToken = jwtToken;
+		}
+
+		@Override
+		public void accept(SessionData sessionData) {
+			MultiMap headers = request.response().headers();
+
+			JsonObject cookie = new JsonObject();
+			cookie.put("sid", sessionData.authKey);
+			cookie.put("domain_uid", realm);
+			AuthenticationCookie.add(headers, AuthenticationCookie.OPENID_SESSION, cookie.encode());
+
+			Claim pubpriv = JWT.decode(jwtToken.getString("access_token")).getClaim("bm_pubpriv");
+			boolean privateComputer = "private".equals(pubpriv.asString());
+			AuthenticationCookie.add(headers, AuthenticationCookie.BMPRIVACY, Boolean.toString(privateComputer));
+
+			long renewTimerId = new OpenIdRefreshHandler(vertx, httpClient, sessionData.authKey).setRefreshTimer();
+
+			CacheBackingStore<SessionData> cache = SessionsCache.get();
+			synchronized (cache) {
+				cache.put(sessionData.authKey,
+						sessionData.setOpenId(jwtToken, realm, openIdClientSecret, renewTimerId));
+			}
+		}
+	}
+
 	private static final Decoder b64UrlDecoder = Base64.getUrlDecoder();
 
 	@Override
@@ -82,56 +126,63 @@ public class OpenIdHandler extends AbstractAuthHandler implements Handler<HttpSe
 
 		CodeVerifierCache.invalidate(key);
 
-		String domainUid = jsonState.getString("domain_uid");
+		String realm = jsonState.getString("domain_uid");
 		Map<String, String> domainSettings = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
-				.get(domainUid);
+				.get(realm);
 
 		try {
-			URI uri = new URI(tokenEndpoint(domainUid, domainSettings));
-			HttpClient client = initHttpClient(uri);
+			httpClient.request(new RequestOptions().setMethod(HttpMethod.POST)
+					.setAbsoluteURI(tokenEndpoint(realm, domainSettings)), reqHandler -> {
+						boolean internalAuth = AuthTypes.INTERNAL.name()
+								.equals(domainSettings.get(AuthDomainProperties.AUTH_TYPE.name()));
+						String openIdClientSecret = domainSettings
+								.get(AuthDomainProperties.OPENID_CLIENT_SECRET.name());
 
-			client.request(HttpMethod.POST, uri.getPath(), reqHandler -> {
-				if (reqHandler.succeeded()) {
-					HttpClientRequest r = reqHandler.result();
-					r.response(respHandler -> {
-						if (respHandler.succeeded()) {
-							HttpClientResponse resp = respHandler.result();
-							resp.body(body -> {
-								JsonObject token = new JsonObject(new String(body.result().getBytes()));
-								String redirectTo = jsonState.getString("path");
-								validateToken(event, forwadedFor, token, redirectTo, domainUid);
+						if (reqHandler.succeeded()) {
+							HttpClientRequest r = reqHandler.result();
+							r.response(respHandler -> {
+								if (respHandler.succeeded()) {
+									HttpClientResponse resp = respHandler.result();
+									resp.body(body -> {
+										JsonObject jwtToken = new JsonObject(new String(body.result().getBytes()));
+										String redirectTo = jsonState.getString("path");
+										validateToken(event, forwadedFor, jwtToken, redirectTo,
+												internalAuth
+														? new SessionConsumer(vertx, event, realm, openIdClientSecret,
+																jwtToken)
+														: s -> {
+														});
+									});
+								} else {
+									error(event, respHandler.cause());
+								}
 							});
+
+							MultiMap headers = r.headers();
+							headers.add(HttpHeaders.ACCEPT_CHARSET, StandardCharsets.UTF_8.name());
+							headers.add(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded");
+							String params = "grant_type=authorization_code";
+
+							if (internalAuth) {
+								params += "&client_id=" + IKeycloakUids.clientId(realm);
+							} else {
+								params += "&client_id="
+										+ encode(domainSettings.get(AuthDomainProperties.OPENID_CLIENT_ID.name()));
+							}
+							params += "&client_secret=" + encode(openIdClientSecret);
+							params += "&code=" + encode(code);
+							params += "&code_verifier=" + encode(codeVerifier);
+							params += "&redirect_uri=" + encode("https://" + event.authority().host() + "/auth/openid");
+							params += "&scope=openid";
+
+							byte[] postData = params.getBytes(StandardCharsets.UTF_8);
+							headers.add(HttpHeaders.CONTENT_LENGTH, Integer.toString(postData.length));
+							r.write(Buffer.buffer(postData));
+							r.end();
 						} else {
-							error(event, respHandler.cause());
+							error(event, reqHandler.cause());
 						}
 					});
-
-					MultiMap headers = r.headers();
-					headers.add(HttpHeaders.ACCEPT_CHARSET, StandardCharsets.UTF_8.name());
-					headers.add(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded");
-					String params = "grant_type=authorization_code";
-
-					if (AuthTypes.INTERNAL.name().equals(domainSettings.get(AuthDomainProperties.AUTH_TYPE.name()))) {
-						params += "&client_id=" + IKeycloakUids.clientId(domainUid);
-					} else {
-						params += "&client_id="
-								+ encode(domainSettings.get(AuthDomainProperties.OPENID_CLIENT_ID.name()));
-					}
-					params += "&client_secret="
-							+ encode(domainSettings.get(AuthDomainProperties.OPENID_CLIENT_SECRET.name()));
-					params += "&code=" + encode(code);
-					params += "&code_verifier=" + encode(codeVerifier);
-					params += "&redirect_uri=" + encode("https://" + event.authority().host() + "/auth/openid");
-					params += "&scope=openid";
-
-					byte[] postData = params.getBytes(StandardCharsets.UTF_8);
-					headers.add(HttpHeaders.CONTENT_LENGTH, Integer.toString(postData.length));
-					r.write(Buffer.buffer(postData));
-					r.end();
-				} else {
-					error(event, reqHandler.cause());
-				}
-			});
 
 			return;
 		} catch (Exception e) {
@@ -155,13 +206,13 @@ public class OpenIdHandler extends AbstractAuthHandler implements Handler<HttpSe
 		return URLEncoder.encode(s, StandardCharsets.UTF_8);
 	}
 
-	private void validateToken(HttpServerRequest request, List<String> forwadedFor, JsonObject token, String redirectTo,
-			String domainUid) {
+	private void validateToken(HttpServerRequest request, List<String> forwadedFor, JsonObject jwtToken,
+			String redirectTo, Consumer<SessionData> handlerSessionConsumer) {
 		DecodedJWT accessToken = null;
 		try {
-			accessToken = JWT.decode(token.getString("access_token"));
+			accessToken = JWT.decode(jwtToken.getString("access_token"));
 		} catch (JWTDecodeException t) {
-			logger.error("Unexpected token endpoint response : {}", token);
+			logger.error("Unexpected token endpoint response : {}", jwtToken);
 			throw t;
 		}
 
@@ -175,8 +226,6 @@ public class OpenIdHandler extends AbstractAuthHandler implements Handler<HttpSe
 
 		ExternalCreds creds = new ExternalCreds();
 		creds.setLoginAtDomain(email.asString());
-		createSession(request, prov, forwadedFor, creds, redirectTo, domainUid, token);
-
+		createSession(request, prov, forwadedFor, creds, redirectTo, handlerSessionConsumer);
 	}
-
 }

@@ -39,6 +39,7 @@ import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.webmodule.authenticationfilter.internal.AuthenticationCookie;
 import net.bluemind.webmodule.authenticationfilter.internal.ExternalCreds;
+import net.bluemind.webmodule.authenticationfilter.internal.SessionData;
 import net.bluemind.webmodule.server.SecurityConfig;
 
 public class SudoHandler extends AbstractAuthHandler implements Handler<HttpServerRequest> {
@@ -71,14 +72,14 @@ public class SudoHandler extends AbstractAuthHandler implements Handler<HttpServ
 		AuthProvider prov = new AuthProvider(vertx);
 		ExternalCreds creds = new ExternalCreds();
 		creds.setLoginAtDomain(login);
-		prov.sessionId(login, password, forwadedFor, new AsyncHandler<String>() {
+		prov.sessionId(login, password, forwadedFor, new AsyncHandler<SessionData>() {
 			@Override
-			public void success(String sid) {
+			public void success(SessionData sessionData) {
 
 				// purge admin0 cookies
 				AuthenticationCookie.purge(request);
 
-				Cookie cookie = new DefaultCookie(AuthenticationCookie.BMSID, sid);
+				Cookie cookie = new DefaultCookie(AuthenticationCookie.BMSID, sessionData.authKey);
 				cookie.setPath("/");
 				cookie.setHttpOnly(true);
 				if (SecurityConfig.secureCookies) {

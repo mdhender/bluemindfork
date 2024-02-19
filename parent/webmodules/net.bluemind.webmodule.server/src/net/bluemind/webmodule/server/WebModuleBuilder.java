@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.webmodule.server.handlers.IWebModuleConsumer;
 import net.bluemind.webmodule.server.js.BundleDependency;
@@ -91,7 +92,7 @@ public class WebModuleBuilder {
 
 	}
 
-	public WebModule build(Vertx vertx) {
+	public WebModule build(Vertx vertx, HttpClient httpClient) {
 		WebModule ret = new WebModule();
 		ret.css = new ArrayList<>(new HashSet<>(this.css));
 		ret.handlers = new HashMap<>();
@@ -105,12 +106,14 @@ public class WebModuleBuilder {
 
 		for (Entry<String, HandlerFactory<HttpServerRequest>> handlerEntry : this.handlers.entrySet()) {
 			Handler<HttpServerRequest> handler = handlerEntry.getValue().create(vertx);
-			if (handler instanceof IWebModuleConsumer) {
-				((IWebModuleConsumer) handler).setModule(ret);
+			if (handler instanceof IWebModuleConsumer iWebModuleConsumer) {
+				iWebModuleConsumer.setModule(ret);
 			}
-			if (handler instanceof NeedVertx) {
-				((NeedVertx) handler).setVertx(vertx);
+
+			if (handler instanceof NeedVertx needVertx) {
+				needVertx.setVertx(vertx);
 			}
+
 			ret.handlers.put(handlerEntry.getKey(), handler);
 		}
 		return ret;

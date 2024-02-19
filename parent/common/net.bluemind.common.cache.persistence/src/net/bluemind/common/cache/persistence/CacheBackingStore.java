@@ -22,6 +22,7 @@ import java.io.File;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import org.slf4j.Logger;
@@ -35,6 +36,8 @@ import io.vertx.core.json.JsonObject;
 public class CacheBackingStore<V> {
 	private static final Logger logger = LoggerFactory.getLogger(CacheBackingStore.class);
 
+	private final Consumer<String> notifyUnkonwnSessionRemovalListeners;
+
 	private final Optional<CacheEntryWriterLoader<V>> writerLoader;
 	private final Cache<String, V> cache;
 
@@ -43,36 +46,45 @@ public class CacheBackingStore<V> {
 		Objects.requireNonNull(toJson);
 		Objects.requireNonNull(fromJson);
 
-		if (init(storePath)) {
-			logger.debug("Cache persistence is enabled");
-			writerLoader = Optional.of(new CacheEntryWriterLoader<V>(storePath, toJson, fromJson));
-		} else {
-			writerLoader = Optional.empty();
-		}
+		this.notifyUnkonwnSessionRemovalListeners = s -> {
+		};
 
-		this.cache = writerLoader.map(wl -> cache.writer(wl).build()).orElseGet(() -> cache.build());
+		this.writerLoader = getWriterLoader(storePath, toJson, fromJson);
+		this.cache = writerLoader.map(wl -> cache.writer(wl).build()).orElseGet(cache::build);
 	}
 
-	private boolean init(String storePath) {
+	public CacheBackingStore(Caffeine<Object, Object> cache, String storePath, Function<V, JsonObject> toJson,
+			Function<JsonObject, V> fromJson, Consumer<String> notifyUnkonwnSessionRemovalListeners) {
+		Objects.requireNonNull(toJson);
+		Objects.requireNonNull(fromJson);
+
+		this.notifyUnkonwnSessionRemovalListeners = notifyUnkonwnSessionRemovalListeners;
+
+		this.writerLoader = getWriterLoader(storePath, toJson, fromJson);
+		this.cache = writerLoader.map(wl -> cache.writer(wl).build()).orElseGet(cache::build);
+	}
+
+	private Optional<CacheEntryWriterLoader<V>> getWriterLoader(String storePath, Function<V, JsonObject> toJson,
+			Function<JsonObject, V> fromJson) {
 		try {
 			File root = new File(storePath);
 			if (!root.exists() && !root.mkdirs()) {
 				logger.warn("Cache persistence disabled: unable to create {}", root.getAbsolutePath());
-				return false;
+				return Optional.empty();
 			}
 
 			if (!root.setReadable(false, false) || !root.setReadable(true, true) || !root.setWritable(false, false)
 					|| !root.setWritable(true, true) || !root.setExecutable(false, false)
 					|| !root.setExecutable(true, true)) {
 				logger.warn("Cache persistence disabled: unable to set perms on {}", root.getAbsolutePath());
-				return false;
+				return Optional.empty();
 			}
 
-			return true;
+			return Optional.of(new CacheEntryWriterLoader<V>(storePath, toJson, fromJson));
 		} catch (RuntimeException re) {
 			// Sentry
 			logger.error("unnown error", re);
-			return false;
+			return Optional.empty();
 		}
 	}
 
@@ -85,6 +97,10 @@ public class CacheBackingStore<V> {
 	}
 
 	public void invalidate(String key) {
+		if (cache.getIfPresent(key) == null) {
+			notifyUnkonwnSessionRemovalListeners.accept(key);
+			return;
+		}
 		cache.invalidate(key);
 	}
 

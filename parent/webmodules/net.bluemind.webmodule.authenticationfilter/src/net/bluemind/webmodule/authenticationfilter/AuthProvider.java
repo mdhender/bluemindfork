@@ -33,6 +33,7 @@ import io.vertx.core.Vertx;
 import net.bluemind.authentication.api.IAuthenticationPromise;
 import net.bluemind.authentication.api.LoginResponse;
 import net.bluemind.authentication.api.LoginResponse.Status;
+import net.bluemind.common.cache.persistence.CacheBackingStore;
 import net.bluemind.config.Token;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.api.fault.ErrorCode;
@@ -53,11 +54,11 @@ import net.bluemind.webmodule.authenticationfilter.internal.SessionData;
 import net.bluemind.webmodule.authenticationfilter.internal.SessionsCache;
 
 public class AuthProvider {
+	private static final Logger logger = LoggerFactory.getLogger(AuthProvider.class);
 
 	public static final int DEFAULT_MAX_SESSIONS_PER_USER = 5;
 	private static final String BM_WEBSERVER_AUTHFILTER = "bm-webserver-authfilter";
 
-	private static final Logger logger = LoggerFactory.getLogger(AuthProvider.class);
 	private HttpClientProvider clientProvider;
 	private Supplier<Integer> maxSessionsPerUser;
 
@@ -80,7 +81,7 @@ public class AuthProvider {
 
 	}
 
-	public void sessionId(ExternalCreds externalCreds, List<String> remoteIps, AsyncHandler<String> handler) {
+	public void sessionId(ExternalCreds externalCreds, List<String> remoteIps, AsyncHandler<SessionData> handler) {
 		if (Strings.isNullOrEmpty(externalCreds.getLoginAtDomain())
 				|| !externalCreds.getLoginAtDomain().contains("@")) {
 			handler.failure(new ServerFault(
@@ -89,7 +90,7 @@ public class AuthProvider {
 		}
 
 		if ("admin0@global.virt".equals(externalCreds.getLoginAtDomain())) {
-			doSudo(remoteIps, handler, externalCreds);
+			doSudo(remoteIps, externalCreds, handler);
 			return;
 		}
 
@@ -107,16 +108,16 @@ public class AuthProvider {
 					}
 
 					if (mailbox != null && mailbox.value.type == Type.user && !mailbox.value.archived) {
-						doSudo(remoteIps, handler, externalCreds);
+						doSudo(remoteIps, externalCreds, handler);
 						return;
 					}
 
-					loginAtDomainAsEmail(mailboxClient, remoteIps, externalCreds, handler, domainName);
+					loginAtDomainAsEmail(mailboxClient, remoteIps, externalCreds, domainName, handler);
 				});
 	}
 
 	public void sessionId(final String loginAtDomain, final String password, List<String> remoteIps,
-			final AsyncHandler<String> handler) {
+			final AsyncHandler<SessionData> handler) {
 		VertxPromiseServiceProvider sp = getProvider(null, remoteIps);
 
 		logger.info("authenticating {}", loginAtDomain);
@@ -135,7 +136,7 @@ public class AuthProvider {
 		});
 	}
 
-	private void doSudo(List<String> remoteIps, AsyncHandler<String> handler, ExternalCreds externalCreds) {
+	private void doSudo(List<String> remoteIps, ExternalCreds externalCreds, final AsyncHandler<SessionData> handler) {
 		getProvider(Token.admin0(), remoteIps).instance(IAuthenticationPromise.class)
 				.suWithParams(externalCreds.getLoginAtDomain(), true).exceptionally(t -> null).thenAccept(lr -> {
 					if (lr == null) {
@@ -153,7 +154,7 @@ public class AuthProvider {
 	}
 
 	private void loginAtDomainAsEmail(IMailboxesPromise mailboxClient, List<String> remoteIps,
-			ExternalCreds externalCreds, AsyncHandler<String> handler, String domainName) {
+			ExternalCreds externalCreds, String domainName, AsyncHandler<SessionData> handler) {
 		mailboxClient.byEmail(externalCreds.getLoginAtDomain()).whenComplete((mailbox, exception) -> {
 			if (exception != null) {
 				handler.failure(exception);
@@ -170,20 +171,12 @@ public class AuthProvider {
 			logger.info("Try sudo with login {} (Submitted login {})", realLoginAtdomain,
 					externalCreds.getLoginAtDomain());
 			externalCreds.setLoginAtDomain(realLoginAtdomain);
-			doSudo(remoteIps, handler, externalCreds);
+			doSudo(remoteIps, externalCreds, handler);
 		});
 	}
 
-	private void handlerLoginSuccess(LoginResponse lr, List<String> remoteIps, AsyncHandler<String> handler) {
-		final SessionData sd = new SessionData(lr.authUser.value);
-
-		sd.authKey = lr.authKey;
-		sd.passwordStatus = lr.status;
-		sd.userUid = lr.authUser.uid;
-		sd.loginAtDomain = lr.latd;
-		sd.domainUid = lr.authUser.domainUid;
-		sd.setSettings(lr.authUser.settings);
-		sd.setRole(lr.authUser.roles);
+	private void handlerLoginSuccess(LoginResponse lr, List<String> remoteIps, AsyncHandler<SessionData> handler) {
+		final SessionData sd = new SessionData(lr);
 
 		// when creating a new session for a user, expire the oldest ones if he
 		// already has MAX_SESSIONS_PER_USER.
@@ -196,26 +189,47 @@ public class AuthProvider {
 			logger.warn("Max session (active: {}/{}) exhausted for {}, ips: {}", existingSessionForSameUser.length,
 					curMax, sd.loginAtDomain, remoteIps);
 			for (int i = 0; i <= existingSessionForSameUser.length - curMax; i++) {
-				logout(existingSessionForSameUser[i].authKey);
+				logout(existingSessionForSameUser[i]);
 			}
 		}
 
-		SessionsCache.get().put(sd.authKey, sd);
-		handler.success(sd.authKey);
-	}
-
-	public CompletableFuture<Void> logout(String sessionId) {
-		SessionData session = SessionsCache.get().getIfPresent(sessionId);
-		if (session == null) {
-			return CompletableFuture.completedFuture(null);
+		CacheBackingStore<SessionData> cache = SessionsCache.get();
+		synchronized (cache) {
+			cache.put(sd.authKey, sd);
 		}
 
+		handler.success(sd);
+	}
+
+	public CompletableFuture<Void> logout(String sid) {
+		SessionData sessionData = SessionsCache.get().getIfPresent(sid);
+		if (sessionData != null) {
+			return logout(sessionData);
+		}
+
+		return logout("Unknown", sid);
+	}
+
+	public CompletableFuture<Void> logout(SessionData sessionData) {
+		return logout(sessionData.loginAtDomain, sessionData.authKey);
+	}
+
+	/**
+	 * Logout on core as core HZ message will invalidate webserver session
+	 * 
+	 * See {@link AuthenticationFilter#setVertx(Vertx)}
+	 * 
+	 * @param id
+	 * @param sessionId
+	 * @return
+	 */
+	private CompletableFuture<Void> logout(String id, String sessionId) {
+		logger.info("Log out session for {}", id);
 		return getProvider(sessionId, Collections.emptyList()).instance(IAuthenticationPromise.class).logout()
 				.whenComplete((v, fn) -> {
 					if (fn != null) {
 						logger.error(fn.getMessage(), fn);
 					}
-					SessionsCache.get().invalidate(sessionId);
 				});
 	}
 
@@ -225,7 +239,5 @@ public class AuthProvider {
 		VertxPromiseServiceProvider prov = new VertxPromiseServiceProvider(clientProvider, lc, apiKey, remoteIps);
 		prov.setOrigin(BM_WEBSERVER_AUTHFILTER);
 		return prov;
-
 	}
-
 }

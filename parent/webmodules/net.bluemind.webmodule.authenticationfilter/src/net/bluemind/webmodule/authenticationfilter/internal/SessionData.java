@@ -26,24 +26,28 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import io.vertx.core.json.JsonObject;
+import net.bluemind.authentication.api.LoginResponse;
 import net.bluemind.authentication.api.LoginResponse.Status;
-import net.bluemind.user.api.User;
 
 @SuppressWarnings("serial")
 public class SessionData implements Serializable {
-	public String authKey;
-	public Status passwordStatus;
+	public final String authKey;
 
-	public Map<String, String> settings;
-	public boolean privateComputer;
+	public final JsonObject jwtToken;
+	public final String realm;
+	public final String openIdClientSecret;
+	public final long refreshTimerId;
 
-	private long lastPing;
-	public String loginAtDomain;
-	public String domainUid;
-	public String rolesAsString;
-	public String userUid;
+	public final Status passwordStatus;
+
+	public final Map<String, String> settings;
+	public final boolean privateComputer;
+
+	public final String loginAtDomain;
+	public final String domainUid;
+	public final String rolesAsString;
+	public final String userUid;
 	public final long createStamp;
-	public final String mailboxCopyGuid;
 
 	public final String accountType;
 	public final String login;
@@ -52,8 +56,13 @@ public class SessionData implements Serializable {
 	public final String familyNames;
 	public final String formatedName;
 	public final String dataLocation;
+	public final String mailboxCopyGuid;
 
 	private SessionData(String authKey, //
+			JsonObject jwtToken, //
+			String realm, //
+			String openIdClientSecret, //
+			long refreshTimerId, //
 			Status passwordStatus, //
 			Map<String, String> settings, //
 			boolean privateComputer, //
@@ -72,14 +81,17 @@ public class SessionData implements Serializable {
 			String mailboxCopyGuid //
 	) {
 		this.authKey = authKey;
+		this.jwtToken = jwtToken;
+		this.realm = realm;
+		this.openIdClientSecret = openIdClientSecret;
+		this.refreshTimerId = refreshTimerId;
 		this.passwordStatus = passwordStatus;
-		setSettings(settings);
+		this.settings = filterSettings(settings);
 		this.privateComputer = privateComputer;
 
-		this.lastPing = System.currentTimeMillis();
 		this.loginAtDomain = loginAtDomain;
 		this.domainUid = domainUid;
-		this.rolesAsString = rolesAsString;
+		this.rolesAsString = rolesAsString.intern();
 		this.userUid = userUid;
 		this.createStamp = createStamp;
 
@@ -90,73 +102,71 @@ public class SessionData implements Serializable {
 		this.familyNames = familyNames;
 		this.formatedName = formatedName;
 		this.dataLocation = dataLocation;
-		this.mailboxCopyGuid = mailboxCopyGuid;
+		this.mailboxCopyGuid = sanitizeMailboxCopyGuid(mailboxCopyGuid);
 	}
 
-	public SessionData(User user) {
+	public SessionData(LoginResponse loginResponse) {
+		this.authKey = loginResponse.authKey;
+
+		this.jwtToken = null;
+		this.realm = null;
+		this.openIdClientSecret = null;
+		this.refreshTimerId = -1;
+
+		this.passwordStatus = loginResponse.status;
+		this.settings = filterSettings(loginResponse.authUser.settings);
+		this.privateComputer = false;
+
+		this.loginAtDomain = loginResponse.latd;
+		this.domainUid = loginResponse.authUser.domainUid;
+		this.rolesAsString = rolesAsString(loginResponse.authUser.roles);
+		this.userUid = loginResponse.authUser.uid;
 		this.createStamp = System.currentTimeMillis();
-		lastPing = createStamp;
 
-		this.login = user.login;
-		this.accountType = user.accountType.name();
+		this.login = loginResponse.authUser.value.login;
+		this.accountType = loginResponse.authUser.value.accountType.name();
 
-		this.defaultEmail = user.defaultEmail() != null ? user.defaultEmail().address : null;
+		this.defaultEmail = loginResponse.authUser.value.defaultEmail() != null
+				? loginResponse.authUser.value.defaultEmail().address
+				: null;
 
-		this.givenNames = user.contactInfos != null ? user.contactInfos.identification.name.givenNames : null;
-		this.familyNames = user.contactInfos != null ? user.contactInfos.identification.name.familyNames : null;
-		this.formatedName = user.contactInfos != null ? user.contactInfos.identification.formatedName.value : null;
+		this.givenNames = loginResponse.authUser.value.contactInfos != null
+				? loginResponse.authUser.value.contactInfos.identification.name.givenNames
+				: null;
+		this.familyNames = loginResponse.authUser.value.contactInfos != null
+				? loginResponse.authUser.value.contactInfos.identification.name.familyNames
+				: null;
+		this.formatedName = loginResponse.authUser.value.contactInfos != null
+				? loginResponse.authUser.value.contactInfos.identification.formatedName.value
+				: null;
 
-		this.dataLocation = user.dataLocation;
-		this.mailboxCopyGuid = user.mailboxCopyGuid;
+		this.dataLocation = loginResponse.authUser.value.dataLocation;
+		this.mailboxCopyGuid = sanitizeMailboxCopyGuid(loginResponse.authUser.value.mailboxCopyGuid);
 	}
 
-	public String getUserUid() {
-		return userUid;
-	}
-
-	public Map<String, String> getSettings() {
-		return settings;
-	}
-
-	public void setSettings(Map<String, String> settings) {
-		this.settings = filterSettings(settings);
-	}
-
-	public boolean isPrivateComputer() {
-		return privateComputer;
-	}
-
-	public void setPrivateComputer(boolean privateComputer) {
-		this.privateComputer = privateComputer;
-	}
-
-	public long getLastPing() {
-		return lastPing;
-	}
-
-	public void setLastPing(long lastPing) {
-		this.lastPing = lastPing;
-	}
-
-	public String getMailboxCopyGuid() {
+	private String sanitizeMailboxCopyGuid(String mailboxCopyGuid) {
 		return mailboxCopyGuid != null ? mailboxCopyGuid : "";
 	}
 
-	public void setRole(String rolesAsString) {
+	private String rolesAsString(Set<String> roles) {
 		// for 13k sessions, we end up with 3MB of duplicate strings here
-		if (rolesAsString != null) {
-			this.rolesAsString = rolesAsString.intern();
-		}
+		return roles.stream().collect(Collectors.joining(",")).intern();
 	}
 
-	public void setRole(Set<String> roles) {
-		rolesAsString = roles.stream().collect(Collectors.joining(","));
+	public SessionData setOpenId(JsonObject jwtToken, String realm, String openIdClientSecret, long refreshTimerId) {
+		return new SessionData(authKey, jwtToken, realm, openIdClientSecret, refreshTimerId, passwordStatus, settings,
+				privateComputer, loginAtDomain, domainUid, rolesAsString, userUid, createStamp, accountType, login,
+				defaultEmail, givenNames, familyNames, formatedName, dataLocation, mailboxCopyGuid);
 	}
 
 	public static JsonObject toJson(SessionData sd) {
 		JsonObject jsonObject = new JsonObject();
 
 		jsonObject.put("authKey", sd.authKey);
+		jsonObject.put("jwtToken", sd.jwtToken);
+		jsonObject.put("realm", sd.realm);
+		jsonObject.put("openIdClientSecret", sd.openIdClientSecret);
+
 		jsonObject.put("passwordStatus", sd.passwordStatus);
 
 		JsonObject settingsAsJson = new JsonObject();
@@ -178,7 +188,7 @@ public class SessionData implements Serializable {
 		jsonObject.put("familyNames", sd.familyNames);
 		jsonObject.put("formatedName", sd.formatedName);
 		jsonObject.put("dataLocation", sd.dataLocation);
-		jsonObject.put("mailboxCopyGuid", sd.getMailboxCopyGuid());
+		jsonObject.put("mailboxCopyGuid", sd.mailboxCopyGuid);
 		return jsonObject;
 	}
 
@@ -191,6 +201,9 @@ public class SessionData implements Serializable {
 
 	public static SessionData fromJson(JsonObject jsonObject) {
 		String authKey = jsonObject.getString("authKey");
+		JsonObject jwtToken = jsonObject.getJsonObject("jwtToken");
+		String realm = jsonObject.getString("realm");
+		String openIdClientSecret = jsonObject.getString("openIdClientSecret");
 
 		Status passwordStatus = Status.valueOf(jsonObject.getString("passwordStatus"));
 
@@ -217,10 +230,8 @@ public class SessionData implements Serializable {
 
 		String mailboxCopyGuid = jsonObject.getString("mailboxCopyGuid");
 
-		SessionData sessionData = new SessionData(authKey, passwordStatus, settings, privateComputer, loginAtDomain,
-				domainUid, rolesAsString, userUid, createStamp, accountType, login, defaultEmail, givenNames,
-				familyNames, formatedName, dataLocation, mailboxCopyGuid);
-		sessionData.setRole(rolesAsString);
-		return sessionData;
+		return new SessionData(authKey, jwtToken, realm, openIdClientSecret, -1, passwordStatus, settings,
+				privateComputer, loginAtDomain, domainUid, rolesAsString, userUid, createStamp, accountType, login,
+				defaultEmail, givenNames, familyNames, formatedName, dataLocation, mailboxCopyGuid);
 	}
 }

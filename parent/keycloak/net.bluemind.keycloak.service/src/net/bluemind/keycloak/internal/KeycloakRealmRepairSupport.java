@@ -18,6 +18,7 @@
 package net.bluemind.keycloak.internal;
 
 import java.util.Collections;
+import java.util.Optional;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -123,7 +124,7 @@ public class KeycloakRealmRepairSupport implements IDirEntryRepairSupport {
 				}
 
 				OidcClient expectedOidcClient = OidcClientAdapter.build(domain.uid, IKeycloakUids.clientId(domain.uid),
-						null).oidcClient;
+						Optional.empty()).oidcClient;
 				expectedOidcClient.secret = domain.value.properties
 						.get(AuthDomainProperties.OPENID_CLIENT_SECRET.name());
 				if (!Objects.equal(expectedOidcClient, oidcClient)) {

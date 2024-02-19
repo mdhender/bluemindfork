@@ -15,7 +15,6 @@ public class CleanTemporaryParts implements ISessionDeletionListener {
 
 	@Override
 	public void deleted(String identity, String sid, SecurityContext securityContext) {
-
 		File sidFolder = Bodies.getFolder(sid);
 
 		File[] parts = sidFolder.listFiles();
@@ -28,5 +27,4 @@ public class CleanTemporaryParts implements ISessionDeletionListener {
 
 		logger.debug("Folder {} deleted.", sidFolder.getAbsolutePath());
 	}
-
 }

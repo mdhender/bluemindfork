@@ -20,7 +20,6 @@ package net.bluemind.webmodule.authenticationfilter;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +42,7 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.RequestOptions;
 import net.bluemind.core.api.auth.AuthDomainProperties;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.hornetq.client.MQ;
@@ -133,13 +133,15 @@ public class CasHandler extends AbstractAuthHandler implements Handler<HttpServe
 				return;
 			}
 
-			URI uri = new URI(casRequest.getValidationUri());
+			String uri = casRequest.getValidationUri();
 
 			if (logger.isDebugEnabled()) {
 				logger.debug("[{}] Validating CAS ticket on {}", casRequest.ticket, casRequest.getValidationUri());
 			}
 
-			initHttpClient(uri).request(HttpMethod.GET, uri.getRawPath() + "?" + uri.getRawQuery())
+			httpClient
+					.request(new RequestOptions()
+							.setMethod(HttpMethod.GET).setAbsoluteURI(casRequest.getValidationUri()))
 					.onFailure(t -> error(request, t)) //
 					.onSuccess(reqHandler -> reqHandler.send() //
 							.onFailure(t -> error(request, t))
