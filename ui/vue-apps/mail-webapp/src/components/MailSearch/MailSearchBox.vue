@@ -51,12 +51,7 @@ import { mapMutations, mapState } from "vuex";
 import GlobalEvents from "vue-global-events";
 import { BmIconButton, BmButton } from "@bluemind/ui-components";
 import { SearchMixin } from "~/mixins";
-import {
-    RESET_CURRENT_SEARCH_PATTERN,
-    SET_CURRENT_SEARCH_PATTERN,
-    SET_CURRENT_SEARCH_DEEP,
-    SET_CURRENT_SEARCH_FOLDER
-} from "~/mutations";
+import { RESET_CURRENT_SEARCH_PATTERN, SET_CURRENT_SEARCH_PATTERN } from "~/mutations";
 
 import MailSearchAdvancedButton from "./MailSearchAdvancedButton";
 import MailSearchBoxContext from "./MailSearchBoxContext";
@@ -110,12 +105,7 @@ export default {
         }
     },
     methods: {
-        ...mapMutations("mail", {
-            RESET_CURRENT_SEARCH_PATTERN,
-            SET_CURRENT_SEARCH_PATTERN,
-            SET_CURRENT_SEARCH_DEEP,
-            SET_CURRENT_SEARCH_FOLDER
-        }),
+        ...mapMutations("mail", { RESET_CURRENT_SEARCH_PATTERN, SET_CURRENT_SEARCH_PATTERN }),
         reset() {
             this.cancel();
             this.focusIn = false;

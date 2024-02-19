@@ -12,12 +12,12 @@
         </template>
         <template #selected="{ selected }">
             <bm-label-icon :inline="false" class="selected" :icon="getIcon(selected.value)">
-                {{ $t(`mail.search.context.${selected.value}`, { folder: folder.name }) }}
+                {{ $t(`mail.search.context.${selected.value}`, { folder: folder?.name }) }}
             </bm-label-icon>
         </template>
         <template #item="{ item }">
             <bm-label-icon :inline="false" :icon="getIcon(item.value)">
-                {{ $t(`mail.search.context.${item.value}`, { folder: folder.name }) }}
+                {{ $t(`mail.search.context.${item.value}`, { folder: folder?.name }) }}
             </bm-label-icon>
         </template>
     </bm-form-select>
@@ -41,12 +41,6 @@ const OPTIONS = {
 export default {
     name: "MailSearchBoxContext",
     components: { BmFormSelect, BmLabelIcon, FolderTreeHeader },
-    props: {
-        folder: {
-            type: Object,
-            required: true
-        }
-    },
     data() {
         return {
             OPTIONS
@@ -63,11 +57,10 @@ export default {
             } else {
                 return OPTIONS.CURRENT_FOLDER;
             }
+        },
+        folder() {
+            return this.currentSearch.folder || this.$store.state.mail.folders[this.$store.state.mail.activeFolder];
         }
-    },
-    created() {
-        this.SET_CURRENT_SEARCH_FOLDER(this.folder.imapName === DEFAULT_FOLDERS.INBOX ? null : this.folder);
-        this.SET_CURRENT_SEARCH_DEEP(true);
     },
     methods: {
         ...mapMutations("mail", { SET_CURRENT_SEARCH_FOLDER, SET_CURRENT_SEARCH_DEEP }),
@@ -77,7 +70,7 @@ export default {
             this.$emit("update");
         },
         getIcon(option) {
-            return option === OPTIONS.ALL ? "folders" : folderIcon(this.folder.path, this.CURRENT_MAILBOX?.type);
+            return option === OPTIONS.ALL ? "folders" : folderIcon(this.folder?.path, this.CURRENT_MAILBOX?.type);
         }
     }
 };

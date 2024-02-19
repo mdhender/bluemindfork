@@ -15,7 +15,7 @@
     >
         <div class="item">
             <label>{{ $t("mail.search.options.folder.label") }}</label>
-            <mail-search-box-context class="search-input" :folder="currentFolder" />
+            <mail-search-box-context class="search-input" />
         </div>
 
         <h3 class="section">{{ $t("mail.search.section.contacts") }}</h3>
@@ -75,12 +75,7 @@
 import { mapMutations, mapState } from "vuex";
 import { BmModal, BmFormCheckbox } from "@bluemind/ui-components";
 import { SearchMixin } from "~/mixins";
-import {
-    SET_CURRENT_SEARCH_DEEP,
-    SET_CURRENT_SEARCH_FOLDER,
-    SET_CURRENT_SEARCH_PATTERN,
-    RESET_CURRENT_SEARCH_PATTERN
-} from "~/mutations";
+import { SET_CURRENT_SEARCH_PATTERN } from "~/mutations";
 import MailSearchBoxContext from "../MailSearchBoxContext";
 import SearchHelper from "../SearchHelper";
 import StringSearchInput from "./StringSearchInput";
@@ -205,12 +200,7 @@ export default {
         }
     },
     methods: {
-        ...mapMutations("mail", {
-            SET_CURRENT_SEARCH_DEEP,
-            SET_CURRENT_SEARCH_FOLDER,
-            SET_CURRENT_SEARCH_PATTERN,
-            RESET_CURRENT_SEARCH_PATTERN
-        }),
+        ...mapMutations("mail", { SET_CURRENT_SEARCH_PATTERN }),
         cancel(event) {
             event.preventDefault();
             this.resetFields();
