@@ -2,7 +2,7 @@
     <div>
         <bm-icon-dropdown
             no-caret
-            boundary="viewport"
+            :boundary="rightPanel || 'scrollParent'"
             icon="3dots"
             variant="regular-accent"
             :size="size"
@@ -140,7 +140,7 @@ export default {
         }
     },
     data() {
-        return { Flag };
+        return { Flag, rightPanel: undefined };
     },
     computed: {
         ...mapGetters("mail", { MAILBOXES, MY_DRAFTS, MY_TEMPLATES, MY_TRASH, MY_INBOX }),
@@ -164,6 +164,9 @@ export default {
         isTemplate() {
             return this.message.folderRef.key === this.MY_TEMPLATES.key;
         }
+    },
+    mounted() {
+        this.rightPanel = document.querySelector(".right-panel");
     },
     methods: {
         ...mapActions("mail", {
