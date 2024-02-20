@@ -441,10 +441,14 @@ export default {
             if (this.disabled) {
                 return;
             }
+            let nextFocusedElement;
             if (contact.selected) {
-                this.focusNext();
+                nextFocusedElement = this.focusNext();
             }
             this.remove(contact);
+            if (!nextFocusedElement) {
+                this.$nextTick(this.focus);
+            }
         },
         onPaste(event) {
             const values = EmailExtractor.extractEmails(event.clipboardData.getData("text"));
