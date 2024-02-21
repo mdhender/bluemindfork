@@ -116,10 +116,15 @@ public class DbMessageBodiesService implements IInternalDbMessageBodies {
 			AsyncFile tmpStream = VertxPlatform.getVertx().fileSystem().openBlocking(tmpFile.getAbsolutePath(),
 					TMP_OPTS);
 			CompletableFuture<Void> prom = classic.pipeTo(tmpStream).toCompletionStage().toCompletableFuture()
-					.orTimeout(10, TimeUnit.SECONDS);
+					.orTimeout(20, TimeUnit.SECONDS);
 			classic.resume();
 			logger.debug("Using netbased-stream {}", classic);
-			prom.join();
+			try {
+				prom.join();
+			} catch (Exception e) {
+				tmpFile.delete(); // NOSONAR
+				throw new ServerFault(e);
+			}
 		}
 
 		logger.debug("File copy of {} stream created ({} byte(s))", uid, tmpFile.length());
