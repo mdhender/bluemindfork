@@ -52,7 +52,7 @@ public class EasContainerChangeVerticle extends AbstractVerticle {
 				if (calendarProducer != null) {
 					OOPMessage msg = buildMessage(event);
 					calendarProducer.send(msg);
-					logger.info("Wake up {} devices for calendar changes", event.body().getString("loginAtDomain"));
+					logger.debug("Wake up {} devices for calendar changes", event.body().getString("loginAtDomain"));
 				} else {
 					logger.warn("no calendar change notification, failed to create producer");
 				}
@@ -65,7 +65,7 @@ public class EasContainerChangeVerticle extends AbstractVerticle {
 				if (addressbookProducer != null) {
 					OOPMessage msg = buildMessage(event);
 					addressbookProducer.send(msg);
-					logger.info("Wake up {} devices for contacts changes", event.body().getString("loginAtDomain"));
+					logger.debug("Wake up {} devices for contacts changes", event.body().getString("loginAtDomain"));
 				} else {
 					logger.warn("no contacts change notification, failed to create producer");
 				}
@@ -78,7 +78,7 @@ public class EasContainerChangeVerticle extends AbstractVerticle {
 				if (todolistProducer != null) {
 					OOPMessage msg = buildMessage(event);
 					todolistProducer.send(msg);
-					logger.info("Wake up {} devices for todolist changes", event.body().getString("loginAtDomain"));
+					logger.debug("Wake up {} devices for todolist changes", event.body().getString("loginAtDomain"));
 				} else {
 					logger.warn("no todolist change notification, failed to create producer");
 				}
