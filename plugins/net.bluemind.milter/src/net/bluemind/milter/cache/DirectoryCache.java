@@ -113,20 +113,18 @@ public class DirectoryCache extends AbstractVerticle {
 		if (noVCards.getIfPresent(email) != null) {
 			return Optional.empty();
 		}
-
 		VCard card = null;
 		String uid = Optional.ofNullable(emailToUid.get(email))
 				.orElseGet(() -> getUserUidByEmail(clientContext, domain, email).orElse(null));
+
 		if (uid != null) {
-			card = uidToVCard.get(domain + "#" + uid);
+			card = uidToVCard.get(uid);
 			if (card == null) {
 				resolveCaches(clientContext, domain, email);
-				card = uidToVCard.get(domain + "#" + uid);
+				card = uidToVCard.get(uid);
 			}
 		}
-
 		return Optional.ofNullable(card);
-
 	}
 
 	public static Optional<String> getUserUidByEmail(IClientContext clientContext, String domain, String email) {
