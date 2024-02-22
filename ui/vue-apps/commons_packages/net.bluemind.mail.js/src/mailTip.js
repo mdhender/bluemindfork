@@ -27,7 +27,7 @@ function getRecipients(message) {
     const adaptor =
         type =>
         ({ address, dn }) => ({
-            email: address,
+            email: address ?? null,
             name: dn,
             recipientType: type,
             addressType: "SMTP"

@@ -68,7 +68,7 @@ export default {
             if (this.searchResults?.total > 0) {
                 // remove contacts already set and remove duplicates
                 const contactsAlreadySet = this.contacts.map(({ address, dn }) => `${dn}<${address}>`);
-                const searchResultKeyFn = contact => `${contact.value.formatedName || ""}<${contact.value.mail || ""}>`;
+                const searchResultKeyFn = contact => `${contact.value.formatedName || ""}<${contact.value.mail}>`;
                 const contacts = this.searchResults.values.reduce((result, contact) => {
                     if (
                         !contactsAlreadySet.includes(searchResultKeyFn(contact)) &&

@@ -10,10 +10,7 @@
         <template #modal-header="{ close }">
             <bm-modal-header
                 :title="$t('recipient_picker.title')"
-                @close="
-                    if (showMobileSearchInput) showMobileSearchInput = false;
-                    else close();
-                "
+                @close="showMobileSearchInput ? (showMobileSearchInput = false) : close()"
             >
                 <bm-form-input
                     v-if="showMobileSearchInput"
@@ -325,7 +322,7 @@ function extractDefaultCommunication(contact, targetKey) {
     return (
         contact.value.communications[targetKey].find(
             key => key.parameters.find(param => param.label === "DEFAULT" && param.value === true) !== -1
-        )?.value ?? ""
+        )?.value ?? null
     );
 }
 
