@@ -43,7 +43,6 @@ describe("filters", () => {
                     filter: { fields: ["headers.X-My-Header"], operator: "MATCHES", values: ["head-bang"] },
                     conditions: []
                 }
-
             ],
             actions: [
                 {
@@ -95,7 +94,6 @@ describe("filters", () => {
 
     test("write", () => {
         const filter = {
-            manageable: true,
             actions: [
                 { name: ACTIONS.DELETE.name },
                 {
@@ -136,7 +134,6 @@ describe("filters", () => {
 
     test("write - no criteria", () => {
         const filter = {
-            manageable: true,
             actions: [
                 { name: ACTIONS.DELETE.name },
                 {

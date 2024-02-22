@@ -37,10 +37,16 @@
             </template>
             <template #cell(editable)="cell">
                 <div v-if="editable && cell.value" class="actions">
+                    <bm-icon-button variant="compact" icon="chevron-up" @click="$emit('top', cell.item)" />
                     <bm-icon-button variant="compact" icon="arrow-up" @click="$emit('up', cell.item)" />
                     <bm-icon-button variant="compact" icon="arrow-down" @click="$emit('down', cell.item)" />
+                    <bm-icon-button variant="compact" icon="chevron" @click="$emit('bottom', cell.item)" />
                     <bm-icon-button variant="compact" icon="pencil" @click="$emit('edit', cell.item)" />
                     <bm-icon-button variant="compact" icon="trash" @click="remove(cell.item)" />
+                    <div>
+                        <bm-icon-button variant="compact" icon="plus" @click="$emit('createBefore', cell.item)" />
+                        <bm-icon-button variant="compact" icon="plus" @click="$emit('createAfter', cell.item)" />
+                    </div>
                 </div>
             </template>
             <template #row-details="row">

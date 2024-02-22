@@ -1,14 +1,9 @@
 import without from "lodash.without";
 import { computed, ref, watch } from "vue";
 import { Verb } from "@bluemind/core.container.api";
-import { Flag } from "@bluemind/email";
 import i18n from "@bluemind/i18n";
 import { inject } from "@bluemind/inject";
-import { messageUtils } from "@bluemind/mail";
-import { MailFilterRuleActionName, MailFilterRuleCondition, MailFilterRuleOperatorName } from "@bluemind/mailbox.api";
 import store from "@bluemind/store";
-
-const { MessageHeader } = messageUtils;
 
 export function useDelegation() {
     const DELEGATION_VERBS = [Verb.SendOnBehalf, Verb.SendAs];
@@ -67,14 +62,14 @@ export function useDelegation() {
 
     const updateDelegates = acls => {
         const mailboxAcl = acls[mailboxUid.value];
-        const delegatesUids = mailboxAcl?.flatMap(({ subject, verb }) =>
+        const delegateUids = mailboxAcl?.flatMap(({ subject, verb }) =>
             subject !== getUserId() && DELEGATION_VERBS.includes(verb) ? subject : []
         );
         const tmp = {};
-        if (delegatesUids?.length) {
+        if (delegateUids?.length) {
             Object.entries(acls).forEach(([containerUid, acl]) => {
                 acl.forEach(({ subject, verb }) => {
-                    if (delegatesUids.includes(subject)) {
+                    if (delegateUids.includes(subject)) {
                         if (!tmp[subject]) {
                             tmp[subject] = {};
                         }
@@ -234,202 +229,52 @@ export function useDelegation() {
     const getMessageRight = delegate => getRight(delegates.value[delegate][mailboxUid.value]);
     const getContactsRight = delegate => getRight(delegates.value[delegate][addressBookUid.value]);
 
-    const delegatesWithImipRule = ref([]);
-
-    const matchCopyImipMailboxRule = rule => {
-        return (
-            rule.active === true &&
-            rule.client === "system" &&
-            rule.conditions.some(({ filter: { fields, operator, values } }) =>
-                fields.some(
-                    f =>
-                        f === `headers.${MessageHeader.X_BM_CALENDAR}` &&
-                        operator === MailFilterRuleOperatorName.CONTAINS &&
-                        values[0]?.includes(calendarUid.value)
-                )
-            ) &&
-            rule.actions.some(
-                ({ name, emails, clientProperties: { type, delegate } }) =>
-                    name === MailFilterRuleActionName.REDIRECT && emails?.length && type === "delegation" && delegate
-            )
-        );
-    };
-
-    watch(
-        store.state.preferences.mailboxFilter,
-        ({ rules }) => {
-            let copyImipMailboxRule = rules.find(matchCopyImipMailboxRule);
-            delegatesWithImipRule.value =
-                copyImipMailboxRule?.actions.map(({ clientProperties: { delegate } }) => delegate) || [];
-        },
-        { immediate: true }
-    );
-
-    const setFlagsAction = {
-        name: "SET_FLAGS",
-        flags: [Flag.READ_ONLY_EVENT],
-        internalFlags: [],
-        clientProperties: { type: "delegation" }
-    };
-
-    const copyRulesAndImipRule = () => {
-        const mailboxFilterRules = [...store.state.preferences.mailboxFilter.rules];
-        const copyImipMailboxRuleIndex = mailboxFilterRules.findIndex(matchCopyImipMailboxRule);
-        let copyImipMailboxRule;
-        if (copyImipMailboxRuleIndex > -1) {
-            const actions = mailboxFilterRules[copyImipMailboxRuleIndex].actions || [];
-            copyImipMailboxRule = {
-                ...mailboxFilterRules[copyImipMailboxRuleIndex],
-                actions: structuredClone(actions)
-            };
-            mailboxFilterRules.splice(copyImipMailboxRuleIndex, 1, copyImipMailboxRule);
+    const addDelegateToCopyImipMailboxRule = async ({ uid, receiveImipOption }) => {
+        const imipRule = structuredClone(store.state.preferences.mailboxFilter.imipRule) || { delegateUids: [] };
+        if (!imipRule.delegateUids.includes(uid)) {
+            imipRule.delegateUids.push(uid);
+            imipRule.keepCopy = receiveImipOption !== receiveImipOptions.ONLY_DELEGATE;
+            store.dispatch("preferences/SAVE_IMIP_RULE", { imipRule, calendarUid: calendarUid.value });
         }
-        return { mailboxFilterRules, copyImipMailboxRule, copyImipMailboxRuleIndex };
-    };
-
-    const addDelegateToCopyImipMailboxRule = async ({ uid, address, receiveImipOption }) => {
-        let { mailboxFilterRules, copyImipMailboxRule } = copyRulesAndImipRule();
-        const copyImipAction = {
-            name: MailFilterRuleActionName.REDIRECT,
-            keepCopy: receiveImipOption !== receiveImipOptions.ONLY_DELEGATE,
-            emails: [address],
-            clientProperties: { type: "delegation", delegate: uid }
-        };
-        if (!copyImipMailboxRule) {
-            copyImipMailboxRule = {
-                actions: [copyImipAction]
-            };
-            mailboxFilterRules.push(copyImipMailboxRule);
-        } else if (!copyImipMailboxRule.actions.some(a => matchCopyImipActionForDelegate(a, uid))) {
-            copyImipMailboxRule.actions.push(copyImipAction);
-        }
-
-        Object.assign(copyImipMailboxRule, {
-            name: "Copy iMIP to Delegates",
-            client: "system",
-            active: true,
-            conditions: [
-                {
-                    filter: {
-                        fields: [`headers.${MessageHeader.X_BM_CALENDAR}`],
-                        operator: `${MailFilterRuleOperatorName.CONTAINS}`,
-                        values: [calendarUid.value]
-                    },
-                    negate: false,
-                    operator: MailFilterRuleCondition.Operator.AND,
-                    conditions: []
-                },
-                {
-                    filter: {
-                        fields: [`headers.${MessageHeader.X_BM_EVENT_PRIVATE}`],
-                        operator: `${MailFilterRuleOperatorName.EQUALS}`,
-                        values: [true]
-                    },
-                    negate: true,
-                    operator: MailFilterRuleCondition.Operator.AND,
-                    conditions: []
-                }
-            ]
-        });
-
-        if (
-            receiveImipOption === receiveImipOptions.COPY &&
-            !copyImipMailboxRule.actions.some(
-                ({ name, clientProperties }) => clientProperties.type === "delegation" && name === "SET_FLAGS"
-            )
-        ) {
-            copyImipMailboxRule.actions.push(setFlagsAction);
-        }
-
-        store.dispatch("preferences/SAVE_RULES", mailboxFilterRules);
     };
 
     const receiveImipOptions = { ONLY_DELEGATE: 0, BOTH: 1, COPY: 2 };
 
     const updateReceiveImipOption = async receiveImipOption => {
-        const { mailboxFilterRules, copyImipMailboxRule } = copyRulesAndImipRule();
-        const setFlagsActionIndex = copyImipMailboxRule.actions.findIndex(
-            ({ clientProperties, name }) => clientProperties?.type === "delegation" && name === "SET_FLAGS"
-        );
-
-        // add or remove the only one SET_FLAGS action
-        if (receiveImipOptions.COPY === receiveImipOption && setFlagsActionIndex === -1) {
-            copyImipMailboxRule.actions.push(setFlagsAction);
-        } else if (receiveImipOptions.COPY !== receiveImipOption && setFlagsActionIndex !== -1) {
-            copyImipMailboxRule.actions.splice(setFlagsActionIndex, 1);
-        }
-
-        // update all REDIRECT actions
-        copyImipMailboxRule.actions.forEach(a => {
-            if (a.clientProperties?.type === "delegation" && a.name === MailFilterRuleActionName.REDIRECT) {
-                a.keepCopy = receiveImipOption !== receiveImipOptions.ONLY_DELEGATE;
-            }
-        });
-
-        store.dispatch("preferences/SAVE_RULES", mailboxFilterRules);
+        const imipRule = structuredClone(store.state.preferences.mailboxFilter.imipRule);
+        imipRule.keepCopy = receiveImipOption !== receiveImipOptions.ONLY_DELEGATE;
+        imipRule.readOnly = receiveImipOption === receiveImipOptions.COPY;
+        store.dispatch("preferences/SAVE_IMIP_RULE", { imipRule, calendarUid: calendarUid.value });
     };
 
-    const computeReceiveImipOption = async () => {
-        const mailboxFilter = store.state.preferences.mailboxFilter;
-        const copyImipMailboxRule = mailboxFilter.rules.find(matchCopyImipMailboxRule);
-        if (copyImipMailboxRule) {
-            let keepCopy = false;
-            // reminder: only one SET_FLAGS action but several REDIRECT actions
-            for (const action of copyImipMailboxRule.actions) {
-                if (action.clientProperties?.type === "delegation") {
-                    if (action.name === "SET_FLAGS") {
-                        return receiveImipOptions.COPY;
-                    }
-                    if (action.name === MailFilterRuleActionName.REDIRECT && action.keepCopy) {
-                        keepCopy = true;
-                    }
-                }
-            }
-            return keepCopy ? receiveImipOptions.BOTH : receiveImipOptions.ONLY_DELEGATE;
+    const computeReceiveImipOption = () => {
+        const imipRule = store.state.preferences.mailboxFilter.imipRule;
+        if (imipRule) {
+            return imipRule.keepCopy && imipRule.readOnly
+                ? receiveImipOptions.COPY
+                : imipRule.keepCopy
+                ? receiveImipOptions.BOTH
+                : receiveImipOptions.ONLY_DELEGATE;
         }
         return receiveImipOptions.BOTH;
     };
 
     const hasCopyImipMailboxRuleAction = (...uids) => {
-        return delegatesWithImipRule.value.some(delegate => uids.includes(delegate));
+        return store.state.preferences.mailboxFilter.imipRule?.delegateUids.some(uid => uids.includes(uid));
     };
 
-    const countDelegatesHavingTheCopyImipRule = async (...uids) => {
-        const mailboxFilter = store.state.preferences.mailboxFilter;
-        return (
-            mailboxFilter.rules
-                .find(matchCopyImipMailboxRule)
-                ?.actions.filter(a => uids.some(uid => matchCopyImipActionForDelegate(a, uid))).length || 0
-        );
+    const countDelegatesHavingTheCopyImipRule = () => {
+        return store.state.preferences.mailboxFilter.imipRule?.delegateUids.length || 0;
     };
 
     const removeDelegateFromCopyImipMailboxRule = async uid => {
-        const { mailboxFilterRules, copyImipMailboxRule, copyImipMailboxRuleIndex } = copyRulesAndImipRule();
-        if (copyImipMailboxRule) {
-            // remove the redirect action for the given delegate
-            const updatedActions = copyImipMailboxRule.actions.filter(
-                action => !matchCopyImipActionForDelegate(action, uid)
-            );
-
-            const remainingRedirectActions = updatedActions.filter(
-                ({ name }) => name === MailFilterRuleActionName.REDIRECT
-            ).length;
-            if (remainingRedirectActions === 0) {
-                // remove the entire rule
-                mailboxFilterRules.splice(copyImipMailboxRuleIndex, 1);
-                store.dispatch("preferences/SAVE_RULES", mailboxFilterRules);
-            } else if (updatedActions.length < copyImipMailboxRule.actions.length) {
-                mailboxFilterRules[copyImipMailboxRuleIndex].actions = updatedActions;
-                store.dispatch("preferences/SAVE_RULES", mailboxFilterRules);
-            }
+        const imipRule = structuredClone(store.state.preferences.mailboxFilter.imipRule);
+        const index = imipRule.delegateUids.indexOf(uid);
+        if (index >= 0) {
+            imipRule.delegateUids.splice(index, 1);
+            store.dispatch("preferences/SAVE_IMIP_RULE", { imipRule, calendarUid: calendarUid.value });
         }
     };
-
-    const matchCopyImipActionForDelegate = ({ name, emails, clientProperties: { type, delegate } }, delegateUid) =>
-        name === MailFilterRuleActionName.REDIRECT &&
-        emails?.length &&
-        type === "delegation" &&
-        delegate === delegateUid;
 
     const canSeePrivateEvents = uid =>
         getCalendarAcl()?.some(({ subject, verb }) => subject === uid && verb === Verb.ReadExtended);

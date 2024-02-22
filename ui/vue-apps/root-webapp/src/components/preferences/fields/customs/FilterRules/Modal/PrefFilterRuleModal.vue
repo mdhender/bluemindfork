@@ -8,9 +8,9 @@
         size="lg"
         height="lg"
         scrollable
-        :title="filter.index >= 0 ? $t('preferences.mail.filters.edit') : $t('preferences.mail.filters.create')"
+        :title="filter.id >= 0 ? $t('preferences.mail.filters.edit') : $t('preferences.mail.filters.create')"
         :cancel-title="$t('common.cancel')"
-        :ok-title="filter.index >= 0 ? $t('common.edit') : $t('common.create')"
+        :ok-title="filter.id >= 0 ? $t('common.edit') : $t('common.create')"
         :ok-disabled="okDisabled"
         @ok="save"
         @shown="init"
@@ -31,6 +31,7 @@ import PrefFilterRuleModalActions from "./PrefFilterRuleModalActions";
 import PrefFilterRuleModalCriteria from "./PrefFilterRuleModalCriteria";
 import PrefFilterRuleModalName from "./PrefFilterRuleModalName";
 import PrefFilterRuleModalTerminal from "./PrefFilterRuleModalTerminal";
+import { NEW_FILTER } from "../filterRules";
 
 export default {
     name: "PrefFilterRuleModal",
@@ -70,14 +71,7 @@ export default {
     watch: {
         filter: {
             handler(value) {
-                this.filter_ = {
-                    criteria: [{ isNew: true, exception: false }],
-                    actions: [{ isNew: true }],
-                    name: "",
-                    exceptions: [],
-                    manageable: true,
-                    ...value
-                };
+                this.filter_ = { ...NEW_FILTER, ...value };
             },
             immediate: true
         }

@@ -26,17 +26,25 @@ export const ACTIONS = {
 
 const ACTIONS_BY_NAME = new Map(Object.values(ACTIONS).map(action => [action.name, action]));
 
+export const NEW_FILTER = Object.freeze({
+    name: "",
+    criteria: [{ isNew: true, exception: false }],
+    actions: [{ isNew: true }],
+    exceptions: [],
+    terminal: false,
+    active: true,
+    editable: true
+});
+
 export function read(rules) {
-    return rules.map((rule, index) => {
-        const manageable = isManageable(rule);
-        const internalRule = manageable ? readRule(rule) : rule;
-        return {
-            ...internalRule,
-            index,
-            terminal: rule.stop,
-            editable: true,
-            manageable
-        };
+    return rules.flatMap(rule => {
+        return isManageable(rule)
+            ? {
+                  ...readRule(rule),
+                  terminal: rule.stop,
+                  editable: true
+              }
+            : [];
     });
 }
 
@@ -52,15 +60,16 @@ function isManageable(rule) {
     );
 }
 
-export function readRule(rawFilter) {
-    const conditionsAndExceptions = readCriteria(rawFilter.conditions);
+export function readRule(rawRule) {
+    const conditionsAndExceptions = readCriteria(rawRule.conditions);
     return {
-        active: rawFilter.active,
-        name: rawFilter.name,
-        terminal: rawFilter.stop === undefined ? true : rawFilter.stop,
+        active: rawRule.active,
+        name: rawRule.name,
+        terminal: rawRule.stop ?? true,
         criteria: conditionsAndExceptions.filter(condition => !condition.exception),
         exceptions: conditionsAndExceptions.filter(condition => condition.exception),
-        actions: readActions(rawFilter.actions)
+        actions: readActions(rawRule.actions),
+        id: rawRule.id
     };
 }
 
@@ -91,9 +100,6 @@ function readActions(rawActions) {
 }
 
 export function write(filter) {
-    if (!filter.manageable) {
-        return filter;
-    }
     const conditions = filter.criteria.map(writeCondition);
     const exceptions = filter.exceptions.map(writeCondition);
     return {

@@ -7,131 +7,90 @@
             :title="$t('preferences.mail.filters.subset.user', { count: userFilters.length })"
             editable
             @remove="removeUserFilter"
-            @edit="
-                editingFilter = $event;
-                $refs['filters-editing-modal'].show();
-            "
+            @edit="edit"
             @up="moveUp"
             @down="moveDown"
-            @toggle-active="updateUserFilter"
+            @top="moveTop"
+            @bottom="moveBottom"
+            @createBefore="createBefore"
+            @createAfter="createAfter"
         />
     </div>
 </template>
 
 <script>
-import { read as readRules, write as writeRule } from "./filterRules.js";
+import { read as readRules, write as writeRule, NEW_FILTER } from "./filterRules";
 import PrefFilterRuleModal from "./Modal/PrefFilterRuleModal";
 import PrefFilterRulesSubset from "./PrefFilterRulesSubset";
 import CentralizedSaving from "../../../mixins/CentralizedSaving";
+import { ERROR, SUCCESS } from "@bluemind/alert.store";
+import { SAVE_ALERT } from "../../../Alerts/defaultAlerts";
 
 export default {
     name: "PrefFilterRules",
     components: { PrefFilterRuleModal, PrefFilterRulesSubset },
-    mixins: [CentralizedSaving],
     data() {
-        return { editingFilter: {}, expanded: [] };
+        return { editingFilter: { addBefore: undefined, addAfter: undefined }, expanded: [] };
     },
     computed: {
-        /**
-         * BTable adds an annoying _showDetails to each expanded item, our saving mechanism will detect a change...
-         * We have to remove/add the expanded info via an intermediate value.
-         * Also, `this.value` contains all rules even those that can't be managed here:
-         *  - we filter them out when we get the `userFilters` from the store
-         *  - we add them back when we set `this.value` from `userFilters`
-         */
-        userFilters: {
-            get() {
-                return this.value.filter(v => v.manageable).map(v => ({ ...v, _showDetails: this.expanded[v.index] }));
-            },
-            set: function (userFilters) {
-                this.value = [
-                    ...userFilters.map(f => {
-                        this.expanded[f.index] = f._showDetails;
-                        const copy = { ...f };
-                        delete copy._showDetails;
-                        return copy;
-                    }),
-                    ...this.value.filter(v => !v.manageable)
-                ].sort((a, b) => a.index - b.index);
-            }
+        userFilters() {
+            return this.$store.state.preferences.mailboxFilter.rules;
         }
     },
-    async created() {
-        const save = async ({ state: { current }, dispatch }) => {
-            await dispatch(
-                "preferences/SAVE_RULES",
-                current.value.map(v => writeRule(v)),
-                { root: true }
-            );
-        };
-        this.registerSaveAction(save);
-
-        this.value = this.normalizeUserFilters(this.$store.state.preferences.mailboxFilter);
-    },
     methods: {
-        normalizeUserFilters(rawFilters) {
-            return readRules(rawFilters.rules);
+        alert(success = true) {
+            this.$store.dispatch(`alert/${success ? SUCCESS : ERROR}`, SAVE_ALERT);
+        },
+        dispatchWithAlert(action, params) {
+            this.$store
+                .dispatch(`preferences/${action}`, params)
+                .then(this.alert)
+                .catch(() => this.alert(false));
         },
         addUserFilter(filter) {
-            this.pushUserFilters(filter);
-            this.updateIndexes(this.userFilters);
+            filter.addBefore
+                ? this.dispatchWithAlert("ADD_RULE_BEFORE", { rule: filter, relative: filter.addBefore })
+                : filter.addAfter
+                ? this.dispatchWithAlert("ADD_RULE_AFTER", { rule: filter, relative: filter.addAfter })
+                : this.dispatchWithAlert("ADD_RULE", filter);
         },
         updateUserFilter(filter) {
-            if (filter.index === undefined) {
-                this.addUserFilter(filter);
-            } else {
-                this.spliceUserFilters(filter.index, 1, filter);
-            }
+            filter.id === undefined ? this.addUserFilter(filter) : this.dispatchWithAlert("UPDATE_RULE", filter);
         },
         removeUserFilter(filter) {
-            this.spliceUserFilters(filter.index, 1);
-            this.updateIndexes(this.userFilters);
+            this.dispatchWithAlert("REMOVE_RULE", filter);
         },
         moveUp(filter) {
             if (filter.index !== 0) {
-                this.move(filter, -1);
+                this.dispatchWithAlert("MOVE_UP_RULE", filter);
             }
         },
         moveDown(filter) {
             if (filter.index + 1 !== this.userFilters.length) {
-                this.move(filter, 1);
+                this.dispatchWithAlert("MOVE_DOWN_RULE", filter);
             }
         },
-        move(filter, delta) {
-            const userFilters = [...this.userFilters];
-            const expanded = [...this.expanded];
-
-            //remove
-            const removedFilter = { ...userFilters.splice(filter.index, 1)[0] };
-            const removedExpanded = expanded.splice(filter.index, 1)[0];
-
-            //insert
-            const newIndex = filter.index + delta;
-            userFilters.splice(newIndex, 0, removedFilter);
-            expanded.splice(newIndex, 0, removedExpanded);
-
-            this.updateIndexes(userFilters);
-
-            this.expanded = expanded;
-            this.userFilters = userFilters;
+        moveTop(filter) {
+            if (filter.index !== 0) {
+                this.dispatchWithAlert("MOVE_RULE_TOP", filter);
+            }
         },
-        updateIndexes(filters) {
-            filters.forEach((f, index) => (f.index = index));
+        moveBottom(filter) {
+            if (filter.index + 1 !== this.userFilters.length) {
+                this.dispatchWithAlert("MOVE_RULE_BOTTOM", filter);
+            }
         },
-        spliceUserFilters(index, removeCount, ...items) {
-            return this.modifyUserFilters("splice", index, removeCount, ...items);
+        edit(filter) {
+            this.editingFilter = filter;
+            this.$refs["filters-editing-modal"].show();
         },
-        pushUserFilters(item) {
-            return this.modifyUserFilters("push", item);
+        createBefore(filter) {
+            this.editingFilter = { ...NEW_FILTER, addBefore: filter };
+            this.$refs["filters-editing-modal"].show();
         },
-        /**
-         * /!\ this.userFilters is a computed with custom getter/setter, methods like splice or push do not call the
-         * setter.
-         */
-        modifyUserFilters(method, ...args) {
-            const userFilters = this.userFilters;
-            userFilters[method](...args);
-            this.userFilters = userFilters;
+        createAfter(filter) {
+            this.editingFilter = { ...NEW_FILTER, addAfter: filter };
+            this.$refs["filters-editing-modal"].show();
         }
     }
 };

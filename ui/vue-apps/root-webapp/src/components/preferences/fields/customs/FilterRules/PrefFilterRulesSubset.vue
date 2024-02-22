@@ -14,6 +14,7 @@
 <script>
 import { BmButton, BmButtonExpand } from "@bluemind/ui-components";
 import PrefFilterRulesTable from "./PrefFilterRulesTable";
+import { NEW_FILTER } from "./filterRules";
 
 export default {
     name: "PrefFilterRulesSubset",
@@ -45,16 +46,7 @@ export default {
     },
     methods: {
         onEdit() {
-            this.$emit("edit", {
-                name: "",
-                criteria: [{ isNew: true, exception: false }],
-                actions: [{ isNew: true }],
-                exceptions: [],
-                terminal: false,
-                manageable: true,
-                active: true,
-                editable: true
-            });
+            this.$emit("edit", NEW_FILTER);
         }
     }
 };

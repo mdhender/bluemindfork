@@ -32,9 +32,9 @@ const editDelegate = userUid => {
 
 const delegatesWithCopyImipRuleCount = ref();
 const receiveImipOption = ref(receiveImipOptions.BOTH);
-watchEffect(async () => {
-    delegatesWithCopyImipRuleCount.value = await countDelegatesHavingTheCopyImipRule(...Object.keys(delegates.value));
-    receiveImipOption.value = await computeReceiveImipOption();
+watchEffect(() => {
+    delegatesWithCopyImipRuleCount.value = countDelegatesHavingTheCopyImipRule();
+    receiveImipOption.value = computeReceiveImipOption();
 });
 
 const updateFilter = async () => {

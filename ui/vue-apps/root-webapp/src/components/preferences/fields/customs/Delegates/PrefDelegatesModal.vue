@@ -480,7 +480,6 @@ export default {
                 ? this.formData.copyImipToDelegate.current
                     ? this.addDelegateToCopyImipMailboxRule({
                           uid: this.selectedDelegate,
-                          address: this.selectedContacts[0].address,
                           receiveImipOption: this.receiveImipOption
                       })
                     : this.removeDelegateFromCopyImipMailboxRule(this.selectedDelegate)
