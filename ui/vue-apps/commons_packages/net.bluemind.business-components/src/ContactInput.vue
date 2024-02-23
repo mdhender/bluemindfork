@@ -21,7 +21,7 @@
                         <contact
                             v-if="!contact.edit"
                             :data-browse-key="contact.key"
-                            data-browse
+                            :data-browse="shouldShowInputField"
                             :contact="contact"
                             :invalid="!valid(contact)"
                             :selected="valid(contact) && contact.selected"
@@ -87,7 +87,7 @@
                 </div>
                 <bm-form-autocomplete-input
                     v-if="!readonly"
-                    v-show="!hiddenContactCount && contacts_.length < maxContacts"
+                    v-show="shouldShowInputField"
                     ref="new"
                     v-model="value"
                     size="sm"
@@ -228,6 +228,9 @@ export default {
         },
         maxContactsSuggestion() {
             return this.showExpand ? 5 : 20;
+        },
+        shouldShowInputField() {
+            return !this.hiddenContactCount && this.contacts_.length < this.maxContacts;
         }
     },
     watch: {

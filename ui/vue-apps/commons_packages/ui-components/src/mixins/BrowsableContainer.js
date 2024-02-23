@@ -101,7 +101,7 @@ function handleBlur(event, vm) {
 }
 
 function handleFocus(event, vm) {
-    if (vm.$el.contains(document.activeElement) && document.activeElement.dataset.browse !== undefined) {
+    if (vm.$el.contains(document.activeElement) && isBrowseActive(document.activeElement)) {
         vm.$_Container_focusables.forEach(element => (element.tabIndex = "-1"));
         vm.$_Container_focused = document.activeElement;
         document.activeElement.tabIndex = "0";
@@ -167,7 +167,7 @@ function getFocusableChildren(element) {
     for (let i = 0; i < element.children.length; i++) {
         const el = element.children.item(i);
         //Fixme : isFocusable coule be suffisant. How to replace browableKey ?
-        if (el.dataset.browse !== undefined) {
+        if (isBrowseActive(el)) {
             let focusable;
             if (!isFocusable(el) && (focusable = getFocusableChild(el))) {
                 focusable.dataset.browse = true;
@@ -231,4 +231,8 @@ function isVisible(element) {
     }
     const visible = element.offsetWidth && element.offsetHeight && element.getClientRects().length;
     return visible && (element.dataset.browseRoot || !element.parentElement || isVisible(element.parentElement));
+}
+
+function isBrowseActive(element) {
+    return element.dataset.browse !== undefined && element.dataset.browse !== false;
 }

@@ -1,5 +1,10 @@
 <template>
-    <b-button v-bind="[$props]" class="bm-button-close" :class="{ 'on-fill-primary': onFillPrimary }" v-on="$listeners">
+    <b-button
+        v-bind="[$props, $attrs]"
+        class="bm-button-close"
+        :class="{ 'on-fill-primary': onFillPrimary }"
+        v-on="$listeners"
+    >
         <bm-icon icon="cross-thin" />
     </b-button>
 </template>
