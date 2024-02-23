@@ -476,7 +476,7 @@ public class CalendarBackend extends CoreConnect {
 			HierarchyNode folder = storage.getHierarchyNode(bs, ic.getServerId().collectionId);
 			ICalendar service = getService(bs, folder.containerUid);
 			ItemValue<VEventSeries> event = service.getCompleteById(ic.getServerId().itemId);
-			return toAppData(bs, ic.getServerId().collectionId, event);
+			return toAppData(bs, ic.getServerId().collectionId, folder.containerUid, event);
 		} catch (Exception e) {
 			throw new ActiveSyncException(e.getMessage(), e);
 		}
@@ -491,7 +491,7 @@ public class CalendarBackend extends CoreConnect {
 		Map<Long, AppData> res = new HashMap<>(ids.size());
 		events.stream().forEach(event -> {
 			try {
-				AppData data = toAppData(bs, collectionId, event);
+				AppData data = toAppData(bs, collectionId, folder.containerUid, event);
 				res.put(event.internalId, data);
 			} catch (Exception e) {
 				logger.error("Fail to convert event {}", event.uid, e);
@@ -501,7 +501,8 @@ public class CalendarBackend extends CoreConnect {
 		return res;
 	}
 
-	private AppData toAppData(BackendSession bs, CollectionId collectionId, ItemValue<VEventSeries> event) {
+	private AppData toAppData(BackendSession bs, CollectionId collectionId, String calendarUid,
+			ItemValue<VEventSeries> event) {
 		MSEvent msEvent = new EventConverter().convert(bs.getUser(), event);
 		CalendarResponse cr = OldFormats.update(bs, msEvent, bs.getUser(), collectionId);
 		AppData data = AppData.of(cr);
@@ -514,6 +515,7 @@ public class CalendarBackend extends CoreConnect {
 			airSyncBase.body.estimatedDataSize = (int) airSyncBase.body.data.size();
 			data.body = LazyLoaded.loaded(airSyncBase);
 		}
+		data.metadata.event.calendarUid = calendarUid;
 		return data;
 	}
 
