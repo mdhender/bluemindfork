@@ -45,6 +45,7 @@ import com.netflix.spectator.api.DistributionSummary;
 import com.netflix.spectator.api.Registry;
 import com.netflix.spectator.api.Timer;
 
+import net.bluemind.common.io.Buffered;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.sds.dto.DeleteRequest;
 import net.bluemind.sds.dto.ExistRequest;
@@ -212,7 +213,7 @@ public class ScalityRingStore implements ISdsBackingStore {
 	public CompletableFuture<SdsResponse> downloadRaw(GetRequest req) {
 		Path downloadPath = Paths.get(req.filename);
 		try {
-			return download(req, downloadPath, Files.newOutputStream(downloadPath));
+			return download(req, downloadPath, Buffered.output(Files.newOutputStream(downloadPath)));
 		} catch (IOException e) {
 			logger.error("download local io failed", e);
 			SdsResponse sr = new SdsResponse();

@@ -6,7 +6,9 @@ Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: www.blue-mind.net
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Require-Bundle: com.google.guava;bundle-version="25.0.0";visibility:=reexport,
- slf4j.api;bundle-version="1.7.25"
+ slf4j.api;bundle-version="1.7.25",
+ net.bluemind.lib.vertx,
+ net.bluemind.configfile
 Export-Package: net.bluemind.common.io
 Automatic-Module-Name: net.bluemind.common.io
 

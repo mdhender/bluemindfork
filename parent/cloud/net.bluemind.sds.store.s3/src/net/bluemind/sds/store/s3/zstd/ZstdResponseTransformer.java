@@ -18,6 +18,7 @@
  */
 package net.bluemind.sds.store.s3.zstd;
 
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PipedInputStream;
@@ -42,6 +43,7 @@ import com.github.luben.zstd.RecyclingBufferPool;
 import com.github.luben.zstd.ZstdInputStream;
 
 import io.netty.util.concurrent.DefaultThreadFactory;
+import net.bluemind.common.io.Buffered;
 import net.bluemind.sds.store.s3.IResponseTransformer;
 import software.amazon.awssdk.core.async.SdkPublisher;
 
@@ -90,7 +92,7 @@ public class ZstdResponseTransformer<T> implements IResponseTransformer<T> {
 
 					// setup the decompression pipe
 					try {
-						toDecomp = new PipedInputStream(32768);
+						toDecomp = new PipedInputStream(Buffered.writeBuffer());
 						fromS3 = new PipedOutputStream();
 						toDecomp.connect(fromS3);
 					} catch (IOException e) {
@@ -101,16 +103,9 @@ public class ZstdResponseTransformer<T> implements IResponseTransformer<T> {
 
 						try (OutputStream os = Files.newOutputStream(path, StandardOpenOption.CREATE,
 								StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
+								BufferedOutputStream wb = Buffered.output(os);
 								ZstdInputStream decomp = new ZstdInputStream(toDecomp, RecyclingBufferPool.INSTANCE)) {
-							byte[] dec = new byte[8192];
-							while (true) {
-
-								int read = decomp.read(dec);
-								if (read == -1) {
-									break;
-								}
-								os.write(dec, 0, read);
-							}
+							decomp.transferTo(wb);
 						} catch (IOException e) {
 							logger.error(e.getMessage(), e);
 						}

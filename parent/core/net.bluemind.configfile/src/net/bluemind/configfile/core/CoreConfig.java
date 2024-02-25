@@ -45,6 +45,14 @@ public class CoreConfig {
 		public static final String EXECUTOR_COMPLETION_TIMEOUT = "core.pool.executor.completion-timeout";
 	}
 
+	public static class Io {
+		private Io() {
+
+		}
+
+		public static final String WRITE_BUFFER = "core.io.write-buffer";
+	}
+
 	public static class Sessions {
 		private Sessions() {
 		}

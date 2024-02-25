@@ -18,6 +18,7 @@
  */
 package net.bluemind.sds.store.s3.zstd;
 
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -37,9 +38,9 @@ import org.slf4j.LoggerFactory;
 
 import com.github.luben.zstd.RecyclingBufferPool;
 import com.github.luben.zstd.ZstdOutputStream;
-import com.google.common.io.ByteStreams;
 import com.netflix.spectator.api.DistributionSummary;
 
+import net.bluemind.common.io.Buffered;
 import software.amazon.awssdk.core.async.AsyncRequestBody;
 
 public class ZstdRequestBody implements AsyncRequestBody {
@@ -56,8 +57,9 @@ public class ZstdRequestBody implements AsyncRequestBody {
 			tmpPath = Files.createTempFile("eml", ".zst");
 			try (OutputStream out = Files.newOutputStream(tmpPath, StandardOpenOption.WRITE,
 					StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
-					ZstdOutputStream zos = new ZstdOutputStream(out, RecyclingBufferPool.INSTANCE, -3)) {
-				ByteStreams.copy(in, zos);
+					BufferedOutputStream wb = Buffered.output(out);
+					ZstdOutputStream zos = new ZstdOutputStream(wb, RecyclingBufferPool.INSTANCE, -3)) {
+				in.transferTo(zos);
 			}
 			this.raf = new RandomAccessFile(tmpPath.toFile(), "r");
 			long origLen = Files.size(sourceFile);

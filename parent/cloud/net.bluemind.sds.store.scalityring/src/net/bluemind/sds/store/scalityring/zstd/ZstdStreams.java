@@ -18,6 +18,7 @@
  */
 package net.bluemind.sds.store.scalityring.zstd;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FilterOutputStream;
 import java.io.IOException;
@@ -39,10 +40,10 @@ import org.slf4j.LoggerFactory;
 import com.github.luben.zstd.RecyclingBufferPool;
 import com.github.luben.zstd.ZstdInputStream;
 import com.github.luben.zstd.ZstdOutputStream;
-import com.google.common.io.ByteStreams;
 import com.google.common.io.CountingInputStream;
 
 import io.netty.util.concurrent.DefaultThreadFactory;
+import net.bluemind.common.io.Buffered;
 
 public class ZstdStreams {
 
@@ -71,7 +72,7 @@ public class ZstdStreams {
 	 */
 	public static CountingInputStream compress(File source) {
 		Path path = source.toPath();
-		PipedInputStream readCompressed = new PipedInputStream(32768);
+		PipedInputStream readCompressed = new PipedInputStream(Buffered.writeBuffer());
 		PipedOutputStream writePlain = new PipedOutputStream(); // NOSONAR
 		try {
 			writePlain.connect(readCompressed);
@@ -82,7 +83,7 @@ public class ZstdStreams {
 		Callable<Void> compression = () -> {
 			try (InputStream in = Files.newInputStream(path);
 					ZstdOutputStream zos = new ZstdOutputStream(writePlain, RecyclingBufferPool.INSTANCE, -3)) {
-				ByteStreams.copy(in, zos);
+				in.transferTo(zos);
 			} catch (IOException ioe) {
 				logger.error(ioe.getMessage(), ioe);
 			} finally {
@@ -119,8 +120,9 @@ public class ZstdStreams {
 
 		Callable<Void> decomp = () -> {
 			try (OutputStream out = Files.newOutputStream(target);
+					BufferedOutputStream bw = Buffered.output(out);
 					ZstdInputStream dec = new ZstdInputStream(readPlain, RecyclingBufferPool.INSTANCE)) {
-				ByteStreams.copy(dec, out);
+				dec.transferTo(bw);
 			} catch (IOException ioe) {
 				logger.error(ioe.getMessage(), ioe);
 			}
