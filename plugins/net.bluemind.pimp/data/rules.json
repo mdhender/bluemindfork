@@ -3,12 +3,12 @@
 		"product":"bm-core",
 		"defaultHeap":256,
 		"defaultDirect":128,
-		"sparePercent":30
+		"sparePercent":25
 	},
 	{
 		"product":"bm-node",
-		"defaultHeap":128,
-		"defaultDirect":128,
+		"defaultHeap":192,
+		"defaultDirect":64,
 		"sparePercent":0
 	},
 	{
@@ -22,18 +22,18 @@
 		"defaultHeap":256,
 		"defaultDirect":128,
 		"directCap": 2048,
-		"sparePercent":40
+		"sparePercent":35
 	},
 	{
 		"product":"bm-tika",
-		"defaultHeap":128,
-		"defaultDirect":128,
-		"sparePercent":0
+		"defaultHeap":192,
+		"defaultDirect":64,
+		"sparePercent":1
 	},
 	{
 		"product":"bm-ysnp",
-		"defaultHeap":128,
-		"defaultDirect":128,
+		"defaultHeap":192,
+		"defaultDirect":64,
 		"sparePercent":1
 	},
 	{
@@ -46,7 +46,7 @@
 		"product":"bm-mapi",
 		"defaultHeap":512,
 		"defaultDirect":256,
-		"sparePercent":5,
+		"sparePercent":20,
 		"optional": true
 	},
 	{
@@ -62,8 +62,8 @@
 		"sparePercent":4
 	},{
 		"product":"bm-keycloak",
-		"defaultHeap":512,
+		"defaultHeap":256,
 		"defaultDirect":128,
-		"sparePercent":6
+		"sparePercent":3
 	}
 ]
