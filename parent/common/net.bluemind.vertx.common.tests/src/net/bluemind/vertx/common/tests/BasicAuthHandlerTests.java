@@ -24,6 +24,7 @@ import static org.junit.Assert.assertNotNull;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
@@ -54,7 +55,7 @@ public class BasicAuthHandlerTests {
 
 		});
 
-		Creds creds = bh.getCredentials("Basic " + encoded);
+		Creds creds = bh.getCredentials(null, "Basic " + encoded).orTimeout(10, TimeUnit.SECONDS).join();
 		assertNotNull(creds);
 		assertEquals(login, creds.getLogin());
 		assertEquals("checking " + pass + " given as " + toCheck, pass, creds.getPassword());
