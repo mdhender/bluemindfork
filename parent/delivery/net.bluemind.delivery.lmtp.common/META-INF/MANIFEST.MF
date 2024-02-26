@@ -11,7 +11,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.backend.mail.replica.api,
  net.bluemind.core.rest,
  org.apache.james.apache-mime4j-dom,
- net.bluemind.mime4j.common
+ net.bluemind.mime4j.common,
+ net.bluemind.common.io
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.delivery.lmtp.common
 Bundle-ActivationPolicy: lazy

@@ -15,6 +15,7 @@ import com.google.common.io.CountingOutputStream;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import net.bluemind.common.io.Buffered;
 import net.bluemind.mime4j.common.Mime4JHelper;
 
 public class FreezableDeliveryContent {
@@ -79,7 +80,8 @@ public class FreezableDeliveryContent {
 			throws IOException {
 		Path tmp = Files.createTempFile("lmtp-inc-", ".eml");
 		try (var fileOutput = Files.newOutputStream(tmp);
-				var countedOutput = new CountingOutputStream(fileOutput);
+				var buf = Buffered.output(fileOutput);
+				var countedOutput = new CountingOutputStream(buf);
 				@SuppressWarnings("deprecation")
 				var hashedOutput = new HashingOutputStream(Hashing.sha1(), countedOutput)) {
 			Mime4JHelper.serialize(content.message(), hashedOutput);
