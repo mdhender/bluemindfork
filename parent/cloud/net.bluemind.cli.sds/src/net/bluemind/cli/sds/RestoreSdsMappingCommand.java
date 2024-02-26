@@ -95,6 +95,9 @@ public class RestoreSdsMappingCommand implements ICmdLet, Runnable {
 	@Option(names = "--rebuild-db", description = "rebuild the import db")
 	boolean rebuildDb;
 
+	@Option(names = "--create-missing", description = "create missing folders instead of skipping them")
+	boolean createMissing;
+
 	@Parameters(paramLabel = "FILE", description = "json file to restore")
 	File jsonFile;
 
@@ -148,8 +151,14 @@ public class RestoreSdsMappingCommand implements ICmdLet, Runnable {
 		for (int i = 0; i < len; i++) {
 			JsonObject folder = folders.getJsonObject(i);
 			String fn = folder.getString("fullName");
-			if (!sc.select(fn)) {
-				ctx.error("Failed to select {}", fn);
+			var selected = sc.select(fn);
+			if (!selected && createMissing) {
+				sc.create(fn);
+				selected = sc.select(fn);
+			}
+			if (!selected) {
+				ctx.error(!createMissing ? "Failed to select '{}', consider --create-missing" : "Failed to select '{}'",
+						fn);
 				continue;
 			}
 			JsonArray msgs = folder.getJsonArray("messages");
