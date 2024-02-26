@@ -14,6 +14,7 @@
 
 package net.bluemind.common.io;
 
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -152,12 +153,13 @@ public final class FileBackedOutputStream extends OutputStream {
 	 * finalized.
 	 *
 	 * @param fileThreshold  the number of bytes before the stream should switch to
-	 *                       buffering to a file
+	 *                       buffering to a file. Not smaller than
+	 *                       core.io.write-buffer
 	 * @param sizeHint       if size store is known in advance
 	 * @param filenamePrefix name hint for the optional temporary file
 	 */
 	public FileBackedOutputStream(int fileThreshold, int sizeHint, String filenamePrefix) {
-		this.fileThreshold = fileThreshold;
+		this.fileThreshold = Math.max(fileThreshold, Buffered.writeBuffer());
 		this.filenamePrefix = filenamePrefix;
 		this.track = sizeHint < fileThreshold ? null : new Throwable("not reset fbos allocation").fillInStackTrace();
 		memory = new MemoryOutput();
@@ -258,7 +260,8 @@ public final class FileBackedOutputStream extends OutputStream {
 	private void update(int len) throws IOException {
 		if (file == null && (memory.getCount() + len > fileThreshold)) {
 			Path temp = Files.createTempFile("fbos-" + filenamePrefix, null);
-			OutputStream transfer = new TrackOutFilter(Files.newOutputStream(temp)); // NOSONAR
+			BufferedOutputStream bw = Buffered.output(Files.newOutputStream(temp));// NOSONAR
+			OutputStream transfer = new TrackOutFilter(bw);
 			transfer.write(memory.getBuffer(), 0, memory.getCount());
 			transfer.flush();
 

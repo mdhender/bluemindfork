@@ -36,7 +36,7 @@ public class Buffered {
 		return new BufferedOutputStream(raw, writeBuffer());
 	}
 
-	private static final int writeBuffer() {
+	public static final int writeBuffer() {
 		return (int) coreConf.config().getMemorySize(CoreConfig.Io.WRITE_BUFFER).toBytes();
 	}
 
