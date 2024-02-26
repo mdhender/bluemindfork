@@ -18,7 +18,6 @@
  */
 package net.bluemind.pool;
 
-import java.io.File;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -34,10 +33,11 @@ import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.typesafe.config.Config;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
-import net.bluemind.config.InstallationId;
+import net.bluemind.configfile.core.CoreConfig;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.pool.impl.BmConfIni;
 
@@ -59,9 +59,6 @@ public class BMPoolActivator extends Plugin {
 	private Map<String, Pool> dataPool;
 
 	private List<IJDBCDriver> factories;
-
-	private static final boolean defaultInSchema = new File(System.getProperty("user.home") + "/core2.in.schema")
-			.exists();
 
 	private List<IPoolListener> listeners;
 
@@ -130,9 +127,7 @@ public class BMPoolActivator extends Plugin {
 
 	public Pool startPool(String dbType, String login, String password, String dbHost, String dbName, int poolSize)
 			throws Exception {
-		String schemaName = defaultInSchema ? InstallationId.getIdentifier().replace('-', '_') : null;
-		logger.info("startPool with schema {}", schemaName);
-		return newPool(dbType, login, password, dbName, dbHost, poolSize, schemaName);
+		return newPool(dbType, login, password, dbName, dbHost, poolSize, null);
 	}
 
 	public Pool newPool(String dbType, String login, String password, String dbName, String dbHost, int poolSize,
@@ -153,12 +148,14 @@ public class BMPoolActivator extends Plugin {
 				if ("Mac OS X".equalsIgnoreCase(os)) {
 					poolSize = Math.min(poolSize, 6);
 				}
-				// TODO: add test suitable for linux devs
 
-				Object driver = Class.forName(cf.getDriverClass()).newInstance();
+				Object driver = Class.forName(cf.getDriverClass()).getDeclaredConstructor().newInstance();
 				Thread.currentThread().setContextClassLoader(driver.getClass().getClassLoader());
 
+				Config coreConfig = CoreConfig.get();
+
 				HikariConfig config = new HikariConfig();
+				config.setMetricsTrackerFactory(new SpectatorMetricsTrackerFactory());
 				config.setJdbcUrl(jdbcUrl);
 				config.setUsername(login);
 				config.setPassword(password);
@@ -167,27 +164,41 @@ public class BMPoolActivator extends Plugin {
 				config.setDriverClassName(cf.getDriverClass());
 				// List of settings for PostgreSQL JDBC:
 				// https://jdbc.postgresql.org/documentation/use/
-				config.addDataSourceProperty("sslmode", "disable");
-				config.addDataSourceProperty("preparedStatementCacheQueries", "2048");
-				config.addDataSourceProperty("preparedStatementCacheSizeMiB", "16");
-				config.addDataSourceProperty("preferQueryMode", "extendedCacheEverything");
-				config.addDataSourceProperty("defaultRowFetchSize", "2048");
-				config.addDataSourceProperty("ApplicationName", "BlueMind");
-				config.addDataSourceProperty("reWriteBatchedInserts", "true");
-				config.setConnectionTestQuery(cf.getKeepAliveQuery());
+				config.addDataSourceProperty("sslmode", coreConfig.getString(CoreConfig.PostgreSQL.SSL_MODE));
+				config.addDataSourceProperty("preparedStatementCacheQueries",
+						coreConfig.getInt(CoreConfig.PostgreSQL.PREPARED_STATEMENT_CACHE_QUERIES));
+				config.addDataSourceProperty("preparedStatementCacheSizeMiB",
+						coreConfig.getInt(CoreConfig.PostgreSQL.PREPARED_STATEMENT_CACHE_SIZE_MIB));
+				config.addDataSourceProperty("preferQueryMode",
+						coreConfig.getString(CoreConfig.PostgreSQL.PREFER_QUERY_MODE));
+				config.addDataSourceProperty("defaultRowFetchSize",
+						coreConfig.getInt(CoreConfig.PostgreSQL.DEFAULT_ROW_FETCHSIZE));
+				config.addDataSourceProperty("ApplicationName",
+						coreConfig.getString(CoreConfig.PostgreSQL.APPLICATION_NAME));
+				config.addDataSourceProperty("reWriteBatchedInserts",
+						String.valueOf(coreConfig.getBoolean(CoreConfig.PostgreSQL.REWRITE_BATCHED_INSERTS)));
+				// Avoids a nasty PostgreSQL memory leak by not reusing backends for more than 5
+				// minutes
+				config.setMaxLifetime(
+						coreConfig.getDuration(CoreConfig.PostgreSQL.MAX_LIFETIME, TimeUnit.MILLISECONDS));
+
+				// config.setConnectionTestQuery(cf.getKeepAliveQuery());
 				// LC: if we do server side prepared statement,
 				// on servers with a "big" t_directory_entry, the query
 				// to check if an email exists becomes suuuper slow, because
 				// postgresql uses a generic plan, which is not suitable for us
-				config.addDataSourceProperty("prepareThreshold", "0");
+				config.addDataSourceProperty("prepareThreshold",
+						String.valueOf(coreConfig.getInt(CoreConfig.PostgreSQL.PREPARE_THRESHOLD)));
 				if (schema != null) {
 					config.setSchema(schema);
 					config.setConnectionInitSql("CREATE SCHEMA IF NOT EXISTS " + schema);
 				}
 				config.setMaximumPoolSize(poolSize);
-				config.setLeakDetectionThreshold(5000);
+				config.setLeakDetectionThreshold(
+						coreConfig.getDuration(CoreConfig.PostgreSQL.LEAK_DETECTION_THRESHOLD, TimeUnit.MILLISECONDS));
 
-				long start = System.currentTimeMillis();
+				long startupTimeout = System.nanoTime()
+						+ coreConfig.getDuration(CoreConfig.PostgreSQL.STARTUP_TIMEOUT, TimeUnit.NANOSECONDS);
 				do {
 					try {
 						HikariDataSource ds = new HikariDataSource(config);
@@ -198,7 +209,7 @@ public class BMPoolActivator extends Plugin {
 						logger.warn("Pool {} startup problem: {}, retrying in 2sec", jdbcUrl, e.getMessage());
 						Thread.sleep(2000);
 					}
-				} while (System.currentTimeMillis() - start < TimeUnit.MINUTES.toMillis(2));
+				} while (System.nanoTime() < startupTimeout);
 				logger.error("Pool startup for {} failed, exiting.", jdbcUrl);
 				System.exit(1);
 				return null; // we exited...
@@ -266,7 +277,7 @@ public class BMPoolActivator extends Plugin {
 	}
 
 	public void addListener(IPoolListener hl) {
-		logger.info("****** Adding destroy handler: " + hl + " ******");
+		logger.info("****** Adding destroy handler: {}  ******", hl);
 		listeners.add(hl);
 	}
 

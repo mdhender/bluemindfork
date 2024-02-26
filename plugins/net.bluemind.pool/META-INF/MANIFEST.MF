@@ -11,7 +11,10 @@ Require-Bundle: net.bluemind.utils;bundle-version="1.0.0";visibility:=reexport,
  net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.eclipse.common,
  com.zaxxer.HikariCP,
- org.postgresql.jdbc42;bundle-version="42.0.0"
+ org.postgresql.jdbc42;bundle-version="42.0.0",
+ net.bluemind.configfile,
+ net.bluemind.metrics.registry,
+ com.netflix.spectator.api
 Bundle-Activator: net.bluemind.pool.BMPoolActivator
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.pool;uses:="org.eclipse.core.runtime,org.osgi.framework",

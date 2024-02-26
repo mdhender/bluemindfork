@@ -53,6 +53,25 @@ public class CoreConfig {
 		public static final String IDLE_TIMEOUT = "core.sessions.idle-timeout";
 	}
 
+	public static class PostgreSQL {
+		private PostgreSQL() {
+		}
+
+		public static final String STARTUP_TIMEOUT = "core.database.postgresql.startup-timeout";
+		public static final String MAX_LIFETIME = "core.database.postgresql.max-lifetime";
+		public static final String MAX_POOLSIZE = "core.database.postgresql.max-poolsize";
+		public static final String SSL_MODE = "core.database.postgresql.sslmode";
+		public static final String PREPARED_STATEMENT_CACHE_QUERIES = "core.database.postgresql.prepared-statement-cache-queries";
+		public static final String PREPARED_STATEMENT_CACHE_SIZE_MIB = "core.database.postgresql.prepared-statement-cache-size-mib";
+		public static final String PREFER_QUERY_MODE = "core.database.postgresql.prefer-query-mode";
+		public static final String DEFAULT_ROW_FETCHSIZE = "core.database.postgresql.default-row-fetch-size";
+		public static final String APPLICATION_NAME = "core.database.postgresql.application-name";
+		public static final String REWRITE_BATCHED_INSERTS = "core.database.postgresql.rewrite-batched-inserts";
+		public static final String PREPARE_THRESHOLD = "core.database.postgresql.prepare-threshold";
+		public static final String LEAK_DETECTION_THRESHOLD = "core.database.postgresql.leak-detection-threshold";
+
+	}
+
 	public static class AclChangedNotification {
 		private AclChangedNotification() {
 		}
