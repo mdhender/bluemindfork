@@ -125,12 +125,12 @@ export default {
         }),
         async $_RouterMixin_fetchConversationlist() {
             await this.$_RouterMixin_ready(this.route.mailbox);
-            const folder = this.$_RouterMixin_resolveFolder();
             this.SET_CONVERSATION_LIST_FILTER(this.route.filter);
-            this.setSearchState(folder);
+            const folder = this.$_RouterMixin_resolveFolder();
             if (!this.route.search.pattern || this.$_RouterMixin_query.folder || !this.activeFolder) {
                 this.SET_ACTIVE_FOLDER(folder);
             }
+            this.setSearchState(folder);
             this.$_RouterMixin_setSort();
             await this.FETCH_CONVERSATION_LIST_KEYS({
                 folder: this.folders[this.activeFolder],
@@ -199,18 +199,11 @@ export default {
         setSearchState(folder) {
             this.SET_SEARCH_QUERY_PATTERN(this.route.search.pattern ? decodeURI(this.route.search.pattern) : null);
             if (this.route.search.pattern) {
-                const folderRef = this.$_RouterMixin_query.folder ? FolderAdaptor.toRef(folder) : null;
-                this.SET_SEARCH_QUERY_FOLDER(folderRef);
-            } else {
-                this.SET_CURRENT_SEARCH_FOLDER(this.folders[this.activeFolder]);
+                const searchFolder = this.$_RouterMixin_query.folder ? this.folders[folder.key] : null;
+                this.SET_SEARCH_QUERY_FOLDER(searchFolder);
+                let isDeep = this.route.search?.deep === undefined ? true : !!this.route.search?.deep;
+                this.SET_SEARCH_QUERY_DEEP(isDeep);
             }
-            let isDeep;
-            if (this.route.search?.deep !== undefined) {
-                isDeep = !!this.route.search?.deep;
-            } else {
-                isDeep = true;
-            }
-            this.SET_SEARCH_QUERY_DEEP(isDeep);
         }
     }
 };
