@@ -391,7 +391,14 @@ public class MailBackend extends CoreConnect {
 
 	private void updateBody(IMailboxItems service, MSEmail email, CollectionItem ci) throws ActiveSyncException {
 		MessageBody messageBody = null;
-		ItemValue<MailboxItem> draft = service.getForUpdate(ci.itemId);
+		ItemValue<MailboxItem> draft = null;
+		try {
+			draft = service.getForUpdate(ci.itemId);
+		} catch (Exception e) {
+		}
+		if (draft == null) {
+			throw new ObjectNotFoundException();
+		}
 		if (email.getMimeContent() != null) {
 			// MIME, replace the current draft
 			messageBody = uploadPart(service, email.getMimeContent());
@@ -404,9 +411,12 @@ public class MailBackend extends CoreConnect {
 				logger.error("Failed to update draft {}, '{}'", ci, message.getSubject());
 			}
 		}
-		draft.value.body = messageBody;
-		draft.value.flags = Arrays.asList(MailboxItemFlag.System.Draft.value(), MailboxItemFlag.System.Seen.value());
-		service.updateById(ci.itemId, draft.value);
+		if (messageBody != null) {
+			draft.value.body = messageBody;
+			draft.value.flags = Arrays.asList(MailboxItemFlag.System.Draft.value(),
+					MailboxItemFlag.System.Seen.value());
+			service.updateById(ci.itemId, draft.value);
+		}
 	}
 
 	private void mergeDraft(ItemValue<MailboxItem> draft, MessageImpl message) {

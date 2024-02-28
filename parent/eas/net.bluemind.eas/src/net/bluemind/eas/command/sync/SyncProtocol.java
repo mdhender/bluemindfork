@@ -81,6 +81,7 @@ import net.bluemind.eas.dto.sync.SyncStatus;
 import net.bluemind.eas.dto.type.ItemDataType;
 import net.bluemind.eas.exception.ActiveSyncException;
 import net.bluemind.eas.exception.CollectionNotFoundException;
+import net.bluemind.eas.exception.ObjectNotFoundException;
 import net.bluemind.eas.impl.Backends;
 import net.bluemind.eas.impl.Responder;
 import net.bluemind.eas.impl.vertx.VertxLazyLoader;
@@ -636,6 +637,8 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 			importer.importMessageChange(bs, collection.getCollectionId(), type, Optional.of(serverId), appData,
 					collection.options.conflictPolicy, syncState);
 			return clientChangeSuccess(serverId);
+		} catch (ObjectNotFoundException e) {
+			return clientChangedObjectNotFoundError(serverId, e);
 		} catch (ActiveSyncException e) {
 			return clientChangeError(serverId, e);
 		}
@@ -655,6 +658,15 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 		sr.operation = Operation.CHANGE;
 		sr.item = CollectionItem.of(serverId);
 		sr.ackStatus = SyncStatus.CONFLICT;
+		return sr;
+	}
+
+	private CollectionSyncResponse.ServerResponse clientChangedObjectNotFoundError(String serverId, Exception e) {
+		logger.error(e.getMessage(), e);
+		ServerResponse sr = new ServerResponse();
+		sr.operation = Operation.CHANGE;
+		sr.item = CollectionItem.of(serverId);
+		sr.ackStatus = SyncStatus.OBJECT_NOT_FOUND;
 		return sr;
 	}
 
