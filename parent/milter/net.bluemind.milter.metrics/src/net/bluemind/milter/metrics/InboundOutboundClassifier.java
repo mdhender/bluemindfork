@@ -133,6 +133,11 @@ public class InboundOutboundClassifier implements IMilterListener {
 			Counter internalSizeCounter = registry.counter(idFactory.name("size", "type", "INTERNAL"));
 			Counter outboundCounter = registry.counter(idFactory.name("class", "type", "OUTBOUND"));
 			Counter outboundSizeCounter = registry.counter(idFactory.name("size", "type", "OUTBOUND"));
+
+			// global traffic count
+			registry.counter(idFactory.name("processed-msg")).increment();
+			registry.counter(idFactory.name("processed-size")).increment(size);
+
 			if (inbound > 0) {
 				inboundCounter.increment(inbound);
 				inboundSizeCounter.increment(inbound * size);
