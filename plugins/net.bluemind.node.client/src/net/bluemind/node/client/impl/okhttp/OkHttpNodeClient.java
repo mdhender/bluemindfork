@@ -36,7 +36,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Joiner;
-import com.google.common.io.ByteStreams;
 
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -263,7 +262,7 @@ public class OkHttpNodeClient implements INodeClient {
 			} else {
 				try (InputStream netIn = readResp.body().byteStream();
 						FileBackedOutputStream fbos = new FileBackedOutputStream(64536, "node-openStream")) {
-					ByteStreams.copy(netIn, fbos);
+					netIn.transferTo(fbos);
 					return FBOSInput.from(fbos);
 				}
 			}

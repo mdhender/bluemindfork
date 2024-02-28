@@ -43,7 +43,7 @@ public class DiscardBodyStorageProvider implements StorageProvider {
 		}
 
 		public void store(InputStream in) throws IOException {
-			ByteStreams.copy(in, output);
+			in.transferTo(output);
 			logger.debug("Discarded stream {}bytes.", output.getCount());
 		}
 

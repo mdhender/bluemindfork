@@ -49,7 +49,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
-import com.google.common.io.ByteStreams;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufOutputStream;
@@ -84,6 +83,7 @@ import net.bluemind.backend.mail.replica.persistence.MailboxRecordStore;
 import net.bluemind.backend.mail.replica.persistence.MessageBodyStore;
 import net.bluemind.backend.mail.replica.persistence.ReplicasStore;
 import net.bluemind.backend.mail.replica.persistence.ReplicasStore.SubtreeLocation;
+import net.bluemind.common.io.Buffered;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -495,7 +495,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 				try (InputStream part = body.getInputStream();
 						InputStream decIfNeeded = dec(body, part);
 						ByteBufOutputStream out = new ByteBufOutputStream(buf)) {
-					long copied = ByteStreams.copy(decIfNeeded, out);
+					long copied = decIfNeeded.transferTo(out);
 					logger.debug("Copied {} byte(s) for uid {} part {}", copied, imapUid, address);
 				}
 				logger.debug("Returning {}", buf);
@@ -522,8 +522,8 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		String addr = UUID.randomUUID().toString();
 		logger.debug("[{}] Upload starts {}...", addr, part);
 		try (ReadInputStream ri = new ReadInputStream(VertxStream.read(part));
-				OutputStream out = Files.newOutputStream(partFile(addr).toPath())) {
-			ByteStreams.copy(ri, out);
+				OutputStream out = Buffered.output(Files.newOutputStream(partFile(addr).toPath()))) {
+			ri.transferTo(out);
 			time = System.currentTimeMillis() - time;
 			if (time > 500) {
 				logger.warn("[{}] Upload Part tooks {}ms", addr, time);

@@ -32,9 +32,7 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.io.ByteStreams;
-
+import net.bluemind.common.io.Buffered;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
@@ -92,9 +90,9 @@ public class LocalNodeClient implements INodeClient {
 				throw new ServerFault(e);
 			}
 		}
-		try (OutputStream out = Files.newOutputStream(asPath, StandardOpenOption.CREATE,
-				StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE)) {
-			ByteStreams.copy(content, out);
+		try (OutputStream out = Buffered.output(Files.newOutputStream(asPath, StandardOpenOption.CREATE,
+				StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE))) {
+			content.transferTo(out);
 		} catch (IOException e) {
 			throw new ServerFault(e);
 		}

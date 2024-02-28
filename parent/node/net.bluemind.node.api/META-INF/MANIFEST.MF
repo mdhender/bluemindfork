@@ -11,7 +11,8 @@ Require-Bundle: org.eclipse.core.runtime,
  slf4j.api,
  net.bluemind.eclipse.common,
  net.bluemind.node.shared;visibility:=reexport,
- com.google.guava
+ com.google.guava,
+ net.bluemind.common.io
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.node.api
