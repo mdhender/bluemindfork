@@ -195,6 +195,11 @@ public final class FileBackedOutputStream extends OutputStream {
 
 	private synchronized InputStream openInputStream() throws IOException {
 		if (file != null) {
+			try {
+				out.flush();
+			} catch (IOException e) {
+				// ensure we're flushed or closed
+			}
 			return new TrackInFilter(Files.newInputStream(file));
 		} else {
 			return new ByteArrayInputStream(memory.getBuffer(), 0, memory.getCount());
