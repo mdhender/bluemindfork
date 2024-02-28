@@ -29,7 +29,6 @@ package net.bluemind.user.persistence.security;
 
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.util.concurrent.ExecutionException;
@@ -37,14 +36,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import javax.crypto.SecretKeyFactory;
-
-import org.bouncycastle.asn1.DERNull;
-import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
-import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
-import org.bouncycastle.jcajce.spec.PBKDF2KeySpec;
-import org.bouncycastle.jcajce.util.JcaJceHelper;
-import org.bouncycastle.jcajce.util.ProviderJcaJceHelper;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import javax.crypto.spec.PBEKeySpec;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -53,11 +45,6 @@ import net.bluemind.core.api.fault.ServerFault;
 
 public class PBKDF2Hash implements Hash {
 	public static final String PBKDF2_ALGORITHM = "PBKDF2WithHmacSHA1";
-
-	private static final AlgorithmIdentifier algid_hmacWithSHA1 = new AlgorithmIdentifier(
-			PKCSObjectIdentifiers.id_hmacWithSHA1, DERNull.INSTANCE);
-
-	private static final JcaJceHelper bcHelper = new ProviderJcaJceHelper(new BouncyCastleProvider());
 
 	public static final int SALT_BYTE_SIZE = 24;
 	public static final int HASH_BYTE_SIZE = 24;
@@ -75,7 +62,7 @@ public class PBKDF2Hash implements Hash {
 		int iterations = iterations();
 		try {
 			hash = pbkdf2(plaintext.toCharArray(), salt, iterations, HASH_BYTE_SIZE);
-		} catch (NoSuchAlgorithmException | InvalidKeySpecException | NoSuchProviderException e) {
+		} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
 			throw new ServerFault(e);
 		}
 		return iterations + ":" + toHex(salt) + ":" + toHex(hash);
@@ -100,7 +87,7 @@ public class PBKDF2Hash implements Hash {
 					byte[] hashed = fromHex(params[PBKDF2_INDEX]);
 					byte[] testHash = pbkdf2(plaintext.toCharArray(), salt, iterations, hashed.length);
 					return verify(hashed, testHash);
-				} catch (NoSuchAlgorithmException | InvalidKeySpecException | NoSuchProviderException e) {
+				} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
 					throw new ServerFault(e);
 				}
 			});
@@ -115,9 +102,9 @@ public class PBKDF2Hash implements Hash {
 	}
 
 	private byte[] pbkdf2(char[] password, byte[] salt, int iterations, int bytes)
-			throws NoSuchAlgorithmException, InvalidKeySpecException, NoSuchProviderException {
-		PBKDF2KeySpec specBC = new PBKDF2KeySpec(password, salt, iterations, bytes * 8, algid_hmacWithSHA1);
-		SecretKeyFactory skf = bcHelper.createSecretKeyFactory(PBKDF2_ALGORITHM);
+			throws NoSuchAlgorithmException, InvalidKeySpecException {
+		PBEKeySpec specBC = new PBEKeySpec(password, salt, iterations, bytes * 8);
+		SecretKeyFactory skf = SecretKeyFactory.getInstance(PBKDF2_ALGORITHM);
 		return skf.generateSecret(specBC).getEncoded();
 	}
 

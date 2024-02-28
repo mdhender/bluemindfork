@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Persistance
+Bundle-Name: net.bluemind.user.persistence
 Bundle-SymbolicName: net.bluemind.user.persistence;singleton:=true
 Bundle-Version: 5.0.0.qualifier
 Export-Package: net.bluemind.user.persistence,
@@ -21,7 +21,6 @@ Require-Bundle: net.bluemind.core.jdbc;bundle-version="1.0.0",
  net.bluemind.mailbox.persistence,
  net.bluemind.mailbox.api,
  jakarta.validation.jakarta.validation-api;bundle-version="3.0.2",
- com.typesafe.config,
- bcprov;bundle-version="1.76.0"
+ com.typesafe.config
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.user.persistence
