@@ -195,10 +195,7 @@ public class MailConversationActionServiceTests extends AbstractConversationTest
 		assertEquals(2, moved.size());
 
 		List<ItemValue<MailboxRecord>> allInInbox = records.all();
-		assertEquals(2, allInInbox.size());
-		for (ItemValue<MailboxRecord> rec : allInInbox) {
-			assertTrue(rec.value.flags.contains(MailboxItemFlag.System.Deleted.value()));
-		}
+		assertEquals(0, allInInbox.size());
 		assertEquals(2, recordsSent.all().size());
 	}
 
@@ -216,18 +213,31 @@ public class MailConversationActionServiceTests extends AbstractConversationTest
 		IDbMailboxRecords records = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IDbMailboxRecords.class, user1Sent.uid);
 
+		ItemValue<MailboxFolder> user1Trash = user1MboxesApi.byName("Trash");
+		IDbMailboxRecords recordsTrash = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDbMailboxRecords.class, user1Trash.uid);
+
+		List<ItemValue<MailboxRecord>> allTrash = recordsTrash.all();
+		assertEquals(0, allTrash.size());
+
 		CompletableFuture<?> onMailboxChanged = ReplicationEvents.onMailboxChanged(user1Sent.uid);
 		getConversationActionsService(user1Uid, user1Sent.uid).multipleDeleteById(user1SentConversations);
 		onMailboxChanged.get(3L, TimeUnit.SECONDS);
 
 		List<ItemValue<MailboxRecord>> all = records.all();
-		assertEquals(2, all.size());
+		assertEquals(0, all.size());
 
-		for (ItemValue<MailboxRecord> rec : all) {
+		allTrash = recordsTrash.all();
+		assertEquals(2, allTrash.size());
+
+		int del = 0;
+		for (ItemValue<MailboxRecord> rec : allTrash) {
 			if (rec.value.internalFlags.contains(InternalFlag.expunged)) {
+				del++;
 				assertTrue(rec.value.flags.contains(MailboxItemFlag.System.Deleted.value()));
 				assertTrue(rec.value.internalFlags.contains(InternalFlag.expunged));
 			}
 		}
+		assertEquals(2, del);
 	}
 }
