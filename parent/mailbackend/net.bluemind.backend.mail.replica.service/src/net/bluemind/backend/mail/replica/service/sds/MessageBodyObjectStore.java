@@ -176,7 +176,10 @@ public class MessageBodyObjectStore {
 		pr.filename = tmpFile.getAbsolutePath();
 		pr.guid = uid;
 		pr.deliveryDate = deliveryDate;
-		objectStore.upload(pr);
+		SdsResponse resp = objectStore.upload(pr);
+		if (!resp.succeeded()) {
+			throw new ServerFault("SDS backend refused upload of " + uid + ": " + resp.error);
+		}
 	}
 
 	public List<String> tierMove(List<TierMove> tierMoves) {
