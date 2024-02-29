@@ -78,6 +78,7 @@ public class LmtpMessageHandler implements LmtpListener {
 	private final Counter internalCount;
 	private final Counter externalCount;
 	private final DuplicateDeliveryDb dedup;
+	private final Counter volume;
 
 	public LmtpMessageHandler(ApiProv prov, DuplicateDeliveryDb dedup) {
 		this.prov = prov;
@@ -87,6 +88,7 @@ public class LmtpMessageHandler implements LmtpListener {
 		IdFactory idf = new IdFactory("bm-lmtpd", reg, LmtpMessageHandler.class);
 		this.internalCount = reg.counter(idf.name("deliveries", "source", "internal"));
 		this.externalCount = reg.counter(idf.name("deliveries", "source", "external"));
+		this.volume = reg.counter(idf.name("volume"));
 	}
 
 	@Override
@@ -168,6 +170,7 @@ public class LmtpMessageHandler implements LmtpListener {
 		Stream stream = VertxStream.stream(Buffer.buffer(buffer));
 		bodiesUpload.create(guid, stream);
 		logger.debug("Body {} uploaded.", guid);
+		volume.increment(size);
 
 		IDbReplicatedMailboxes treeApi = prov.system().instance(IDbByContainerReplicatedMailboxes.class, subtree);
 		AppendTx appendTx = treeApi.prepareAppend(folder.internalId, 1);
