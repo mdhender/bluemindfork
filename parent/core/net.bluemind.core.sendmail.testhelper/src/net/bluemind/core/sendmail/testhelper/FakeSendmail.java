@@ -1,5 +1,6 @@
 package net.bluemind.core.sendmail.testhelper;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +11,7 @@ import org.apache.james.mime4j.dom.Message;
 import org.apache.james.mime4j.dom.address.Mailbox;
 import org.apache.james.mime4j.dom.address.MailboxList;
 
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.sendmail.ISendmail;
 import net.bluemind.core.sendmail.Mail;
 import net.bluemind.core.sendmail.SendmailCredentials;
@@ -30,6 +32,7 @@ public class FakeSendmail implements ISendmail {
 	public void reset() {
 		this.mailSent = false;
 		this.messages = new ArrayList<>();
+		FakeSendmailGlobalState.EML.clear();
 	}
 
 	@Override
@@ -93,6 +96,13 @@ public class FakeSendmail implements ISendmail {
 
 		tm.message = null;
 		messages.add(tm);
+
+		try {
+			FakeSendmailGlobalState.EML.offer(inStream.readAllBytes());
+		} catch (IOException e) {
+			throw new ServerFault(e);
+		}
+
 		SendmailResponse sendmailResponse = SendmailResponse.success();
 		if (requestDSN) {
 			sendmailResponse.requestDSN();

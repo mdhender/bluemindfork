@@ -1,7 +1,6 @@
 package net.bluemind.backend.mail.replica.service.internal;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -11,6 +10,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
+import org.apache.james.mime4j.dom.Header;
 import org.apache.james.mime4j.dom.Message;
 import org.apache.james.mime4j.dom.address.AddressList;
 import org.apache.james.mime4j.dom.address.MailboxList;
@@ -130,14 +130,14 @@ public class OutboxService implements IOutbox {
 				.collect(Collectors.toList());
 
 		CompletableFuture.allOf(Iterables.toArray(promises, CompletableFuture.class)).thenRun(() -> {
-			List<FlushResult> flushResults = promises.stream().map(this::safeGet) //
+			List<FlushResult> flushResults = promises.stream().map(CompletableFuture::join) //
 					.filter(ret -> ret.flushResult.isPresent()) //
 					.map(ret -> ret.flushResult.get()) //
 					.collect(Collectors.toList());
-			Set<RecipientInfo> collectedRecipients = promises.stream().map(this::safeGet) //
+			Set<RecipientInfo> collectedRecipients = promises.stream().map(CompletableFuture::join) //
 					.flatMap(ret -> ret.collectedRecipients.stream()).collect(Collectors.toSet());
-			int requestedDSNs = promises.stream().map(this::safeGet).map(fi -> fi.requestedDSN ? 1 : 0).reduce(0,
-					(a, b) -> a + b);
+			int requestedDSNs = promises.stream().map(CompletableFuture::join).map(fi -> fi.requestedDSN ? 1 : 0)
+					.reduce(0, (a, b) -> a + b);
 
 			addRecipientsToCollectedContacts(user.uid, collectedRecipients);
 			logger.debug("[{}] flushed {}", context.getSecurityContext().getSubject(), mailCount);
@@ -155,9 +155,13 @@ public class OutboxService implements IOutbox {
 	private CompletableFuture<FlushInfo> flushOne(FlushContext ctx, ItemValue<MailboxItem> item) {
 		return SyncStreamDownload.read(ctx.mailboxItemsService.fetchComplete(item.value.imapUid)).thenApply(buf -> {
 			int endOfHeaders = ByteBufUtil.indexOf(Unpooled.wrappedBuffer(END_OF_HEADERS), buf);
-			var headersBuffer = endOfHeaders > 0 ? buf.duplicate().readSlice(endOfHeaders + END_OF_HEADERS.length)
-					: buf.duplicate();
-			InputStream headersInputStream = new ByteBufInputStream(headersBuffer);
+			if (endOfHeaders <= 0) {
+				throw new ServerFault("ItemId " + item.internalId + " does not have a valid header");
+			}
+			ByteBuf fullEml = buf.duplicate();
+			ByteBuf withHeader = fullEml.readSlice(endOfHeaders + END_OF_HEADERS.length);
+			ByteBuf headerLess = fullEml;
+			InputStream headersInputStream = new ByteBufInputStream(withHeader);
 			FlushInfo ret = new FlushInfo();
 			try (Message msg = Mime4JHelper.parse(headersInputStream, false)) {
 				if (msg.getFrom() == null) {
@@ -167,7 +171,9 @@ public class OutboxService implements IOutbox {
 				}
 				String fromMail = msg.getFrom().iterator().next().getAddress();
 				MailboxList rcptTo = allRecipients(msg);
-				InputStream forSend = removeXBmDraftHeaders(msg, buf, endOfHeaders);
+				ByteBuf clearedHeader = filterUnwantedHeaders(msg);
+				ByteBuf freshEml = Unpooled.wrappedBuffer(clearedHeader, headerLess);
+				InputStream forSend = new ByteBufInputStream(freshEml);
 				SendmailResponse sendmailResponse = send(ctx.user.value, forSend, fromMail, rcptTo, msg,
 						requestDSN(item.value));
 				ret.requestedDSN = sendmailResponse.getRequestedDSNs() > 0;
@@ -182,42 +188,36 @@ public class OutboxService implements IOutbox {
 								"FLUSHING OUTBOX - mail %s sent"
 										+ (moveToSent ? " and moved in Sent folder." : ". Requested DSN: %b"),
 								msg.getMessageId(), ret.requestedDSN));
+			} catch (ServerFault sf) {
+				throw sf;
 			} catch (Exception e) {
-				logger.warn("ItemId {}: ", item.internalId, e);
-				throw new ServerFault(e);
+				throw new ServerFault("ItemId " + item.internalId, e);
 			}
 			return ret;
 		});
 	}
 
-	private InputStream removeXBmDraftHeaders(Message message, ByteBuf buffer, int endOfHeaders) {
-		ByteBuf result = buffer;
-		if (endOfHeaders > 0) {
-			// modify header data
-			// getFields() returns an unmodifiable list, removeIf is not usable
-			new ArrayList<>(message.getHeader().getFields()).forEach(field -> {
-				if (field.getName().toLowerCase().startsWith("x-bm-draft")) {
-					message.getHeader().removeFields(field.getName());
-				}
-			});
+	/**
+	 * @param message
+	 * @return the header buffer including the <code>2*CRLF</code> separator
+	 */
+	private ByteBuf filterUnwantedHeaders(Message message) {
+		Header toFilter = message.getHeader();
+		// getFields() returns an unmodifiable list, removeIf is not usable
+		List.copyOf(toFilter.getFields()).forEach(field -> {
+			if (field.getName().toLowerCase().startsWith("x-bm-draft")) {
+				toFilter.removeFields(field.getName());
+			}
+		});
 
-			// write modified header data
-			ByteBufOutputStream out = new ByteBufOutputStream(Unpooled.buffer());
-			Mime4JHelper.serialize(message, out);
-			ByteBuf headers = out.buffer();
-			int newEndOfHeaders = ByteBufUtil.indexOf(Unpooled.wrappedBuffer(END_OF_HEADERS), headers);
-			result = Unpooled.buffer(buffer.capacity());
-			headers.readBytes(result, 0, newEndOfHeaders + END_OF_HEADERS.length);
+		ByteBufOutputStream out = new ByteBufOutputStream(Unpooled.buffer());
+		Mime4JHelper.serialize(message, out);
+		ByteBuf serializedHeaders = out.buffer();
+		// we slice it again as mime4j may produce a part boundary for multipart
+		// messages
+		int endOfHeaders = ByteBufUtil.indexOf(Unpooled.wrappedBuffer(END_OF_HEADERS), serializedHeaders);
+		return endOfHeaders > 0 ? serializedHeaders.slice(0, endOfHeaders + END_OF_HEADERS.length) : serializedHeaders;
 
-			// write body data
-			int sliceIndex = endOfHeaders + END_OF_HEADERS.length;
-			int sliceLength = buffer.writerIndex() - sliceIndex;
-			buffer.slice(sliceIndex, sliceLength).readBytes(result, newEndOfHeaders + END_OF_HEADERS.length,
-					sliceLength);
-
-			result.writerIndex(newEndOfHeaders + END_OF_HEADERS.length + sliceLength);
-		}
-		return new ByteBufInputStream(result);
 	}
 
 	/**
@@ -268,14 +268,6 @@ public class OutboxService implements IOutbox {
 		List<Email> emails = Arrays.asList(VCard.Communications.Email.create(recipient.email));
 		card.communications.emails = emails;
 		return card;
-	}
-
-	private FlushInfo safeGet(CompletableFuture<FlushInfo> info) {
-		try {
-			return info.get();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
 	}
 
 	private SendmailResponse send(User user, InputStream forSend, String fromMail, MailboxList rcptTo,
@@ -361,8 +353,7 @@ public class OutboxService implements IOutbox {
 		return item.value.body.headers.stream()
 				.filter(header -> header.name.equalsIgnoreCase(X_BM_DRAFT_SENT_FOLDER_HEADER)
 						|| header.name.equalsIgnoreCase(OLD_X_BM_DRAFT_SENT_FOLDER_HEADER))
-				.findFirst()
-				.map(MessageBody.Header::firstValue);
+				.findFirst().map(MessageBody.Header::firstValue);
 	}
 
 	private void sendNonDeliveryReport(ItemValue<Domain> domain, String to, List<FailedRecipient> failedRecipients,
@@ -433,10 +424,10 @@ public class OutboxService implements IOutbox {
 
 	private boolean notAdminAndNotCurrentUser(ItemValue<Domain> domain, User user, SendmailCredentials creds,
 			String sender) {
-		return !creds.isAdminO() && !user.emails.stream().anyMatch(e -> e.match(sender, domain.value.aliases));
+		return !creds.isAdminO() && user.emails.stream().noneMatch(e -> e.match(sender, domain.value.aliases));
 	}
 
-	private MailboxList allRecipients(Message m) throws Exception {
+	private MailboxList allRecipients(Message m) {
 		LinkedList<org.apache.james.mime4j.dom.address.Mailbox> rcpt = new LinkedList<>();
 		AddressList tos = m.getTo();
 		if (tos != null) {
@@ -451,7 +442,7 @@ public class OutboxService implements IOutbox {
 			rcpt.addAll(bccs.flatten());
 		}
 		if (rcpt.isEmpty()) {
-			throw new Exception("Empty recipients list.");
+			throw new ServerFault("Empty recipients list.");
 		}
 		return new MailboxList(rcpt, true);
 	}
@@ -461,10 +452,8 @@ public class OutboxService implements IOutbox {
 		sortDescSanitizer.create(sortDescriptor);
 
 		List<Long> mailsIds = mailboxItemsService.sortedIds(sortDescriptor);
-		return mailboxItemsService.multipleGetById(mailsIds).stream()
-				.filter(item -> item.value.body.headers.stream()
-						.anyMatch(header -> header.name.equals(MailApiHeaders.X_BM_DRAFT_REFRESH_DATE)))
-				.collect(Collectors.toList());
+		return mailboxItemsService.multipleGetById(mailsIds).stream().filter(item -> item.value.body.headers.stream()
+				.anyMatch(header -> header.name.equals(MailApiHeaders.X_BM_DRAFT_REFRESH_DATE))).toList();
 	}
 
 	static class RecipientInfo {

@@ -8,5 +8,6 @@ Automatic-Module-Name: net.bluemind.core.sendmail.testhelper
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Require-Bundle: net.bluemind.core.sendmail,
  net.bluemind.core.commons,
- org.apache.james.apache-mime4j-dom
+ org.apache.james.apache-mime4j-dom,
+ com.google.guava
 Export-Package: net.bluemind.core.sendmail.testhelper

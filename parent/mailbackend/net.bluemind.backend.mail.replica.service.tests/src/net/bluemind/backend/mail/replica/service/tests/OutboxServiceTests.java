@@ -1,6 +1,7 @@
 package net.bluemind.backend.mail.replica.service.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -40,6 +41,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
+import net.bluemind.core.sendmail.testhelper.FakeSendmailGlobalState;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.service.TaskUtils;
 import net.bluemind.core.task.service.TaskUtils.ExtendedTaskStatus;
@@ -66,6 +68,8 @@ public class OutboxServiceTests extends AbstractRollingReplicationTests {
 	@Override
 	public void before() throws Exception {
 		super.before();
+
+		FakeSendmailGlobalState.EML.clear();
 
 		imapAsUser(sc -> {
 			int added = sc.append("INBOX", testEml(), new FlagsList());
@@ -163,6 +167,37 @@ public class OutboxServiceTests extends AbstractRollingReplicationTests {
 		System.err.println("Should check now => " + curTotal);
 
 		assertEquals(1L, sent_mailboxItemsService.count(ItemFlagFilter.all()).total);
+	}
+
+	@Test
+	public void testOutboxFiltersDraftHeaders() throws IOException, InterruptedException {
+		addMailToFolder(outboxUid, "draft-me-dude.ftl");
+		FakeSendmailGlobalState.EML.clear();
+		assertEquals(0, sent_mailboxItemsService.count(ItemFlagFilter.all()).total);
+
+		long time = System.currentTimeMillis();
+		CompletableFuture<Void> applyMailboxCompletetion = new ExpectCommand().onNextApplyMailbox(sentUid);
+
+		TaskUtils.wait(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM), outboxService.flush());
+
+		try {
+			applyMailboxCompletetion.get(5, TimeUnit.SECONDS);
+			System.err.println("Flushed in " + (System.currentTimeMillis() - time) + "ms.");
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			e.printStackTrace();
+			fail();
+		}
+		long curTotal = sent_mailboxItemsService.count(ItemFlagFilter.all()).total;
+		System.err.println("Should check now => " + curTotal);
+
+		assertEquals(1L, sent_mailboxItemsService.count(ItemFlagFilter.all()).total);
+
+		byte[] justSent = FakeSendmailGlobalState.EML.poll();
+		String eml = new String(justSent);
+
+		assertTrue(eml.contains("X-Mailer: BlueMind-MailApp-v5"));
+		assertFalse(eml.contains("X-Bm-Draft"));
+
 	}
 
 	@Test
