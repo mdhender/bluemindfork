@@ -42,10 +42,18 @@ export default {
         });
     },
     [ADD_FLAG]: (state, { messages, flag }) => {
-        messages.forEach(({ key }) => state[key].flags.push(flag));
+        messages.forEach(({ key }) => {
+            if (state[key]) {
+                state[key].flags.push(flag);
+            }
+        });
     },
     [DELETE_FLAG]: (state, { messages, flag }) => {
-        messages.forEach(({ key }) => (state[key].flags = state[key].flags.filter(f => f !== flag)));
+        messages.forEach(({ key }) => {
+            if (state[key]) {
+                state[key].flags = state[key].flags.filter(f => f !== flag);
+            }
+        });
     },
     [REMOVE_MESSAGES]: (state, { messages }) => {
         messages.forEach(({ key }) => {
@@ -59,7 +67,9 @@ export default {
         }
     },
     [SET_MESSAGE_SIZE]: (state, { key, size }) => {
-        state[key].size = size;
+        if (state[key]) {
+            state[key].size = size;
+        }
     },
     [SET_MESSAGE_LOADING_STATUS]: (state, { messageKey, status }) => {
         if (state[messageKey]) {
@@ -67,10 +77,18 @@ export default {
         }
     },
     [SET_MESSAGES_STATUS]: (state, messages) => {
-        messages.forEach(m => (state[m.key].status = m.status));
+        messages.forEach(m => {
+            if (state[m.key]) {
+                state[m.key].status = m.status;
+            }
+        });
     },
     [SET_MESSAGES_LOADING_STATUS]: (state, messages) => {
-        messages.forEach(m => (state[m.key].loading = m.loading));
+        messages.forEach(m => {
+            if (state[m.key]) {
+                state[m.key].loading = m.loading;
+            }
+        });
     },
     [SET_MESSAGE_COMPOSING]: (state, { messageKey, composing }) => {
         if (state[messageKey]) {
@@ -95,7 +113,9 @@ export default {
         state[messageKey].subject = subject;
     },
     [SET_MESSAGE_DATE]: (state, { messageKey, date }) => {
-        state[messageKey].date = date;
+        if (state[messageKey]) {
+            state[messageKey].date = date;
+        }
     },
     [SET_MESSAGE_FROM]: (state, { messageKey, from }) => {
         state[messageKey].from = from;
@@ -121,10 +141,14 @@ export default {
         state[messageKey].bcc = bcc;
     },
     [SET_MESSAGE_INTERNAL_ID]: (state, { key, internalId }) => {
-        state[key].remoteRef.internalId = internalId;
+        if (state[key]) {
+            state[key].remoteRef.internalId = internalId;
+        }
     },
     [SET_MESSAGE_IMAP_UID]: (state, { key, imapUid }) => {
-        state[key].remoteRef.imapUid = imapUid;
+        if (state[key]) {
+            state[key].remoteRef.imapUid = imapUid;
+        }
     },
     [REMOVE_ATTACHMENT]: (state, { messageKey, address }) => {
         let structure = cloneDeep(state[messageKey].structure);

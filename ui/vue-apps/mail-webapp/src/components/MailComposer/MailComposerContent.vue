@@ -24,7 +24,7 @@
             :extra-font-families="EXTRA_FONT_FAMILIES"
             class="flex-grow-1"
             name="composer"
-            @input="updateEditorContent"
+            @input="setNewContent"
         >
             <bm-icon-button
                 v-if="messageCompose.collapsedContent"
@@ -43,15 +43,16 @@ import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 
 import { createCid, CID_DATA_ATTRIBUTE } from "@bluemind/email";
 import { BmFileDropZone, BmIcon, BmIconButton, BmRichEditor } from "@bluemind/ui-components";
-import { draftUtils, signatureUtils } from "@bluemind/mail";
+import { draftUtils, messageUtils, signatureUtils } from "@bluemind/mail";
 
 import { SET_DRAFT_CONTENT } from "~/actions";
-import { SET_DRAFT_COLLAPSED_CONTENT, SET_DRAFT_EDITOR_CONTENT } from "~/mutations";
+import { SET_DRAFT_COLLAPSED_CONTENT, SET_DRAFT_EDITOR_CONTENT, SET_MESSAGES_STATUS } from "~/mutations";
 import { ComposerActionsMixin, FileDropzoneMixin, SignatureMixin, WaitForMixin } from "~/mixins";
 import MailViewerContentLoading from "../MailViewer/MailViewerContentLoading";
 import { useComposerInit } from "~/composables/composer/ComposerInit";
 const { isNewMessage } = draftUtils;
 const { PERSONAL_SIGNATURE_SELECTOR } = signatureUtils;
+const { MessageStatus } = messageUtils;
 
 export default {
     name: "MailComposerContent",
@@ -74,7 +75,13 @@ export default {
         return { initFromRemoteMessage };
     },
     data() {
-        return { componentGotMounted: false, draggedFilesCount: -1, loading: false };
+        return {
+            componentGotMounted: false,
+            draggedFilesCount: -1,
+            loading: false,
+            newContent: null,
+            debounceRef: null
+        };
     },
     computed: {
         ...mapState("mail", ["messageCompose"]),
@@ -92,8 +99,8 @@ export default {
 
                 // focus on content when a recipient is already set
                 if (this.message.to.length > 0) {
-                    await this.getEditorRef();
-                    this.$refs["message-content"].focusBefore(PERSONAL_SIGNATURE_SELECTOR(this.signature?.id));
+                    const editor = await this.getEditorRef();
+                    editor?.focusBefore(PERSONAL_SIGNATURE_SELECTOR(this.signature?.id));
                 }
             },
             immediate: true
@@ -110,12 +117,31 @@ export default {
     mounted() {
         this.componentGotMounted = true;
     },
+    async beforeDestroy() {
+        if (this.debounceRef) {
+            this.debounceRef.cancel();
+            this.updateEditorContent(this.newContent);
+        }
+    },
     methods: {
-        ...mapMutations("mail", [SET_DRAFT_COLLAPSED_CONTENT, SET_DRAFT_EDITOR_CONTENT]),
+        ...mapMutations("mail", [SET_DRAFT_COLLAPSED_CONTENT, SET_DRAFT_EDITOR_CONTENT, SET_MESSAGES_STATUS]),
         ...mapActions("mail", { SET_DRAFT_CONTENT }),
+        async setNewContent(content) {
+            this.newContent = content;
+            this.SET_MESSAGES_STATUS([{ key: this.message.key, status: MessageStatus.IDLE }]);
+            await this.debounceUpdateContent(this.newContent);
+            this.debounceRef = null;
+        },
+        debounceUpdateContent(content) {
+            this.debounceRef?.cancel?.();
+            return new Promise(resolve => {
+                this.debounceRef = debounce(() => resolve(this.updateEditorContent(content)), 3000);
+                this.debounceRef();
+            });
+        },
         async updateEditorContent(newContent) {
-            await this.SET_DRAFT_CONTENT({ draft: this.message, html: newContent });
-            this.debouncedSave();
+            await this.SET_DRAFT_CONTENT({ draft: this.message, html: newContent, debounce: false });
+            this.saveAsap();
         },
         expandContent() {
             this.SET_DRAFT_EDITOR_CONTENT(this.messageCompose.editorContent + this.messageCompose.collapsedContent);
