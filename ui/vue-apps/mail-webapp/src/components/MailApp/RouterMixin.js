@@ -30,7 +30,6 @@ import {
 } from "~/mutations";
 import MessageQueryParam from "~/router/MessageQueryParam";
 import SearchHelper from "../MailSearch/SearchHelper";
-import { FolderAdaptor } from "~/store/folders/helpers/FolderAdaptor";
 import { ConversationListFilter } from "~/store/conversationList";
 import { WaitForMixin } from "~/mixins";
 import { SortField, SortOrder } from "../../store/conversationList";
