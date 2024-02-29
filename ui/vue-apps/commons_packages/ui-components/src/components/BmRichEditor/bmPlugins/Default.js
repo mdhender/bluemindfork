@@ -14,11 +14,13 @@ export default class {
         }
     }
 
-    removeContent(selector) {
+    removeContent(selector, options) {
         const nodes = this.vm.$data.container.querySelectorAll(selector);
         if (nodes.length > 0) {
             nodes.forEach(node => this.vm.$data.editor.deleteNode(node));
-            this.vm.onChange();
+            if (options?.triggerOnChange !== false) {
+                this.vm.onChange();
+            }
         }
     }
 }

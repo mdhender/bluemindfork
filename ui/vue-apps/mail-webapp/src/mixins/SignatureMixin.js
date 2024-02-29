@@ -42,6 +42,9 @@ export default {
         }),
         signByDefault() {
             return this.$store.state.settings.insert_signature === "true";
+        },
+        triggerOnChange() {
+            return !isNewMessage(this.message);
         }
     },
     data() {
@@ -54,7 +57,10 @@ export default {
         const unwatch = this.$watch("$_SignatureMixin_disclaimer", async () => {
             // Handle disclaimer insertion on new message (case where no auto insert signature) at composer open
             const editorRef = await this.getEditorRef();
-            await editorRef.removeContent(DISCLAIMER_SELECTOR, { editable: false });
+            await editorRef.removeContent(DISCLAIMER_SELECTOR, {
+                editable: false,
+                triggerOnChange: this.triggerOnChange
+            });
             this.insertDisclaimer(editorRef);
             unwatch();
         });
@@ -93,9 +99,17 @@ export default {
              * newSignature is required in case of
              * another identity signature on reopening a draft message
              */
-            editorRef.removeContent(PERSONAL_SIGNATURE_SELECTOR(signature?.id || newSignature?.id));
-            editorRef.removeContent(DISCLAIMER_SELECTOR, { editable: false });
-            editorRef.removeContent(CORPORATE_SIGNATURE_SELECTOR, this.editorInsertionOptions(signature));
+            editorRef.removeContent(PERSONAL_SIGNATURE_SELECTOR(signature?.id || newSignature?.id), {
+                triggerOnChange: this.triggerOnChange
+            });
+            editorRef.removeContent(
+                DISCLAIMER_SELECTOR,
+                { editable: false },
+                { triggerOnChange: this.triggerOnChange }
+            );
+            editorRef.removeContent(CORPORATE_SIGNATURE_SELECTOR, this.editorInsertionOptions(signature), {
+                triggerOnChange: this.triggerOnChange
+            });
 
             // remove placeholder when it has not been replaced by a signature
             // case where signature has changed and doesnt match draft anymore
@@ -104,17 +118,23 @@ export default {
         },
 
         editorInsertionOptions(signature) {
+            const options = { triggerOnChange: this.triggerOnChange };
             if (!signature?.uid) {
-                return {};
+                return options;
+            }
+            if (signature.usePlaceholders) {
+                options.movable = CORPORATE_SIGNATURE_PLACEHOLDER;
+            } else {
+                options.movable = false;
             }
 
-            return signature.usePlaceholders ? { movable: CORPORATE_SIGNATURE_PLACEHOLDER } : { editable: false };
+            return options;
         },
 
         insertSignature(editorRef, signature) {
             if (signature?.id) {
                 editorRef.insertContent(signature.html, {
-                    triggerOnChange: !isNewMessage(this.message)
+                    triggerOnChange: this.triggerOnChange
                 });
             }
 
@@ -130,6 +150,7 @@ export default {
             if (this.$_SignatureMixin_disclaimer) {
                 editorRef.insertContent(this.$_SignatureMixin_disclaimer, {
                     editable: false,
+                    triggerOnChange: this.triggerOnChange,
                     tooltip: this.$t("mail.compose.corporate_signature.read_only")
                 });
             }
