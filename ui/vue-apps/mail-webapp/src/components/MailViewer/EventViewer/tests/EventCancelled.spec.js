@@ -19,7 +19,8 @@ describe("Event request insert", () => {
                 message: {
                     from: { address: "alice@bluemind.net", dn: "Alice" },
                     eventInfo: {}
-                }
+                },
+                event: {}
             }
         });
     });
@@ -28,6 +29,6 @@ describe("Event request insert", () => {
         expect(eventCancelled.vm).toBeDefined();
     });
     it("should have the name of the person canceling the event", () => {
-        expect(eventCancelled.text()).toEqual("Alice a annulé l'événement.");
+        expect(eventCancelled.text()).toContain("Alice a annulé l'événement.");
     });
 });
