@@ -65,16 +65,20 @@ export default {
         autocompleteExpandedResults() {
             let autocompleteExpandedResults;
             const { sortedAddresses } = this.$store.getters[`mail/${ADDRESS_AUTOCOMPLETE}`];
+
             if (this.searchResults?.total > 0) {
                 // remove contacts already set and remove duplicates
-                const contactsAlreadySet = this.contacts.map(({ address, dn }) => `${dn}<${address}>`);
+                const contactsAlreadySet = this.contacts.reduce(
+                    (set, { address, dn }) => set.add(`${dn}<${address}>`),
+                    new Set()
+                );
+
                 const searchResultKeyFn = contact => `${contact.value.formatedName || ""}<${contact.value.mail}>`;
                 const contacts = this.searchResults.values.reduce((result, contact) => {
-                    if (
-                        !contactsAlreadySet.includes(searchResultKeyFn(contact)) &&
-                        !result.some(r => searchResultKeyFn(r) === searchResultKeyFn(contact))
-                    ) {
+                    const contactKey = searchResultKeyFn(contact);
+                    if (!contactsAlreadySet.has(contactKey)) {
                         result.push(contact);
+                        contactsAlreadySet.add(contactKey);
                     }
                     return result;
                 }, []);
