@@ -14,6 +14,7 @@
         }"
         v-on="$listeners"
         @click="onClick"
+        @mouseenter.native="expandSub"
     >
         <template slot="button-content">
             <slot name="button-content">
@@ -99,6 +100,9 @@ export default {
         isSubMenu() {
             return !!this.getBvDropdown();
         },
+        $subSplitEl() {
+            return this.split && this.isSubMenu && this.$el.getElementsByClassName("dropdown-toggle-split")?.[0];
+        },
         childProps() {
             const { extension, ...props } = this.$props;
             return props;
@@ -107,7 +111,18 @@ export default {
             return this.isSubMenu ? (this.split ? "text" : "text-thin") : this.variant;
         }
     },
+    mounted() {
+        this.$subSplitEl?.addEventListener?.("mouseenter", this.show);
+    },
+    destroyed() {
+        this.$subSplitEl?.removeEventListener?.("mouseenter", this.show);
+    },
     methods: {
+        expandSub() {
+            if (this.isSubMenu && !this.split) {
+                this.show();
+            }
+        },
         onClick(event) {
             // Close all parents dropdowns when clicking on the button part of a splitted dropdown
             let parent = this.getBvDropdown();
