@@ -28,8 +28,8 @@ import net.bluemind.core.api.BMApi;
 
 @BMApi(version = "3")
 public enum Verb {
-	Invitation, Freebusy, SendOnBehalf, SendAs, Read(Invitation, Freebusy), ReadExtended(Read), Write(Read), Manage,
-	All(Write, Manage, SendOnBehalf, SendAs, ReadExtended);
+	Invitation, Freebusy, SendOnBehalf, SendAs(SendOnBehalf), Read(Invitation, Freebusy), ReadExtended(Read),
+	Write(Read), Manage, All(Write, Manage, SendOnBehalf, SendAs, ReadExtended);
 
 	public final Verb[] verbs;
 
@@ -74,11 +74,10 @@ public enum Verb {
 		}
 	}
 
-
 	public static Set<Verb> expand(Verb parent) {
 		Set<Verb> expanded = new HashSet<>();
 		expanded.add(parent);
-		for(Verb verb : parent.verbs) {
+		for (Verb verb : parent.verbs) {
 			expanded.addAll(expand(verb));
 		}
 		return expanded;
