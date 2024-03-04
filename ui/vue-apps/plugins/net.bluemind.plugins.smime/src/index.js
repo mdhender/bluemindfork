@@ -190,7 +190,7 @@ function prefSmimeGroups() {
                         name: "PrefFieldSwitch",
                         options: {
                             setting: SMIMEPrefKeys.ENCRYPTION,
-                            default: "true",
+                            default: "false",
                             autosave: true,
                             label: i18n.t("smime.preferences.encrypt_field.label")
                         }
@@ -209,7 +209,7 @@ function prefSmimeGroups() {
                         name: "PrefFieldSwitch",
                         options: {
                             setting: SMIMEPrefKeys.SIGNATURE,
-                            default: "false",
+                            default: "true",
                             autosave: true,
                             label: i18n.t("smime.preferences.signature_field.label")
                         }
