@@ -55,15 +55,23 @@
 		"defaultDirect":128,
 		"sparePercent":1,
 		"optional": true
-	},{
+	},
+	{
 		"product":"bm-webserver",
 		"defaultHeap":128,
 		"defaultDirect":128,
 		"sparePercent":4
-	},{
+	},
+	{
 		"product":"bm-keycloak",
 		"defaultHeap":256,
 		"defaultDirect":128,
 		"sparePercent":3
+	},
+	{
+		"product": "bm-crp",
+		"defaultHeap": 1024,
+		"defaultDirect": 128,
+		"optional": true
 	}
 ]
