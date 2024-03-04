@@ -21,13 +21,13 @@ a.dropdown-item {
 
 .b-dropdown-form,
 .dropdown-item {
-    padding-left: map-get($icon-sizes, "md") + 2 * $sp-4 - $dropdown-spacer;
+    padding-left: map-get($icon-sizes, "md") + 2 * $sp-4;
     padding-right: $sp-6;
 }
 
 .dropdown-header {
     padding: $sp-4;
-    padding-left: $dropdown-spacer + $sp-4;
+    padding-left: $sp-3 + $sp-2;
     @include caption-bold;
     color: $neutral-fg-lo1;
 }
@@ -38,13 +38,10 @@ a.dropdown-item {
     position: relative;
     & > *:not(.dropdown-item-content):first-child {
         position: absolute;
-        left: 0.5rem;
-    }
-    .dropdown-item-content {
-        flex: auto 1 1;
+        left: base-px-to-rem(8);
     }
     line-height: $line-height-sm;
-    height: $input-height;
+    height: $dropdown-item-height;
 
     &:active,
     &.active {

@@ -1,5 +1,13 @@
 <template>
-    <bm-toolbar class="bm-rich-editor-toolbar-base full-toolbar" :class="{ disabled: disabled }" key-nav align-right>
+    <bm-toolbar
+        class="bm-rich-editor-toolbar-base full-toolbar"
+        :class="{ disabled: disabled }"
+        key-nav
+        align-right
+        menu-icon="3dots-v"
+        menu-icon-size="lg"
+        menu-icon-variant="compact"
+    >
         <undo-button :editor="editor" :disabled="disabled || !formatState.canUndo" />
         <redo-button :editor="editor" :disabled="disabled || !formatState.canRedo" />
         <bm-toolbar-divider />

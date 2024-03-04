@@ -21,7 +21,7 @@
         "chooser": "Select files to insert as Drive links",
         "detach": "Detach the attachment",
         "share": {
-            "start": "Send a shared link | Send shared links",
+            "upload": "Upload to Drive and share",
             "stop": "Stop the sending",
             "pending": "Sending a shared link | Sending shared links",
             "failure": "Your file could not be uploaded | Some files could not be uploaded"

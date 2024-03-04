@@ -89,12 +89,15 @@ export default {
         extension: {
             type: String,
             default: undefined
+        },
+        extensionId: {
+            type: String,
+            default: undefined
         }
     },
-    setup(props) {
+    setup() {
         const { renderWebAppExtensions } = useExtensions();
-        const extensions = renderWebAppExtensions(props.extension);
-        return { extensions };
+        return { renderWebAppExtensions };
     },
     computed: {
         isSubMenu() {
@@ -109,6 +112,9 @@ export default {
         },
         variant_() {
             return this.isSubMenu ? (this.split ? "text" : "text-thin") : this.variant;
+        },
+        extensions() {
+            return this.renderWebAppExtensions(this.extension, this.extensionId, this.$attrs);
         }
     },
     mounted() {
@@ -139,6 +145,7 @@ export default {
 @import "../../css/utils/typography";
 @import "../../css/utils/variables";
 @import "../../css/utils/buttons";
+@import "../../css/utils/text";
 
 .bm-dropdown {
     & > .btn-text-thin {
@@ -155,26 +162,43 @@ export default {
 
     &.b-dropdown.dropdown-sub-menu {
         width: 100%;
+        height: $dropdown-item-height;
 
-        .dropdown-toggle-split {
-            flex: 0;
-        }
-        &.dropright > .dropdown-menu {
-            top: -$sp-2 !important;
-        }
         > .btn {
-            white-space: nowrap;
-            > .dropdown-button-text,
-            > .dropdown-button-content {
+            .dropdown-button-text {
+                @include text-overflow;
+            }
+            @include bm-button-variant(
+                $normal-text: $neutral-fg,
+                $hovered-text: $neutral-fg-hi1,
+                $disabled-text: $neutral-fg-disabled,
+                $hovered-bg: $neutral-bg-lo1,
+                $focused-stroke: $neutral-fg,
+                $focused-hovered-stroke: $neutral-fg-hi1,
+                $important: true
+            );
+            @include regular;
+            outline-offset: -1px;
+
+            gap: 0;
+            $icon-size: map-get($icon-sizes, "md");
+            padding-left: $icon-size + 2 * $sp-4;
+            > .bm-icon {
+                position: absolute;
+                left: base-px-to-rem(8);
+                width: $icon-size !important;
+                height: $icon-size !important;
+            }
+
+            flex: 1;
+            justify-content: start;
+            > span {
                 flex: 1;
                 text-align: left;
             }
-        }
-
-        .bm-icon {
-            $icon-size: map-get($icon-sizes, "md");
-            width: $icon-size !important;
-            height: $icon-size !important;
+            &.dropdown-toggle-split {
+                flex: none;
+            }
         }
     }
 

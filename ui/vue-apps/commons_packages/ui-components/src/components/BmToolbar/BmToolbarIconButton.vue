@@ -13,6 +13,10 @@ export default {
             type: String,
             default: undefined
         },
+        extensionId: {
+            type: String,
+            default: undefined
+        },
         icon: {
             type: String,
             default: undefined
@@ -35,12 +39,14 @@ export default {
                     icon: props.icon,
                     text
                 },
+                attrs,
                 class: "bm-toolbar-icon-button",
                 scopedSlots: slots
             };
 
             return h(BmToolbarElement, {
                 props,
+                attrs,
                 scopedSlots: {
                     toolbar: () => h(BmIconButton, { ...options, attrs, props }),
                     menu: () => h(BmDropdownItemButton, { ...options, attrs }, text),

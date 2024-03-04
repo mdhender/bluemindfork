@@ -18,6 +18,10 @@ export default {
         extension: {
             type: String,
             default: undefined
+        },
+        extensionId: {
+            type: String,
+            default: undefined
         }
     },
     setup(props) {

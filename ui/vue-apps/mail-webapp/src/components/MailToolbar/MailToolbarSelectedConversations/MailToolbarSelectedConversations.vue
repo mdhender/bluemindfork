@@ -150,11 +150,6 @@ export default {
 .mail-toolbar-selected-conversations {
     display: flex;
     flex-direction: row;
-    &.compact {
-        gap: $sp-5;
-        padding-left: $sp-5;
-        padding-right: $sp-5;
-    }
 
     .mark-as-unflagged-btn {
         .bm-captioned-icon-button,
@@ -163,9 +158,6 @@ export default {
                 color: $warning-fg;
             }
         }
-    }
-    .overflow-menu > .dropdown-toggle {
-        padding: 0 !important;
     }
 }
 </style>

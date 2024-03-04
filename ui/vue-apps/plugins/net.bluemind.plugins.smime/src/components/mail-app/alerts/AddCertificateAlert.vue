@@ -16,7 +16,7 @@
         >
             {{ $t(`alert.smime.add_certificate.${success ? "success" : "error"}`) }}
         </bm-label-icon>
-        <bm-button v-else variant="text" size="sm" icon="verified-new" :loading="loading" @click="importCertificate">
+        <bm-button v-else variant="text" size="sm" icon="certificate" :loading="loading" @click="importCertificate">
             {{ $t("smime.mailapp.viewer.add_certificate.action_short") }}
         </bm-button>
     </div>

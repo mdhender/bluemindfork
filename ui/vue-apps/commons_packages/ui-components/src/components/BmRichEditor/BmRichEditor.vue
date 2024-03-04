@@ -373,7 +373,7 @@ function getTableParentNode(node, containerNode) {
         padding: $padding-with-border;
     }
 
-    .bm-rich-editor-toolbar-base {
+    .full-toolbar {
         padding: $input-border-width;
     }
 

@@ -34,18 +34,3 @@ export default {
     }
 };
 </script>
-
-<style lang="scss">
-@import "../../../css/utils/variables.scss";
-
-.align-button {
-    .dropdown-toggle {
-        display: flex;
-        align-items: center;
-    }
-    .dropdown-menu {
-        min-width: 0;
-        padding: 0;
-    }
-}
-</style>

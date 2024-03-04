@@ -72,10 +72,22 @@ export default {
             return this.focusedPosition.top - 35; // to avoid hiding focused position
         },
         style() {
-            if (this.left > document.body.clientWidth - this.toolbarWidth) {
-                return `top: ${this.bottom}px; left: ${this.left - this.toolbarWidth}px;`;
+            const parentWidth = this.$el && this.$el.parentNode.clientWidth;
+            if (this.$el && this.toolbarWidth > parentWidth) {
+                return "display: none";
             }
-            return `top: ${this.top}px; left: ${this.left}px;`;
+            let top;
+            let left;
+            const displayOnLeft = this.left > document.body.clientWidth - this.toolbarWidth;
+            if (displayOnLeft) {
+                top = this.bottom;
+                const parentLeft = this.$el && this.$el.parentNode.getBoundingClientRect().left;
+                left = Math.max(parentLeft, this.left - this.toolbarWidth);
+            } else {
+                top = this.top;
+                left = this.left;
+            }
+            return `top: ${top}px; left: ${left}px;`;
         },
         bubbleToolbarType() {
             if (

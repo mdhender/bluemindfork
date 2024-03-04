@@ -1,19 +1,15 @@
 <template>
     <div class="chooser-button">
-        <bm-icon-button
-            variant="compact"
-            size="lg"
-            icon="cloud"
-            :title="$tc('filehosting.drive.from')"
-            @click="openChooser"
-        />
+        <bm-dropdown-item-button variant="compact" size="lg" icon="cloud" @click="openChooser">
+            {{ $t("filehosting.drive.from") }}
+        </bm-dropdown-item-button>
         <chooser ref="chooser-modal" :max-attachments-size="maxAttachmentsSize" @insert="insertFiles" />
     </div>
 </template>
 
 <script>
 import { inject } from "@bluemind/inject";
-import { BmIconButton } from "@bluemind/ui-components";
+import { BmDropdownItemButton } from "@bluemind/ui-components";
 import { MimeType } from "@bluemind/email";
 import { Chooser } from "@bluemind/business-components";
 import { LINK_FH_ATTACHMENT } from "../store/types/actions";
@@ -21,7 +17,7 @@ import getContentWithLinks from "../helpers/getContentWithLinks";
 
 export default {
     name: "ChooserButton",
-    components: { BmIconButton, Chooser },
+    components: { BmDropdownItemButton, Chooser },
     props: {
         message: {
             type: Object,

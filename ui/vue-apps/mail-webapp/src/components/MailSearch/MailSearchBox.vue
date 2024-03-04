@@ -3,7 +3,7 @@
         <global-events v-if="focusIn" @click="shrinkBox" @keydown.enter="shrinkBox" @keydown.escape="blur" />
         <div
             ref="search-box-lg"
-            class="desktop-only d-flex flex-fill"
+            class="desktop-only d-flex flex-fill mr-5"
             @keydown.enter="currentSearch.pattern ? search() : null"
         >
             <div class="d-flex flex-fill align-items-center box" :class="{ active }">

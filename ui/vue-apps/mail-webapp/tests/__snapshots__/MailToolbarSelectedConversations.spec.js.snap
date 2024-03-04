@@ -2,85 +2,1047 @@
 
 exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
 <div
-  class="mail-toolbar-selected-conversations"
+  class="btn-toolbar mail-toolbar-selected-conversations bm-toolbar overflow"
+  role="toolbar"
 >
   <div
-    class="mail-toolbar-responsive-button mail-toolbar-item"
-    style="display: none;"
+    class="dropdown b-dropdown bm-dropdown btn-group dropdown-text overflow-menu"
+    icon="3dots"
   >
+    <!---->
     <button
-      class="btn bm-icon-button mobile-only btn-icon-compact-on-fill-primary btn-lg compact on-fill-primary"
-      icon="plus-enveloppe"
-      label=""
-      title=""
+      aria-expanded="false"
+      aria-haspopup="menu"
+      class="btn dropdown-toggle btn-text btn-md dropdown-toggle-no-caret"
       type="button"
     >
-      <svg
-        data-test-id="plus-enveloppe"
-      />
+      <div>
+        <div
+          class="mail-toolbar-menu-button btn bm-captioned-icon-button desktop-only btn-captioned-icon"
+        >
+          <svg
+            data-test-id="3dots"
+          />
+           
+          <span
+            class="caption"
+          >
+            
+          </span>
+        </div>
+         
+        <svg
+          class="mail-toolbar-menu-button mobile-only btn-icon-compact-on-fill-primary"
+          data-test-id="3dots"
+        />
+      </div>
     </button>
-     
-    <button
-      caption=""
-      class="btn bm-captioned-icon-button desktop-only btn-captioned-icon"
-      icon="plus-enveloppe"
-      label=""
-      title=""
-      type="button"
+    <ul
+      class="dropdown-menu"
+      role="menu"
+      tabindex="-1"
     >
-      <svg
-        data-test-id="plus-enveloppe"
-      />
-       
-      <span
-        class="caption"
-      >
         
-      </span>
-    </button>
+      <div
+        class="mail-toolbar-responsive-button mail-toolbar-item"
+      >
+        <li
+          class="mobile-only bm-toolbar-icon-button"
+          role="presentation"
+        >
+          <button
+            class="dropdown-item text-compact-on-fill-primary"
+            icon="unread"
+            role="menuitem"
+            type="button"
+          >
+            <svg
+              data-test-id="unread"
+              fixed-width=""
+            />
+             
+            <div
+              class="dropdown-item-content"
+            >
+              
+            </div>
+             
+            <!---->
+          </button>
+        </li>
+         
+        <li
+          class="desktop-only bm-toolbar-captioned-icon-button"
+          role="presentation"
+        >
+          <button
+            class="dropdown-item"
+            icon="unread"
+            role="menuitem"
+            type="button"
+          >
+            <svg
+              data-test-id="unread"
+              fixed-width=""
+            />
+             
+            <div
+              class="dropdown-item-content"
+            >
+              
+            </div>
+             
+            <!---->
+          </button>
+        </li>
+      </div>
+      <div
+        aria-label=""
+        class="mail-toolbar-responsive-dropdown mail-toolbar-item mail-toolbar-selected-conversations-move-action"
+        no-caret=""
+      >
+        <div
+          aria-label=""
+          class="dropdown b-dropdown bm-dropdown dropright btn-group dropdown-text dropdown-sub-menu bm-toolbar-icon-dropdown"
+          icon="folder"
+          label=""
+          title=""
+        >
+          <!---->
+          <button
+            aria-expanded="false"
+            aria-haspopup="menu"
+            class="btn dropdown-toggle btn-text-thin btn-lg dropdown-toggle-no-caret"
+            type="button"
+          >
+            <svg
+              data-test-id="folder"
+            />
+             
+            <!---->
+             
+            <!---->
+          </button>
+          <ul
+            class="dropdown-menu"
+            role="menu"
+            tabindex="-1"
+          >
+             
+            <!---->
+             
+            <li
+              class="bm-dropdown-autocomplete"
+              role="presentation"
+            >
+              <!---->
+              <ul
+                class="list-unstyled"
+                role="group"
+              >
+                <li
+                  role="presentation"
+                >
+                  <form
+                    class="b-dropdown-form"
+                    tabindex="-1"
+                  >
+                    <div
+                      class="bm-form-input form-input position-relative outline form-input-md"
+                    >
+                      <input
+                        autocomplete="off"
+                        class="form-control form-control-md with-icon with-reset"
+                        icon="search"
+                        resettable="true"
+                        type="text"
+                        variant="outline"
+                      />
+                       
+                      <div
+                        class="icon-wrapper position-absolute"
+                      >
+                        <svg
+                          class="ornament-icon"
+                          data-test-id="search"
+                        />
+                      </div>
+                    </div>
+                  </form>
+                </li>
+                 
+                <!---->
+                 
+                <li
+                  class="text-nowrap text-truncate w-100"
+                  role="presentation"
+                >
+                  <button
+                    class="dropdown-item"
+                    role="menuitem"
+                    type="button"
+                  >
+                    <svg
+                      class="mail-folder-icon"
+                      data-test-id="trash"
+                      fixed-width=""
+                    />
+                     
+                    <div
+                      class="dropdown-item-content"
+                    >
+                       
+                      <div
+                        class="d-flex align-items-center"
+                      >
+                        <span
+                          class="flex-fill text-truncate"
+                        >
+                           
+                        </span>
+                         
+                        <div
+                          class="bm-avatar bm-avatar-sm"
+                          title="bluemind"
+                        >
+                          <svg
+                            aria-hidden="true"
+                            id="hexagon"
+                            role="img"
+                            version="1.1"
+                            viewBox="0 0 100 120"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <g
+                              style="clip-path: url(#bm-clip-path-hexagon-adjusted);"
+                            >
+                              <rect
+                                fill="#007bff"
+                                height="120"
+                                width="100"
+                                x="0"
+                                y="0"
+                              />
+                               
+                              <!---->
+                            </g>
+                          </svg>
+                           
+                          <div
+                            id="overlay"
+                          >
+                            <p
+                              id="letter"
+                            >
+                              B
+                            </p>
+                          </div>
+                           
+                          <!---->
+                        </div>
+                      </div>
+                    </div>
+                     
+                    <!---->
+                  </button>
+                </li>
+                <li
+                  class="text-nowrap text-truncate w-100"
+                  role="presentation"
+                >
+                  <button
+                    class="dropdown-item"
+                    role="menuitem"
+                    type="button"
+                  >
+                    <svg
+                      class="mail-folder-icon"
+                      data-test-id="inbox"
+                      fixed-width=""
+                    />
+                     
+                    <div
+                      class="dropdown-item-content"
+                    >
+                       
+                      <div
+                        class="d-flex align-items-center"
+                      >
+                        <span
+                          class="flex-fill text-truncate"
+                        >
+                           
+                        </span>
+                         
+                        <div
+                          class="bm-avatar bm-avatar-sm"
+                          title="bluemind"
+                        >
+                          <svg
+                            aria-hidden="true"
+                            id="hexagon"
+                            role="img"
+                            version="1.1"
+                            viewBox="0 0 100 120"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <g
+                              style="clip-path: url(#bm-clip-path-hexagon-adjusted);"
+                            >
+                              <rect
+                                fill="#007bff"
+                                height="120"
+                                width="100"
+                                x="0"
+                                y="0"
+                              />
+                               
+                              <!---->
+                            </g>
+                          </svg>
+                           
+                          <div
+                            id="overlay"
+                          >
+                            <p
+                              id="letter"
+                            >
+                              B
+                            </p>
+                          </div>
+                           
+                          <!---->
+                        </div>
+                      </div>
+                    </div>
+                     
+                    <!---->
+                  </button>
+                </li>
+              </ul>
+            </li>
+             
+            <!---->
+             
+            <li
+              role="presentation"
+            >
+              <hr
+                aria-orientation="horizontal"
+                class="dropdown-divider"
+                role="separator"
+              />
+            </li>
+             
+            <li
+              class="new-folder position-relative"
+              role="presentation"
+            >
+              <form
+                aria-label=""
+                class="b-dropdown-form"
+                tabindex="-1"
+                title=""
+              >
+                <div
+                  class="d-flex align-items-center"
+                >
+                  <div
+                    class="mail-folder-input flex-fill desktop-only align-items-center position-relative pl-2 pr-1 flex-fill"
+                  >
+                    <div
+                      class="bm-form-input form-input position-relative d-inline-block flex-fill underline form-input-md"
+                    >
+                      <input
+                        aria-describedby="mail-folder-input-invalid"
+                        class="form-control form-control-md with-icon with-reset icon-left"
+                        icon="plus"
+                        lefticon="true"
+                        placeholder=""
+                        resettable="true"
+                        type="text"
+                        variant="underline"
+                      />
+                       
+                      <div
+                        class="icon-wrapper position-absolute icon-left"
+                      >
+                        <svg
+                          class="ornament-icon"
+                          data-test-id="plus"
+                        />
+                      </div>
+                    </div>
+                     
+                    <!---->
+                  </div>
+                   
+                  <div
+                    class="bm-avatar bm-avatar-sm"
+                    title="bluemind"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      id="hexagon"
+                      role="img"
+                      version="1.1"
+                      viewBox="0 0 100 120"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <g
+                        style="clip-path: url(#bm-clip-path-hexagon-adjusted);"
+                      >
+                        <rect
+                          fill="#007bff"
+                          height="120"
+                          width="100"
+                          x="0"
+                          y="0"
+                        />
+                         
+                        <!---->
+                      </g>
+                    </svg>
+                     
+                    <div
+                      id="overlay"
+                    >
+                      <p
+                        id="letter"
+                      >
+                        B
+                      </p>
+                    </div>
+                     
+                    <!---->
+                  </div>
+                </div>
+              </form>
+            </li>
+             
+            <!---->
+          </ul>
+        </div>
+         
+        <div
+          aria-label=""
+          class="dropdown b-dropdown bm-dropdown dropright btn-group dropdown-text dropdown-sub-menu bm-toolbar-captioned-icon-dropdown"
+          icon="folder"
+          label=""
+          title=""
+        >
+          <!---->
+          <button
+            aria-expanded="false"
+            aria-haspopup="menu"
+            class="btn dropdown-toggle btn-text-thin btn-lg dropdown-toggle-no-caret"
+            type="button"
+          >
+            <svg
+              data-test-id="folder"
+            />
+             
+            <!---->
+             
+            <!---->
+          </button>
+          <ul
+            class="dropdown-menu"
+            role="menu"
+            tabindex="-1"
+          >
+             
+            <!---->
+             
+            <li
+              class="bm-dropdown-autocomplete"
+              role="presentation"
+            >
+              <!---->
+              <ul
+                class="list-unstyled"
+                role="group"
+              >
+                <li
+                  role="presentation"
+                >
+                  <form
+                    class="b-dropdown-form"
+                    tabindex="-1"
+                  >
+                    <div
+                      class="bm-form-input form-input position-relative outline form-input-md"
+                    >
+                      <input
+                        autocomplete="off"
+                        class="form-control form-control-md with-icon with-reset"
+                        icon="search"
+                        resettable="true"
+                        type="text"
+                        variant="outline"
+                      />
+                       
+                      <div
+                        class="icon-wrapper position-absolute"
+                      >
+                        <svg
+                          class="ornament-icon"
+                          data-test-id="search"
+                        />
+                      </div>
+                    </div>
+                  </form>
+                </li>
+                 
+                <!---->
+                 
+                <li
+                  class="text-nowrap text-truncate w-100"
+                  role="presentation"
+                >
+                  <button
+                    class="dropdown-item"
+                    role="menuitem"
+                    type="button"
+                  >
+                    <svg
+                      class="mail-folder-icon"
+                      data-test-id="trash"
+                      fixed-width=""
+                    />
+                     
+                    <div
+                      class="dropdown-item-content"
+                    >
+                       
+                      <div
+                        class="d-flex align-items-center"
+                      >
+                        <span
+                          class="flex-fill text-truncate"
+                        >
+                           
+                        </span>
+                         
+                        <div
+                          class="bm-avatar bm-avatar-sm"
+                          title="bluemind"
+                        >
+                          <svg
+                            aria-hidden="true"
+                            id="hexagon"
+                            role="img"
+                            version="1.1"
+                            viewBox="0 0 100 120"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <g
+                              style="clip-path: url(#bm-clip-path-hexagon-adjusted);"
+                            >
+                              <rect
+                                fill="#007bff"
+                                height="120"
+                                width="100"
+                                x="0"
+                                y="0"
+                              />
+                               
+                              <!---->
+                            </g>
+                          </svg>
+                           
+                          <div
+                            id="overlay"
+                          >
+                            <p
+                              id="letter"
+                            >
+                              B
+                            </p>
+                          </div>
+                           
+                          <!---->
+                        </div>
+                      </div>
+                    </div>
+                     
+                    <!---->
+                  </button>
+                </li>
+                <li
+                  class="text-nowrap text-truncate w-100"
+                  role="presentation"
+                >
+                  <button
+                    class="dropdown-item"
+                    role="menuitem"
+                    type="button"
+                  >
+                    <svg
+                      class="mail-folder-icon"
+                      data-test-id="inbox"
+                      fixed-width=""
+                    />
+                     
+                    <div
+                      class="dropdown-item-content"
+                    >
+                       
+                      <div
+                        class="d-flex align-items-center"
+                      >
+                        <span
+                          class="flex-fill text-truncate"
+                        >
+                           
+                        </span>
+                         
+                        <div
+                          class="bm-avatar bm-avatar-sm"
+                          title="bluemind"
+                        >
+                          <svg
+                            aria-hidden="true"
+                            id="hexagon"
+                            role="img"
+                            version="1.1"
+                            viewBox="0 0 100 120"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <g
+                              style="clip-path: url(#bm-clip-path-hexagon-adjusted);"
+                            >
+                              <rect
+                                fill="#007bff"
+                                height="120"
+                                width="100"
+                                x="0"
+                                y="0"
+                              />
+                               
+                              <!---->
+                            </g>
+                          </svg>
+                           
+                          <div
+                            id="overlay"
+                          >
+                            <p
+                              id="letter"
+                            >
+                              B
+                            </p>
+                          </div>
+                           
+                          <!---->
+                        </div>
+                      </div>
+                    </div>
+                     
+                    <!---->
+                  </button>
+                </li>
+              </ul>
+            </li>
+             
+            <!---->
+             
+            <li
+              role="presentation"
+            >
+              <hr
+                aria-orientation="horizontal"
+                class="dropdown-divider"
+                role="separator"
+              />
+            </li>
+             
+            <li
+              class="new-folder position-relative"
+              role="presentation"
+            >
+              <form
+                aria-label=""
+                class="b-dropdown-form"
+                tabindex="-1"
+                title=""
+              >
+                <div
+                  class="d-flex align-items-center"
+                >
+                  <div
+                    class="mail-folder-input flex-fill desktop-only align-items-center position-relative pl-2 pr-1 flex-fill"
+                  >
+                    <div
+                      class="bm-form-input form-input position-relative d-inline-block flex-fill underline form-input-md"
+                    >
+                      <input
+                        aria-describedby="mail-folder-input-invalid"
+                        class="form-control form-control-md with-icon with-reset icon-left"
+                        icon="plus"
+                        lefticon="true"
+                        placeholder=""
+                        resettable="true"
+                        type="text"
+                        variant="underline"
+                      />
+                       
+                      <div
+                        class="icon-wrapper position-absolute icon-left"
+                      >
+                        <svg
+                          class="ornament-icon"
+                          data-test-id="plus"
+                        />
+                      </div>
+                    </div>
+                     
+                    <!---->
+                  </div>
+                   
+                  <div
+                    class="bm-avatar bm-avatar-sm"
+                    title="bluemind"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      id="hexagon"
+                      role="img"
+                      version="1.1"
+                      viewBox="0 0 100 120"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <g
+                        style="clip-path: url(#bm-clip-path-hexagon-adjusted);"
+                      >
+                        <rect
+                          fill="#007bff"
+                          height="120"
+                          width="100"
+                          x="0"
+                          y="0"
+                        />
+                         
+                        <!---->
+                      </g>
+                    </svg>
+                     
+                    <div
+                      id="overlay"
+                    >
+                      <p
+                        id="letter"
+                      >
+                        B
+                      </p>
+                    </div>
+                     
+                    <!---->
+                  </div>
+                </div>
+              </form>
+            </li>
+             
+            <!---->
+          </ul>
+        </div>
+      </div>
+      <div
+        class="mail-toolbar-responsive-button mail-toolbar-item"
+      >
+        <li
+          class="mobile-only bm-toolbar-icon-button"
+          role="presentation"
+        >
+          <button
+            class="dropdown-item text-compact-on-fill-primary"
+            icon="trash"
+            role="menuitem"
+            type="button"
+          >
+            <svg
+              data-test-id="trash"
+              fixed-width=""
+            />
+             
+            <div
+              class="dropdown-item-content"
+            >
+              
+            </div>
+             
+            <!---->
+          </button>
+        </li>
+         
+        <li
+          class="desktop-only bm-toolbar-captioned-icon-button"
+          role="presentation"
+        >
+          <button
+            class="dropdown-item"
+            icon="trash"
+            role="menuitem"
+            type="button"
+          >
+            <svg
+              data-test-id="trash"
+              fixed-width=""
+            />
+             
+            <div
+              class="dropdown-item-content"
+            >
+              
+            </div>
+             
+            <!---->
+          </button>
+        </li>
+      </div>
+      <div
+        class="mail-toolbar-responsive-button mail-toolbar-item"
+      >
+        <li
+          class="mobile-only bm-toolbar-icon-button"
+          role="presentation"
+        >
+          <button
+            class="dropdown-item text-compact-on-fill-primary"
+            icon="flag-outline"
+            role="menuitem"
+            type="button"
+          >
+            <svg
+              data-test-id="flag-outline"
+              fixed-width=""
+            />
+             
+            <div
+              class="dropdown-item-content"
+            >
+              
+            </div>
+             
+            <!---->
+          </button>
+        </li>
+         
+        <li
+          class="desktop-only bm-toolbar-captioned-icon-button"
+          role="presentation"
+        >
+          <button
+            class="dropdown-item"
+            icon="flag-outline"
+            role="menuitem"
+            type="button"
+          >
+            <svg
+              data-test-id="flag-outline"
+              fixed-width=""
+            />
+             
+            <div
+              class="dropdown-item-content"
+            >
+              
+            </div>
+             
+            <!---->
+          </button>
+        </li>
+      </div>
+      <div
+        aria-label=""
+        class="mail-toolbar-consult-message-other-actions"
+        icon="3dots"
+        label=""
+        no-caret=""
+        right=""
+        title=""
+        toggle-class="btn-lg-simple-neutral"
+      >
+        <li
+          role="presentation"
+        >
+          <a
+            class="dropdown-item"
+            href="#"
+            icon="pencil"
+            role="menuitem"
+            target="_self"
+          >
+            <svg
+              data-test-id="pencil"
+              fixed-width=""
+            />
+             
+            <div
+              class="dropdown-item-content"
+            >
+              
+            
+        
+            </div>
+             
+            <!---->
+          </a>
+        </li>
+         
+        <!---->
+         
+        <!---->
+         
+        <!---->
+         
+        <!---->
+         
+        <!---->
+         
+        <li
+          role="presentation"
+        >
+          <a
+            class="dropdown-item"
+            href="#"
+            icon="printer"
+            role="menuitem"
+            target="_self"
+            title=""
+          >
+            <svg
+              data-test-id="printer"
+              fixed-width=""
+            />
+             
+            <div
+              class="dropdown-item-content"
+            >
+              
+        
+    
+            </div>
+             
+            <!---->
+          </a>
+        </li>
+         
+        <li
+          role="presentation"
+        >
+          <a
+            aria-keyshortcuts=""
+            class="dropdown-item"
+            href="#"
+            role="menuitem"
+            shortcut=""
+            target="_self"
+            title=""
+          >
+             
+            <div
+              class="dropdown-item-content"
+            >
+              
+        
+    
+            </div>
+             
+            <!---->
+          </a>
+        </li>
+         
+        <li
+          role="presentation"
+        >
+          <a
+            class="dropdown-item"
+            href="#"
+            icon="code"
+            role="menuitem"
+            target="_self"
+          >
+            <svg
+              data-test-id="code"
+              fixed-width=""
+            />
+             
+            <div
+              class="dropdown-item-content"
+            >
+              
+            
+        
+            </div>
+             
+            <!---->
+          </a>
+        </li>
+         
+        <li
+          role="presentation"
+        >
+          <a
+            class="dropdown-item"
+            href="#"
+            icon="download"
+            role="menuitem"
+            target="_self"
+          >
+            <svg
+              data-test-id="download"
+              fixed-width=""
+            />
+             
+            <div
+              class="dropdown-item-content"
+            >
+              
+            
+        
+            </div>
+             
+            <!---->
+          </a>
+        </li>
+         
+        <li
+          role="presentation"
+        >
+          <a
+            class="dropdown-item"
+            href="#"
+            icon="with-attachment"
+            role="menuitem"
+            target="_self"
+          >
+            <svg
+              data-test-id="with-attachment"
+              fixed-width=""
+            />
+             
+            <div
+              class="dropdown-item-content"
+            >
+              
+            
+        
+            </div>
+             
+            <!---->
+          </a>
+        </li>
+      </div>
+       
+      <!---->
+    </ul>
   </div>
-   
   <div
     class="mail-toolbar-responsive-button mail-toolbar-item"
-    style="display: none;"
   >
     <button
-      class="btn bm-icon-button mobile-only btn-icon-compact-on-fill-primary btn-lg compact on-fill-primary"
-      icon="read"
-      label=""
-      title=""
-      type="button"
-    >
-      <svg
-        data-test-id="read"
-      />
-    </button>
-     
-    <button
-      caption=""
-      class="btn bm-captioned-icon-button desktop-only btn-captioned-icon"
-      icon="read"
-      label=""
-      title=""
-      type="button"
-    >
-      <svg
-        data-test-id="read"
-      />
-       
-      <span
-        class="caption"
-      >
-        
-      </span>
-    </button>
-  </div>
-   
-  <div
-    class="mail-toolbar-responsive-button mail-toolbar-item"
-  >
-    <button
-      class="btn bm-icon-button mobile-only btn-icon-compact-on-fill-primary btn-lg compact on-fill-primary"
+      class="btn bm-icon-button mobile-only btn-icon-compact-on-fill-primary btn-lg compact on-fill-primary bm-toolbar-icon-button"
       icon="unread"
       label=""
       title=""
@@ -93,7 +1055,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
      
     <button
       caption=""
-      class="btn bm-captioned-icon-button desktop-only btn-captioned-icon"
+      class="btn bm-captioned-icon-button desktop-only btn-captioned-icon bm-toolbar-captioned-icon-button"
       icon="unread"
       label=""
       title=""
@@ -110,7 +1072,6 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
       </span>
     </button>
   </div>
-   
   <div
     aria-label=""
     class="mail-toolbar-responsive-dropdown mail-toolbar-item mail-toolbar-selected-conversations-move-action"
@@ -118,7 +1079,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
   >
     <div
       aria-label=""
-      class="dropdown b-dropdown bm-icon-dropdown btn-group compact dropdown-no-caret"
+      class="dropdown b-dropdown bm-icon-dropdown btn-group compact dropdown-no-caret bm-toolbar-icon-dropdown"
       icon="folder"
       label=""
       title=""
@@ -438,7 +1399,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     <div
       aria-label=""
       caption=""
-      class="dropdown b-dropdown bm-captioned-icon-dropdown btn-group"
+      class="dropdown b-dropdown bm-captioned-icon-dropdown btn-group bm-toolbar-captioned-icon-dropdown"
       icon="folder"
       label=""
       no-caret=""
@@ -757,15 +1718,16 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
             </div>
           </form>
         </li>
+         
+        <!---->
       </ul>
     </div>
   </div>
-   
   <div
     class="mail-toolbar-responsive-button mail-toolbar-item"
   >
     <button
-      class="btn bm-icon-button mobile-only btn-icon-compact-on-fill-primary btn-lg compact on-fill-primary"
+      class="btn bm-icon-button mobile-only btn-icon-compact-on-fill-primary btn-lg compact on-fill-primary bm-toolbar-icon-button"
       icon="trash"
       label=""
       title=""
@@ -778,7 +1740,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
      
     <button
       caption=""
-      class="btn bm-captioned-icon-button desktop-only btn-captioned-icon"
+      class="btn bm-captioned-icon-button desktop-only btn-captioned-icon bm-toolbar-captioned-icon-button"
       icon="trash"
       label=""
       title=""
@@ -795,12 +1757,11 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
       </span>
     </button>
   </div>
-   
   <div
     class="mail-toolbar-responsive-button mail-toolbar-item"
   >
     <button
-      class="btn bm-icon-button mobile-only btn-icon-compact-on-fill-primary btn-lg compact on-fill-primary"
+      class="btn bm-icon-button mobile-only btn-icon-compact-on-fill-primary btn-lg compact on-fill-primary bm-toolbar-icon-button"
       icon="flag-outline"
       label=""
       title=""
@@ -813,7 +1774,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
      
     <button
       caption=""
-      class="btn bm-captioned-icon-button desktop-only btn-captioned-icon"
+      class="btn bm-captioned-icon-button desktop-only btn-captioned-icon bm-toolbar-captioned-icon-button"
       icon="flag-outline"
       label=""
       title=""
@@ -829,458 +1790,6 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
         
       </span>
     </button>
-  </div>
-   
-  <div
-    class="mail-toolbar-responsive-button mail-toolbar-item mark-as-unflagged-btn"
-    style="display: none;"
-  >
-    <button
-      class="btn bm-icon-button mobile-only btn-icon-compact-on-fill-primary btn-lg compact on-fill-primary"
-      icon="flag-fill"
-      label=""
-      title=""
-      type="button"
-    >
-      <svg
-        data-test-id="flag-fill"
-      />
-    </button>
-     
-    <button
-      caption=""
-      class="btn bm-captioned-icon-button desktop-only btn-captioned-icon"
-      icon="flag-fill"
-      label=""
-      title=""
-      type="button"
-    >
-      <svg
-        data-test-id="flag-fill"
-      />
-       
-      <span
-        class="caption"
-      >
-        
-      </span>
-    </button>
-  </div>
-   
-  <div
-    aria-label=""
-    class="mail-toolbar-responsive-dropdown mail-toolbar-item mail-toolbar-consult-message-other-actions"
-    no-caret=""
-    right=""
-    toggle-class="btn-lg-simple-neutral"
-  >
-    <div
-      aria-label=""
-      class="dropdown b-dropdown bm-icon-dropdown btn-group compact dropdown-no-caret"
-      icon="3dots"
-      label=""
-      right=""
-      title=""
-      toggle-class="btn-lg-simple-neutral"
-    >
-      <!---->
-      <button
-        aria-expanded="false"
-        aria-haspopup="menu"
-        class="btn dropdown-toggle btn-icon-compact-on-fill-primary btn-lg btn-lg-simple-neutral dropdown-toggle-no-caret"
-        type="button"
-      >
-        <svg
-          data-test-id="3dots"
-        />
-      </button>
-      <ul
-        class="dropdown-menu dropdown-menu-right"
-        role="menu"
-        tabindex="-1"
-      >
-         
-        <li
-          role="presentation"
-        >
-          <a
-            class="dropdown-item"
-            href="#"
-            icon="pencil"
-            role="menuitem"
-            target="_self"
-          >
-            <svg
-              data-test-id="pencil"
-              fixed-width=""
-            />
-             
-            <div
-              class="dropdown-item-content"
-            >
-              
-            
-        
-            </div>
-             
-            <!---->
-          </a>
-        </li>
-         
-        <!---->
-         
-        <!---->
-         
-        <!---->
-         
-        <!---->
-         
-        <!---->
-         
-        <li
-          role="presentation"
-        >
-          <a
-            class="dropdown-item"
-            href="#"
-            icon="printer"
-            role="menuitem"
-            target="_self"
-            title=""
-          >
-            <svg
-              data-test-id="printer"
-              fixed-width=""
-            />
-             
-            <div
-              class="dropdown-item-content"
-            >
-              
-        
-    
-            </div>
-             
-            <!---->
-          </a>
-        </li>
-         
-        <li
-          role="presentation"
-        >
-          <a
-            aria-keyshortcuts=""
-            class="dropdown-item"
-            href="#"
-            role="menuitem"
-            shortcut=""
-            target="_self"
-            title=""
-          >
-             
-            <div
-              class="dropdown-item-content"
-            >
-              
-        
-    
-            </div>
-             
-            <!---->
-          </a>
-        </li>
-         
-        <li
-          role="presentation"
-        >
-          <a
-            class="dropdown-item"
-            href="#"
-            icon="code"
-            role="menuitem"
-            target="_self"
-          >
-            <svg
-              data-test-id="code"
-              fixed-width=""
-            />
-             
-            <div
-              class="dropdown-item-content"
-            >
-              
-            
-        
-            </div>
-             
-            <!---->
-          </a>
-        </li>
-         
-        <li
-          role="presentation"
-        >
-          <a
-            class="dropdown-item"
-            href="#"
-            icon="download"
-            role="menuitem"
-            target="_self"
-          >
-            <svg
-              data-test-id="download"
-              fixed-width=""
-            />
-             
-            <div
-              class="dropdown-item-content"
-            >
-              
-            
-        
-            </div>
-             
-            <!---->
-          </a>
-        </li>
-         
-        <li
-          role="presentation"
-        >
-          <a
-            class="dropdown-item"
-            href="#"
-            icon="with-attachment"
-            role="menuitem"
-            target="_self"
-          >
-            <svg
-              data-test-id="with-attachment"
-              fixed-width=""
-            />
-             
-            <div
-              class="dropdown-item-content"
-            >
-              
-            
-        
-            </div>
-             
-            <!---->
-          </a>
-        </li>
-         
-        <!---->
-      </ul>
-    </div>
-     
-    <div
-      aria-label=""
-      caption=""
-      class="dropdown b-dropdown bm-captioned-icon-dropdown btn-group"
-      icon="3dots"
-      label=""
-      no-caret=""
-      right=""
-      title=""
-      toggle-class="btn-lg-simple-neutral"
-    >
-      <!---->
-      <button
-        aria-expanded="false"
-        aria-haspopup="menu"
-        class="btn dropdown-toggle btn-captioned-icon btn-lg-simple-neutral dropdown-toggle-no-caret"
-        type="button"
-      >
-        <svg
-          data-test-id="3dots"
-        />
-         
-        <span
-          class="caption"
-        >
-          
-        </span>
-      </button>
-      <ul
-        class="dropdown-menu dropdown-menu-right"
-        role="menu"
-        tabindex="-1"
-      >
-         
-        <li
-          role="presentation"
-        >
-          <a
-            class="dropdown-item"
-            href="#"
-            icon="pencil"
-            role="menuitem"
-            target="_self"
-          >
-            <svg
-              data-test-id="pencil"
-              fixed-width=""
-            />
-             
-            <div
-              class="dropdown-item-content"
-            >
-              
-            
-        
-            </div>
-             
-            <!---->
-          </a>
-        </li>
-         
-        <!---->
-         
-        <!---->
-         
-        <!---->
-         
-        <!---->
-         
-        <!---->
-         
-        <li
-          role="presentation"
-        >
-          <a
-            class="dropdown-item"
-            href="#"
-            icon="printer"
-            role="menuitem"
-            target="_self"
-            title=""
-          >
-            <svg
-              data-test-id="printer"
-              fixed-width=""
-            />
-             
-            <div
-              class="dropdown-item-content"
-            >
-              
-        
-    
-            </div>
-             
-            <!---->
-          </a>
-        </li>
-         
-        <li
-          role="presentation"
-        >
-          <a
-            aria-keyshortcuts=""
-            class="dropdown-item"
-            href="#"
-            role="menuitem"
-            shortcut=""
-            target="_self"
-            title=""
-          >
-             
-            <div
-              class="dropdown-item-content"
-            >
-              
-        
-    
-            </div>
-             
-            <!---->
-          </a>
-        </li>
-         
-        <li
-          role="presentation"
-        >
-          <a
-            class="dropdown-item"
-            href="#"
-            icon="code"
-            role="menuitem"
-            target="_self"
-          >
-            <svg
-              data-test-id="code"
-              fixed-width=""
-            />
-             
-            <div
-              class="dropdown-item-content"
-            >
-              
-            
-        
-            </div>
-             
-            <!---->
-          </a>
-        </li>
-         
-        <li
-          role="presentation"
-        >
-          <a
-            class="dropdown-item"
-            href="#"
-            icon="download"
-            role="menuitem"
-            target="_self"
-          >
-            <svg
-              data-test-id="download"
-              fixed-width=""
-            />
-             
-            <div
-              class="dropdown-item-content"
-            >
-              
-            
-        
-            </div>
-             
-            <!---->
-          </a>
-        </li>
-         
-        <li
-          role="presentation"
-        >
-          <a
-            class="dropdown-item"
-            href="#"
-            icon="with-attachment"
-            role="menuitem"
-            target="_self"
-          >
-            <svg
-              data-test-id="with-attachment"
-              fixed-width=""
-            />
-             
-            <div
-              class="dropdown-item-content"
-            >
-              
-            
-        
-            </div>
-             
-            <!---->
-          </a>
-        </li>
-      </ul>
-    </div>
   </div>
 </div>
 `;

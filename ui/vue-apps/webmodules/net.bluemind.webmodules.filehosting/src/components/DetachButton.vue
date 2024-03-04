@@ -1,12 +1,8 @@
 <template>
     <div class="detach-button">
-        <bm-icon-button
-            variant="compact"
-            size="lg"
-            icon="cloud-up"
-            :title="$tc('filehosting.share.start')"
-            @click="openFilePicker()"
-        />
+        <bm-dropdown-item-button variant="compact" size="lg" icon="cloud-up" @click="openFilePicker()">
+            {{ $t("filehosting.share.upload") }}
+        </bm-dropdown-item-button>
         <input
             ref="detachInputRef"
             tabindex="-1"
@@ -21,11 +17,11 @@
 </template>
 
 <script>
-import { BmIconButton } from "@bluemind/ui-components";
+import { BmDropdownItemButton } from "@bluemind/ui-components";
 
 export default {
     name: "DetachButton",
-    components: { BmIconButton },
+    components: { BmDropdownItemButton },
     props: {
         message: {
             type: Object,

@@ -143,7 +143,7 @@ extensions.register("webapp", "net.bluemind.plugins.smime", {
 });
 
 Vue.component("AddCertificateButton", AddCertificateButton);
-extensions.register("webapp", "net.bluemind.plugins.smime", {
+extensions.register("webapp.mail", "net.bluemind.plugins.smime", {
     component: {
         name: "AddCertificateButton",
         path: "file.actions",

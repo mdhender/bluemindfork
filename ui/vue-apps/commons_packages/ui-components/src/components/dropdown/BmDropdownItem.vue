@@ -27,11 +27,12 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../../css/utils/variables";
+@import "../../css/utils/text";
 
 .dropdown-item {
     .dropdown-item-content {
-        margin-left: $sp-4;
+        flex: 1;
+        @include text-overflow;
     }
 }
 </style>

@@ -65,7 +65,7 @@ export const Cache = {
     },
     load(id) {
         const extensions = new Map();
-        const roles = inject("UserSession")?.roles.split(",") || [];
+        const roles = inject("UserSession")?.roles?.split(",") || [];
         this.map.set(id, extensions);
         mapExtensions(id, ["component"])?.component?.forEach(component => {
             if (!component.role || roles.includes(component.role)) {

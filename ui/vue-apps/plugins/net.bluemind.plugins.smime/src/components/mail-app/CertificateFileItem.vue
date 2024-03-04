@@ -27,7 +27,7 @@ export default {
                 this.adaptedFile = this.file;
                 try {
                     if (canAdapt(this.file)) {
-                        const messageKey = this.file.key.split(":")[1];
+                        const messageKey = this.file.key.split(":")[0];
                         const message = this.$store.state.mail.conversations.messages[messageKey];
                         await this.$store.dispatch("mail/FETCH_PART_DATA", {
                             folderUid: message.folderRef.uid,

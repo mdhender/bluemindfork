@@ -85,7 +85,6 @@ export default {
     .dropdown-item {
         padding: $sp-4;
         .dropdown-item-content {
-            margin-left: 0;
             display: flex;
             align-items: center;
         }

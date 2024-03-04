@@ -1,82 +1,65 @@
 <template>
     <div>
-        <bm-icon-dropdown
-            no-caret
-            :boundary="rightPanel || 'scrollParent'"
-            icon="3dots"
-            variant="regular-accent"
-            :size="size"
-            :label="$t('mail.toolbar.more')"
-            :aria-label="$tc('mail.toolbar.more.aria')"
-            :title="$tc('mail.toolbar.more.aria')"
-            class="other-viewer-actions"
+        <bm-dropdown-item v-if="!message.flags.includes(Flag.SEEN)" @click.stop="MARK_MESSAGE_AS_READ(message)">
+            {{ $tc("mail.actions.mark_read", 1) }}
+        </bm-dropdown-item>
+        <bm-dropdown-item v-else @click.stop="MARK_MESSAGE_AS_UNREAD(message)">
+            {{ $tc("mail.actions.mark_unread", 1) }}
+        </bm-dropdown-item>
+        <bm-dropdown-item v-if="!message.flags.includes(Flag.FLAGGED)" @click.stop="MARK_MESSAGE_AS_FLAGGED(message)">
+            {{ $t("mail.actions.mark_flagged") }}
+        </bm-dropdown-item>
+        <bm-dropdown-item v-else @click.stop="MARK_MESSAGE_AS_UNFLAGGED(message)">
+            {{ $t("mail.actions.mark_unflagged") }}
+        </bm-dropdown-item>
+        <bm-dropdown-item @click.stop="move(message)">
+            {{ $t("mail.actions.move") }}
+        </bm-dropdown-item>
+        <bm-dropdown-item
+            @click.exact.stop="MOVE_MESSAGES_TO_TRASH(message, conversation)"
+            @click.shift.exact.stop="REMOVE_MESSAGES(message, conversation)"
         >
-            <bm-dropdown-item v-if="!message.flags.includes(Flag.SEEN)" @click.stop="MARK_MESSAGE_AS_READ(message)">
-                {{ $tc("mail.actions.mark_read", 1) }}
-            </bm-dropdown-item>
-            <bm-dropdown-item v-else @click.stop="MARK_MESSAGE_AS_UNREAD(message)">
-                {{ $tc("mail.actions.mark_unread", 1) }}
-            </bm-dropdown-item>
+            {{ $t("mail.actions.remove") }}
+        </bm-dropdown-item>
+        <bm-dropdown-item @click.stop.exact="REMOVE_MESSAGES(message, conversation)">
+            {{ $t("mail.actions.purge") }}
+        </bm-dropdown-item>
+        <mail-open-in-popup-with-shift v-if="isTemplate" v-slot="action" :href="modifyTemplateRoute">
             <bm-dropdown-item
-                v-if="!message.flags.includes(Flag.FLAGGED)"
-                @click.stop="MARK_MESSAGE_AS_FLAGGED(message)"
+                :icon="action.icon('plus-document')"
+                :title="action.label($t('mail.actions.modify_template'))"
+                @click="action.execute(modifyTemplate)"
             >
-                {{ $t("mail.actions.mark_flagged") }}
+                {{ $t("mail.actions.modify_template") }}
             </bm-dropdown-item>
-            <bm-dropdown-item v-else @click.stop="MARK_MESSAGE_AS_UNFLAGGED(message)">
-                {{ $t("mail.actions.mark_unflagged") }}
+        </mail-open-in-popup-with-shift>
+        <mail-open-in-popup-with-shift v-else v-slot="action" :href="editAsNew">
+            <bm-dropdown-item :icon="action.icon('pencil')" @click.stop="action.execute(() => $router.push(editAsNew))">
+                {{ $t("mail.actions.edit_as_new") }}
             </bm-dropdown-item>
-            <bm-dropdown-item @click.stop="move(message)">
-                {{ $t("mail.actions.move") }}
-            </bm-dropdown-item>
-            <bm-dropdown-item
-                @click.exact.stop="MOVE_MESSAGES_TO_TRASH(message, conversation)"
-                @click.shift.exact.stop="REMOVE_MESSAGES(message, conversation)"
-            >
-                {{ $t("mail.actions.remove") }}
-            </bm-dropdown-item>
-            <bm-dropdown-item @click.stop.exact="REMOVE_MESSAGES(message, conversation)">
-                {{ $t("mail.actions.purge") }}
-            </bm-dropdown-item>
-            <mail-open-in-popup-with-shift v-if="isTemplate" v-slot="action" :href="modifyTemplateRoute">
-                <bm-dropdown-item
-                    :icon="action.icon('plus-document')"
-                    :title="action.label($t('mail.actions.modify_template'))"
-                    @click="action.execute(modifyTemplate)"
-                >
-                    {{ $t("mail.actions.modify_template") }}
-                </bm-dropdown-item>
-            </mail-open-in-popup-with-shift>
-            <mail-open-in-popup-with-shift v-else v-slot="action" :href="editAsNew">
-                <bm-dropdown-item
-                    :icon="action.icon('pencil')"
-                    @click.stop="action.execute(() => $router.push(editAsNew))"
-                >
-                    {{ $t("mail.actions.edit_as_new") }}
-                </bm-dropdown-item>
-            </mail-open-in-popup-with-shift>
+        </mail-open-in-popup-with-shift>
 
-            <bm-dropdown-item icon="printer" @click.stop="printContent()">
-                {{ $t("common.print") }}
+        <bm-dropdown-item icon="printer" @click.stop="printContent()">
+            {{ $t("common.print") }}
+        </bm-dropdown-item>
+        <mail-open-in-popup
+            v-slot="action"
+            :href="$router.relative({ name: 'mail:popup:message', params: { messagepath } })"
+        >
+            <bm-dropdown-item :icon="action.icon" @click.stop="action.execute()">
+                {{ action.label }}
             </bm-dropdown-item>
-            <mail-open-in-popup
-                v-slot="action"
-                :href="$router.relative({ name: 'mail:popup:message', params: { messagepath } })"
-            >
-                <bm-dropdown-item :icon="action.icon" @click.stop="action.execute()">
-                    {{ action.label }}
-                </bm-dropdown-item>
-            </mail-open-in-popup>
-            <bm-dropdown-item icon="code" @click.stop="showSource(message)">
-                {{ $t("mail.actions.show_source") }}
-            </bm-dropdown-item>
-            <bm-dropdown-item icon="download" @click.stop="downloadEml(message)">
-                {{ $t("mail.actions.download_eml") }}
-            </bm-dropdown-item>
-            <bm-dropdown-item icon="with-attachment" @click.stop="forwardEml(conversation, message)">
-                {{ $t("mail.actions.forward_eml") }}
-            </bm-dropdown-item>
-        </bm-icon-dropdown>
+        </mail-open-in-popup>
+        <bm-dropdown-item icon="code" @click.stop="showSource(message)">
+            {{ $t("mail.actions.show_source") }}
+        </bm-dropdown-item>
+        <bm-dropdown-item icon="download" @click.stop="downloadEml(message)">
+            {{ $t("mail.actions.download_eml") }}
+        </bm-dropdown-item>
+        <bm-dropdown-item icon="with-attachment" @click.stop="forwardEml(conversation, message)">
+            {{ $t("mail.actions.forward_eml") }}
+        </bm-dropdown-item>
+
         <choose-folder-modal
             ref="move-modal"
             :cancel-title="$t('common.cancel')"
@@ -93,7 +76,7 @@
 <script>
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import { Flag } from "@bluemind/email";
-import { BmIconDropdown, BmDropdownItem } from "@bluemind/ui-components";
+import { BmDropdownItem } from "@bluemind/ui-components";
 import { messageUtils, folderUtils } from "@bluemind/mail";
 import { EmlMixin, RemoveMixin, MoveMixin, PrintMixin, MailRoutesMixin, ReplyAndForwardRoutesMixin } from "~/mixins";
 import {
@@ -116,7 +99,6 @@ const { isRoot, getInvalidCharacter } = folderUtils;
 export default {
     name: "MailViewerToolbarOtherActions",
     components: {
-        BmIconDropdown,
         BmDropdownItem,
         ChooseFolderModal,
         MailOpenInPopup,

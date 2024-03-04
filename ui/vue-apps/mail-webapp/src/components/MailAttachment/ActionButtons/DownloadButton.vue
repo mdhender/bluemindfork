@@ -1,5 +1,5 @@
 <template>
-    <bm-icon-button
+    <bm-toolbar-icon-button
         variant="compact"
         class="download-button"
         size="sm"
@@ -11,11 +11,11 @@
 </template>
 
 <script>
-import { BmIconButton } from "@bluemind/ui-components";
+import { BmToolbarIconButton } from "@bluemind/ui-components";
 
 export default {
     name: "DownloadButton",
-    components: { BmIconButton },
+    components: { BmToolbarIconButton },
     props: {
         disabled: {
             type: Boolean,

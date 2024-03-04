@@ -33,7 +33,7 @@
                 {{ $t("common.delete") }}
             </bm-button>
         </div>
-        <div class="d-flex align-items-center toolbar">
+        <div class="d-flex align-items-center">
             <div
                 v-if="errorOccuredOnSave"
                 class="save-message save-message-error"
@@ -43,60 +43,67 @@
                 <div>{{ saveMessage }}</div>
             </div>
             <div v-else class="save-message">{{ saveMessage }}</div>
-            <bm-extension id="webapp.mail" path="composer.footer.toolbar" :message="message" class="d-flex" />
-            <bm-icon-button
-                v-if="!userPrefTextOnly"
-                variant="compact"
-                size="lg"
-                icon="text-format"
-                :aria-label="textFormatterLabel"
-                :title="textFormatterLabel"
-                :disabled="isSending"
-                @click="toggleTextFormattingToolbar"
-            />
-            <input
-                ref="attachInputRef"
-                tabindex="-1"
-                aria-hidden="true"
-                type="file"
-                multiple
-                hidden
-                @change="execAddAttachments({ files: $event.target.files, message })"
-                @click.stop="closeFilePicker()"
-            />
-            <bm-icon-button
-                variant="compact"
-                size="lg"
-                icon="paper-clip"
-                :aria-label="$tc('mail.actions.attach.aria')"
-                :title="$tc('mail.actions.attach.aria')"
-                :disabled="isSending"
-                @click="openFilePicker()"
-            />
-            <bm-icon-dropdown ref="3dots-dropdown" dropup right no-caret variant="compact" size="lg" icon="3dots-v">
-                <bm-dropdown-item-toggle
-                    :disabled="hasCorporateSignature"
-                    :checked="isSignatureInserted"
-                    @click="$emit('toggle-signature')"
-                >
-                    {{ $t("mail.compose.toolbar.insert_signature") }}
-                </bm-dropdown-item-toggle>
-                <bm-dropdown-item-button icon="documents" @click="openTemplateChooser">
-                    {{ $t("mail.compose.toolbar.use_template") }}
-                </bm-dropdown-item-button>
-                <bm-dropdown-item :disabled="isSenderShown" @click="showSender">
-                    {{ $t("mail.actions.show_sender") }}
-                </bm-dropdown-item>
-                <bm-dropdown-item-toggle :checked="isDeliveryStatusRequested" @click="$emit('toggle-delivery-status')">
-                    {{ $t("mail.compose.toolbar.delivery_status") }}
-                </bm-dropdown-item-toggle>
-                <bm-dropdown-item-toggle
-                    :checked="isDispositionNotificationRequested"
-                    @click="$emit('toggle-disposition-notification')"
-                >
-                    {{ $t("mail.compose.toolbar.disposition_notification") }}
-                </bm-dropdown-item-toggle>
-            </bm-icon-dropdown>
+            <bm-toolbar menu-icon="3dots-v" :min-items="4" menu-icon-size="lg" menu-icon-variant="compact">
+                <bm-toolbar-icon-button
+                    v-if="!userPrefTextOnly"
+                    variant="compact"
+                    size="lg"
+                    icon="text-format"
+                    :aria-label="textFormatterLabel"
+                    :title="textFormatterLabel"
+                    :disabled="isSending"
+                    @click="toggleTextFormattingToolbar"
+                />
+                <input
+                    ref="attachInputRef"
+                    tabindex="-1"
+                    aria-hidden="true"
+                    type="file"
+                    multiple
+                    hidden
+                    @change="execAddAttachments({ files: $event.target.files, message })"
+                    @click.stop="closeFilePicker()"
+                />
+                <bm-toolbar-icon-button
+                    extension="composer.footer.toolbar"
+                    extension-id="webapp.mail"
+                    variant="compact"
+                    size="lg"
+                    icon="paper-clip"
+                    :aria-label="$tc('mail.actions.attach.aria')"
+                    :title="$tc('mail.actions.attach.aria')"
+                    :disabled="isSending"
+                    :message="message"
+                    @click="openFilePicker()"
+                />
+                <template #menu>
+                    <bm-dropdown-item-toggle
+                        :disabled="hasCorporateSignature"
+                        :checked="isSignatureInserted"
+                        @click="$emit('toggle-signature')"
+                    >
+                        {{ $t("mail.compose.toolbar.insert_signature") }}
+                    </bm-dropdown-item-toggle>
+                    <bm-dropdown-item-button icon="documents" @click="openTemplateChooser">
+                        {{ $t("mail.compose.toolbar.use_template") }}
+                    </bm-dropdown-item-button>
+                    <bm-dropdown-item :disabled="isSenderShown" @click="showSender">
+                        {{ $t("mail.actions.show_sender") }}
+                    </bm-dropdown-item>
+                    <bm-dropdown-item-toggle
+                        :checked="isDeliveryStatusRequested"
+                        @click="$emit('toggle-delivery-status')"
+                    >
+                        {{ $t("mail.compose.toolbar.delivery_status") }}
+                    </bm-dropdown-item-toggle>
+                    <bm-dropdown-item-toggle
+                        :checked="isDispositionNotificationRequested"
+                        @click="$emit('toggle-disposition-notification')"
+                    >
+                        {{ $t("mail.compose.toolbar.disposition_notification") }}
+                    </bm-dropdown-item-toggle>
+                </template>
+            </bm-toolbar>
         </div>
     </div>
 </template>
@@ -104,6 +111,8 @@
 <script>
 import { BmExtension } from "@bluemind/extensions.vue";
 import {
+    BmToolbar,
+    BmToolbarIconButton,
     BmButton,
     BmIcon,
     BmIconButton,
@@ -131,13 +140,12 @@ const { isNewMessage } = draftUtils;
 export default {
     name: "MailComposerToolbar",
     components: {
+        BmToolbar,
+        BmToolbarIconButton,
         BmButton,
-        BmIconButton,
-        BmIconDropdown,
         BmDropdownItem,
         BmDropdownItemButton,
         BmDropdownItemToggle,
-        BmExtension,
         BmIcon
     },
     mixins: [ComposerActionsMixin, FormattedDateMixin],
@@ -215,6 +223,7 @@ export default {
         },
         showSender() {
             this.SHOW_SENDER(true);
+            // FIXME
             this.$refs["3dots-dropdown"].hide(false);
         },
         toggleTextFormattingToolbar() {
@@ -237,10 +246,6 @@ export default {
 
     .main-buttons {
         flex: none;
-    }
-    .toolbar {
-        flex: 1;
-        justify-content: flex-end;
     }
 
     .save-message {

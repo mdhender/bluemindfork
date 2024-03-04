@@ -13,6 +13,10 @@ export default {
             type: String,
             default: undefined
         },
+        extensionId: {
+            type: String,
+            default: undefined
+        },
         icon: {
             type: String,
             default: undefined
@@ -54,15 +58,3 @@ export default {
     }
 };
 </script>
-
-<style lang="scss">
-@import "~@bluemind/ui-components/src/css/utils/responsiveness";
-
-$icon-size: map-get($icon-sizes, "md");
-.bm-toolbar-icon-dropdown {
-    &.bm-dropdown .bm-icon {
-        height: $icon-size !important;
-        width: $icon-size !important;
-    }
-}
-</style>

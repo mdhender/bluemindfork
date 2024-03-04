@@ -55,7 +55,6 @@ export default {
 
         .dropdown-item-content {
             flex: none;
-            margin: 0;
         }
     }
 }

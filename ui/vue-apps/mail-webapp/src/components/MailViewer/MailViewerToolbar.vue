@@ -1,5 +1,10 @@
 <template>
-    <bm-toolbar v-if="!CONVERSATION_LIST_DELETED_FILTER_ENABLED" key-nav class="mail-viewer-toolbar bg-surface">
+    <bm-toolbar
+        v-if="!CONVERSATION_LIST_DELETED_FILTER_ENABLED"
+        key-nav
+        class="mail-viewer-toolbar bg-surface"
+        menu-icon-variant="regular-accent"
+    >
         <mail-open-in-popup-with-shift v-slot="action" :href="replyRoute(message)">
             <bm-toolbar-icon-button
                 variant="regular-accent"
@@ -38,12 +43,14 @@
                 @click.stop="action.execute(() => forward(message))"
             />
         </mail-open-in-popup-with-shift>
-        <mail-viewer-toolbar-other-actions
-            v-if="!isFolderReadOnly"
-            :size="size"
-            :message="message"
-            :conversation="conversation"
-        />
+
+        <template #menu>
+            <mail-viewer-toolbar-other-actions
+                v-if="!isFolderReadOnly"
+                :size="size"
+                :message="message"
+                :conversation="conversation"
+        /></template>
     </bm-toolbar>
 </template>
 

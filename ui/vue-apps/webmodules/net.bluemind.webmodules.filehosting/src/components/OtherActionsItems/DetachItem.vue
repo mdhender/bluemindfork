@@ -1,6 +1,6 @@
 <template>
     <bm-toolbar-icon-button
-        v-if="!fhFile && !isReadOnly && !message.composing"
+        v-if="!fhFile && !isReadOnly"
         class="detach-item"
         :disabled="isToolarge"
         icon="cloud-up"

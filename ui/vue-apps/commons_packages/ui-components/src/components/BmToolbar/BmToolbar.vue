@@ -30,6 +30,10 @@ export default {
             type: String,
             default: undefined
         },
+        menuIconSize: {
+            type: String,
+            default: "md"
+        },
         menuWithCaret: {
             type: Boolean,
             default: false
@@ -57,9 +61,9 @@ export default {
 
         const hidden = ref(0);
         const shown = ref(0);
-        const extensions = computed(() => renderWebAppExtensions(props.extension, attrs, props.extensionId));
+        const extensions = computed(() => renderWebAppExtensions(props.extension, props.extensionId, attrs));
         const menuExtensions = computed(() =>
-            renderWebAppExtensions(`${props.extension}.menu`, attrs, props.extensionId)
+            renderWebAppExtensions(`${props.extension}.menu`, props.extensionId, attrs)
         );
         function overflown({ detail: nodes }) {
             let toHide = nodes.reduce((count, node) => (node.overflows ? ++count : count), 0);
@@ -99,7 +103,7 @@ export default {
                 props: {
                     icon: props.menuIcon,
                     variant: props.menuIconVariant,
-                    size: "sm",
+                    size: props.menuIconSize,
                     noCaret: !props.menuWithCaret
                 },
                 scopedSlots: {
@@ -140,7 +144,7 @@ function isNotComment(node) {
     position: relative;
     display: flex;
     flex-wrap: nowrap !important;
-
+    min-width: 0;
     &.right {
         // Force hidden elements to overflow below the toolbar so that it can be sticked on the right
         // and force a height to constrain the toolbar to one line.
@@ -154,9 +158,6 @@ function isNotComment(node) {
     }
     .overflow-menu {
         order: 999;
-        > button {
-            height: 100%;
-        }
     }
 
     .dropdown-menu {

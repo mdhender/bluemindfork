@@ -3,12 +3,8 @@
         <div class="new">
             <new-message :template="activeFolder === MY_TEMPLATES.key" />
         </div>
-        <div class="search">
-            <mail-search-box @active="activeSearch = $event" />
-        </div>
-        <div class="toolbar">
-            <mail-toolbar :compact="activeSearch" />
-        </div>
+        <mail-search-box class="search" @active="activeSearch = $event" />
+        <mail-toolbar :compact="activeSearch" />
     </div>
 </template>
 
@@ -53,6 +49,7 @@ export default {
     display: flex;
     flex: 1 1 auto;
     align-items: center;
+    max-width: 100%;
 
     .new {
         padding: 0 $sp-5;
@@ -61,25 +58,11 @@ export default {
         width: 16.7%;
     }
 
-    .toolbar {
-        flex: 0 1;
-        order: 2;
-        @include until-lg {
-            display: none;
-        }
-    }
-    & > .search {
-        width: 25%;
+    &:not(.active-search) > .search {
+        flex: 0 0 base-px-to-rem(500);
     }
 
     &.active-search {
-        & > .search {
-            flex-grow: 2;
-            max-width: 80%;
-            .mail-search-box-context {
-                width: calc(16.67vw - 3.5rem);
-            }
-        }
         & > .new {
             height: base-px-to-rem(30);
             width: 3.5rem !important;
@@ -87,6 +70,21 @@ export default {
                 display: none;
             }
         }
+        & > .search {
+            flex: 0 1 base-px-to-rem(1600);
+            .mail-search-box-context {
+                width: calc(16.67vw - 3.5rem);
+            }
+        }
+    }
+
+    .mail-toolbar {
+        order: 2;
+        flex: 1 1 base-px-to-rem(400);
+        @include until-lg {
+            display: none;
+        }
+        min-width: 0;
     }
 }
 </style>

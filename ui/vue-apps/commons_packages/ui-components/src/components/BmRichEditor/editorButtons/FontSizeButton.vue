@@ -75,9 +75,6 @@ export default {
 @import "../../../css/utils/variables";
 
 .font-size-button {
-    .dropdown-item-content {
-        margin-left: $sp-2;
-    }
     .selected-text {
         float: right;
         min-width: 2em;

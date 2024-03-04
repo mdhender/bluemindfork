@@ -47,6 +47,11 @@ export default {
     data() {
         return { width: null, position: { left: null, top: null } };
     },
+    computed: {
+        tableRect() {
+            return this.table.getBoundingClientRect();
+        }
+    },
     watch: {
         table() {
             this.width = this.$el.offsetWidth;
@@ -59,10 +64,10 @@ export default {
     },
     methods: {
         setPosition() {
-            const parentTablePosition = this.table.getBoundingClientRect();
-            if (parentTablePosition) {
-                this.position.left = (parentTablePosition.left + parentTablePosition.right) / 2 - this.width / 2;
-                this.position.top = parentTablePosition.bottom;
+            if (this.tableRect) {
+                const toolbarLeft = (this.tableRect.left + this.tableRect.right) / 2 - this.width / 2;
+                this.position.left = toolbarLeft < this.tableRect.left ? this.tableRect.left : toolbarLeft;
+                this.position.top = this.tableRect.bottom;
             }
         }
     }

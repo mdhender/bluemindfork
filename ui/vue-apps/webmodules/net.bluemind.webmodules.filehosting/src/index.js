@@ -62,14 +62,16 @@ extensions.register("webapp.mail", "net.bluemind.webmodules.filehosting", {
     component: {
         name: "DetachButton",
         path: "composer.footer.toolbar",
-        role: "canRemoteAttach"
+        role: "canRemoteAttach",
+        priority: 128
     }
 });
 extensions.register("webapp.mail", "net.bluemind.webmodules.filehosting.drive", {
     component: {
         name: "ChooserButton",
         path: "composer.footer.toolbar",
-        role: "canUseFilehosting"
+        role: "canUseFilehosting",
+        priority: 129
     }
 });
 extensions.register("webapp.mail", "net.bluemind.webmodules.filehosting", {
@@ -81,14 +83,14 @@ extensions.register("webapp.mail", "net.bluemind.webmodules.filehosting", {
 extensions.register("webapp.mail", "net.bluemind.webmodules.filehosting.drive", {
     component: {
         name: "CopyToDriveItem",
-        path: "file.actions",
+        path: "file.actions.menu",
         role: "canUseFilehosting"
     }
 });
 extensions.register("webapp.mail", "net.bluemind.webmodules.filehosting", {
     component: {
         name: "DetachItem",
-        path: "file.actions",
+        path: "file.actions.menu",
         role: "canRemoteAttach"
     }
 });

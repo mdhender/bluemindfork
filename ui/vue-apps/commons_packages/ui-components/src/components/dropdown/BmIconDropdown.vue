@@ -73,12 +73,15 @@ export default {
         extension: {
             type: String,
             default: undefined
+        },
+        extensionId: {
+            type: String,
+            default: undefined
         }
     },
-    setup(props) {
+    setup() {
         const { renderWebAppExtensions } = useExtensions();
-        const extensions = renderWebAppExtensions(props.extension);
-        return { extensions };
+        return { renderWebAppExtensions };
     },
     computed: {
         isSubMenu() {
@@ -96,6 +99,9 @@ export default {
         },
         variant_() {
             return this.isSubMenu ? "regular" : this.variant;
+        },
+        extensions() {
+            return this.renderWebAppExtensions(this.extension, this.extensionId, this.$attrs);
         }
     }
 };

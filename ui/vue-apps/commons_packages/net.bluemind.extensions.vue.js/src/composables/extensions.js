@@ -5,7 +5,7 @@ function useExtensions() {
     const normalizeSlot = slot => {
         return (Array.isArray(slot) ? slot : slot ? [slot] : []).filter(vnode => Boolean(vnode.tag));
     };
-    const renderWebAppExtensions = (extension, attrs = {}, id = "webapp") => {
+    const renderWebAppExtensions = (extension, id = "webapp", attrs = {}) => {
         if (!extension) {
             return [];
         }

@@ -67,15 +67,10 @@ export default {
 
 <style lang="scss">
 @import "../../css/utils/variables.scss";
-@import "../../css/utils/_text.scss";
 
 .bm-dropdown-autocomplete {
     .dropdown-divider {
         border-color: $neutral-fg;
-    }
-
-    .dropdown-item-content {
-        @include text-overflow;
     }
 }
 </style>

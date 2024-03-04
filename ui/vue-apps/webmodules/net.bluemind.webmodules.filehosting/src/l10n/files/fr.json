@@ -5,7 +5,7 @@
                 "success": "Le fichier a bien été ajouté à votre drive.",
                 "loading": "Le fichier est en train d'être ajouté à votre drive...",
                 "error": "Le fichier n'a pas pu être ajouté à votre drive."
-            }, 
+            },
             "detach_attachment": {
                 "success": "La pièce jointe a bien été détachée.",
                 "loading": "La pièce jointe est en train d'être détachée...",
@@ -21,7 +21,7 @@
         "chooser": "Sélectionnez des fichiers à insérer en tant que lien drive",
         "detach": "Détacher la pièce jointe",
         "share": {
-            "start": "Envoyer un lien partagé | Envoyer des liens partagés",
+            "upload": "Charger sur le Drive et partager",
             "stop": "Arrêter l'envoi",
             "pending": "Envoi d'un lien partagé | Envoi des liens partagés",
             "failure": "Votre fichier n'a pas pu être téléchargé | Certains fichiers n'ont pas pu être téléchargés"

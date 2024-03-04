@@ -21,7 +21,7 @@
         "chooser": "Wählen Sie Dateien aus, die als Drive-Links eingefügt werden sollen",
         "detach": "Aufsatz abnehmen",
         "share": {
-            "start": "Einen freigegebenen Link senden | Gemeinsame Links senden",
+            "upload": "Auf Drive hochladen und teilen",
             "stop": "Anhalten der Sendung",
             "pending": "Einen geteilten Link senden | Senden von geteilten Links",
             "failure": "Ihre Datei konnte nicht hochgeladen werden | Einige Dateien konnten nicht heruntergeladen werden"

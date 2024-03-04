@@ -1,15 +1,14 @@
 <template>
-    <div class="file-toolbar">
+    <div class="file-toolbar d-flex align-items-center">
         <bm-toolbar
             key-nav
             extension-id="webapp.mail"
-            extension="file.actions"
+            :extension="ext"
             class="d-flex align-items-center"
             :file="file"
             :message="message"
             menu-icon="3dots-v"
             menu-icon-variant="compact"
-            :max-items="2"
         >
             <preview-button
                 v-if="hasButton(ActionButtons.PREVIEW) && isViewable(file)"
@@ -71,6 +70,11 @@ export default {
             ActionButtons
         };
     },
+    computed: {
+        ext() {
+            return `${this.message.composing ? "composition." : ""}file.actions`;
+        }
+    },
     methods: {
         ...mapActions("mail", { SET_PREVIEW }),
         download(file) {
@@ -91,3 +95,9 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+.file-toolbar {
+    max-width: 100%;
+}
+</style>

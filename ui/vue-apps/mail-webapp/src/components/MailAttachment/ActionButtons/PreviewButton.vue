@@ -1,5 +1,5 @@
 <template>
-    <bm-icon-button
+    <bm-toolbar-icon-button
         variant="compact"
         class="preview-button"
         size="sm"
@@ -11,12 +11,12 @@
 </template>
 
 <script>
-import { BmIconButton } from "@bluemind/ui-components";
+import { BmToolbarIconButton } from "@bluemind/ui-components";
 import { MimeType } from "@bluemind/email";
 
 export default {
     name: "PreviewButton",
-    components: { BmIconButton },
+    components: { BmToolbarIconButton },
     props: {
         disabled: {
             type: Boolean,

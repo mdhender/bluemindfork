@@ -163,17 +163,3 @@ export default {
     }
 };
 </script>
-
-<style lang="scss">
-@import "~@bluemind/ui-components/src/css/utils/variables";
-
-.mail-toolbar-compose-message {
-    &.compact {
-        padding-left: $sp-5;
-        padding-right: $sp-5;
-    }
-    .overflow-menu > .dropdown-toggle {
-        padding: 0 !important;
-    }
-}
-</style>

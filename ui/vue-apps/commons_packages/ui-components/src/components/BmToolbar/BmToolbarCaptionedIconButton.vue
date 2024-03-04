@@ -20,6 +20,10 @@ export default {
             type: String,
             default: undefined
         },
+        extensionId: {
+            type: String,
+            default: undefined
+        },
         caption: {
             type: String,
             required: true

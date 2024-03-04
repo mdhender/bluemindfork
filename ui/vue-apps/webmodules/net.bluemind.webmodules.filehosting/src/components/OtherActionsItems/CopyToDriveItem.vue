@@ -1,6 +1,6 @@
 <template>
     <bm-toolbar-icon-button
-        v-if="!fhFile && !message.composing"
+        v-if="!fhFile"
         class="copy-to-drive-item"
         :disabled="isToolarge"
         icon="cloud"

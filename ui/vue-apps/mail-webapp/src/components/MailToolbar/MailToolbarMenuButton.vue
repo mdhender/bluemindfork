@@ -1,5 +1,9 @@
 <template>
-    <bm-icon v-if="compact" class="mail-toolbar-menu-button btn-lg btn-icon-compact" icon="3dots" />
+    <bm-icon
+        v-if="compact"
+        class="mail-toolbar-menu-button dropdown b-dropdown bm-icon-dropdown btn-group compact dropdown-no-caret"
+        icon="3dots"
+    />
     <div v-else>
         <div class="mail-toolbar-menu-button btn bm-captioned-icon-button desktop-only btn-captioned-icon">
             <bm-icon icon="3dots" />

@@ -75,6 +75,7 @@ export default {
         display: flex;
         align-items: center;
         background-color: inherit;
+        max-width: 100%;
         @include until-lg {
             gap: $sp-4;
         }
