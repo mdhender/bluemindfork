@@ -60,7 +60,9 @@ export default {
 };
 
 async function searchContacts(pattern) {
-    const searchResults = await inject("AddressBooksPersistence").search(searchVCardsHelper(pattern, 5, true));
+    const searchResults = await inject("AddressBooksPersistence").search(
+        searchVCardsHelper(pattern, { size: 5, noGroup: true })
+    );
     return searchResults.values.map(vcardInfo => VCardInfoAdaptor.toContact(vcardInfo));
 }
 </script>

@@ -55,7 +55,9 @@ export default {
         },
         async recipientToContact() {
             const searchToken = EmailExtractor.extractEmail(this.recipient) || EmailExtractor.extractDN(this.recipient);
-            const searchResults = await inject("AddressBooksPersistence").search(searchVCardsHelper(searchToken, 20));
+            const searchResults = await inject("AddressBooksPersistence").search(
+                searchVCardsHelper(searchToken, { size: 20 })
+            );
             return searchResults.values?.length
                 ? searchResultsToContact(searchResults)
                 : recipientStringToVCardItem(this.recipient);

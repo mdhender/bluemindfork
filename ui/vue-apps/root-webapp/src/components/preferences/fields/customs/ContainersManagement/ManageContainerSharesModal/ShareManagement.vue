@@ -140,7 +140,9 @@ export default {
             return dirEntries.values.filter(this.filterSearchResults).map(DirEntryAdaptor.toContact);
         },
         async loadAddressbooksSuggestions() {
-            const vcards = await inject("AddressBooksPersistence").search(searchVCardsHelper(this.searchedInput, 10));
+            const vcards = await inject("AddressBooksPersistence").search(
+                searchVCardsHelper(this.searchedInput, { size: 10 })
+            );
             const filtered = vcards.values
                 .filter(
                     vcardInfo =>

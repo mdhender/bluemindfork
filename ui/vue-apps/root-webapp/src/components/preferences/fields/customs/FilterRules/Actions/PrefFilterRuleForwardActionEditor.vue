@@ -60,7 +60,9 @@ export default {
                 this.autocompleteResults = [];
                 return;
             }
-            const searchResults = await inject("AddressBooksPersistence").search(searchVCardsHelper(pattern, 5, true));
+            const searchResults = await inject("AddressBooksPersistence").search(
+                searchVCardsHelper(pattern, { size: 5, noGroup: true })
+            );
             this.autocompleteResults = searchResults.values
                 .map(VCardInfoAdaptor.toContact)
                 .filter(contact => contact.address !== inject("UserSession").defaultEmail);

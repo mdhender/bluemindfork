@@ -220,8 +220,9 @@ public class VCardIndexStoreTests {
 
 	@Test
 	public void testSearch_25000() throws Exception {
+		int max = 25000;
         List<ItemValue<VCard>> allCards = new ArrayList<>();
-		for (int i = 0; i < 25000; i++) {
+		for (int i = 0; i < max; i++) {
 			VCard card = new VCard();
 			card.identification = new VCard.Identification();
 			card.identification.formatedName = VCard.Identification.FormatedName.create(String.format("card%05d", i),
@@ -243,18 +244,18 @@ public class VCardIndexStoreTests {
 		assertEquals(0, res.total);
 
 		// test more than 10000
-		VCardQuery q = new VCardQuery();
+		VCardQuery q = VCardQuery.create("value.identification.formatedName.value:card*");
 		q.size = 1000;
 		q.from = 15000;
 		res = indexStore.search(q);
-		assertEquals(1000, res.total);
+		assertEquals(max, res.total);
 		assertEquals("test15000", res.values.get(0));
 		assertEquals("test15999", res.values.get(res.values.size() - 1));
 
 		// test more than 10000 with specific order
 		q.orderBy = VCardQuery.OrderBy.Pertinance;
 		res = indexStore.search(q);
-		assertEquals(1000, res.total);
+		assertEquals(max, res.total);
 		assertEquals("test15000", res.values.get(0));
 		assertEquals("test15999", res.values.get(res.values.size() - 1));
 
@@ -262,14 +263,14 @@ public class VCardIndexStoreTests {
 		q.size = 0;
 		q.from = 15000;
 		res = indexStore.search(q);
-		assertEquals(0, res.total);
+		assertEquals(max, res.total);
 		assertEquals(0, res.values.size());
 
 		// test specific from and size = -1
 		q.size = -1;
 		q.from = 20000;
 		res = indexStore.search(q);
-		assertEquals(5000, res.total);
+		assertEquals(max, res.total);
 		assertEquals("test20000", res.values.get(0));
 		assertEquals("test24999", res.values.get(res.values.size() - 1));
 
@@ -277,7 +278,7 @@ public class VCardIndexStoreTests {
 		q.size = -1;
 		q.from = 100;
 		res = indexStore.search(q);
-		assertEquals(10, res.total);
+		assertEquals(max, res.total);
 
 	}
 

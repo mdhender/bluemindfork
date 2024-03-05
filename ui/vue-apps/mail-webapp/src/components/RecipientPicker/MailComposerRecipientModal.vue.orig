@@ -244,12 +244,15 @@ export default {
             if (searchValue) {
                 this.loading = true;
                 const addressbookRepository = inject("AddressBookPersistence", this.selectedAddressBookId);
-                const queryObject = searchVCardsHelper(searchValue, {
-                    size: 50,
-                    noGroup: false,
-                    addressBook: this.selectedAddressBookId,
-                    fields: [SearchFields.EMAIL, SearchFields.NAME, SearchFields.COMPANY]
-                });
+                const queryObject = searchVCardsHelper(
+                    searchValue,
+                    50,
+                    false,
+                    this.selectedAddressBookId,
+                    SearchFields.EMAIL,
+                    SearchFields.NAME,
+                    SearchFields.COMPANY
+                );
                 const searchResults = await addressbookRepository.search(queryObject);
 
                 this.searchedContacts =
@@ -299,9 +302,9 @@ export default {
             try {
                 if (this.selectedAddressBookId) {
                     const { resultsInPage, pageStartIndex, totalLength } = await apiAddressbooks.byPage(
+                        this.selectedAddressBookId,
                         this.currentPage,
-                        this.perPage,
-                        this.selectedAddressBookId
+                        this.perPage
                     );
                     this.allContacts = buildAllContacts(
                         this.selectedAddressBookId,
@@ -318,10 +321,24 @@ export default {
     }
 };
 
+<<<<<<< HEAD
 function buildAllContacts(addressBookId, perPage, resultsInPage, pageStartIndex, totalLength) {
-    return Array.from({ length: totalLength })
+    return new Array(totalLength)
+        .fill(null)
         .toSpliced(pageStartIndex, perPage, ...resultsInPage)
         .map(contact => transformRawContact(contact, addressBookId));
+=======
+const sortedIds = { addressBookId: undefined, ids: undefined };
+
+async function getSortedIds(addressBookId) {
+    if (sortedIds.addressBookId !== addressBookId) {
+        const ids = await inject("AddressBookPersistence", addressBookId).validAndSortedIds({
+            fields: [{ column: "formated_name", dir: "Asc" }]
+        });
+        Object.assign(sortedIds, { addressBookId, ids });
+    }
+    return sortedIds.ids;
+>>>>>>> parent of 17264055196 (PR feedback: move API)
 }
 
 function toContact(contactItem) {

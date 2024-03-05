@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 
@@ -118,7 +119,15 @@ public class Pit<T> implements AutoCloseable {
 
 	public <U> List<U> allPages(PaginableSearchQueryBuilder paginableSearch, PaginationParams params,
 			Function<Hit<T>, U> mapper) throws ElasticsearchException, IOException {
+		return allPages(paginableSearch, params, mapper, null);
+	}
+
+	public <U> List<U> allPages(PaginableSearchQueryBuilder paginableSearch, PaginationParams params,
+			Function<Hit<T>, U> mapper, AtomicLong total) throws ElasticsearchException, IOException {
 		AtomicInteger position = new AtomicInteger(0);
+		if (total != null) {
+			total.set(0L);
+		}
 		List<U> results = new ArrayList<>();
 		do {
 			SearchRequest search = adaptSearch(paginableSearch, params.pageSize, params.sort);
@@ -131,6 +140,9 @@ public class Pit<T> implements AutoCloseable {
 					consumeHit(hit);
 					position.incrementAndGet();
 				});
+				if (total != null) {
+					total.set(response.hits().total().value());
+				}
 			}
 		} while (hasNext() && continueSearch.test(params.size, results.size()));
 		return results;
@@ -148,7 +160,7 @@ public class Pit<T> implements AutoCloseable {
 				s.sort(sort);
 			}
 			return (sortFields != null) //
-					? s.searchAfter(sortFields).trackTotalHits(t -> t.enabled(false)) //
+					? s.searchAfter(sortFields).trackTotalHits(t -> t.enabled(true)) //
 					: s.trackTotalHits(t -> t.enabled(true));
 		}).apply(new SearchRequest.Builder()).build();
 	}

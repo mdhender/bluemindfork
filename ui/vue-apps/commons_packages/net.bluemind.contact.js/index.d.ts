@@ -12,7 +12,21 @@ declare module "@bluemind/contact" {
         members: Partial<VCard.Organizational.Member>[];
         memberCount?: number;
     };
-    function searchVCardsHelper(pattern: string, size = 5, noGroup = false);
+
+    type Field =
+        | "value.identification.formatedName.value"
+        | "value.communications.emails.value"
+        | "value.organizational.org.company";
+
+    type SearchOption = {
+        size?: number;
+        noGroup?: boolean;
+        addressBook?: string;
+        fields?: Field[];
+        from?: number;
+    };
+
+    function searchVCardsHelper(pattern: string, options?: SearchOption);
 }
 
 export { VCardAdaptor };

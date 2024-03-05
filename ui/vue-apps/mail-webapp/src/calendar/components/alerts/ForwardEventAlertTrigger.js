@@ -76,7 +76,9 @@ export default {
             return searchResults.some(hasAlias(this.extractUidFromDir(this.eventOrganizer?.dir), this.sender.address));
         },
         async retreiveContactsByEmailAddress(emailAddress) {
-            const searchResults = await inject("AddressBooksPersistence").search(searchVCardsHelper(emailAddress, 50));
+            const searchResults = await inject("AddressBooksPersistence").search(
+                searchVCardsHelper(emailAddress, { size: 50 })
+            );
             return searchResults.values;
         },
         extractUidFromDir(dir) {

@@ -22,22 +22,33 @@ function buildFieldsQuery(fields, value) {
     }, "");
 }
 
-function searchVCardsHelper(pattern, size = 5, noGroup = false, addressBook = null, ...fields) {
+function searchVCardsHelper(pattern, options) {
+    let { size, noGroup, addressBook, fields, from, orderBy } = Object.assign(
+        {
+            size: 5,
+            noGroup: false,
+            addressBook: null,
+            fields: [Fields.NAME, Fields.EMAIL],
+            from: 0,
+            orderBy: VCardQuery.OrderBy.Pertinance
+        },
+        options
+    );
+
     if (size < 0) {
         size = SEARCH_API_MAX_SIZE;
     }
-    fields = fields.length ? fields : [Fields.NAME, Fields.EMAIL];
 
     const escaped = Array.isArray(pattern)
         ? pattern.reduce((escaped, current, index) => escaped + (index !== 0 ? " OR " : "") + escape(current), "")
         : escape(pattern);
 
     const groupPart = noGroup ? "" : "(value.kind:group AND _exists_:value.organizational.member) OR ";
-    const fieldsPart = buildFieldsQuery(fields, escaped);
+    const fieldsPart = fields.length ? `(${buildFieldsQuery(fields, escaped)}) AND ` : "";
     const containerPart = addressBook ? ` AND containerUid:${escape(addressBook)}` : "";
-    const esQuery = `(${fieldsPart}) AND (${groupPart}_exists_:value.communications.emails.value)${containerPart}`;
+    const esQuery = `${fieldsPart}(${groupPart}_exists_:value.communications.emails.value)${containerPart}`;
 
-    return { from: 0, size, query: esQuery, orderBy: VCardQuery.OrderBy.Pertinance, escapeQuery: false };
+    return { from, size, query: esQuery, orderBy, escapeQuery: false };
 }
 
 function searchVCardsByIdHelper(uid, containerUid, size = 5, noGroup = false) {

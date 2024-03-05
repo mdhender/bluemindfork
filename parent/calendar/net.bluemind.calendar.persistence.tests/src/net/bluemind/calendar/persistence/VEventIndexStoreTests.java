@@ -203,6 +203,7 @@ public class VEventIndexStoreTests {
 
 	@Test
 	public void testSearch_25000() throws Exception {
+		int max = 25000;
 		List<ItemValue<VEventSeries>> allEvents = new ArrayList<>();
 		for (int i = 0; i < 25000; i++) {
 			ItemValue<VEventSeries> event = defaultVEvent();
@@ -222,30 +223,30 @@ public class VEventIndexStoreTests {
 		assertEquals(0, res.total);
 
 		// test more than 10000
-		VEventQuery q = new VEventQuery();
+		VEventQuery q = VEventQuery.create("value.summary:event*");
 		q.size = 1000;
 		q.from = 15000;
 		res = indexStore.search(q);
-		assertEquals(1000, res.total);
+		assertEquals(max, res.total);
 
 		// test specific from and size = 0
 		q.size = 0;
 		q.from = 15000;
 		res = indexStore.search(q);
-		assertEquals(0, res.total);
+		assertEquals(max, res.total);
 
 		// test specific from and size = -1
 		q.size = -1;
 		q.from = 20000;
 		res = indexStore.search(q);
-		assertEquals(5000, res.total);
+		assertEquals(max, res.total);
 
 		// test specific size = -1
 		q.size = -1;
 		q.from = 0;
 		res = indexStore.search(q);
 		// 10 is default size forced by ES
-		assertEquals(10, res.total);
+		assertEquals(max, res.total);
 	}
 
 	@Test

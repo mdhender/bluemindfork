@@ -78,7 +78,13 @@
                 </div>
             </template>
         </bm-table>
-        <bm-pagination ref="pagination" v-model="currentPage" :total-rows="contacts.length" :per-page="perPage" />
+        <bm-pagination
+            ref="pagination"
+            :total-rows="contacts.length"
+            :per-page="perPage"
+            :value="currentPage"
+            @input="$emit('page-changed', $event)"
+        />
     </div>
 </template>
 
@@ -104,7 +110,9 @@ export default {
         loading: { type: Boolean, required: true },
         selected: { type: Array, required: true },
         userId: { type: String, required: true },
-        search: { type: String, default: "" }
+        search: { type: String, default: "" },
+        perPage: { type: Number, default: 50 },
+        currentPage: { type: Number, default: 1 }
     },
     data() {
         return {
@@ -113,9 +121,7 @@ export default {
                 { key: "name", label: "", class: "name-cell" },
                 { key: "email", label: "", class: "email-cell" },
                 { key: "company", label: "", class: "company-cell" }
-            ],
-            perPage: 50,
-            currentPage: 1
+            ]
         };
     },
 

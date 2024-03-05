@@ -62,7 +62,7 @@ export default {
                 try {
                     const promises = this.addresses.map(address =>
                         EmailValidator.validateAddress(address)
-                            ? inject("AddressBooksPersistence").search(searchVCardsHelper(address, 1))
+                            ? inject("AddressBooksPersistence").search(searchVCardsHelper(address, { size: 1 }))
                             : null
                     );
                     const vcards = await Promise.all(promises);
@@ -84,7 +84,9 @@ export default {
                 this.autocompleteResults = [];
                 return;
             }
-            const searchResults = await inject("AddressBooksPersistence").search(searchVCardsHelper(pattern, 5, true));
+            const searchResults = await inject("AddressBooksPersistence").search(
+                searchVCardsHelper(pattern, { size: 5, noGroup: true })
+            );
             this.autocompleteResults = searchResults.values.flatMap(vcard => {
                 const contact = VCardInfoAdaptor.toContact(vcard);
                 return !this.selectedAddresses.includes(contact.address) ? contact : [];

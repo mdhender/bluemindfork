@@ -122,13 +122,15 @@ public class VCardStore extends AbstractItemValueStore<VCard> {
 	}
 
 	public List<Long> sortedIds(SortDescriptor sorted) throws SQLException {
-		logger.debug("sorted by {}", sorted);
+		logger.debug("sorted by {}");
+		SortDescriptor.Field sortField = sorted.fields.isEmpty() ? null : sorted.fields.getFirst();
+		String sortColumn = sortField == null ? "item.created" : "rec." + sortField.column;
+		String sortDirection = sortField == null ? "DESC" : sortField.dir.name();
 		String query = "SELECT item.id FROM t_addressbook_vcard rec "
 				+ "INNER JOIN t_container_item item ON rec.item_id = item.id " //
 				+ "WHERE item.container_id = ? " //
 				+ "AND (item.flags::bit(32) & 2::bit(32)) = 0::bit(32) " // not deleted
-				+ "ORDER BY item.created DESC";
-		// FIXME use sort params
+				+ "ORDER BY " + sortColumn + " " + sortDirection;
 		return select(query, LongCreator.FIRST, Collections.emptyList(), new Object[] { container.id });
 	}
 

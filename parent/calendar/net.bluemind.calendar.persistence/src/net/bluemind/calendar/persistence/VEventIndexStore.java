@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -228,20 +229,22 @@ public class VEventIndexStore {
 			throws ElasticsearchException, IOException {
 		SearchResponse<Void> response = esClient.search(paginableSearch //
 				.andThen(s -> s.index(VEVENT_READ_ALIAS)) //
+				.andThen(s -> s.trackTotalHits(t -> t.enabled(true))) //
 				.andThen(s -> (query.size > 0) ? s.from(query.from).size(query.size) : s), Void.class);
 
 		List<String> uids = response.hits().hits().stream()
 				.map(hit -> hit.fields().get("uid").toJson().asJsonArray().getString(0)).toList();
-		return ListResult.create(uids, uids.size());
+		return ListResult.create(uids, response.hits().total().value());
 	}
 
 	private ListResult<String> paginatedSearch(PaginableSearchQueryBuilder paginableSearch, VEventQuery query)
 			throws ElasticsearchException, IOException {
 		SortOptions sort = SortOptions.of(s -> s.field(f -> f.field("_shard_doc").order(SortOrder.Asc)));
 		try (Pit<Void> pit = Pit.allocate(esClient, VEVENT_READ_ALIAS, 60, Void.class)) {
+			AtomicLong total = new AtomicLong();
 			List<String> uids = pit.allPages(paginableSearch, new PaginationParams(query.from, query.size, sort),
-					hit -> hit.fields().get("uid").toJson().asJsonArray().getString(0));
-			return ListResult.create(uids, uids.size());
+					hit -> hit.fields().get("uid").toJson().asJsonArray().getString(0), total);
+			return ListResult.create(uids, total.get());
 		}
 	}
 
