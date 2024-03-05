@@ -23,42 +23,35 @@ import org.junit.Test;
 
 import net.bluemind.user.persistence.security.HashAlgorithm;
 import net.bluemind.user.persistence.security.HashFactory;
-import net.bluemind.user.persistence.security.PBKDF2Hash;
 
-public class PBKDF2Tests {
+public class Argon2Tests {
 
 	@Test
 	public void testGenerate() {
 		int total = 0;
 		for (int i = 0; i < 20; i++) {
 			long ts = System.currentTimeMillis();
-			String hash = HashFactory.get(HashAlgorithm.PBKDF2).create("this is password");
+			String hash = HashFactory.get(HashAlgorithm.ARGON2).create("this is password");
 			long done = System.currentTimeMillis() - ts;
 			total += done;
-			// System.err.println(PBKDF2Hash.iterations() + " iterations.
-			// Hash generated in " + done + " ms");
-			assertEquals(HashAlgorithm.valueOf("PBKDF2"), HashFactory.algorithm(hash));
+			assertEquals(HashAlgorithm.valueOf("ARGON2"), HashFactory.algorithm(hash));
 		}
 
-		System.err.println(
-				PBKDF2Hash.iterations() + " iterations, 20 runs. Generate average time: " + (total / 20) + " ms");
+		System.err.println("20 runs. Generate average time: " + (total / 20) + " ms");
 	}
 
 	@Test
 	public void testValidate() {
 		int total = 0;
-		String hash = HashFactory.get(HashAlgorithm.PBKDF2).create("this is password");
+		String hash = HashFactory.get(HashAlgorithm.ARGON2).create("this is password");
 
 		for (int i = 0; i < 200; i++) {
 			long ts = System.currentTimeMillis();
-			HashFactory.get(HashAlgorithm.PBKDF2).validate("this is password" + i, hash);
+			HashFactory.get(HashAlgorithm.ARGON2).validate("this is password" + i, hash);
 			long done = System.currentTimeMillis() - ts;
 			total += done;
-			// System.err.println(PBKDF2Hash.iterations() + " iterations.
-			// Hash validated in " + done + " ms");
 		}
 
-		System.err.println(
-				PBKDF2Hash.iterations() + " iterations, 200 runs. Validate average time: " + (total / 200) + " ms");
+		System.err.println("200 runs. Validate average time: " + (total / 200) + " ms");
 	}
 }

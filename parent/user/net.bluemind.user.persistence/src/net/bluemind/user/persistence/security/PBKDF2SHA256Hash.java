@@ -1,30 +1,25 @@
-/* 
- * Password Hashing With PBKDF2.
- * Copyright (c) 2013, Taylor Hornby
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without 
- * modification, are permitted provided that the following conditions are met:
- *
- * 1. Redistributions of source code must retain the above copyright notice, 
- * this list of conditions and the following disclaimer.
- *
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- * this list of conditions and the following disclaimer in the documentation 
- * and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE 
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
- * POSSIBILITY OF SUCH DAMAGE.
- */
+/* BEGIN LICENSE
+  * Copyright © Blue Mind SAS, 2012-2024
+  *
+  * This file is part of Blue Mind. Blue Mind is a messaging and collaborative
+  * solution.
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of either the GNU Affero General Public License as
+  * published by the Free Software Foundation (version 3 of the License)
+  * or the CeCILL as published by CeCILL.info (version 2 of the License).
+  *
+  * There are special exceptions to the terms and conditions of the
+  * licenses as they are applied to this program. See LICENSE.txt in
+  * the directory of this program distribution.
+  *
+  * This program is distributed in the hope that it will be useful,
+  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  *
+  * See LICENSE.txt
+  * END LICENSE
+  */
 package net.bluemind.user.persistence.security;
 
 import java.math.BigInteger;
@@ -43,17 +38,17 @@ import com.google.common.cache.CacheBuilder;
 
 import net.bluemind.core.api.fault.ServerFault;
 
-public class PBKDF2Hash implements Hash {
-	public static final String PBKDF2_ALGORITHM = "PBKDF2WithHmacSHA1";
+public class PBKDF2SHA256Hash implements Hash {
+	public static final String PBKDF2_ALGORITHM = "PBKDF2WithHmacSHA256";
 
 	public static final int SALT_BYTE_SIZE = 24;
 	public static final int HASH_BYTE_SIZE = 24;
 
-	public static final int ITERATION_INDEX = 0;
-	public static final int SALT_INDEX = 1;
-	public static final int PBKDF2_INDEX = 2;
+	public static final int ITERATION_INDEX = 1;
+	public static final int SALT_INDEX = 2;
+	public static final int PBKDF2_INDEX = 3;
 
-	private static final Pattern pattern = Pattern.compile("^\\d+:\\S+?:\\S+?");
+	private static final Pattern pattern = Pattern.compile("PBKDF2SHA256:\\d+:\\S+?:\\S+?");
 
 	@Override
 	public String create(String plaintext) throws ServerFault {
@@ -65,11 +60,11 @@ public class PBKDF2Hash implements Hash {
 		} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
 			throw new ServerFault(e);
 		}
-		return iterations + ":" + toHex(salt) + ":" + toHex(hash);
+		return "PBKDF2SHA256:" + iterations + ":" + toHex(salt) + ":" + toHex(hash);
 	}
 
 	public static int iterations() {
-		return HashConfig.get().getInt("bm.security.hash.pbkdf2.iterations");
+		return HashConfig.get().getInt("bm.security.hash.pbkdf2sha256.iterations");
 	}
 
 	private static final Cache<String, Boolean> hashCache = CacheBuilder.newBuilder()

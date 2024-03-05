@@ -19,10 +19,5 @@
 package net.bluemind.user.persistence.security;
 
 public enum HashAlgorithm {
-	PBKDF2,
-	SSHA512,
-	SSHA,
-	SHA1,
-	MD5,
-	UNKNOWN;
+	PBKDF2, PBKDF2SHA256, SSHA512, SSHA, SHA1, MD5, BCRYPT, ARGON2, UNKNOWN;
 }

@@ -21,6 +21,7 @@ Require-Bundle: net.bluemind.core.jdbc;bundle-version="1.0.0",
  net.bluemind.mailbox.persistence,
  net.bluemind.mailbox.api,
  jakarta.validation.jakarta.validation-api;bundle-version="3.0.2",
- com.typesafe.config
+ com.typesafe.config,
+ org.springframework.security.crypto;bundle-version="6.2.2"
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.user.persistence

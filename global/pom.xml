@@ -8,13 +8,13 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-		<bm-plugins-version>1.1.732</bm-plugins-version>
+		<bm-plugins-version>1.1.1416</bm-plugins-version>
 		<bm.metrics.agent>1.40.416</bm.metrics.agent>
 		<docker.devenv.tag>5.0.6181</docker.devenv.tag>
-		<target-platform-version>jdk21-965</target-platform-version>
+		<target-platform-version>jdk21-1417</target-platform-version>
 
 		<!-- Not to be modified usually -->
-		<tycho-version>4.0.3</tycho-version>
+		<tycho-version>4.0.6</tycho-version>
 		<maven-source-plugin-version>3.2.1</maven-source-plugin-version>
 		<maven-clean-plugin-version>3.2.0</maven-clean-plugin-version>
 		<jacoco-maven-plugin-version>0.8.9-bm</jacoco-maven-plugin-version>
@@ -300,8 +300,8 @@
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>${maven-compiler-plugin-version}</version>
 					<configuration>
-						<source>20</source>
-						<target>20</target>
+						<source>21</source>
+						<target>21</target>
 					</configuration>
 					<executions>
 						<execution>
@@ -345,8 +345,8 @@
 					<extensions>true</extensions>
 					<configuration>
 						<encoding>UTF-8</encoding>
-						<source>20</source>
-						<target>20</target>
+						<source>21</source>
+						<target>21</target>
 					</configuration>
 				</plugin>
 				<plugin>
@@ -382,8 +382,8 @@
 							<annotationProcessor>net.bluemind.codegen.processor.MetaModelProcessor</annotationProcessor>
 						</annotationProcessors>
 						<generatedSourcesDirectory>${basedir}/generated</generatedSourcesDirectory>
-						<source>20</source>
-						<target>20</target>
+						<source>21</source>
+						<target>21</target>
 						<useProjectSettings>false</useProjectSettings>
 					</configuration>
 					<dependencies>
