@@ -439,7 +439,11 @@ public class MailBackend extends CoreConnect {
 		List<Mailbox> mailboxes = new ArrayList<>();
 		filtered.forEach(recip -> {
 			String[] address = recip.address.split("@");
-			mailboxes.add(new Mailbox(recip.dn, address[0], address[1]));
+			if (address.length == 1) {
+				mailboxes.add(new Mailbox(recip.dn, address[0], null));
+			} else {
+				mailboxes.add(new Mailbox(recip.dn, address[0], address[1]));
+			}
 		});
 		return mailboxes;
 	}
