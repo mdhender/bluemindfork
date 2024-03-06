@@ -30,13 +30,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BmIni {
-
 	private static final Logger logger = LoggerFactory.getLogger(BmIni.class);
-	private static String bmIni = "data/bm.ini";
+	private static final String BM_INI = "data/bm.ini";
+
+	private BmIni() {
+	}
 
 	public static Map<String, String> get() {
 		Properties props = new Properties();
-		File iniFile = new File(bmIni);
+		File iniFile = new File(BM_INI);
 		if (iniFile.exists()) {
 			try (InputStream in = Files.newInputStream(iniFile.toPath())) {
 				props.load(in);
@@ -48,7 +50,7 @@ public class BmIni {
 			logger.warn("data/bm.ini not found");
 		}
 
-		Map<String, String> values = new HashMap<String, String>();
+		Map<String, String> values = new HashMap<>();
 
 		for (Entry<Object, Object> entry : props.entrySet()) {
 			values.put((String) entry.getKey(), (String) entry.getValue());
@@ -58,7 +60,7 @@ public class BmIni {
 
 	public static String value(String key) {
 		Properties p = new Properties();
-		File iniFile = new File(bmIni);
+		File iniFile = new File(BM_INI);
 		if (iniFile.exists()) {
 			try (InputStream in = Files.newInputStream(iniFile.toPath())) {
 				p.load(in);

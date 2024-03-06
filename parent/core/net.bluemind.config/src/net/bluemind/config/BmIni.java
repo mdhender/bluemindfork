@@ -13,9 +13,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BmIni {
-
 	private static final Logger logger = LoggerFactory.getLogger(BmIni.class);
-	private static final File iniFile = new File("/etc/bm/bm.ini");
+
+	private static final String BM_INI = "/etc/bm/bm.ini";
+	private static final File iniFile = new File(BM_INI);
+
+	private BmIni() {
+	}
 
 	public static Map<String, String> get() {
 		Properties props = new Properties();
@@ -24,13 +28,13 @@ public class BmIni {
 				props.load(in);
 
 			} catch (IOException e) {
-				logger.error("error during loading bm.ini", e);
+				logger.error("error during loading {}", BM_INI, e);
 			}
 		} else {
-			logger.warn("/etc/bm/bm.ini not found");
+			logger.warn("{} not found", BM_INI);
 		}
 
-		Map<String, String> values = new HashMap<String, String>();
+		Map<String, String> values = new HashMap<>();
 
 		for (Entry<Object, Object> entry : props.entrySet()) {
 			values.put((String) entry.getKey(), (String) entry.getValue());

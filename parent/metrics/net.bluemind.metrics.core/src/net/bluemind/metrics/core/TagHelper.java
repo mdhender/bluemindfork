@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.io.ByteStreams;
 
+import freemarker.template.Configuration;
+import freemarker.template.Template;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NCUtils;
@@ -23,14 +25,24 @@ public class TagHelper {
 	private TagHelper() {
 	}
 
+	public static Template getTemplate(Class<?> sibling, String basePath, String templateName) throws IOException {
+		Configuration cfg = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
+		cfg.setClassForTemplateLoading(sibling, basePath);
+		return cfg.getTemplate(templateName);
+	}
+
+	public static void write(IServer serverApi, ItemValue<Server> server, String dstFile, byte[] content) {
+		serverApi.writeFile(server.uid, dstFile, content);
+		if (logger.isInfoEnabled()) {
+			logger.info("Created file {} at {}", dstFile, server.value.address());
+		}
+	}
+
 	public static void jarToFS(Class<?> sibling, String src, String dest, ItemValue<Server> srvItem, IServer serverApi)
 			throws IOException {
 
 		try (InputStream in = sibling.getClassLoader().getResourceAsStream(src)) {
-			serverApi.writeFile(srvItem.uid, dest, ByteStreams.toByteArray(in));
-			if (logger.isInfoEnabled()) {
-				logger.info("Created file {} at {}", dest, srvItem.value.address());
-			}
+			write(serverApi, srvItem, dest, ByteStreams.toByteArray(in));
 		}
 	}
 

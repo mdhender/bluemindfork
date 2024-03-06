@@ -48,7 +48,6 @@ import net.bluemind.pool.impl.BmConfIni;
  * 
  */
 public class BMPoolActivator extends Plugin {
-
 	// The shared instance
 	private static BMPoolActivator plugin;
 

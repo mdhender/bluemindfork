@@ -21,19 +21,19 @@ package net.bluemind.pool.impl;
 import net.bluemind.utils.IniFile;
 
 public class BmConfIni extends IniFile {
-
-	private static final String iniPath = getIniPath();
+	private static final String INI_PATH = getIniPath();
 
 	private static String getIniPath() {
 		String ret = System.getProperty("net.bluemind.ini.path");
 		if (ret == null) {
 			ret = "/etc/bm/bm.ini";
 		}
+
 		return ret;
 	}
 
 	public BmConfIni() {
-		super(iniPath);
+		super(INI_PATH);
 	}
 
 	@Override

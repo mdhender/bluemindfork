@@ -38,6 +38,7 @@ import net.bluemind.node.api.ExitList;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NCUtils;
 import net.bluemind.node.api.NodeActivator;
+import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.Server;
 import net.bluemind.server.api.TagDescriptor;
 
@@ -88,9 +89,10 @@ public class RestoreContainerItemIdSeq {
 		long shiftedSeq = SEQ_SHIFT + seq;
 		monitor.log("Bumping t_container_item_id_seq to {} (server '{}', db '{}', leader seq '{}')", shiftedSeq, ip,
 				dbName, seq);
+
 		String bumpCmd = String.format(
-				"PGPASSWORD=%s psql -h localhost -c \"select setval('t_container_item_id_seq', %d)\" %s %s", "bj",
-				shiftedSeq, dbName, "bj");
+				"PGPASSWORD=%s psql -h localhost -c \"select setval('t_container_item_id_seq', %d)\" %s %s",
+				new BmConfIni().get("password"), shiftedSeq, dbName, "bj");
 		String bumpCmdPath = "/tmp/dump-container-item-id-seq-" + System.nanoTime() + ".sh";
 		nodeClient.writeFile(bumpCmdPath, new ByteArrayInputStream(bumpCmd.getBytes()));
 		try {
