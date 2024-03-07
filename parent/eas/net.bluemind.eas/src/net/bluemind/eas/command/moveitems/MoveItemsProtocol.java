@@ -116,7 +116,8 @@ public class MoveItemsProtocol implements IEasProtocol<MoveItemsRequest, MoveIte
 			Optional<HierarchyNode> dstFolder = folderCache.computeIfAbsent(item.dstFldId, this::getAndCheckFolder);
 			if (!dstFolder.isPresent()) {
 				logger.warn("Destination folder is missing. Send status 2 InvalidDestinationCollectionId");
-				appendResponseError(response, item, MoveItemsResponse.Response.Status.INVALID_DESTINATION_COLLECTION_ID);
+				appendResponseError(response, item,
+						MoveItemsResponse.Response.Status.INVALID_DESTINATION_COLLECTION_ID);
 				continue;
 			}
 

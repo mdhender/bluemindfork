@@ -75,8 +75,7 @@ public class AccountInfos {
 		sb.append("Basic ");
 		String encoded = new String(java.util.Base64.getEncoder().encode((userId + ":" + password).getBytes()));
 		sb.append(encoded);
-		String ret = sb.toString();
-		return ret;
+		return sb.toString();
 	}
 
 	public void setDevType(String type) {

@@ -12,7 +12,8 @@ Require-Bundle: org.eclipse.core.runtime,
  io.netty,
  net.bluemind.eas.wbxml;bundle-version="1.0.0",
  net.bluemind.eas.utils;bundle-version="1.0.0",
- net.bluemind.eas.client;bundle-version="1.0.0"
+ net.bluemind.eas.client;bundle-version="1.0.0",
+ slf4j.api
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.eas.client.tests

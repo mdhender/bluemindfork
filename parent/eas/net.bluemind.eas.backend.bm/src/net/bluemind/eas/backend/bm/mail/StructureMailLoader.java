@@ -184,7 +184,7 @@ public class StructureMailLoader extends CoreConnect {
 		if (vevent != null) {
 			boolean isInvitationASimpleMessage = userCanRespond(item, vevent, ret, calendarUid);
 			EventConverter converter = new EventConverter();
-			MSEvent msEvent = converter.convert(bs.getUser(), vevent);
+			MSEvent msEvent = converter.convert(bs, vevent);
 			// FIXME add meetingMessageType into MeetingRequest
 			ret.meetingRequest = OldFormats.update(msEvent, bs.getUser());
 			ret.meetingRequest.itemUid = vevent.internalId;
@@ -229,7 +229,7 @@ public class StructureMailLoader extends CoreConnect {
 			VEventServiceHelper.parseCalendar(new ByteArrayInputStream(fetchedPart), Optional.empty(),
 					Collections.emptyList(), consumer);
 			EventConverter converter = new EventConverter();
-			MSEvent msEvent = converter.convert(bs.getUser(), ret.get(0));
+			MSEvent msEvent = converter.convert(bs, ret.get(0));
 			calResponse = OldFormats.update(msEvent, bs.getUser());
 		} catch (Exception e) {
 			logger.warn("Cannot transform ics to CalendarResponse", e);

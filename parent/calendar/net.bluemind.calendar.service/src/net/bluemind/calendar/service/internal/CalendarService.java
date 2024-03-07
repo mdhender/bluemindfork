@@ -287,6 +287,8 @@ public class CalendarService implements IInternalCalendar {
 		}
 		item.uid = old.uid;
 
+		VEventCancellationSanitizer.sanitize(old.value, event);
+
 		auditor.previousValue(old.value);
 		if ((old.value != null && old.value.main != null
 				&& (old.value.main.classification == Classification.Confidential

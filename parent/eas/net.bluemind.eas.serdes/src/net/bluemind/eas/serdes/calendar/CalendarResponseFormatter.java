@@ -23,6 +23,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.bluemind.eas.dto.NamespaceMapping;
 import net.bluemind.eas.dto.base.Callback;
 import net.bluemind.eas.dto.calendar.CalendarResponse;
@@ -35,10 +38,15 @@ import net.bluemind.eas.serdes.IResponseBuilder;
 import net.bluemind.lib.globalid.ExtIdConverter;
 
 public class CalendarResponseFormatter implements IEasFragmentFormatter<CalendarResponse> {
+	private static final Logger logger = LoggerFactory.getLogger(CalendarResponseFormatter.class);
 
 	@Override
 	public void append(IResponseBuilder b, double protocolVersion, CalendarResponse calendar,
 			Callback<IResponseBuilder> cb) {
+
+		if (calendar.allDayEvent != null) {
+			b.text(NamespaceMapping.CALENDAR, "AllDayEvent", calendar.allDayEvent ? "1" : "0");
+		}
 		if (notEmpty(calendar.timezone) && notAllDayOrProtocolLessThan16(protocolVersion, calendar)) {
 			b.text(NamespaceMapping.CALENDAR, "Timezone", calendar.timezone);
 		}
@@ -51,15 +59,6 @@ public class CalendarResponseFormatter implements IEasFragmentFormatter<Calendar
 		if (notEmpty(calendar.subject)) {
 			b.text(NamespaceMapping.CALENDAR, "Subject", calendar.subject);
 		}
-		if (notEmpty(calendar.location)) {
-			if (protocolVersion > 14.1) {
-				b.container(NamespaceMapping.AIR_SYNC_BASE, "Location");
-				b.text(NamespaceMapping.AIR_SYNC_BASE, "DisplayName", calendar.location);
-				b.endContainer();
-			} else {
-				b.text(NamespaceMapping.CALENDAR, "Location", calendar.location);
-			}
-		}
 		if (notEmpty(calendar.uid)) {
 			b.text(NamespaceMapping.CALENDAR, "UID", calendar.uid);
 		}
@@ -68,6 +67,18 @@ public class CalendarResponseFormatter implements IEasFragmentFormatter<Calendar
 		}
 		if (notEmpty(calendar.organizerEmail)) {
 			b.text(NamespaceMapping.CALENDAR, "OrganizerEmail", calendar.organizerEmail);
+		}
+
+		appendAttendees(b, calendar.attendees);
+
+		if (notEmpty(calendar.location)) {
+			if (protocolVersion > 14.1) {
+				b.container(NamespaceMapping.AIR_SYNC_BASE, "Location");
+				b.text(NamespaceMapping.AIR_SYNC_BASE, "DisplayName", calendar.location);
+				b.endContainer();
+			} else {
+				b.text(NamespaceMapping.CALENDAR, "Location", calendar.location);
+			}
 		}
 
 		setDate(b, protocolVersion, calendar, "EndTime", NamespaceMapping.CALENDAR, calendar.endTime);
@@ -79,10 +90,6 @@ public class CalendarResponseFormatter implements IEasFragmentFormatter<Calendar
 			b.text(NamespaceMapping.CALENDAR, "BusyStatus", calendar.busyStatus.xmlValue());
 		}
 
-		if (calendar.allDayEvent != null) {
-			b.text(NamespaceMapping.CALENDAR, "AllDayEvent", calendar.allDayEvent ? "1" : "0");
-		}
-
 		if (calendar.reminder != null) {
 			b.text(NamespaceMapping.CALENDAR, "Reminder", calendar.reminder.toString());
 		}
@@ -90,8 +97,6 @@ public class CalendarResponseFormatter implements IEasFragmentFormatter<Calendar
 		if (calendar.meetingStatus != null) {
 			b.text(NamespaceMapping.CALENDAR, "MeetingStatus", calendar.meetingStatus.xmlValue());
 		}
-
-		appendAttendees(b, calendar.attendees);
 
 		if (calendar.categories != null) {
 			b.container(NamespaceMapping.CALENDAR, "Categories");
@@ -221,6 +226,10 @@ public class CalendarResponseFormatter implements IEasFragmentFormatter<Calendar
 		}
 
 		if (protocolVersion > 12.1) {
+			if (calendar.disallowNewTimeProposal != null) {
+				b.text(NamespaceMapping.CALENDAR, "DisallowNewTimeProposal",
+						calendar.disallowNewTimeProposal.booleanValue() ? "1" : "0");
+			}
 			if (calendar.responseRequested != null) {
 				b.text(NamespaceMapping.CALENDAR, "ResponseRequested",
 						calendar.responseRequested.booleanValue() ? "1" : "0");
@@ -232,10 +241,6 @@ public class CalendarResponseFormatter implements IEasFragmentFormatter<Calendar
 			}
 			if (calendar.responseType != null) {
 				b.text(NamespaceMapping.CALENDAR, "ResponseType", calendar.responseType.xmlValue());
-			}
-			if (calendar.disallowNewTimeProposal != null) {
-				b.text(NamespaceMapping.CALENDAR, "DisallowNewTimeProposal",
-						calendar.disallowNewTimeProposal.booleanValue() ? "1" : "0");
 			}
 			if (protocolVersion > 14) {
 				if (notEmpty(calendar.onlineMeetingConfLink)) {

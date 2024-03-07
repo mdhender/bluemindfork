@@ -20,7 +20,7 @@ package net.bluemind.eas.client;
 
 public enum ProtocolVersion {
 
-	V141, V121, V120, V25;
+	V161, V160, V141, V121, V120, V25;
 
 	@Override
 	public String toString() {
@@ -34,6 +34,10 @@ public enum ProtocolVersion {
 			return "12.1";
 		case V141:
 			return "14.1";
+		case V160:
+			return "16.0";
+		case V161:
+			return "16.1";
 		}
 	}
 

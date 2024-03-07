@@ -136,35 +136,6 @@ public class OPClient {
 			DOMUtils.logDom(doc);
 		}
 
-		byte[] data = WBXMLTools.toWbxml(namespace, doc);
-		String url = ai.getUrl() + "?User=" + ai.getLogin() + "&DeviceId=" + ai.getDevId() + "&DeviceType="
-				+ ai.getDevType() + "&Cmd=" + cmd;
-
-		BoundRequestBuilder pm = ahc.preparePost(url);
-
-		pm.setBody(data);
-		pm.setHeader("Content-Length", "" + data.length);
-		pm.setHeader("Content-Type", "application/vnd.ms-sync.wbxml");
-		Realm realm = new Realm.Builder(ai.getLogin(), ai.getPassword()).setScheme(AuthScheme.BASIC)
-				.setCharset(StandardCharsets.UTF_8).build();
-		pm.setRealm(realm);
-		pm.setHeader("User-Agent", ai.getUserAgent());
-		pm.setHeader("Ms-ASProtocolVersion", protocolVersion.toString());
-		pm.setHeader("Accept", "*/*");
-		pm.setHeader("Accept-Language", "fr-fr");
-		// pm.setHeader("X-MS-PolicyKey", "0");
-		for (String s : addHeaders.keySet()) {
-			pm.setHeader(s, addHeaders.get(s));
-		}
-		pm.setHeader("Connection", "keep-alive");
-		if (multipart) {
-			pm.setHeader("MS-ASAcceptMultiPart", "T");
-			pm.setHeader("Accept-Encoding", "gzip");
-		}
-
-		if (policyKey != null) {
-			pm.setHeader("X-MS-PolicyKey", policyKey);
-		}
 		byte[] all = post(namespace, doc, cmd, policyKey, multipart);
 
 		Document xml = null;

@@ -525,7 +525,7 @@ public class CalendarBackend extends CoreConnect {
 
 	private AppData toAppData(BackendSession bs, CollectionId collectionId, String calendarUid,
 			ItemValue<VEventSeries> event) {
-		MSEvent msEvent = new EventConverter().convert(bs.getUser(), event);
+		MSEvent msEvent = new EventConverter().convert(bs, event);
 		CalendarResponse cr = OldFormats.update(bs, msEvent, bs.getUser(), collectionId);
 		AppData data = AppData.of(cr);
 

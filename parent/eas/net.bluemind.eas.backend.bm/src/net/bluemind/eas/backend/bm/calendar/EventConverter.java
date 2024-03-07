@@ -25,7 +25,9 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TimeZone;
 
@@ -79,21 +81,21 @@ public class EventConverter {
 
 	private static final Logger logger = LoggerFactory.getLogger(EventConverter.class);
 
-	public MSEvent convert(MSUser me, ItemValue<VEventSeries> seriesItem) {
+	public MSEvent convert(BackendSession bs, ItemValue<VEventSeries> seriesItem) {
 		VEventSeries vevent = seriesItem.value;
 		MSEvent mse = null;
 		if (vevent.main == null) {
 			// only one occurence in "orphan" event
-			mse = convert(me, seriesItem.uid, vevent.occurrences.get(0));
+			mse = convert(bs, seriesItem.uid, vevent.occurrences.get(0));
 			return mse;
 		}
 
-		mse = convert(me, seriesItem.uid, vevent.main);
+		mse = convert(bs, seriesItem.uid, vevent.main);
 
 		if (!vevent.occurrences.isEmpty()) {
 			String timezone = vevent.main != null ? vevent.main.timezone() : null;
 			if (timezone == null) {
-				timezone = me.getTimeZone();
+				timezone = bs.getUser().getTimeZone();
 			}
 
 			TimeZone tz = TimeZone.getTimeZone(timezone);
@@ -106,7 +108,7 @@ public class EventConverter {
 				exceptions = new ArrayList<>(vevent.occurrences.size());
 			}
 			for (VEventOccurrence recurrence : vevent.occurrences) {
-				convertOccurrence(me, tz, exceptions, recurrence);
+				convertOccurrence(bs.getUser(), tz, exceptions, recurrence);
 			}
 			mse.setExceptions(exceptions);
 
@@ -205,11 +207,17 @@ public class EventConverter {
 		exceptions.add(e);
 	}
 
-	public MSEvent convert(MSUser me, String uid, VEvent vevent) {
+	public MSEvent convert(BackendSession bs, String uid, VEvent vevent) {
 		MSEvent mse = new MSEvent();
+		MSUser me = bs.getUser();
 		mse.setUID(uid);
 		mse.setDtStamp(new Date());
 		mse.setSubject(vevent.summary);
+		if (vevent.status.equals(Status.Cancelled)) {
+			ResourceBundle res = ResourceBundle.getBundle("lang/cancelled_event", new Locale(bs.getLang()));
+			String cancelledField = res.getString("cancelled");
+			mse.setSubject(cancelledField + vevent.summary);
+		}
 		PlainBodyFormatter pf = new PlainBodyFormatter();
 		mse.setDescription(pf.convert(vevent.description));
 		mse.setLocation(vevent.location);
