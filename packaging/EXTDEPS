@@ -3,7 +3,7 @@ BMSDS="5.0.0-370"
 
 BMES="7.17.18-bluemind1156"
 
-BMKEYCLOAK="22.0.5-bluemind1430"
+BMKEYCLOAK="22.0.9-bluemind1441"
 
 KAFKA_REPL="0.1.0-bluemind513"
 KAFKA="3.6.1-bluemind731"
