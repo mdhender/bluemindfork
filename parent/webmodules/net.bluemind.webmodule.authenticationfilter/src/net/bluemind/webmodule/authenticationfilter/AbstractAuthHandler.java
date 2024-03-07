@@ -56,7 +56,6 @@ public abstract class AbstractAuthHandler implements NeedVertx {
 
 	protected void createSession(HttpServerRequest request, AuthProvider prov, List<String> forwadedFor,
 			ExternalCreds creds, String redirectTo, Consumer<SessionData> handlerSessionConsumer) {
-		logger.info("Create session for {}", creds.getLoginAtDomain());
 		prov.sessionId(creds, forwadedFor, new AsyncHandler<SessionData>() {
 			@Override
 			public void success(SessionData sessionData) {
@@ -71,6 +70,9 @@ public abstract class AbstractAuthHandler implements NeedVertx {
 					request.response().end();
 					return;
 				}
+
+				logger.info("[{}] Session {} for user {} created", request.path(), sessionData.authKey,
+						creds.getLoginAtDomain());
 
 				handlerSessionConsumer.accept(sessionData);
 
@@ -92,7 +94,7 @@ public abstract class AbstractAuthHandler implements NeedVertx {
 	}
 
 	protected void error(HttpServerRequest req, Throwable e) {
-		logger.error(e.getMessage());
+		logger.error(e.getMessage(), e);
 		AuthenticationCookie.purge(req);
 		req.response().headers().add(HttpHeaders.LOCATION, "/");
 		req.response().setStatusCode(302);

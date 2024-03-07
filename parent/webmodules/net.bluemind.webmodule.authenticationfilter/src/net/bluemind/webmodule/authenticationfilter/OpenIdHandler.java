@@ -110,13 +110,18 @@ public class OpenIdHandler extends AbstractAuthHandler implements Handler<HttpSe
 			return;
 		}
 
-		List<String> forwadedFor = new ArrayList<>(event.headers().getAll("X-Forwarded-For"));
-		forwadedFor.add(event.remoteAddress().host());
-
 		String code = event.params().get("code");
 		String state = event.params().get("state");
 
 		JsonObject jsonState = new JsonObject(new String(b64UrlDecoder.decode(state.getBytes())));
+
+		if (sessionExists(event)) {
+			event.response().headers().add(HttpHeaders.LOCATION, getRedirectTo(event, jsonState));
+			event.response().setStatusCode(302);
+			event.response().end();
+			return;
+		}
+
 		String key = jsonState.getString("codeVerifierKey");
 		String codeVerifier = CodeVerifierCache.verify(key);
 		if (Strings.isNullOrEmpty(codeVerifier)) {
@@ -145,8 +150,12 @@ public class OpenIdHandler extends AbstractAuthHandler implements Handler<HttpSe
 									HttpClientResponse resp = respHandler.result();
 									resp.body(body -> {
 										JsonObject jwtToken = new JsonObject(new String(body.result().getBytes()));
-										String redirectTo = jsonState.getString("path");
-										validateToken(event, forwadedFor, jwtToken, redirectTo,
+
+										List<String> forwadedFor = new ArrayList<>(
+												event.headers().getAll("X-Forwarded-For"));
+										forwadedFor.add(event.remoteAddress().host());
+
+										validateToken(event, forwadedFor, jsonState, jwtToken,
 												internalAuth
 														? new SessionConsumer(vertx, event, realm, openIdClientSecret,
 																jwtToken)
@@ -192,6 +201,25 @@ public class OpenIdHandler extends AbstractAuthHandler implements Handler<HttpSe
 		event.response().end();
 	}
 
+	private String getRedirectTo(HttpServerRequest request, JsonObject jsonState) {
+		String redirectTo = jsonState.getString("path");
+
+		if (redirectTo == null) {
+			redirectTo = "/";
+		}
+
+		if (logger.isDebugEnabled()) {
+			logger.debug("[{}] Redirect to {}", request.path(), redirectTo);
+		}
+		return redirectTo;
+	}
+
+	private boolean sessionExists(HttpServerRequest request) {
+		String sessionId = request.getHeader("BMSessionId");
+
+		return sessionId != null && SessionsCache.get().getIfPresent(sessionId) != null;
+	}
+
 	private String tokenEndpoint(String domainUid, Map<String, String> domainSettings) {
 		String endpoint;
 		if (AuthTypes.INTERNAL.name().equals(domainSettings.get(AuthDomainProperties.AUTH_TYPE.name()))) {
@@ -206,8 +234,8 @@ public class OpenIdHandler extends AbstractAuthHandler implements Handler<HttpSe
 		return URLEncoder.encode(s, StandardCharsets.UTF_8);
 	}
 
-	private void validateToken(HttpServerRequest request, List<String> forwadedFor, JsonObject jwtToken,
-			String redirectTo, Consumer<SessionData> handlerSessionConsumer) {
+	private void validateToken(HttpServerRequest request, List<String> forwadedFor, JsonObject jsonState,
+			JsonObject jwtToken, Consumer<SessionData> handlerSessionConsumer) {
 		DecodedJWT accessToken = null;
 		try {
 			accessToken = JWT.decode(jwtToken.getString("access_token"));
@@ -226,6 +254,6 @@ public class OpenIdHandler extends AbstractAuthHandler implements Handler<HttpSe
 
 		ExternalCreds creds = new ExternalCreds();
 		creds.setLoginAtDomain(email.asString());
-		createSession(request, prov, forwadedFor, creds, redirectTo, handlerSessionConsumer);
+		createSession(request, prov, forwadedFor, creds, getRedirectTo(request, jsonState), handlerSessionConsumer);
 	}
 }

@@ -183,13 +183,18 @@ public class AuthenticationFilter implements IWebFilter, NeedVertx {
 		CacheBackingStore<SessionData> cache = SessionsCache.get();
 
 		synchronized (cache) {
-			return sessionId(request).map(sessionId -> cache.getIfPresent(sessionId)).map(sessionData -> {
+			return sessionId(request).map(cache::getIfPresent).map(sessionData -> {
+				if (logger.isDebugEnabled()) {
+					logger.debug("[{}] Session data for session ID {} found in cache", request.path(),
+							sessionData.authKey);
+				}
+
 				decorate(request, sessionData);
 				if (sessionData.refreshTimerId < 0 && sessionData.jwtToken != null && sessionData.realm != null
 						&& sessionData.openIdClientSecret != null) {
 					long timerId = new OpenIdRefreshHandler(vertx, httpClient, sessionData.authKey).setRefreshTimer();
-					cache.put(sessionData.authKey, sessionData.setOpenId(sessionData.jwtToken,
-							sessionData.realm, sessionData.openIdClientSecret, timerId));
+					cache.put(sessionData.authKey, sessionData.setOpenId(sessionData.jwtToken, sessionData.realm,
+							sessionData.openIdClientSecret, timerId));
 
 				}
 				return CompletableFuture.completedFuture(request);
@@ -298,14 +303,28 @@ public class AuthenticationFilter implements IWebFilter, NeedVertx {
 				.findFirst();
 		if (oidc.isPresent()) {
 			JsonObject token = new JsonObject(oidc.get().value());
+
+			if (logger.isDebugEnabled()) {
+				logger.debug("[{}] Session ID {} found in {} cookie", request.path(), token.getString("sid"),
+						AuthenticationCookie.OPENID_SESSION);
+			}
+
 			return Optional.of(token.getString("sid"));
 		}
 
 		Optional<Cookie> bmSid = cookies.stream().filter(c -> AuthenticationCookie.BMSID.equals(c.name())).findFirst();
 		if (bmSid.isPresent()) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("[{}] Session ID {} found in {} cookie", request.path(), bmSid.get().value(),
+						AuthenticationCookie.BMSID);
+			}
+
 			return Optional.of(bmSid.get().value());
 		}
 
+		if (logger.isDebugEnabled()) {
+			logger.debug("[{}] No session ID found", request.path());
+		}
 		return Optional.empty();
 	}
 
