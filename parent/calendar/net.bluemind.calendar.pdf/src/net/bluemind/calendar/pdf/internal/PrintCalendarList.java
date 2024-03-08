@@ -50,8 +50,10 @@ import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.w3c.dom.Document;
 import org.w3c.tidy.Tidy;
-import org.xhtmlrenderer.pdf.ITextRenderer;
 import org.xml.sax.InputSource;
+
+import com.itextpdf.html2pdf.ConverterProperties;
+import com.itextpdf.html2pdf.HtmlConverter;
 
 import freemarker.ext.beans.BeansWrapper;
 import freemarker.template.Configuration;
@@ -413,16 +415,17 @@ public class PrintCalendarList extends PrintCalendar {
 
 	@Override
 	public byte[] sendPNGString() {
-
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
+		ConverterProperties converterProperties = new ConverterProperties();
+		ByteArrayInputStream pdfIn = new ByteArrayInputStream(htmlDocument.getBytes());
 
-		ITextRenderer renderer = new ITextRenderer();
-		renderer.setDocumentFromString(htmlDocument);
-		renderer.layout();
 		try {
-			renderer.createPDF(os, true);
-			os.close();
-		} catch (Exception e) {
+			HtmlConverter.convertToPdf(pdfIn, os, converterProperties);
+		} catch (IOException e) {
+			try {
+				os.close();
+			} catch (IOException e1) {
+			}
 			throw new ServerFault(e);
 		}
 
@@ -442,14 +445,15 @@ public class PrintCalendarList extends PrintCalendar {
 	@Override
 	public byte[] sendPDFString() throws ServerFault {
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
-
-		ITextRenderer renderer = new ITextRenderer();
-		renderer.setDocumentFromString(htmlDocument);
-		renderer.layout();
+		ConverterProperties converterProperties = new ConverterProperties();
+		ByteArrayInputStream pdfIn = new ByteArrayInputStream(htmlDocument.getBytes());
 		try {
-			renderer.createPDF(os, true);
-			os.close();
-		} catch (Exception e) {
+			HtmlConverter.convertToPdf(pdfIn, os, converterProperties);
+		} catch (IOException e) {
+			try {
+				os.close();
+			} catch (IOException e1) {
+			}
 			throw new ServerFault(e);
 		}
 		return os.toByteArray();

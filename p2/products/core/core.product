@@ -47,7 +47,6 @@
       <plugin id="com.google.guava"/>
       <plugin id="com.google.guava.failureaccess"/>
       <plugin id="com.hazelcast"/>
-      <plugin id="com.lowagie.itext"/>
       <plugin id="com.netflix.hollow"/>
       <plugin id="com.netflix.spectator.api"/>
       <plugin id="com.sun.mail.jakarta.mail"/>
@@ -294,6 +293,7 @@
       <plugin id="net.bluemind.imap.driver.mailapi"/>
       <plugin id="net.bluemind.imap.endpoint"/>
       <plugin id="net.bluemind.imap.endpoint.notifications"/>
+      <plugin id="net.bluemind.itext-core"/>
       <plugin id="net.bluemind.jdbc.driver.pgsql"/>
       <plugin id="net.bluemind.jdbc.pgsql.provider"/>
       <plugin id="net.bluemind.kafka.client"/>
@@ -569,8 +569,6 @@
       <plugin id="org.w3c.dom.events"/>
       <plugin id="org.w3c.dom.smil"/>
       <plugin id="org.w3c.dom.svg"/>
-      <plugin id="org.xhtmlrenderer.flying-saucer-core"/>
-      <plugin id="org.xhtmlrenderer.flying-saucer-pdf"/>
       <plugin id="sentry"/>
       <plugin id="slf4j.api"/>
       <plugin id="xpp3"/>

@@ -5,8 +5,7 @@ Bundle-SymbolicName: net.bluemind.calendar.pdf
 Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: BlueMind
 Bundle-RequiredExecutionEnvironment: JavaSE-21
-Require-Bundle: com.lowagie.itext,
- net.bluemind.core.commons,
+Require-Bundle: net.bluemind.core.commons,
  net.bluemind.core.container.api,
  net.bluemind.core.container.persistence,
  net.bluemind.core.context,
@@ -17,15 +16,14 @@ Require-Bundle: com.lowagie.itext,
  org.apache.pdfbox.fontbox,
  org.apache.xerces,
  org.freemarker.freemarker,
- org.xhtmlrenderer.flying-saucer-core,
- org.xhtmlrenderer.flying-saucer-pdf,
  slf4j.api,
  net.bluemind.calendar.api,
  org.apache.xml.serializer,
  org.apache.xmlgraphics.batik-all,
  org.w3c.dom.svg,
  org.w3c.css.sac,
- org.apache.xmlgraphics.fop-core;bundle-version="2.9.0"
+ org.apache.xmlgraphics.fop-core;bundle-version="2.9.0",
+ net.bluemind.itext-core;bundle-version="8.0.3"
 Export-Package: net.bluemind.calendar.pdf,
  net.bluemind.calendar.pdf.internal
 Automatic-Module-Name: net.bluemind.calendar.pdf
