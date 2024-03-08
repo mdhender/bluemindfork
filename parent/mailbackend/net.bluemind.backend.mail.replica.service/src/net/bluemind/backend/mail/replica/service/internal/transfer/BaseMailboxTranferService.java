@@ -65,6 +65,9 @@ public abstract class BaseMailboxTranferService implements IItemsTransfer {
 		List<ItemIdentifier> ret = new ArrayList<>(itemIds.size());
 		for (List<Long> slice : Lists.partition(itemIds, 500)) {
 			List<WithId<MailboxRecord>> records = transferContext.fromRecords().slice(slice);
+			if (records.isEmpty()) {
+				continue;
+			}
 			AppendTx tx = transferContext.toFolder().prepareAppend(transferContext.targetFolder().internalId,
 					records.size());
 			long start = tx.imapUid - (records.size() - 1);

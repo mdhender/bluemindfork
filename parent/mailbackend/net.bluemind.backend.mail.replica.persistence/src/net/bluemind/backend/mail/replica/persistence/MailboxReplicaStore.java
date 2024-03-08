@@ -56,10 +56,9 @@ public class MailboxReplicaStore extends AbstractItemValueStore<MailboxReplica> 
 
 	@Override
 	public void update(Item item, MailboxReplica value) throws SQLException {
-		String query = "UPDATE t_mailbox_replica SET (" + MailboxReplicaColumns.COLUMNS.names()
-				+ ", unique_id, container_id) = (" + MailboxReplicaColumns.COLUMNS.values() + ", ?, ?)"
-				+ " WHERE item_id = ?";
-		update(query, value, MailboxReplicaColumns.values(container, item));
+		String query = "UPDATE t_mailbox_replica SET (" + MailboxReplicaColumns.COLUMNS_UPD.names() + ") = ("
+				+ MailboxReplicaColumns.COLUMNS_UPD.values() + ")" + " WHERE item_id = ?";
+		update(query, value, MailboxReplicaColumns.updateValues(container, item));
 	}
 
 	@Override

@@ -40,6 +40,7 @@ import net.bluemind.backend.mail.replica.persistence.ReplicasStore;
 import net.bluemind.backend.mail.replica.persistence.ReplicasStore.SubtreeLocation;
 import net.bluemind.backend.mail.replica.service.names.MailboxNameValidator;
 import net.bluemind.backend.mail.replica.utils.SubtreeContainerItemIdsCache;
+import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.Ack;
 import net.bluemind.core.container.api.ContainerHierarchyNode;
@@ -257,6 +258,9 @@ public class DbReplicatedMailboxesService extends BaseReplicatedMailboxesService
 	@Override
 	public AppendTx prepareAppend(long mboxReplicaId, Integer count) {
 		int bump = count == null ? 1 : count.intValue();
+		if (bump < 1) {
+			throw new ServerFault("Append count must be >= 1 (" + bump + " asked)", ErrorCode.INVALID_PARAMETER);
+		}
 		ItemValue<MailboxReplica> item = storeService.get(mboxReplicaId, null);
 		if (item == null) {
 			throw ServerFault.notFound("Missing replicated mailbox with id " + mboxReplicaId);

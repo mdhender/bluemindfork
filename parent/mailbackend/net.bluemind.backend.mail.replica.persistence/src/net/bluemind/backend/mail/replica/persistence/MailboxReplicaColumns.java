@@ -60,6 +60,12 @@ public class MailboxReplicaColumns {
 			.col("xconv_mod_seq")//
 	;
 
+	public static final Columns COLUMNS_UPD = Columns.create() //
+			.col("short_name") //
+			.col("parent_uid") //
+			.col("name")//
+	;
+
 	public static EntityPopulator<MailboxReplica> populator() {
 		return new EntityPopulator<MailboxReplica>() {
 
@@ -111,6 +117,21 @@ public class MailboxReplicaColumns {
 				statement.setLong(index++, value.xconvModSeq);
 				statement.setString(index++, item.uid);
 				statement.setLong(index++, cont.id);
+				statement.setLong(index++, item.id);
+				return index;
+			}
+		};
+	}
+
+	public static StatementValues<MailboxReplica> updateValues(Container cont, final Item item) {
+		return new StatementValues<MailboxReplica>() {
+
+			@Override
+			public int setValues(Connection con, PreparedStatement statement, int index, int currentRow,
+					MailboxReplica value) throws SQLException {
+				statement.setString(index++, value.name);
+				statement.setString(index++, value.parentUid);
+				statement.setString(index++, value.fullName);
 				statement.setLong(index++, item.id);
 				return index;
 			}
