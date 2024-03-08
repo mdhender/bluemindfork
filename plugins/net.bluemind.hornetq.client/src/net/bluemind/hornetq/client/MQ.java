@@ -69,15 +69,7 @@ public final class MQ {
 
 	private static ClusterNode chooseImplementation() {
 		String jvmType = System.getProperty("net.bluemind.property.product", "unknown");
-
-		boolean nativeClientPossible = false;
-		try {
-			Class.forName("com.hazelcast.client.config.ClientConfig");
-			nativeClientPossible = true;
-		} catch (Exception e) {
-			logger.warn("HZ native client is not possible in this JVM, client fragment missing ({})", e.getMessage());
-		}
-		if (clusterMembersJvms.contains(jvmType) || !nativeClientPossible) {
+		if (clusterMembersJvms.contains(jvmType)) {
 			logger.info("HZ cluster member implementation was chosen for {}.", jvmType);
 			return new ClusterMember(jvmType);
 		} else {
@@ -90,7 +82,7 @@ public final class MQ {
 		return nodeImpl.init();
 	}
 
-	public static synchronized final void init(final IMQConnectHandler handler) {
+	public static final synchronized void init(final IMQConnectHandler handler) {
 		nodeImpl.init(handler);
 	}
 

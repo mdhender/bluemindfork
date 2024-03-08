@@ -25,11 +25,10 @@ import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.ClientConnectionStrategyConfig.ReconnectMode;
 import com.hazelcast.client.config.ClientNetworkConfig;
 import com.hazelcast.client.config.ClientReliableTopicConfig;
-import com.hazelcast.config.GroupConfig;
 import com.hazelcast.config.NearCacheConfig;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.internal.diagnostics.HealthMonitorLevel;
-import com.hazelcast.spi.properties.GroupProperty;
+import com.hazelcast.spi.properties.ClusterProperty;
 import com.hazelcast.topic.TopicOverloadPolicy;
 
 import net.bluemind.hornetq.client.MQ;
@@ -45,21 +44,21 @@ public final class ClusterClient extends ClusterNode {
 		ClientConfig cfg = new ClientConfig();
 
 		cfg.setInstanceName(jvmType + "-" + UUID.randomUUID().toString());
-		cfg.setProperty(GroupProperty.LOGGING_TYPE.getName(), "slf4j");
-		cfg.setProperty(GroupProperty.BACKPRESSURE_ENABLED.getName(), "true");
-		cfg.setProperty(GroupProperty.OPERATION_BACKUP_TIMEOUT_MILLIS.getName(), "61000");
-		cfg.setProperty(GroupProperty.HEALTH_MONITORING_LEVEL.getName(), HealthMonitorLevel.OFF.name());
-		GroupConfig gc = new GroupConfig(MQ.CLUSTER_ID);
-		cfg.setGroupConfig(gc);
+		cfg.setProperty(ClusterProperty.LOGGING_TYPE.getName(), "slf4j");
+		cfg.setProperty(ClusterProperty.BACKPRESSURE_ENABLED.getName(), "true");
+		cfg.setProperty(ClusterProperty.OPERATION_BACKUP_TIMEOUT_MILLIS.getName(), "61000");
+		cfg.setProperty(ClusterProperty.HEALTH_MONITORING_LEVEL.getName(), HealthMonitorLevel.OFF.name());
+		cfg.setClusterName(MQ.CLUSTER_ID);
 
 		configureTopics(cfg);
 
 		ClientNetworkConfig netCfg = cfg.getNetworkConfig();
 		netCfg.addAddress(memberAddress());
-		// 0 means try forever
-		netCfg.setConnectionAttemptLimit(0).setConnectionAttemptPeriod(3000);
 
-		cfg.getConnectionStrategyConfig().setReconnectMode(ReconnectMode.ASYNC);
+		cfg.getConnectionStrategyConfig() //
+				.setConnectionRetryConfig(cfg.getConnectionStrategyConfig().getConnectionRetryConfig()
+						.setClusterConnectTimeoutMillis(3000)) //
+				.setReconnectMode(ReconnectMode.ASYNC);
 
 		NearCacheConfig nc = new NearCacheConfig(Shared.MAP_SYSCONF).setInvalidateOnChange(true);
 		cfg.getNearCacheConfigMap().put(Shared.MAP_SYSCONF, nc);

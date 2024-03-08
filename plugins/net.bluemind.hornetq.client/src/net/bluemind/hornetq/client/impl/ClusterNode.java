@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
@@ -35,19 +36,16 @@ import java.util.function.Predicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hazelcast.cluster.Member;
+import com.hazelcast.cluster.MembershipEvent;
+import com.hazelcast.cluster.MembershipListener;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
-import com.hazelcast.core.ITopic;
-import com.hazelcast.core.LifecycleEvent;
 import com.hazelcast.core.LifecycleEvent.LifecycleState;
-import com.hazelcast.core.LifecycleListener;
 import com.hazelcast.core.LifecycleService;
-import com.hazelcast.core.Member;
-import com.hazelcast.core.MemberAttributeEvent;
-import com.hazelcast.core.MembershipEvent;
-import com.hazelcast.core.MembershipListener;
-import com.hazelcast.core.Message;
-import com.hazelcast.core.MessageListener;
+import com.hazelcast.map.IMap;
+import com.hazelcast.topic.ITopic;
+import com.hazelcast.topic.Message;
+import com.hazelcast.topic.MessageListener;
 
 import io.vertx.core.json.JsonObject;
 import net.bluemind.config.BmIni;
@@ -67,7 +65,7 @@ public abstract class ClusterNode {
 	protected final Map<String, Producer> producers = new ConcurrentHashMap<>();
 	protected final CompletableFuture<HazelcastInstance> hzStart = new CompletableFuture<>();
 
-	private final ConcurrentHashMap<String, RegisteredConsumer> consumerRegistrations = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<UUID, RegisteredConsumer> consumerRegistrations = new ConcurrentHashMap<>();
 
 	private static class RegisteredConsumer {
 
@@ -109,15 +107,11 @@ public abstract class ClusterNode {
 
 	private void setupListener(HazelcastInstance hz) {
 		LifecycleService lifecycle = hz.getLifecycleService();
-		lifecycle.addLifecycleListener(new LifecycleListener() {
-
-			@Override
-			public void stateChanged(LifecycleEvent event) {
-				logger.info("HZ cluster switched to state {}, running: {}", event.getState(), lifecycle.isRunning());
-				if (event.getState() == LifecycleState.CLIENT_CONNECTED && !consumerRegistrations.isEmpty()) {
-					logger.info("Initiate consumer(s) refresh....");
-					refreshConsumers();
-				}
+		lifecycle.addLifecycleListener(event -> {
+			logger.info("HZ cluster switched to state {}, running: {}", event.getState(), lifecycle.isRunning());
+			if (event.getState() == LifecycleState.CLIENT_CONNECTED && !consumerRegistrations.isEmpty()) {
+				logger.info("Initiate consumer(s) refresh....");
+				refreshConsumers();
 			}
 		});
 		hz.getCluster().addMembershipListener(new MembershipListener() {
@@ -130,13 +124,8 @@ public abstract class ClusterNode {
 				VertxPlatform.eventBus().publish(MQ.MEMBERSHIP_EVENTS_ADDRESS, new JsonObject() //
 						.put("type", "memberRemoved") //
 						.put("memberKind", memberJvm) //
-						.put("memberUuid", newMember.getUuid())
+						.put("memberUuid", newMember.getUuid().toString())
 						.put("memberAddress", newMember.getAddress().toString()));
-			}
-
-			@Override
-			public void memberAttributeChanged(MemberAttributeEvent memberAttributeEvent) {
-				logger.debug("attribute changed.");
 			}
 
 			@Override
@@ -147,7 +136,7 @@ public abstract class ClusterNode {
 				VertxPlatform.eventBus().publish(MQ.MEMBERSHIP_EVENTS_ADDRESS, new JsonObject() //
 						.put("type", "memberAdded") //
 						.put("memberKind", memberJvm) //
-						.put("memberUuid", newMember.getUuid())
+						.put("memberUuid", newMember.getUuid().toString())
 						.put("memberAddress", newMember.getAddress().toString()));
 			}
 		});
@@ -155,7 +144,7 @@ public abstract class ClusterNode {
 	}
 
 	protected static String memberJvm(Member m) {
-		return Optional.ofNullable(m.getStringAttribute("bluemind.kind")).orElse("unknown");
+		return Optional.ofNullable(m.getAttribute("bluemind.kind")).orElse("unknown");
 	}
 
 	private synchronized void refreshConsumers() {
@@ -172,7 +161,7 @@ public abstract class ClusterNode {
 					registerConsumer(rc.topic, rc.filter, rc.handler);
 				} catch (Exception e) {
 					logger.error("Failed to register consumer on {}", rc.topic, e);
-					consumerRegistrations.put("failed." + (i++), rc);
+					consumerRegistrations.put(UUID.fromString("failed." + (i++)), rc);
 				}
 			}
 		});
@@ -190,7 +179,7 @@ public abstract class ClusterNode {
 		return initFuture;
 	}
 
-	public synchronized final void init(final IMQConnectHandler handler) {
+	public final synchronized void init(final IMQConnectHandler handler) {
 		logger.info("HZ setup for {}....", handler);
 		hzStart.whenComplete((hz, ex) -> {
 			if (ex == null) {
@@ -312,7 +301,7 @@ public abstract class ClusterNode {
 						handler.handle(new OOPMessage(payload));
 					};
 				}
-				String regId = hzTopic.addMessageListener(new TopicListener(basicListener));
+				UUID regId = hzTopic.addMessageListener(new TopicListener(basicListener));
 				consumerRegistrations.put(regId, rc);
 				cons.complete(new Consumer(() -> {
 					hzTopic.removeMessageListener(regId);
@@ -340,7 +329,7 @@ public abstract class ClusterNode {
 	}
 
 	public Producer getProducer(String topic) {
-		return producers.computeIfAbsent(topic, t -> createProducerImpl(t));
+		return producers.computeIfAbsent(topic, this::createProducerImpl);
 	}
 
 }

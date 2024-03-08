@@ -17,7 +17,7 @@
   */
 package net.bluemind.hornetq.client;
 
-import com.hazelcast.core.ITopic;
+import com.hazelcast.topic.ITopic;
 
 import io.vertx.core.json.JsonObject;
 

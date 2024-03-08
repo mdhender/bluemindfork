@@ -39,7 +39,6 @@
       <plugin id="com.google.guava"/>
       <plugin id="com.google.guava.failureaccess"/>
       <plugin id="com.hazelcast"/>
-      <plugin id="com.hazelcast.client"/>
       <plugin id="com.netflix.spectator.api"/>
       <plugin id="com.sun.mail.jakarta.mail"/>
       <plugin id="com.typesafe.config"/>

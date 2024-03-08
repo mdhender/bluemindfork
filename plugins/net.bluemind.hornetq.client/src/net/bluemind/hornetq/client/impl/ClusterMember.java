@@ -22,8 +22,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import com.hazelcast.cluster.Cluster;
+import com.hazelcast.cluster.Member;
+import com.hazelcast.cluster.MembershipEvent;
+import com.hazelcast.cluster.MembershipListener;
 import com.hazelcast.config.Config;
-import com.hazelcast.config.GroupConfig;
 import com.hazelcast.config.JoinConfig;
 import com.hazelcast.config.MemberAttributeConfig;
 import com.hazelcast.config.NetworkConfig;
@@ -31,20 +34,16 @@ import com.hazelcast.config.ReliableTopicConfig;
 import com.hazelcast.config.RestApiConfig;
 import com.hazelcast.config.RingbufferConfig;
 import com.hazelcast.config.TcpIpConfig;
-import com.hazelcast.core.Cluster;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.Member;
-import com.hazelcast.core.MemberAttributeEvent;
-import com.hazelcast.core.MembershipEvent;
-import com.hazelcast.core.MembershipListener;
-import com.hazelcast.core.MigrationEvent;
-import com.hazelcast.core.MigrationListener;
-import com.hazelcast.core.PartitionService;
 import com.hazelcast.internal.diagnostics.HealthMonitorLevel;
+import com.hazelcast.partition.MigrationListener;
+import com.hazelcast.partition.MigrationState;
 import com.hazelcast.partition.PartitionLostEvent;
 import com.hazelcast.partition.PartitionLostListener;
-import com.hazelcast.spi.properties.GroupProperty;
+import com.hazelcast.partition.PartitionService;
+import com.hazelcast.partition.ReplicaMigrationEvent;
+import com.hazelcast.spi.properties.ClusterProperty;
 import com.hazelcast.topic.TopicOverloadPolicy;
 import com.netflix.spectator.api.Gauge;
 import com.netflix.spectator.api.Id;
@@ -67,18 +66,17 @@ public final class ClusterMember extends ClusterNode {
 		Config cfg = new Config();
 
 		cfg.setInstanceName(jvmType + "-" + UUID.randomUUID().toString());
-		cfg.setProperty(GroupProperty.LOGGING_TYPE.getName(), "slf4j");
-		cfg.setProperty(GroupProperty.BACKPRESSURE_ENABLED.getName(), "true");
-		cfg.setProperty(GroupProperty.OPERATION_BACKUP_TIMEOUT_MILLIS.getName(), "61000");
-		cfg.setProperty(GroupProperty.SOCKET_SERVER_BIND_ANY.getName(), "false");
-		cfg.setProperty(GroupProperty.PHONE_HOME_ENABLED.getName(), "false");
+		cfg.setProperty(ClusterProperty.LOGGING_TYPE.getName(), "slf4j");
+		cfg.setProperty(ClusterProperty.BACKPRESSURE_ENABLED.getName(), "true");
+		cfg.setProperty(ClusterProperty.OPERATION_BACKUP_TIMEOUT_MILLIS.getName(), "61000");
+		cfg.setProperty(ClusterProperty.SOCKET_SERVER_BIND_ANY.getName(), "false");
+		cfg.setProperty(ClusterProperty.PHONE_HOME_ENABLED.getName(), "false");
 		cfg.getNetworkConfig().setRestApiConfig(new RestApiConfig().setEnabled(true));
-		cfg.setProperty(GroupProperty.HEALTH_MONITORING_LEVEL.getName(), HealthMonitorLevel.OFF.name());
-		GroupConfig gc = new GroupConfig(MQ.CLUSTER_ID);
-		cfg.setGroupConfig(gc);
+		cfg.setProperty(ClusterProperty.HEALTH_MONITORING_LEVEL.getName(), HealthMonitorLevel.OFF.name());
+		cfg.setClusterName(MQ.CLUSTER_ID);
 
 		MemberAttributeConfig memberConf = cfg.getMemberAttributeConfig();
-		memberConf.setStringAttribute("bluemind.kind", jvmType);
+		memberConf.setAttribute("bluemind.kind", jvmType);
 
 		configureDiscovery(cfg);
 
@@ -90,8 +88,7 @@ public final class ClusterMember extends ClusterNode {
 			cfg = pimp.pimp(cfg);
 		}
 
-		HazelcastInstance hz = Hazelcast.newHazelcastInstance(cfg);
-		return hz;
+		return Hazelcast.newHazelcastInstance(cfg);
 	}
 
 	protected void setupMetrics(HazelcastInstance hzInstance) {
@@ -119,10 +116,6 @@ public final class ClusterMember extends ClusterNode {
 			}
 
 			@Override
-			public void memberAttributeChanged(MemberAttributeEvent memberAttributeEvent) {
-			}
-
-			@Override
 			public void memberAdded(MembershipEvent membershipEvent) {
 				refreshMetrics(membershipEvent);
 			}
@@ -143,19 +136,26 @@ public final class ClusterMember extends ClusterNode {
 		partitions.addMigrationListener(new MigrationListener() {
 
 			@Override
-			public void migrationStarted(MigrationEvent migrationEvent) {
+			public void migrationStarted(MigrationState migrationEvent) {
 				oneIfClusterIsSafe.set(partitions.isClusterSafe() ? 1 : 0);
 			}
 
 			@Override
-			public void migrationFailed(MigrationEvent migrationEvent) {
+			public void migrationFinished(MigrationState state) {
+				oneIfClusterIsSafe.set(partitions.isClusterSafe() ? 1 : 0);
+
+			}
+
+			@Override
+			public void replicaMigrationCompleted(ReplicaMigrationEvent event) {
 				oneIfClusterIsSafe.set(partitions.isClusterSafe() ? 1 : 0);
 			}
 
 			@Override
-			public void migrationCompleted(MigrationEvent migrationEvent) {
+			public void replicaMigrationFailed(ReplicaMigrationEvent event) {
 				oneIfClusterIsSafe.set(partitions.isClusterSafe() ? 1 : 0);
 			}
+
 		});
 		partitions.addPartitionLostListener(new PartitionLostListener() {
 

@@ -17,7 +17,7 @@
   */
 package net.bluemind.hornetq.client.impl;
 
-import com.hazelcast.core.MessageListener;
+import com.hazelcast.topic.MessageListener;
 import com.hazelcast.topic.impl.reliable.ReliableMessageListenerAdapter;
 
 public class TopicListener extends ReliableMessageListenerAdapter<String> {
