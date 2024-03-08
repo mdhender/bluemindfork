@@ -197,14 +197,14 @@ net.bluemind.calendar.list.ListView.prototype.drawEvent = function(event, parent
   }
   dom.appendChild(tdDetail, evtDetail);
   
-  if (model.states.canceled) {
+  if (event.states.cancelled) {
     /** @meaning general.cancelled */
     var MSG_CANCEL = goog.getMsg('Cancelled');
     var cancelled = dom.createDom('strong');
     cancelled.innertText = " - " + MSG_CANCEL ;
     dom.appendChild(tdDetail, cancelled);
   }
-  if (model.states.declined) {
+  if (event.states.declined) {
     goog.dom.classlist.add(evtDetail, goog.getCssName('declined'));
   }
 
