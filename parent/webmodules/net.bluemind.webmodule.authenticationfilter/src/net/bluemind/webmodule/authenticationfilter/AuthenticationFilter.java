@@ -395,7 +395,7 @@ public class AuthenticationFilter implements IWebFilter, NeedVertx {
 	 */
 	private CompletableFuture<HttpServerRequest> backChannelLogout(HttpServerRequest request) {
 		if (!isValidRequest(request)) {
-			logger.info("backchannel log out: invalid session");
+			logger.info("Backchannel logout: invalid session");
 			return CompletableFuture.completedFuture(null);
 		}
 
@@ -407,13 +407,13 @@ public class AuthenticationFilter implements IWebFilter, NeedVertx {
 				throw new JWTInvalidSid();
 			}
 
-			SessionsCache.get().asMap().values().stream()
-					.filter(value -> jwtSid.asString().equals(value.jwtToken.getValue("session_state"))).findAny()
-					.ifPresentOrElse(sessionData -> new AuthProvider(vertx).logout(sessionData), () -> logger
+			SessionsCache.get().asMap().values().stream().filter(sessionData -> sessionData.jwtToken != null)
+					.filter(sessionData -> jwtSid.asString().equals(sessionData.jwtToken.getValue("session_state")))
+					.findAny().ifPresentOrElse(sessionData -> new AuthProvider(vertx).logout(sessionData), () -> logger
 							.warn("Backchannel logout: session not found for JWTSid {}", jwtSid.asString()));
 			backChannelLogoutSuccess(request);
 		}).exceptionHandler(e -> {
-			logger.info("JWT logout token process error from {}: {}", request.headers().getAll("X-Forwarded-For"),
+			logger.error("JWT logout token process error from {}: {}", request.headers().getAll("X-Forwarded-For"),
 					e.getMessage(), e);
 			backChannelLogoutError(request, "JWT logout token process error: " + e.getMessage());
 		});

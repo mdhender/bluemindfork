@@ -224,7 +224,7 @@ public class AuthProvider {
 	 * @return
 	 */
 	private CompletableFuture<Void> logout(String id, String sessionId) {
-		logger.info("Log out session for {}", id);
+		logger.info("Log out session {} for {}", sessionId, id);
 		return getProvider(sessionId, Collections.emptyList()).instance(IAuthenticationPromise.class).logout()
 				.whenComplete((v, fn) -> {
 					if (fn != null) {
