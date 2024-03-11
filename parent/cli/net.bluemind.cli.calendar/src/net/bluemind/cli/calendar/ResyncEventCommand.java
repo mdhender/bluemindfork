@@ -184,7 +184,12 @@ public class ResyncEventCommand implements ICmdLet, Runnable {
 				}
 
 			}
-			updateAttendeeSeries(attendeeSeries, attendee);
+			try {
+				updateAttendeeSeries(attendeeSeries, attendee);
+			} catch (Exception e) {
+				ctx.warn("Cannot update attendee series of {}:{} --> {}", attendee.dir, attendee.mailto,
+						e.getMessage());
+			}
 		});
 
 	}
@@ -214,6 +219,11 @@ public class ResyncEventCommand implements ICmdLet, Runnable {
 			ctx.info("---------------------------------------");
 			return;
 		}
+		if (dirEntry.kind == Kind.GROUP) {
+			ctx.info("Cannot handle group attendee {}", dirEntry.entryUid);
+			ctx.info("---------------------------------------");
+			return;
+		}
 
 		ICalendar service = dirEntry.kind == Kind.USER
 				? ctx.adminApi().instance(ICalendar.class, ICalendarUids.defaultUserCalendar(dirEntry.entryUid))
@@ -225,10 +235,8 @@ public class ResyncEventCommand implements ICmdLet, Runnable {
 		if (series.main == null) {
 			orphanOccurrenceUpdate = true;
 			List<ItemValue<VEventSeries>> event = findEvent(service, dirEntry.email, icsUid);
-			String userUidByEmail = cliUtils.getUserUidByEmail(dirEntry.email);
-			String containerUid = ICalendarUids.defaultUserCalendar(userUidByEmail);
 			event.forEach(evt -> {
-				ctx.adminApi().instance(ICalendar.class, containerUid).delete(evt.uid, false);
+				service.delete(evt.uid, false);
 			});
 			for (VEventOccurrence occurrence : series.occurrences) {
 				VEventSeries newSeries = new VEventSeries();
