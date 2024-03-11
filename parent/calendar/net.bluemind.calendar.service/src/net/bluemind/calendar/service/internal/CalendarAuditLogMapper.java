@@ -81,14 +81,15 @@ public class CalendarAuditLogMapper implements ILogMapperProvider<VEventSeries> 
 			List<ICalendarElement.Attendee> removedAttendees = ICalendarElement.diff(oldEvent.attendees,
 					newEvent.attendees);
 			if (!removedAttendees.isEmpty()) {
-				String removed = removedAttendees.stream().map(a -> a.mailto).collect(Collectors.joining(","));
+				String removed = removedAttendees.stream().map(a -> a.mailto).limit(20)
+						.collect(Collectors.joining(","));
 				sBuilder.append("removed attendees: '" + removed + "'" + CRLF);
 
 			}
 			List<ICalendarElement.Attendee> addedAttendees = ICalendarElement.diff(newEvent.attendees,
 					oldEvent.attendees);
 			if (!addedAttendees.isEmpty()) {
-				String added = addedAttendees.stream().map(a -> a.mailto).collect(Collectors.joining(","));
+				String added = addedAttendees.stream().map(a -> a.mailto).limit(20).collect(Collectors.joining(","));
 				sBuilder.append("added attendees: '" + added + "'" + CRLF);
 
 			}
@@ -108,8 +109,8 @@ public class CalendarAuditLogMapper implements ILogMapperProvider<VEventSeries> 
 		}
 
 		if (newEvent.location != null && oldEvent.location != null && !newEvent.location.equals(oldEvent.location)) {
-			sBuilder.append(
-					"event location changed: '" + oldEvent.location + "' -> '" + newEvent.location + "'" + CRLF);
+			sBuilder.append("event location changed: '" + collapseField(oldEvent.location) + "' -> '"
+					+ collapseField(newEvent.location) + "'" + CRLF);
 		}
 
 		if (newEvent.description != null && oldEvent.description != null
@@ -136,18 +137,17 @@ public class CalendarAuditLogMapper implements ILogMapperProvider<VEventSeries> 
 
 		VEvent event = (value.main != null) ? value.main : value.occurrences.get(0);
 
-		builder.description(CharMatcher.whitespace()
-				.collapseFrom(event.summary.substring(0, Math.min(160, event.summary.length())), ' ').trim());
+		builder.description(cleanedUpPlainText(event.summary));
 		List<String> attendees = new ArrayList<>();
 		List<String> has = new ArrayList<>();
 		if (event.attendees != null) {
-			attendees.addAll(event.attendees.stream().map(a -> a.mailto.trim()).toList());
-			attendees.addAll(event.attendees.stream().map(a -> a.commonName.trim()).toList());
+			attendees.addAll(event.attendees.stream().map(a -> a.mailto.trim()).limit(20).toList());
+			attendees.addAll(event.attendees.stream().map(a -> a.commonName.trim()).limit(20).toList());
 			builder.with(attendees);
 		}
 		if (event.organizer != null) {
 			List<String> organizers = Arrays.asList(event.organizer.mailto.trim(), event.organizer.commonName.trim());
-			builder.author(organizers);
+			builder.author(organizers.stream().limit(20).toList());
 			attendees.addAll(organizers);
 		}
 
@@ -301,7 +301,12 @@ public class CalendarAuditLogMapper implements ILogMapperProvider<VEventSeries> 
 	private String cleanedUpPlainText(String html) {
 		Document.OutputSettings outputSettings = new Document.OutputSettings();
 		outputSettings.prettyPrint(true);
-		return Jsoup.clean(html, "", Safelist.none(), outputSettings);
+		return collapseField(Jsoup.clean(html, "", Safelist.none(), outputSettings));
+	}
+
+	private String collapseField(String beforeCollapse) {
+		return CharMatcher.whitespace()
+				.collapseFrom(beforeCollapse.substring(0, Math.min(160, beforeCollapse.length())), ' ').trim();
 	}
 
 }
