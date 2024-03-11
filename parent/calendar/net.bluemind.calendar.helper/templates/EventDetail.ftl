@@ -246,24 +246,21 @@
     <tr>
       <td class="key">${msg("key.where")}<#if changes?seq_contains("LOCATION")><i class="updated">&nbsp;(${msg("generic.updated")})</i></#if></td>
       <td class="value"><#if location??>${location}</#if>
-      <#if changes?seq_contains("LOCATION")><#if .data_model.old_location??><s><br></br>${old_location}</s></#if></#if>
-      </td>
+      <#if changes?seq_contains("LOCATION")><#if .data_model.old_location??><s><br></br>${old_location}</s></#if></#if></td>
     </tr>
   </#if>
   <#if url?? || changes?seq_contains("URL")>
     <tr>
       <td class="key">${msg("key.url")}<#if changes?seq_contains("URL")><i class="updated">&nbsp;(${msg("generic.updated")})</i></#if></td>
       <td class="value"><#if url??><a href="${url}" target="_blank">${url}</a></#if>
-      <#if changes?seq_contains("URL")><#if .data_model.old_url??><s><br></br>${old_url}</s></#if></#if>
-      </td>
+      <#if changes?seq_contains("URL")><#if .data_model.old_url??><s><br></br>${old_url}</s></#if></#if></td>
     </tr>
   </#if>
     <#if conference?? || changes?seq_contains("CONFERENCE")>
     <tr>
       <td class="key">${msg("key.conference")}<#if changes?seq_contains("CONFERENCE")><i class="updated">&nbsp;(${msg("generic.updated")})</i></#if></td>
       <td class="value"><#if conference??>${conference}</#if>
-      <#if changes?seq_contains("CONFERENCE")><#if .data_model.old_conference??><s><br></br>${old_conference}</s></#if></#if>
-      </td>
+      <#if changes?seq_contains("CONFERENCE")><#if .data_model.old_conference??><s><br></br>${old_conference}</s></#if></#if></td>
     </tr>
   </#if>
   <#if owner??>

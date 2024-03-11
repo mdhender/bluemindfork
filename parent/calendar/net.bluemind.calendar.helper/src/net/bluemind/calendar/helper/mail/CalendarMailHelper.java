@@ -27,6 +27,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.apache.james.mime4j.dom.BinaryBody;
+import org.apache.james.mime4j.dom.address.Mailbox;
 import org.apache.james.mime4j.message.BasicBodyFactory;
 import org.apache.james.mime4j.message.BodyPart;
 
@@ -36,6 +37,8 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
+import net.bluemind.core.sendmail.SendmailHelper;
+import net.bluemind.icalendar.api.ICalendarElement.Organizer;
 import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;
 import net.bluemind.icalendar.api.ICalendarElement.VAlarm;
 import net.bluemind.reminder.mail.ReminderMailHelper;
@@ -66,7 +69,7 @@ public class CalendarMailHelper extends ReminderMailHelper<VEvent> {
 	 * @param vevent the {@link VEvent} to extract
 	 * @return a {@link Map} containing the {@link VEvent} data
 	 */
-	public Map<String, Object> extractVEventDataToMap(VEvent vevent, VAlarm valarm) {
+	public Map<String, Object> extractVEventDataToMap(VEvent vevent, Organizer organizer, VAlarm valarm) {
 		Map<String, Object> data = new HashMap<>();
 
 		Long duration = vevent.dtend != null
@@ -76,13 +79,10 @@ public class CalendarMailHelper extends ReminderMailHelper<VEvent> {
 
 		data.put("duration", duration);
 
-		if (vevent.organizer != null) {
-			StringBuilder owner = new StringBuilder();
-			owner.append(vevent.organizer.mailto);
-			if (null != vevent.organizer.commonName) {
-				owner.append(String.format("<%s>", vevent.organizer.commonName));
-			}
-			data.put("owner", owner.toString());
+		Organizer resolvedOrganizer = vevent.organizer != null ? vevent.organizer : organizer;
+		if (resolvedOrganizer != null) {
+			Mailbox orgMailbox = SendmailHelper.formatAddress(resolvedOrganizer.commonName, resolvedOrganizer.mailto);
+			data.put("owner", orgMailbox.getName() != null ? orgMailbox.getName() : orgMailbox.getAddress());
 		}
 
 		if (vevent.dtend != null) {
@@ -136,8 +136,16 @@ public class CalendarMailHelper extends ReminderMailHelper<VEvent> {
 	 * @param vevent
 	 * @return
 	 */
+	public Map<String, Object> extractVEventData(VEvent vevent, Organizer organizer) {
+		return extractVEventDataToMap(vevent, organizer, null);
+	}
+
+	/**
+	 * @param vevent
+	 * @return
+	 */
 	public Map<String, Object> extractVEventData(VEvent vevent) {
-		return extractVEventDataToMap(vevent, null);
+		return extractVEventDataToMap(vevent, vevent.organizer, null);
 	}
 
 	/**

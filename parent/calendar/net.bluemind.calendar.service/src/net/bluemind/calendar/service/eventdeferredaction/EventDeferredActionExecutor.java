@@ -164,7 +164,7 @@ public class EventDeferredActionExecutor implements IDeferredActionExecutor {
 	}
 
 	private Map<String, Object> buildData(VEvent event, VAlarm alarm, Map<String, String> userSettings) {
-		Map<String, Object> data = new CalendarMailHelper().extractVEventDataToMap(event, alarm);
+		Map<String, Object> data = new CalendarMailHelper().extractVEventDataToMap(event, event.organizer, alarm);
 
 		String dateFormat = getValue(userSettings, "date_format", "date", "dateformat").orElse("yyyy-MM-dd");
 		String timeFormat = getValue(userSettings, "time_format", "timeformat", "time").orElse("HH:mm");

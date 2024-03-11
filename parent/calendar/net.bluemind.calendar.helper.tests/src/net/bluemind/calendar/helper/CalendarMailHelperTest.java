@@ -53,6 +53,7 @@ import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.api.date.BmDateTime.Precision;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.icalendar.api.ICalendarElement;
+import net.bluemind.icalendar.api.ICalendarElement.Organizer;
 import net.bluemind.utils.FileUtils;
 
 public class CalendarMailHelperTest {
@@ -61,7 +62,8 @@ public class CalendarMailHelperTest {
 	public void testConvertEventToMap() {
 
 		VEvent vevent = defaultVEvent();
-		Map<String, Object> data = new CalendarMailHelper().extractVEventDataToMap(vevent, vevent.alarm.get(0));
+		Map<String, Object> data = new CalendarMailHelper().extractVEventDataToMap(vevent, vevent.organizer,
+				vevent.alarm.get(0));
 
 		assertNotNull(data);
 		assertEquals(vevent.summary, data.get("title"));
@@ -83,12 +85,12 @@ public class CalendarMailHelperTest {
 		assertEquals(vevent.rrule.until, data.get("recurrenceEnd"));
 
 		// 2nd reminder
-		data = new CalendarMailHelper().extractVEventDataToMap(vevent, vevent.alarm.get(1));
+		data = new CalendarMailHelper().extractVEventDataToMap(vevent, vevent.organizer, vevent.alarm.get(1));
 		assertEquals("hours", data.get("reminder_unit"));
 		assertEquals(1, data.get("reminder_duration"));
 
 		// 3rd reminder
-		data = new CalendarMailHelper().extractVEventDataToMap(vevent, vevent.alarm.get(2));
+		data = new CalendarMailHelper().extractVEventDataToMap(vevent, vevent.organizer, vevent.alarm.get(2));
 		assertEquals("minutes", data.get("reminder_unit"));
 		assertEquals(1, data.get("reminder_duration"));
 		assertEquals("il va falloir y aller!", data.get("reminder_summary"));
@@ -99,7 +101,8 @@ public class CalendarMailHelperTest {
 	public void testExtractSubject() {
 		VEvent vevent = defaultVEvent();
 		vevent.summary = "testExtractSubject";
-		Map<String, Object> data = new CalendarMailHelper().extractVEventDataToMap(vevent, vevent.alarm.get(0));
+		Map<String, Object> data = new CalendarMailHelper().extractVEventDataToMap(vevent, vevent.organizer,
+				vevent.alarm.get(0));
 		Locale l = new Locale("fr");
 		MessagesResolver resolver = new MessagesResolver(Messages.getEventDetailMessages(l),
 				Messages.getEventAlertMessages(l));
@@ -123,7 +126,7 @@ public class CalendarMailHelperTest {
 
 		resolver = new MessagesResolver(Messages.getEventDetailMessages(l), Messages.getEventAlertMessages(l));
 		// 2nd reminder
-		data = new CalendarMailHelper().extractVEventDataToMap(vevent, vevent.alarm.get(1));
+		data = new CalendarMailHelper().extractVEventDataToMap(vevent, vevent.organizer, vevent.alarm.get(1));
 		subject = new CalendarMailHelper().buildSubject("EventSubjectAlert.ftl", "fr", resolver, data);
 		assertEquals("Rappel : testExtractSubject commence dans 1 heure", subject);
 
@@ -133,7 +136,8 @@ public class CalendarMailHelperTest {
 	public void testExtractAlertBody() throws IOException, TemplateException {
 		VEvent vevent = defaultVEvent();
 		vevent.summary = "testExtractBody";
-		Map<String, Object> data = new CalendarMailHelper().extractVEventDataToMap(vevent, vevent.alarm.get(0));
+		Map<String, Object> data = new CalendarMailHelper().extractVEventDataToMap(vevent, vevent.organizer,
+				vevent.alarm.get(0));
 
 		// FIXME userPrefs
 		data.put("datetime_format", "yyyy-MM-dd HH:mm");
@@ -165,7 +169,8 @@ public class CalendarMailHelperTest {
 		VEvent vevent = defaultVEvent();
 		vevent.rrule = null;
 		vevent.summary = "testExtractAlertBodyWithSummary";
-		Map<String, Object> data = new CalendarMailHelper().extractVEventDataToMap(vevent, vevent.alarm.get(2));
+		Map<String, Object> data = new CalendarMailHelper().extractVEventDataToMap(vevent, vevent.organizer,
+				vevent.alarm.get(2));
 
 		// FIXME userPrefs
 		data.put("datetime_format", "yyyy-MM-dd HH:mm");
@@ -199,7 +204,8 @@ public class CalendarMailHelperTest {
 	public void testDateTimeOfDeserializedEventToDate() {
 		VEvent vevent = defaultVEvent();
 		// timestamp is not set after deserialization
-		Map<String, Object> data = new CalendarMailHelper().extractVEventDataToMap(vevent, vevent.alarm.get(0));
+		Map<String, Object> data = new CalendarMailHelper().extractVEventDataToMap(vevent, vevent.organizer,
+				vevent.alarm.get(0));
 		ZonedDateTime temp = ZonedDateTime.of(2022, 2, 13, 0, 0, 0, 0, ZoneId.systemDefault());
 		assertEquals(temp.toInstant().toEpochMilli(), ((Date) data.get("datebegin")).getTime());
 	}
@@ -208,7 +214,8 @@ public class CalendarMailHelperTest {
 	public void testExtractInvitationBody() throws IOException, TemplateException {
 		VEvent vevent = defaultVEvent();
 		vevent.summary = "testExtractBody";
-		Map<String, Object> data = new CalendarMailHelper().extractVEventDataToMap(vevent, vevent.alarm.get(0));
+		Map<String, Object> data = new CalendarMailHelper().extractVEventDataToMap(vevent, vevent.organizer,
+				vevent.alarm.get(0));
 
 		// FIXME userPrefs
 		data.put("datetime_format", "yyyy-MM-dd HH:mm");
@@ -246,7 +253,8 @@ public class CalendarMailHelperTest {
 				"", null, "empty.bang@bm.lan");
 		vevent.attendees.add(myNameIsEmtpy);
 
-		Map<String, Object> data = new CalendarMailHelper().extractVEventDataToMap(vevent, vevent.alarm.get(0));
+		Map<String, Object> data = new CalendarMailHelper().extractVEventDataToMap(vevent, vevent.organizer,
+				vevent.alarm.get(0));
 
 		// FIXME userPrefs
 		data.put("datetime_format", "yyyy-MM-dd HH:mm");
@@ -264,6 +272,35 @@ public class CalendarMailHelperTest {
 			e.printStackTrace();
 			fail("should not fail");
 		}
+	}
+
+	@Test
+	public void testExtractOrganizer() {
+		VEvent vevent = defaultVEvent();
+		vevent.summary = "testExtractOrganizer";
+		Map<String, Object> data = new CalendarMailHelper().extractVEventDataToMap(vevent, vevent.organizer,
+				vevent.alarm.get(0));
+		assertNotNull(data.get("owner"));
+		assertEquals(data.get("owner"), vevent.organizer.commonName);
+
+		data = new CalendarMailHelper().extractVEventDataToMap(vevent, null, vevent.alarm.get(0));
+		assertNotNull(data.get("owner"));
+		assertEquals(data.get("owner"), vevent.organizer.commonName);
+
+		Organizer organizer = vevent.organizer.copy();
+		vevent.organizer = null;
+		data = new CalendarMailHelper().extractVEventDataToMap(vevent, null, vevent.alarm.get(0));
+		assertNull(data.get("owner"));
+
+		data = new CalendarMailHelper().extractVEventDataToMap(vevent, organizer, vevent.alarm.get(0));
+		assertNotNull(data.get("owner"));
+		assertEquals(data.get("owner"), organizer.commonName);
+
+		organizer.commonName = null;
+		data = new CalendarMailHelper().extractVEventDataToMap(vevent, organizer, vevent.alarm.get(0));
+		assertNotNull(data.get("owner"));
+		assertEquals(data.get("owner"), organizer.mailto);
+
 	}
 
 	private VEvent defaultVEvent() {

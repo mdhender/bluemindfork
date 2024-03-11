@@ -665,6 +665,18 @@ public class IcsHook implements ICalendarHook {
 		}, method, from, recipient, ics, data);
 	}
 
+	private SendmailResponse sendCancelNotificationToAttendee(VEventMessage message, VEvent evt, MailData md,
+			ICalendarElement.Attendee attendee) {
+		String ics = getIcsPart(Optional.empty(), message.vevent.icsUid, Method.CANCEL, evt);
+		Mailbox recipient = SendmailHelper.formatAddress(attendee.commonName, attendee.mailto);
+
+		return sendNotificationToAttendee(message, evt, md.senderSettings, md.subject, md.body, (locale) -> {
+			return new MessagesResolver(Messages.getEventDetailMessages(locale),
+					Messages.getEventDeleteMessages(locale));
+		}, Method.CANCEL, md.from, recipient, ics, md.data);
+
+	}
+
 	/**
 	 * @param message
 	 * @param addedAttendees
@@ -682,12 +694,7 @@ public class IcsHook implements ICalendarHook {
 				continue;
 			}
 
-			Mailbox recipient = SendmailHelper.formatAddress(attendee.commonName, attendee.mailto);
-			String ics = getIcsPart(Optional.empty(), message.vevent.icsUid, Method.CANCEL, series.main);
-			sendNotificationToAttendee(message, series.main, md.senderSettings, md.subject, md.body, (locale) -> {
-				return new MessagesResolver(Messages.getEventDetailMessages(locale),
-						Messages.getEventDeleteMessages(locale));
-			}, Method.CANCEL, md.from, recipient, ics, md.data);
+			sendCancelNotificationToAttendee(message, series.main, md, attendee);
 		}
 
 	}
@@ -702,16 +709,10 @@ public class IcsHook implements ICalendarHook {
 
 		for (VEvent evt : events) {
 			evt.sequence++;
+			MailData md = MailData.cancel(message, evt);
 			for (Attendee attendee : evt.attendees) {
 				if (!seriesAttendees.contains(attendee)) {
-					MailData md = MailData.cancel(message, evt);
-					String ics = getIcsPart(Optional.empty(), message.vevent.icsUid, Method.CANCEL, evt);
-
-					Mailbox recipient = SendmailHelper.formatAddress(attendee.commonName, attendee.mailto);
-					sendNotificationToAttendee(message, evt, md.senderSettings, md.subject, md.body, (locale) -> {
-						return new MessagesResolver(Messages.getEventDetailMessages(locale),
-								Messages.getEventDeleteMessages(locale));
-					}, Method.CANCEL, md.from, recipient, ics, md.data);
+					sendCancelNotificationToAttendee(message, evt, md, attendee);
 				}
 
 			}
@@ -723,14 +724,7 @@ public class IcsHook implements ICalendarHook {
 		evt.sequence++;
 		MailData md = MailData.cancel(message, evt);
 		for (ICalendarElement.Attendee attendee : deletedAttendees) {
-			Mailbox recipient = SendmailHelper.formatAddress(attendee.commonName, attendee.mailto);
-
-			String ics = getIcsPart(Optional.empty(), message.vevent.icsUid, Method.CANCEL, evt);
-
-			sendNotificationToAttendee(message, evt, md.senderSettings, md.subject, md.body, (locale) -> {
-				return new MessagesResolver(Messages.getEventDetailMessages(locale),
-						Messages.getEventDeleteMessages(locale));
-			}, Method.CANCEL, md.from, recipient, ics, md.data);
+			sendCancelNotificationToAttendee(message, evt, md, attendee);
 		}
 
 	}
@@ -1427,6 +1421,7 @@ public class IcsHook implements ICalendarHook {
 					for (VEventOccurrence occurrence : message.vevent.occurrences) {
 						if (null != occurrence.organizer) {
 							organizer = occurrence.organizer;
+							break;
 						}
 					}
 				}
@@ -1434,6 +1429,7 @@ public class IcsHook implements ICalendarHook {
 			if (organizer == null) {
 				throw new NullPointerException("Organizer is null");
 			}
+
 			Mailbox from = SendmailHelper.formatAddress(organizer.commonName, organizer.mailto);
 			DirEntry fromDirEntry = null;
 			if (organizer.dir != null) {
@@ -1448,7 +1444,7 @@ public class IcsHook implements ICalendarHook {
 			Map<String, String> senderSettings = getSenderSettings(message, fromDirEntry);
 
 			HashMap<String, Object> data = new HashMap<>();
-			data.putAll(new CalendarMailHelper().extractVEventData(event));
+			data.putAll(new CalendarMailHelper().extractVEventData(event, organizer));
 
 			return new MailData(organizer, subject, body, from, data, senderSettings);
 		}
