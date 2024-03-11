@@ -21,7 +21,7 @@
                         <contact
                             v-if="!contact.edit"
                             :data-browse-key="contact.key"
-                            :data-browse="shouldShowInputField"
+                            data-browse
                             :contact="contact"
                             :invalid="!valid(contact)"
                             :selected="valid(contact) && contact.selected"

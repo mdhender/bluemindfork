@@ -83,8 +83,11 @@ function init(vm) {
     if (vm.$_Container_focusables.length > 0) {
         vm.$_Container_focusables.sort((a, b) => (a.dataset.browseIndex || 99) - (b.dataset.browseIndex || 99));
         vm.$_Container_focused = vm.$_Container_focusables.find(el => el.dataset.browseDefault !== undefined);
+        if (!vm.$_Container_focused || !isVisible(vm.$_Container_focused)) {
+            vm.$_Container_focused = vm.$_Container_focusables.find(el => el.tabIndex === 0 && isVisible(el));
+        }
         if (!vm.$_Container_focused) {
-            vm.$_Container_focused = vm.$_Container_focusables.find(el => el.tabIndex === 0);
+            vm.$_Container_focused = vm.$_Container_focusables.find(el => isVisible(el));
         }
         if (!vm.$_Container_focused) {
             vm.$_Container_focused = vm.$_Container_focusables[0];
