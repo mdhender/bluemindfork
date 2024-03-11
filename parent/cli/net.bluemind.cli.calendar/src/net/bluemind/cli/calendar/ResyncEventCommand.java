@@ -219,8 +219,8 @@ public class ResyncEventCommand implements ICmdLet, Runnable {
 			ctx.info("---------------------------------------");
 			return;
 		}
-		if (dirEntry.kind == Kind.GROUP) {
-			ctx.info("Cannot handle group attendee {}", dirEntry.entryUid);
+		if (dirEntry.kind == Kind.GROUP || dirEntry.kind == Kind.MAILSHARE) {
+			ctx.info("Cannot handle group or mailshare attendee {}", dirEntry.entryUid);
 			ctx.info("---------------------------------------");
 			return;
 		}
