@@ -363,9 +363,14 @@ public class AuthenticationFilter implements IWebFilter, NeedVertx {
 				String sessionId = sessionId(request).orElseThrow(InvalidIdToken::new);
 
 				logoutUrl += getRedirectUrl(request).map(url -> "?post_logout_redirect_uri=" + url).orElse("");
-				logoutUrl += Optional.ofNullable(SessionsCache.get().getIfPresent(sessionId))
-						.map(sessionData -> sessionData.jwtToken).map(jwtToken -> jwtToken.getString("id_token"))
-						.map(idToken -> "&id_token_hint=" + idToken).orElseThrow(() -> new InvalidIdToken(sessionId));
+
+				CacheBackingStore<SessionData> cache = SessionsCache.get();
+				synchronized (cache) {
+					logoutUrl += Optional.ofNullable(cache.getIfPresent(sessionId))
+							.map(sessionData -> sessionData.jwtToken).map(jwtToken -> jwtToken.getString("id_token"))
+							.map(idToken -> "&id_token_hint=" + idToken)
+							.orElseThrow(() -> new InvalidIdToken(sessionId));
+				}
 			} catch (InvalidIdToken iIT) {
 				if (iIT.sessionId != null) {
 					new AuthProvider(vertx).logout(iIT.sessionId);
@@ -407,10 +412,17 @@ public class AuthenticationFilter implements IWebFilter, NeedVertx {
 				throw new JWTInvalidSid();
 			}
 
-			SessionsCache.get().asMap().values().stream().filter(sessionData -> sessionData.jwtToken != null)
-					.filter(sessionData -> jwtSid.asString().equals(sessionData.jwtToken.getValue("session_state")))
-					.findAny().ifPresentOrElse(sessionData -> new AuthProvider(vertx).logout(sessionData), () -> logger
-							.warn("Backchannel logout: session not found for JWTSid {}", jwtSid.asString()));
+			Optional<SessionData> existingSession = Optional.empty();
+			CacheBackingStore<SessionData> cache = SessionsCache.get();
+			synchronized (cache) {
+				existingSession = cache.asMap().values().stream().filter(sessionData -> sessionData.jwtToken != null)
+						.filter(sessionData -> jwtSid.asString().equals(sessionData.jwtToken.getValue("session_state")))
+						.findAny();
+			}
+
+			existingSession.ifPresentOrElse(sessionData -> new AuthProvider(vertx).logout(sessionData),
+					() -> logger.warn("Backchannel logout: session not found for JWTSid {}", jwtSid.asString()));
+
 			backChannelLogoutSuccess(request);
 		}).exceptionHandler(e -> {
 			logger.error("JWT logout token process error from {}: {}", request.headers().getAll("X-Forwarded-For"),

@@ -180,9 +180,13 @@ public class AuthProvider {
 
 		// when creating a new session for a user, expire the oldest ones if he
 		// already has MAX_SESSIONS_PER_USER.
-		SessionData[] existingSessionForSameUser = SessionsCache.get().getCache().asMap().values().stream()
-				.filter(existingSession -> existingSession.userUid.equals(sd.userUid))
-				.sorted((s1, s2) -> Long.compare(s1.createStamp, s2.createStamp)).toArray(SessionData[]::new);
+		SessionData[] existingSessionForSameUser;
+		CacheBackingStore<SessionData> cache = SessionsCache.get();
+		synchronized (cache) {
+			existingSessionForSameUser = cache.getCache().asMap().values().stream()
+					.filter(existingSession -> existingSession.userUid.equals(sd.userUid))
+					.sorted((s1, s2) -> Long.compare(s1.createStamp, s2.createStamp)).toArray(SessionData[]::new);
+		}
 
 		int curMax = this.maxSessionsPerUser.get();
 		if (existingSessionForSameUser.length >= curMax) {
@@ -193,7 +197,6 @@ public class AuthProvider {
 			}
 		}
 
-		CacheBackingStore<SessionData> cache = SessionsCache.get();
 		synchronized (cache) {
 			cache.put(sd.authKey, sd);
 		}
@@ -202,7 +205,13 @@ public class AuthProvider {
 	}
 
 	public CompletableFuture<Void> logout(String sid) {
-		SessionData sessionData = SessionsCache.get().getIfPresent(sid);
+		SessionData sessionData = null;
+
+		CacheBackingStore<SessionData> cache = SessionsCache.get();
+		synchronized (cache) {
+			sessionData = cache.getIfPresent(sid);
+		}
+
 		if (sessionData != null) {
 			return logout(sessionData);
 		}

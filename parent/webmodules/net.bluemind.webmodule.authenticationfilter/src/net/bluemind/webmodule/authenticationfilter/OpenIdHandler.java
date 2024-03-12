@@ -24,6 +24,7 @@ import java.util.Base64;
 import java.util.Base64.Decoder;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
@@ -62,6 +63,8 @@ import net.bluemind.webmodule.authenticationfilter.internal.SessionsCache;
 public class OpenIdHandler extends AbstractAuthHandler implements Handler<HttpServerRequest> {
 	private static final Logger logger = LoggerFactory.getLogger(OpenIdHandler.class);
 
+	private static final String JWT_SESSION_STATE = "session_state";
+
 	private class SessionConsumer implements Consumer<SessionData> {
 		private final Vertx vertx;
 		private final HttpServerRequest request;
@@ -80,6 +83,23 @@ public class OpenIdHandler extends AbstractAuthHandler implements Handler<HttpSe
 
 		@Override
 		public void accept(SessionData sessionData) {
+			decorateResponse(sessionData);
+
+			long renewTimerId = new OpenIdRefreshHandler(vertx, httpClient, sessionData.authKey).setRefreshTimer();
+
+			CacheBackingStore<SessionData> cache = SessionsCache.get();
+			synchronized (cache) {
+				cache.put(sessionData.authKey,
+						sessionData.setOpenId(jwtToken, realm, openIdClientSecret, renewTimerId));
+			}
+
+			if (logger.isInfoEnabled()) {
+				logger.info("[{}] Session {} for user {} created, JWT SID: {}", request.path(), sessionData.authKey,
+						sessionData.loginAtDomain, jwtToken.getValue(JWT_SESSION_STATE));
+			}
+		}
+
+		public void decorateResponse(SessionData sessionData) {
 			MultiMap headers = request.response().headers();
 
 			JsonObject cookie = new JsonObject();
@@ -90,14 +110,6 @@ public class OpenIdHandler extends AbstractAuthHandler implements Handler<HttpSe
 			Claim pubpriv = JWT.decode(jwtToken.getString("access_token")).getClaim("bm_pubpriv");
 			boolean privateComputer = "private".equals(pubpriv.asString());
 			AuthenticationCookie.add(headers, AuthenticationCookie.BMPRIVACY, Boolean.toString(privateComputer));
-
-			long renewTimerId = new OpenIdRefreshHandler(vertx, httpClient, sessionData.authKey).setRefreshTimer();
-
-			CacheBackingStore<SessionData> cache = SessionsCache.get();
-			synchronized (cache) {
-				cache.put(sessionData.authKey,
-						sessionData.setOpenId(jwtToken, realm, openIdClientSecret, renewTimerId));
-			}
 		}
 	}
 
@@ -122,10 +134,14 @@ public class OpenIdHandler extends AbstractAuthHandler implements Handler<HttpSe
 			return;
 		}
 
+		List<String> forwadedFor = new ArrayList<>(event.headers().getAll("X-Forwarded-For"));
+		forwadedFor.add(event.remoteAddress().host());
+
 		String key = jsonState.getString("codeVerifierKey");
 		String codeVerifier = CodeVerifierCache.verify(key);
 		if (Strings.isNullOrEmpty(codeVerifier)) {
-			error(event, new Throwable("Failed to fetch codeVerifier"));
+			error(event, new Throwable("OpenId codeVerifier '" + codeVerifier
+					+ "' not found in cache, ignore request from [" + String.join(",", forwadedFor) + "]"));
 			return;
 		}
 
@@ -151,16 +167,33 @@ public class OpenIdHandler extends AbstractAuthHandler implements Handler<HttpSe
 									resp.body(body -> {
 										JsonObject jwtToken = new JsonObject(new String(body.result().getBytes()));
 
-										List<String> forwadedFor = new ArrayList<>(
-												event.headers().getAll("X-Forwarded-For"));
-										forwadedFor.add(event.remoteAddress().host());
+										Optional<SessionData> existingSession = Optional.empty();
+										CacheBackingStore<SessionData> cache = SessionsCache.get();
+										synchronized (cache) {
+											existingSession = cache.asMap().values().stream()
+													.filter(sessionData -> sessionData.jwtToken != null)
+													.filter(sessionData -> jwtToken.getValue(JWT_SESSION_STATE)
+															.equals(sessionData.jwtToken.getValue(JWT_SESSION_STATE)))
+													.findAny();
+										}
 
-										validateToken(event, forwadedFor, jsonState, jwtToken,
+										existingSession.ifPresentOrElse(sessionData -> {
+											logger.info(
+													"BlueMind session {} already exists for JWT session_state {}, don't create a new one, redirect to {}",
+													sessionData.authKey, jwtToken.getValue(JWT_SESSION_STATE),
+													getRedirectTo(event, jsonState));
+											new SessionConsumer(vertx, event, realm, openIdClientSecret, jwtToken)
+													.decorateResponse(sessionData);
+											event.response().headers().add(HttpHeaders.LOCATION,
+													getRedirectTo(event, jsonState));
+											event.response().setStatusCode(302);
+											event.response().end();
+										}, () -> validateToken(event, forwadedFor, jsonState, jwtToken,
 												internalAuth
 														? new SessionConsumer(vertx, event, realm, openIdClientSecret,
 																jwtToken)
 														: s -> {
-														});
+														}));
 									});
 								} else {
 									error(event, respHandler.cause());
@@ -216,8 +249,14 @@ public class OpenIdHandler extends AbstractAuthHandler implements Handler<HttpSe
 
 	private boolean sessionExists(HttpServerRequest request) {
 		String sessionId = request.getHeader("BMSessionId");
+		if (sessionId == null) {
+			return false;
+		}
 
-		return sessionId != null && SessionsCache.get().getIfPresent(sessionId) != null;
+		CacheBackingStore<SessionData> cache = SessionsCache.get();
+		synchronized (cache) {
+			return cache.getIfPresent(sessionId) != null;
+		}
 	}
 
 	private String tokenEndpoint(String domainUid, Map<String, String> domainSettings) {

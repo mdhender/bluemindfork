@@ -140,7 +140,11 @@ public class OpenIdRefreshHandler implements Handler<Long> {
 	public void handle(Long timerId) {
 		try {
 			logger.debug("Starting refresh timer {} for session {}", timerId, sid);
-			SessionData sessionData = SessionsCache.get().getIfPresent(sid);
+			SessionData sessionData;
+			CacheBackingStore<SessionData> cache = SessionsCache.get();
+			synchronized (cache) {
+				sessionData = cache.getIfPresent(sid);
+			}
 
 			if (sessionData == null) {
 				logger.debug("Session {} not found, cancel refresh timer {}", sid, timerId);
