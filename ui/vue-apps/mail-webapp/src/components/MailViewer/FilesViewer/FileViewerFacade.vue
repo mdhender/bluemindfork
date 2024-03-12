@@ -1,6 +1,6 @@
 <template>
     <div class="file-viewer-facade">
-        <slot :name="slotName(file)" :message="message" :file="file">
+        <slot :name="slotName(file)" :message="message" :file="file" :related-parts="relatedParts">
             <component
                 :is="componentName"
                 v-if="componentName"
