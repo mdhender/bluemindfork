@@ -74,6 +74,21 @@ public final class Requests {
 		}
 	}
 
+	/**
+	 * Sets a user-login attribute, used for internal needs.
+	 * 
+	 * @param sr
+	 * @param tag
+	 * @param value
+	 */
+	public static void tagUserLogin(HttpServerRequest sr, String value) {
+		if (sr instanceof WrappedRequest wr) {
+			wr.putDataAttribute("user-login", value);
+		} else {
+			logger.warn("Not a wrapped request {}", sr, new Throwable("call loc"));
+		}
+	}
+
 	public static void tagAsync(HttpServerRequest sr) {
 		tag(sr, "async", "true");
 	}

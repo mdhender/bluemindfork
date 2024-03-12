@@ -40,6 +40,7 @@ import net.bluemind.eas.serdes.IResponseBuilder;
 import net.bluemind.eas.serdes.smartreply.SmartReplyRequestParser;
 import net.bluemind.eas.serdes.smartreply.SmartReplyResponseFormatter;
 import net.bluemind.eas.store.ISyncStorage;
+import net.bluemind.eas.utils.EasLogUser;
 import net.bluemind.eas.wbxml.builder.WbxmlResponseBuilder;
 
 public class SmartReplyProtocol implements IEasProtocol<SmartReplyRequest, SmartReplyResponse> {
@@ -47,14 +48,14 @@ public class SmartReplyProtocol implements IEasProtocol<SmartReplyRequest, Smart
 	private static final Logger logger = LoggerFactory.getLogger(SmartReplyProtocol.class);
 
 	@Override
-	public void parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
+	public void parse(BackendSession bs, OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
 			Handler<SmartReplyRequest> parserResultHandler) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("******** Parsing *******");
+			EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "******** Parsing *******");
 		}
 
 		SmartReplyRequestParser parser = new SmartReplyRequestParser();
-		SmartReplyRequest parsed = parser.parse(optParams, doc, past);
+		SmartReplyRequest parsed = parser.parse(optParams, doc, past, bs.getLoginAtDomain());
 		parserResultHandler.handle(parsed);
 
 	}
@@ -82,7 +83,7 @@ public class SmartReplyProtocol implements IEasProtocol<SmartReplyRequest, Smart
 
 				responseHandler.handle(null);
 			} catch (ActiveSyncException e) {
-				logger.error("error in smarForward", e);
+				EasLogUser.logErrorExceptionAsUser(bs.getLoginAtDomain(), e, logger, "error in smarForward");
 				SmartReplyResponse response = new SmartReplyResponse();
 				response.status = SmartReplyResponse.Status.MESSAGE_REPLY_FAILED;
 				responseHandler.handle(response);
@@ -99,7 +100,7 @@ public class SmartReplyProtocol implements IEasProtocol<SmartReplyRequest, Smart
 	public void write(BackendSession bs, Responder responder, SmartReplyResponse response,
 			final Handler<Void> completion) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("******** Writing *******");
+			EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "******** Writing *******");
 		}
 		if (response == null) {
 			responder.sendStatus(200);

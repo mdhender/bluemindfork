@@ -60,6 +60,6 @@ public abstract class WbxmlHandlerBase implements Handler<AuthorizedDeviceQuery>
 	 * Nothing has been sent to the client yet.
 	 * 
 	 */
-	public abstract void handle(AuthorizedDeviceQuery dq, Document parsedWbxml);
+	public abstract void handle(AuthorizedDeviceQuery dq, Document parsedWbxml, String userLogin);
 
 }

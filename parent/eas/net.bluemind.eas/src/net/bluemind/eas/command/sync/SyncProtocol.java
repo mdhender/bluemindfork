@@ -38,7 +38,6 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -94,6 +93,7 @@ import net.bluemind.eas.serdes.sync.SyncRequestParser;
 import net.bluemind.eas.serdes.sync.SyncResponseFormatter;
 import net.bluemind.eas.state.StateMachine;
 import net.bluemind.eas.utils.DOMUtils;
+import net.bluemind.eas.utils.EasLogUser;
 import net.bluemind.eas.wbxml.builder.WbxmlResponseBuilder;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.vertx.common.request.Requests;
@@ -133,9 +133,9 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 	}
 
 	@Override
-	public void parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
+	public void parse(BackendSession bs, OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
 			Handler<SyncRequest> parserResultHandler) {
-		SyncRequest sr = new SyncRequestParser().parse(optParams, doc, past);
+		SyncRequest sr = new SyncRequestParser().parse(optParams, doc, past, bs.getLoginAtDomain());
 		parserResultHandler.handle(sr);
 	}
 
@@ -168,11 +168,13 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 				try {
 					maxInterval = Integer.parseInt(maxString);
 				} catch (NumberFormatException nfe) {
-					logger.error("Invalid heartbeat value: {}", maxString);
+					EasLogUser.logErrorAsUser(bs.getLoginAtDomain(), logger, "Invalid heartbeat value: {}",
+							maxString);
 				}
 			}
 			if (sr.heartbeatInterval > maxInterval) {
-				logger.warn("Invalid HeartbeatInterval {} > {}", sr.heartbeatInterval, maxInterval);
+				EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger, "Invalid HeartbeatInterval {} > {}",
+						sr.heartbeatInterval, maxInterval);
 				sendLimitError(responseHandler, maxInterval);
 				return;
 			}
@@ -194,16 +196,17 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 			EventBus eb = VertxPlatform.eventBus();
 			eb.request(EasBusEndpoints.PUSH_KILLER + "." + bs.getUniqueIdentifier(), jso,
 					(AsyncResult<Message<Void>> event) -> {
-						logger.debug("Push stopped for {}", bs.getUniqueIdentifier());
+						EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "Push stopped for {}",
+								bs.getUniqueIdentifier());
 						VertxPlatform.getVertx().executeBlocking(() -> {
 							executeSync(bs, sr, responseHandler);
 							return null;
 						}, false);
 					});
 		} else {
-			logger.info("Sync push mode. user: {}, device: {}, collections size: {}", bs.getLoginAtDomain(),
-					bs.getDevId(), bs.getLastMonitored().size());
-
+			EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger,
+					"Sync push mode. user: {}, device: {}, collections size: {}", bs.getLoginAtDomain(), bs.getDevId(),
+					bs.getLastMonitored().size());
 			bs.setLastWaitSeconds(sr.waitIntervalSeconds);
 			bs.setHeartbeart(Long.valueOf(sr.heartbeatInterval));
 			Requests.tagAsync(bs.getRequest());
@@ -227,7 +230,6 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 				return;
 			}
 
-			MDC.put("user", bs.getLoginAtDomain().replace("@", "_at_"));
 			// noChanges
 			consumers.forEach(MessageConsumer::unregister);
 			responseHandler.handle(noChangesResponse(collections));
@@ -241,7 +243,6 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 				if (responseSent.getAndSet(true)) {
 					return;
 				}
-				MDC.put("user", bs.getLoginAtDomain().replace("@", "_at_"));
 				// syncRequired
 				consumers.forEach(MessageConsumer::unregister);
 				VertxPlatform.getVertx().cancelTimer(noChangesTimer);
@@ -270,7 +271,6 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 			if (responseSent.getAndSet(true)) {
 				return;
 			}
-			MDC.put("user", bs.getLoginAtDomain().replace("@", "_at_"));
 			consumers.forEach(MessageConsumer::unregister);
 			VertxPlatform.getVertx().cancelTimer(noChangesTimer);
 			responseHandler.handle(noChangesResponse(collections));
@@ -369,7 +369,8 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 			} catch (CollectionNotFoundException cnf) {
 				sr.invalidCollections.add(csr.collectionId);
 			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
+				EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
+
 				csr.syncKey = sc.getSyncKey();
 				csr.status = SyncStatus.SERVER_ERROR;
 				syncErrors++;
@@ -410,11 +411,9 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 		if (response == null) {
 			// IN-31, delayed empty response
 			responder.vertx().setTimer(500, h -> {
-				MDC.put("user", bs.getLoginAtDomain().replace("@", "_at_"));
 				Backends.internalStorage().updateLastSync(bs);
 				responder.sendStatus(200);
 				completion.handle(null);
-				MDC.put("user", "anonymous");
 			});
 			return;
 		}
@@ -487,7 +486,8 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 					// BM-11979
 					// only remove add/change items with no data
 					if (icr.getChangeType() == ChangeType.ADD || icr.getChangeType() == ChangeType.CHANGE) {
-						logger.info("item {} has no data, remove it from changes", icr.getServerId());
+						EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger,
+								"item {} has no data, remove it from changes", icr.getServerId());
 						it.remove();
 					}
 				}
@@ -533,7 +533,8 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 			Requests.tag(bs.getRequest(), "moreAvail", Integer.toString(pending));
 		}
 
-		logger.debug("WindowSize is {}. Send {} changes. {} change(s) will be sent later", window, changes.items.size(),
+		EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger,
+				"WindowSize is {}. Send {} changes. {} change(s) will be sent later", window, changes.items.size(),
 				pending);
 
 		return changes;
@@ -572,7 +573,8 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 		int size = col.getChangedItems().size() + col.getCreatedItems().size() + col.getFetchIds().size()
 				+ col.getDeletedIds().size();
 
-		logger.debug("[{}] {} changes requested by client", bs.getLoginAtDomain(), size);
+		EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "[{}] {} changes requested by client",
+				bs.getLoginAtDomain(), size);
 
 		List<ServerResponse> ret = new ArrayList<>(size);
 
@@ -640,7 +642,7 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 				importer.sendDraft(bs, serverId, appData);
 				return clientChangeSuccess(serverId);
 			} catch (ActiveSyncException e) {
-				return clientChangeError(serverId, e);
+				return clientChangeError(bs, serverId, e);
 			}
 		}
 
@@ -649,9 +651,9 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 					Optional.ofNullable(recurid), appData, collection.options.conflictPolicy, syncState);
 			return clientChangeSuccess(serverId);
 		} catch (ObjectNotFoundException e) {
-			return clientChangedObjectNotFoundError(serverId, e);
+			return clientChangedObjectNotFoundError(bs, serverId, e);
 		} catch (ActiveSyncException e) {
-			return clientChangeError(serverId, e);
+			return clientChangeError(bs, serverId, e);
 		}
 	}
 
@@ -663,8 +665,8 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 		return sr;
 	}
 
-	private CollectionSyncResponse.ServerResponse clientChangeError(String serverId, Exception e) {
-		logger.error(e.getMessage(), e);
+	private CollectionSyncResponse.ServerResponse clientChangeError(BackendSession bs, String serverId, Exception e) {
+		EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
 		ServerResponse sr = new ServerResponse();
 		sr.operation = Operation.CHANGE;
 		sr.item = CollectionItem.of(serverId);
@@ -672,8 +674,9 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 		return sr;
 	}
 
-	private CollectionSyncResponse.ServerResponse clientChangedObjectNotFoundError(String serverId, Exception e) {
-		logger.error(e.getMessage(), e);
+	private CollectionSyncResponse.ServerResponse clientChangedObjectNotFoundError(BackendSession bs, String serverId,
+			Exception e) {
+		EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
 		ServerResponse sr = new ServerResponse();
 		sr.operation = Operation.CHANGE;
 		sr.item = CollectionItem.of(serverId);
@@ -696,7 +699,7 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 		try {
 			importer.importMessageDeletion(bs, dataClass, items, collection.isDeletesAsMoves());
 		} catch (ActiveSyncException e) {
-			logger.error(e.getMessage(), e);
+			EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
 		}
 	}
 
@@ -715,7 +718,8 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 
 		Element syncData = DOMUtils.getUniqueElement(modification, "ApplicationData");
 		IDataDecoder decoder = decoders.get(dataClass);
-		logger.info("[{}] processing Add (dataClass: {}, cli: {})", bs.getLoginAtDomain(), dataClass, clientId);
+		EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger, "[{}] processing Add (dataClass: {}, cli: {})",
+				bs.getLoginAtDomain(), dataClass, clientId);
 		IApplicationData data = decoder.decode(bs, syncData);
 		HashMap<String, IApplicationData> d = new HashMap<>();
 		d.put(null, data);
@@ -729,7 +733,7 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 			sr.operation = Operation.ADD;
 			return sr;
 		} catch (ActiveSyncException e) {
-			logger.error(e.getMessage(), e);
+			EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
 			ServerResponse sr = new ServerResponse();
 			sr.clientId = clientId;
 			sr.item = CollectionItem.of(collection.getCollectionId(), System.currentTimeMillis());
@@ -757,11 +761,12 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 			SyncState st = sm.getSyncState(bs, c.getCollectionId(), syncKey);
 
 			if (st == null) {
-				logger.warn("Send status 3 Invalid SyncKey to device {}. key: {}", bs.getDevId(), syncKey);
+				EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger,
+						"Send status 3 Invalid SyncKey to device {}. key: {}", bs.getDevId(), syncKey);
 				cc.status = SyncStatus.INVALID_SYNC_KEY;
 				c.forceResponse = true;
 			} else {
-				if (needsGlobalsync(bs.getDevId(), StateMachine.extractTimestamp(syncKey))) {
+				if (needsGlobalsync(bs, StateMachine.extractTimestamp(bs.getLoginAtDomain(), syncKey))) {
 					st.version = 0;
 				}
 
@@ -773,7 +778,8 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 					int remaining = bs.getUnSynchronizedItemChange(c.getCollectionId()).size();
 					if (remaining > 0) {
 						cc.moreAvailable = true;
-						logger.debug("**** {} MORE ITEMS AVAILABLE ****", remaining);
+						EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "**** {} MORE ITEMS AVAILABLE ****",
+								remaining);
 					}
 					for (ItemChangeReference cr : changes.items) {
 						ServerChange srvChange = asServerChange(cr);
@@ -788,18 +794,20 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 				bs.addLastClientSyncState(c.getCollectionId().getValue(), st);
 			}
 		} catch (CollectionNotFoundException e) {
-			logger.error(e.getMessage(), e);
+			EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
 			// FIXME validate connections earlier
 		} catch (ActiveSyncException e) {
-			logger.error(e.getMessage(), e);
+			EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
 		}
 		return cc;
 	}
 
-	private boolean needsGlobalsync(String deviceId, long syncKeyTimestamp) {
+	private boolean needsGlobalsync(BackendSession bs, long syncKeyTimestamp) {
+		String deviceId = bs.getDevId();
 		long reset = FolderSyncProtocol.getLastReset(deviceId);
 		if (syncKeyTimestamp < reset) {
-			logger.info("Pending reset for {}, time: {}, sync key ts: {}", deviceId, reset, syncKeyTimestamp);
+			EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger, "Pending reset for {}, time: {}, sync key ts: {}",
+					deviceId, reset, syncKeyTimestamp);
 			return true;
 		}
 		return false;

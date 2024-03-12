@@ -50,6 +50,7 @@ import net.bluemind.eas.exception.CollectionNotFoundException;
 import net.bluemind.eas.impl.Backends;
 import net.bluemind.eas.timezone.EASTimeZone;
 import net.bluemind.eas.timezone.EASTimeZoneHelper;
+import net.bluemind.eas.utils.EasLogUser;
 
 public class OldFormats {
 
@@ -206,7 +207,7 @@ public class OldFormats {
 
 			}
 		} catch (CollectionNotFoundException e) {
-			logger.error(e.getMessage(), e);
+			EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
 		}
 
 		return cr;

@@ -35,6 +35,7 @@ import net.bluemind.eas.http.EasHeaders;
 import net.bluemind.eas.impl.Responder;
 import net.bluemind.eas.utils.DOMDumper;
 import net.bluemind.eas.utils.FileUtils;
+import net.bluemind.eas.utils.EasLogUser;
 import net.bluemind.eas.validation.ValidationException;
 import net.bluemind.eas.validation.Validator;
 import net.bluemind.eas.wbxml.WBXMLTools;
@@ -76,7 +77,7 @@ public final class VertxResponder implements Responder {
 
 	@Override
 	public void sendResponse(NamespaceMapping ns, Document doc, ConnectionHeader con) {
-		DOMDumper.dumpXml(logger, "to device:\n", doc);
+		DOMDumper.dumpXml(logger, "to device:\n", doc, EasLogUser.ANONYMOUS);
 		try {
 			Validator.get().checkResponse(14.1, doc);
 			setASHeaders(con);

@@ -43,6 +43,7 @@ import net.bluemind.eas.serdes.folderupdate.FolderUpdateRequestParser;
 import net.bluemind.eas.serdes.folderupdate.FolderUpdateResponseFormatter;
 import net.bluemind.eas.state.StateMachine;
 import net.bluemind.eas.store.ISyncStorage;
+import net.bluemind.eas.utils.EasLogUser;
 import net.bluemind.eas.wbxml.builder.WbxmlResponseBuilder;
 
 public class FolderUpdateProtocol implements IEasProtocol<FolderUpdateRequest, FolderUpdateResponse> {
@@ -55,21 +56,21 @@ public class FolderUpdateProtocol implements IEasProtocol<FolderUpdateRequest, F
 	}
 
 	@Override
-	public void parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
+	public void parse(BackendSession bs, OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
 			Handler<FolderUpdateRequest> parserResultHandler) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("******** Parsing *******");
+			EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "******** Parsing *******");
 		}
 
 		FolderUpdateRequestParser parser = new FolderUpdateRequestParser();
-		FolderUpdateRequest parsed = parser.parse(optParams, doc, past);
+		FolderUpdateRequest parsed = parser.parse(optParams, doc, past, bs.getLoginAtDomain());
 		parserResultHandler.handle(parsed);
 	}
 
 	@Override
 	public void execute(BackendSession bs, FolderUpdateRequest query, Handler<FolderUpdateResponse> responseHandler) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("******** Executing *******");
+			EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "******** Executing *******");
 		}
 
 		FolderUpdateResponse response = new FolderUpdateResponse();
@@ -80,7 +81,7 @@ public class FolderUpdateProtocol implements IEasProtocol<FolderUpdateRequest, F
 		try {
 			store.getHierarchyNode(bs, query.serverId);
 		} catch (CollectionNotFoundException e1) {
-			logger.error("ServerId {} does not exist", query.serverId);
+			EasLogUser.logErrorAsUser(bs.getLoginAtDomain(), logger, "ServerId {} does not exist", query.serverId);
 			response.status = Status.DOES_NOT_EXIST;
 			responseHandler.handle(response);
 			return;
@@ -91,7 +92,8 @@ public class FolderUpdateProtocol implements IEasProtocol<FolderUpdateRequest, F
 			try {
 				store.getHierarchyNode(bs, parentId);
 			} catch (CollectionNotFoundException e1) {
-				logger.error("Cannot update folder '{}', parent id {} not found", displayName, query.parentId);
+				EasLogUser.logErrorAsUser(bs.getLoginAtDomain(), logger,
+						"Cannot update folder '{}', parent id {} not found", displayName, query.parentId);
 				response.status = Status.PARENT_FOLDER_NOT_FOUND;
 				responseHandler.handle(response);
 				return;
@@ -122,7 +124,7 @@ public class FolderUpdateProtocol implements IEasProtocol<FolderUpdateRequest, F
 	public void write(BackendSession bs, Responder responder, FolderUpdateResponse response,
 			final Handler<Void> completion) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("******** Writing *******");
+			EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "******** Writing *******");
 		}
 
 		FolderUpdateResponseFormatter format = new FolderUpdateResponseFormatter();

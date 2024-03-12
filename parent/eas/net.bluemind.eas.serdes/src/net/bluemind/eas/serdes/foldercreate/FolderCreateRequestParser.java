@@ -30,13 +30,15 @@ import net.bluemind.eas.dto.OptionalParams;
 import net.bluemind.eas.dto.foldercreate.FolderCreateRequest;
 import net.bluemind.eas.dto.sync.CollectionId;
 import net.bluemind.eas.serdes.IEasRequestParser;
+import net.bluemind.eas.utils.EasLogUser;
 
 public class FolderCreateRequestParser implements IEasRequestParser<FolderCreateRequest> {
 
 	private static final Logger logger = LoggerFactory.getLogger(FolderCreateRequestParser.class);
 
 	@Override
-	public FolderCreateRequest parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past) {
+	public FolderCreateRequest parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
+			String user) {
 		FolderCreateRequest req = new FolderCreateRequest();
 		Element elements = doc.getDocumentElement();
 		NodeList children = elements.getChildNodes();
@@ -63,7 +65,7 @@ public class FolderCreateRequestParser implements IEasRequestParser<FolderCreate
 				req.type = Integer.parseInt(child.getTextContent());
 				break;
 			default:
-				logger.warn("Not managed FolderCreate child {}", child);
+				EasLogUser.logWarnAsUser(user, logger, "Not managed FolderCreate child {}", child);
 				break;
 			}
 		}

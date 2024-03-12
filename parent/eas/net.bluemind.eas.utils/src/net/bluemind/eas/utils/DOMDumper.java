@@ -37,7 +37,7 @@ public class DOMDumper {
 	 * 
 	 * @param doc
 	 */
-	public static final void dumpXml(Logger logger, String prefix, Document doc) {
+	public static final void dumpXml(Logger logger, String prefix, Document doc, String userLogin) {
 
 		try (FastByteArrayOutputStream out = new FastByteArrayOutputStream()) {
 			Document c = DOMUtils.cloneDOM(doc);
@@ -61,11 +61,11 @@ public class DOMDumper {
 
 			DOMUtils.serialise(c, out, true);
 			if (logger.isInfoEnabled()) {
-				logger.info("{}{}", prefix, out);
+				EasLogUser.logInfoAsUser(userLogin, logger, "{}{}", prefix, out);
 			}
 
 		} catch (Exception e) {
-			logger.warn(e.getMessage());
+			EasLogUser.logWarnAsUser(userLogin, logger, e.getMessage());
 		}
 	}
 

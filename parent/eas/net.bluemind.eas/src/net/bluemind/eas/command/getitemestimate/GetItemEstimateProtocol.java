@@ -42,6 +42,7 @@ import net.bluemind.eas.serdes.getitemestimate.GetItemEstimateRequestParser;
 import net.bluemind.eas.serdes.getitemestimate.GetItemEstimateResponseFormatter;
 import net.bluemind.eas.state.StateMachine;
 import net.bluemind.eas.store.ISyncStorage;
+import net.bluemind.eas.utils.EasLogUser;
 import net.bluemind.eas.wbxml.builder.WbxmlResponseBuilder;
 
 public class GetItemEstimateProtocol implements IEasProtocol<GetItemEstimateRequest, GetItemEstimateResponse> {
@@ -49,14 +50,14 @@ public class GetItemEstimateProtocol implements IEasProtocol<GetItemEstimateRequ
 	private static final Logger logger = LoggerFactory.getLogger(GetItemEstimateProtocol.class);
 
 	@Override
-	public void parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
+	public void parse(BackendSession bs, OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
 			Handler<GetItemEstimateRequest> parserResultHandler) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("******** Parsing *******");
+			EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "******** Parsing *******");
 		}
 
 		GetItemEstimateRequestParser parser = new GetItemEstimateRequestParser();
-		GetItemEstimateRequest parsed = parser.parse(optParams, doc, past);
+		GetItemEstimateRequest parsed = parser.parse(optParams, doc, past, bs.getLoginAtDomain());
 		parserResultHandler.handle(parsed);
 	}
 
@@ -64,7 +65,7 @@ public class GetItemEstimateProtocol implements IEasProtocol<GetItemEstimateRequ
 	public void execute(BackendSession bs, GetItemEstimateRequest query,
 			Handler<GetItemEstimateResponse> responseHandler) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("******** Executing *******");
+			EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "******** Executing *******");
 		}
 
 		ISyncStorage store = Backends.internalStorage();
@@ -99,7 +100,7 @@ public class GetItemEstimateProtocol implements IEasProtocol<GetItemEstimateRequ
 	public void write(BackendSession bs, Responder responder, GetItemEstimateResponse response,
 			final Handler<Void> completion) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("******** Writing *******");
+			EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "******** Writing *******");
 		}
 		GetItemEstimateResponseFormatter formatter = new GetItemEstimateResponseFormatter();
 		IResponseBuilder builder = new WbxmlResponseBuilder(bs.getLoginAtDomain(), responder.asOutput());

@@ -51,6 +51,7 @@ import net.bluemind.eas.dto.tasks.TasksResponse;
 import net.bluemind.eas.dto.type.ItemDataType;
 import net.bluemind.eas.exception.ActiveSyncException;
 import net.bluemind.eas.store.ISyncStorage;
+import net.bluemind.eas.utils.EasLogUser;
 import net.bluemind.todolist.api.ITodoList;
 import net.bluemind.todolist.api.VTodo;
 
@@ -73,7 +74,8 @@ public class TaskBackend extends CoreConnect {
 			ITodoList service = getService(bs, folder.containerUid);
 
 			ContainerChangeset<Long> changeset = service.changesetById(version);
-			logger.debug("[{}][{}] get task changes. created: {}, updated: {}, deleted: {}, folder: {}, version: {}",
+			EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger,
+					"[{}][{}] get task changes. created: {}, updated: {}, deleted: {}, folder: {}, version: {}",
 					bs.getLoginAtDomain(), bs.getDevId(), changeset.created.size(), changeset.updated.size(),
 					changeset.deleted.size(), folder.containerUid, version);
 
@@ -93,13 +95,13 @@ public class TaskBackend extends CoreConnect {
 
 		} catch (ServerFault e) {
 			if (e.getCode() == ErrorCode.PERMISSION_DENIED) {
-				logger.warn(e.getMessage());
+				EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger, e.getMessage());
 			} else {
-				logger.error(e.getMessage(), e);
+				EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
 			}
 			changes.version = version;
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
 			// BM-7227
 			// Something went wrong
 			// Send current version number to prevent full sync
@@ -122,7 +124,7 @@ public class TaskBackend extends CoreConnect {
 				if (id != null) {
 					ItemValue<VTodo> item = service.getCompleteById(id);
 					if (item == null) {
-						logger.debug("Fail to find VTodo {}", id);
+						EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "Fail to find VTodo {}", id);
 						return CollectionItem.of(collectionId, id);
 					}
 
@@ -146,11 +148,14 @@ public class TaskBackend extends CoreConnect {
 					try {
 						service.updateById(id, todo);
 						ret = CollectionItem.of(collectionId, id);
-						logger.info("Update todo bs: {}, collection: {}, serverId: {}, summary: {}, completed: {}",
+						EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger,
+								"Update todo bs: {}, collection: {}, serverId: {}, summary: {}, completed: {}",
 								bs.getLoginAtDomain(), folder.containerUid, serverId, todo.summary, todo.completed);
 					} catch (Exception e) {
-						logger.error("Fail to update todo bs:" + bs.getLoginAtDomain() + ", collection: "
-								+ folder.containerUid + ", serverId: " + serverId + ", summary:" + todo.summary);
+						EasLogUser.logErrorAsUser(bs.getLoginAtDomain(), logger,
+								"Fail to update todo bs:" + bs.getLoginAtDomain() + ", collection: "
+										+ folder.containerUid + ", serverId: " + serverId + ", summary:"
+										+ todo.summary);
 					}
 				}
 
@@ -187,7 +192,7 @@ public class TaskBackend extends CoreConnect {
 				if (e.getCode() == ErrorCode.PERMISSION_DENIED) {
 					throw new ActiveSyncException(e);
 				}
-				logger.error(e.getMessage(), e);
+				EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
 			}
 		}
 
@@ -219,7 +224,8 @@ public class TaskBackend extends CoreConnect {
 				AppData data = toAppData(bs, todo);
 				res.put(todo.internalId, data);
 			} catch (Exception e) {
-				logger.error("Fail to convert todo {}", todo.uid, e);
+				EasLogUser.logErrorExceptionAsUser(bs.getLoginAtDomain(), e, logger, "Fail to convert todo {}",
+						todo.uid);
 			}
 		});
 

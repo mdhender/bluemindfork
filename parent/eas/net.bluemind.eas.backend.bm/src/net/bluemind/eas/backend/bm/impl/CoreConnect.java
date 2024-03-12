@@ -44,6 +44,7 @@ import net.bluemind.eas.dto.base.ChangeType;
 import net.bluemind.eas.dto.base.CollectionItem;
 import net.bluemind.eas.dto.sync.CollectionId;
 import net.bluemind.eas.dto.type.ItemDataType;
+import net.bluemind.eas.utils.EasLogUser;
 import net.bluemind.todolist.api.ITodoList;
 import net.bluemind.vertx.common.http.BasicAuthHandler;
 
@@ -66,7 +67,8 @@ public class CoreConnect {
 				String sid = BasicAuthHandler.getSid(auth);
 				in.sid = sid;
 			} catch (NullPointerException e) {
-				logger.warn("Session for auth key {} does not exist", auth);
+				EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger, "Session for auth key {} does not exist",
+						auth);
 			}
 		}
 		return in;

@@ -32,12 +32,14 @@ import net.bluemind.eas.dto.OptionalParams;
 import net.bluemind.eas.dto.moveitems.MoveItemsRequest;
 import net.bluemind.eas.dto.moveitems.MoveItemsRequest.Move;
 import net.bluemind.eas.serdes.IEasRequestParser;
+import net.bluemind.eas.utils.EasLogUser;
 
 public class MoveItemsParser implements IEasRequestParser<MoveItemsRequest> {
 	private static final Logger logger = LoggerFactory.getLogger(MoveItemsParser.class);
 
 	@Override
-	public MoveItemsRequest parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past) {
+	public MoveItemsRequest parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
+			String user) {
 		MoveItemsRequest request = new MoveItemsRequest();
 		request.moveItems = new LinkedList<>();
 
@@ -53,17 +55,17 @@ public class MoveItemsParser implements IEasRequestParser<MoveItemsRequest> {
 			Element mv = (Element) node;
 
 			if (!mv.getNodeName().equals("Move")) {
-				logger.warn("Not managed MoveItems child {}", mv);
+				EasLogUser.logWarnAsUser(user, logger, "Not managed MoveItems child {}", mv);
 				continue;
 			}
 
-			request.moveItems.add(parseMove(mv));
+			request.moveItems.add(parseMove(mv, user));
 		}
 
 		return request;
 	}
 
-	private Move parseMove(Element mv) {
+	private Move parseMove(Element mv, String user) {
 		Move m = new MoveItemsRequest.Move();
 
 		NodeList childs = mv.getChildNodes();
@@ -86,7 +88,7 @@ public class MoveItemsParser implements IEasRequestParser<MoveItemsRequest> {
 				m.dstFldId = child.getTextContent();
 				break;
 			default:
-				logger.warn("Not managed of Move child: '{}'", child);
+				EasLogUser.logWarnAsUser(user, logger, "Not managed of Move child: '{}'", child);
 				break;
 			}
 		}

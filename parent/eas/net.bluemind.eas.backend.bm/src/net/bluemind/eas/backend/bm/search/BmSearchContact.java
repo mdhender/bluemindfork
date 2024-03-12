@@ -37,6 +37,7 @@ import net.bluemind.eas.dto.search.SearchRequest;
 import net.bluemind.eas.dto.search.SearchResult;
 import net.bluemind.eas.dto.search.StoreName;
 import net.bluemind.eas.search.ISearchSource;
+import net.bluemind.eas.utils.EasLogUser;
 
 /**
  * 
@@ -69,12 +70,14 @@ public class BmSearchContact implements ISearchSource {
 
 			ListResult<ItemContainerValue<VCardInfo>> result = addressBooksService.search(query);
 
-			logger.debug("Found {} results for query {}", result.values.size(), query.query);
+			EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "Found {} results for query {}",
+					result.values.size(), query.query);
 
 			ContactConverter cc = new ContactConverter();
 
 			for (ItemContainerValue<VCardInfo> value : result.values) {
-				logger.info("found uid '{}' in '{}'", value.uid, value.containerUid);
+				EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger, "found uid '{}' in '{}'", value.uid,
+						value.containerUid);
 				IAddressBook service = ClientSideServiceProvider.getProvider(is.coreUrl, is.sid)
 						.setOrigin("bm-eas-BmSearchContact-" + bs.getUniqueIdentifier())
 						.instance(IAddressBook.class, value.containerUid);
@@ -86,7 +89,7 @@ public class BmSearchContact implements ISearchSource {
 
 			}
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
 		}
 		return ret;
 	}

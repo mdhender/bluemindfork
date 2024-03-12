@@ -45,6 +45,7 @@ import net.bluemind.eas.search.ISearchSource.Results;
 import net.bluemind.eas.serdes.IResponseBuilder;
 import net.bluemind.eas.serdes.search.SearchRequestParser;
 import net.bluemind.eas.serdes.search.SearchResponseFormatter;
+import net.bluemind.eas.utils.EasLogUser;
 import net.bluemind.eas.utils.RunnableExtensionLoader;
 import net.bluemind.eas.wbxml.builder.WbxmlResponseBuilder;
 
@@ -59,26 +60,25 @@ public class SearchProtocol implements IEasProtocol<SearchRequest, SearchRespons
 	}
 
 	@Override
-	public void parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
+	public void parse(BackendSession bs, OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
 			Handler<SearchRequest> parserResultHandler) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("******** Parsing *******");
+			EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "******** Parsing *******");
 		}
 		SearchRequestParser parser = new SearchRequestParser();
-		SearchRequest parsed = parser.parse(optParams, doc, past);
+		SearchRequest parsed = parser.parse(optParams, doc, past, bs.getLoginAtDomain());
 		parserResultHandler.handle(parsed);
 	}
 
 	@Override
 	public void execute(BackendSession bs, SearchRequest query, Handler<SearchResponse> responseHandler) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("******** Executing *******");
+			EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "******** Executing *******");
 		}
 
 		SearchResponse response = new SearchResponse();
 		if (query.store.name == null) {
-			logger.error("Invalid store name");
-
+			EasLogUser.logErrorAsUser(bs.getLoginAtDomain(), logger, "Invalid store name");
 			response.status = Status.SERVER_ERROR;
 			responseHandler.handle(response);
 			return;
@@ -131,7 +131,7 @@ public class SearchProtocol implements IEasProtocol<SearchRequest, SearchRespons
 	@Override
 	public void write(BackendSession bs, Responder responder, SearchResponse response, final Handler<Void> completion) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("******** Writing *******");
+			EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "******** Writing *******");
 		}
 
 		SearchResponseFormatter formatter = new SearchResponseFormatter();

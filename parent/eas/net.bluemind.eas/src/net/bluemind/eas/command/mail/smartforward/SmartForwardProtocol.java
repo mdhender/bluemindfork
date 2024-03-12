@@ -39,6 +39,7 @@ import net.bluemind.eas.serdes.IResponseBuilder;
 import net.bluemind.eas.serdes.smartforward.SmartForwardRequestParser;
 import net.bluemind.eas.serdes.smartforward.SmartForwardResponseFormatter;
 import net.bluemind.eas.store.ISyncStorage;
+import net.bluemind.eas.utils.EasLogUser;
 import net.bluemind.eas.wbxml.builder.WbxmlResponseBuilder;
 
 public class SmartForwardProtocol implements IEasProtocol<SmartForwardRequest, SmartForwardResponse> {
@@ -46,14 +47,14 @@ public class SmartForwardProtocol implements IEasProtocol<SmartForwardRequest, S
 	private static final Logger logger = LoggerFactory.getLogger(SmartForwardProtocol.class);
 
 	@Override
-	public void parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
+	public void parse(BackendSession bs, OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
 			Handler<SmartForwardRequest> parserResultHandler) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("******** Parsing *******");
+			EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "******** Parsing *******");
 		}
 
 		SmartForwardRequestParser parser = new SmartForwardRequestParser();
-		SmartForwardRequest parsed = parser.parse(optParams, doc, past);
+		SmartForwardRequest parsed = parser.parse(optParams, doc, past, bs.getLoginAtDomain());
 		parserResultHandler.handle(parsed);
 
 	}
@@ -61,7 +62,7 @@ public class SmartForwardProtocol implements IEasProtocol<SmartForwardRequest, S
 	@Override
 	public void execute(BackendSession bs, SmartForwardRequest query, Handler<SmartForwardResponse> responseHandler) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("******** Executing *******");
+			EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "******** Executing *******");
 		}
 
 		IBackend backend = Backends.dataAccess();
@@ -86,7 +87,7 @@ public class SmartForwardProtocol implements IEasProtocol<SmartForwardRequest, S
 				responseHandler.handle(null);
 
 			} catch (ActiveSyncException e) {
-				logger.error("error in smarForward", e);
+				EasLogUser.logErrorExceptionAsUser(bs.getLoginAtDomain(), e, logger, "error in smarForward", e);
 				SmartForwardResponse response = new SmartForwardResponse();
 				response.status = SmartForwardResponse.Status.MAIL_SUBMISSION_FAILED;
 				responseHandler.handle(response);

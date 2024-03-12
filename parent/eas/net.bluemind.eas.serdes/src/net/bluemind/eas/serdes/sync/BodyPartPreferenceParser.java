@@ -27,11 +27,12 @@ import org.w3c.dom.NodeList;
 import net.bluemind.eas.dto.base.AirSyncBaseRequest;
 import net.bluemind.eas.dto.base.AirSyncBaseRequest.BodyPartPreference;
 import net.bluemind.eas.dto.base.BodyType;
+import net.bluemind.eas.utils.EasLogUser;
 
 public class BodyPartPreferenceParser {
 	private static final Logger logger = LoggerFactory.getLogger(BodyPartPreferenceParser.class);
 
-	public AirSyncBaseRequest.BodyPartPreference parse(Element bpElt) {
+	public AirSyncBaseRequest.BodyPartPreference parse(Element bpElt, String user) {
 		BodyPartPreference ret = new BodyPartPreference();
 
 		NodeList childs = bpElt.getChildNodes();
@@ -56,7 +57,7 @@ public class BodyPartPreferenceParser {
 				ret.preview = Integer.parseInt(elt.getTextContent());
 				break;
 			default:
-				logger.warn("BodyPreference element {} not supported ", elt.getNodeName());
+				EasLogUser.logWarnAsUser(user, logger, "BodyPreference element {} not supported ", elt.getNodeName());
 				break;
 			}
 		}

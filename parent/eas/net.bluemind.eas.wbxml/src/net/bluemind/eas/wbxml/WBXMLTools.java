@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import net.bluemind.eas.utils.EasLogUser;
 import net.bluemind.eas.wbxml.parsers.WbxmlParser;
 import net.bluemind.eas.wbxml.writers.WbxmlEncoder;
 
@@ -43,7 +44,7 @@ public class WBXMLTools {
 	private static final Logger logger = LoggerFactory.getLogger(WBXMLTools.class);
 
 	public static Document toXml(byte[] wbxml) throws IOException {
-		return toXml(new ByteArrayInputStream(wbxml));
+		return toXml(new ByteArrayInputStream(wbxml), EasLogUser.ANONYMOUS);
 	}
 
 	/**
@@ -53,14 +54,14 @@ public class WBXMLTools {
 	 * @return
 	 * @throws IOException
 	 */
-	public static Document toXml(InputStream wbxmlStream) throws IOException {
-		PushDocumentHandler pdh = new PushDocumentHandler();
-		WbxmlParser parser = new WbxmlParser(pdh, pdh);
+	public static Document toXml(InputStream wbxmlStream, String userLogin) throws IOException {
+		PushDocumentHandler pdh = new PushDocumentHandler(userLogin);
+		WbxmlParser parser = new WbxmlParser(pdh, pdh, userLogin);
 		try {
 			parser.parse(wbxmlStream);
 			return pdh.getDocument();
 		} catch (SAXException e) {
-			logger.error(e.getMessage(), e);
+			EasLogUser.logExceptionAsUser(userLogin, e, logger);
 			throw new IOException(e.getMessage());
 		}
 

@@ -32,7 +32,7 @@ import net.bluemind.eas.utils.DOMUtils;
 
 public class BodyOptionsParser {
 
-	public BodyOptions fromOptionsElement(Element option) {
+	public BodyOptions fromOptionsElement(Element option, String user) {
 		BodyOptions bo = new BodyOptions();
 		String mimeSupport = DOMUtils.getElementText(option, "MIMESupport");
 		if (mimeSupport != null) {
@@ -60,7 +60,7 @@ public class BodyOptionsParser {
 			BodyPartPreferenceParser bpp = new BodyPartPreferenceParser();
 			for (int i = 0; i < bodyPreferences.getLength(); i++) {
 				Element bodyPreference = (Element) bodyPreferences.item(i);
-				bo.bodyPartPrefs.add(bpp.parse(bodyPreference));
+				bo.bodyPartPrefs.add(bpp.parse(bodyPreference, user));
 			}
 		}
 

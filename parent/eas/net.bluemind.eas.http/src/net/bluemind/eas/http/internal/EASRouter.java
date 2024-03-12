@@ -88,6 +88,7 @@ public final class EASRouter implements Handler<HttpServerRequest> {
 
 	private Handler<AuthorizedDeviceQuery> postHandler() {
 		return event -> {
+			Requests.tagUserLogin(event.request(), event.loginAtDomain());
 			final String pointKey = "" + ((int) event.protocolVersion()) + "." + event.command();
 			IEasRequestEndpoint ep = endpoints.get(pointKey);
 			if (ep != null) {

@@ -29,6 +29,7 @@ import net.bluemind.eas.http.AuthorizedDeviceQuery;
 import net.bluemind.eas.http.IEasRequestEndpoint;
 import net.bluemind.eas.http.wbxml.WbxmlHandlerBase;
 import net.bluemind.eas.protocol.ProtocolExecutor;
+import net.bluemind.eas.utils.EasLogUser;
 
 /**
  * Handles the Settings cmd
@@ -45,9 +46,9 @@ public class SettingsEndpoint extends WbxmlHandlerBase implements IEasRequestEnd
 	}
 
 	@Override
-	public void handle(AuthorizedDeviceQuery dq, Document doc) {
+	public void handle(AuthorizedDeviceQuery dq, Document doc, String userLogin) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("Settings with protocol...");
+			EasLogUser.logDebugAsUser(userLogin, logger, "Settings with protocol...");
 		}
 		ProtocolExecutor.run(dq, doc, protocol);
 	}

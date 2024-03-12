@@ -53,6 +53,7 @@ import net.bluemind.eas.serdes.IResponseBuilder;
 import net.bluemind.eas.serdes.moveitems.MoveItemsFormatter;
 import net.bluemind.eas.serdes.moveitems.MoveItemsParser;
 import net.bluemind.eas.store.ISyncStorage;
+import net.bluemind.eas.utils.EasLogUser;
 import net.bluemind.eas.wbxml.builder.WbxmlResponseBuilder;
 
 /**
@@ -73,20 +74,20 @@ public class MoveItemsProtocol implements IEasProtocol<MoveItemsRequest, MoveIte
 	}
 
 	@Override
-	public void parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
+	public void parse(BackendSession bs, OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
 			Handler<MoveItemsRequest> parserResultHandler) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("******** Parsing *******");
+			EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "******** Parsing *******");
 		}
 		MoveItemsParser parser = new MoveItemsParser();
-		MoveItemsRequest parsed = parser.parse(optParams, doc, past);
+		MoveItemsRequest parsed = parser.parse(optParams, doc, past, bs.getLoginAtDomain());
 		parserResultHandler.handle(parsed);
 	}
 
 	@Override
 	public void execute(BackendSession bs, MoveItemsRequest query, Handler<MoveItemsResponse> responseHandler) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("******** Executing *******");
+			EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "******** Executing *******");
 		}
 
 		this.bs = bs;
@@ -98,7 +99,7 @@ public class MoveItemsProtocol implements IEasProtocol<MoveItemsRequest, MoveIte
 		response.moveItems = new ArrayList<>(query.moveItems.size());
 		for (MoveItemsRequest.Move item : query.moveItems) {
 			if (item.srcFldId.equals(item.dstFldId)) {
-				logger.warn(
+				EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger,
 						"Same source and destination collection id. Send status 4 SameSourceAndDestinationCollectionId");
 				appendResponseError(response, item,
 						MoveItemsResponse.Response.Status.SAME_SOURCE_AND_DESTINATION_COLLECTION_ID);
@@ -108,14 +109,16 @@ public class MoveItemsProtocol implements IEasProtocol<MoveItemsRequest, MoveIte
 			Optional<HierarchyNode> srcFolder = folderCache.computeIfAbsent(item.srcFldId, this::getAndCheckFolder);
 
 			if (!srcFolder.isPresent()) {
-				logger.warn("Source folder is missing. Send status 1 InvalidSourceCollectionId");
+				EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger,
+						"Source folder is missing. Send status 1 InvalidSourceCollectionId");
 				appendResponseError(response, item, MoveItemsResponse.Response.Status.INVALID_SOURCE_COLLECTION_ID);
 				continue;
 			}
 
 			Optional<HierarchyNode> dstFolder = folderCache.computeIfAbsent(item.dstFldId, this::getAndCheckFolder);
 			if (!dstFolder.isPresent()) {
-				logger.warn("Destination folder is missing. Send status 2 InvalidDestinationCollectionId");
+				EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger,
+						"Destination folder is missing. Send status 2 InvalidDestinationCollectionId");
 				appendResponseError(response, item,
 						MoveItemsResponse.Response.Status.INVALID_DESTINATION_COLLECTION_ID);
 				continue;
@@ -133,7 +136,7 @@ public class MoveItemsProtocol implements IEasProtocol<MoveItemsRequest, MoveIte
 				res = backend.getContentsImporter(bs).importMoveItems(bs, dataClass, folders.getSource(),
 						folders.getDestination(), new ArrayList<>(items));
 			} catch (ActiveSyncException e) {
-				logger.error(e.getMessage(), e);
+				EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
 				for (CollectionItem ci : items) {
 					MoveItemsResponse.Response r = new MoveItemsResponse.Response();
 					r.srcMsgId = folders.getSource().collectionId.getValue() + ":" + ci.itemId;
@@ -181,7 +184,7 @@ public class MoveItemsProtocol implements IEasProtocol<MoveItemsRequest, MoveIte
 	public void write(BackendSession bs, Responder responder, MoveItemsResponse response,
 			final Handler<Void> completion) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("******** Writing *******");
+			EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "******** Writing *******");
 		}
 		MoveItemsFormatter formatter = new MoveItemsFormatter();
 		IResponseBuilder builder = new WbxmlResponseBuilder(bs.getLoginAtDomain(), responder.asOutput());

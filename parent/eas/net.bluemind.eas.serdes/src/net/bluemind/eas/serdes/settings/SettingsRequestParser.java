@@ -34,13 +34,14 @@ import net.bluemind.eas.dto.settings.SettingsRequest.Oof;
 import net.bluemind.eas.dto.settings.SettingsRequest.Oof.Get;
 import net.bluemind.eas.dto.settings.SettingsRequest.UserInformation;
 import net.bluemind.eas.serdes.IEasRequestParser;
+import net.bluemind.eas.utils.EasLogUser;
 
 public class SettingsRequestParser implements IEasRequestParser<SettingsRequest> {
 
 	private static final Logger logger = LoggerFactory.getLogger(SettingsRequestParser.class);
 
 	@Override
-	public SettingsRequest parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past) {
+	public SettingsRequest parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past, String user) {
 		SettingsRequest sr = new SettingsRequest();
 		Element settings = doc.getDocumentElement();
 		NodeList children = settings.getChildNodes();
@@ -53,23 +54,23 @@ public class SettingsRequestParser implements IEasRequestParser<SettingsRequest>
 			String childName = child.getNodeName();
 			switch (childName) {
 			case "Oof": // set / get
-				sr.oof = parseOof(child);
+				sr.oof = parseOof(child, user);
 				break;
 			case "DeviceInformation": // set
-				sr.deviceInformation = parseDeviceInformation(child);
+				sr.deviceInformation = parseDeviceInformation(child, user);
 				break;
 			case "UserInformation": // get
-				sr.userInformation = parseUserInformation(child);
+				sr.userInformation = parseUserInformation(child, user);
 				break;
 			default:
-				logger.warn("Not managed Settings child: '{}'", child);
+				EasLogUser.logWarnAsUser(user, logger, "Not managed Settings child {}", child);
 				break;
 			}
 		}
 		return sr;
 	}
 
-	private UserInformation parseUserInformation(Element oofElem) {
+	private UserInformation parseUserInformation(Element oofElem, String user) {
 		UserInformation ui = new UserInformation();
 		NodeList children = oofElem.getChildNodes();
 		for (int i = 0; i < children.getLength(); i++) {
@@ -84,14 +85,14 @@ public class SettingsRequestParser implements IEasRequestParser<SettingsRequest>
 				ui.get = new SettingsRequest.UserInformation.Get();
 				break;
 			default:
-				logger.warn("Not managed Oof child: '{}'", child);
+				EasLogUser.logWarnAsUser(user, logger, "Not managed Oof child: '{}'", child);
 				break;
 			}
 		}
 		return ui;
 	}
 
-	private Oof parseOof(Element oofElem) {
+	private Oof parseOof(Element oofElem, String user) {
 		Oof oof = new Oof();
 		NodeList children = oofElem.getChildNodes();
 		for (int i = 0; i < children.getLength(); i++) {
@@ -104,17 +105,17 @@ public class SettingsRequestParser implements IEasRequestParser<SettingsRequest>
 			String childName = child.getNodeName();
 			switch (childName) {
 			case "Get":
-				oof.get = parseOofGet(child);
+				oof.get = parseOofGet(child, user);
 				break;
 			default:
-				logger.warn("Not managed Oof child: '{}'", child);
+				EasLogUser.logWarnAsUser(user, logger, "Not managed Oof child: '{}'", child);
 				break;
 			}
 		}
 		return oof;
 	}
 
-	public DeviceInformation parseDeviceInformation(Element diElem) {
+	public DeviceInformation parseDeviceInformation(Element diElem, String user) {
 		DeviceInformation di = new DeviceInformation();
 		NodeList children = diElem.getChildNodes();
 		for (int i = 0; i < children.getLength(); i++) {
@@ -127,10 +128,10 @@ public class SettingsRequestParser implements IEasRequestParser<SettingsRequest>
 			String childName = child.getNodeName();
 			switch (childName) {
 			case "Set":
-				di.set = parseDevInfSet(child);
+				di.set = parseDevInfSet(child, user);
 				break;
 			default:
-				logger.warn("Not managed DeviceInformation child: '{}'", child);
+				EasLogUser.logWarnAsUser(user, logger, "Not managed DeviceInformation child: '{}'", child);
 				break;
 			}
 		}
@@ -150,7 +151,7 @@ public class SettingsRequestParser implements IEasRequestParser<SettingsRequest>
 	 * @param devInfElem
 	 * @return
 	 */
-	private Set parseDevInfSet(Element devInfElem) {
+	private Set parseDevInfSet(Element devInfElem, String user) {
 		Set set = new SettingsRequest.DeviceInformation.Set();
 		NodeList children = devInfElem.getChildNodes();
 		for (int i = 0; i < children.getLength(); i++) {
@@ -187,14 +188,14 @@ public class SettingsRequestParser implements IEasRequestParser<SettingsRequest>
 				set.friendlyName = child.getTextContent();
 				break;
 			default:
-				logger.warn("Not managed Oof.Get child: '{}'", child);
+				EasLogUser.logWarnAsUser(user, logger, "Not managed Oof.Get child: '{}'", child);
 				break;
 			}
 		}
 		return set;
 	}
 
-	private Get parseOofGet(Element oofGetElem) {
+	private Get parseOofGet(Element oofGetElem, String user) {
 		Get get = new SettingsRequest.Oof.Get();
 		NodeList children = oofGetElem.getChildNodes();
 		for (int i = 0; i < children.getLength(); i++) {
@@ -209,7 +210,7 @@ public class SettingsRequestParser implements IEasRequestParser<SettingsRequest>
 				get.bodyType = child.getTextContent();
 				break;
 			default:
-				logger.warn("Not managed Oof.Get child: '{}'", child);
+				EasLogUser.logWarnAsUser(user, logger, "Not managed Oof.Get child: '{}'", child);
 				break;
 			}
 		}

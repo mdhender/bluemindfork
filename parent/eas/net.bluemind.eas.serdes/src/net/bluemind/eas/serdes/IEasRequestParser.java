@@ -25,6 +25,6 @@ import net.bluemind.eas.dto.OptionalParams;
 
 public interface IEasRequestParser<T> {
 
-	T parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past);
+	T parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past, String user);
 
 }

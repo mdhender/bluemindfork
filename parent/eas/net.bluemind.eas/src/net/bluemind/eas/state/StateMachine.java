@@ -35,6 +35,7 @@ import net.bluemind.eas.dto.sync.SyncState;
 import net.bluemind.eas.dto.type.ItemDataType;
 import net.bluemind.eas.exception.CollectionNotFoundException;
 import net.bluemind.eas.store.ISyncStorage;
+import net.bluemind.eas.utils.EasLogUser;
 
 public class StateMachine {
 
@@ -60,12 +61,12 @@ public class StateMachine {
 			return ret;
 		}
 		if (store.needReset(bs)) {
-			logger.info("reset folder hierarchy for {}'s device {}", bs.getLoginAtDomain(),
-					bs.getDeviceId().getIdentifier());
+			EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger, "reset folder hierarchy for {}'s device {}",
+					bs.getLoginAtDomain(), bs.getDeviceId().getIdentifier());
 			return null;
 		}
 
-		return toSyncState(syncKey);
+		return toSyncState(bs.getLoginAtDomain(), syncKey);
 
 	}
 
@@ -79,7 +80,7 @@ public class StateMachine {
 			throws CollectionNotFoundException {
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("SyncKey is {}", syncKey);
+			EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "SyncKey is {}", syncKey);
 		}
 
 		if ("0".equals(syncKey)) {
@@ -89,16 +90,16 @@ public class StateMachine {
 			return ret;
 		}
 
-		return toSyncState(syncKey);
+		return toSyncState(bs.getLoginAtDomain(), syncKey);
 	}
 
-	private SyncState toSyncState(String syncKey) {
+	private SyncState toSyncState(String user, String syncKey) {
 		Iterator<String> sss = Splitter.on("-").split(syncKey).iterator();
 
 		String syncKeyVersion = sss.next();
 		if (!SYNCKEY_VERSION.equals(syncKeyVersion)) {
-			logger.warn("SyncKey '{}' version mismatch. Expected: '{}', was '{}'", syncKey, SYNCKEY_VERSION,
-					syncKeyVersion);
+			EasLogUser.logWarnAsUser(user, logger, "SyncKey '{}' version mismatch. Expected: '{}', was '{}'", syncKey,
+					SYNCKEY_VERSION, syncKeyVersion);
 			return null;
 		}
 
@@ -135,7 +136,7 @@ public class StateMachine {
 		return sk.toString();
 	}
 
-	public static long extractTimestamp(String syncKey) {
+	public static long extractTimestamp(String user, String syncKey) {
 		if ("0".equals(syncKey)) {
 			return 0L;
 		}
@@ -144,7 +145,7 @@ public class StateMachine {
 			iter.next();
 			return Long.valueOf(iter.next());
 		} catch (Exception e) {
-			logger.warn("Cannot extract timestamp of sync key {}", syncKey);
+			EasLogUser.logWarnAsUser(user, logger, "Cannot extract timestamp of sync key {}", syncKey);
 			return 0L;
 		}
 	}

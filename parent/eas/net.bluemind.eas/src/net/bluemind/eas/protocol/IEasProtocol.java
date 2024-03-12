@@ -28,7 +28,8 @@ import net.bluemind.eas.impl.Responder;
 
 public interface IEasProtocol<Q, R> {
 
-	void parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past, Handler<Q> parserResultHandler);
+	void parse(BackendSession bs, OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
+			Handler<Q> parserResultHandler);
 
 	void execute(BackendSession bs, Q query, Handler<R> responseHandler);
 

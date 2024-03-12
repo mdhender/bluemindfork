@@ -55,6 +55,7 @@ import net.bluemind.eas.dto.base.AirSyncBaseResponse.Attachment;
 import net.bluemind.eas.dto.base.AirSyncBaseResponse.Attachment.Method;
 import net.bluemind.eas.dto.base.BodyOptions;
 import net.bluemind.eas.dto.base.BodyType;
+import net.bluemind.eas.utils.EasLogUser;
 
 /**
  * Creates a {@link MSEmail} from an imap uid.
@@ -80,7 +81,8 @@ public class BodyMailLoader extends CoreConnect {
 		IMailboxItems service = getMailboxItemsService(bs, folder.uid);
 		ItemValue<MailboxItem> item = service.getCompleteById(id);
 		if (item == null) {
-			logger.error("[{}] no MailboxItem id {}, found in folder {} ({})", bs.getUniqueIdentifier(), id, folder.uid,
+			EasLogUser.logErrorAsUser(bs.getLoginAtDomain(), logger,
+					"[{}] no MailboxItem id {}, found in folder {} ({})", bs.getUniqueIdentifier(), id, folder.uid,
 					folder.name);
 			return null;
 		}
@@ -95,7 +97,7 @@ public class BodyMailLoader extends CoreConnect {
 			Stream content = service.fetchComplete(item.value.imapUid);
 			return toInputStream(content);
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
 			return null;
 		}
 
@@ -111,7 +113,8 @@ public class BodyMailLoader extends CoreConnect {
 		IMailboxItems service = getMailboxItemsService(bs, folder.uid);
 		ItemValue<MailboxItem> item = service.getCompleteById(id);
 		if (item == null) {
-			logger.error("[{}] no MailboxItem id {}, found in folder {} ({})", bs.getUniqueIdentifier(), id, folder.uid,
+			EasLogUser.logErrorAsUser(bs.getLoginAtDomain(), logger,
+					"[{}] no MailboxItem id {}, found in folder {} ({})", bs.getUniqueIdentifier(), id, folder.uid,
 					folder.name);
 			return null;
 		}

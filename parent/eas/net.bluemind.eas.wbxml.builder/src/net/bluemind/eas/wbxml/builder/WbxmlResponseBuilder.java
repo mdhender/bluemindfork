@@ -24,7 +24,6 @@ import java.util.Deque;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -39,6 +38,7 @@ import net.bluemind.eas.dto.base.DisposableByteSource;
 import net.bluemind.eas.serdes.IResponseBuilder;
 import net.bluemind.eas.utils.DOMDumper;
 import net.bluemind.eas.utils.DOMUtils;
+import net.bluemind.eas.utils.EasLogUser;
 import net.bluemind.eas.validation.ValidationException;
 import net.bluemind.eas.validation.Validator;
 import net.bluemind.eas.wbxml.WbxmlOutput;
@@ -62,7 +62,7 @@ public class WbxmlResponseBuilder implements IResponseBuilder {
 	public WbxmlResponseBuilder(String loginForSifting, WbxmlOutput output) {
 		this.output = output;
 		this.containerNamesStack = new ArrayDeque<>();
-		this.loginForSifting = loginForSifting != null ? loginForSifting.replace("@", "_at_") : "anonymous";
+		this.loginForSifting = loginForSifting != null ? loginForSifting.replace("@", "_at_") : EasLogUser.ANONYMOUS;
 	}
 
 	@Override
@@ -74,7 +74,7 @@ public class WbxmlResponseBuilder implements IResponseBuilder {
 			containerNamesStack.push(debugDom.getDocumentElement());
 			container(ns, ns.root());
 		} catch (IOException e) {
-			logger.error(e.getMessage(), e);
+			EasLogUser.logExceptionAsUser(loginForSifting, e, logger);
 		}
 		return this;
 	}
@@ -85,7 +85,7 @@ public class WbxmlResponseBuilder implements IResponseBuilder {
 		try {
 			encoder.writeElement(name);
 		} catch (IOException e) {
-			logger.error(e.getMessage(), e);
+			EasLogUser.logExceptionAsUser(loginForSifting, e, logger);
 		}
 		return this;
 	}
@@ -95,7 +95,7 @@ public class WbxmlResponseBuilder implements IResponseBuilder {
 			try {
 				encoder.switchNamespace(ns.namespace());
 			} catch (IOException e) {
-				logger.error(e.getMessage(), e);
+				EasLogUser.logExceptionAsUser(loginForSifting, e, logger);
 			}
 		}
 		currentNS = ns;
@@ -116,7 +116,7 @@ public class WbxmlResponseBuilder implements IResponseBuilder {
 			encoder.writeEmptyElement(name);
 			containerNamesStack.pop();
 		} catch (IOException e) {
-			logger.error(e.getMessage(), e);
+			EasLogUser.logExceptionAsUser(loginForSifting, e, logger);
 		}
 		return this;
 	}
@@ -134,7 +134,7 @@ public class WbxmlResponseBuilder implements IResponseBuilder {
 			encoder.writeStrI(value);
 			endContainer();
 		} catch (IOException e) {
-			logger.error(e.getMessage(), e);
+			EasLogUser.logExceptionAsUser(loginForSifting, e, logger);
 		}
 		return this;
 	}
@@ -164,34 +164,31 @@ public class WbxmlResponseBuilder implements IResponseBuilder {
 
 		@Override
 		public void handle(AsyncResult<Message<LocalJsonObject<Chunk>>> event) {
-			MDC.put("user", loginForSifting);
 			if (event.failed()) {
-				logger.warn("Error while streaming to wbxml", event.cause());
+				EasLogUser.logWarnAsUser(loginForSifting, logger, "Error while streaming to wbxml", event.cause());
 			} else {
 				Chunk c = event.result().body().getValue();
 				if (c == Chunk.LAST) {
-					logger.debug("Last chunk after receiving {}bytes.", total);
+					EasLogUser.logDebugAsUser(loginForSifting, logger, "Last chunk after receiving {}bytes.", total);
 					end.onResult(self);
 				} else if (c == Chunk.UNKNOWN) {
-					logger.debug("Ignore unknown stream");
+					EasLogUser.logDebugAsUser(loginForSifting, logger, "Ignore unknown stream");
 				} else {
 					if (logger.isDebugEnabled()) {
-						logger.debug("Received chunk ({}byte(s))", c.buf.length);
+						EasLogUser.logDebugAsUser(loginForSifting, logger, "Received chunk ({}byte(s))",
+								c.buf.length);
 					}
 					total += c.buf.length;
 					output.write(c.buf, () -> {
-						MDC.put("user", loginForSifting);
 						next();
-						MDC.put("user", "anonymous");
 					});
 				}
 			}
-			MDC.put("user", "anonymous");
 		}
 
 		public void next() {
 			if (logger.isDebugEnabled()) {
-				logger.debug("Asking for nextChunk....");
+				EasLogUser.logDebugAsUser(loginForSifting, logger, "Asking for nextChunk....");
 			}
 			eb.request(ByteSourceEventProducer.NEXT_CHUNK, streamId, this);
 		}
@@ -203,14 +200,12 @@ public class WbxmlResponseBuilder implements IResponseBuilder {
 		final EventBus eb = VertxPlatform.eventBus();
 		final IResponseBuilder self = this;
 		eb.request(ByteSourceEventProducer.REGISTER, source, (AsyncResult<Message<String>> streamIdMsg) -> {
-			MDC.put("user", loginForSifting);
 			String stream = streamIdMsg.result().body();
 			output.setStreamId(stream);
-			logger.debug("Stream {} ready to go", stream);
+			EasLogUser.logDebugAsUser(loginForSifting, logger, "Stream {} ready to go", stream);
 			containerNamesStack.peek().setTextContent("[binary " + stream + "]");
 			NextChunk nc = new NextChunk(eb, stream, output, self, completion);
 			nc.next();
-			MDC.put("user", "anonymous");
 		});
 	}
 
@@ -220,20 +215,16 @@ public class WbxmlResponseBuilder implements IResponseBuilder {
 		final IResponseBuilder self = this;
 		final Base64Output b64 = new Base64Output(output);
 		final Callback<IResponseBuilder> preComplete = responseBuilder -> {
-			MDC.put("user", loginForSifting);
 			b64.flush();
 			completion.onResult(responseBuilder);
-			MDC.put("user", "anonymous");
 		};
 		eb.request(ByteSourceEventProducer.REGISTER, source, (AsyncResult<Message<String>> streamIdMsg) -> {
-			MDC.put("user", loginForSifting);
 			String stream = streamIdMsg.result().body();
 			output.setStreamId(stream);
-			logger.info("Stream {} ready to go as base64", stream);
+			EasLogUser.logInfoAsUser(loginForSifting, logger, "Stream {} ready to go as base64", stream);
 			containerNamesStack.peek().setTextContent("[base64 " + stream + "]");
 			NextChunk nc = new NextChunk(eb, stream, b64, self, preComplete);
 			nc.next();
-			MDC.put("user", "anonymous");
 		});
 	}
 
@@ -244,18 +235,16 @@ public class WbxmlResponseBuilder implements IResponseBuilder {
 		try {
 			encoder.startString();
 			streamToOutput(streamable, (IResponseBuilder data) -> {
-				MDC.put("user", loginForSifting);
 				try {
 					encoder.endString();
 					data.endContainer();
 				} catch (IOException e) {
-					logger.error(e.getMessage(), e);
+					EasLogUser.logExceptionAsUser(loginForSifting, e, logger);
 				}
 				completion.onResult(data);
-				MDC.put("user", "anonymous");
 			});
 		} catch (IOException e1) {
-			logger.error(e1.getMessage(), e1);
+			EasLogUser.logExceptionAsUser(loginForSifting, e1, logger);
 		}
 	}
 
@@ -266,18 +255,16 @@ public class WbxmlResponseBuilder implements IResponseBuilder {
 		try {
 			encoder.startString();
 			base64ToOutput(streamable, (IResponseBuilder data) -> {
-				MDC.put("user", loginForSifting);
 				try {
 					encoder.endString();
 					data.endContainer();
 				} catch (IOException e) {
-					logger.error(e.getMessage(), e);
+					EasLogUser.logExceptionAsUser(loginForSifting, e, logger);
 				}
 				completion.onResult(data);
-				MDC.put("user", "anonymous");
 			});
 		} catch (IOException e1) {
-			logger.error(e1.getMessage(), e1);
+			EasLogUser.logExceptionAsUser(loginForSifting, e1, logger);
 		}
 	}
 
@@ -292,9 +279,10 @@ public class WbxmlResponseBuilder implements IResponseBuilder {
 		Element name = containerNamesStack.pop();
 		if (logger.isDebugEnabled()) {
 			if (!containerNamesStack.isEmpty()) {
-				logger.info("[{}], poped container was {}", containerNamesStack.peek(), name, new Throwable());
+				EasLogUser.logInfoAsUser(loginForSifting, logger, "[{}], poped container was {}",
+						containerNamesStack.peek(), name, new Throwable());
 			} else {
-				logger.info("LAST POP {}", name);
+				EasLogUser.logInfoAsUser(loginForSifting, logger, "LAST POP {}", name);
 			}
 		}
 		return this;
@@ -307,25 +295,21 @@ public class WbxmlResponseBuilder implements IResponseBuilder {
 		try {
 			encoder.startByteArray(streamable.size());
 			streamToOutput(streamable, (IResponseBuilder data) -> {
-				MDC.put("user", loginForSifting);
 				encoder.endByteArray();
 				data.endContainer();
 				completion.onResult(data);
-				MDC.put("user", "anonymous");
 			});
 		} catch (IOException e) {
-			logger.error(e.getMessage(), e);
+			EasLogUser.logExceptionAsUser(loginForSifting, e, logger);
 		}
 	}
 
 	@Override
 	public void end(Callback<Void> completion) {
-		MDC.put("user", loginForSifting);
 		endContainer();
 		String reqId = output.end();
 		dumpDom(reqId);
 		completion.onResult(null);
-		MDC.put("user", "anonymous");
 	}
 
 	private void dumpDom(String requestId) {
@@ -334,11 +318,12 @@ public class WbxmlResponseBuilder implements IResponseBuilder {
 			Validator.get().checkResponse(14.1, debugDom);
 			valid = true;
 		} catch (ValidationException ve) {
-			logger.error("rid: " + requestId + ", EAS sent a non-conforming response: " + ve.getMessage(), ve);
+			EasLogUser.logErrorExceptionAsUser(loginForSifting, ve, logger,
+					"rid: " + requestId + ", EAS sent a non-conforming response: " + ve.getMessage(), ve);
 		}
 		if (GlobalConfig.logDataForUser(loginForSifting)) {
 			DOMDumper.dumpXml(logger, "rid: " + requestId + (valid ? ", " : ", INVALID") + " wbxml sent to device:\n",
-					debugDom);
+					debugDom, loginForSifting);
 		}
 	}
 

@@ -40,7 +40,7 @@ public class BrokenExecutorProtocol implements IEasProtocol<BrokenReq, BrokenRes
 	}
 
 	@Override
-	public void parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
+	public void parse(BackendSession bs, OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
 			Handler<BrokenReq> parserResultHandler) {
 		parserResultHandler.handle(new BrokenReq());
 	}

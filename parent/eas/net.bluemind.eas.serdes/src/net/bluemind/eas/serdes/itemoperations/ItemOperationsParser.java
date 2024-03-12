@@ -37,6 +37,7 @@ import net.bluemind.eas.dto.sync.CollectionId;
 import net.bluemind.eas.serdes.IEasRequestParser;
 import net.bluemind.eas.serdes.base.BodyOptionsParser;
 import net.bluemind.eas.serdes.base.RangeParser;
+import net.bluemind.eas.utils.EasLogUser;
 
 public class ItemOperationsParser implements IEasRequestParser<ItemOperationsRequest> {
 	private static final Logger logger = LoggerFactory.getLogger(ItemOperationsParser.class);
@@ -44,7 +45,8 @@ public class ItemOperationsParser implements IEasRequestParser<ItemOperationsReq
 	private RangeParser rangeParser = new RangeParser();
 
 	@Override
-	public ItemOperationsRequest parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past) {
+	public ItemOperationsRequest parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
+			String user) {
 		ItemOperationsRequest request = new ItemOperationsRequest();
 		if ("T".equals(optParams.acceptMultiPart())) {
 			request.style = ResponseStyle.MULTIPART;
@@ -67,23 +69,24 @@ public class ItemOperationsParser implements IEasRequestParser<ItemOperationsReq
 			Element op = (Element) node;
 			switch (op.getNodeName()) {
 			case "EmptyFolderContents":
-				appendEmptyFolderContents(request.itemOperations, op);
+				appendEmptyFolderContents(request.itemOperations, op, user);
 				break;
 			case "Fetch":
-				appendFetch(request.itemOperations, op);
+				appendFetch(request.itemOperations, op, user);
 				break;
 			case "Move":
-				appendMove(request.itemOperations, op);
+				appendMove(request.itemOperations, op, user);
 				break;
 			default:
-				logger.warn("Operation {} not supported ", op.getNodeName());
+				EasLogUser.logWarnAsUser(user, logger, "Operation {} not supported ", op.getNodeName());
+				break;
 			}
 		}
 
 		return request;
 	}
 
-	private void appendEmptyFolderContents(List<ItemOperation> itemOperations, Element opElt) {
+	private void appendEmptyFolderContents(List<ItemOperation> itemOperations, Element opElt, String user) {
 
 		ItemOperationsRequest.EmptyFolderContents op = new ItemOperationsRequest.EmptyFolderContents();
 		NodeList childs = opElt.getChildNodes();
@@ -99,10 +102,11 @@ public class ItemOperationsParser implements IEasRequestParser<ItemOperationsReq
 				op.collectionId = CollectionId.of(elt.getTextContent());
 				break;
 			case "Options":
-				op.options = parseEmptyFolderContentsOptions(elt);
+				op.options = parseEmptyFolderContentsOptions(elt, user);
 				break;
 			default:
-				logger.warn("EmptyFolderContents element {} not supported ", elt.getNodeName());
+				EasLogUser.logWarnAsUser(user, logger, "EmptyFolderContents element {} not supported ",
+						elt.getNodeName());
 				break;
 			}
 		}
@@ -113,7 +117,8 @@ public class ItemOperationsParser implements IEasRequestParser<ItemOperationsReq
 
 	}
 
-	private ItemOperationsRequest.EmptyFolderContents.Options parseEmptyFolderContentsOptions(Element optElt) {
+	private ItemOperationsRequest.EmptyFolderContents.Options parseEmptyFolderContentsOptions(Element optElt,
+			String user) {
 		ItemOperationsRequest.EmptyFolderContents.Options ret = new ItemOperationsRequest.EmptyFolderContents.Options();
 
 		NodeList childs = optElt.getChildNodes();
@@ -130,7 +135,8 @@ public class ItemOperationsParser implements IEasRequestParser<ItemOperationsReq
 				break;
 
 			default:
-				logger.warn("EmptyFolderContents.Options element {} not supported ", elt.getNodeName());
+				EasLogUser.logWarnAsUser(user, logger, "EmptyFolderContents.Options element {} not supported ",
+						elt.getNodeName());
 				break;
 			}
 		}
@@ -138,7 +144,7 @@ public class ItemOperationsParser implements IEasRequestParser<ItemOperationsReq
 		return ret;
 	}
 
-	private void appendFetch(List<ItemOperation> itemOperations, Element opElt) {
+	private void appendFetch(List<ItemOperation> itemOperations, Element opElt, String user) {
 		ItemOperationsRequest.Fetch op = new ItemOperationsRequest.Fetch();
 
 		NodeList childs = opElt.getChildNodes();
@@ -174,10 +180,11 @@ public class ItemOperationsParser implements IEasRequestParser<ItemOperationsReq
 				op.fileReference = elt.getTextContent();
 				break;
 			case "Options":
-				op.options = parseFetchOptions(elt);
+				op.options = parseFetchOptions(elt, user);
 				break;
 			default:
-				logger.warn("EmptyFolderContents element {} not supported ", elt.getNodeName());
+				EasLogUser.logWarnAsUser(user, logger, "EmptyFolderContents element {} not supported ",
+						elt.getNodeName());
 				break;
 			}
 		}
@@ -185,11 +192,11 @@ public class ItemOperationsParser implements IEasRequestParser<ItemOperationsReq
 		itemOperations.add(op);
 	}
 
-	private ItemOperationsRequest.Fetch.Options parseFetchOptions(Element optionsElt) {
+	private ItemOperationsRequest.Fetch.Options parseFetchOptions(Element optionsElt, String user) {
 		ItemOperationsRequest.Fetch.Options ret = new ItemOperationsRequest.Fetch.Options();
 		NodeList childs = optionsElt.getChildNodes();
 		BodyOptionsParser bop = new BodyOptionsParser();
-		ret.bodyOptions = bop.fromOptionsElement(optionsElt);
+		ret.bodyOptions = bop.fromOptionsElement(optionsElt, user);
 		for (int i = 0; i < childs.getLength(); i++) {
 			Node node = childs.item(i);
 			if (node.getNodeType() != Node.ELEMENT_NODE) {
@@ -211,7 +218,7 @@ public class ItemOperationsParser implements IEasRequestParser<ItemOperationsReq
 				ret.password = elt.getTextContent();
 				break;
 			default:
-				logger.warn("element {} not supported ", elt.getNodeName());
+				EasLogUser.logWarnAsUser(user, logger, "element {} not supported ", elt.getNodeName());
 				break;
 			}
 		}
@@ -219,7 +226,7 @@ public class ItemOperationsParser implements IEasRequestParser<ItemOperationsReq
 		return ret;
 	}
 
-	private void appendMove(List<ItemOperation> itemOperations, Element opElt) {
+	private void appendMove(List<ItemOperation> itemOperations, Element opElt, String user) {
 		ItemOperationsRequest.Move op = new ItemOperationsRequest.Move();
 
 		NodeList childs = opElt.getChildNodes();
@@ -238,10 +245,10 @@ public class ItemOperationsParser implements IEasRequestParser<ItemOperationsReq
 				op.dstFldId = elt.getTextContent();
 				break;
 			case "Options":
-				op.options = parseMoveOptions(elt);
+				op.options = parseMoveOptions(elt, user);
 				break;
 			default:
-				logger.warn("Move element {} not supported ", elt.getNodeName());
+				EasLogUser.logWarnAsUser(user, logger, "Move element {} not supported", elt.getNodeName());
 				break;
 			}
 		}
@@ -249,7 +256,7 @@ public class ItemOperationsParser implements IEasRequestParser<ItemOperationsReq
 
 	}
 
-	private ItemOperationsRequest.Move.Options parseMoveOptions(Element optionsElt) {
+	private ItemOperationsRequest.Move.Options parseMoveOptions(Element optionsElt, String user) {
 		ItemOperationsRequest.Move.Options ret = new ItemOperationsRequest.Move.Options();
 
 		NodeList childs = optionsElt.getChildNodes();
@@ -263,7 +270,7 @@ public class ItemOperationsParser implements IEasRequestParser<ItemOperationsReq
 			if ("MoveAlways".equals(elt.getNodeName())) {
 				ret.moveAlways = true;
 			} else {
-				logger.warn("Move.Options element {} not supported ", elt.getNodeName());
+				EasLogUser.logWarnAsUser(user, logger, "Move.Options element {} not supported ", elt.getNodeName());
 			}
 		}
 		return ret;

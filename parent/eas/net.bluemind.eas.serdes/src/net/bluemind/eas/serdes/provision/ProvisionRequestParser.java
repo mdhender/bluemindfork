@@ -32,6 +32,7 @@ import net.bluemind.eas.dto.provision.ProvisionRequest.Policies;
 import net.bluemind.eas.dto.provision.ProvisionRequest.RemoteWipe;
 import net.bluemind.eas.serdes.IEasRequestParser;
 import net.bluemind.eas.serdes.settings.SettingsRequestParser;
+import net.bluemind.eas.utils.EasLogUser;
 
 public class ProvisionRequestParser implements IEasRequestParser<ProvisionRequest> {
 
@@ -39,7 +40,8 @@ public class ProvisionRequestParser implements IEasRequestParser<ProvisionReques
 	private IPreviousRequestsKnowledge request;
 
 	@Override
-	public ProvisionRequest parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past) {
+	public ProvisionRequest parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
+			String user) {
 		request = past;
 		ProvisionRequest pr = new ProvisionRequest();
 		SettingsRequestParser srp = new SettingsRequestParser();
@@ -56,16 +58,16 @@ public class ProvisionRequestParser implements IEasRequestParser<ProvisionReques
 			String childName = child.getNodeName();
 			switch (childName) {
 			case "DeviceInformation":
-				pr.deviceInformation = srp.parseDeviceInformation(child);
+				pr.deviceInformation = srp.parseDeviceInformation(child, user);
 				break;
 			case "Policies":
-				pr.policies = parsePolicies(child);
+				pr.policies = parsePolicies(child, user);
 				break;
 			case "RemoteWipe":
-				pr.remoteWipe = parseRemoteWipe(child);
+				pr.remoteWipe = parseRemoteWipe(child, user);
 				break;
 			default:
-				logger.warn("Not managed Provision child {}", child);
+				EasLogUser.logWarnAsUser(user, logger, "Not managed Provision child {}", child);
 				break;
 			}
 		}
@@ -73,7 +75,7 @@ public class ProvisionRequestParser implements IEasRequestParser<ProvisionReques
 		return pr;
 	}
 
-	private Policies parsePolicies(Element el) {
+	private Policies parsePolicies(Element el, String user) {
 		Policies policies = new Policies();
 		NodeList children = el.getChildNodes();
 		for (int i = 0; i < children.getLength(); i++) {
@@ -86,10 +88,10 @@ public class ProvisionRequestParser implements IEasRequestParser<ProvisionReques
 
 			switch (childName) {
 			case "Policy":
-				policies.policy = parsePolicy(child);
+				policies.policy = parsePolicy(child, user);
 				break;
 			default:
-				logger.warn("Not managed Provision.Policies child {}", child);
+				EasLogUser.logWarnAsUser(user, logger, "Not managed Provision.Policies child {}", child);
 				break;
 			}
 		}
@@ -97,7 +99,7 @@ public class ProvisionRequestParser implements IEasRequestParser<ProvisionReques
 		return policies;
 	}
 
-	private Policies.Policy parsePolicy(Element el) {
+	private Policies.Policy parsePolicy(Element el, String user) {
 		Policies.Policy policy = new Policies.Policy();
 		NodeList children = el.getChildNodes();
 		for (int i = 0; i < children.getLength(); i++) {
@@ -119,7 +121,7 @@ public class ProvisionRequestParser implements IEasRequestParser<ProvisionReques
 				policy.status = child.getTextContent();
 				break;
 			default:
-				logger.warn("Not managed Provision.Policies.Policy child {}", child);
+				EasLogUser.logWarnAsUser(user, logger, "Not managed Provision.Policies.Policy child {}", child);
 				break;
 			}
 		}
@@ -131,7 +133,7 @@ public class ProvisionRequestParser implements IEasRequestParser<ProvisionReques
 		return policy;
 	}
 
-	private RemoteWipe parseRemoteWipe(Element el) {
+	private RemoteWipe parseRemoteWipe(Element el, String user) {
 		RemoteWipe rw = new RemoteWipe();
 		NodeList children = el.getChildNodes();
 
@@ -148,7 +150,7 @@ public class ProvisionRequestParser implements IEasRequestParser<ProvisionReques
 				rw.status = RemoteWipe.Status.get(child.getTextContent());
 				break;
 			default:
-				logger.warn("Not managed Provision.RemoteWipe child {}", child);
+				EasLogUser.logWarnAsUser(user, logger, "Not managed Provision.RemoteWipe child {}", child);
 				break;
 			}
 		}

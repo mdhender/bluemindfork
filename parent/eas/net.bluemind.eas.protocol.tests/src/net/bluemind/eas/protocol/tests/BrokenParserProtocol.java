@@ -40,7 +40,7 @@ public class BrokenParserProtocol implements IEasProtocol<BrokenReq, BrokenResp>
 	}
 
 	@Override
-	public void parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
+	public void parse(BackendSession bs, OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
 			Handler<BrokenReq> parserResultHandler) {
 		throw new NullPointerException();
 	}

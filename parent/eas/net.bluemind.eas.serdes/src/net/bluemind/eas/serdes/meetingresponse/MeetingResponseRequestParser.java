@@ -33,13 +33,15 @@ import net.bluemind.eas.dto.meetingresponse.MeetingResponseRequest;
 import net.bluemind.eas.dto.meetingresponse.MeetingResponseRequest.Request;
 import net.bluemind.eas.serdes.DateFormat;
 import net.bluemind.eas.serdes.IEasRequestParser;
+import net.bluemind.eas.utils.EasLogUser;
 
 public class MeetingResponseRequestParser implements IEasRequestParser<MeetingResponseRequest> {
 
 	private static final Logger logger = LoggerFactory.getLogger(MeetingResponseRequestParser.class);
 
 	@Override
-	public MeetingResponseRequest parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past) {
+	public MeetingResponseRequest parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
+			String user) {
 		MeetingResponseRequest req = new MeetingResponseRequest();
 
 		Element elements = doc.getDocumentElement();
@@ -57,10 +59,10 @@ public class MeetingResponseRequestParser implements IEasRequestParser<MeetingRe
 			String childName = child.getNodeName();
 			switch (childName) {
 			case "Request":
-				req.requests.add(parseRequest(child));
+				req.requests.add(parseRequest(child, user));
 				break;
 			default:
-				logger.warn("Not managed MeetingResponse child {}", child);
+				EasLogUser.logWarnAsUser(user, logger, "Not managed MeetingResponse child {}", child);
 				break;
 			}
 		}
@@ -68,7 +70,7 @@ public class MeetingResponseRequestParser implements IEasRequestParser<MeetingRe
 		return req;
 	}
 
-	private Request parseRequest(Element el) {
+	private Request parseRequest(Element el, String user) {
 		MeetingResponseRequest.Request req = new Request();
 
 		NodeList children = el.getChildNodes();
@@ -97,7 +99,7 @@ public class MeetingResponseRequestParser implements IEasRequestParser<MeetingRe
 				req.instanceId = DateFormat.parse(child.getTextContent());
 				break;
 			default:
-				logger.warn("Not managed MeetingResponse.Request child {}", child);
+				EasLogUser.logWarnAsUser(user, logger, "Not managed MeetingResponse.Request child {}", child);
 				break;
 			}
 		}

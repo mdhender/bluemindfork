@@ -40,6 +40,7 @@ import net.bluemind.eas.serdes.DateFormat;
 import net.bluemind.eas.serdes.IEasRequestParser;
 import net.bluemind.eas.serdes.base.BodyOptionsParser;
 import net.bluemind.eas.utils.DOMUtils;
+import net.bluemind.eas.utils.EasLogUser;
 
 public class SyncRequestParser implements IEasRequestParser<SyncRequest> {
 
@@ -47,7 +48,8 @@ public class SyncRequestParser implements IEasRequestParser<SyncRequest> {
 
 	private static final Logger logger = LoggerFactory.getLogger(SyncRequestParser.class);
 
-	public SyncRequest parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge previousKnowledge) {
+	public SyncRequest parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge previousKnowledge,
+			String user) {
 		SyncRequest sr = new SyncRequest();
 		if (doc == null) {
 			// empty body, reuse cached
@@ -70,7 +72,7 @@ public class SyncRequestParser implements IEasRequestParser<SyncRequest> {
 			NodeList nl = query.getElementsByTagName("Collection");
 			for (int i = 0; i < nl.getLength(); i++) {
 				Element col = (Element) nl.item(i);
-				CollectionSyncRequest collec = parseCollection(col);
+				CollectionSyncRequest collec = parseCollection(col, user);
 				if (collec != null) {
 					sr.collections.add(collec);
 				} else {
@@ -91,7 +93,8 @@ public class SyncRequestParser implements IEasRequestParser<SyncRequest> {
 
 			if (query.getElementsByTagName("Partial").getLength() > 0) {
 				if (logger.isInfoEnabled()) {
-					logger.info("Partial element has been found. {} collection(s) are loaded from cache",
+					EasLogUser.logInfoAsUser(user, logger,
+							"Partial element has been found. {} collection(s) are loaded from cache",
 							previousKnowledge.getLastMonitored().size());
 				}
 				sr.partial = true;
@@ -102,7 +105,7 @@ public class SyncRequestParser implements IEasRequestParser<SyncRequest> {
 
 	}
 
-	private CollectionSyncRequest parseCollection(Element col) {
+	private CollectionSyncRequest parseCollection(Element col, String user) {
 		CollectionSyncRequest collection = new CollectionSyncRequest();
 		collection.setDataClass(DOMUtils.getElementText(col, "Class"));
 		collection.setSyncKey(DOMUtils.getElementText(col, "SyncKey"));
@@ -111,7 +114,7 @@ public class SyncRequestParser implements IEasRequestParser<SyncRequest> {
 			try {
 				collection.setCollectionId(CollectionId.of(fid.getTextContent()));
 			} catch (NumberFormatException e) {
-				logger.info("Invalid collectionId {}", fid.getTextContent());
+				EasLogUser.logInfoAsUser(user, logger, "Invalid collectionId {}", fid.getTextContent());
 				return null;
 			}
 		}
@@ -129,7 +132,8 @@ public class SyncRequestParser implements IEasRequestParser<SyncRequest> {
 		if (wse != null) {
 			int windowSize = Integer.parseInt(wse.getTextContent());
 			if (windowSize > MAX_WINDOW_SIZE) {
-				logger.warn("Device asks WindowSize = {}. Force WindowsSize = {}", windowSize, MAX_WINDOW_SIZE);
+				EasLogUser.logWarnAsUser(user, logger, "Device asks WindowSize = {}. Force WindowsSize = {}",
+						windowSize, MAX_WINDOW_SIZE);
 				windowSize = MAX_WINDOW_SIZE;
 			}
 			collection.setWindowSize(windowSize);
@@ -139,7 +143,7 @@ public class SyncRequestParser implements IEasRequestParser<SyncRequest> {
 		collection.options = new CollectionSyncRequest.Options();
 		if (option != null) {
 			BodyOptionsParser bop = new BodyOptionsParser();
-			collection.options.bodyOptions = bop.fromOptionsElement(option);
+			collection.options.bodyOptions = bop.fromOptionsElement(option, user);
 
 			String conflict = DOMUtils.getElementText(option, "Conflict");
 			if (conflict != null) {

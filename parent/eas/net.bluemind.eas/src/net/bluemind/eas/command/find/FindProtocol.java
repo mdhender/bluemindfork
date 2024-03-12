@@ -47,10 +47,10 @@ public class FindProtocol implements IEasProtocol<FindRequest, FindResponse> {
 	}
 
 	@Override
-	public void parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
+	public void parse(BackendSession bs, OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
 			Handler<FindRequest> parserResultHandler) {
 		FindRequestParser parser = new FindRequestParser();
-		FindRequest parsed = parser.parse(optParams, doc, past);
+		FindRequest parsed = parser.parse(optParams, doc, past, bs.getLoginAtDomain());
 		parserResultHandler.handle(parsed);
 	}
 

@@ -37,13 +37,14 @@ import net.bluemind.eas.dto.search.SearchRequest.Store.Query.And;
 import net.bluemind.eas.dto.search.StoreName;
 import net.bluemind.eas.serdes.IEasRequestParser;
 import net.bluemind.eas.serdes.base.BodyOptionsParser;
+import net.bluemind.eas.utils.EasLogUser;
 
 public class SearchRequestParser implements IEasRequestParser<SearchRequest> {
 
 	private static final Logger logger = LoggerFactory.getLogger(SearchRequestParser.class);
 
 	@Override
-	public SearchRequest parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past) {
+	public SearchRequest parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past, String user) {
 		SearchRequest sr = new SearchRequest();
 
 		Element elements = doc.getDocumentElement();
@@ -59,10 +60,10 @@ public class SearchRequestParser implements IEasRequestParser<SearchRequest> {
 			String childName = child.getNodeName();
 			switch (childName) {
 			case "Store":
-				sr.store = parseStore(child);
+				sr.store = parseStore(child, user);
 				break;
 			default:
-				logger.warn("Not managed SearchRequest child {}", child);
+				EasLogUser.logWarnAsUser(user, logger, "Not managed SearchRequest child {}", child);
 				break;
 			}
 		}
@@ -70,7 +71,7 @@ public class SearchRequestParser implements IEasRequestParser<SearchRequest> {
 		return sr;
 	}
 
-	private Store parseStore(Element el) {
+	private Store parseStore(Element el, String user) {
 		Store store = new Store();
 
 		NodeList children = el.getChildNodes();
@@ -87,16 +88,17 @@ public class SearchRequestParser implements IEasRequestParser<SearchRequest> {
 				try {
 					store.name = StoreName.valueOf(child.getTextContent().toLowerCase());
 				} catch (IllegalArgumentException e) {
-					logger.error("Unknown StoreName {}", child.getTextContent());
+					EasLogUser.logErrorExceptionAsUser(user, e, logger, "Unknown StoreName {}",
+							child.getTextContent());
 				}
 				break;
 			case "Query":
-				store.query = parseQuery(child);
+				store.query = parseQuery(child, user);
 				break;
 			case "Options":
-				store.options = parseOptions(child);
+				store.options = parseOptions(child, user);
 			default:
-				logger.warn("Not managed SearchRequest.Store child {}", child);
+				EasLogUser.logWarnAsUser(user, logger, "Not managed SearchRequest.Store child {}", child);
 				break;
 			}
 		}
@@ -104,10 +106,10 @@ public class SearchRequestParser implements IEasRequestParser<SearchRequest> {
 		return store;
 	}
 
-	private Options parseOptions(Element el) {
+	private Options parseOptions(Element el, String user) {
 		Options options = new Options();
 		BodyOptionsParser bop = new BodyOptionsParser();
-		options.bodyOptions = bop.fromOptionsElement(el);
+		options.bodyOptions = bop.fromOptionsElement(el, user);
 		NodeList children = el.getChildNodes();
 		for (int i = 0; i < children.getLength(); i++) {
 			Node n = children.item(i);
@@ -131,10 +133,10 @@ public class SearchRequestParser implements IEasRequestParser<SearchRequest> {
 				options.range = r;
 				break;
 			case "Picture":
-				options.picture = parsePicture(child);
+				options.picture = parsePicture(child, user);
 				break;
 			default:
-				logger.warn("Not managed SearchRequest.Options child {}", child);
+				EasLogUser.logWarnAsUser(user, logger, "Not managed SearchRequest.Options child: '{}'", child);
 				break;
 			}
 		}
@@ -142,7 +144,7 @@ public class SearchRequestParser implements IEasRequestParser<SearchRequest> {
 		return options;
 	}
 
-	private Query parseQuery(Element el) {
+	private Query parseQuery(Element el, String user) {
 		Query query = new Query();
 		NodeList children = el.getChildNodes();
 
@@ -157,10 +159,10 @@ public class SearchRequestParser implements IEasRequestParser<SearchRequest> {
 			String childName = child.getNodeName();
 			switch (childName) {
 			case "And":
-				query.and = parseAnd(child);
+				query.and = parseAnd(child, user);
 				break;
 			default:
-				logger.warn("Not managed SearchRequest.Query child {}", child);
+				EasLogUser.logWarnAsUser(user, logger, "Not managed SearchRequest.Query child {}", child);
 				break;
 			}
 		}
@@ -168,7 +170,7 @@ public class SearchRequestParser implements IEasRequestParser<SearchRequest> {
 		return query;
 	}
 
-	private And parseAnd(Element el) {
+	private And parseAnd(Element el, String user) {
 		And and = new And();
 
 		NodeList children = el.getChildNodes();
@@ -191,7 +193,7 @@ public class SearchRequestParser implements IEasRequestParser<SearchRequest> {
 				and.collectionId = child.getTextContent();
 				break;
 			default:
-				logger.warn("Not managed SearchRequest.Query.And child {}", child);
+				EasLogUser.logWarnAsUser(user, logger, "Not managed SearchRequest.Query.And child {}", child);
 				break;
 			}
 		}
@@ -199,7 +201,7 @@ public class SearchRequestParser implements IEasRequestParser<SearchRequest> {
 		return and;
 	}
 
-	private Picture parsePicture(Element el) {
+	private Picture parsePicture(Element el, String user) {
 		Picture p = new Picture();
 
 		NodeList children = el.getChildNodes();
@@ -218,7 +220,7 @@ public class SearchRequestParser implements IEasRequestParser<SearchRequest> {
 				p.maxSize = Integer.parseInt(child.getTextContent());
 				break;
 			default:
-				logger.warn("Not managed SearchRequest.Options.Picture child {}", child);
+				EasLogUser.logWarnAsUser(user, logger, "Not managed SearchRequest.Options.Picture child {}", child);
 				break;
 			}
 		}

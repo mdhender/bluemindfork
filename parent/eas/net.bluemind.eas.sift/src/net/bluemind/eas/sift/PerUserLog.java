@@ -20,12 +20,12 @@ package net.bluemind.eas.sift;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 
 import io.sentry.Sentry;
 import net.bluemind.eas.http.AuthenticatedEASQuery;
 import net.bluemind.eas.http.AuthorizedDeviceQuery;
 import net.bluemind.eas.http.IEasRequestFilter;
+import net.bluemind.eas.utils.EasLogUser;
 
 public class PerUserLog implements IEasRequestFilter {
 
@@ -39,25 +39,21 @@ public class PerUserLog implements IEasRequestFilter {
 
 	@Override
 	public void filter(AuthenticatedEASQuery query, FilterChain next) {
-		MDC.put("user", query.loginAtDomain().replace("@", "_at_"));
 		if (logger.isDebugEnabled()) {
-			logger.debug("Sifting to {}", query.loginAtDomain());
+			EasLogUser.logDebugAsUser(query.loginAtDomain(), logger, "Sifting to {}", query.loginAtDomain());
 		}
 		io.sentry.protocol.User sentryUser = new io.sentry.protocol.User();
 		sentryUser.setUsername(query.loginAtDomain());
 		Sentry.setUser(sentryUser);
 		next.filter(query);
-		MDC.put("user", ANONYMOUS);
 	}
 
 	@Override
 	public void filter(AuthorizedDeviceQuery query, FilterChain next) {
-		MDC.put("user", query.loginAtDomain().replace("@", "_at_"));
 		io.sentry.protocol.User sentryUser = new io.sentry.protocol.User();
 		sentryUser.setUsername(query.loginAtDomain());
 		Sentry.setUser(sentryUser);
 		next.filter(query);
-		MDC.put("user", ANONYMOUS);
 	}
 
 }

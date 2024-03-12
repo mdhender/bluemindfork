@@ -25,7 +25,8 @@ Require-Bundle: net.bluemind.eas;bundle-version="1.0.0",
  net.bluemind.backend.cyrus.partitions,
  net.bluemind.backend.mail.replica.api,
  net.bluemind.network.topology,
- net.bluemind.common.task
+ net.bluemind.common.task,
+ net.bluemind.eas.utils
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-Vendor: blue-mind.net

@@ -27,6 +27,7 @@ import net.bluemind.eas.dto.base.AirSyncBaseResponse;
 import net.bluemind.eas.dto.base.BodyOptions;
 import net.bluemind.eas.dto.base.Callback;
 import net.bluemind.eas.dto.base.LazyLoaded;
+import net.bluemind.eas.utils.EasLogUser;
 
 public class BodyLoaderFactory {
 
@@ -48,14 +49,15 @@ public class BodyLoaderFactory {
 		@Override
 		public void load(Callback<AirSyncBaseResponse> onLoad) {
 			if (logger.isDebugEnabled()) {
-				logger.debug("Loading body for {}:{}", folder.fullName, id);
+				EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "Loading body for {}:{}", folder.fullName,
+						id);
 			}
 			AirSyncBaseResponse asResp;
 			try {
 				asResp = EmailManager.getInstance().loadBody(bs, folder, id, query);
 				onLoad.onResult(asResp);
 			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
+				EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
 				onLoad.onResult(null);
 			}
 
@@ -66,8 +68,8 @@ public class BodyLoaderFactory {
 	public static LazyLoaded<BodyOptions, AirSyncBaseResponse> from(BackendSession bs, MailFolder folder, long id,
 			BodyOptions bodyOpts) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("[{}] {}:{} Should get body loader for {}", bs.getLoginAtDomain(), folder.fullName, id,
-					bodyOpts);
+			EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "[{}] {}:{} Should get body loader for {}",
+					bs.getLoginAtDomain(), folder.fullName, id, bodyOpts);
 		}
 
 		return new MimeBodyLoader(bs, folder, id, bodyOpts);

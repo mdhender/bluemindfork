@@ -44,7 +44,6 @@ import org.asynchttpclient.AsyncCompletionHandler;
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.HttpResponseBodyPart;
 import org.asynchttpclient.Response;
-import org.slf4j.MDC;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -133,6 +132,7 @@ import net.bluemind.eas.exception.NotAllowedException;
 import net.bluemind.eas.exception.ObjectNotFoundException;
 import net.bluemind.eas.exception.ServerErrorException;
 import net.bluemind.eas.store.ISyncStorage;
+import net.bluemind.eas.utils.EasLogUser;
 import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
 import net.bluemind.imip.parser.IMIPInfos;
@@ -158,7 +158,8 @@ public class MailBackend extends CoreConnect {
 			BodyOptions bodyOptions, boolean hasFilterTypeChanged) throws ActiveSyncException {
 
 		if (!bs.getUser().hasMailbox()) {
-			logger.info("MailRouting == NONE for user {}. Return no changes.", bs.getLoginAtDomain());
+			EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger,
+					"MailRouting == NONE for user {}. Return no changes.", bs.getLoginAtDomain());
 			return new Changes();
 		}
 
@@ -204,18 +205,17 @@ public class MailBackend extends CoreConnect {
 							changes.items.add(ic);
 							addedToSync++;
 						} else {
-							MDC.put("user", bs.getLoginAtDomain().replace("@", "_at_"));
-							logger.debug("[{}] Stop loading at email {} ({} is before {}), {} / {}", //
+							EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger,
+									"[{}] Stop loading at email {} ({} is before {}), {} / {}", //
 									bs.getLoginAtDomain(), item.value, item.value.body.date, deliveredAfter,
 									addedToSync, changeset.created.size());
-							MDC.put("user", "anonymous");
 							// stop loading as the changeset is sorted by
 							// delivery date
 							stopLoading = true;
 							break;
 						}
 					} else {
-						logger.warn("Item or value is null : {}", item);
+						EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger, "Item or value is null : {}", item);
 					}
 				}
 			}
@@ -304,7 +304,8 @@ public class MailBackend extends CoreConnect {
 				} else {
 					IMailboxItems service = getMailboxItemsService(bs, folder.uid);
 					entry.getValue().forEach(id -> {
-						logger.info("[{}] Delete mail {}", bs.getUser().getUid(), id);
+						EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger, "[{}] Delete mail {}",
+								bs.getUser().getUid(), id);
 						try {
 							service.deleteById(id);
 						} catch (ServerFault sf) {
@@ -360,7 +361,7 @@ public class MailBackend extends CoreConnect {
 			CollectionItem ci = CollectionItem.of(serverId.get());
 			if ("Drafts".equals(folder.fullName)) {
 				// update body in Drafts folder only
-				updateBody(service, email, ci);
+				updateBody(bs.getLoginAtDomain(), service, email, ci);
 			} else {
 				validateFlag(email.isRead(), MailboxItemFlag.System.Seen.value(), service, ci.itemId);
 				validateFlag(email.isStarred(), MailboxItemFlag.System.Flagged.value(), service, ci.itemId);
@@ -389,7 +390,8 @@ public class MailBackend extends CoreConnect {
 		}
 	}
 
-	private void updateBody(IMailboxItems service, MSEmail email, CollectionItem ci) throws ActiveSyncException {
+	private void updateBody(String user, IMailboxItems service, MSEmail email, CollectionItem ci)
+			throws ActiveSyncException {
 		MessageBody messageBody = null;
 		ItemValue<MailboxItem> draft = null;
 		try {
@@ -408,7 +410,8 @@ public class MailBackend extends CoreConnect {
 			try {
 				messageBody = uploadPart(service, BufferByteSource.of(Mime4JHelper.mmapedEML(message).nettyBuffer()));
 			} catch (IOException e) {
-				logger.error("Failed to update draft {}, '{}'", ci, message.getSubject());
+				EasLogUser.logErrorExceptionAsUser(user, e, logger, "Failed to update draft {}, '{}'", ci,
+						message.getSubject());
 			}
 		}
 		if (messageBody != null) {
@@ -488,11 +491,11 @@ public class MailBackend extends CoreConnect {
 	 * @param mail
 	 */
 	public void sendEmail(SendMailData mail) throws ActiveSyncException {
-
 		BackendSession bs = mail.backendSession;
 
 		if (!bs.getUser().hasMailbox()) {
-			logger.info("MailRouting == NONE for user {}. Do not try to send mail", bs.getLoginAtDomain());
+			EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger,
+					"MailRouting == NONE for user {}. Do not try to send mail", bs.getLoginAtDomain());
 			return;
 		}
 
@@ -516,8 +519,9 @@ public class MailBackend extends CoreConnect {
 		// BM-4930, ACMS-196, and many more...
 		if (infos.method == ITIPMethod.REPLY || infos.method == ITIPMethod.CANCEL
 				|| infos.method == ITIPMethod.COUNTER) {
-			logger.info(" **** Device {} sends IMIP email, method {}. user {}", bs.getDevId(), infos.method,
-					bs.getUser().getLoginAtDomain());
+			EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger,
+					" **** Device {} sends IMIP email, method {}. user {}", bs.getDevId(), infos.method,
+					bs.getLoginAtDomain());
 			for (ICalendarElement element : infos.iCalendarElements) {
 				for (Attendee attendee : element.attendees) {
 					String email = attendee.mailto;
@@ -537,7 +541,8 @@ public class MailBackend extends CoreConnect {
 									updateCounter(infos, attendee, event, occu, element);
 									cs.update(infos.uid, event.value, true);
 								} else {
-									logger.warn("did not found in {} occurrence with recurid {}", infos.uid,
+									EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger,
+											"did not found in {} occurrence with recurid {}", infos.uid,
 											uOccurr.recurid);
 								}
 							} else {
@@ -547,15 +552,16 @@ public class MailBackend extends CoreConnect {
 								cs.update(infos.uid, event.value, true);
 							}
 						} else {
-							logger.warn("did not found event with uid {}", infos.uid);
+							EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger, "did not found event with uid {}",
+									infos.uid);
 						}
-
 					}
 				}
 			}
 		} else {
-			logger.warn(" **** Device {} tried to send an IMIP email, we prevented it. Method: {}, user: {}",
-					bs.getDevId(), infos.method, bs.getUser().getLoginAtDomain());
+			EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger,
+					" **** Device {} tried to send an IMIP email, we prevented it. Method: {}, user: {}", bs.getDevId(),
+					infos.method, bs.getUser().getLoginAtDomain());
 		}
 	}
 
@@ -667,7 +673,7 @@ public class MailBackend extends CoreConnect {
 
 			send(bs, mailContent, rewriter, saveInSent);
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
 		}
 	}
 
@@ -726,7 +732,7 @@ public class MailBackend extends CoreConnect {
 				String mimePartAddress = parsedAttId.get(AttachmentHelper.MIME_PART_ADDRESS);
 				String contentType = parsedAttId.get(AttachmentHelper.CONTENT_TYPE);
 				String contentTransferEncoding = parsedAttId.get(AttachmentHelper.CONTENT_TRANSFER_ENCODING);
-				logger.info(
+				EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger,
 						"attachmentId: [colId:{}] [emailUid:{}] [partAddress:{}] [contentType:{}] [transferEncoding:{}]",
 						collectionId, messageId, mimePartAddress, contentType, contentTransferEncoding);
 
@@ -739,7 +745,7 @@ public class MailBackend extends CoreConnect {
 
 				return new MSAttachementData(contentType, DisposableByteSource.wrap(bytes));
 			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
+				EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
 			}
 		}
 		throw new ObjectNotFoundException(String.format("Failed to fetch attachment %s", attachmentId));
@@ -783,7 +789,8 @@ public class MailBackend extends CoreConnect {
 				AppData data = toAppData(bs, bodyParams, folder, id);
 				res.put(id, data);
 			} catch (Exception e) {
-				logger.warn("Fail to convert email {}, folder {}. Skip it.", id, folder);
+				EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger,
+						"Fail to convert email {}, folder {}. Skip it.", id, folder);
 			}
 		});
 
@@ -809,7 +816,8 @@ public class MailBackend extends CoreConnect {
 				try {
 					folder = Optional.of(storage.getMailFolder(bs, CollectionId.of(searchQuery.collectionId)));
 				} catch (CollectionNotFoundException e) {
-					logger.warn("Failed to find folder {}", searchQuery.collectionId);
+					EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger, "Failed to find folder {}",
+							searchQuery.collectionId);
 					throw e;
 				}
 			}

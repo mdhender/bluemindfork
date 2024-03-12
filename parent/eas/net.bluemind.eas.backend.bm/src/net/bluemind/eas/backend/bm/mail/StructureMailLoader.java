@@ -58,6 +58,7 @@ import net.bluemind.eas.dto.email.EmailResponse.Flag.Status;
 import net.bluemind.eas.dto.email.EmailResponse.LastVerbExecuted;
 import net.bluemind.eas.dto.email.Importance;
 import net.bluemind.eas.dto.email.MessageClass;
+import net.bluemind.eas.utils.EasLogUser;
 import net.bluemind.icalendar.api.ICalendarElement.Classification;
 import net.bluemind.utils.HeaderUtil;
 
@@ -212,9 +213,11 @@ public class StructureMailLoader extends CoreConnect {
 			if (isInvitationASimpleMessage) {
 				transformReadOnlyRequestToSimpleEmail(ret);
 			}
-			logger.info("Found meeting request with uid {}, subject: {}", eventUid, vevent.value.main.summary);
+			EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger, "Found meeting request with uid {}, subject: {}",
+					eventUid, vevent.value.main.summary);
 		} else {
-			logger.error("Fail to find meeting request with uid {}", eventUid);
+			EasLogUser.logErrorAsUser(bs.getLoginAtDomain(), logger, "Fail to find meeting request with uid {}",
+					eventUid);
 		}
 
 		return ret;
@@ -232,7 +235,7 @@ public class StructureMailLoader extends CoreConnect {
 			MSEvent msEvent = converter.convert(bs, ret.get(0));
 			calResponse = OldFormats.update(msEvent, bs.getUser());
 		} catch (Exception e) {
-			logger.warn("Cannot transform ics to CalendarResponse", e);
+			EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger, "Cannot transform ics to CalendarResponse", e);
 			return new CalendarResponse();
 		}
 		return calResponse;

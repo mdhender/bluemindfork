@@ -24,8 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.slf4j.MDC;
-
 import com.google.common.annotations.VisibleForTesting;
 
 import net.bluemind.directory.api.DirEntry;
@@ -61,6 +59,7 @@ import net.bluemind.eas.dto.type.ItemDataType;
 import net.bluemind.eas.exception.ActiveSyncException;
 import net.bluemind.eas.exception.CollectionNotFoundException;
 import net.bluemind.eas.exception.ObjectNotFoundException;
+import net.bluemind.eas.utils.EasLogUser;
 
 public class ContentsExporter extends CoreConnect implements IContentsExporter {
 
@@ -131,10 +130,9 @@ public class ContentsExporter extends CoreConnect implements IContentsExporter {
 			break;
 		}
 
-		MDC.put("user", bs.getLoginAtDomain().replace("@", "_at_"));
-		logger.info("Get changes from version {} collectionId {}, type {}, changes {}. New version {}", state.version,
+		EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger,
+				"Get changes from version {} collectionId {}, type {}, changes {}. New version {}", state.version,
 				collectionId, state.type, changes.items.size(), changes.version);
-		MDC.put("user", "anonymous");
 
 		return changes;
 	}
@@ -233,7 +231,7 @@ public class ContentsExporter extends CoreConnect implements IContentsExporter {
 				ret.add(recip);
 			}
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
 		}
 
 		return ret;
@@ -252,7 +250,8 @@ public class ContentsExporter extends CoreConnect implements IContentsExporter {
 
 		if (query.executeSearch.galSearchCriterion != null) {
 			// Don't know how to trigger a Find + GALSearchCriterion
-			logger.error("[{}] GALSearchCriterion not supported", bs.getUniqueIdentifier());
+			EasLogUser.logErrorAsUser(bs.getLoginAtDomain(), logger, "[{}] GALSearchCriterion not supported",
+					bs.getUniqueIdentifier());
 		}
 
 		FindResponse.Response response = new FindResponse.Response();

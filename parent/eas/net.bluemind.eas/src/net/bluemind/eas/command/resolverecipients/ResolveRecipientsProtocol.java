@@ -40,6 +40,7 @@ import net.bluemind.eas.protocol.IEasProtocol;
 import net.bluemind.eas.serdes.IResponseBuilder;
 import net.bluemind.eas.serdes.resolverecipients.ResolveRecipientsRequestParser;
 import net.bluemind.eas.serdes.resolverecipients.ResolveRecipientsResponseFormatter;
+import net.bluemind.eas.utils.EasLogUser;
 import net.bluemind.eas.wbxml.builder.WbxmlResponseBuilder;
 
 public class ResolveRecipientsProtocol implements IEasProtocol<ResolveRecipientsRequest, ResolveRecipientsResponse> {
@@ -47,13 +48,13 @@ public class ResolveRecipientsProtocol implements IEasProtocol<ResolveRecipients
 	private static final Logger logger = LoggerFactory.getLogger(ResolveRecipientsProtocol.class);
 
 	@Override
-	public void parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
+	public void parse(BackendSession bs, OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
 			Handler<ResolveRecipientsRequest> parserResultHandler) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("******** Parsing *******");
+			EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "******** Parsing *******");
 		}
 		ResolveRecipientsRequestParser parser = new ResolveRecipientsRequestParser();
-		ResolveRecipientsRequest parsed = parser.parse(optParams, doc, past);
+		ResolveRecipientsRequest parsed = parser.parse(optParams, doc, past, bs.getLoginAtDomain());
 		parserResultHandler.handle(parsed);
 	}
 
@@ -61,7 +62,7 @@ public class ResolveRecipientsProtocol implements IEasProtocol<ResolveRecipients
 	public void execute(BackendSession bs, ResolveRecipientsRequest query,
 			Handler<ResolveRecipientsResponse> responseHandler) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("******** Executing *******");
+			EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "******** Executing *******");
 		}
 
 		IBackend backend = Backends.dataAccess();

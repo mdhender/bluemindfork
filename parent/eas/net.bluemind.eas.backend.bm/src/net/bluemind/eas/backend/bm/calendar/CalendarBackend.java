@@ -101,6 +101,7 @@ import net.bluemind.eas.dto.type.ItemDataType;
 import net.bluemind.eas.dto.user.MSUser;
 import net.bluemind.eas.exception.ActiveSyncException;
 import net.bluemind.eas.store.ISyncStorage;
+import net.bluemind.eas.utils.EasLogUser;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
 import net.bluemind.icalendar.api.ICalendarElement.Organizer;
 import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;
@@ -132,7 +133,7 @@ public class CalendarBackend extends CoreConnect {
 			ICalendar service = getService(bs, folder.containerUid);
 
 			ContainerChangeset<Long> changeset = service.changesetById(version);
-			logger.debug(
+			EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger,
 					"[{}][{}] get calendar changes. created: {}, updated: {}, deleted: {}, folder: {}, version: {}",
 					bs.getLoginAtDomain(), bs.getDevId(), changeset.created.size(), changeset.updated.size(),
 					changeset.deleted.size(), folder.containerUid, version);
@@ -152,18 +153,19 @@ public class CalendarBackend extends CoreConnect {
 				changes.items.add(ic);
 			}
 
-			logger.debug("getContentChanges({}, {}, version: {}) => {} entries.", bs.getLoginAtDomain(),
-					folder.containerUid, version, changes.items.size());
+			EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger,
+					"getContentChanges({}, {}, version: {}) => {} entries.", bs.getLoginAtDomain(), folder.containerUid,
+					version, changes.items.size());
 
 		} catch (ServerFault e) {
 			if (e.getCode() == ErrorCode.PERMISSION_DENIED) {
-				logger.warn(e.getMessage());
+				EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger, e.getMessage());
 			} else {
-				logger.error(e.getMessage(), e);
+				EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
 			}
 			changes.version = version;
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
 			// BM-7227
 			// Something went wrong
 			// Send current version number to prevent full sync
@@ -192,7 +194,7 @@ public class CalendarBackend extends CoreConnect {
 					ItemValue<VEventSeries> item = service.getCompleteById(id);
 
 					if (item == null) {
-						logger.debug("Fail to find VEvent {}", id);
+						EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "Fail to find VEvent {}", id);
 						return CollectionItem.of(collectionId, id);
 					}
 
@@ -205,14 +207,15 @@ public class CalendarBackend extends CoreConnect {
 					try {
 						service.update(item.uid, de.vevent, true);
 						ret = CollectionItem.of(collectionId, id);
-						logger.info("Update event bs: {}, collection: {}, serverId: {}, event title: {}",
+						EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger,
+								"Update event bs: {}, collection: {}, serverId: {}, event title: {}",
 								bs.getLoginAtDomain(), folder.containerUid, serverId, de.vevent.main.summary);
 					} catch (Exception e) {
+						EasLogUser.logErrorExceptionAsUser(bs.getLoginAtDomain(), e, logger,
+								"Fail to update event bs: {}, collection: {}, serverId: {}, event title:{}",
+								bs.getLoginAtDomain(), folder.containerUid, serverId, de.vevent.main.summary);
 						// trying to send a revert to the client (instead of
 						// sending error ?)
-						logger.error("Fail to update event bs:" + bs.getLoginAtDomain() + ", collection: "
-								+ folder.containerUid + ", serverId: " + serverId + ", event title:"
-								+ de.vevent.main.summary, e);
 						service.touch(item.uid);
 					}
 				}
@@ -251,7 +254,8 @@ public class CalendarBackend extends CoreConnect {
 				ItemValue<VEventSeries> created = service.getComplete(uid);
 				ret = CollectionItem.of(collectionId, created.internalId);
 
-				logger.info("Create event bs: {}, collection: {}, serverId: {}, event title: {}", bs.getLoginAtDomain(),
+				EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger,
+						"Create event bs: {}, collection: {}, serverId: {}, event title: {}", bs.getLoginAtDomain(),
 						folder.containerUid, ret, event.main.summary);
 			}
 
@@ -275,9 +279,10 @@ public class CalendarBackend extends CoreConnect {
 				Stream document = streamFromByteSource(attachment.content);
 				AttachedFile file = attachmentService.share(attachment.displayName, document);
 				attachments.add(file);
-				logger.info("Attach file {}", attachment.displayName);
+				EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger, "Attach file {}", attachment.displayName);
 			} catch (Exception e) {
-				logger.warn("[{}] Failed to attach '{}'", bs.getLoginAtDomain(), attachment.displayName, e);
+				EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger, "[{}] Failed to attach '{}'",
+						bs.getLoginAtDomain(), attachment.displayName, e);
 			}
 
 		});
@@ -330,7 +335,7 @@ public class CalendarBackend extends CoreConnect {
 				if (e.getCode() == ErrorCode.PERMISSION_DENIED) {
 					throw new ActiveSyncException(e);
 				}
-				logger.error(e.getMessage(), e);
+				EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
 			}
 		}
 	}
@@ -395,10 +400,8 @@ public class CalendarBackend extends CoreConnect {
 			}
 
 			return CollectionItem.of(f.collectionId, itemId).toString();
-		} catch (
-
-		Exception e) {
-			logger.error(e.getMessage(), e);
+		} catch (Exception e) {
+			EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
 		}
 		return null;
 	}
@@ -426,7 +429,8 @@ public class CalendarBackend extends CoreConnect {
 				AppData data = toAppData(bs, collectionId, folder.containerUid, event);
 				res.put(event.internalId, data);
 			} catch (Exception e) {
-				logger.error("Fail to convert event {}", event.uid, e);
+				EasLogUser.logErrorExceptionAsUser(bs.getLoginAtDomain(), e, logger, "Fail to convert event {}",
+						event.uid);
 			}
 		});
 
@@ -468,7 +472,7 @@ public class CalendarBackend extends CoreConnect {
 			try {
 				VFreebusy fb = fbApi.get(query);
 				while (cal.getTime().before(end)) {
-					sb.append(availability(fb.slots, cal.getTime()).toString());
+					sb.append(availability(fb.slots, cal.getTime(), bs.getLoginAtDomain()).toString());
 					cal.add(Calendar.MINUTE, 30);
 				}
 			} catch (ServerFault sf) {
@@ -488,7 +492,8 @@ public class CalendarBackend extends CoreConnect {
 		return a;
 	}
 
-	private MergedFreeBusy.SlotAvailability availability(Collection<VFreebusy.Slot> freeBusyIntervals, Date time) {
+	private MergedFreeBusy.SlotAvailability availability(Collection<VFreebusy.Slot> freeBusyIntervals, Date time,
+			String user) {
 		SlotAvailability ret = SlotAvailability.Free;
 		for (Slot fbi : freeBusyIntervals) {
 			Date start = new BmDateTimeWrapper(fbi.dtstart).toDate();
@@ -508,7 +513,7 @@ public class CalendarBackend extends CoreConnect {
 					break;
 				}
 			}
-			logger.debug("{} compared to [{} - {}]{}", time, start, end, fbi.type);
+			EasLogUser.logDebugAsUser(user, logger, "{} compared to [{} - {}]{}", time, start, end, fbi.type);
 		}
 
 		return ret;
@@ -544,7 +549,8 @@ public class CalendarBackend extends CoreConnect {
 				ItemValue<VEventSeries> evt = service.getCompleteById(item.itemId);
 
 				if (evt == null) {
-					logger.error("Failed to find event {} in {}", item.itemId, srcFolder.containerUid);
+					EasLogUser.logErrorAsUser(bs.getLoginAtDomain(), logger, "Failed to find event {} in {}",
+							item.itemId, srcFolder.containerUid);
 					resp.srcMsgId = item.toString();
 					resp.status = Status.SERVER_ERROR;
 					ret.add(resp);
@@ -564,7 +570,7 @@ public class CalendarBackend extends CoreConnect {
 				service.delete(evt.uid, false);
 
 			} catch (ServerFault sf) {
-				logger.error(sf.getMessage());
+				EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), sf, logger);
 				resp.srcMsgId = item.toString();
 				resp.status = Status.SERVER_ERROR;
 				ret.add(resp);
@@ -592,7 +598,7 @@ public class CalendarBackend extends CoreConnect {
 				}
 			}).get(20, TimeUnit.SECONDS);
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
 		}
 
 		return null;

@@ -41,6 +41,7 @@ import net.bluemind.eas.backend.bm.user.UserBackend;
 import net.bluemind.eas.dto.user.MSUser;
 import net.bluemind.eas.exception.ActiveSyncException;
 import net.bluemind.eas.store.ISyncStorage;
+import net.bluemind.eas.utils.EasLogUser;
 import net.bluemind.hornetq.client.Consumer;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.Topic;
@@ -161,13 +162,14 @@ public class BMBackend implements IBackend {
 
 	@Override
 	public void acknowledgeRemoteWipe(BackendSession bs) {
-		logger.info("Client '{}' acknowledges RemoteWipe", bs.getDeviceId().getIdentifier());
+		EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger, "Client '{}' acknowledges RemoteWipe",
+				bs.getDeviceId().getIdentifier());
 		// TODO do something (send email to admin? device owner?)
 	}
 
 	@Override
 	public void initInternalState(BackendSession bs) {
-		logger.debug("Set internal state");
+		EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "Set internal state");
 
 		InternalState is = new InternalState();
 		is.coreUrl = "http://" + Topology.get().core().value.address() + ":8090";

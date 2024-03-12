@@ -26,6 +26,7 @@ import net.bluemind.eas.backend.MSTask;
 import net.bluemind.eas.data.email.Type;
 import net.bluemind.eas.dto.calendar.CalendarResponse.Sensitivity;
 import net.bluemind.eas.utils.DOMUtils;
+import net.bluemind.eas.utils.EasLogUser;
 import net.bluemind.eas.utils.RTFUtils;
 
 public class TaskDecoder extends Decoder implements IDataDecoder {
@@ -48,7 +49,8 @@ public class TaskDecoder extends Decoder implements IDataDecoder {
 				} else if (bodyType == Type.RTF) {
 					task.description = RTFUtils.extractB64CompressedRTF(txt);
 				} else {
-					logger.warn("Unsupported body type: " + bodyType + "\n" + txt);
+					EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger,
+							"Unsupported body type: " + bodyType + "\n" + txt);
 				}
 			}
 		}

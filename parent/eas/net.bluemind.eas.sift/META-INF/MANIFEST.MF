@@ -7,7 +7,8 @@ Bundle-Activator: net.bluemind.eas.sift.Activator
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.eas.http;bundle-version="1.0.0",
  slf4j.api,
- net.bluemind.sentry.settings
+ net.bluemind.sentry.settings,
+ net.bluemind.eas.utils
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.eas.sift

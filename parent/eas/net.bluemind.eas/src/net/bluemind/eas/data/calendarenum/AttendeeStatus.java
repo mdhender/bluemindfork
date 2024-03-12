@@ -18,9 +18,6 @@
  */
 package net.bluemind.eas.data.calendarenum;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public enum AttendeeStatus {
 	RESPONSE_UNKNOWN(0), // 0
 	TENTATIVE(2), // 2
@@ -28,8 +25,6 @@ public enum AttendeeStatus {
 	DECLINE(4), // 4
 	NOT_RESPONDED(5); // 5
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(AttendeeStatus.class);
 	private int intValue;
 
 	private AttendeeStatus(int intValue) {
@@ -49,7 +44,6 @@ public enum AttendeeStatus {
 		case 0:
 			return RESPONSE_UNKNOWN;
 		default:
-			logger.warn(value + " is an unknown value return null");
 			return null;
 		}
 	}

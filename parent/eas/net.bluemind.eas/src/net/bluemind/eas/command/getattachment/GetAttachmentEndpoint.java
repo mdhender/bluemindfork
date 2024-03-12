@@ -34,6 +34,7 @@ import net.bluemind.eas.impl.Backends;
 import net.bluemind.eas.impl.Responder;
 import net.bluemind.eas.impl.vertx.compat.SessionWrapper;
 import net.bluemind.eas.impl.vertx.compat.VertxResponder;
+import net.bluemind.eas.utils.EasLogUser;
 import net.bluemind.lib.vertx.VertxPlatform;
 
 public final class GetAttachmentEndpoint implements IEasRequestEndpoint {
@@ -50,7 +51,7 @@ public final class GetAttachmentEndpoint implements IEasRequestEndpoint {
 		final Responder responder = new VertxResponder(dq.request(), dq.request().response());
 
 		final String an = dq.optionalParams().attachmentName();
-		logger.info("GetAttachment, submit");
+		EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger, "GetAttachment, submit");
 
 		getAttachExecutor.<MSAttachementData>executeBlocking(() -> //
 		backend.getContentsExporter(bs).getAttachment(bs, an), false) //
@@ -61,11 +62,12 @@ public final class GetAttachmentEndpoint implements IEasRequestEndpoint {
 							responder.sendResponseFile(attach.getContentType(), attach.getFile().source().openStream());
 							attach.getFile().dispose();
 						} catch (Exception e) {
-							logger.error(e.getMessage(), e);
+							EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
 							responder.sendStatus(500);
 						}
 					} else {
-						logger.error(result.cause().getMessage(), result.cause());
+						EasLogUser.logErrorExceptionAsUser(bs.getLoginAtDomain(), result.cause(), logger,
+								result.cause().getMessage());
 						responder.sendStatus(500);
 					}
 				});

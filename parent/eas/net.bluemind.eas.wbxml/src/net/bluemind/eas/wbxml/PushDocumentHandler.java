@@ -33,22 +33,26 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 
+import net.bluemind.eas.utils.EasLogUser;
 import net.bluemind.eas.wbxml.parsers.WbxmlExtensionHandler;
 
 public class PushDocumentHandler implements ContentHandler, WbxmlExtensionHandler {
 
 	private static final Logger logger = LoggerFactory.getLogger(PushDocumentHandler.class);
 
+	private String userLogin;
+
 	private Document doc;
 	private Stack<Element> elems;
 
-	public PushDocumentHandler() {
+	public PushDocumentHandler(String userLogin) {
 		try {
 			DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			doc = db.newDocument();
 			elems = new Stack<Element>();
+			this.userLogin = userLogin;
 		} catch (ParserConfigurationException e) {
-			logger.error(e.getMessage(), e);
+			EasLogUser.logExceptionAsUser(userLogin, e, logger);
 		}
 	}
 
@@ -133,22 +137,22 @@ public class PushDocumentHandler implements ContentHandler, WbxmlExtensionHandle
 
 	@Override
 	public void ext_i(int id, String par) throws SAXException {
-		logger.error("ext_i: Not implemented. {} {}", id, par);
+		EasLogUser.logErrorAsUser(userLogin, logger, "ext_i: Not implemented. {} {}", id, par);
 	}
 
 	@Override
 	public void ext_t(int id, int par) throws SAXException {
-		logger.error("ext_t: Not implemented. {} {}", id, par);
+		EasLogUser.logErrorAsUser(userLogin, logger, "ext_t: Not implemented. {} {}", id, par);
 	}
 
 	@Override
 	public void ext(int id) throws SAXException {
-		logger.error("ext {}: Not implemented.", id);
+		EasLogUser.logErrorAsUser(userLogin, logger, "ext {}: Not implemented.", id);
 	}
 
 	@Override
 	public void opaque(byte[] data) throws SAXException {
-		logger.debug("Handling OPAQUE (len: " + data.length + ")");
+		EasLogUser.logDebugAsUser(userLogin, logger, "Handling OPAQUE (len: " + data.length + ")");
 		Element parentElem = elems.peek();
 		parentElem.setTextContent(java.util.Base64.getEncoder().encodeToString(data));
 	}

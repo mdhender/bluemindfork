@@ -28,6 +28,7 @@ import net.bluemind.eas.backend.SyncFolder;
 import net.bluemind.eas.dto.sync.CollectionId;
 import net.bluemind.eas.dto.type.ItemDataType;
 import net.bluemind.eas.exception.ActiveSyncException;
+import net.bluemind.eas.utils.EasLogUser;
 
 public class HierarchyImporter implements IHierarchyImporter {
 
@@ -47,7 +48,7 @@ public class HierarchyImporter implements IHierarchyImporter {
 			collectionId = folderBackend.createFolder(bs, ItemDataType.CALENDAR, sf.getDisplayName());
 			break;
 		case CONTACTS:
-			logger.info("Create contacts folder is not implemented");
+			EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger, "Create contacts folder is not implemented");
 			break;
 		case EMAIL:
 			collectionId = folderBackend.createMailFolder(bs, parent, sf);
@@ -68,7 +69,7 @@ public class HierarchyImporter implements IHierarchyImporter {
 		try {
 			node = folderBackend.getHierarchyNode(bs, serverId);
 		} catch (ActiveSyncException e) {
-			logger.error(e.getMessage(), e);
+			EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
 		}
 		if (node != null) {
 			switch (ItemDataType.getValue(node.containerType)) {
@@ -76,7 +77,7 @@ public class HierarchyImporter implements IHierarchyImporter {
 				ret = folderBackend.deleteFolder(bs, ItemDataType.CALENDAR, node);
 				break;
 			case CONTACTS:
-				logger.info("Delete contacts folder is not implemented");
+				EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger, "Delete contacts folder is not implemented");
 				break;
 			case EMAIL:
 				ret = folderBackend.deleteMailFolder(bs, serverId, node.containerUid);
@@ -98,7 +99,7 @@ public class HierarchyImporter implements IHierarchyImporter {
 		try {
 			node = folderBackend.getHierarchyNode(bs, sf.getServerId());
 		} catch (ActiveSyncException e) {
-			logger.error(e.getMessage(), e);
+			EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
 		}
 
 		if (node != null) {
@@ -107,7 +108,7 @@ public class HierarchyImporter implements IHierarchyImporter {
 				ret = folderBackend.updateFolder(bs, ItemDataType.CALENDAR, node, sf.getDisplayName());
 				break;
 			case CONTACTS:
-				logger.info("Update contacts folder is not implemented");
+				EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger, "Update contacts folder is not implemented");
 				break;
 			case EMAIL:
 				ret = folderBackend.updateMailFolder(bs, node, sf.getServerId(), sf.getDisplayName());

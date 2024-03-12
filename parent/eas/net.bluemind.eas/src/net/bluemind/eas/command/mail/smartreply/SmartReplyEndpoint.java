@@ -29,6 +29,7 @@ import net.bluemind.eas.http.AuthorizedDeviceQuery;
 import net.bluemind.eas.http.IEasRequestEndpoint;
 import net.bluemind.eas.http.wbxml.WbxmlHandlerBase;
 import net.bluemind.eas.protocol.ProtocolExecutor;
+import net.bluemind.eas.utils.EasLogUser;
 
 /**
  * 
@@ -57,9 +58,9 @@ public class SmartReplyEndpoint extends WbxmlHandlerBase implements IEasRequestE
 	}
 
 	@Override
-	public void handle(AuthorizedDeviceQuery dq, Document doc) {
+	public void handle(AuthorizedDeviceQuery dq, Document doc, String userLogin) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("SmartReply with protocol...");
+			EasLogUser.logDebugAsUser(userLogin, logger, "SmartReply with protocol...");
 		}
 		ProtocolExecutor.run(dq, doc, protocol);
 	}

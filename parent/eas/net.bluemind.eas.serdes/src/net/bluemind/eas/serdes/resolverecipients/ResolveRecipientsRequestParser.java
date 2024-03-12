@@ -36,13 +36,15 @@ import net.bluemind.eas.dto.resolverecipients.ResolveRecipientsRequest.Options.A
 import net.bluemind.eas.dto.resolverecipients.ResolveRecipientsRequest.Options.CertificateRetrieval;
 import net.bluemind.eas.dto.resolverecipients.ResolveRecipientsRequest.Options.Picture;
 import net.bluemind.eas.serdes.IEasRequestParser;
+import net.bluemind.eas.utils.EasLogUser;
 
 public class ResolveRecipientsRequestParser implements IEasRequestParser<ResolveRecipientsRequest> {
 
 	private static final Logger logger = LoggerFactory.getLogger(ResolveRecipientsRequestParser.class);
 
 	@Override
-	public ResolveRecipientsRequest parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past) {
+	public ResolveRecipientsRequest parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
+			String user) {
 		ResolveRecipientsRequest rrr = new ResolveRecipientsRequest();
 
 		Element elements = doc.getDocumentElement();
@@ -61,10 +63,10 @@ public class ResolveRecipientsRequestParser implements IEasRequestParser<Resolve
 				rrr.to.add(child.getTextContent());
 				break;
 			case "Options":
-				rrr.options = parseOptions(child);
+				rrr.options = parseOptions(child, user);
 				break;
 			default:
-				logger.warn("Not managed ResolveRecipients child {}", child);
+				EasLogUser.logWarnAsUser(user, logger, "Not managed ResolveRecipients child {}", child);
 				break;
 			}
 		}
@@ -72,7 +74,7 @@ public class ResolveRecipientsRequestParser implements IEasRequestParser<Resolve
 		return rrr;
 	}
 
-	private Options parseOptions(Element el) {
+	private Options parseOptions(Element el, String user) {
 		Options options = new Options();
 
 		NodeList children = el.getChildNodes();
@@ -95,13 +97,13 @@ public class ResolveRecipientsRequestParser implements IEasRequestParser<Resolve
 				options.maxAmbiguousRecipients = Integer.parseInt(child.getTextContent());
 				break;
 			case "Availability":
-				options.availability = parseAvailability(child);
+				options.availability = parseAvailability(child, user);
 				break;
 			case "Picture":
-				options.picture = parsePicture(child);
+				options.picture = parsePicture(child, user);
 				break;
 			default:
-				logger.warn("Not managed ResolveRecipients.Options child {}", child);
+				EasLogUser.logWarnAsUser(user, logger, "Not managed ResolveRecipients.Options child: '{}'", child);
 				break;
 			}
 		}
@@ -109,7 +111,7 @@ public class ResolveRecipientsRequestParser implements IEasRequestParser<Resolve
 		return options;
 	}
 
-	private Availability parseAvailability(Element el) {
+	private Availability parseAvailability(Element el, String user) {
 		Availability availability = new Availability();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 		// date.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -129,18 +131,19 @@ public class ResolveRecipientsRequestParser implements IEasRequestParser<Resolve
 				try {
 					availability.startTime = sdf.parse(child.getTextContent());
 				} catch (ParseException e) {
-					logger.error(e.getMessage(), e);
+					EasLogUser.logExceptionAsUser(user, e, logger);
 				}
 				break;
 			case "EndTime":
 				try {
 					availability.endTime = sdf.parse(child.getTextContent());
 				} catch (ParseException e) {
-					logger.error(e.getMessage(), e);
+					EasLogUser.logExceptionAsUser(user, e, logger);
 				}
 				break;
 			default:
-				logger.warn("Not managed ResolveRecipients.Options.Availability child {}", child);
+				EasLogUser.logWarnAsUser(user, logger, "Not managed ResolveRecipients.Options.Availability child {}",
+						child);
 				break;
 			}
 		}
@@ -148,7 +151,7 @@ public class ResolveRecipientsRequestParser implements IEasRequestParser<Resolve
 		return availability;
 	}
 
-	private Picture parsePicture(Element el) {
+	private Picture parsePicture(Element el, String user) {
 		Picture picture = new Picture();
 
 		NodeList children = el.getChildNodes();
@@ -169,7 +172,8 @@ public class ResolveRecipientsRequestParser implements IEasRequestParser<Resolve
 
 				break;
 			default:
-				logger.warn("Not managed ResolveRecipients.Options.Picture child {}", child);
+				EasLogUser.logWarnAsUser(user, logger, "Not managed ResolveRecipients.Options.Picture child {}",
+						child);
 				break;
 			}
 		}

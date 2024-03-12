@@ -28,6 +28,7 @@ import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.eas.http.AuthorizedDeviceQuery;
 import net.bluemind.eas.http.EasHeaders;
+import net.bluemind.vertx.common.request.Requests;
 
 public final class OptionsHandler implements Handler<AuthorizedDeviceQuery> {
 
@@ -35,6 +36,7 @@ public final class OptionsHandler implements Handler<AuthorizedDeviceQuery> {
 
 	@Override
 	public void handle(AuthorizedDeviceQuery event) {
+		Requests.tagUserLogin(event.request(), event.loginAtDomain());
 		HttpServerRequest req = event.request();
 		HttpServerResponse resp = req.response();
 		MultiMap headers = resp.headers();

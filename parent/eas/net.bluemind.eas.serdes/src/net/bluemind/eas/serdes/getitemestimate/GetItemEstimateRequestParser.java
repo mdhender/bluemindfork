@@ -34,13 +34,15 @@ import net.bluemind.eas.dto.getitemestimate.GetItemEstimateRequest;
 import net.bluemind.eas.dto.getitemestimate.GetItemEstimateRequest.Collection;
 import net.bluemind.eas.dto.sync.CollectionId;
 import net.bluemind.eas.serdes.IEasRequestParser;
+import net.bluemind.eas.utils.EasLogUser;
 
 public class GetItemEstimateRequestParser implements IEasRequestParser<GetItemEstimateRequest> {
 
 	private static final Logger logger = LoggerFactory.getLogger(GetItemEstimateRequestParser.class);
 
 	@Override
-	public GetItemEstimateRequest parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past) {
+	public GetItemEstimateRequest parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
+			String user) {
 		GetItemEstimateRequest req = new GetItemEstimateRequest();
 
 		Element elements = doc.getDocumentElement();
@@ -56,10 +58,10 @@ public class GetItemEstimateRequestParser implements IEasRequestParser<GetItemEs
 			String childName = child.getNodeName();
 			switch (childName) {
 			case "Collections":
-				req.collections = parseCollections(child);
+				req.collections = parseCollections(child, user);
 				break;
 			default:
-				logger.warn("Not managed GetItemEstimate child {}", child);
+				EasLogUser.logWarnAsUser(user, logger, "Not managed GetItemEstimate child {}", child);
 				break;
 			}
 		}
@@ -67,7 +69,7 @@ public class GetItemEstimateRequestParser implements IEasRequestParser<GetItemEs
 		return req;
 	}
 
-	private List<Collection> parseCollections(Element el) {
+	private List<Collection> parseCollections(Element el, String user) {
 		List<Collection> collections = new ArrayList<Collection>();
 
 		NodeList children = el.getChildNodes();
@@ -81,10 +83,10 @@ public class GetItemEstimateRequestParser implements IEasRequestParser<GetItemEs
 
 			switch (childName) {
 			case "Collection":
-				collections.add(parseCollection(child));
+				collections.add(parseCollection(child, user));
 				break;
 			default:
-				logger.warn("Not managed GetItemEstimate.Collections child {}", child);
+				EasLogUser.logWarnAsUser(user, logger, "Not managed GetItemEstimate.Collections child {}", child);
 				break;
 			}
 		}
@@ -92,7 +94,7 @@ public class GetItemEstimateRequestParser implements IEasRequestParser<GetItemEs
 		return collections;
 	}
 
-	private Collection parseCollection(Element el) {
+	private Collection parseCollection(Element el, String user) {
 		Collection c = new Collection();
 
 		NodeList children = el.getChildNodes();
@@ -112,7 +114,8 @@ public class GetItemEstimateRequestParser implements IEasRequestParser<GetItemEs
 				c.collectionId = CollectionId.of(child.getTextContent());
 				break;
 			default:
-				logger.warn("Not managed GetItemEstimate.Collections.Collection child {}", child);
+				EasLogUser.logWarnAsUser(user, logger, "Not managed GetItemEstimate.Collections.Collection child {}",
+						child);
 				break;
 			}
 		}

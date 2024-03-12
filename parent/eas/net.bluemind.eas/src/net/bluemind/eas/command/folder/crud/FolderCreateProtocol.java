@@ -50,6 +50,7 @@ import net.bluemind.eas.serdes.foldercreate.FolderCreateRequestParser;
 import net.bluemind.eas.serdes.foldercreate.FolderCreateResponseFormatter;
 import net.bluemind.eas.state.StateMachine;
 import net.bluemind.eas.store.ISyncStorage;
+import net.bluemind.eas.utils.EasLogUser;
 import net.bluemind.eas.wbxml.builder.WbxmlResponseBuilder;
 
 public class FolderCreateProtocol implements IEasProtocol<FolderCreateRequest, FolderCreateResponse> {
@@ -62,21 +63,21 @@ public class FolderCreateProtocol implements IEasProtocol<FolderCreateRequest, F
 	}
 
 	@Override
-	public void parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
+	public void parse(BackendSession bs, OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
 			Handler<FolderCreateRequest> parserResultHandler) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("******** Parsing *******");
+			EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "******** Parsing *******");
 		}
 
 		FolderCreateRequestParser parser = new FolderCreateRequestParser();
-		FolderCreateRequest parsed = parser.parse(optParams, doc, past);
+		FolderCreateRequest parsed = parser.parse(optParams, doc, past, bs.getLoginAtDomain());
 		parserResultHandler.handle(parsed);
 	}
 
 	@Override
 	public void execute(BackendSession bs, FolderCreateRequest query, Handler<FolderCreateResponse> responseHandler) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("******** Executing *******");
+			EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "******** Executing *******");
 		}
 
 		FolderCreateResponse response = new FolderCreateResponse();
@@ -90,7 +91,8 @@ public class FolderCreateProtocol implements IEasProtocol<FolderCreateRequest, F
 			try {
 				parent = store.getHierarchyNode(bs, parentId);
 			} catch (CollectionNotFoundException e1) {
-				logger.error("Cannot create folder '{}', parent id {} not found", displayName, query.parentId);
+				EasLogUser.logErrorAsUser(bs.getLoginAtDomain(), logger,
+						"Cannot create folder '{}', parent id {} not found", displayName, query.parentId);
 				response.status = Status.PARENT_FOLDER_NOT_FOUND;
 				responseHandler.handle(response);
 				return;
@@ -100,7 +102,8 @@ public class FolderCreateProtocol implements IEasProtocol<FolderCreateRequest, F
 		ItemDataType pim = getItemDataType(query.type);
 
 		if (pim == null) {
-			logger.error("Cannot create folder '{}', unsupported type: {} ({})", displayName, query.type,
+			EasLogUser.logErrorAsUser(bs.getLoginAtDomain(), logger,
+					"Cannot create folder '{}', unsupported type: {} ({})", displayName, query.type,
 					FolderType.getValue(query.type));
 			response.status = Status.INVALID_REQUEST;
 			responseHandler.handle(response);
@@ -134,8 +137,8 @@ public class FolderCreateProtocol implements IEasProtocol<FolderCreateRequest, F
 
 			responseHandler.handle(response);
 		} else {
-			logger.error("Fail to create folder '{}', type: {} ({})", displayName, query.type,
-					FolderType.getValue(query.type));
+			EasLogUser.logErrorAsUser(bs.getLoginAtDomain(), logger, "Fail to create folder '{}', type: {} ({})",
+					displayName, query.type, FolderType.getValue(query.type));
 			response = new FolderCreateResponse();
 			response.status = Status.SERVER_ERROR;
 			responseHandler.handle(response);

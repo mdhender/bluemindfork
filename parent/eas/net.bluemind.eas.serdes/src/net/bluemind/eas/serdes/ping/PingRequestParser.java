@@ -31,12 +31,13 @@ import net.bluemind.eas.dto.ping.PingRequest;
 import net.bluemind.eas.dto.ping.PingRequest.Folders;
 import net.bluemind.eas.dto.ping.PingRequest.Folders.Folder;
 import net.bluemind.eas.serdes.IEasRequestParser;
+import net.bluemind.eas.utils.EasLogUser;
 
 public class PingRequestParser implements IEasRequestParser<PingRequest> {
 	private static final Logger logger = LoggerFactory.getLogger(PingRequestParser.class);
 
 	@Override
-	public PingRequest parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past) {
+	public PingRequest parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past, String user) {
 		if (doc != null) {
 			PingRequest pr = new PingRequest();
 			Element elements = doc.getDocumentElement();
@@ -55,10 +56,10 @@ public class PingRequestParser implements IEasRequestParser<PingRequest> {
 					pr.heartbeatInterval = Integer.parseInt(child.getTextContent());
 					break;
 				case "Folders":
-					pr.folders = parseFolders(child);
+					pr.folders = parseFolders(child, user);
 					break;
 				default:
-					logger.warn("Not managed Ping child {}", child);
+					EasLogUser.logWarnAsUser(user, logger, "Not managed Ping child {}", child);
 					break;
 				}
 			}
@@ -70,7 +71,7 @@ public class PingRequestParser implements IEasRequestParser<PingRequest> {
 		return null;
 	}
 
-	private Folders parseFolders(Element el) {
+	private Folders parseFolders(Element el, String user) {
 		PingRequest.Folders folders = new PingRequest.Folders();
 		NodeList children = el.getChildNodes();
 		for (int i = 0; i < children.getLength(); i++) {
@@ -82,15 +83,15 @@ public class PingRequestParser implements IEasRequestParser<PingRequest> {
 			String childName = child.getNodeName();
 
 			if ("Folder".equals(childName)) {
-				folders.folders.add(parseFolder(child));
+				folders.folders.add(parseFolder(child, user));
 			} else {
-				logger.warn("Not managed Ping.Folders child {}", child);
+				EasLogUser.logWarnAsUser(user, logger, "Not managed Ping.Folders child {}", child);
 			}
 		}
 		return folders;
 	}
 
-	private Folder parseFolder(Element el) {
+	private Folder parseFolder(Element el, String user) {
 		PingRequest.Folders.Folder folder = new PingRequest.Folders.Folder();
 
 		NodeList children = el.getChildNodes();
@@ -110,7 +111,7 @@ public class PingRequestParser implements IEasRequestParser<PingRequest> {
 				folder.clazz = PingRequest.Folders.Folder.Class.valueOf(child.getTextContent());
 				break;
 			default:
-				logger.warn("Not managed Ping.Folders.Folder child {}", child);
+				EasLogUser.logWarnAsUser(user, logger, "Not managed Ping.Folders.Folder child {}", child);
 				break;
 			}
 		}

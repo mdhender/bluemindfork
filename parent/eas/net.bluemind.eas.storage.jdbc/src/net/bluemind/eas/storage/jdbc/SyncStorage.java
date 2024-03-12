@@ -67,6 +67,7 @@ import net.bluemind.eas.dto.sync.CollectionId;
 import net.bluemind.eas.dto.type.ItemDataType;
 import net.bluemind.eas.exception.CollectionNotFoundException;
 import net.bluemind.eas.store.ISyncStorage;
+import net.bluemind.eas.utils.EasLogUser;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.todolist.api.ITodoList;
@@ -123,7 +124,7 @@ public class SyncStorage implements ISyncStorage {
 			IDevice deviceService = admin0Provider().instance(IDevice.class, bs.getUser().getUid());
 			deviceService.updateLastSync(bs.getDeviceId().getInternalId());
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
 		}
 	}
 
@@ -276,7 +277,7 @@ public class SyncStorage implements ISyncStorage {
 			}
 
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
 		}
 
 		return CollectionId.of(Long.toString(folderUid));
@@ -295,7 +296,8 @@ public class SyncStorage implements ISyncStorage {
 
 			if (type == ItemDataType.TASKS) {
 				if (container.defaultContainer) {
-					logger.warn("Cannot delete default todolist {}", node.containerUid);
+					EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger, "Cannot delete default todolist {}",
+							node.containerUid);
 					return true;
 				}
 
@@ -305,7 +307,8 @@ public class SyncStorage implements ISyncStorage {
 				service.reset();
 			} else if (type == ItemDataType.CALENDAR) {
 				if (container.defaultContainer) {
-					logger.warn("Cannot delete default calendar {}", node.containerUid);
+					EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger, "Cannot delete default calendar {}",
+							node.containerUid);
 					return true;
 				}
 
@@ -318,7 +321,8 @@ public class SyncStorage implements ISyncStorage {
 
 			ret = true;
 		} catch (Exception e) {
-			logger.error("Fail to delete folder {}", node.containerUid, e);
+			EasLogUser.logErrorExceptionAsUser(bs.getLoginAtDomain(), e, logger, "Fail to delete folder {}",
+					node.containerUid);
 		}
 		return ret;
 	}
@@ -332,7 +336,8 @@ public class SyncStorage implements ISyncStorage {
 			if (type == ItemDataType.CALENDAR || type == ItemDataType.TASKS) {
 				BaseContainerDescriptor container = containers.getLight(node.containerUid);
 				if (container.defaultContainer) {
-					logger.warn("Cannot update default {} {}", type, node.containerUid);
+					EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger, "Cannot update default {} {}", type,
+							node.containerUid);
 					return true;
 				}
 			}
@@ -345,7 +350,8 @@ public class SyncStorage implements ISyncStorage {
 
 			ret = true;
 		} catch (Exception e) {
-			logger.error("Fail to update folder {}", node.containerUid, e);
+			EasLogUser.logErrorExceptionAsUser(bs.getLoginAtDomain(), e, logger, "Fail to update folder {}",
+					node.containerUid);
 		}
 		return ret;
 	}
@@ -358,7 +364,7 @@ public class SyncStorage implements ISyncStorage {
 			ret = getService().needReset(Account.create(bs.getUser().getUid(), bs.getDeviceId().getIdentifier()));
 
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
 		}
 		return ret;
 	}
@@ -369,7 +375,7 @@ public class SyncStorage implements ISyncStorage {
 			getService().deletePendingReset(Account.create(bs.getUser().getUid(), bs.getDeviceId().getIdentifier()));
 
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
 		}
 
 	}

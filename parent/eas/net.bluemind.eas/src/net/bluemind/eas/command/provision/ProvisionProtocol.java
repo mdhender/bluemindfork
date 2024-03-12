@@ -38,6 +38,7 @@ import net.bluemind.eas.protocol.IEasProtocol;
 import net.bluemind.eas.serdes.IResponseBuilder;
 import net.bluemind.eas.serdes.provision.ProvisionRequestParser;
 import net.bluemind.eas.serdes.provision.ProvisionResponseFormatter;
+import net.bluemind.eas.utils.EasLogUser;
 import net.bluemind.eas.wbxml.builder.WbxmlResponseBuilder;
 
 public class ProvisionProtocol implements IEasProtocol<ProvisionRequest, ProvisionResponse> {
@@ -45,10 +46,10 @@ public class ProvisionProtocol implements IEasProtocol<ProvisionRequest, Provisi
 	private static final Logger logger = LoggerFactory.getLogger(ProvisionProtocol.class);
 
 	@Override
-	public void parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
+	public void parse(BackendSession bs, OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
 			Handler<ProvisionRequest> parserResultHandler) {
 		ProvisionRequestParser parser = new ProvisionRequestParser();
-		ProvisionRequest parsed = parser.parse(optParams, doc, past);
+		ProvisionRequest parsed = parser.parse(optParams, doc, past, bs.getLoginAtDomain());
 		parserResultHandler.handle(parsed);
 	}
 
@@ -69,14 +70,15 @@ public class ProvisionProtocol implements IEasProtocol<ProvisionRequest, Provisi
 
 			String policyKey = req.policies.policy.policyKey;
 			if ("0".equals(policyKey) || isUnknown(policyKey)) {
-				logger.info("Client downloads policy from server, send temporary policy key: {}",
+				EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger,
+						"Client downloads policy from server, send temporary policy key: {}",
 						Policies.TEMPORARY_POLICY_KEY);
 				response.policies.policy.policyKey = Policies.TEMPORARY_POLICY_KEY;
 				response.policies.policy.data = new EASProvisionDoc();
 			} else {
 				if (Policies.TEMPORARY_POLICY_KEY.equals(policyKey)) {
 					// 4.1.3 Phase 3
-					logger.info(
+					EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger,
 							"Client acknowledges receipt and application of policy settings, send the final policy key: {}",
 							Policies.FINAL_POLICY_KEY);
 					response.policies.policy.policyKey = Policies.FINAL_POLICY_KEY;

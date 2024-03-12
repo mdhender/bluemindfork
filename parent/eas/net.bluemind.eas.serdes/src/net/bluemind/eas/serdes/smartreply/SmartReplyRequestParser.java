@@ -30,13 +30,15 @@ import net.bluemind.eas.dto.OptionalParams;
 import net.bluemind.eas.dto.smartreply.SmartReplyRequest;
 import net.bluemind.eas.dto.smartreply.SmartReplyRequest.Source;
 import net.bluemind.eas.serdes.IEasRequestParser;
+import net.bluemind.eas.utils.EasLogUser;
 
 public class SmartReplyRequestParser implements IEasRequestParser<SmartReplyRequest> {
 
 	private static final Logger logger = LoggerFactory.getLogger(SmartReplyRequestParser.class);
 
 	@Override
-	public SmartReplyRequest parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past) {
+	public SmartReplyRequest parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
+			String user) {
 		SmartReplyRequest req = new SmartReplyRequest();
 
 		Element elements = doc.getDocumentElement();
@@ -55,7 +57,7 @@ public class SmartReplyRequestParser implements IEasRequestParser<SmartReplyRequ
 				req.clientId = child.getTextContent();
 				break;
 			case "Source":
-				req.source = parseSource(child);
+				req.source = parseSource(child, user);
 				break;
 			case "AccountId":
 				req.accountId = child.getTextContent();
@@ -70,7 +72,7 @@ public class SmartReplyRequestParser implements IEasRequestParser<SmartReplyRequ
 				req.mime = child.getTextContent();
 				break;
 			default:
-				logger.warn("Not managed SmartReply child {}", child);
+				EasLogUser.logWarnAsUser(user, logger, "Not managed SmartReply child {}", child);
 				break;
 			}
 		}
@@ -78,7 +80,7 @@ public class SmartReplyRequestParser implements IEasRequestParser<SmartReplyRequ
 		return req;
 	}
 
-	private Source parseSource(Element el) {
+	private Source parseSource(Element el, String user) {
 		Source source = new Source();
 
 		NodeList children = el.getChildNodes();
@@ -104,7 +106,7 @@ public class SmartReplyRequestParser implements IEasRequestParser<SmartReplyRequ
 				source.instanceId = child.getTextContent();
 				break;
 			default:
-				logger.warn("Not managed SmartReply.Source child {}", child);
+				EasLogUser.logWarnAsUser(user, logger, "Not managed SmartReply.Source child {}", child);
 				break;
 			}
 		}

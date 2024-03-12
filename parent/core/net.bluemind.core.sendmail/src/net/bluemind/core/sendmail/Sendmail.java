@@ -39,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.commons.logs.MdcLogUser;
 import net.bluemind.mime4j.common.Mime4JHelper;
 import net.bluemind.network.topology.Topology;
 
@@ -176,14 +177,14 @@ public class Sendmail implements ISendmail {
 			}
 			sendmailResponse = new SendmailResponse(smtp.data(inStream), failedRecipients, requestedDSNs);
 			smtp.quit();
-
-			logger.info("Email sent {}", getLog(creds, fromEnvelop, rcptTo, sendmailResponse, Optional.empty()));
+			MdcLogUser.logInfoAsUser(creds.loginAtDomain, logger, "Email sent {}",
+					getLog(creds, fromEnvelop, rcptTo, sendmailResponse, Optional.empty()));
 			return sendmailResponse;
 		} catch (Exception se) {
 			if (se instanceof SMTPException sme && sme.getCode() == 503) {
 				return new SendmailResponse(new SMTPResponse(sme.getCode(), true, se.getMessage()));
 			} else {
-				logger.error("Email not sent {}",
+				MdcLogUser.logErrorAsUser(creds.loginAtDomain, logger, "Email not sent {}",
 						getLog(creds, fromEnvelop, rcptTo, sendmailResponse, Optional.of(se.getMessage())));
 				logger.error(se.getMessage(), se);
 				return SendmailResponse.fail(se.getMessage(), failedRecipients);

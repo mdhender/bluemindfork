@@ -75,22 +75,8 @@ public class SyncResponseFormatter implements IEasResponseFormatter<SyncResponse
 					b.token(NamespaceMapping.SYNC, "MoreAvailable");
 				}
 
-				int expectedLoads = 0;
-				if (csr.commands != null && !csr.commands.isEmpty()) {
-					expectedLoads += csr.commands.size();
-				}
-				if (csr.responses != null && !csr.responses.isEmpty()) {
-					expectedLoads += csr.responses.size();
-				}
-
-				if (expectedLoads > 0) {
-					logger.info("{} async load(s) expected.", expectedLoads);
-				}
-
 				final AppDataFormatter adf = new AppDataFormatter();
-
 				buildResponses(b, protocolVersion, csr, adf, forAsync);
-
 			}
 
 			@Override

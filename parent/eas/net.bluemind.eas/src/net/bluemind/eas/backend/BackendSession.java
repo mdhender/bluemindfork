@@ -40,6 +40,7 @@ import net.bluemind.eas.dto.sync.CollectionId;
 import net.bluemind.eas.dto.sync.CollectionSyncRequest;
 import net.bluemind.eas.dto.sync.SyncState;
 import net.bluemind.eas.dto.user.MSUser;
+import net.bluemind.eas.utils.EasLogUser;
 
 public class BackendSession implements IPreviousRequestsKnowledge {
 
@@ -79,11 +80,13 @@ public class BackendSession implements IPreviousRequestsKnowledge {
 				.getResourceAsStream("hints/" + deviceId.getType() + ".hints")) {
 			hints.load(in);
 			if (logger.isDebugEnabled()) {
-				logger.debug("Loaded hints for {}", deviceId.getType());
+				EasLogUser.logDebugAsUser(getUser().getLoginAtDomain(), logger, "Loaded hints for {}",
+						deviceId.getType());
 			}
 		} catch (Exception e) {
 			if (logger.isDebugEnabled()) {
-				logger.debug("could not load hints for device type {}", deviceId.getType(), e);
+				EasLogUser.logDebugAsUser(getUser().getLoginAtDomain(), logger,
+						"could not load hints for device type {}", deviceId.getType(), e);
 			}
 		}
 		// we copy as we don't want a synchronized data structure

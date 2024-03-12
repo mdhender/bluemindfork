@@ -36,7 +36,6 @@ import java.util.TimeZone;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 
 import net.bluemind.attachment.api.AttachedFile;
 import net.bluemind.calendar.api.VEvent;
@@ -65,6 +64,7 @@ import net.bluemind.eas.dto.calendar.CalendarResponse.Recurrence.DayOfWeek;
 import net.bluemind.eas.dto.calendar.CalendarResponse.Recurrence.DayOfWeek.Days;
 import net.bluemind.eas.dto.calendar.CalendarResponse.Sensitivity;
 import net.bluemind.eas.dto.user.MSUser;
+import net.bluemind.eas.utils.EasLogUser;
 import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
 import net.bluemind.icalendar.api.ICalendarElement.Classification;
@@ -696,10 +696,9 @@ public class EventConverter {
 		ret.vevent.icsUid = vevent.icsUid;
 		ret.vevent.acceptCounters = vevent.acceptCounters;
 
-		MDC.put("user", bs.getLoginAtDomain().replace("@", "_at_"));
-		logger.info("Converting event, Update_state {} for ICS-UID {}, RECURID: {}", updateState.name(),
-				ret.vevent.icsUid, recurId.isPresent() ? recurId.get().toString() : "[]");
-		MDC.put("user", "anonymous");
+		EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger,
+				"Converting event, Update_state {} for ICS-UID {}, RECURID: {}", updateState.name(), ret.vevent.icsUid,
+				recurId.isPresent() ? recurId.get().toString() : "[]");
 
 		switch (updateState) {
 		case MAIN:
@@ -809,7 +808,8 @@ public class EventConverter {
 		List<VEvent.Attendee> attendees = new ArrayList<>(data.getAttendees().size());
 
 		for (MSAttendee at : data.getAttendees()) {
-			logger.info(" * msAttendee {} => {}", at.getEmail(), at.getAttendeeStatus());
+			EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger, " * msAttendee {} => {}", at.getEmail(),
+					at.getAttendeeStatus());
 			attendees.add(convertAttendee(at));
 		}
 		e.attendees = attendees;

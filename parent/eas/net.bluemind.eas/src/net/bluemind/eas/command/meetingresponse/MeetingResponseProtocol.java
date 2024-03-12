@@ -55,6 +55,7 @@ import net.bluemind.eas.serdes.IResponseBuilder;
 import net.bluemind.eas.serdes.meetingresponse.MeetingResponseRequestParser;
 import net.bluemind.eas.serdes.meetingresponse.MeetingResponseResponseFormatter;
 import net.bluemind.eas.store.ISyncStorage;
+import net.bluemind.eas.utils.EasLogUser;
 import net.bluemind.eas.wbxml.builder.WbxmlResponseBuilder;
 
 public class MeetingResponseProtocol implements IEasProtocol<MeetingResponseRequest, MeetingResponseResponse> {
@@ -70,10 +71,10 @@ public class MeetingResponseProtocol implements IEasProtocol<MeetingResponseRequ
 	}
 
 	@Override
-	public void parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
+	public void parse(BackendSession bs, OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
 			Handler<MeetingResponseRequest> parserResultHandler) {
 		MeetingResponseRequestParser parser = new MeetingResponseRequestParser();
-		MeetingResponseRequest parsed = parser.parse(optParams, doc, past);
+		MeetingResponseRequest parsed = parser.parse(optParams, doc, past, bs.getLoginAtDomain());
 		parserResultHandler.handle(parsed);
 	}
 
@@ -106,7 +107,8 @@ public class MeetingResponseProtocol implements IEasProtocol<MeetingResponseRequ
 
 				invitation(bs, itemRef, invitation -> {
 					if (invitation == null) {
-						logger.error("Invalid meeting request for {}", r.requestId);
+						EasLogUser.logErrorAsUser(bs.getLoginAtDomain(), logger, "Invalid meeting request for {}",
+								r.requestId);
 						r.status = Status.INVALID_MEETING_REQUEST;
 					} else {
 						if ((invitation.instanceType == InstanceType.SINGLE_INSTANCE
@@ -155,7 +157,7 @@ public class MeetingResponseProtocol implements IEasProtocol<MeetingResponseRequ
 				});
 
 			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
+				EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
 				MeetingResponseResponse.Result r = new MeetingResponseResponse.Result();
 				r.requestId = request.requestId;
 				r.status = Status.SERVER_ERROR;
@@ -193,7 +195,7 @@ public class MeetingResponseProtocol implements IEasProtocol<MeetingResponseRequ
 				loaded = backend.getContentsExporter(bs).loadStructure(bs, null, ic);
 				loaded.body = VertxLazyLoader.wrap(loaded.body);
 			} catch (ActiveSyncException e) {
-				logger.error(e.getMessage(), e);
+				EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
 				foundInvite.handle(null);
 				return;
 			}
@@ -206,25 +208,26 @@ public class MeetingResponseProtocol implements IEasProtocol<MeetingResponseRequ
 
 				cr = loaded.metadata.email.meetingRequest;
 				cr.calendarUid = loaded.metadata.email.calendarUid;
-				logger.debug("Loaded invitation from email {}", cr);
+				EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "Loaded invitation from email {}", cr);
 			}
 		} else if (ic.getType() == ItemDataType.CALENDAR) {
 			cr = loaded.metadata.event;
-			logger.debug("Loaded invitation from calendar {}", cr);
+			EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "Loaded invitation from calendar {}", cr);
 		}
 		foundInvite.handle(cr);
 	}
 
 	private void deleteMeetingRequest(BackendSession bs, ItemChangeReference ic) {
 		if (ic.getType() != ItemDataType.EMAIL) {
-			logger.info("Can't delete meeting request for type {}", ic.getType());
+			EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger, "Can't delete meeting request for type {}",
+					ic.getType());
 			return;
 		}
 		try {
 			IContentsImporter mailImporter = backend.getContentsImporter(bs);
 			mailImporter.importMessageDeletion(bs, ItemDataType.EMAIL, Arrays.asList(ic.getServerId()), false);
 		} catch (Exception t) {
-			logger.error(t.getMessage(), t);
+			EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), t, logger);
 		}
 	}
 

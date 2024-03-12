@@ -70,6 +70,10 @@ public class WrappedRequest extends HttpServerRequestInternal {
 		response.putLogAttribute(k, v);
 	}
 
+	public void putDataAttribute(String k, String v) {
+		response.putDataAttribute(k, v);
+	}
+
 	public static HttpServerRequest create(Registry registry, IdFactory idfactory, HttpServerRequest req) {
 		return new WrappedRequest(registry, idfactory, req);
 	}

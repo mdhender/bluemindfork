@@ -44,6 +44,7 @@ import net.bluemind.eas.backend.BackendSession;
 import net.bluemind.eas.backend.bm.impl.CoreConnect;
 import net.bluemind.eas.dto.user.MSUser;
 import net.bluemind.eas.exception.ActiveSyncException;
+import net.bluemind.eas.utils.EasLogUser;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.user.api.IUser;
@@ -72,7 +73,7 @@ public class UserBackend extends CoreConnect {
 			ret = getUserImpl(loginAtDomain, password);
 			cache.put(loginAtDomain, ret);
 		} else {
-			logger.debug("[{}] using cached user.", loginAtDomain);
+			EasLogUser.logDebugAsUser(loginAtDomain, logger, "[{}] using cached user.", loginAtDomain);
 		}
 		return ret;
 	}
@@ -102,7 +103,7 @@ public class UserBackend extends CoreConnect {
 			byte[] b = getService(bs, IDocumentStore.class).get(Integer.toString(photoId));
 			return Base64.getEncoder().encodeToString(b);
 		} catch (Exception e) {
-			logger.error("Fail to fetch photo {}", photoId);
+			EasLogUser.logErrorAsUser(bs.getLoginAtDomain(), logger, "Fail to fetch photo {}", photoId);
 		}
 		return null;
 	}

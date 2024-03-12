@@ -29,6 +29,7 @@ import net.bluemind.eas.http.AuthorizedDeviceQuery;
 import net.bluemind.eas.http.IEasRequestEndpoint;
 import net.bluemind.eas.http.wbxml.WbxmlHandlerBase;
 import net.bluemind.eas.protocol.ProtocolExecutor;
+import net.bluemind.eas.utils.EasLogUser;
 
 public class FolderUpdateEndpoint extends WbxmlHandlerBase implements IEasRequestEndpoint {
 
@@ -40,9 +41,9 @@ public class FolderUpdateEndpoint extends WbxmlHandlerBase implements IEasReques
 	}
 
 	@Override
-	public void handle(AuthorizedDeviceQuery dq, Document doc) {
+	public void handle(AuthorizedDeviceQuery dq, Document doc, String userLogin) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("FolderUpdate with protocol...");
+			EasLogUser.logDebugAsUser(userLogin, logger, "FolderUpdate with protocol...");
 		}
 		ProtocolExecutor.run(dq, doc, protocol);
 	}

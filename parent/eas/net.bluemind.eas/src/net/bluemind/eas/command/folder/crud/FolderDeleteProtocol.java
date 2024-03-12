@@ -41,6 +41,7 @@ import net.bluemind.eas.serdes.folderdelete.FolderDeleteRequestParser;
 import net.bluemind.eas.serdes.folderdelete.FolderDeleteResponseFormatter;
 import net.bluemind.eas.state.StateMachine;
 import net.bluemind.eas.store.ISyncStorage;
+import net.bluemind.eas.utils.EasLogUser;
 import net.bluemind.eas.wbxml.builder.WbxmlResponseBuilder;
 
 public class FolderDeleteProtocol implements IEasProtocol<FolderDeleteRequest, FolderDeleteResponse> {
@@ -55,14 +56,14 @@ public class FolderDeleteProtocol implements IEasProtocol<FolderDeleteRequest, F
 	}
 
 	@Override
-	public void parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
+	public void parse(BackendSession bs, OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
 			Handler<FolderDeleteRequest> parserResultHandler) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("******** Parsing *******");
+			EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "******** Parsing *******");
 		}
 
 		FolderDeleteRequestParser parser = new FolderDeleteRequestParser();
-		FolderDeleteRequest parsed = parser.parse(optParams, doc, past);
+		FolderDeleteRequest parsed = parser.parse(optParams, doc, past, bs.getLoginAtDomain());
 		parserResultHandler.handle(parsed);
 
 	}
@@ -70,7 +71,7 @@ public class FolderDeleteProtocol implements IEasProtocol<FolderDeleteRequest, F
 	@Override
 	public void execute(BackendSession bs, FolderDeleteRequest query, Handler<FolderDeleteResponse> responseHandler) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("******** Executing *******");
+			EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "******** Executing *******");
 		}
 
 		FolderDeleteResponse response = new FolderDeleteResponse();
@@ -78,7 +79,7 @@ public class FolderDeleteProtocol implements IEasProtocol<FolderDeleteRequest, F
 		try {
 			store.getHierarchyNode(bs, query.serverId);
 		} catch (CollectionNotFoundException e1) {
-			logger.error("ServerId {} does not exist", query.serverId);
+			EasLogUser.logErrorAsUser(bs.getLoginAtDomain(), logger, "ServerId {} does not exist", query.serverId);
 			response.status = Status.DOES_NOT_EXIST;
 			responseHandler.handle(response);
 			return;
@@ -103,7 +104,7 @@ public class FolderDeleteProtocol implements IEasProtocol<FolderDeleteRequest, F
 	public void write(BackendSession bs, Responder responder, FolderDeleteResponse response,
 			final Handler<Void> completion) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("******** Writing *******");
+			EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "******** Writing *******");
 		}
 
 		FolderDeleteResponseFormatter format = new FolderDeleteResponseFormatter();

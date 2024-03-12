@@ -55,6 +55,7 @@ import net.bluemind.eas.dto.sync.SyncState;
 import net.bluemind.eas.dto.type.ItemDataType;
 import net.bluemind.eas.exception.ActiveSyncException;
 import net.bluemind.eas.store.ISyncStorage;
+import net.bluemind.eas.utils.EasLogUser;
 
 /**
  * Contacts backend implementation
@@ -77,7 +78,7 @@ public class ContactsBackend extends CoreConnect {
 			IAddressBook service = getAddressbookService(bs, folder.containerUid);
 
 			ContainerChangeset<Long> changeset = service.changesetById(version);
-			logger.debug(
+			EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger,
 					"[{}][{}] get contacts changes. created: {}, updated: {}, deleted: {}, folder: {}, version: {}",
 					bs.getLoginAtDomain(), bs.getDevId(), changeset.created.size(), changeset.updated.size(),
 					changeset.deleted.size(), folder.containerUid, version);
@@ -99,13 +100,13 @@ public class ContactsBackend extends CoreConnect {
 
 		} catch (ServerFault e) {
 			if (e.getCode() == ErrorCode.PERMISSION_DENIED) {
-				logger.warn(e.getMessage());
+				EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger, e.getMessage());
 			} else {
-				logger.error(e.getMessage(), e);
+				EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
 			}
 			changes.version = version;
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
 			// BM-7227
 			// Something went wrong
 			// Send current version number to prevent full sync
@@ -129,13 +130,13 @@ public class ContactsBackend extends CoreConnect {
 			Long id = null;
 			String uid = null;
 			if (sid.isPresent()) {
-				logger.info(
+				EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger,
 						"update in " + collectionId + " (contact: " + d.getFirstName() + " " + d.getLastName() + ")");
 				String serverId = sid.get();
 				id = getItemId(serverId);
 				ItemValue<VCard> prevVersion = service.getCompleteById(id);
 				if (prevVersion == null) {
-					logger.debug("Fail to find VCard {}", id);
+					EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "Fail to find VCard {}", id);
 					return CollectionItem.of(collectionId, id);
 				}
 
@@ -154,7 +155,7 @@ public class ContactsBackend extends CoreConnect {
 				service.updateById(id, vcard);
 			} else {
 				uid = UUID.randomUUID().toString();
-				logger.info(
+				EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger,
 						"create in " + collectionId + " (contact: " + d.getFirstName() + " " + d.getLastName() + ")");
 				service.create(uid, vcard);
 
@@ -164,10 +165,11 @@ public class ContactsBackend extends CoreConnect {
 
 			if (d.getPicture() != null && !d.getPicture().isEmpty()) {
 				try {
-					logger.info("Setting picture for contact");
+					EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger, "Setting picture for contact");
 					service.setPhoto(uid, Base64.getDecoder().decode(d.getPicture()));
 				} catch (Exception e) {
-					logger.error("Fail to set contact picture");
+					EasLogUser.logErrorExceptionAsUser(bs.getLoginAtDomain(), e, logger,
+							"Fail to set contact picture");
 				}
 			}
 			ret = CollectionItem.of(collectionId, id);
@@ -192,7 +194,7 @@ public class ContactsBackend extends CoreConnect {
 				if (e.getCode() == ErrorCode.PERMISSION_DENIED) {
 					throw new ActiveSyncException(e);
 				}
-				logger.error(e.getMessage(), e);
+				EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
 			}
 		}
 	}
@@ -224,7 +226,8 @@ public class ContactsBackend extends CoreConnect {
 				AppData data = toAppData(service, vcard);
 				res.put(vcard.internalId, data);
 			} catch (Exception e) {
-				logger.error("Fail to convert vcard {}", vcard.uid, e);
+				EasLogUser.logErrorExceptionAsUser(bs.getLoginAtDomain(), e, logger, "Fail to convert vcard {}",
+						vcard.uid);
 			}
 		});
 

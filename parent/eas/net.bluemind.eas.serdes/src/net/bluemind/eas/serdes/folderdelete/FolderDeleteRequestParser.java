@@ -30,13 +30,15 @@ import net.bluemind.eas.dto.OptionalParams;
 import net.bluemind.eas.dto.folderdelete.FolderDeleteRequest;
 import net.bluemind.eas.dto.sync.CollectionId;
 import net.bluemind.eas.serdes.IEasRequestParser;
+import net.bluemind.eas.utils.EasLogUser;
 
 public class FolderDeleteRequestParser implements IEasRequestParser<FolderDeleteRequest> {
 
 	private static final Logger logger = LoggerFactory.getLogger(FolderDeleteRequestParser.class);
 
 	@Override
-	public FolderDeleteRequest parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past) {
+	public FolderDeleteRequest parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
+			String user) {
 		FolderDeleteRequest req = new FolderDeleteRequest();
 
 		Element elements = doc.getDocumentElement();
@@ -58,7 +60,7 @@ public class FolderDeleteRequestParser implements IEasRequestParser<FolderDelete
 				req.serverId = CollectionId.of(child.getTextContent());
 				break;
 			default:
-				logger.warn("Not managed FolderDelete child {}", child);
+				EasLogUser.logWarnAsUser(user, logger, "Not managed FolderDelete child {}", child);
 				break;
 			}
 		}

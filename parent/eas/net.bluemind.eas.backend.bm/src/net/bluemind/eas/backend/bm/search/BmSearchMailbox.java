@@ -57,6 +57,7 @@ import net.bluemind.eas.exception.CollectionNotFoundException;
 import net.bluemind.eas.impl.Backends;
 import net.bluemind.eas.search.ISearchSource;
 import net.bluemind.eas.store.ISyncStorage;
+import net.bluemind.eas.utils.EasLogUser;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
 
@@ -81,14 +82,14 @@ public class BmSearchMailbox implements ISearchSource {
 			try {
 				folder = store.getMailFolderByName(bs, "INBOX");
 			} catch (CollectionNotFoundException e) {
-				logger.error(e.getMessage(), e);
+				EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
 				return new Results<>();
 			}
 		} else {
 			try {
 				folder = store.getMailFolder(bs, CollectionId.of(request.store.query.and.collectionId));
 			} catch (CollectionNotFoundException e) {
-				logger.error(e.getMessage(), e);
+				EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
 				return new Results<>();
 			}
 		}
@@ -102,7 +103,7 @@ public class BmSearchMailbox implements ISearchSource {
 		String subtree = IMailReplicaUids.subtreeUid(asContainer.domainUid, mbox);
 		prov = ClientSideServiceProvider.getProvider(is.coreUrl, is.sid).setOrigin("bm-eas-BmSearchMailbox");
 		IMailboxFolders folders = prov.instance(IMailboxFoldersByContainer.class, subtree);
-		logger.debug("Searching in {}", subtree);
+		EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "Searching in {}", subtree);
 
 		MailboxFolderSearchQuery mfq = new MailboxFolderSearchQuery();
 		mfq.query = new SearchQuery();

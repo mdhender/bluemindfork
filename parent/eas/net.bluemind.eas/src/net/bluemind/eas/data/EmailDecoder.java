@@ -51,6 +51,7 @@ import net.bluemind.eas.data.email.Type;
 import net.bluemind.eas.dto.base.AirSyncBaseResponse.Attachment;
 import net.bluemind.eas.dto.base.AirSyncBaseResponse.Attachment.Method;
 import net.bluemind.eas.utils.DOMUtils;
+import net.bluemind.eas.utils.EasLogUser;
 import net.bluemind.mime4j.common.Mime4JHelper;
 
 public class EmailDecoder extends Decoder implements IDataDecoder {
@@ -78,14 +79,14 @@ public class EmailDecoder extends Decoder implements IDataDecoder {
 			mail.setStarred(null);
 		}
 
-		decodeApplicationData(syncData, mail);
+		decodeApplicationData(syncData, mail, bs.getLoginAtDomain());
 
 		return mail;
 	}
 
-	private void decodeApplicationData(Element syncData, MSEmail mail) {
+	private void decodeApplicationData(Element syncData, MSEmail mail, String user) {
 
-		List<Attachment> attachments = decodeAttachments(syncData);
+		List<Attachment> attachments = decodeAttachments(user, syncData);
 
 		Element body = DOMUtils.getUniqueElement(syncData, "Body");
 		if (body == null && attachments.isEmpty()) {
@@ -158,7 +159,7 @@ public class EmailDecoder extends Decoder implements IDataDecoder {
 					multipart.addBodyPart(attachmentBodyPart);
 
 				} catch (IOException e) {
-					logger.error("Failed to add attachment", e);
+					EasLogUser.logErrorExceptionAsUser(user, e, logger, "Failed to add attachment");
 				}
 
 			});
@@ -166,7 +167,7 @@ public class EmailDecoder extends Decoder implements IDataDecoder {
 
 			mail.setMessage(m);
 		} catch (Exception e) {
-			logger.error("Failed to decode body", e);
+			EasLogUser.logErrorExceptionAsUser(user, e, logger, "Failed to decode body");
 		}
 	}
 
@@ -191,7 +192,7 @@ public class EmailDecoder extends Decoder implements IDataDecoder {
 		return Optional.empty();
 	}
 
-	private List<Attachment> decodeAttachments(Element syncData) {
+	private List<Attachment> decodeAttachments(String user, Element syncData) {
 		Element attachments = DOMUtils.getUniqueElement(syncData, "Attachments");
 		if (attachments == null) {
 			return Collections.emptyList();
@@ -211,7 +212,7 @@ public class EmailDecoder extends Decoder implements IDataDecoder {
 				attachment.contentType = URLConnection.guessContentTypeFromName(attachment.displayName);
 				ret.add(attachment);
 			} else {
-				logger.warn("Unsupported method {}", node.getTagName());
+				EasLogUser.logWarnAsUser(user, logger, "Unsupported method {}", node.getTagName());
 			}
 		}
 		return ret;

@@ -54,6 +54,7 @@ import net.bluemind.eas.protocol.IEasProtocol;
 import net.bluemind.eas.serdes.ping.PingRequestParser;
 import net.bluemind.eas.serdes.ping.PingResponseFormatter;
 import net.bluemind.eas.store.ISyncStorage;
+import net.bluemind.eas.utils.EasLogUser;
 import net.bluemind.eas.wbxml.builder.WbxmlResponseBuilder;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.vertx.common.request.Requests;
@@ -81,21 +82,21 @@ public class PingProtocol implements IEasProtocol<PingRequest, PingResponse> {
 	}
 
 	@Override
-	public void parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
+	public void parse(BackendSession bs, OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
 			Handler<PingRequest> parserResultHandler) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("******** Parsing *******");
+			EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "******** Parsing *******");
 		}
 
 		PingRequestParser parser = new PingRequestParser();
-		PingRequest parsed = parser.parse(optParams, doc, past);
+		PingRequest parsed = parser.parse(optParams, doc, past, bs.getLoginAtDomain());
 		parserResultHandler.handle(parsed);
 	}
 
 	@Override
 	public void execute(BackendSession bs, PingRequest query, Handler<PingResponse> responseHandler) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("******** Executing *******");
+			EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "******** Executing *******");
 		}
 
 		PingResponse response = new PingResponse();
@@ -104,14 +105,15 @@ public class PingProtocol implements IEasProtocol<PingRequest, PingResponse> {
 
 		if (query == null) {
 			if (bs.getLastMonitored() == null || bs.getLastMonitored().isEmpty()) {
-				logger.warn(
+				EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger,
 						"[{}][{}] Don't know what to monitor, interval: {} toMonitor: {}. Send status 3 MissingParameter",
 						bs.getLoginAtDomain(), bs.getDevId(), intervalSeconds, bs.getLastMonitored());
 				response.status = Status.MISSING_PARAMETER;
 				responseHandler.handle(response);
 				return;
 			}
-			logger.info("[{}][{}] Empty Ping, reusing cached heartbeat & monitored folders ({})", bs.getLoginAtDomain(),
+			EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger,
+					"[{}][{}] Empty Ping, reusing cached heartbeat & monitored folders ({})", bs.getLoginAtDomain(),
 					bs.getDevId(), bs.getLastMonitored().size());
 		} else {
 			Set<CollectionSyncRequest> toMonitor = new HashSet<>();
@@ -123,7 +125,8 @@ public class PingProtocol implements IEasProtocol<PingRequest, PingResponse> {
 					toMonitor.add(sc);
 				} catch (NumberFormatException nfe) {
 					// HTC ONE X sends "InvalidTaskID" as folder.id
-					logger.warn("[{}][{}] Invalid collectionId {}", bs.getLoginAtDomain(), bs.getDevId(), folder.id);
+					EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger, "[{}][{}] Invalid collectionId {}",
+							bs.getLoginAtDomain(), bs.getDevId(), folder.id);
 				}
 
 			}
@@ -133,7 +136,8 @@ public class PingProtocol implements IEasProtocol<PingRequest, PingResponse> {
 
 			// when push list is empty, send MissingParameter
 			if (bs.getLastMonitored() == null || bs.getLastMonitored().isEmpty()) {
-				logger.warn("[{}][{}]  Nothing to monitor. Send status 3 MissingParameter", bs.getLoginAtDomain(),
+				EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger,
+						"[{}][{}]  Nothing to monitor. Send status 3 MissingParameter", bs.getLoginAtDomain(),
 						bs.getDevId());
 				response.status = Status.MISSING_PARAMETER;
 				responseHandler.handle(response);
@@ -147,7 +151,8 @@ public class PingProtocol implements IEasProtocol<PingRequest, PingResponse> {
 
 			int maxInterval = getInterval("eas_max_heartbeat", 1130);
 			if (intervalSeconds > maxInterval) {
-				logger.warn("[{}][{}] Send Heartbeat error: intervalSeconds {} > maxInterval {}", bs.getLoginAtDomain(),
+				EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger,
+						"[{}][{}] Send Heartbeat error: intervalSeconds {} > maxInterval {}", bs.getLoginAtDomain(),
 						bs.getDevId(), intervalSeconds, maxInterval);
 				response.status = Status.INVALID_HEARTBEAT_INTERVAL;
 				response.heartbeatInterval = maxInterval;
@@ -157,7 +162,8 @@ public class PingProtocol implements IEasProtocol<PingRequest, PingResponse> {
 
 			int minInterval = getInterval("eas_min_heartbeat", 120);
 			if (intervalSeconds < minInterval) {
-				logger.warn("[{}][{}] Send Heartbeat error: intervalSeconds {} < minInterval {}", bs.getLoginAtDomain(),
+				EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger,
+						"[{}][{}] Send Heartbeat error: intervalSeconds {} < minInterval {}", bs.getLoginAtDomain(),
 						bs.getDevId(), intervalSeconds, minInterval);
 				response.status = Status.INVALID_HEARTBEAT_INTERVAL;
 				response.heartbeatInterval = minInterval;
@@ -235,7 +241,8 @@ public class PingProtocol implements IEasProtocol<PingRequest, PingResponse> {
 			});
 
 		} else {
-			logger.warn("[{}][{}] Don't know what to monitor, interval is null. Send status 3 MissingParameter",
+			EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger,
+					"[{}][{}] Don't know what to monitor, interval is null. Send status 3 MissingParameter",
 					bs.getLoginAtDomain(), bs.getDevId());
 			response.status = Status.MISSING_PARAMETER;
 			responseHandler.handle(response);

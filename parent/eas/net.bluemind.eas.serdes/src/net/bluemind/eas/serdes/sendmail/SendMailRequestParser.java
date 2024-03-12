@@ -29,13 +29,14 @@ import net.bluemind.eas.dto.IPreviousRequestsKnowledge;
 import net.bluemind.eas.dto.OptionalParams;
 import net.bluemind.eas.dto.sendmail.SendMailRequest;
 import net.bluemind.eas.serdes.IEasRequestParser;
+import net.bluemind.eas.utils.EasLogUser;
 
 public class SendMailRequestParser implements IEasRequestParser<SendMailRequest> {
 
 	private static final Logger logger = LoggerFactory.getLogger(SendMailRequestParser.class);
 
 	@Override
-	public SendMailRequest parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past) {
+	public SendMailRequest parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past, String user) {
 		SendMailRequest req = new SendMailRequest();
 
 		Element elements = doc.getDocumentElement();
@@ -66,7 +67,7 @@ public class SendMailRequestParser implements IEasRequestParser<SendMailRequest>
 				req.mime = child.getTextContent();
 				break;
 			default:
-				logger.warn("Not managed SendMail child {}", child);
+				EasLogUser.logWarnAsUser(user, logger, "Not managed SendMail child {}", child);
 				break;
 			}
 		}

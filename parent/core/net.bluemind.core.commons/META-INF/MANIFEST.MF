@@ -7,6 +7,7 @@ Export-Package: net.bluemind.core.api,
  net.bluemind.core.api.auth,
  net.bluemind.core.api.date,
  net.bluemind.core.api.fault,
+ net.bluemind.core.commons.logs,
  net.bluemind.core.email,
  net.bluemind.core.utils
 Bundle-RequiredExecutionEnvironment: JavaSE-21

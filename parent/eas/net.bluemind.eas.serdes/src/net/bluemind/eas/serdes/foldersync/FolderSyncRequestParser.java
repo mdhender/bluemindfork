@@ -29,13 +29,15 @@ import net.bluemind.eas.dto.IPreviousRequestsKnowledge;
 import net.bluemind.eas.dto.OptionalParams;
 import net.bluemind.eas.dto.foldersync.FolderSyncRequest;
 import net.bluemind.eas.serdes.IEasRequestParser;
+import net.bluemind.eas.utils.EasLogUser;
 
 public class FolderSyncRequestParser implements IEasRequestParser<FolderSyncRequest> {
 
 	private static final Logger logger = LoggerFactory.getLogger(FolderSyncRequestParser.class);
 
 	@Override
-	public FolderSyncRequest parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past) {
+	public FolderSyncRequest parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
+			String user) {
 
 		if (doc == null) {
 			return null;
@@ -58,7 +60,7 @@ public class FolderSyncRequestParser implements IEasRequestParser<FolderSyncRequ
 				request.syncKey = child.getTextContent();
 				break;
 			default:
-				logger.warn("Not managed FolderSync child {}", child);
+				EasLogUser.logWarnAsUser(user, logger, "Not managed FolderSync child {}", child);
 				break;
 			}
 		}

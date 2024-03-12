@@ -69,6 +69,7 @@ import net.bluemind.eas.dto.moveitems.MoveItemsResponse.Response.Status;
 import net.bluemind.eas.dto.sync.CollectionId;
 import net.bluemind.eas.dto.user.MSUser;
 import net.bluemind.eas.impl.Backends;
+import net.bluemind.eas.utils.EasLogUser;
 import net.bluemind.mime4j.common.IRenderableMessage;
 
 public class EmailManager extends CoreConnect {
@@ -119,7 +120,8 @@ public class EmailManager extends CoreConnect {
 	public List<MoveItemsResponse.Response> moveItems(BackendSession bs, HierarchyNode srcFolder,
 			HierarchyNode dstFolder, List<Long> items) {
 
-		logger.info("[{}] move to collection {} mail {}", bs.getUser().getUid(), dstFolder.containerUid, items);
+		EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger, "[{}] move to collection {} mail {}",
+				bs.getUser().getUid(), dstFolder.containerUid, items);
 
 		IItemsTransfer transferService = getService(bs, IItemsTransfer.class,
 				IMailReplicaUids.uniqueId(srcFolder.containerUid), IMailReplicaUids.uniqueId(dstFolder.containerUid));
@@ -143,7 +145,7 @@ public class EmailManager extends CoreConnect {
 			}
 			return ret;
 		} catch (ServerFault sf) {
-			logger.error(sf.getMessage(), sf);
+			EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), sf, logger);
 			items.forEach(id -> {
 				MoveItemsResponse.Response r = new MoveItemsResponse.Response();
 				r.srcMsgId = srcFolder.collectionId.getValue() + ":" + id;
@@ -157,7 +159,7 @@ public class EmailManager extends CoreConnect {
 
 	public void sendEmail(BackendSession bs, IRenderableMessage email, Boolean saveInSent) throws Exception {
 		try {
-			logger.info("Sending mail...");
+			EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger, "Sending mail...");
 
 			Message m = email.renderAs(Message.class);
 			if (m.getDate() == null) {
@@ -192,7 +194,7 @@ public class EmailManager extends CoreConnect {
 
 		} catch (Exception e) {
 			// TODO rm sent item
-			logger.error(e.getMessage(), e);
+			EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
 			throw e;
 		}
 

@@ -29,6 +29,7 @@ import net.bluemind.eas.http.AuthorizedDeviceQuery;
 import net.bluemind.eas.http.IEasRequestEndpoint;
 import net.bluemind.eas.http.wbxml.WbxmlHandlerBase;
 import net.bluemind.eas.protocol.ProtocolExecutor;
+import net.bluemind.eas.utils.EasLogUser;
 
 /**
  * Handles the Ping cmd
@@ -45,9 +46,9 @@ public class PingEndpoint extends WbxmlHandlerBase implements IEasRequestEndpoin
 	}
 
 	@Override
-	public void handle(AuthorizedDeviceQuery dq, Document doc) {
+	public void handle(AuthorizedDeviceQuery dq, Document doc, String userLogin) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("Ping with protocol...");
+			EasLogUser.logDebugAsUser(userLogin, logger, "Ping with protocol...");
 		}
 		ProtocolExecutor.run(dq, doc, protocol);
 	}

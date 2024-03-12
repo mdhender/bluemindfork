@@ -11,6 +11,7 @@ import net.bluemind.eas.impl.Backends;
 import net.bluemind.eas.protocol.impl.Protocols;
 import net.bluemind.eas.utils.DOMDumper;
 import net.bluemind.eas.utils.DOMUtils;
+import net.bluemind.eas.utils.EasLogUser;
 import net.bluemind.eas.validation.IProtocolValidator;
 import net.bluemind.eas.validation.Validator;
 import net.bluemind.hornetq.client.MQ;
@@ -36,7 +37,7 @@ public class EasActivator implements BundleActivator {
 
 		// to prevent crappy vertx classloader issues
 		Document doc = DOMUtils.createDoc("bluemind", "Eas");
-		DOMDumper.dumpXml(logger, "Startup:\n", doc);
+		DOMDumper.dumpXml(logger, "Startup:\n", doc, EasLogUser.ANONYMOUS);
 
 		Backends.classLoad();
 		Policies.init();

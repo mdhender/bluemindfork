@@ -47,6 +47,7 @@ import net.bluemind.eas.serdes.IResponseBuilder;
 import net.bluemind.eas.serdes.foldersync.FolderSyncRequestParser;
 import net.bluemind.eas.serdes.foldersync.FolderSyncResponseFormatter;
 import net.bluemind.eas.state.StateMachine;
+import net.bluemind.eas.utils.EasLogUser;
 import net.bluemind.eas.wbxml.builder.WbxmlResponseBuilder;
 
 public class FolderSyncProtocol implements IEasProtocol<FolderSyncRequest, FolderSyncResponse> {
@@ -60,14 +61,14 @@ public class FolderSyncProtocol implements IEasProtocol<FolderSyncRequest, Folde
 	}
 
 	@Override
-	public void parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
+	public void parse(BackendSession bs, OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
 			Handler<FolderSyncRequest> parserResultHandler) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("******** Parsing *******");
+			EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "******** Parsing *******");
 		}
 
 		FolderSyncRequestParser parser = new FolderSyncRequestParser();
-		FolderSyncRequest parsed = parser.parse(optParams, doc, past);
+		FolderSyncRequest parsed = parser.parse(optParams, doc, past, bs.getLoginAtDomain());
 		parserResultHandler.handle(parsed);
 	}
 
@@ -77,7 +78,7 @@ public class FolderSyncProtocol implements IEasProtocol<FolderSyncRequest, Folde
 			responseHandler.handle(null);
 			return;
 		}
-		logger.info("FolderSync from {}", query.syncKey);
+		EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger, "FolderSync from {}", query.syncKey);
 
 		FolderSyncResponse response = new FolderSyncResponse();
 
@@ -94,7 +95,8 @@ public class FolderSyncProtocol implements IEasProtocol<FolderSyncRequest, Folde
 		SyncState state = sm.getFolderSyncState(bs, syncKey);
 
 		if (state == null) {
-			logger.error("SyncState is not valid. Send Invalid SyncKey to device: {}, key: {}", bs.getDevId(), syncKey);
+			EasLogUser.logErrorAsUser(bs.getLoginAtDomain(), logger,
+					"SyncState is not valid. Send Invalid SyncKey to device: {}, key: {}", bs.getDevId(), syncKey);
 			resets.put(bs.getDevId(), System.currentTimeMillis());
 			response.status = Status.INVALID_SYNC_KEY;
 			responseHandler.handle(response);
@@ -123,7 +125,7 @@ public class FolderSyncProtocol implements IEasProtocol<FolderSyncRequest, Folde
 			responseHandler.handle(response);
 
 		} catch (Exception e) {
-			logger.error("Fail to send FolderHierarchy response", e);
+			EasLogUser.logErrorAsUser(bs.getLoginAtDomain(), logger, "Fail to send FolderHierarchy response", e);
 			response = new FolderSyncResponse();
 			response.status = Status.SERVER_ERROR;
 			responseHandler.handle(response);
@@ -143,7 +145,7 @@ public class FolderSyncProtocol implements IEasProtocol<FolderSyncRequest, Folde
 	public void write(BackendSession bs, Responder responder, FolderSyncResponse response,
 			final Handler<Void> completion) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("******** Writing *******");
+			EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "******** Writing *******");
 		}
 
 		if (response == null) {

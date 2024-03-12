@@ -35,13 +35,14 @@ import net.bluemind.eas.dto.find.FindRequest.Options;
 import net.bluemind.eas.dto.find.FindRequest.Options.Picture;
 import net.bluemind.eas.dto.find.FindRequest.Query;
 import net.bluemind.eas.serdes.IEasRequestParser;
+import net.bluemind.eas.utils.EasLogUser;
 
 public class FindRequestParser implements IEasRequestParser<FindRequest> {
 
 	private static final Logger logger = LoggerFactory.getLogger(FindRequestParser.class);
 
 	@Override
-	public FindRequest parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past) {
+	public FindRequest parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past, String user) {
 		FindRequest request = new FindRequest();
 
 		Element elements = doc.getDocumentElement();
@@ -60,17 +61,18 @@ public class FindRequestParser implements IEasRequestParser<FindRequest> {
 				request.searchId = child.getTextContent();
 				break;
 			case "ExecuteSearch":
-				request.executeSearch = parseExecuteSearch(child);
+				request.executeSearch = parseExecuteSearch(child, user);
 				break;
 			default:
-				logger.warn("Not managed FindRequest child {}", child);
+				EasLogUser.logWarnAsUser(user, logger, "Not managed FindRequest child {}", child);
+				break;
 			}
 		}
 
 		return request;
 	}
 
-	private ExecuteSearch parseExecuteSearch(Element element) {
+	private ExecuteSearch parseExecuteSearch(Element element, String user) {
 		ExecuteSearch executeSearch = new ExecuteSearch();
 
 		NodeList children = element.getChildNodes();
@@ -84,13 +86,13 @@ public class FindRequestParser implements IEasRequestParser<FindRequest> {
 			String childName = child.getNodeName();
 			switch (childName) {
 			case "MailBoxSearchCriterion":
-				executeSearch.mailBoxSearchCriterion = parseMailBoxSearchCriterion(child);
+				executeSearch.mailBoxSearchCriterion = parseMailBoxSearchCriterion(child, user);
 				break;
 			case "GALSearchCriterion":
-				executeSearch.galSearchCriterion = parseGALSearchCriterion(child);
+				executeSearch.galSearchCriterion = parseGALSearchCriterion(child, user);
 				break;
 			default:
-				logger.warn("Not managed FindRequest child {}", child);
+				EasLogUser.logWarnAsUser(user, logger, "Not managed FindRequest child {}", child);
 			}
 
 		}
@@ -98,7 +100,7 @@ public class FindRequestParser implements IEasRequestParser<FindRequest> {
 		return executeSearch;
 	}
 
-	private MailBoxSearchCriterion parseMailBoxSearchCriterion(Element element) {
+	private MailBoxSearchCriterion parseMailBoxSearchCriterion(Element element, String user) {
 		MailBoxSearchCriterion mailBoxSearchCriterion = new MailBoxSearchCriterion();
 		NodeList children = element.getChildNodes();
 		for (int i = 0; i < children.getLength(); i++) {
@@ -111,20 +113,21 @@ public class FindRequestParser implements IEasRequestParser<FindRequest> {
 			String childName = child.getNodeName();
 			switch (childName) {
 			case "Query":
-				mailBoxSearchCriterion.query = parseQuery(child);
+				mailBoxSearchCriterion.query = parseQuery(child, user);
 				break;
 			case "Options":
-				mailBoxSearchCriterion.options = parseOptions(child);
+				mailBoxSearchCriterion.options = parseOptions(child, user);
 				break;
 			default:
-				logger.warn("Not managed MailBoxSearchCriterion child {}", child);
+				EasLogUser.logWarnAsUser(user, logger, "Not managed MailBoxSearchCriterion child {}", child);
+				break;
 			}
 		}
 
 		return mailBoxSearchCriterion;
 	}
 
-	private GALSearchCriterion parseGALSearchCriterion(Element element) {
+	private GALSearchCriterion parseGALSearchCriterion(Element element, String user) {
 		GALSearchCriterion galSearchCriterion = new GALSearchCriterion();
 		NodeList children = element.getChildNodes();
 		for (int i = 0; i < children.getLength(); i++) {
@@ -137,20 +140,21 @@ public class FindRequestParser implements IEasRequestParser<FindRequest> {
 			String childName = child.getNodeName();
 			switch (childName) {
 			case "Query":
-				galSearchCriterion.query = parseQuery(child);
+				galSearchCriterion.query = parseQuery(child, user);
 				break;
 			case "Options":
-				galSearchCriterion.options = parseOptions(child);
+				galSearchCriterion.options = parseOptions(child, user);
 				break;
 			default:
-				logger.warn("Not managed GALSearchCriterion child {}", child);
+				EasLogUser.logWarnAsUser(user, logger, "Not managed GALSearchCriterion child {}", child);
+				break;
 			}
 		}
 
 		return galSearchCriterion;
 	}
 
-	private Query parseQuery(Element element) {
+	private Query parseQuery(Element element, String user) {
 		Query query = new Query();
 
 		NodeList children = element.getChildNodes();
@@ -177,14 +181,15 @@ public class FindRequestParser implements IEasRequestParser<FindRequest> {
 				query.collectionId = child.getTextContent();
 				break;
 			default:
-				logger.warn("Not managed Query child {}", child);
+				EasLogUser.logWarnAsUser(user, logger, "Not managed Query child {}", child);
+				break;
 			}
 		}
 
 		return query;
 	}
 
-	private Options parseOptions(Element element) {
+	private Options parseOptions(Element element, String user) {
 		Options options = new Options();
 		NodeList children = element.getChildNodes();
 		for (int i = 0; i < children.getLength(); i++) {
@@ -206,10 +211,10 @@ public class FindRequestParser implements IEasRequestParser<FindRequest> {
 				options.range = r;
 				break;
 			case "Picture":
-				options.picture = parsePicture(child);
+				options.picture = parsePicture(child, user);
 				break;
 			default:
-				logger.warn("Not managed Options child {}", child);
+				EasLogUser.logWarnAsUser(user, logger, "Not managed Options child: '{}'", child);
 				break;
 			}
 		}
@@ -217,7 +222,7 @@ public class FindRequestParser implements IEasRequestParser<FindRequest> {
 		return options;
 	}
 
-	private Picture parsePicture(Element el) {
+	private Picture parsePicture(Element el, String user) {
 		Picture p = new Picture();
 
 		NodeList children = el.getChildNodes();
@@ -236,7 +241,7 @@ public class FindRequestParser implements IEasRequestParser<FindRequest> {
 				p.maxSize = Integer.parseInt(child.getTextContent());
 				break;
 			default:
-				logger.warn("Not managed Picture child {}", child);
+				EasLogUser.logWarnAsUser(user, logger, "Not managed Picture child {}", child);
 				break;
 			}
 		}

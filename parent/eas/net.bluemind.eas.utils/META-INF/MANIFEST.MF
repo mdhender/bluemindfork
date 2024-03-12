@@ -11,6 +11,7 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.4.0",
  com.google.guava;bundle-version="19.0.0",
  slf4j.api,
  net.bluemind.common.io;bundle-version="5.0.0",
- org.apache.xerces;bundle-version="2.12.2"
+ org.apache.xerces;bundle-version="2.12.2",
+ net.bluemind.vertx.common; visibility:=reexport
 Bundle-Vendor: blue-mind.net
 Automatic-Module-Name: net.bluemind.eas.utils

@@ -46,6 +46,7 @@ import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.http.StreamPriority;
 import io.vertx.core.net.HostAndPort;
+import net.bluemind.core.commons.logs.MdcLogUser;
 import net.bluemind.metrics.registry.IdFactory;
 
 final class WrappedResponse implements HttpServerResponse {
@@ -57,6 +58,7 @@ final class WrappedResponse implements HttpServerResponse {
 	private final Registry registry;
 	private final IdFactory idFactory;
 	private final LongAdder respSize;
+	private final Map<String, String> dataAttributes;
 
 	WrappedResponse(Registry registry, IdFactory idfactory, HttpServerResponse impl) {
 		this.respSize = new LongAdder();
@@ -65,6 +67,7 @@ final class WrappedResponse implements HttpServerResponse {
 		this.impl = impl;
 		this.reqStart = registry.clock().monotonicTime();
 		this.logAttributes = new LinkedHashMap<>();
+		this.dataAttributes = new LinkedHashMap<>();
 	}
 
 	private void endImpl() {
@@ -85,11 +88,23 @@ final class WrappedResponse implements HttpServerResponse {
 			first = false;
 		}
 		tags.append(']');
-		logger.info("{} completed in {}ms.", tags, TimeUnit.NANOSECONDS.toMillis(spent));
+
+		getUserLogin().ifPresentOrElse(
+				u -> MdcLogUser.logInfoAsUser(u, logger, "{} completed in {}ms.", tags,
+						TimeUnit.NANOSECONDS.toMillis(spent)),
+				() -> logger.info("{} completed in {}ms.", tags, TimeUnit.NANOSECONDS.toMillis(spent)));
+	}
+
+	private java.util.Optional<String> getUserLogin() {
+		return java.util.Optional.ofNullable(dataAttributes.getOrDefault("user-login", null));
 	}
 
 	public void putLogAttribute(String k, String v) {
 		logAttributes.put(k, v);
+	}
+
+	public void putDataAttribute(String k, String v) {
+		dataAttributes.put(k, v);
 	}
 
 	public HttpServerResponse exceptionHandler(Handler<Throwable> handler) {

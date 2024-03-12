@@ -50,6 +50,7 @@ import net.bluemind.eas.dto.calendar.CalendarResponse.Recurrence;
 import net.bluemind.eas.dto.calendar.CalendarResponse.Recurrence.DayOfWeek;
 import net.bluemind.eas.dto.calendar.CalendarResponse.Sensitivity;
 import net.bluemind.eas.utils.DOMUtils;
+import net.bluemind.eas.utils.EasLogUser;
 import net.bluemind.eas.utils.RTFUtils;
 
 public class CalendarDecoder extends Decoder implements IDataDecoder {
@@ -71,29 +72,29 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 		msEvent.setTimeZone(parseDOMTimeZone(DOMUtils.getUniqueElement(syncData, "Timezone"),
 				TimeZone.getTimeZone(bs.getUser().getTimeZone())));
 
-		setEventCalendar(msEvent, syncData);
+		setEventCalendar(bs, msEvent, syncData);
 		// MDP-223
 		if (!data.containsKey("hasRecurId") && msEvent.getMeetingStatus() == null) {
-			logger.error("MeetingStatus is NULL, do not proccess");
+			EasLogUser.logErrorAsUser(bs.getLoginAtDomain(), logger, "MeetingStatus is NULL, do not proccess");
 			return null;
 		}
 
 		// Attendees
 		containerNode = DOMUtils.getDirectChildElement(syncData, "Attendees");
 		if (containerNode != null) {
-			decodeAttendees(syncData, containerNode, msEvent);
+			decodeAttendees(bs, syncData, containerNode, msEvent);
 		}
 
 		// Exceptions
 		containerNode = DOMUtils.getUniqueElement(syncData, "Exceptions");
 		if (containerNode != null) {
-			decodeExceptions(containerNode, msEvent);
+			decodeExceptions(bs, containerNode, msEvent);
 		}
 
 		// Recurrence
 		containerNode = DOMUtils.getUniqueElement(syncData, "Recurrence");
 		if (containerNode != null) {
-			decodeRecurrence(containerNode, msEvent);
+			decodeRecurrence(bs, containerNode, msEvent);
 		}
 
 		containerNode = DOMUtils.getUniqueElement(syncData, "Attachments");
@@ -122,7 +123,7 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 		msEvent.setAttachments(attachments);
 	}
 
-	private void decodeRecurrence(Element containerNode, MSEvent msEvent) {
+	private void decodeRecurrence(BackendSession bs, Element containerNode, MSEvent msEvent) {
 		Recurrence recurrence = new Recurrence();
 
 		Date recurrenceUntil = parseDOMDate(DOMUtils.getUniqueElement(containerNode, "Until"));
@@ -164,14 +165,14 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 			recurrence.type = Recurrence.Type.YEARLY_BY_DAY;
 			break;
 		default:
-			logger.warn("Unknown recurrence type {}",
+			EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger, "Unknown recurrence type {}",
 					parseDOMNoNullInt(DOMUtils.getUniqueElement(containerNode, "Type")));
 		}
 
 		msEvent.setRecurrence(recurrence);
 	}
 
-	private void decodeExceptions(Element containerNode, MSEvent msEvent) {
+	private void decodeExceptions(BackendSession bs, Element containerNode, MSEvent msEvent) {
 		ArrayList<EventException> exceptions = new ArrayList<>();
 		for (int i = 0, n = containerNode.getChildNodes().getLength(); i < n; i += 1) {
 			Element subnode = (Element) containerNode.getChildNodes().item(i);
@@ -190,7 +191,7 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 				List<Attendee> attendees = new ArrayList<>(att.getLength());
 				for (int j = 0; j < att.getLength(); j++) {
 					Element attElem = (Element) att.item(j);
-					MSAttendee attendee = getAttendee(subnode, attElem);
+					MSAttendee attendee = getAttendee(bs, subnode, attElem);
 
 					Attendee a = new Attendee();
 					a.email = attendee.getEmail();
@@ -207,12 +208,12 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 		msEvent.setExceptions(exceptions);
 	}
 
-	private void decodeAttendees(Element syncData, Element containerNode, MSEvent msEvent) {
+	private void decodeAttendees(BackendSession bs, Element syncData, Element containerNode, MSEvent msEvent) {
 		NodeList children = containerNode.getChildNodes();
 		int len = children.getLength();
 		for (int i = 0; i < len; i++) {
 			Element attElem = (Element) children.item(i);
-			MSAttendee attendee = getAttendee(syncData, attElem);
+			MSAttendee attendee = getAttendee(bs, syncData, attElem);
 			msEvent.addAttendee(attendee);
 		}
 	}
@@ -254,7 +255,7 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 		}
 	}
 
-	private MSAttendee getAttendee(Element syncData, Element att) {
+	private MSAttendee getAttendee(BackendSession bs, Element syncData, Element att) {
 		MSAttendee attendee = new MSAttendee();
 
 		String email = parseDOMString(DOMUtils.getUniqueElement(att, "Email"));
@@ -270,7 +271,11 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 		attendee.setName(name);
 
 		int attStatus = parseDOMNoNullInt(DOMUtils.getUniqueElement(syncData, "AttendeeStatus"));
-		attendee.setAttendeeStatus(AttendeeStatus.fromInt(attStatus));
+		AttendeeStatus attendeeStatus = AttendeeStatus.fromInt(attStatus);
+		if (attendeeStatus == null) {
+			EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger, attStatus + " is an unknown value return null");
+		}
+		attendee.setAttendeeStatus(attendeeStatus);
 
 		switch (parseDOMNoNullInt(DOMUtils.getUniqueElement(syncData, "AttendeeType"))) {
 		case 2:
@@ -288,14 +293,14 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 		return attendee;
 	}
 
-	private void setEventCalendar(MSEvent calendar, Element domSource) {
+	private void setEventCalendar(BackendSession bs, MSEvent calendar, Element domSource) {
 
 		calendar.setLocation(getLocation(domSource));
 
 		// description
 		Element body = DOMUtils.getUniqueElement(domSource, "Body");
 		if (body != null) {
-			setEventDescription(calendar, body);
+			setEventDescription(bs, calendar, body);
 		} else {
 			calendar.setDescription(null);
 		}
@@ -339,17 +344,17 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 
 		calendar.setBusyStatus(getCalendarBusyStatus(domSource));
 		if (calendar.getBusyStatus() != null) {
-			logger.info("BusyStatus: {}", calendar.getBusyStatus());
+			EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger, "BusyStatus: {}", calendar.getBusyStatus());
 		}
 
 		calendar.setSensitivity(getCalendarSensitivity(domSource));
 		if (calendar.getSensitivity() != null) {
-			logger.info("Sensitivity: {}", calendar.getSensitivity());
+			EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger, "Sensitivity: {}", calendar.getSensitivity());
 		}
 
 		calendar.setMeetingStatus(getMeetingStatus(domSource));
 		if (calendar.getMeetingStatus() != null) {
-			logger.info("MeetingStatus: {}", calendar.getMeetingStatus());
+			EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger, "MeetingStatus: {}", calendar.getMeetingStatus());
 		}
 	}
 
@@ -388,7 +393,7 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 		return location.toString();
 	}
 
-	private void setEventDescription(MSEvent calendar, Element body) {
+	private void setEventDescription(BackendSession bs, MSEvent calendar, Element body) {
 		Element data = DOMUtils.getUniqueElement(body, "Data");
 		if (data != null) {
 			Type bodyType = Type.fromInt(Integer.parseInt(DOMUtils.getUniqueElement(body, "Type").getTextContent()));
@@ -396,13 +401,14 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 
 			if (bodyType == Type.PLAIN_TEXT) {
 				calendar.setDescription(txt);
-				logger.debug("Desc: {}", txt);
+				EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "Desc: {}", txt);
 			} else if (bodyType == Type.RTF) {
 				txt = RTFUtils.extractB64CompressedRTF(txt);
 				calendar.setDescription(txt);
-				logger.debug("Desc: {}", txt);
+				EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "Desc: {}", txt);
 			} else {
-				logger.warn("Unsupported body type: {}\n{}", bodyType, txt);
+				EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger, "Unsupported body type: {}\n{}", bodyType,
+						txt);
 			}
 		} else {
 			calendar.setDescription(null);

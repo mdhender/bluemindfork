@@ -33,6 +33,7 @@ import net.bluemind.eas.backend.BackendSession;
 import net.bluemind.eas.http.AuthorizedDeviceQuery;
 import net.bluemind.eas.impl.vertx.compat.SessionWrapper;
 import net.bluemind.eas.impl.vertx.compat.VertxResponder;
+import net.bluemind.eas.utils.EasLogUser;
 
 public final class ProtocolExecutor {
 
@@ -53,7 +54,7 @@ public final class ProtocolExecutor {
 			} else {
 				RequestDTOHandler<Q, R> requestHandler = new RequestDTOHandler<>(r.result(), query, protocol);
 				try {
-					protocol.parse(query.optionalParams(), document, r.result(), requestHandler);
+					protocol.parse(r.result(), query.optionalParams(), document, r.result(), requestHandler);
 				} catch (Exception ex) {
 					errorOut(query, ex);
 				}
@@ -95,31 +96,26 @@ public final class ProtocolExecutor {
 				return null;
 			}).whenComplete((v, ex) -> {
 				if (ex != null) {
-					MDC.put("user", bs.getLoginAtDomain().replace("@", "_at_"));
-					logger.error("[{}] Completion error", bs.getLoginAtDomain(), ex);
-					MDC.put("user", "anonymous");
+					EasLogUser.logErrorExceptionAsUser(bs.getLoginAtDomain(), ex, logger, "[{}] Completion error",
+							bs.getLoginAtDomain());
 				}
 			});
 
 		}
 
 		private void callProtocol(Q protocolQuery) {
-			String mdcVal = bs.getLoginAtDomain().replace("@", "_at_");
-			MDC.put("user", mdcVal);
+			String mdcVal = bs.getLoginAtDomain();
 			vertx.executeBlocking((Promise<R> rProm) -> {
-				MDC.put("user", mdcVal);
 				vertxReq.exceptionHandler(rProm::tryFail);
 				try {
 					protocol.execute(bs, protocolQuery, rProm::tryComplete);
 				} catch (Exception e) {
 					rProm.tryFail(e);
 				}
-				MDC.put("user", "anonymous");
 			}, false, (AsyncResult<R> res) -> {
-				MDC.put("user", mdcVal);
 				vertxReq.resume();
 				if (vertxReq.response().closed()) {
-					logger.warn("Skip response to closed connection with {}", protocol);
+					EasLogUser.logWarnAsUser(mdcVal, logger, "Skip response to closed connection with {}", protocol);
 					return;
 				}
 
@@ -131,18 +127,17 @@ public final class ProtocolExecutor {
 							MDC.put("user", "anonymous");
 						});
 					} catch (Exception e) {
-						failSilently(e);
+						failSilently(mdcVal, e);
 					}
 				} else {
-					failSilently(res.cause());
+					failSilently(mdcVal, res.cause());
 				}
-				MDC.put("user", "anonymous");
 			});
 		}
 
-		private void failSilently(Throwable e) {
+		private void failSilently(String user, Throwable e) {
 			try {
-				logger.error(e.getMessage(), e);
+				EasLogUser.logExceptionAsUser(user, e, logger);
 				HttpServerResponse resp = vertxReq.response();
 				resp.setStatusCode(500).setStatusMessage(e.getMessage() != null ? e.getMessage() : "null").end();
 			} catch (Exception ex) {

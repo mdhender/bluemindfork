@@ -29,6 +29,7 @@ import net.bluemind.eas.http.AuthorizedDeviceQuery;
 import net.bluemind.eas.http.IEasRequestEndpoint;
 import net.bluemind.eas.http.wbxml.WbxmlHandlerBase;
 import net.bluemind.eas.protocol.ProtocolExecutor;
+import net.bluemind.eas.utils.EasLogUser;
 
 /**
  * Handles the MoveItems cmd
@@ -97,9 +98,9 @@ public class MoveItemsEndpoint extends WbxmlHandlerBase implements IEasRequestEn
 	// </Response>
 	// </MoveItems>
 	@Override
-	public void handle(AuthorizedDeviceQuery dq, Document doc) {
+	public void handle(AuthorizedDeviceQuery dq, Document doc, String userLogin) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("MoveItems with protocol...");
+			EasLogUser.logDebugAsUser(userLogin, logger, "MoveItems with protocol...");
 		}
 		ProtocolExecutor.run(dq, doc, protocol);
 	}

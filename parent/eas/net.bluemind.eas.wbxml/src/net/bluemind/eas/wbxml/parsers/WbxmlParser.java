@@ -18,6 +18,8 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
+import net.bluemind.eas.utils.EasLogUser;
+
 /**
  * A SAX-based parser for WBXML.
  * 
@@ -30,6 +32,7 @@ public final class WbxmlParser {
 	private final ContentHandler dh;
 	private final WbxmlExtensionHandler eh;
 	private final Map<Integer, NamespacedTable> tagsTables;
+	private final String userLogin;
 
 	private NamespacedTable tagTable;
 	private char[] stringTable;
@@ -44,17 +47,18 @@ public final class WbxmlParser {
 	 */
 	private static final Attributes NO_ATTRIBUTES_IN_EAS = new AttributesImpl();
 
-	public WbxmlParser(ContentHandler dh, WbxmlExtensionHandler eh) {
+	public WbxmlParser(ContentHandler dh, WbxmlExtensionHandler eh, String userLogin) {
 		this.stack = new ArrayDeque<>();
 		this.tagsTables = ParserTagsTablesIndex.get();
 		this.dh = dh;
 		this.eh = eh;
+		this.userLogin = userLogin;
 		switchPage(0);
 	}
 
 	/**
-	 * Sets the tag table for a given page. The first string in the array
-	 * defines tag 5, the second tag 6 etc. Currently, only page 0 is supported
+	 * Sets the tag table for a given page. The first string in the array defines
+	 * tag 5, the second tag 6 etc. Currently, only page 0 is supported
 	 */
 	public void setTagTable(int page, NamespacedTable table) {
 		tagsTables.put(page, table);
@@ -75,7 +79,7 @@ public final class WbxmlParser {
 
 		int charset = readInt();
 		docCharset = new CharsetMappings().getCharset(charset);
-		logger.debug("document charset is {}", docCharset);
+		EasLogUser.logDebugAsUser(userLogin, logger, "document charset is {}", docCharset);
 
 		int strTabSize = readInt();
 		stringTable = new char[strTabSize];
@@ -131,8 +135,8 @@ public final class WbxmlParser {
 
 			case Wbxml.PI:
 				throw new SAXException("PI curr. not supp.");
-				// readPI;
-				// break;
+			// readPI;
+			// break;
 
 			case Wbxml.STR_T: {
 				int pos = readInt();
@@ -157,9 +161,9 @@ public final class WbxmlParser {
 
 	public void switchPage(int page) {
 		tagTable = tagsTables.get(page);
-		logger.debug("switching to page 0x" + page);
+		EasLogUser.logDebugAsUser(userLogin, logger, "switching to page 0x" + page);
 		if (tagTable == null) {
-			logger.debug("tagsTable not found for page " + page);
+			EasLogUser.logDebugAsUser(userLogin, logger, "tagsTable not found for page " + page);
 		}
 	}
 
@@ -199,7 +203,7 @@ public final class WbxmlParser {
 
 	private String resolveId(String[] tab, int id) throws SAXException, IOException {
 		if (logger.isDebugEnabled()) {
-			logger.debug("resolve(0x" + Integer.toHexString(id & 0x07f) + ")");
+			EasLogUser.logDebugAsUser(userLogin, logger, "resolve(0x" + Integer.toHexString(id & 0x07f) + ")");
 		}
 		int idx = (id & 0x07f) - 5;
 		if (idx == -1) {
@@ -211,7 +215,7 @@ public final class WbxmlParser {
 
 		String ret = tab[idx];
 		if (logger.isDebugEnabled()) {
-			logger.debug("resolved as '" + ret + "'");
+			EasLogUser.logDebugAsUser(userLogin, logger, "resolved as '" + ret + "'");
 		}
 
 		return ret;

@@ -42,6 +42,7 @@ import net.bluemind.eas.serdes.IResponseBuilder;
 import net.bluemind.eas.serdes.sendmail.SendMailRequestParser;
 import net.bluemind.eas.serdes.sendmail.SendMailResponseFormatter;
 import net.bluemind.eas.store.ISyncStorage;
+import net.bluemind.eas.utils.EasLogUser;
 import net.bluemind.eas.wbxml.builder.WbxmlResponseBuilder;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.vertx.common.LocalJsonObject;
@@ -51,14 +52,14 @@ public class SendMailProtocol implements IEasProtocol<SendMailRequest, SendMailR
 	private static final Logger logger = LoggerFactory.getLogger(SendMailProtocol.class);
 
 	@Override
-	public void parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
+	public void parse(BackendSession bs, OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
 			Handler<SendMailRequest> parserResultHandler) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("******** Parsing *******");
+			EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "******** Parsing *******");
 		}
 
 		SendMailRequestParser parser = new SendMailRequestParser();
-		SendMailRequest parsed = parser.parse(optParams, doc, past);
+		SendMailRequest parsed = parser.parse(optParams, doc, past, bs.getLoginAtDomain());
 		parserResultHandler.handle(parsed);
 	}
 
@@ -66,7 +67,7 @@ public class SendMailProtocol implements IEasProtocol<SendMailRequest, SendMailR
 	public void execute(BackendSession bs, final SendMailRequest query,
 			final Handler<SendMailResponse> responseHandler) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("******** Executing *******");
+			EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "******** Executing *******");
 		}
 		final ISyncStorage store = Backends.internalStorage();
 
@@ -102,7 +103,8 @@ public class SendMailProtocol implements IEasProtocol<SendMailRequest, SendMailR
 					});
 
 		} else {
-			logger.warn("Skipping duplicate send {} for {}", query.clientId, bs.getLoginAtDomain());
+			EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger, "Skipping duplicate send {} for {}",
+					query.clientId, bs.getLoginAtDomain());
 			SendMailResponse response = new SendMailResponse();
 			response.status = Status.PREVIOUSLY_SENT;
 			responseHandler.handle(response);
@@ -114,7 +116,7 @@ public class SendMailProtocol implements IEasProtocol<SendMailRequest, SendMailR
 	public void write(BackendSession bs, Responder responder, SendMailResponse response,
 			final Handler<Void> completion) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("******** Writing *******");
+			EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "******** Writing *******");
 		}
 		if (response == null) {
 			responder.sendStatus(200);

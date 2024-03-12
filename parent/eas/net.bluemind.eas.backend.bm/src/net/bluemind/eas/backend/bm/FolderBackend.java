@@ -70,6 +70,7 @@ import net.bluemind.eas.dto.sync.SyncState;
 import net.bluemind.eas.dto.type.ItemDataType;
 import net.bluemind.eas.exception.ActiveSyncException;
 import net.bluemind.eas.store.ISyncStorage;
+import net.bluemind.eas.utils.EasLogUser;
 import net.bluemind.i18n.labels.I18nLabels;
 import net.bluemind.imap.translate.Translate;
 import net.bluemind.lib.jutf7.UTF7Converter;
@@ -265,12 +266,13 @@ public class FolderBackend extends CoreConnect {
 					ItemValue<ContainerSubscriptionModel> container = subscriptionsService
 							.getCompleteById(Long.parseLong(id));
 					try {
-						logger.info("[{}] new mailbox subscription {}", bs.getLoginAtDomain(),
-								container.value.containerUid);
+						EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger, "[{}] new mailbox subscription {}",
+								bs.getLoginAtDomain(), container.value.containerUid);
 						mailboxSubscriptionChanges(bs, ret, subscribedMailboxVersions, container,
 								Long.parseLong(version));
 					} catch (Exception e) {
-						logger.warn("Failed to fetch changes for shared mailbox {}", container);
+						EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger,
+								"Failed to fetch changes for shared mailbox {}", container);
 					}
 				});
 			}
@@ -291,8 +293,8 @@ public class FolderBackend extends CoreConnect {
 		// new mailbox subscription
 		newUserSubscriptions.stream().filter(c -> IMailboxAclUids.TYPE.equals(c.value.containerType)
 				&& c.value.offlineSync && !userMboxSubscriptionUid.equals(c.uid)).forEach(container -> {
-					logger.info("[{}] new mailbox subscription {}", bs.getLoginAtDomain(),
-							container.value.containerUid);
+					EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger, "[{}] new mailbox subscription {}",
+							bs.getLoginAtDomain(), container.value.containerUid);
 					mailboxSubscriptionChanges(bs, ret, subscribedMailboxVersions, container, 0L);
 				});
 
@@ -310,14 +312,15 @@ public class FolderBackend extends CoreConnect {
 							FolderChangeReference f = getHierarchyItemSubscriptionChange(bs, container, node, knownIds);
 							Optional.ofNullable(f).ifPresent(item -> ret.items.add(item));
 						} else {
-							logger.warn(
+							EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger,
 									"[{}] new subscription: no node uid {} for container {} in {} hierarchy. type: {}",
 									bs.getUser().getDefaultEmail(), nodeUid, container, container.value.owner,
 									container.value.containerType);
 						}
 					} catch (ServerFault sf) {
 						if (sf.getCode() == ErrorCode.NOT_FOUND) {
-							logger.warn("Skip new subscription : {}", sf.getMessage());
+							EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger, "Skip new subscription : {}",
+									sf.getMessage());
 						} else {
 							throw sf;
 						}
@@ -340,7 +343,8 @@ public class FolderBackend extends CoreConnect {
 						mailboxSubscriptionDeletions(bs, ret, subscribedMailboxVersions, containerSub.internalId,
 								cd.owner);
 					} else {
-						logger.info("[{}] mailbox unsubscription {}", bs.getLoginAtDomain(), containerUid);
+						EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger, "[{}] mailbox unsubscription {}",
+								bs.getLoginAtDomain(), containerUid);
 						mailboxSubscriptionChanges(bs, ret, subscribedMailboxVersions, containerSub, 0L);
 					}
 
@@ -366,13 +370,14 @@ public class FolderBackend extends CoreConnect {
 							}
 							Optional.ofNullable(f).ifPresent(item -> ret.items.add(item));
 						} else {
-							logger.warn(
+							EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger,
 									"[{}] update subscription: no node uid {} for container {} in hierarchy. type: {}",
 									bs.getUser().getDefaultEmail(), nodeUid, container, container.value.containerType);
 						}
 					} catch (ServerFault sf) {
 						if (sf.getCode() == ErrorCode.NOT_FOUND) {
-							logger.warn("Skip subscription changes : {}", sf.getMessage());
+							EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger, "Skip subscription changes : {}",
+									sf.getMessage());
 						} else {
 							throw sf;
 						}
@@ -402,13 +407,15 @@ public class FolderBackend extends CoreConnect {
 									CollectionId.of(cd.internalId, Long.toString(h.internalId)).getValue());
 							ret.items.add(f);
 						} else {
-							logger.warn("[{}] delete subscription: no node uid {} for container {} in hierarchy",
+							EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger,
+									"[{}] delete subscription: no node uid {} for container {} in hierarchy",
 									bs.getUser().getDefaultEmail(), nodeUid, cd);
 						}
 					}
 				} catch (ServerFault sf) {
 					if (sf.getCode() == ErrorCode.NOT_FOUND) {
-						logger.warn("[{}] delete subscription: container {} not found", bs.getUser().getDefaultEmail(),
+						EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger,
+								"[{}] delete subscription: container {} not found", bs.getUser().getDefaultEmail(),
 								containerUid);
 					} else {
 						throw sf;
@@ -445,7 +452,8 @@ public class FolderBackend extends CoreConnect {
 			});
 			subscribedMailboxVersions.remove(Long.toString(containerSubscriptionId));
 		} catch (ServerFault sf) {
-			logger.warn("Failed to fetch hierarchy for {}. Need repair?", owner);
+			EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger, "Failed to fetch hierarchy for {}. Need repair?",
+					owner);
 		}
 	}
 
@@ -478,8 +486,8 @@ public class FolderBackend extends CoreConnect {
 		}
 		IContainerManagement cmApi = getService(bs, IContainerManagement.class, container.value.containerUid);
 		if (!cmApi.canAccess(Arrays.asList(Verb.Read.name()))) {
-			logger.info("[{}] skip container {} without Read perms.", bs.getLoginAtDomain(),
-					container.value.containerUid);
+			EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger, "[{}] skip container {} without Read perms.",
+					bs.getLoginAtDomain(), container.value.containerUid);
 			return;
 		}
 		CyrusPartition part = CyrusPartition.forServerAndDomain(dirEntry.dataLocation, bs.getUser().getDomain());
@@ -490,8 +498,9 @@ public class FolderBackend extends CoreConnect {
 				.filter(f -> f.value.parentUid == null && f.value.fullName.equals(rootFolderName)).findFirst();
 
 		if (!optRootFolder.isPresent()) {
-			logger.warn("[{}] Mailbox sub changes : failed to fetch root folder {}, container {}",
-					bs.getLoginAtDomain(), rootFolderName, container.value.containerUid);
+			EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger,
+					"[{}] Mailbox sub changes : failed to fetch root folder {}, container {}", bs.getLoginAtDomain(),
+					rootFolderName, container.value.containerUid);
 			return;
 		}
 
@@ -581,11 +590,12 @@ public class FolderBackend extends CoreConnect {
 		String uniqueId = IMailReplicaUids.uniqueId(h.value.containerUid);
 		ItemValue<MailboxFolder> folder = mboxFolders.getComplete(uniqueId);
 		if (folder == null || folder.value == null) {
-			logger.error("Fail to fetch folder {}", uniqueId);
+			EasLogUser.logErrorAsUser(bs.getLoginAtDomain(), logger, "Fail to fetch folder {}", uniqueId);
 			return null;
 		}
 		if (folder.flags.contains(ItemFlag.Deleted)) {
-			logger.error("Mail folder '{}' is marked as deleted", h.value.name);
+			EasLogUser.logErrorAsUser(bs.getLoginAtDomain(), logger, "Mail folder '{}' is marked as deleted",
+					h.value.name);
 			return null;
 		}
 		if (folder.value.parentUid != null) {
@@ -595,7 +605,8 @@ public class FolderBackend extends CoreConnect {
 			if (parent != null) {
 				parentId = flatH.getComplete(parentUid).internalId;
 			} else {
-				logger.warn("Failed to find parent uid {} for folder {}. Skip folder", parentUid, folder.uid);
+				EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger,
+						"Failed to find parent uid {} for folder {}. Skip folder", parentUid, folder.uid);
 				return null;
 			}
 		}
@@ -628,7 +639,8 @@ public class FolderBackend extends CoreConnect {
 				break;
 			default:
 				if (Translate.isTranslated(bs.getLang(), dn)) {
-					logger.warn("Folder '{}' conflicts with system folder, rename it", dn);
+					EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger,
+							"Folder '{}' conflicts with system folder, rename it", dn);
 					dn = dn + " (1)";
 				}
 				folderChangeRef.itemType = FolderType.USER_CREATED_EMAIL_FOLDER;
@@ -642,7 +654,8 @@ public class FolderBackend extends CoreConnect {
 		folderChangeRef.changeType = changeType;
 		folderChangeRef.parentId = Long.toString(parentId);
 		folderChangeRef.folderId = Long.toString(h.internalId);
-		logger.debug("Add mail folder {} {}", changeType, folderChangeRef);
+		EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "Add mail folder {} {}", changeType,
+				folderChangeRef);
 
 		return folderChangeRef;
 	}
@@ -667,12 +680,14 @@ public class FolderBackend extends CoreConnect {
 				type = FolderType.DEFAULT_CALENDAR_FOLDER;
 			} else {
 				if (!bs.isMultiCal()) {
-					logger.info("[{}] no multi cal, skip folder {}, uid {}", bs.getDeviceId().getUniqueIdentifier(),
+					EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger,
+							"[{}] no multi cal, skip folder {}, uid {}", bs.getDeviceId().getUniqueIdentifier(),
 							folder.displayName, folder.uid);
 					return null;
 				}
 				if (!offlineContainers.contains(folder.value.containerUid)) {
-					logger.info("[{}] no offline sync for folder {}, uid {}", bs.getDeviceId().getUniqueIdentifier(),
+					EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger,
+							"[{}] no offline sync for folder {}, uid {}", bs.getDeviceId().getUniqueIdentifier(),
 							folder.displayName, folder.uid);
 					return null;
 				}
@@ -685,12 +700,14 @@ public class FolderBackend extends CoreConnect {
 				type = FolderType.DEFAULT_CONTACTS_FOLDER;
 			} else {
 				if (!bs.isMultiAB()) {
-					logger.info("[{}] no multi ab, skip folder {}, uid {}", bs.getDeviceId().getUniqueIdentifier(),
+					EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger,
+							"[{}] no multi ab, skip folder {}, uid {}", bs.getDeviceId().getUniqueIdentifier(),
 							folder.displayName, folder.uid);
 					return null;
 				}
 				if (!offlineContainers.contains(folder.value.containerUid)) {
-					logger.info("[{}] no offline sync for folder {}, uid {}", bs.getDeviceId().getUniqueIdentifier(),
+					EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger,
+							"[{}] no offline sync for folder {}, uid {}", bs.getDeviceId().getUniqueIdentifier(),
 							folder.displayName, folder.uid);
 					return null;
 				}
@@ -716,7 +733,7 @@ public class FolderBackend extends CoreConnect {
 		f.parentId = "0";
 		f.folderId = Long.toString(folder.internalId);
 
-		logger.debug("Add folder {} {}", changeType, f);
+		EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "Add folder {} {}", changeType, f);
 
 		return f;
 	}
@@ -741,7 +758,8 @@ public class FolderBackend extends CoreConnect {
 				type = FolderType.DEFAULT_CALENDAR_FOLDER;
 			} else {
 				if (!bs.isMultiCal()) {
-					logger.info("[{}] no multi cal, skip folder {}, uid {}", bs.getDeviceId().getUniqueIdentifier(),
+					EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger,
+							"[{}] no multi cal, skip folder {}, uid {}", bs.getDeviceId().getUniqueIdentifier(),
 							h.value.name, h.uid);
 					return null;
 				}
@@ -757,7 +775,8 @@ public class FolderBackend extends CoreConnect {
 				type = FolderType.DEFAULT_CONTACTS_FOLDER;
 			} else {
 				if (!bs.isMultiAB()) {
-					logger.info("[{}] no multi ab, skip folder {}, uid {}", bs.getDeviceId().getUniqueIdentifier(),
+					EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger,
+							"[{}] no multi ab, skip folder {}, uid {}", bs.getDeviceId().getUniqueIdentifier(),
 							h.value.name, h.uid);
 					return null;
 				}
@@ -789,7 +808,7 @@ public class FolderBackend extends CoreConnect {
 		f.parentId = "0";
 		f.folderId = folderId;
 
-		logger.debug("Add subscription {} {}", f.changeType, f);
+		EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "Add subscription {} {}", f.changeType, f);
 
 		return f;
 	}

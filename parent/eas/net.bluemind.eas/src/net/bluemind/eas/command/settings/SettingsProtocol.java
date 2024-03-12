@@ -37,6 +37,7 @@ import net.bluemind.eas.protocol.IEasProtocol;
 import net.bluemind.eas.serdes.IResponseBuilder;
 import net.bluemind.eas.serdes.settings.SettingsRequestParser;
 import net.bluemind.eas.serdes.settings.SettingsResponseFormatter;
+import net.bluemind.eas.utils.EasLogUser;
 import net.bluemind.eas.wbxml.builder.WbxmlResponseBuilder;
 
 public class SettingsProtocol implements IEasProtocol<SettingsRequest, SettingsResponse> {
@@ -47,21 +48,21 @@ public class SettingsProtocol implements IEasProtocol<SettingsRequest, SettingsR
 	}
 
 	@Override
-	public void parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
+	public void parse(BackendSession bs, OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
 			Handler<SettingsRequest> parserResultHandler) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("******** Parsing *******");
+			EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "******** Parsing *******");
 		}
 
 		SettingsRequestParser parser = new SettingsRequestParser();
-		SettingsRequest parsed = parser.parse(optParams, doc, past);
+		SettingsRequest parsed = parser.parse(optParams, doc, past, bs.getLoginAtDomain());
 		parserResultHandler.handle(parsed);
 	}
 
 	@Override
 	public void execute(BackendSession bs, SettingsRequest sr, Handler<SettingsResponse> responseHandler) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("******** Executing *******");
+			EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "******** Executing *******");
 		}
 
 		SettingsResponse response = new SettingsResponse();
@@ -90,7 +91,7 @@ public class SettingsProtocol implements IEasProtocol<SettingsRequest, SettingsR
 	public void write(BackendSession bs, Responder responder, SettingsResponse response,
 			final Handler<Void> completion) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("******** Writing *******");
+			EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "******** Writing *******");
 		}
 
 		SettingsResponseFormatter formatter = new SettingsResponseFormatter();

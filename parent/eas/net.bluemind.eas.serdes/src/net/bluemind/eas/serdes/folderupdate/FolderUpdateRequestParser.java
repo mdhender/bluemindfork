@@ -30,13 +30,15 @@ import net.bluemind.eas.dto.OptionalParams;
 import net.bluemind.eas.dto.folderupdate.FolderUpdateRequest;
 import net.bluemind.eas.dto.sync.CollectionId;
 import net.bluemind.eas.serdes.IEasRequestParser;
+import net.bluemind.eas.utils.EasLogUser;
 
 public class FolderUpdateRequestParser implements IEasRequestParser<FolderUpdateRequest> {
 
 	private static final Logger logger = LoggerFactory.getLogger(FolderUpdateRequestParser.class);
 
 	@Override
-	public FolderUpdateRequest parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past) {
+	public FolderUpdateRequest parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
+			String user) {
 		FolderUpdateRequest req = new FolderUpdateRequest();
 
 		Element elements = doc.getDocumentElement();
@@ -67,7 +69,7 @@ public class FolderUpdateRequestParser implements IEasRequestParser<FolderUpdate
 				req.type = Integer.parseInt(child.getTextContent());
 				break;
 			default:
-				logger.warn("Not managed FolderCreate child {}", child);
+				EasLogUser.logWarnAsUser(user, logger, "Not managed FolderCreate child {}", child);
 				break;
 			}
 		}

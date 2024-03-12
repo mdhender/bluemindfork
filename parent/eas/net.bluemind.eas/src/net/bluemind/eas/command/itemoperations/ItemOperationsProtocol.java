@@ -67,6 +67,7 @@ import net.bluemind.eas.serdes.IResponseBuilder;
 import net.bluemind.eas.serdes.itemoperations.ItemOperationsFormatter;
 import net.bluemind.eas.serdes.itemoperations.ItemOperationsParser;
 import net.bluemind.eas.store.ISyncStorage;
+import net.bluemind.eas.utils.EasLogUser;
 import net.bluemind.eas.wbxml.WbxmlOutput;
 import net.bluemind.eas.wbxml.builder.WbxmlResponseBuilder;
 
@@ -83,10 +84,10 @@ public class ItemOperationsProtocol implements IEasProtocol<ItemOperationsReques
 	}
 
 	@Override
-	public void parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
+	public void parse(BackendSession bs, OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past,
 			Handler<ItemOperationsRequest> parserResultHandler) {
 		ItemOperationsParser parser = new ItemOperationsParser();
-		ItemOperationsRequest request = parser.parse(optParams, doc, past);
+		ItemOperationsRequest request = parser.parse(optParams, doc, past, bs.getLoginAtDomain());
 		parserResultHandler.handle(request);
 	}
 
@@ -106,7 +107,8 @@ public class ItemOperationsProtocol implements IEasProtocol<ItemOperationsReques
 			} else if (op instanceof ItemOperationsRequest.Move) {
 				resp = move((ItemOperationsRequest.Move) op, bs);
 			} else {
-				logger.warn("unsupported itemsOperations : {}", op.getClass());
+				EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger, "unsupported itemsOperations : {}",
+						op.getClass());
 			}
 			if (resp != null) {
 				if (resp.status != Status.SUCCESS) {
@@ -116,7 +118,7 @@ public class ItemOperationsProtocol implements IEasProtocol<ItemOperationsReques
 			}
 
 		}
-		logger.info("****** Responding with {}", response);
+		EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger, "****** Responding with {}", response);
 		responseHandler.handle(response);
 	}
 
@@ -132,7 +134,7 @@ public class ItemOperationsProtocol implements IEasProtocol<ItemOperationsReques
 		try {
 			sourceFolder = store.getHierarchyNode(bs, CollectionId.of(convId[0]));
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
 			respOp.status = ItemOperationsResponse.Status.SERVER_ERROR;
 			return respOp;
 		}
@@ -141,7 +143,7 @@ public class ItemOperationsProtocol implements IEasProtocol<ItemOperationsReques
 		try {
 			destinationFolder = store.getHierarchyNode(bs, CollectionId.of(op.dstFldId));
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
 			respOp.status = ItemOperationsResponse.Status.SERVER_ERROR;
 			return respOp;
 		}
@@ -153,7 +155,7 @@ public class ItemOperationsProtocol implements IEasProtocol<ItemOperationsReques
 			importer.importMoveItems(bs, type, sourceFolder, destinationFolder,
 					Arrays.asList(CollectionItem.of(op.conversationId)));
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
 			respOp.status = ItemOperationsResponse.Status.SERVER_ERROR;
 		}
 
@@ -219,13 +221,13 @@ public class ItemOperationsProtocol implements IEasProtocol<ItemOperationsReques
 			try {
 				opResp = processMailboxFetch(bs, op);
 			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
+				EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
 				opResp = new ItemOperationsResponse.Fetch();
 				opResp.status = ItemOperationsResponse.Status.ACTION_NOT_SUPPORTED;
 			}
 		} else {
-			logger.warn("ItemOperations is not implemented for store {}. Send status 156 ActionNotSupported",
-					storeName);
+			EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger,
+					"ItemOperations is not implemented for store {}. Send status 156 ActionNotSupported", storeName);
 			opResp = new ItemOperationsResponse.Fetch();
 			opResp.status = ItemOperationsResponse.Status.ACTION_NOT_SUPPORTED;
 		}
@@ -314,7 +316,7 @@ public class ItemOperationsProtocol implements IEasProtocol<ItemOperationsReques
 			loaded.body = VertxLazyLoader.wrap(loaded.body);
 			resp.properties = loaded;
 		} catch (ActiveSyncException e) {
-			logger.error(e.getMessage(), e);
+			EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
 			status = ItemOperationsResponse.Status.SERVER_ERROR;
 
 		}
@@ -350,10 +352,11 @@ public class ItemOperationsProtocol implements IEasProtocol<ItemOperationsReques
 					content.body = new AirSyncBaseResponse.Body();
 					content.contentType = data.getContentType();
 					content.body.data = data.getFile();
-					logger.info("Finished async loading of {} attachment.", content.contentType);
+					EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger,
+							"Finished async loading of {} attachment.", content.contentType);
 					onLoad.onResult(content);
 				} catch (Exception e) {
-					logger.error(e.getMessage(), e);
+					EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
 					onLoad.onResult(null);
 				}
 			}
