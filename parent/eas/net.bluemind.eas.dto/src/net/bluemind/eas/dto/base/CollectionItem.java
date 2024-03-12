@@ -18,6 +18,8 @@
  */
 package net.bluemind.eas.dto.base;
 
+import java.util.Map;
+
 import net.bluemind.eas.dto.sync.CollectionId;
 
 /**
@@ -29,6 +31,11 @@ public final class CollectionItem {
 
 	public final CollectionId collectionId;
 	public final long itemId;
+	public final Map<String, Object> data;
+
+	public static CollectionItem of(String colAndServer) {
+		return of(colAndServer, Map.of());
+	}
 
 	/**
 	 * Creates a collection item from the unique identifier of an item in a
@@ -39,29 +46,38 @@ public final class CollectionItem {
 	 * 
 	 * @return an immutable collection item
 	 */
-	public static CollectionItem of(String colAndServer) {
+	public static CollectionItem of(String colAndServer, Map<String, Object> data) {
 		int idx = colAndServer.indexOf(':');
 		if (idx <= 0) {
 			throw new RuntimeException("Invalid server id: '" + colAndServer + "'");
 		}
-		return of(colAndServer.substring(0, idx), Long.valueOf(colAndServer.substring(idx + 1)));
+		return of(colAndServer.substring(0, idx), Long.valueOf(colAndServer.substring(idx + 1)), data);
 	}
 
 	public String toString() {
 		return String.format("%s:%d", collectionId.getValue(), itemId);
 	}
 
-	private CollectionItem(CollectionId collectionId, long itemId) {
+	private CollectionItem(CollectionId collectionId, long itemId, Map<String, Object> data) {
 		this.collectionId = collectionId;
 		this.itemId = itemId;
-	}
-
-	public static CollectionItem of(String collectionId, long itemId) {
-		return of(CollectionId.of(collectionId), itemId);
+		this.data = data;
 	}
 
 	public static CollectionItem of(CollectionId collectionId, long itemId) {
-		return new CollectionItem(collectionId, itemId);
+		return of(collectionId, itemId, Map.of());
+	}
+
+	public static CollectionItem of(String collectionId, long itemId) {
+		return of(collectionId, itemId, Map.of());
+	}
+
+	public static CollectionItem of(String collectionId, long itemId, Map<String, Object> data) {
+		return of(CollectionId.of(collectionId), itemId, data);
+	}
+
+	public static CollectionItem of(CollectionId collectionId, long itemId, Map<String, Object> data) {
+		return new CollectionItem(collectionId, itemId, data);
 	}
 
 	@Override

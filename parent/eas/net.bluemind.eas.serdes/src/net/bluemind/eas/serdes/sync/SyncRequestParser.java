@@ -19,6 +19,8 @@
 package net.bluemind.eas.serdes.sync;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +36,7 @@ import net.bluemind.eas.dto.sync.CollectionSyncRequest;
 import net.bluemind.eas.dto.sync.CollectionSyncRequest.Options.ConflicResolution;
 import net.bluemind.eas.dto.sync.FilterType;
 import net.bluemind.eas.dto.sync.SyncRequest;
+import net.bluemind.eas.serdes.DateFormat;
 import net.bluemind.eas.serdes.IEasRequestParser;
 import net.bluemind.eas.serdes.base.BodyOptionsParser;
 import net.bluemind.eas.utils.DOMUtils;
@@ -175,7 +178,8 @@ public class SyncRequestParser implements IEasRequestParser<SyncRequest> {
 			switch (modType) {
 			case "Delete":
 				String serverId = DOMUtils.getElementText(modification, "ServerId");
-				deletedItems.add(CollectionItem.of(serverId));
+				Map<String, Object> deleteData = getInstanceId(modification);
+				deletedItems.add(CollectionItem.of(serverId, deleteData));
 				break;
 			case "Change":
 				changedItems.add(modification);
@@ -184,13 +188,22 @@ public class SyncRequestParser implements IEasRequestParser<SyncRequest> {
 				createdItems.add(modification);
 				break;
 			case "Fetch":
-				fetchIds.add(CollectionItem.of(DOMUtils.getElementText(modification, "ServerId")));
+				fetchIds.add(CollectionItem.of(DOMUtils.getElementText(modification, "ServerId"), Map.of()));
 				break;
 			}
 		}
 
 		return collection;
 
+	}
+
+	private Map<String, Object> getInstanceId(Element modification) {
+		String instanceId = DOMUtils.getElementText(modification, "InstanceId");
+		Map<String, Object> data = new HashMap<>();
+		if (instanceId != null) {
+			data.put("instanceId", DateFormat.parse(instanceId));
+		}
+		return data;
 	}
 
 }

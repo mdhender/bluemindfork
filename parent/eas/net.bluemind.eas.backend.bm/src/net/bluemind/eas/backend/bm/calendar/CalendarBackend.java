@@ -19,6 +19,8 @@
 package net.bluemind.eas.backend.bm.calendar;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -26,6 +28,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -375,7 +378,26 @@ public class CalendarBackend extends CoreConnect {
 					ICalendar service = getService(bs, folder.containerUid);
 					ItemValue<VEventSeries> evt = service.getCompleteById(serverId.itemId);
 					if (evt != null) {
-						service.delete(evt.uid, true);
+						if (serverId.data.containsKey("instanceId") && evt.value.main != null) {
+							long recurIdTime = ((Date) serverId.data.get("instanceId")).getTime();
+							evt.value.occurrences = evt.value.occurrences == null ? new ArrayList<>()
+									: new ArrayList<>(evt.value.occurrences);
+							evt.value.occurrences
+									.removeIf(occurrence -> BmDateTimeWrapper.toTimestamp(occurrence.recurid.iso8601,
+											occurrence.recurid.timezone) == recurIdTime);
+							evt.value.main.exdate = evt.value.main.exdate == null ? new HashSet<>()
+									: new HashSet<>(evt.value.main.exdate);
+							if (evt.value.main.dtstart.precision == Precision.DateTime) {
+								evt.value.main.exdate.add(
+										BmDateTimeWrapper.fromTimestamp(recurIdTime, evt.value.main.dtstart.timezone));
+							} else {
+								String iso = DateTimeFormatter.ISO_DATE.format(Instant.ofEpochMilli(recurIdTime));
+								evt.value.main.exdate.add(new BmDateTime(iso, null, Precision.Date));
+							}
+							service.update(evt.uid, evt.value, true);
+						} else {
+							service.delete(evt.uid, true);
+						}
 					}
 
 				}

@@ -18,11 +18,7 @@
  */
 package net.bluemind.eas.serdes.meetingresponse;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.TimeZone;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +31,7 @@ import net.bluemind.eas.dto.IPreviousRequestsKnowledge;
 import net.bluemind.eas.dto.OptionalParams;
 import net.bluemind.eas.dto.meetingresponse.MeetingResponseRequest;
 import net.bluemind.eas.dto.meetingresponse.MeetingResponseRequest.Request;
+import net.bluemind.eas.serdes.DateFormat;
 import net.bluemind.eas.serdes.IEasRequestParser;
 
 public class MeetingResponseRequestParser implements IEasRequestParser<MeetingResponseRequest> {
@@ -97,7 +94,7 @@ public class MeetingResponseRequestParser implements IEasRequestParser<MeetingRe
 				req.LongId = Integer.parseInt(child.getTextContent());
 				break;
 			case "InstanceId":
-				req.instanceId = parseDate(child.getTextContent());
+				req.instanceId = DateFormat.parse(child.getTextContent());
 				break;
 			default:
 				logger.warn("Not managed MeetingResponse.Request child {}", child);
@@ -106,25 +103,6 @@ public class MeetingResponseRequestParser implements IEasRequestParser<MeetingRe
 		}
 
 		return req;
-	}
-
-	private Date parseDate(String str) {
-		SimpleDateFormat date;
-		try {
-			if (str.matches("^....-..-..T..:..:..\\....Z$")) {
-				date = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-				date.setTimeZone(TimeZone.getTimeZone("GMT"));
-				return date.parse(str);
-			} else if (str.matches("^........T......Z$")) {
-				date = new SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'");
-				date.setTimeZone(TimeZone.getTimeZone("GMT"));
-				return date.parse(str);
-			}
-		} catch (ParseException e) {
-			logger.error(e.getMessage(), e);
-		}
-
-		return null;
 	}
 
 }

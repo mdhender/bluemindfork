@@ -851,7 +851,7 @@ public class MailBackend extends CoreConnect {
 					collectionId = Long.toString(hierarchyNode.internalId);
 				}
 
-				result.serverId = CollectionItem.of(collectionId, messageSearchResult.itemId).toString();
+				result.serverId = CollectionItem.of(collectionId, (long) messageSearchResult.itemId).toString();
 				result.collectionId = collectionId;
 
 				Properties properties = new FindResponse.Response.Result.Properties();
