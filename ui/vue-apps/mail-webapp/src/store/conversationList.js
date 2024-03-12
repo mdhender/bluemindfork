@@ -162,7 +162,12 @@ const actions = {
 };
 
 async function search({ filter, search, sort }, folder) {
-    let { results, hasMoreResults } = await apiMessages.search(search.currentSearch, filter, sort, folder);
+    const searchContext = {
+        pattern: search.currentSearch.pattern,
+        folder: search.currentSearch.folder?.remoteRef,
+        deep: search.currentSearch.deep
+    };
+    let { results, hasMoreResults } = await apiMessages.search(searchContext, filter, sort, folder);
     return {
         results: results.map(({ id, folderRef }) => createConversationStub(id, folderRef)),
         hasMoreResults

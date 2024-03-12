@@ -1,7 +1,6 @@
 import { IS_SEARCH_ENABLED, HAS_PATTERN, IS_TYPING_IN_SEARCH } from "~/getters";
 import {
     RESET_CURRENT_SEARCH_PATTERN,
-    SET_ACTIVE_FOLDER,
     SET_CURRENT_SEARCH_DEEP,
     SET_CURRENT_SEARCH_FOLDER,
     SET_CURRENT_SEARCH_PATTERN,
@@ -11,7 +10,6 @@ import {
     SET_SEARCH_QUERY_PATTERN
 } from "~/mutations";
 import { RESET_CURRENT_SEARCH } from "~/actions";
-import { folderUtils } from "@bluemind/mail";
 
 const state = {
     searchQuery: {
@@ -54,11 +52,6 @@ const mutations = {
     },
     [RESET_CURRENT_SEARCH_PATTERN](state) {
         state.currentSearch.pattern = null;
-    },
-
-    //listeners
-    [SET_ACTIVE_FOLDER](state, folder) {
-        state.currentSearch.folder = folder.imapName === folderUtils.DEFAULT_FOLDERS.INBOX ? null : folder;
     }
 };
 

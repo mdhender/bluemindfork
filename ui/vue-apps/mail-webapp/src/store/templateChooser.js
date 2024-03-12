@@ -55,15 +55,13 @@ export default {
 
 async function search(pattern, folder) {
     const ref = FolderAdaptor.toRef(folder);
-    const { results } = (
-        await apiMessages.search(
-            { pattern, folder: ref },
-            undefined,
-            { field: SortField.SUBJECT, order: SortOrder.ASC },
-            folder
-        )
-    ).slice(0, 100);
-    return results.map(({ id, folderRef }) => createConversationStub(id, folderRef));
+    const { results } = await apiMessages.search(
+        { pattern, folder: ref },
+        undefined,
+        { field: SortField.SUBJECT, order: SortOrder.ASC },
+        folder
+    );
+    return results.slice(0, 100).map(({ id, folderRef }) => createConversationStub(id, folderRef));
 }
 
 async function list(folder) {

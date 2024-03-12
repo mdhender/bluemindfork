@@ -17,6 +17,7 @@ import {
     SET_CONVERSATION_LIST_FILTER,
     SET_CONVERSATION_LIST_SORT,
     SET_CONVERSATION_LIST,
+    SET_CURRENT_SEARCH_DEEP,
     SET_CURRENT_SEARCH_FOLDER,
     SET_MAIL_THREAD_SETTING,
     SET_ROUTE_FILTER,
@@ -112,6 +113,7 @@ export default {
             SET_CONVERSATION_LIST_FILTER,
             SET_CONVERSATION_LIST_SORT,
             SET_CONVERSATION_LIST,
+            SET_CURRENT_SEARCH_DEEP,
             SET_CURRENT_SEARCH_FOLDER,
             SET_ROUTE_FILTER,
             SET_ROUTE_FOLDER,
@@ -200,8 +202,11 @@ export default {
             if (this.route.search.pattern) {
                 const searchFolder = this.$_RouterMixin_query.folder ? this.folders[folder.key] : null;
                 this.SET_SEARCH_QUERY_FOLDER(searchFolder);
-                let isDeep = this.route.search?.deep === undefined ? true : !!this.route.search?.deep;
+                let isDeep = !!this.route.search.deep;
                 this.SET_SEARCH_QUERY_DEEP(isDeep);
+            } else {
+                this.SET_CURRENT_SEARCH_DEEP(true);
+                this.SET_CURRENT_SEARCH_FOLDER(folder.imapName === folderUtils.DEFAULT_FOLDERS.INBOX ? null : folder);
             }
         }
     }
