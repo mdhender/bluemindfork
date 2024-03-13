@@ -703,7 +703,7 @@ public class UserServiceTests {
 	}
 
 	@Test
-	public void testAddingANewUserShouldUsePBKDF2Algorithm() throws Exception {
+	public void testAddingANewUserShouldUseArgon2Algorithm() throws Exception {
 		String password = "password";
 		String login = "test." + System.nanoTime();
 		User user = defaultUser(login);
@@ -711,8 +711,11 @@ public class UserServiceTests {
 		String uid = create(user);
 		user = userStore.get(userItemStore.get(uid));
 
-		assertTrue(HashFactory.get(HashAlgorithm.PBKDF2).validate(password, user.password));
-		assertFalse(HashFactory.get(HashAlgorithm.MD5).validate(password, user.password));
+		assertTrue(HashFactory.get(HashAlgorithm.ARGON2).validate(password, user.password));
+		try {
+			assertFalse(HashFactory.get(HashAlgorithm.MD5).validate(password, user.password));
+		} catch (ServerFault e) {
+		}
 	}
 
 	@Test
