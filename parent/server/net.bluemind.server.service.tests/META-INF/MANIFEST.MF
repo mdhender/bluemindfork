@@ -22,5 +22,6 @@ Require-Bundle: org.junit,
  net.bluemind.core.tests.testshelper,
  net.bluemind.server.service;bundle-version="5.0.0",
  net.bluemind.role.api,
- net.bluemind.server.persistence
+ net.bluemind.server.persistence,
+ junit-jupiter-api
 Automatic-Module-Name: net.bluemind.server.service.tests

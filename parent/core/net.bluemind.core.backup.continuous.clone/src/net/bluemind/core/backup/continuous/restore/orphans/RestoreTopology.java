@@ -18,6 +18,7 @@
  */
 package net.bluemind.core.backup.continuous.restore.orphans;
 
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -89,6 +90,7 @@ public class RestoreTopology {
 		 * We need to build a list of server ordered, core first otherwise, we endup not
 		 * pushing core IP in IptablesHook.
 		 */
+
 		List<ItemValue<Server>> allServersOrdered = aggregatedServers.values().stream().map(sde -> {
 			ItemValue<Server> leader = topoReader.read(new String(sde.de().payload));
 			ItemValue<Server> srv = sde.server();
@@ -98,8 +100,7 @@ public class RestoreTopology {
 			ps.clone = srv;
 			touched.add(ps);
 			return srv;
-		}).sorted((a, b) -> Long.compare(a.value.tags.contains(TagDescriptor.bm_core.getTag()) ? -1 : a.internalId,
-				b.value.tags.contains(TagDescriptor.bm_core.getTag()) ? -1 : b.internalId)).toList();
+		}).sorted(Comparator.comparing(ivs -> ivs.value)).toList();
 
 		allServersOrdered.forEach(srv -> {
 			TaskRef srvTask;
