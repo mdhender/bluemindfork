@@ -204,7 +204,7 @@ public class EventDeferredActionExecutor implements IDeferredActionExecutor {
 		if (Strings.isNullOrEmpty(language)) {
 			return Locale.ENGLISH;
 		}
-		return new Locale(language);
+		return Locale.of(language);
 	}
 
 	static ItemValue<Optional<EventDeferredAction>> from(ItemValue<DeferredAction> deferredAction) {

@@ -36,7 +36,7 @@ public class ContactHandler extends AbstractIndexHandler {
 	protected void loadPageModel(HttpServerRequest request, Map<String, Object> model) {
 		super.loadPageModel(request, model);
 		String lang = getLang(request);
-		ResourceBundle resourceBundle = ResourceBundle.getBundle("OSGI-INF/l10n/bundle", new Locale(lang));
+		ResourceBundle resourceBundle = ResourceBundle.getBundle("OSGI-INF/l10n/bundle", Locale.of(lang));
 		model.put("appName", resourceBundle.getString("banner-entry.name"));
 	}
 

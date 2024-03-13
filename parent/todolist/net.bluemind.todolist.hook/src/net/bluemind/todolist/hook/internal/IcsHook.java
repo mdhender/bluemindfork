@@ -161,7 +161,7 @@ public class IcsHook implements ITodoListHook {
 				settings = userSettingsService.get(user.uid);
 			}
 
-			Locale locale = new Locale(getLocale(settings));
+			Locale locale = Locale.of(getLocale(settings));
 			try (Message mail = buildMailMessage(from, attendeeListTo, attendeeListCc, subjectTemplate, template,
 					messagesResolverProvider.getResolver(locale), data, createBodyPart(message.itemUid, ics), settings,
 					todo, method, locale)) {

@@ -64,7 +64,7 @@ public class DomainBookRepairSupport implements IDirEntryRepairSupport {
 			op.identifier = REPAIR_AB_CONTAINER;
 			op.description = ResourceBundle
 					.getBundle("OSGI-INF/l10n/DomainBookRepairSupport",
-							new Locale(context.getSecurityContext().getLang()))
+							Locale.of(context.getSecurityContext().getLang()))
 					.getString("defaultAddressBook.description");
 			return ImmutableSet.of(op);
 		}

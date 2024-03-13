@@ -61,7 +61,7 @@ public class SendDomainCalendarsICSTask extends BlockingServerTask implements IS
 		this.backup = backup;
 		this.item = item;
 		this.executor = (RestoreActionExecutor<EmailData>) executor;
-		this.bundle = ResourceBundle.getBundle("OSGI-INF/l10n/RestoreCalendar", new Locale(ServerSideServiceProvider
+		this.bundle = ResourceBundle.getBundle("OSGI-INF/l10n/RestoreCalendar", Locale.of(ServerSideServiceProvider
 				.getProvider(SecurityContext.SYSTEM).getContext().getSecurityContext().getLang()));
 	}
 

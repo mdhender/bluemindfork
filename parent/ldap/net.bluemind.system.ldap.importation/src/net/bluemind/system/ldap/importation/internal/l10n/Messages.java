@@ -29,7 +29,7 @@ public class Messages {
 		Messages messages = new Messages();
 
 		if (locale == null) {
-			locale = new Locale("en");
+			locale = Locale.of("en");
 		}
 
 		try {

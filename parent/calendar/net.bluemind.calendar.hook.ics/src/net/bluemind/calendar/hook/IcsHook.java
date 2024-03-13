@@ -961,7 +961,7 @@ public class IcsHook implements ICalendarHook {
 				Mailbox sender = resolveSender(userService, message, from);
 
 				try (Message mail = buildMailMessage(from, sender, attendeeListTo, attendeeListCc, subjectTemplate,
-						template, messagesResolverProvider.getResolver(new Locale(getLocale(settings))), data,
+						template, messagesResolverProvider.getResolver(Locale.of(getLocale(settings))), data,
 						createBodyPart(message.itemUid, ics), settings, event, method, attachments)) {
 					ret.set(mailer.send(SendmailCredentials.asAdmin0(), from.getAddress(), from.getDomain(),
 							new MailboxList(Arrays.asList(recipient), true), mail));
@@ -1036,7 +1036,7 @@ public class IcsHook implements ICalendarHook {
 			data.put("timezone", tz.getID());
 
 			if (vevent.timezone() != null && !vevent.timezone().equals(settings.get("timezone"))) {
-				data.put("tz", tz.getDisplayName(new Locale(settings.get("lang"))));
+				data.put("tz", tz.getDisplayName(Locale.of(settings.get("lang"))));
 			}
 
 			return getMessage(from, sender, attendeeListTo, attendeeListCc, subject, templateName, settings.get("lang"),

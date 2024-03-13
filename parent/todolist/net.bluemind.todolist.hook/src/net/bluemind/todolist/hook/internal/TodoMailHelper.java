@@ -92,7 +92,7 @@ public class TodoMailHelper {
 		Template t;
 		data.put("msg", new FreeMarkerMsg(messagesResolver));
 		try {
-			t = getTemplate(templateName, new Locale(locale));
+			t = getTemplate(templateName, Locale.of(locale));
 			t.process(data, sw);
 		} catch (TemplateException e1) {
 			logger.error(e1.getMessage(), e1);

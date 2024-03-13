@@ -203,7 +203,7 @@ public class PasswordExpireNotificationJob implements IScheduledJob {
 		} catch (ServerFault sf) {
 		}
 
-		Locale locale = Strings.isNullOrEmpty(lang) ? Locale.ENGLISH : new Locale(lang);
+		Locale locale = Strings.isNullOrEmpty(lang) ? Locale.ENGLISH : Locale.of(lang);
 
 		try {
 			sendNotification(externalUrl, notificationInterval, dirEntry, locale);

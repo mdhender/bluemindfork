@@ -154,7 +154,7 @@ public abstract class PrintCalendar {
 
 		this.securityContext = context.securityContext;
 		locale = userSettings.get("lang");
-		l = new Locale(locale);
+		l = Locale.of(locale);
 		dateFormat = new SimpleDateFormat("EEEE dd MMMM yyyy", l);
 		timeFormat = new SimpleDateFormat(userSettings.get("timeformat"), l);
 		GMTtimezone = TimeZone.getTimeZone("GMT");

@@ -74,7 +74,7 @@ public class SendUserTodolistsICSTasks extends BlockingServerTask implements ISe
 		this.backup = backup;
 		this.item = item;
 		this.executor = (RestoreActionExecutor<EmailData>) executor;
-		this.bundle = ResourceBundle.getBundle("OSGI-INF/l10n/RestoreTodo", new Locale(ServerSideServiceProvider
+		this.bundle = ResourceBundle.getBundle("OSGI-INF/l10n/RestoreTodo", Locale.of(ServerSideServiceProvider
 				.getProvider(SecurityContext.SYSTEM).getContext().getSecurityContext().getLang()));
 	}
 

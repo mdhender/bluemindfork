@@ -230,7 +230,7 @@ public class ResourceIcsHook implements ICalendarHook {
 			}
 
 			Map<String, String> prefs = userSettingsService.get(admin.entryUid);
-			Locale l = new Locale(prefs.get("lang"));
+			Locale l = Locale.of(prefs.get("lang"));
 
 			MessagesResolver resolver = new MessagesResolver(Messages.getEventDetailMessages(l),
 					Messages.getResourceEventMessages(l));

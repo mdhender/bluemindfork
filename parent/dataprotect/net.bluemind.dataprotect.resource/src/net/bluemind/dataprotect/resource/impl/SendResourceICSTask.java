@@ -62,7 +62,7 @@ public class SendResourceICSTask extends BlockingServerTask implements IServerTa
 		this.backup = backup;
 		this.item = item;
 		this.executor = (RestoreActionExecutor<EmailData>) executor;
-		this.bundle = ResourceBundle.getBundle("OSGI-INF/l10n/RestoreResource", new Locale(ServerSideServiceProvider
+		this.bundle = ResourceBundle.getBundle("OSGI-INF/l10n/RestoreResource", Locale.of(ServerSideServiceProvider
 				.getProvider(SecurityContext.SYSTEM).getContext().getSecurityContext().getLang()));
 	}
 

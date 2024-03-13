@@ -80,7 +80,7 @@ public class SizeStrengthPolicy implements IPasswordValidator {
 
 	private String getErrorMessage() throws ServerFault {
 		ResourceBundle myResources = ResourceBundle.getBundle("SizeStrengthPolicy",
-				new Locale(context.getSecurityContext().getLang()));
+				Locale.of(context.getSecurityContext().getLang()));
 
 		Object[] passwordSyntax = { strengthPolicy.minimumLength, strengthPolicy.minimumCapital,
 				strengthPolicy.minimumLower, strengthPolicy.minimumDigit, strengthPolicy.minimumPunct };

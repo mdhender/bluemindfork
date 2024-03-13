@@ -163,6 +163,6 @@ public class SystemHelper {
 
 	public static boolean languageIsValid(String lang) {
 		return !Strings.isNullOrEmpty(lang) && Stream.of(Locale.getAvailableLocales())
-				.anyMatch(l -> l.getLanguage().equals(new Locale(lang).getLanguage()));
+				.anyMatch(l -> l.getLanguage().equals(Locale.of(lang).getLanguage()));
 	}
 }

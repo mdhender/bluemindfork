@@ -47,7 +47,7 @@ public class DomainValidator implements IValidator<Domain> {
 	 */
 	@Override
 	public void create(Domain domain) throws ServerFault {
-		LdapParametersValidator.validate(domain.properties, new Locale(context.getSecurityContext().getLang()));
+		LdapParametersValidator.validate(domain.properties, Locale.of(context.getSecurityContext().getLang()));
 	}
 
 	/*
@@ -62,6 +62,6 @@ public class DomainValidator implements IValidator<Domain> {
 			return;
 		}
 
-		LdapParametersValidator.validate(domain.properties, new Locale(context.getSecurityContext().getLang()));
+		LdapParametersValidator.validate(domain.properties, Locale.of(context.getSecurityContext().getLang()));
 	}
 }

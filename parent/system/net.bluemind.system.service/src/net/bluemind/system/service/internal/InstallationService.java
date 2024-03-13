@@ -491,7 +491,7 @@ public class InstallationService implements IInstallation {
 			if (e.getCode() == ErrorCode.NOT_FOUND) {
 				String lang = context.getSecurityContext().getLang();
 				lang = lang != null ? lang : "en";
-				String i18nMsg = ResourceBundle.getBundle("OSGI-INF/l10n/bundle", new Locale(lang))
+				String i18nMsg = ResourceBundle.getBundle("OSGI-INF/l10n/bundle", Locale.of(lang))
 						.getString("subscription.providerNotAvailable");
 				throw new ServerFault(i18nMsg, ErrorCode.NOT_FOUND);
 			} else {

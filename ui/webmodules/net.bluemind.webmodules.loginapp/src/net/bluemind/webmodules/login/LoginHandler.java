@@ -77,7 +77,7 @@ public class LoginHandler extends AbstractIndexHandler implements NeedVertx {
 		super.loadPageModel(request, model);
 
 		String csrfToken = CSRFTokenManager.INSTANCE.initRequest(request);
-		ResourceBundle resourceBundle = ResourceBundle.getBundle("OSGI-INF/l10n/bundle", new Locale(getLang(request)));
+		ResourceBundle resourceBundle = ResourceBundle.getBundle("OSGI-INF/l10n/bundle", Locale.of(getLang(request)));
 
 		if (request.path().endsWith("native")) {
 			model.put("actionPath", "native");
@@ -110,7 +110,7 @@ public class LoginHandler extends AbstractIndexHandler implements NeedVertx {
 			model.put("buildVersion", BMVersion.getVersion());
 		}
 
-		model.put("msg", new MessageResolverMethod(resourceBundle, new Locale(getLang(request))));
+		model.put("msg", new MessageResolverMethod(resourceBundle, Locale.of(getLang(request))));
 		logger.debug("display login page with model {}", model);
 	}
 

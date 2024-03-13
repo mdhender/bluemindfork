@@ -74,7 +74,7 @@ public abstract class ReminderMailHelper<T extends ICalendarElement> {
 		Template t;
 		data.put("msg", new FreeMarkerMsg(messagesResolver));
 		try {
-			t = getTemplate(templateName, new Locale(locale));
+			t = getTemplate(templateName, Locale.of(locale));
 			t.process(data, sw);
 		} catch (TemplateException e1) {
 			logger.error(e1.getMessage(), e1);
@@ -115,7 +115,7 @@ public abstract class ReminderMailHelper<T extends ICalendarElement> {
 		}
 
 		StringWriter sw = new StringWriter();
-		Template t = getTemplate(templateName, new Locale(locale));
+		Template t = getTemplate(templateName, Locale.of(locale));
 		data.put("msg", new FreeMarkerMsg(messagesResolver));
 		t.process(data, sw);
 		sw.flush();

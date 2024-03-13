@@ -53,7 +53,7 @@ public class LdapImportService implements ILdapImport {
 			throw new ServerFault("Only admin users can test LDAP parameters", ErrorCode.FORBIDDEN);
 		}
 
-		Locale userLocale = new Locale(context.getSecurityContext().getLang());
+		Locale userLocale = Locale.of(context.getSecurityContext().getLang());
 		LdapParametersValidator.checkLdapHostname(hostname, userLocale);
 		LdapParametersValidator.checkLdapProtocol(protocol, userLocale);
 		LdapParametersValidator.checkLdapAllCertificate(allCertificate);

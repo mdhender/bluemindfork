@@ -140,7 +140,7 @@ public class ResourceCalendarHook implements ICalendarHook {
 			IUserSettings userSettingsService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 					.instance(IUserSettings.class, domain);
 			Map<String, String> settings = userSettingsService.get(user.uid);
-			return new Locale(settings.getOrDefault("lang", "en"));
+			return Locale.of(settings.getOrDefault("lang", "en"));
 		}
 		return Locale.ENGLISH;
 	}

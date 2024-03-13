@@ -327,9 +327,9 @@ public class EventRequestHandler extends AbstractLmtpHandler implements IIMIPHan
 		data.putAll(cmh.extractVEventData(event));
 
 		String summary = series.main != null ? series.main.summary : series.occurrences.get(0).summary;
-		Locale l = new Locale(senderSettings.get("lang"));
+		Locale l = Locale.of(senderSettings.get("lang"));
 		MessagesResolver resolver = new MessagesResolver(Messages.getEventDetailMessages(l),
-				ResourceBundle.getBundle("lang", new Locale(senderSettings.get("lang"))));
+				ResourceBundle.getBundle("lang", Locale.of(senderSettings.get("lang"))));
 		String subject = resolver.translate("eventForbiddenAttendee", new Object[] { mailbox.displayName, summary });
 
 		try (Message mail = buildMailMessage(from, to, subject, "EventForbiddenAttendee.ftl", resolver, data, icsPart,
@@ -356,7 +356,7 @@ public class EventRequestHandler extends AbstractLmtpHandler implements IIMIPHan
 			data.put("timezone", tz.getID());
 
 			if (event.timezone() != null && !event.timezone().equals(settings.get("timezone"))) {
-				data.put("tz", tz.getDisplayName(new Locale(settings.get("lang"))));
+				data.put("tz", tz.getDisplayName(Locale.of(settings.get("lang"))));
 			}
 
 			CalendarMail m = new CalendarMail.CalendarMailBuilder() //

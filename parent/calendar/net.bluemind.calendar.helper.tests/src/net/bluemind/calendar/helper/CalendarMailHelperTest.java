@@ -103,7 +103,7 @@ public class CalendarMailHelperTest {
 		vevent.summary = "testExtractSubject";
 		Map<String, Object> data = new CalendarMailHelper().extractVEventDataToMap(vevent, vevent.organizer,
 				vevent.alarm.get(0));
-		Locale l = new Locale("fr");
+		Locale l = Locale.of("fr");
 		MessagesResolver resolver = new MessagesResolver(Messages.getEventDetailMessages(l),
 				Messages.getEventAlertMessages(l));
 
@@ -145,7 +145,7 @@ public class CalendarMailHelperTest {
 		data.put("date_format", "EEE, MMMM dd, yyyy");
 		TimeZone tz = TimeZone.getTimeZone("Europe/Paris");
 		data.put("timezone", tz.getID());
-		Locale l = new Locale("fr");
+		Locale l = Locale.of("fr");
 		MessagesResolver resolver = new MessagesResolver(Messages.getEventDetailMessages(l),
 				Messages.getEventAlertMessages(l));
 
@@ -178,7 +178,7 @@ public class CalendarMailHelperTest {
 		data.put("date_format", "EEE, MMMM dd, yyyy");
 		TimeZone tz = TimeZone.getTimeZone("Europe/Paris");
 		data.put("timezone", tz.getID());
-		Locale l = new Locale("fr");
+		Locale l = Locale.of("fr");
 		MessagesResolver resolver = new MessagesResolver(Messages.getEventDetailMessages(l),
 				Messages.getEventAlertMessages(l));
 
@@ -223,7 +223,7 @@ public class CalendarMailHelperTest {
 		data.put("date_format", "EEE, MMMM dd, yyyy");
 		TimeZone tz = TimeZone.getTimeZone("Europe/Paris");
 		data.put("timezone", tz.getID());
-		Locale l = new Locale("fr");
+		Locale l = Locale.of("fr");
 		MessagesResolver resolver = new MessagesResolver(Messages.getEventDetailMessages(l),
 				Messages.getEventCreateMessages(l));
 
@@ -262,7 +262,7 @@ public class CalendarMailHelperTest {
 		data.put("date_format", "EEE, MMMM dd, yyyy");
 		TimeZone tz = TimeZone.getTimeZone("Europe/Paris");
 		data.put("timezone", tz.getID());
-		Locale l = new Locale("fr");
+		Locale l = Locale.of("fr");
 		MessagesResolver resolver = new MessagesResolver(Messages.getEventDetailMessages(l),
 				Messages.getEventCreateMessages(l));
 

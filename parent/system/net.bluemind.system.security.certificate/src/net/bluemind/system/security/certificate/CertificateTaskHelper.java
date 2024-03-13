@@ -53,7 +53,7 @@ public class CertificateTaskHelper {
 	static Mail generateMail(int validityInDays, String dn, Template template, String errorMsg) {
 
 		MessagesResolver messageResolver = new MessagesResolver(
-				ResourceBundle.getBundle("certificate_expiration", new Locale(getLang())));
+				ResourceBundle.getBundle("certificate_expiration", Locale.of(getLang())));
 		Mail mail = new Mail();
 		mail.subject = messageResolver.translate("expiration.subject", new Object[] {});
 

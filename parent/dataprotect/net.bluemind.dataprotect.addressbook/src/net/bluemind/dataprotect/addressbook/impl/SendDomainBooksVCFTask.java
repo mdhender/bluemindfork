@@ -57,7 +57,7 @@ public class SendDomainBooksVCFTask extends BlockingServerTask implements IServe
 		this.backup = backup;
 		this.item = item;
 		this.executor = (RestoreActionExecutor<EmailData>) executor;
-		this.bundle = ResourceBundle.getBundle("OSGI-INF/l10n/RestoreAddressBook", new Locale(ServerSideServiceProvider
+		this.bundle = ResourceBundle.getBundle("OSGI-INF/l10n/RestoreAddressBook", Locale.of(ServerSideServiceProvider
 				.getProvider(SecurityContext.SYSTEM).getContext().getSecurityContext().getLang()));
 	}
 
