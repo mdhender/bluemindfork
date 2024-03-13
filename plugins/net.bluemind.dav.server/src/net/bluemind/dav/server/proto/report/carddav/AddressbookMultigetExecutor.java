@@ -100,7 +100,7 @@ public class AddressbookMultigetExecutor implements IReportExecutor {
 		MultiStatusBuilder msb = new MultiStatusBuilder();
 		for (ItemValue<VCard> card : cmr.getCards()) {
 
-			String vcfPath = cmr.getHref() + card + ".vcf";
+			String vcfPath = cmr.getHref() + card.uid + ".vcf";
 			Element propElem = msb.newResponse(vcfPath, 200);
 			for (QName prop : cmr.getProps()) {
 				Element pe = DOMUtils.createElement(propElem, prop.getPrefix() + ":" + prop.getLocalPart());
