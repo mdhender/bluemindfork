@@ -66,33 +66,36 @@ const ANONYMOUS: SessionInfos = {
 };
 
 const REFRESH_SESSION_INTERVAL = 30 * 1000;
-let infos: SessionInfos | undefined;
 let expiration = 0;
 const target = new EventTarget();
-async function instance(): Promise<SessionInfos> {
-    if (!infos || shouldRefreshSession()) {
-        const old = infos;
-        try {
-            infos = await fetchSession();
-            expiration = Date.now() + REFRESH_SESSION_INTERVAL;
-        } catch (e) {
-            // For now fetchSession should never fail...
-            infos = ANONYMOUS;
-            expiration = Date.now() + 1000;
+let lock: Promise<SessionInfos> = Promise.resolve(ANONYMOUS);
+
+function instance(): Promise<SessionInfos> {
+    return (lock = lock.then(async (previous: SessionInfos): Promise<SessionInfos> => {
+        let infos = previous;
+        if (!shouldRefreshSession()) {
+            try {
+                infos = await fetchSession(previous);
+                expiration = Date.now() + REFRESH_SESSION_INTERVAL;
+            } catch (e) {
+                // For now fetchSession should never fail...
+                infos = ANONYMOUS;
+                expiration = Date.now() + 1000;
+            }
+            if (!isEqual(previous, infos)) {
+                target.dispatchEvent(new CustomEvent("change", { detail: { old: previous, value: infos } }));
+            }
+            target.dispatchEvent(new CustomEvent("refresh", { detail: infos }));
         }
-        if (!isEqual(old, infos)) {
-            target.dispatchEvent(new CustomEvent("change", { detail: { old, value: infos } }));
-        }
-        target.dispatchEvent(new CustomEvent("refresh", { detail: infos }));
-    }
-    return infos;
+        return infos;
+    }));
 }
 
 function shouldRefreshSession() {
     return expiration < Date.now();
 }
 
-async function fetchSession(): Promise<SessionInfos> {
+async function fetchSession(fallback: SessionInfos): Promise<SessionInfos> {
     try {
         const response = await fetch("/session-infos");
         if (response.ok) {
@@ -104,7 +107,7 @@ async function fetchSession(): Promise<SessionInfos> {
         return Promise.reject(`Error while fetching infos ${response.status}`);
     } catch {
         // If offline return last infos.
-        return infos || ANONYMOUS;
+        return fallback;
     }
 }
 
