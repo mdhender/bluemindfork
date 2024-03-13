@@ -71,6 +71,7 @@ import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;
 import net.bluemind.icalendar.api.ICalendarElement.RRule;
 import net.bluemind.icalendar.api.ICalendarElement.RRule.Frequency;
 import net.bluemind.icalendar.api.ICalendarElement.RRule.WeekDay;
+import net.bluemind.icalendar.api.ICalendarElement.Status;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.server.api.Server;
@@ -164,6 +165,23 @@ public class VEventSanitizerTests {
 		assertNull(vevent.priority);
 		assertTrue(vevent.allDay());
 		assertEquals(VEvent.Transparency.Transparent, vevent.transparency);
+
+	}
+
+	@Test
+	public void testSanitizeStatus() throws ServerFault {
+
+		VEventSanitizer sanitizer = new VEventSanitizer(test1Context, user1DefaultCalendar);
+
+		VEvent vevent = new VEvent();
+
+		vevent.dtstart = BmDateTimeWrapper.create(date1, Precision.Date);
+		vevent.summary = "event " + System.currentTimeMillis();
+		vevent.status = null;
+
+		sanitizer.sanitize(vevent, true);
+
+		assertEquals(Status.Confirmed, vevent.status);
 
 	}
 

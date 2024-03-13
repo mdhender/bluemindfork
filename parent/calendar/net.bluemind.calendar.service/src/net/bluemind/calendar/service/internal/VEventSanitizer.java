@@ -65,6 +65,7 @@ import net.bluemind.icalendar.api.ICalendarElement.RRule;
 import net.bluemind.icalendar.api.ICalendarElement.RRule.Frequency;
 import net.bluemind.icalendar.api.ICalendarElement.RRule.WeekDay;
 import net.bluemind.icalendar.api.ICalendarElement.Role;
+import net.bluemind.icalendar.api.ICalendarElement.Status;
 import net.bluemind.icalendar.api.ICalendarElement.VAlarm;
 import net.bluemind.tag.service.TagsSanitizer;
 import net.bluemind.user.api.IUserSettings;
@@ -99,6 +100,10 @@ public class VEventSanitizer {
 	}
 
 	public void sanitize(VEvent vevent, boolean sendNotification) throws ServerFault {
+
+		if (vevent.status == null) {
+			vevent.status = Status.Confirmed;
+		}
 
 		// 3.8.1.9. Priority
 		// This priority is specified as an integer in the range 0

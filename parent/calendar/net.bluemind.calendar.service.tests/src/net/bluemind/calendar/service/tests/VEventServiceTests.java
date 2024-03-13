@@ -75,6 +75,7 @@ import net.bluemind.core.task.api.TaskStatus.State;
 import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.icalendar.api.ICalendarElement;
+import net.bluemind.icalendar.api.ICalendarElement.Status;
 import net.bluemind.icalendar.api.ICalendarElement.VAlarm;
 import net.bluemind.icalendar.api.ICalendarElement.VAlarm.Action;
 import net.bluemind.tag.api.TagRef;
@@ -503,7 +504,7 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		assertNull(vevent.location);
 		assertNull(vevent.priority);
 		assertNull(vevent.alarm);
-		assertNull(vevent.status);
+		assertEquals(Status.Confirmed, vevent.status);
 		assertNotNull(vevent.attendees);
 		assertEquals(0, vevent.attendees.size());
 		assertNull(vevent.exdate);
