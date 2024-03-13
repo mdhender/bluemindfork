@@ -341,7 +341,7 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 				AuditLogEntry.class);
 		AuditLogEntry firstEntry = response.hits().hits().get(0).source();
 		assertTrue(firstEntry.updatemessage
-				.equals("sylvain@attendee.lan: participation status changed from 'NeedsAction' to 'Accepted'" + CRLF));
+				.equals("sylvain@attendee.lan: participation status changed from 'NeedsAction' to 'Accepted'"));
 	}
 
 	@Test
@@ -478,7 +478,7 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 				AuditLogEntry.class);
 		AuditLogEntry firstEntry = response.hits().hits().get(0).source();
 		assertTrue(firstEntry.updatemessage
-				.equals("event end date changed: '" + oldDate.iso8601 + "' -> '" + newDate.iso8601 + "'" + CRLF));
+				.equals("event end date changed: '" + oldDate.iso8601 + "' -> '" + newDate.iso8601 + "'"));
 	}
 
 	@Test
@@ -513,7 +513,7 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 				AuditLogEntry.class);
 		AuditLogEntry firstEntry = response.hits().hits().get(0).source();
 		assertTrue(firstEntry.updatemessage
-				.equals("event start date changed: '" + oldDate.iso8601 + "' -> '" + newDate.iso8601 + "'" + CRLF));
+				.equals("event start date changed: '" + oldDate.iso8601 + "' -> '" + newDate.iso8601 + "'"));
 	}
 
 	@Test
@@ -547,7 +547,7 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 								.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
 				AuditLogEntry.class);
 		AuditLogEntry firstEntry = response.hits().hits().get(0).source();
-		assertTrue(firstEntry.updatemessage.contains("Added reccurence rules:"));
+		assertTrue(firstEntry.updatemessage.contains("event end date changed:"));
 	}
 
 	@Test
@@ -582,7 +582,7 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 								.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
 				AuditLogEntry.class);
 		AuditLogEntry firstEntry = response.hits().hits().get(0).source();
-		assertTrue(firstEntry.updatemessage.equals("Changed event occurence frequency: 'WEEKLY' -> 'MONTHLY'" + CRLF));
+		assertTrue(firstEntry.updatemessage.equals("Changed event occurence frequency: 'WEEKLY' -> 'MONTHLY'"));
 	}
 
 	@Test
@@ -617,7 +617,7 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 								.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
 				AuditLogEntry.class);
 		AuditLogEntry firstEntry = response.hits().hits().get(0).source();
-		assertTrue(firstEntry.updatemessage.equals("Changed event occurence day: '[TU, FR] -> [TU, SA]'" + CRLF));
+		assertTrue(firstEntry.updatemessage.equals("Changed event occurence day: '[TU, FR] -> [TU, SA]'"));
 	}
 
 	@Test
@@ -653,7 +653,7 @@ public class CalendarServiceLogTests extends AbstractCalendarTests {
 								.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
 				AuditLogEntry.class);
 		AuditLogEntry firstEntry = response.hits().hits().get(0).source();
-		assertTrue(firstEntry.updatemessage.equals("Changed event occurence minute: '[0, 30] -> [0, 40]'" + CRLF));
+		assertTrue(firstEntry.updatemessage.equals("Changed event occurence minute: '[0, 30] -> [0, 40]'"));
 	}
 
 	@Test

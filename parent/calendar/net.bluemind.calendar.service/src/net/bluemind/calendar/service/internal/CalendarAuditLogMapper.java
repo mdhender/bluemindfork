@@ -57,7 +57,7 @@ public class CalendarAuditLogMapper implements ILogMapperProvider<VEventSeries> 
 	@Override
 	public AuditLogUpdateStatus createUpdateMessage(VEventSeries oldValue, VEventSeries newValue) {
 		if (oldValue != null) {
-			return new AuditLogUpdateStatus(computeUpdateDifference(oldValue, newValue));
+			return new AuditLogUpdateStatus(collapseField(computeUpdateDifference(oldValue, newValue)));
 		}
 		return new AuditLogUpdateStatus();
 	}

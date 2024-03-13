@@ -28,7 +28,7 @@
                   "owner":{
                      "properties":{
                         "displayName":{
-                           "type":"keyword"
+                           "type":"text"
                         },
                         "email":{
                            "type":"keyword"
@@ -52,7 +52,7 @@
                      "type":"keyword"
                   },
                   "displayname":{
-                     "type":"keyword"
+                     "type":"text"
                   },
                   "version":{
                      "type":"integer"
@@ -62,7 +62,7 @@
             "securitycontext":{
                "properties":{
                   "displayName":{
-                     "type":"keyword"
+                     "type":"text"
                   },
                   "email":{
                      "type":"keyword"
@@ -101,7 +101,7 @@
                }
             },
             "updatemessage":{
-               "type":"keyword"
+               "type":"text"
             },
             "messageCriticity":{	
                "type":"keyword"

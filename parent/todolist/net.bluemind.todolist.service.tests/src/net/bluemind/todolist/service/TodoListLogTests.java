@@ -112,14 +112,15 @@ public class TodoListLogTests extends AbstractServiceTests {
 
 		assertEquals(1L, response.hits().total().value());
 
-		response = esClient.search(
-				s -> s.index(dataStreamName)
-						.query(q -> q.bool(b -> b
-								.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
-								.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
-								.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
-				AuditLogEntry.class);
-		assertEquals(1L, response.hits().total().value());
+		Awaitility.await().atMost(3, TimeUnit.SECONDS).until(() -> {
+			SearchResponse<AuditLogEntry> response1 = esClient.search(
+					s -> s.index(dataStreamName).query(q -> q.bool(b -> b
+							.must(TermQuery.of(t -> t.field("container.uid").value(container.uid))._toQuery())
+							.must(TermQuery.of(t -> t.field("logtype").value(container.type))._toQuery())
+							.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
+					AuditLogEntry.class);
+			return 1L == response1.hits().total().value();
+		});
 	}
 
 	@Test
