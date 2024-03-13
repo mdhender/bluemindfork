@@ -28,7 +28,7 @@ public class NodePathEscaper extends Escaper {
 	@Override
 	public String escape(String path) {
 		String escaped = escaper.escape(path);
-		return escaped.replace("+", "%2B");
+		return escaped.replace("+", "%2B").replace("?", "%3F");
 	}
 
 }

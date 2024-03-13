@@ -122,6 +122,18 @@ public class NodeTests {
 	}
 
 	@Test
+	public void testListWithQuestionMarkInPath() {
+		String dn = "/tmp/qmark-??-" + System.nanoTime();
+		String fn = dn + "/" + System.nanoTime() + ".tmp";
+		assertEquals(0, NCUtils.exec(nc, "mkdir '" + dn + "'").getExitCode());
+		assertEquals(0, NCUtils.exec(nc, "touch '" + fn + "'").getExitCode());
+
+		List<FileDescription> exist = nc.listFiles(fn);
+		assertFalse(exist.isEmpty());
+		assertEquals(fn, exist.getFirst().getPath());
+	}
+
+	@Test
 	public void testListNonExistingFile() {
 		// folder
 		List<FileDescription> found = nc.listFiles("/idontexist");
