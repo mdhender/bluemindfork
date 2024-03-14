@@ -22,19 +22,17 @@ function buildFieldsQuery(fields, value) {
     }, "");
 }
 
-function searchVCardsHelper(pattern, options) {
-    let { size, noGroup, addressBook, fields, from, orderBy } = Object.assign(
-        {
-            size: 5,
-            noGroup: false,
-            addressBook: null,
-            fields: [Fields.NAME, Fields.EMAIL],
-            from: 0,
-            orderBy: VCardQuery.OrderBy.Pertinance
-        },
-        options
-    );
-
+function searchVCardsHelper(
+    pattern,
+    {
+        size = 5,
+        noGroup = false,
+        addressBook = null,
+        fields = [Fields.NAME, Fields.EMAIL],
+        from = 0,
+        orderBy = VCardQuery.OrderBy.Pertinance
+    } = {}
+) {
     if (size < 0) {
         size = SEARCH_API_MAX_SIZE;
     }
