@@ -49,6 +49,13 @@ public class ContainerDescriptor extends BaseContainerDescriptor {
 	}
 
 	public static ContainerDescriptor create(String uid, String name, String owner, String type, String domainUid,
+			boolean defaultContainer, String ownerDisplayname) {
+		ContainerDescriptor ret = create(uid, name, owner, type, domainUid, defaultContainer);
+		ret.ownerDisplayname = ownerDisplayname;
+		return ret;
+	}
+
+	public static ContainerDescriptor create(String uid, String name, String owner, String type, String domainUid,
 			boolean defaultContainer, Map<String, String> settings) {
 		ContainerDescriptor ret = new ContainerDescriptor();
 		ret.uid = uid;

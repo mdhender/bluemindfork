@@ -26,5 +26,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.common.freemarker;bundle-version="5.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ActivationPolicy: lazy
-Export-Package: net.bluemind.core.container.hooks
+Export-Package: net.bluemind.core.container.hooks,
+ net.bluemind.core.container.hooks.aclchangednotification
 Automatic-Module-Name: net.bluemind.core.container.hooks

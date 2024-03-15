@@ -66,6 +66,7 @@ public class ContainerManagement implements IInternalContainerManagement {
 	private AclService aclService;
 	private SecurityContext securityContext;
 	private Container container;
+	private Containers containerService;
 	private ContainerStore containerStore;
 	private ItemStore itemStore;
 	private ContainerPersonalSettingsStore containerPersonalSettingsStore;
@@ -103,6 +104,7 @@ public class ContainerManagement implements IInternalContainerManagement {
 				container);
 		containerSettingsStore = new ContainerSettingsStore(ds, container);
 		aclService = new AclService(context, context.getSecurityContext(), ds, container);
+		containerService = new Containers(context);
 		sanitizer = new Sanitizer(context, container);
 		validator = new Validator(context);
 
@@ -134,13 +136,13 @@ public class ContainerManagement implements IInternalContainerManagement {
 		// validate mailboxacl, public sharing is forbidden
 		aceValidator.validate(container, entries);
 
-		ContainerDescriptor descriptor = ContainerDescriptor.create(container.uid, container.name, container.owner,
-				container.type, container.domainUid, container.defaultContainer);
 		List<AccessControlEntry> previous = aclService.get();
 		ContainerAcl currentContainerAcl = new ContainerAcl(new HashSet<>(entries));
 		sanitizer.update(new ContainerAcl(previous.stream().collect(Collectors.toSet())), currentContainerAcl);
 		entries = new ArrayList<>(currentContainerAcl.acl());
 		aclService.store(entries);
+
+		ContainerDescriptor descriptor = containerService.get(container.uid);
 		hookAfterUpdate(entries, sendNotification, descriptor, previous);
 
 		eventProducer().changed(container.type, container.uid);

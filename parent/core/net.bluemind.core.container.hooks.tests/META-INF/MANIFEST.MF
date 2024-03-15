@@ -29,5 +29,6 @@ Require-Bundle: org.junit,
  net.bluemind.addressbook.userbook;bundle-version="1.0.0",
  net.bluemind.todolist.usertodolist;bundle-version="1.0.0",
  org.eclipse.osgi;bundle-version="3.11.0",
- net.bluemind.pool
+ net.bluemind.pool,
+ net.bluemind.core.container.hooks
 Automatic-Module-Name: net.bluemind.core.container.hooks.tests

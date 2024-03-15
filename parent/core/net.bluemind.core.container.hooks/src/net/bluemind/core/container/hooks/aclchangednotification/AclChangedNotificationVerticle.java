@@ -7,13 +7,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Queue;
 import java.util.ResourceBundle;
-import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 
@@ -29,6 +27,9 @@ import io.vertx.core.Verticle;
 import io.vertx.core.eventbus.Message;
 import net.bluemind.common.freemarker.MessagesResolver;
 import net.bluemind.configfile.core.CoreConfig;
+import net.bluemind.core.container.api.IContainers;
+import net.bluemind.core.container.hooks.aclchangednotification.AclWithState.AclStatus;
+import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
@@ -42,7 +43,6 @@ import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.group.api.IGroup;
 import net.bluemind.group.api.Member;
-import net.bluemind.i18n.labels.I18nLabels;
 import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 import net.bluemind.mailbox.api.IMailboxAclUids;
@@ -90,28 +90,45 @@ public class AclChangedNotificationVerticle extends AbstractVerticle {
 		Map<String, AclChangeInfo> aclChangeInfos = new HashMap<>();
 		while (!ACL_CHANGED_MSGS.isEmpty()) {
 			AclChangedMsg aclChangedMsg = ACL_CHANGED_MSGS.poll();
-			aclChangedMsg.diff().stream().filter(ace -> isTargetUser(ace.subject, aclChangedMsg.domainUid()))
+			aclChangedMsg.diff().stream().filter(acm -> isValidTargetUser(acm.entry.subject, aclChangedMsg.domainUid()))
 					.forEach(ace -> {
 						String key = AclChangeInfo.key(aclChangedMsg.domainUid(), aclChangedMsg.sourceUserId(),
-								ace.subject);
+								ace.entry.subject);
 						AclChangeInfo aclChangeInfo = aclChangeInfos.computeIfAbsent(key,
 								k -> new AclChangeInfo(aclChangedMsg.domainUid(), aclChangedMsg.sourceUserId(),
-										ace.subject));
-						NewVerbs newVerbs = aclChangeInfo.newVerbsByContainer.computeIfAbsent(
-								aclChangedMsg.containerUid(),
-								k -> new NewVerbs(aclChangedMsg.containerUid(), aclChangedMsg.containerName(),
-										aclChangedMsg.containerType(), aclChangedMsg.defaultContainer()));
-						newVerbs.verbs.add(ace.verb);
+										ace.entry.subject, aclChangedMsg.isItsOwnContainer()));
+						NewVerbs newVerbs = aclChangeInfo.newVerbsByContainer
+								.computeIfAbsent(aclChangedMsg.containerUid(),
+										k -> new NewVerbs(aclChangedMsg.containerUid(), aclChangedMsg.containerName(),
+												aclChangedMsg.containerType(),
+												aclChangedMsg.containerOwnerDisplayname()));
+						newVerbs.verbs.put(ace.entry.verb, ace.status);
 					});
 		}
 		return aclChangeInfos.values();
 	}
 
-	private boolean isTargetUser(String userUid, String domainUid) {
-		BmContext bmContext = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).getContext();
+	private static DirEntry fetchUserDirEntry(BmContext bmContext, String domainUid, String userUid) {
 		IDirectory dirService = bmContext.provider().instance(IDirectory.class, domainUid);
-		DirEntry targetUser = dirService.findByEntryUid(userUid);
-		return targetUser != null && targetUser.email != null && targetUser.displayName != null;
+		return dirService.findByEntryUid(userUid);
+	}
+
+	private static String fetchUserDomainUid(BmContext bmContext, String domainUid, String userUid) {
+		if ("global.virt".equals(domainUid)) {
+			String containerUid = IMailboxAclUids.uidForMailbox(userUid);
+			IContainers containerService = bmContext.provider().instance(IContainers.class);
+			BaseContainerDescriptor targetUserContainer = containerService.getLight(containerUid);
+			return targetUserContainer.domainUid;
+		}
+		return domainUid;
+	}
+
+	private static boolean isValidTargetUser(String targerUserUid, String domainUid) {
+		BmContext bmContext = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).getContext();
+		String domainUserUid = fetchUserDomainUid(bmContext, domainUid, targerUserUid);
+		DirEntry targetUser = fetchUserDirEntry(bmContext, domainUserUid, targerUserUid);
+		boolean isValid = targetUser != null && targetUser.email != null && targetUser.displayName != null;
+		return isValid;
 	}
 
 	private void sendMessages() {
@@ -129,7 +146,8 @@ public class AclChangedNotificationVerticle extends AbstractVerticle {
 		Mail m = new Mail();
 		BmContext bmContext = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).getContext();
 		IDirectory dirService = bmContext.provider().instance(IDirectory.class, aclChangeInfo.domainUid);
-		DirEntry targetUser = dirService.findByEntryUid(aclChangeInfo.targetUserId);
+		String targetDomainUid = fetchUserDomainUid(bmContext, aclChangeInfo.domainUid, aclChangeInfo.targetUserId);
+		DirEntry targetUser = fetchUserDirEntry(bmContext, targetDomainUid, aclChangeInfo.targetUserId);
 		DirEntry sourceUser = dirService.findByEntryUid(aclChangeInfo.sourceUserId);
 
 		if (targetUser.email == null) {
@@ -142,31 +160,69 @@ public class AclChangedNotificationVerticle extends AbstractVerticle {
 		m.to = SendmailHelper.formatAddress(targetUser.displayName, targetUser.email);
 
 		IUserSettings settingService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IUserSettings.class, aclChangeInfo.domainUid);
+				.instance(IUserSettings.class, getTargetDomainUid(aclChangeInfo.domainUid, targetDomainUid));
 		String lang = settingService.get(targetUser.entryUid).get("lang");
 		Locale locale = lang == null || lang.isEmpty() ? Locale.ENGLISH : Locale.forLanguageTag(lang);
-		MessagesResolver resolver = new MessagesResolver(ResourceBundle.getBundle("aclChangedNotification", locale));
-		m.subject = resolver.translate("subject", new Object[] { sourceUser.displayName });
 
-		Map<String, Object> ftlData = prepareFtlData(resolver, sourceUser);
+		Map<String, Object> ftlDatas = new HashMap<>();
+		if (aclChangeInfo.hasVerbsWithStatus(AclStatus.ADDED)) {
+			ftlDatas.putAll(prepareFtlDataByState(aclChangeInfo, sourceUser, lang, locale, m, AclStatus.ADDED));
+		}
+		if (aclChangeInfo.hasVerbsWithStatus(AclStatus.REMOVED)) {
+			ftlDatas.putAll(prepareFtlDataByState(aclChangeInfo, sourceUser, lang, locale, m, AclStatus.REMOVED));
+		}
 
-		aclChangeInfo.newVerbsByContainer.values().forEach(newVerbs -> {
-			buildFtlData(ftlData, newVerbs, resolver, lang);
-			addContainerTypeHeader(m, newVerbs);
-		});
+		m.html = applyTemplate(ftlDatas, locale);
 
-		m.html = applyTemplate(ftlData, locale);
-
-		List<Mail> mailsForExpandedGroup = buildMailsForExpandedGroup(bmContext, aclChangeInfo.domainUid, targetUser,
-				dirService, m);
+		List<Mail> mailsForExpandedGroup = buildMailsForExpandedGroup(bmContext,
+				getTargetDomainUid(aclChangeInfo.domainUid, targetDomainUid), targetUser, dirService, m);
 		return mailsForExpandedGroup.isEmpty() ? Collections.singletonList(m) : mailsForExpandedGroup;
 	}
 
-	private Map<String, Object> prepareFtlData(MessagesResolver resolver, DirEntry sourceUser) {
+	private Map<String, Object> prepareFtlDataByState(AclChangeInfo aclChangeInfo, DirEntry sourceUser, String lang,
+			Locale locale, Mail m, AclStatus status) throws IOException, TemplateException {
+		MessagesResolver resolver = new MessagesResolver(ResourceBundle.getBundle("aclChangedNotification", locale));
+
+		m.subject = resolver.translate("subject", new Object[] { getActorName(sourceUser, resolver) });
+
+		Map<String, Object> ftlData = prepareFtlData(resolver, sourceUser, status);
+
+		aclChangeInfo.newVerbsByContainer.values().stream()
+				.filter(newVerbs -> !newVerbs.verbs.isEmpty() && !newVerbs.listVerbByStatus(status).isEmpty())
+				.forEach(newVerbs -> {
+					buildFtlData(ftlData, newVerbs, resolver, lang, aclChangeInfo, status);
+					addContainerTypeHeader(m, newVerbs);
+				});
+
+		return ftlData;
+	}
+
+	private String getActorName(DirEntry sourceUser, MessagesResolver resolver) {
+		return sourceUser.email.equals("admin0@global.virt") ? resolver.translate("user.admin", null)
+				: sourceUser.displayName;
+	}
+
+	private static String getTargetDomainUid(String domainUid, String targetDomainUid) {
+		return "global.virt".equals(domainUid) ? targetDomainUid : domainUid;
+	}
+
+	private Map<String, Object> prepareFtlData(MessagesResolver resolver, DirEntry sourceUser, AclStatus status) {
 		Map<String, Object> ftlData = new HashMap<>();
-		ftlData.put("appPermissions", new HashMap<>());
-		ftlData.put("desc", resolver.translate("desc", new Object[] { sourceUser.displayName }));
-		ftlData.put("tableHead", resolver.translate("tableHead", null));
+		ftlData.put("desc", resolver.translate("desc", new Object[] { getActorName(sourceUser, resolver) }));
+		switch (status) {
+		case ADDED: {
+			ftlData.put("appPermissionsAdded", new HashMap<>());
+			ftlData.put("tableHeadAdd", resolver.translate("tableHead.add", null));
+			break;
+		}
+		case REMOVED: {
+			ftlData.put("appPermissionsDeleted", new HashMap<>());
+			ftlData.put("tableHeadDelete", resolver.translate("tableHead.delete", null));
+			break;
+		}
+		default:
+			throw new IllegalArgumentException("Unexpected value: " + status);
+		}
 		return ftlData;
 	}
 
@@ -179,20 +235,36 @@ public class AclChangedNotificationVerticle extends AbstractVerticle {
 		return sw.toString();
 	}
 
-	private void buildFtlData(Map<String, Object> ftlData, NewVerbs newVerbs, MessagesResolver resolver, String lang) {
+	private void buildFtlData(Map<String, Object> ftlData, NewVerbs newVerbs, MessagesResolver resolver, String lang,
+			AclChangeInfo aclChangeInfo, AclStatus status) {
+		String appPermissionsKeyName = null;
+		switch (status) {
+		case ADDED: {
+			appPermissionsKeyName = "appPermissionsAdded";
+			break;
+		}
+		case REMOVED: {
+			appPermissionsKeyName = "appPermissionsDeleted";
+			break;
+		}
+		default:
+			throw new IllegalArgumentException("Unexpected value: " + status);
+		}
+
 		@SuppressWarnings("unchecked")
-		Map<String, List<Permission>> appPermissions = (Map<String, List<Permission>>) ftlData.get("appPermissions");
-		String containerName = I18nLabels.getInstance().translate(lang, newVerbs.containerName);
+		Map<String, List<Permission>> appPermissions = (Map<String, List<Permission>>) ftlData
+				.get(appPermissionsKeyName);
 		String app = resolver.translate("app." + newVerbs.containerType, null);
 		List<Permission> permissions = appPermissions.computeIfAbsent(app, k -> new ArrayList<>());
-		String targetKind = newVerbs.containerIsDefault ? "default" : "other";
-		Object[] params = new Object[] { containerName };
+		String targetKind = aclChangeInfo.isItsOwnContainer ? "default" : "other";
+		Object[] params = new Object[] { newVerbs.containerOwnerDisplayname };
 		String target = resolver.translate("target." + targetKind + "." + newVerbs.containerType, params);
-		newVerbs.verbs.forEach(verb -> {
-			String level = resolver.translate(verb.name(), null);
+		newVerbs.verbs.entrySet().stream().filter(verb -> verb.getValue() == status).forEach(verb -> {
+			String level = resolver.translate(verb.getKey().name(), null);
 			Permission appPermission = new Permission(level, target);
 			permissions.add(appPermission);
 		});
+
 	}
 
 	public record Permission(String level, String target) {
@@ -240,13 +312,15 @@ public class AclChangedNotificationVerticle extends AbstractVerticle {
 		String domainUid;
 		String sourceUserId;
 		String targetUserId;
+		boolean isItsOwnContainer;
 
 		Map<String, NewVerbs> newVerbsByContainer = new HashMap<>();
 
-		public AclChangeInfo(String domainUid, String sourceUserId, String targetUserId) {
+		public AclChangeInfo(String domainUid, String sourceUserId, String targetUserId, boolean isItsOwnContainer) {
 			this.domainUid = domainUid;
 			this.sourceUserId = sourceUserId;
 			this.targetUserId = targetUserId;
+			this.isItsOwnContainer = isItsOwnContainer;
 		}
 
 		static String key(String domainUid, String sourceUserId, String targetUserId) {
@@ -256,29 +330,40 @@ public class AclChangedNotificationVerticle extends AbstractVerticle {
 		@Override
 		public String toString() {
 			return "AclChangeInfo [domainUid=" + domainUid + ", sourceUserId=" + sourceUserId + ", targetUserId="
-					+ targetUserId + ", newVerbsByContainer=" + newVerbsByContainer + "]";
+					+ targetUserId + ", isItsOwnContainer=" + isItsOwnContainer + ", newVerbsByContainer="
+					+ newVerbsByContainer + "]";
 		}
 
+		public boolean hasVerbsWithStatus(AclStatus status) {
+			return newVerbsByContainer.entrySet().stream()
+					.anyMatch(newVerb -> !newVerb.getValue().listVerbByStatus(status).isEmpty());
+		}
 	}
 
 	private class NewVerbs {
 		String containerUid;
 		String containerName;
+		String containerOwnerDisplayname;
 		String containerType;
-		boolean containerIsDefault;
-		Set<Verb> verbs = new HashSet<>();
+		Map<Verb, AclStatus> verbs = new HashMap<>();
 
-		public NewVerbs(String containerUid, String containerName, String containerType, boolean containerIsDefault) {
+		public NewVerbs(String containerUid, String containerName, String containerType,
+				String containerOwnerDisplayname) {
 			this.containerUid = containerUid;
 			this.containerName = containerName;
 			this.containerType = containerType;
-			this.containerIsDefault = containerIsDefault;
+			this.containerOwnerDisplayname = containerOwnerDisplayname;
 		}
 
 		@Override
 		public String toString() {
 			return "NewVerbs [containerUid=" + containerUid + ", containerName=" + containerName + ", containerType="
-					+ containerType + ", containerIsDefault=" + containerIsDefault + ", verbs=" + verbs + "]";
+					+ containerType + ", containerOwnerDisplayname=" + containerOwnerDisplayname + ", verbs=" + verbs
+					+ "]";
+		}
+
+		public List<Verb> listVerbByStatus(AclStatus status) {
+			return verbs.entrySet().stream().filter(v -> v.getValue() == status).map(v -> v.getKey()).toList();
 		}
 
 	}
