@@ -43,6 +43,7 @@ const DISCLAIMER_CLASSNAME = "bm-disclaimer";
 export function wrapCorporateSignature(html) {
     const wrapper = document.createElement(WRAPPER_TAG);
     wrapper.setAttribute("class", CORPORATE_SIGNATURE_CLASSNAME);
+    wrapper.setAttribute("contenteditable", false);
     wrapper.innerHTML = html;
     return wrapper;
 }

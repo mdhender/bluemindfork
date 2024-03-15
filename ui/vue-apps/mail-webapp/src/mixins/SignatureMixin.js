@@ -122,7 +122,7 @@ export default {
             if (!signature?.uid) {
                 return options;
             }
-            if (signature.usePlaceholders) {
+            if (signature.usePlaceholder) {
                 options.movable = CORPORATE_SIGNATURE_PLACEHOLDER;
             } else {
                 options.movable = false;
