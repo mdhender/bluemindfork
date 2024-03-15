@@ -31,10 +31,6 @@ public class ValueAuditLogService<T> extends AuditLogService<T, T> {
 		super(sc, cont, dm);
 	}
 
-	public ValueAuditLogService(SecurityContext sc, BaseContainerDescriptor cont) {
-		super(sc, cont);
-	}
-
 	@Override
 	protected AuditLogEntry createAuditLogEntry(T value) {
 		AuditLogEntry auditLogEntry = new AuditLogEntry();

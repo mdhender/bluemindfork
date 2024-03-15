@@ -76,6 +76,8 @@ import net.bluemind.core.jdbc.JdbcAbstractStore;
 import net.bluemind.core.jdbc.JdbcAbstractStore.SqlOperation;
 import net.bluemind.directory.api.ReservedIds;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.system.api.SystemState;
+import net.bluemind.system.state.StateContext;
 
 public class ContainerStoreService<T> implements IContainerStoreService<T> {
 
@@ -98,7 +100,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	private final IWeightProvider weightProvider;
 	private final Supplier<ContainerChangeEventProducer> containerChangeEventProducer;
 	private final Supplier<IBackupStore<T>> backupStream;
-	private ItemValueAuditLogService<T> logService;
+	private final Supplier<Optional<ItemValueAuditLogService<T>>> logServiceSupplier;
 	private final DataSource pool;
 
 	public final ReservedIds.ConsumerHandler doNothingOnIdsReservation = callback -> callback.accept(null);
@@ -159,7 +161,13 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 		this.flagsProvider = fProv;
 		this.weightSeedProvider = wsProv;
 		this.weightProvider = wProv;
-		this.logService = logService;
+		this.logServiceSupplier = () -> {
+			if (StateContext.getState().equals(SystemState.CORE_STATE_RUNNING)) {
+				return Optional.of(logService);
+			} else {
+				return Optional.empty();
+			}
+		};
 
 		BaseContainerDescriptor descriptor = BaseContainerDescriptor.create(container.uid, container.name,
 				container.owner, container.type, container.domainUid, container.defaultContainer);
@@ -393,9 +401,9 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			beforeCreationInBackupStore(iv);
 
 			handler.acceptConsumer(reservedIds -> backupStream.get().store(iv, reservedIds));
-			if (logService != null) {
+			logServiceSupplier.get().ifPresent(logService -> {
 				logService.logCreate(iv);
-			}
+			});
 			return created.itemVersion();
 		});
 	}
@@ -486,14 +494,14 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 
 			handler.acceptConsumer(
 					reservedIds -> backupStream.get().store(ItemValue.create(updated, value), reservedIds));
-			if (logService != null) {
+			logServiceSupplier.get().ifPresent(logService -> {
 				ItemValue<T> itemValue = ItemValue.create(updated, value);
 				if (updated.flags.contains(ItemFlag.Deleted)) {
 					logService.logDelete(itemValue);
 				} else {
 					logService.logUpdate(itemValue, oldValue);
 				}
-			}
+			});
 			return updated.itemVersion();
 		});
 	}
@@ -527,14 +535,14 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			}
 			T oldValue = doOrFail(() -> itemValueStore.get(item));
 			updateValue(item, value);
-			if (logService != null) {
+			logServiceSupplier.get().ifPresent(logService -> {
 				ItemValue<T> itemValue = ItemValue.create(item, value);
 				if (item.flags.contains(ItemFlag.Deleted)) {
 					logService.logDelete(itemValue);
 				} else {
 					logService.logUpdate(itemValue, oldValue);
 				}
-			}
+			});
 			lastEmptyChangeset.invalidate(containerCacheKey);
 
 			ItemValue<T> iv = ItemValue.create(item, value);
@@ -576,9 +584,9 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 					container.type, container.domainUid, false);
 			cd.internalId = container.id;
 			backupStream.get().delete(itemValue);
-			if (logService != null) {
+			logServiceSupplier.get().ifPresent(logService -> {
 				logService.logDelete(itemValue);
-			}
+			});
 			return item.itemVersion();
 		});
 	}

@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -83,7 +84,7 @@ public class Authentication implements IInCoreAuthentication {
 	private final List<ILoginValidationListener> loginListeners;
 	private final List<ILoginSessionValidator> sessionValidators;
 	private final IDomains domainService;
-	private final SecurityContextAuditLogService auditLogService;
+	private final Supplier<Optional<SecurityContextAuditLogService>> auditLogServiceSupplier;
 
 	private BmContext context;
 
@@ -95,7 +96,12 @@ public class Authentication implements IInCoreAuthentication {
 		this.authProviders = authProviders;
 		this.loginListeners = loginListeners;
 		this.sessionValidators = sessionValidators;
-		this.auditLogService = auditLogService;
+		this.auditLogServiceSupplier = () -> {
+			if (StateContext.getState().equals(SystemState.CORE_STATE_RUNNING)) {
+				return Optional.of(auditLogService);
+			}
+			return Optional.empty();
+		};
 		this.domainService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomains.class);
 	}
 
@@ -307,11 +313,15 @@ public class Authentication implements IInCoreAuthentication {
 			resp.authKey = context.getSessionId();
 		}
 
-		try {
-			auditLogService.logCreate(context, authContext.domain.uid);
-		} catch (Exception e) {
-			logger.error("Error with authentication auditlog: {}", e.getMessage());
-		}
+		final SecurityContext finalContext = context;
+
+		auditLogServiceSupplier.get().ifPresent(auditLogService -> {
+			try {
+				auditLogService.logCreate(finalContext, authContext.domain.uid);
+			} catch (Exception e) {
+				logger.error("Error with authentication auditlog: {}", e.getMessage());
+			}
+		});
 		resp.authUser = AuthUser.create(context.getContainerUid(), context.getSubject(), authContext.user.displayName,
 				authContext.user.value, new HashSet<>(context.getRoles()), context.getRolesByOrgUnits(), settings);
 		return resp;
@@ -478,8 +488,10 @@ public class Authentication implements IInCoreAuthentication {
 				oips.add(ipAddress);
 			}
 		}
-		logger.info("[name={};origin={};oip={}] sudo as by {}", login, securityContext.getOrigin(),
-				String.join(",", oips), performer);
+		if (logger.isInfoEnabled()) {
+			logger.info("[name={};origin={};oip={}] sudo as by {}", login, securityContext.getOrigin(),
+					String.join(",", oips), performer);
+		}
 
 		Iterator<String> splitted = atSplitter.split(login).iterator();
 		String localPart = splitted.next();
@@ -527,11 +539,15 @@ public class Authentication implements IInCoreAuthentication {
 			SecurityContext builtContext = buildSecurityContext(resp.authKey, user, domainPart, settings,
 					securityContext.getOrigin(), false, interactive);
 
-			try {
-				auditLogService.logCreate(builtContext, domainPart);
-			} catch (Exception e) {
-				logger.error("Error with authentication auditlog: {}", e.getMessage());
-			}
+			final String finalDomainPart = domainPart;
+			auditLogServiceSupplier.get().ifPresent(auditLogService -> {
+				try {
+					auditLogService.logCreate(builtContext, finalDomainPart);
+				} catch (Exception e) {
+					logger.error("Error with authentication auditlog: {}", e.getMessage());
+				}
+			});
+
 			resp.authUser = AuthUser.create(builtContext.getContainerUid(), builtContext.getSubject(), user.displayName,
 					user.value, new HashSet<>(builtContext.getRoles()), builtContext.getRolesByOrgUnits(), settings);
 			Sessions.get().put(resp.authKey, builtContext);

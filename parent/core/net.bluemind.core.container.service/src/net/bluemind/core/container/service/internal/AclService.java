@@ -23,12 +23,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import javax.sql.DataSource;
 
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.auditlogs.ILogMapperProvider;
 import net.bluemind.core.container.api.internal.IAccessControlList;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.Container;
@@ -41,19 +42,27 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
+import net.bluemind.system.api.SystemState;
+import net.bluemind.system.state.StateContext;
 
 public class AclService implements IAccessControlList {
 	private final AclStore aclStore;
-	private final AuditLogService<AccessControlEntry, AccessControlEntry> auditLog;
+	private final Supplier<Optional<AuditLogService<AccessControlEntry, AccessControlEntry>>> auditLogSupplier;
 	private final Container container;
 
 	public AclService(BmContext ctx, SecurityContext sc, DataSource pool, BaseContainerDescriptor desc) {
 		container = Container.create(desc.uid, desc.type, desc.name, desc.owner, desc.domainUid, desc.defaultContainer);
 		container.id = desc.internalId;
-		ILogMapperProvider<AccessControlEntry> mapper = new AccessControlEntryAuditLogMapper(container);
 		aclStore = new AclStore(ctx, pool);
-		auditLog = new ValueAuditLogService<>(sc, desc, mapper);
-		auditLog.setType("containeracl");
+		auditLogSupplier = () -> {
+			if (StateContext.getState().equals(SystemState.CORE_STATE_RUNNING)) {
+				var auditLog = new ValueAuditLogService<>(sc, desc, new AccessControlEntryAuditLogMapper(container));
+				auditLog.setType("containeracl");
+				return Optional.of(auditLog);
+			} else {
+				return Optional.empty();
+			}
+		};
 	}
 
 	public AclService(BmContext ctx, SecurityContext sc, DataSource pool, Container cont) {
@@ -61,17 +70,25 @@ public class AclService implements IAccessControlList {
 				cont.domainUid, cont.defaultContainer);
 		desc.internalId = cont.id;
 		container = cont;
-		ILogMapperProvider<AccessControlEntry> mapper = new AccessControlEntryAuditLogMapper(container);
 		aclStore = new AclStore(ctx, pool);
-		auditLog = new ValueAuditLogService<>(sc, desc, mapper);
-		auditLog.setType("containeracl");
+		auditLogSupplier = () -> {
+			if (StateContext.getState().equals(SystemState.CORE_STATE_RUNNING)) {
+				var auditLog = new ValueAuditLogService<>(sc, desc, new AccessControlEntryAuditLogMapper(container));
+				auditLog.setType("containeracl");
+				return Optional.of(auditLog);
+			} else {
+				return Optional.empty();
+			}
+		};
 	}
 
 	@Override
 	public void store(final List<AccessControlEntry> entries) {
 		try {
 			List<AccessControlEntry> compacted = AccessControlEntry.compact(entries);
-			compacted.forEach(auditLog::logCreate);
+			auditLogSupplier.get().ifPresent(auditLog -> {
+				compacted.forEach(auditLog::logCreate);
+			});
 			aclStore.store(container, compacted);
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
@@ -82,7 +99,9 @@ public class AclService implements IAccessControlList {
 	public void add(final List<AccessControlEntry> entries) {
 		try {
 			List<AccessControlEntry> compacted = AccessControlEntry.compact(entries);
-			compacted.forEach(auditLog::logCreate);
+			auditLogSupplier.get().ifPresent(auditLog -> {
+				compacted.forEach(auditLog::logCreate);
+			});
 			aclStore.add(container, compacted);
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
@@ -102,7 +121,9 @@ public class AclService implements IAccessControlList {
 	public void deleteAll() {
 		try {
 			List<AccessControlEntry> entries = aclStore.get(container);
-			entries.forEach(auditLog::logDelete);
+			auditLogSupplier.get().ifPresent(auditLog -> {
+				entries.forEach(auditLog::logDelete);
+			});
 			aclStore.deleteAll(container);
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
@@ -114,8 +135,10 @@ public class AclService implements IAccessControlList {
 		try {
 			List<AccessControlEntry> compacted = AccessControlEntry.compact(entries);
 			List<AccessControlEntry> oldEntries = aclStore.retrieveAndStore(container, compacted);
-			compacted.stream().filter(e -> !oldEntries.contains(e)).forEach(e -> auditLog.logUpdate(e, null));
-			oldEntries.stream().filter(e -> !entries.contains(e)).forEach(auditLog::logDelete);
+			auditLogSupplier.get().ifPresent(auditLog -> {
+				compacted.stream().filter(e -> !oldEntries.contains(e)).forEach(e -> auditLog.logUpdate(e, null));
+				oldEntries.stream().filter(e -> !entries.contains(e)).forEach(auditLog::logDelete);
+			});
 			return AccessControlEntry.expand(addOwnerRights(oldEntries));
 		} catch (ServerFault e) {
 			throw ServerFault.sqlFault(e);
