@@ -21,6 +21,7 @@ package net.bluemind.eas.command.sync;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -87,6 +88,7 @@ import net.bluemind.eas.impl.Responder;
 import net.bluemind.eas.impl.vertx.VertxLazyLoader;
 import net.bluemind.eas.protocol.IEasProtocol;
 import net.bluemind.eas.protocol.ProtocolCircuitBreaker;
+import net.bluemind.eas.serdes.DateFormat;
 import net.bluemind.eas.serdes.IResponseBuilder;
 import net.bluemind.eas.serdes.sync.SyncRequestParser;
 import net.bluemind.eas.serdes.sync.SyncResponseFormatter;
@@ -613,10 +615,19 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 	private CollectionSyncResponse.ServerResponse clientChange(BackendSession bs, CollectionSyncRequest collection,
 			IContentsImporter importer, ItemDataType type, Element modification, SyncState syncState) {
 		IDataDecoder dd = decoders.get(type);
-		String serverId = DOMUtils.getElementText(modification, "ServerId");
 		Element syncData = DOMUtils.getUniqueElement(modification, "ApplicationData");
-		IApplicationData appData = dd.decode(bs, syncData);
+		String serverId = DOMUtils.getElementText(modification, "ServerId");
+		String instanceId = DOMUtils.getElementText(modification, "InstanceId");
 
+		IApplicationData appData = null;
+
+		Date recurid = null;
+		if (instanceId != null) {
+			recurid = DateFormat.parse(instanceId);
+			appData = dd.decode(bs, syncData, Map.of("hasRecurId", Boolean.TRUE));
+		} else {
+			appData = dd.decode(bs, syncData);
+		}
 		if (type == ItemDataType.EMAIL && DOMUtils.getUniqueElement(modification, "Send") != null) {
 			// MS-ASEMAIL 2.2.2.69 Send
 			//
@@ -634,8 +645,8 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 		}
 
 		try {
-			importer.importMessageChange(bs, collection.getCollectionId(), type, Optional.of(serverId), appData,
-					collection.options.conflictPolicy, syncState);
+			importer.importMessageChange(bs, collection.getCollectionId(), type, Optional.of(serverId),
+					Optional.ofNullable(recurid), appData, collection.options.conflictPolicy, syncState);
 			return clientChangeSuccess(serverId);
 		} catch (ObjectNotFoundException e) {
 			return clientChangedObjectNotFoundError(serverId, e);
@@ -710,7 +721,7 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 		d.put(null, data);
 		try {
 			CollectionItem bmId = importer.importMessageChange(bs, collection.getCollectionId(), dataClass,
-					Optional.<String>empty(), data, collection.options.conflictPolicy, syncState);
+					Optional.<String>empty(), Optional.empty(), data, collection.options.conflictPolicy, syncState);
 			ServerResponse sr = new ServerResponse();
 			sr.clientId = clientId;
 			sr.ackStatus = SyncStatus.OK;

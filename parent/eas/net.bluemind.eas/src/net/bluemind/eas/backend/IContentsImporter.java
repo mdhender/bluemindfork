@@ -44,8 +44,8 @@ import net.bluemind.eas.exception.NotAllowedException;
 public interface IContentsImporter {
 
 	CollectionItem importMessageChange(BackendSession bs, CollectionId collectionId, ItemDataType type,
-			Optional<String> serverId, IApplicationData data, ConflicResolution conflictPolicy, SyncState syncState)
-			throws ActiveSyncException;
+			Optional<String> serverId, Optional<Date> recurId, IApplicationData data, ConflicResolution conflictPolicy,
+			SyncState syncState) throws ActiveSyncException;
 
 	void importMessageDeletion(BackendSession bs, ItemDataType type, Collection<CollectionItem> serverIds,
 			Boolean moveToTrash) throws ActiveSyncException;

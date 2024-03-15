@@ -20,8 +20,10 @@ package net.bluemind.eas.data;
 
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 
 import org.w3c.dom.Element;
@@ -54,6 +56,11 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 
 	@Override
 	public IApplicationData decode(BackendSession bs, Element syncData) {
+		return decode(bs, syncData, Collections.emptyMap());
+	}
+
+	@Override
+	public IApplicationData decode(BackendSession bs, Element syncData, Map<String, Object> data) {
 		Element containerNode;
 		MSEvent msEvent = new MSEvent();
 
@@ -66,7 +73,7 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 
 		setEventCalendar(msEvent, syncData);
 		// MDP-223
-		if (msEvent.getMeetingStatus() == null) {
+		if (!data.containsKey("hasRecurId") && msEvent.getMeetingStatus() == null) {
 			logger.error("MeetingStatus is NULL, do not proccess");
 			return null;
 		}

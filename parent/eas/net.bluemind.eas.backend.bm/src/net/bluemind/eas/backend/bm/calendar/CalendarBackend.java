@@ -24,7 +24,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -177,7 +176,8 @@ public class CalendarBackend extends CoreConnect {
 	}
 
 	public CollectionItem store(BackendSession bs, CollectionId collectionId, Optional<String> sid,
-			IApplicationData data, ConflicResolution conflictPolicy, SyncState syncState) throws ActiveSyncException {
+			Optional<Date> recurId, IApplicationData data, ConflicResolution conflictPolicy, SyncState syncState)
+			throws ActiveSyncException {
 		CollectionItem ret = null;
 		HierarchyNode folder = storage.getHierarchyNode(bs, collectionId);
 		ICalendar service = getService(bs, folder.containerUid);
@@ -203,97 +203,24 @@ public class CalendarBackend extends CoreConnect {
 								"Both server and client changes. Conflict resolution is SERVER_WINS");
 					}
 
-					VEventSeries oldEvent = item.value;
-					ConvertedVEvent de = converter.convert(bs, oldEvent, data);
-
-					VEventSeries event = de.vevent;
-					if (attachments.isPresent()) {
-						event.main.attachments = attachments.get();
-					} else {
-						event.main.attachments = oldEvent.main.attachments;
-					}
-
-					// BM-5755
-					event.main.rdate = oldEvent.main.rdate;
-
-					if (event.main.description == null) {
-						// GLAG-72 desc can be ghosted
-						event.main.description = oldEvent.main.description;
-					}
-
-					// BM-8000
-					if (msEvent.getBusyStatus() == null) {
-						event.main.transparency = oldEvent.main.transparency;
-					}
-
-					if (msEvent.getStartTime().getTime() == 0 && msEvent.getEndTime().getTime() == 0) {
-						event.main.dtstart = oldEvent.main.dtstart;
-						event.main.dtend = oldEvent.main.dtend;
-					}
-
-					if (msEvent.getLocation() == null) {
-						event.main.location = oldEvent.main.location;
-					}
-
-					if (msEvent.getReminder() == null) {
-						event.main.alarm = oldEvent.main.alarm;
-					}
-
-					if (msEvent.getSensitivity() == null) {
-						event.main.classification = oldEvent.main.classification;
-					}
-
-					if (msEvent.getSubject() == null) {
-						event.main.summary = oldEvent.main.summary;
-					}
-
-					if (msEvent.getAttendees() == null) {
-						event.main.attendees = oldEvent.main.attendees;
-					} else {
-						for (Attendee a : event.main.attendees) {
-							if (a.partStatus == null) {
-								for (Attendee o : oldEvent.main.attendees) {
-									if (a.mailto.equals(o.mailto)) {
-										a.partStatus = o.partStatus;
-									}
-								}
-							}
-						}
-					}
-
-					if (!event.main.attendees.isEmpty() && event.main.organizer.mailto == null) {
-						if (oldEvent.main.organizer != null) {
-							event.main.organizer = oldEvent.main.organizer;
-						} else {
-							event.main.organizer = new Organizer(bs.getUser().getDefaultEmail());
-						}
-					}
-					event.main.categories = oldEvent.main.categories;
-
-					event.acceptCounters = oldEvent.acceptCounters;
-					event.counters = Collections.emptyList();
-
-					event.main.conference = oldEvent.main.conference;
-					event.main.conferenceId = oldEvent.main.conferenceId;
-					event.main.conferenceConfiguration = oldEvent.main.conferenceConfiguration;
-
+					ConvertedVEvent de = converter.convert(bs, item.value, data, recurId, attachments);
 					try {
-						service.update(item.uid, event, true);
+						service.update(item.uid, de.vevent, true);
 						ret = CollectionItem.of(collectionId, id);
 						logger.info("Update event bs: {}, collection: {}, serverId: {}, event title: {}",
-								bs.getLoginAtDomain(), folder.containerUid, serverId, event.main.summary);
+								bs.getLoginAtDomain(), folder.containerUid, serverId, de.vevent.main.summary);
 					} catch (Exception e) {
 						// trying to send a revert to the client (instead of
 						// sending error ?)
 						logger.error("Fail to update event bs:" + bs.getLoginAtDomain() + ", collection: "
 								+ folder.containerUid + ", serverId: " + serverId + ", event title:"
-								+ event.main.summary, e);
+								+ de.vevent.main.summary, e);
 						service.touch(item.uid);
 					}
 				}
 
 			} else {
-				ConvertedVEvent de = converter.convert(bs, data);
+				ConvertedVEvent de = converter.convert(bs, data, Optional.empty(), attachments);
 				VEventSeries event = de.vevent;
 				if (attachments.isPresent()) {
 					event.main.attachments = attachments.get();

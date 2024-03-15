@@ -66,12 +66,12 @@ public class ContentsImporter implements IContentsImporter {
 
 	@Override
 	public CollectionItem importMessageChange(BackendSession bs, CollectionId collectionId, ItemDataType type,
-			Optional<String> serverId, IApplicationData data, ConflicResolution conflictPolicy, SyncState syncState)
-			throws ActiveSyncException {
+			Optional<String> serverId, Optional<Date> recurId, IApplicationData data, ConflicResolution conflictPolicy,
+			SyncState syncState) throws ActiveSyncException {
 		CollectionItem ids = null;
 		switch (type) {
 		case CALENDAR:
-			ids = calBackend.store(bs, collectionId, serverId, data, conflictPolicy, syncState);
+			ids = calBackend.store(bs, collectionId, serverId, recurId, data, conflictPolicy, syncState);
 			break;
 		case CONTACTS:
 			ids = contactBackend.store(bs, collectionId, serverId, data, conflictPolicy, syncState);

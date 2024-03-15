@@ -18,8 +18,11 @@
  */
 package net.bluemind.eas.backend.bm.calendar;
 
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -33,7 +36,9 @@ import java.util.TimeZone;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
+import net.bluemind.attachment.api.AttachedFile;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEvent.Transparency;
 import net.bluemind.calendar.api.VEventOccurrence;
@@ -638,11 +643,13 @@ public class EventConverter {
 
 	}
 
-	public ConvertedVEvent convert(BackendSession bs, IApplicationData appliData) {
-		return convert(bs, null, appliData);
+	public ConvertedVEvent convert(BackendSession bs, IApplicationData appliData, Optional<Date> recurId,
+			Optional<List<AttachedFile>> attachments) {
+		return convert(bs, null, appliData, recurId, attachments);
 	}
 
-	public ConvertedVEvent convert(BackendSession bs, VEventSeries vevent, IApplicationData appliData) {
+	public ConvertedVEvent convert(BackendSession bs, VEventSeries vevent, IApplicationData appliData,
+			Optional<Date> recurId, Optional<List<AttachedFile>> attachments) {
 
 		if (vevent == null) {
 			vevent = new VEventSeries();
@@ -650,10 +657,30 @@ public class EventConverter {
 		ConvertedVEvent ret = new ConvertedVEvent();
 		MSEvent data = (MSEvent) appliData;
 
-		VEvent e = convertEventOne(vevent.main, data);
+		UpdateState updateState = UpdateState.MAIN;
+		VEvent existingEvent = vevent.main;
+		BmDateTime resolvedRecurId = null;
+		if (recurId.isPresent()) {
+			Date recurIdDate = recurId.get();
+			if (vevent.main.dtstart.precision == Precision.DateTime) {
+				resolvedRecurId = BmDateTimeWrapper.fromTimestamp(recurIdDate.getTime(), vevent.main.dtstart.timezone);
+			} else {
+				String iso = DateTimeFormatter.ISO_DATE.format(Instant.ofEpochMilli(recurIdDate.getTime()));
+				resolvedRecurId = new BmDateTime(iso, null, Precision.Date);
+			}
+			existingEvent = vevent.occurrence(resolvedRecurId);
+			if (existingEvent == null) {
+				updateState = UpdateState.NEW_OCCURRENCE;
+				existingEvent = VEventOccurrence.fromEvent(vevent.main, resolvedRecurId);
+			} else {
+				updateState = UpdateState.EXISTING_OCCURRENCE;
+			}
+		}
+
+		VEvent e = convertEventOne(existingEvent, data, bs, attachments);
 		ret.uid = data.getUID();
 
-		if (data.getRecurrence() != null) {
+		if (recurId.isEmpty() && data.getRecurrence() != null) {
 			RRule rrule = getRecurrence(data);
 			if (rrule != null) {
 				e.rrule = rrule;
@@ -664,9 +691,44 @@ public class EventConverter {
 			}
 		}
 
-		ret.vevent.main = e;
+		ret.vevent.counters = Collections.emptyList();
+		ret.vevent.icsUid = vevent.icsUid;
+		ret.vevent.acceptCounters = vevent.acceptCounters;
+
+		MDC.put("user", bs.getLoginAtDomain().replace("@", "_at_"));
+		logger.info("Converting event, Update_state {} for ICS-UID {}, RECURID: {}", updateState.name(),
+				ret.vevent.icsUid, recurId.isPresent() ? recurId.get().toString() : "[]");
+		MDC.put("user", "anonymous");
+
+		switch (updateState) {
+		case MAIN:
+			ret.vevent.main = e;
+			break;
+		case EXISTING_OCCURRENCE:
+			ret.vevent.main = vevent.main;
+			List<VEventOccurrence> occurrences = new ArrayList<>();
+			for (VEventOccurrence occ : vevent.occurrences) {
+				if (occ.recurid.equals(resolvedRecurId)) {
+					occurrences.add(VEventOccurrence.fromEvent(e, resolvedRecurId));
+				} else {
+					occurrences.add(occ);
+				}
+			}
+			ret.vevent.occurrences = occurrences;
+			break;
+		case NEW_OCCURRENCE:
+			ret.vevent.main = vevent.main;
+			occurrences = new ArrayList<>(vevent.occurrences);
+			occurrences.add(VEventOccurrence.fromEvent(e, resolvedRecurId));
+			ret.vevent.occurrences = occurrences;
+			break;
+		}
 
 		return ret;
+	}
+
+	enum UpdateState {
+		MAIN, EXISTING_OCCURRENCE, NEW_OCCURRENCE
 	}
 
 	private void convertExceptions(BackendSession bs, ConvertedVEvent ret, MSEvent data, VEvent e) {
@@ -716,7 +778,8 @@ public class EventConverter {
 	// Exceptions.Exception.Body (section 2.2.3.9): This element is optional.
 	// Exceptions.Exception.Categories (section 2.2.3.8): This element is
 	// optional.
-	private VEvent convertEventOne(VEvent oldEvent, MSEvent data) {
+	private VEvent convertEventOne(VEvent oldEvent, MSEvent data, BackendSession bs,
+			Optional<List<AttachedFile>> attachments) {
 		VEvent e = new VEvent();
 		if (data.getSubject() != null && !data.getSubject().trim().isEmpty()) {
 			e.summary = data.getSubject();
@@ -771,7 +834,76 @@ public class EventConverter {
 
 		e.sequence = oldEvent != null ? oldEvent.sequence : 0;
 
-		logger.info("Event {} has {} attendees", e.summary, e.attendees.size());
+		if (attachments.isPresent()) {
+			e.attachments = attachments.get();
+		} else {
+			if (oldEvent != null) {
+				e.attachments = oldEvent.attachments;
+			}
+		}
+
+		if (oldEvent != null) {
+			// BM-5755
+			e.rdate = oldEvent.rdate;
+
+			if (e.description == null) {
+				// GLAG-72 desc can be ghosted
+				e.description = oldEvent.description;
+			}
+
+			// BM-8000
+			if (data.getBusyStatus() == null) {
+				e.transparency = oldEvent.transparency;
+			}
+
+			if (data.getStartTime().getTime() == 0 && data.getEndTime().getTime() == 0) {
+				e.dtstart = oldEvent.dtstart;
+				e.dtend = oldEvent.dtend;
+			}
+
+			if (data.getLocation() == null) {
+				e.location = oldEvent.location;
+			}
+
+			if (data.getReminder() == null) {
+				e.alarm = oldEvent.alarm;
+			}
+
+			if (data.getSensitivity() == null) {
+				e.classification = oldEvent.classification;
+			}
+
+			if (data.getSubject() == null) {
+				e.summary = oldEvent.summary;
+			}
+
+			if (data.getAttendees() == null) {
+				e.attendees = oldEvent.attendees;
+			} else {
+				for (Attendee a : e.attendees) {
+					if (a.partStatus == null) {
+						for (Attendee o : oldEvent.attendees) {
+							if (a.mailto.equals(o.mailto)) {
+								a.partStatus = o.partStatus;
+							}
+						}
+					}
+				}
+			}
+
+			if (!e.attendees.isEmpty() && e.organizer.mailto == null) {
+				if (oldEvent.organizer != null) {
+					e.organizer = oldEvent.organizer;
+				} else {
+					e.organizer = new Organizer(bs.getUser().getDefaultEmail());
+				}
+			}
+			e.categories = oldEvent.categories;
+
+			e.conference = oldEvent.conference;
+			e.conferenceId = oldEvent.conferenceId;
+			e.conferenceConfiguration = oldEvent.conferenceConfiguration;
+		}
 
 		return e;
 	}

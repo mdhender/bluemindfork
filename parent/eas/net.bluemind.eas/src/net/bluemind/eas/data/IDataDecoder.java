@@ -18,6 +18,8 @@
  */
 package net.bluemind.eas.data;
 
+import java.util.Map;
+
 import org.w3c.dom.Element;
 
 import net.bluemind.eas.backend.BackendSession;
@@ -26,5 +28,9 @@ import net.bluemind.eas.backend.IApplicationData;
 public interface IDataDecoder {
 
 	IApplicationData decode(BackendSession bs, Element syncData);
+
+	default IApplicationData decode(BackendSession bs, Element syncData, Map<String, Object> data) {
+		return decode(bs, syncData);
+	}
 
 }
