@@ -30,7 +30,7 @@ public class MQListener implements OutOfProcessMessageHandler {
 	private static final Logger logger = LoggerFactory.getLogger(MQListener.class);
 
 	public MQListener() {
-
+		// ok
 	}
 
 	@Override
@@ -40,17 +40,14 @@ public class MQListener implements OutOfProcessMessageHandler {
 			logger.warn("operation attribute is not in message.");
 			return;
 		}
-		if ("core.state.running".equals(op)) {
-			// nothing
-		} else if ("wipe".equals(op)) {
+
+		if ("wipe".equals(op)) {
 			String id = msg.getStringProperty("identifier");
 			String mode = msg.getStringProperty("mode");
 			WipedDevices.wipe(id, mode);
 		} else if ("unwipe".equals(op)) {
 			String id = msg.getStringProperty("identifier");
 			WipedDevices.unwipe(id);
-		} else {
-			logger.warn("Unhandled operation: " + op);
 		}
 	}
 

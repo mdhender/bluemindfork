@@ -21,7 +21,8 @@ Require-Bundle: net.bluemind.core.container.api;bundle-version="1.0.0",
  net.bluemind.scheduledjob.persistence,
  net.bluemind.core.jdbc;bundle-version="5.0.0",
  org.apache.commons.lang3,
- net.bluemind.metrics.annotations
+ net.bluemind.metrics.annotations,
+ net.bluemind.system.state
 Export-Package: net.bluemind.scheduledjob.scheduler,
  net.bluemind.scheduledjob.scheduler.impl
 Automatic-Module-Name: net.bluemind.scheduledjob.scheduler

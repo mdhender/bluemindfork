@@ -36,6 +36,8 @@ import net.bluemind.domain.api.IDomains;
 import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 import net.bluemind.lib.vertx.utils.ThrottleMessages;
+import net.bluemind.system.api.SystemState;
+import net.bluemind.system.state.StateContext;
 
 public class DirectorySerializationVerticle extends AbstractVerticle {
 
@@ -48,6 +50,10 @@ public class DirectorySerializationVerticle extends AbstractVerticle {
 	}
 
 	private void startImpl(long timerId) {
+		if (StateContext.getState() != SystemState.CORE_STATE_RUNNING) {
+			vertx.setTimer(1000, this::startImpl);
+			return;
+		}
 		logger.info("Delayed start from timer {}", timerId);
 		try {
 			// Only one must be instantiated

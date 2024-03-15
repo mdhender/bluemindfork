@@ -28,6 +28,8 @@ import net.bluemind.network.utils.NetworkHelper;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.server.api.TagDescriptor;
+import net.bluemind.system.api.SystemState;
+import net.bluemind.system.state.StateContext;
 
 public class DashboardsVerticle extends AbstractVerticle {
 
@@ -51,10 +53,16 @@ public class DashboardsVerticle extends AbstractVerticle {
 	public void start() {
 		EventBus eb = vertx.eventBus();
 		eb.consumer("chronograf.configuration", (Message<JsonObject> msg) -> {
+			if (StateContext.getState() != SystemState.CORE_STATE_RUNNING) {
+				return;
+			}
 			configureChronograf();
 			msg.reply(new JsonObject().put("status", "ok"));
 		});
 		eb.consumer("metrics.range.annotate", (Message<JsonObject> msg) -> {
+			if (StateContext.getState() != SystemState.CORE_STATE_RUNNING) {
+				return;
+			}
 			JsonObject js = msg.body();
 			String name = js.getString("name");
 			Date startDT = new Date(js.getLong("start", System.currentTimeMillis()));

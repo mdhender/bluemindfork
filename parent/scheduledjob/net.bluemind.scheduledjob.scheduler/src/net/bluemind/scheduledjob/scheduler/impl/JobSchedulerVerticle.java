@@ -29,6 +29,8 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.scheduledjob.scheduler.IScheduledJob;
 import net.bluemind.system.api.IInstallation;
 import net.bluemind.system.api.InstallationVersion;
+import net.bluemind.system.api.SystemState;
+import net.bluemind.system.state.StateContext;
 
 public class JobSchedulerVerticle extends AbstractVerticle {
 	private static final Logger logger = LoggerFactory.getLogger(JobSchedulerVerticle.class);
@@ -62,6 +64,9 @@ public class JobSchedulerVerticle extends AbstractVerticle {
 	}
 
 	protected boolean isDisabled() {
+		if (StateContext.getState() != SystemState.CORE_STATE_RUNNING) {
+			return true;
+		}
 		return new File(System.getProperty("user.home") + "/no.core.jobs").exists() || versionMismatch();
 	}
 
