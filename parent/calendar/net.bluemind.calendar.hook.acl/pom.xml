@@ -6,7 +6,6 @@
 		<artifactId>net.bluemind.calendar.plugins</artifactId>
 		<version>5.0.0-SNAPSHOT</version>
 	</parent>
-	<groupId>net.bluemind.calendar.hook.acl</groupId>
 	<artifactId>net.bluemind.calendar.hook.acl</artifactId>
 	<packaging>eclipse-plugin</packaging>
 </project>

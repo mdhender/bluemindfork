@@ -74,6 +74,7 @@
    <bundle id="net.bluemind.calendar.helper" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.calendar.history.renderer" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.calendar.hook" version="5.0.0.qualifier"/>
+   <bundle id="net.bluemind.calendar.hook.acl" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.calendar.hook.ics" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.calendar.occurrence" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.calendar.pdf" version="5.0.0.qualifier"/>
