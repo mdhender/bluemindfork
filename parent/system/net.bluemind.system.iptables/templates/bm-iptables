@@ -25,18 +25,16 @@ if [ "$VERBOSE" == "yes" ]; then
     set -x
 fi
 
-check_debian_jessie() {
-    if [ -e "/etc/debian_version" ] \
-    	&& [[ "$(cat /etc/debian_version)" == "8."* ]]; then
-            return 0
-    fi
-    
-    return 1
-}
-
 BM_SERVICE="BlueMind iptables rules"
 
+IP6TABLES=1
+if command -v ip6tables &> /dev/null; then
+    IP6TABLES=0
+fi
+iptables_timeout="-w 10"
+
 cyrus="24 1110 1143 2000 2502"
+http="81"
 lmtp="2400"
 milter="2500"
 mapi=5001
@@ -54,12 +52,8 @@ es="9200 9300"
 memcache="11211"
 keycloak="8099"
 
-timeout="-w 10"
-if check_debian_jessie; then
-	timeout="-w"
-fi
-
 bmPorts="${r"${cyrus}"} \
+     ${r"${http}"} \
 	 ${r"${lmtp}"} \
 	 ${r"${milter}"} \
 	 ${r"${mapi}"} \
@@ -81,20 +75,28 @@ bmHosts="${bmHostsAddresses?join(" ")}"
 bmHostChain="bmhosts"
 bmPortChain="bmports"
 
+cmd_iptables() {
+    iptables ${r"${iptables_timeout}"} ${r"${*}"}
+
+    [ ${r"${IP6TABLES}"} ] && {
+        ip6tables ${r"${iptables_timeout}"} ${r"${*}"}
+    }
+}
+
 stop_bm-iptables() {
 	echo -n "Removing BM iptables rules..."
 	
-	iptables ${r"${timeout}"} -L -v -n|grep ${r"${bmPortChain}"} 2>&1 > /dev/null
+	cmd_iptables -L -v -n|grep ${r"${bmPortChain}"} 2>&1 > /dev/null
 	alreadyLoaded=$?
 	
 	if [ ${r"${alreadyLoaded}"} -eq 0 ]; then
 	        # Flushing BlueMind rules
-	        iptables ${r"${timeout}"} -D INPUT -j ${r"${bmHostChain}"}
+	        cmd_iptables -D INPUT -j ${r"${bmHostChain}"}
 	
-	        iptables ${r"${timeout}"} -F ${r"${bmHostChain}"}
-	        iptables ${r"${timeout}"} -F ${r"${bmPortChain}"}
-	        iptables ${r"${timeout}"} -X ${r"${bmHostChain}"}
-	        iptables ${r"${timeout}"} -X ${r"${bmPortChain}"}
+	        cmd_iptables -F ${r"${bmHostChain}"}
+	        cmd_iptables -F ${r"${bmPortChain}"}
+	        cmd_iptables -X ${r"${bmHostChain}"}
+	        cmd_iptables -X ${r"${bmPortChain}"}
 	fi
 	
 	echo " done."
@@ -104,21 +106,22 @@ start_bm-iptables() {
 	echo -n "Adding BM iptables rules..."
 
 	# Fill filter
-	iptables ${r"${timeout}"} -N ${r"${bmPortChain}"}
+	cmd_iptables -N ${r"${bmPortChain}"}
 	for bmPort in ${r"${bmPorts}"}; do
-	        iptables ${r"${timeout}"} -A ${r"${bmPortChain}"} -p tcp --dport ${r"${bmPort}"} -j DROP
-	        iptables ${r"${timeout}"} -A ${r"${bmPortChain}"} -p udp --dport ${r"${bmPort}"} -j DROP
+	        cmd_iptables -A ${r"${bmPortChain}"} -p tcp --dport ${r"${bmPort}"} -j DROP
+	        cmd_iptables -A ${r"${bmPortChain}"} -p udp --dport ${r"${bmPort}"} -j DROP
 	done
-	iptables ${r"${timeout}"} -A ${r"${bmPortChain}"} -j RETURN
+	cmd_iptables -A ${r"${bmPortChain}"} -j RETURN
 	
-	iptables ${r"${timeout}"} -N ${r"${bmHostChain}"}
-	iptables ${r"${timeout}"} -A ${r"${bmHostChain}"} -i lo -j ACCEPT
+	cmd_iptables -N ${r"${bmHostChain}"}
+	cmd_iptables -A ${r"${bmHostChain}"} -i lo -j ACCEPT
 	for bmHost in ${r"${bmHosts}"}; do
-	        iptables ${r"${timeout}"} -A ${r"${bmHostChain}"} -s ${r"${bmHost}"} -j ACCEPT
+			# IPv4 only for now
+	        iptables ${r"${iptables_timeout}"} -A ${r"${bmHostChain}"} -s ${r"${bmHost}"} -j ACCEPT
 	done
-	iptables ${r"${timeout}"} -A ${r"${bmHostChain}"} -m state --state NEW -j ${r"${bmPortChain}"}
+	cmd_iptables -A ${r"${bmHostChain}"} -m state --state NEW -j ${r"${bmPortChain}"}
 	
-	iptables ${r"${timeout}"} -I INPUT 1 -j ${r"${bmHostChain}"}
+	cmd_iptables -I INPUT 1 -j ${r"${bmHostChain}"}
 	
 	echo " done."
 }
