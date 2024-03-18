@@ -39,12 +39,12 @@ public class BMModule extends AbstractVerticle {
 		Collections.sort(factos, (IVerticleFactory o1, IVerticleFactory o2) -> {
 			int priority1 = 0;
 			int priority2 = 0;
-			if (o1 instanceof IVerticlePriority) {
-				priority1 = ((IVerticlePriority) o1).getPriority();
+			if (o1 instanceof IVerticlePriority ivPriority) {
+				priority1 = ivPriority.getPriority();
 			}
 
-			if (o2 instanceof IVerticlePriority) {
-				priority2 = ((IVerticlePriority) o2).getPriority();
+			if (o2 instanceof IVerticlePriority ivPriority) {
+				priority2 = ivPriority.getPriority();
 			}
 
 			return priority2 - priority1;
