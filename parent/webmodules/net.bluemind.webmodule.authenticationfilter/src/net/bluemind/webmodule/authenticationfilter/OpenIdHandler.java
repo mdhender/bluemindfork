@@ -140,8 +140,8 @@ public class OpenIdHandler extends AbstractAuthHandler implements Handler<HttpSe
 		String key = jsonState.getString("codeVerifierKey");
 		String codeVerifier = CodeVerifierCache.verify(key);
 		if (Strings.isNullOrEmpty(codeVerifier)) {
-			error(event, new Throwable("OpenId codeVerifier '" + codeVerifier
-					+ "' not found in cache, ignore request from [" + String.join(",", forwadedFor) + "]"));
+			error(event, new Throwable("OpenId codeVerifier key '" + key + "' not found in cache, ignore request from ["
+					+ String.join(",", forwadedFor) + "]. Webserver restart ?"));
 			return;
 		}
 

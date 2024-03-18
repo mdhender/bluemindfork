@@ -404,33 +404,34 @@ public class AuthenticationFilter implements IWebFilter, NeedVertx {
 			return CompletableFuture.completedFuture(null);
 		}
 
-		request.setExpectMultipart(true).endHandler(v1 -> {
-			DecodedJWT jwtLogoutToken = JWT.decode(request.getFormAttribute("logout_token"));
+		return CompletableFuture.completedFuture(request.setExpectMultipart(true)
+				.endHandler(v1 -> backChannelLogoutProcesRequest(request)).exceptionHandler(e -> {
+					logger.error("JWT logout token process error from {}: {}",
+							request.headers().getAll("X-Forwarded-For"), e.getMessage(), e);
+					backChannelLogoutError(request, "JWT logout token process error: " + e.getMessage());
+				}));
+	}
 
-			Claim jwtSid = jwtLogoutToken.getClaim("sid");
-			if (jwtSid.isMissing() || jwtSid.isNull()) {
-				throw new JWTInvalidSid();
-			}
+	private void backChannelLogoutProcesRequest(HttpServerRequest request) {
+		DecodedJWT jwtLogoutToken = JWT.decode(request.getFormAttribute("logout_token"));
 
-			Optional<SessionData> existingSession = Optional.empty();
-			CacheBackingStore<SessionData> cache = SessionsCache.get();
-			synchronized (cache) {
-				existingSession = cache.asMap().values().stream().filter(sessionData -> sessionData.jwtToken != null)
-						.filter(sessionData -> jwtSid.asString().equals(sessionData.jwtToken.getValue("session_state")))
-						.findAny();
-			}
+		Claim jwtSid = jwtLogoutToken.getClaim("sid");
+		if (jwtSid.isMissing() || jwtSid.isNull()) {
+			throw new JWTInvalidSid();
+		}
 
-			existingSession.ifPresentOrElse(sessionData -> new AuthProvider(vertx).logout(sessionData),
-					() -> logger.warn("Backchannel logout: session not found for JWTSid {}", jwtSid.asString()));
+		Optional<SessionData> existingSession;
+		CacheBackingStore<SessionData> cache = SessionsCache.get();
+		synchronized (cache) {
+			existingSession = cache.asMap().values().stream().filter(sessionData -> sessionData.jwtToken != null)
+					.filter(sessionData -> jwtSid.asString().equals(sessionData.jwtToken.getValue("session_state")))
+					.findAny();
+		}
 
-			backChannelLogoutSuccess(request);
-		}).exceptionHandler(e -> {
-			logger.error("JWT logout token process error from {}: {}", request.headers().getAll("X-Forwarded-For"),
-					e.getMessage(), e);
-			backChannelLogoutError(request, "JWT logout token process error: " + e.getMessage());
-		});
+		existingSession.ifPresentOrElse(sessionData -> new AuthProvider(vertx).logout(sessionData),
+				() -> logger.warn("Backchannel logout: session not found for JWTSid {}", jwtSid.asString()));
 
-		return CompletableFuture.completedFuture(null);
+		backChannelLogoutSuccess(request);
 	}
 
 	public void backChannelLogoutSuccess(HttpServerRequest request) {
