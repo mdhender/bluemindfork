@@ -146,7 +146,7 @@ public class DbSchemaStoreTests {
 					st.execute("select pg_sleep(2)");
 					return null;
 				});
-			} catch (SQLException e) {
+			} catch (Exception e) {
 				errors.addAndGet(1);
 				e.printStackTrace();
 			}
@@ -163,7 +163,7 @@ public class DbSchemaStoreTests {
 					return null;
 				});
 
-			} catch (SQLException e) {
+			} catch (Exception e) {
 				errors.addAndGet(1);
 				e.printStackTrace();
 			}

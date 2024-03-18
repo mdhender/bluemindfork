@@ -542,9 +542,17 @@ public class JdbcAbstractStore {
 		R execute() throws SQLException;
 	}
 
+	private static final Set<String> ALREADY_EXISTS_STATES = Set.of(PSQLState.UNDEFINED_OBJECT.getState(),
+			PSQLState.UNIQUE_VIOLATION.getState());
+
 	public static <R> R doOrFail(SqlOperation<R> op) {
 		try {
-			return retryOnDeadlock(op);
+			return op.execute();
+		} catch (PSQLException e) {
+			if (ALREADY_EXISTS_STATES.contains(e.getSQLState())) {
+				throw ServerFault.alreadyExists(e);
+			}
+			throw ServerFault.sqlFault(e.getSQLState() + ":" + e.getMessage(), e);
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}
@@ -552,16 +560,22 @@ public class JdbcAbstractStore {
 
 	public static <R> R doOrContinue(String action, SqlOperation<R> op) {
 		try {
-			return retryOnDeadlock(op);
-		} catch (Exception e) {
-			logger.warn("error applying {} ", action, e);
-			return null;
+			return op.execute();
+		} catch (PSQLException e) {
+			if (ALREADY_EXISTS_STATES.contains(e.getSQLState())) {
+				throw ServerFault.alreadyExists(e);
+			}
+			throw ServerFault.sqlFault(e.getSQLState() + ":" + e.getMessage(), e);
+		} catch (SQLException e) {
+			throw ServerFault.sqlFault(e);
 		}
 	}
 
-	private static final Set<String> ALREADY_EXISTS_STATES = Set.of(PSQLState.UNDEFINED_OBJECT.getState(),
-			PSQLState.UNIQUE_VIOLATION.getState());
-
+	/*
+	 * Only use when you control the transaction without using any other method in
+	 * JdbcAbstractStore (because you need to control the connection), or in a
+	 * single statement, with auto commit enabled.
+	 */
 	public static <R> R retryOnDeadlock(SqlOperation<R> op) throws SQLException {
 		SQLException lastException = null;
 		try {
