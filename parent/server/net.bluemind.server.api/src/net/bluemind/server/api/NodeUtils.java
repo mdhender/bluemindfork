@@ -37,8 +37,8 @@ public final class NodeUtils {
 		} while (!status.complete);
 	}
 
-	public static void exec(IServer service, String serverUid, String command) throws ServerFault {
-		String ref = service.submit(serverUid, command);
+	public static void exec(IServer service, String serverUid, String... argv) throws ServerFault {
+		String ref = service.submit(serverUid, argv);
 		waitFor(service, serverUid, ref);
 	}
 }

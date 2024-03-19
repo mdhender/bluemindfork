@@ -17,6 +17,7 @@
  */
 package net.bluemind.cli.node;
 
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -35,7 +36,7 @@ public class CpuFlagStatusProvider implements IStatusProvider {
 	@Override
 	public void report(CliContext ctx, ItemValue<Server> srv, INodeClient nc) {
 		CompletableFuture<Void> comp = new CompletableFuture<>();
-		nc.asyncExecute(ExecRequest.anonymous("cat /proc/cpuinfo"), new ProcessHandler() {
+		nc.asyncExecute(ExecRequest.anonymous(List.of("cat", "/proc/cpuinfo")), new ProcessHandler() {
 
 			boolean seenFlags = false;
 			Splitter flagsSplit = Splitter.on(' ');

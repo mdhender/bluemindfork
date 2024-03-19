@@ -1,6 +1,7 @@
 package net.bluemind.metrics.core;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -21,17 +22,17 @@ public class PostfixTagHandler extends TickInputConfigurator {
 
 	private static final Logger logger = LoggerFactory.getLogger(PostfixTagHandler.class);
 
-	private static final String[] UNIX_ACL = { //
-			"usermod -a -G postdrop telegraf", //
-			"chgrp -R postdrop /var/spool/postfix/active", //
-			"chgrp -R postdrop /var/spool/postfix/hold", //
-			"chgrp -R postdrop /var/spool/postfix/incoming", //
-			"chgrp -R postdrop /var/spool/postfix/deferred", //
-			"chmod -R g+rXs /var/spool/postfix/active", //
-			"chmod -R g+rXs /var/spool/postfix/hold", //
-			"chmod -R g+rXs /var/spool/postfix/incoming", //
-			"chmod -R g+rXs /var/spool/postfix/deferred", //
-			"chmod g+r /var/spool/postfix/maildrop" };
+	private static final String[][] UNIX_ACL = { //
+			{ "usermod", "-a", "-G", "postdrop", "telegraf" }, //
+			{ "chgrp", "-R", "postdrop", "/var/spool/postfix/active" }, //
+			{ "chgrp", "-R", "postdrop", "/var/spool/postfix/hold" }, //
+			{ "chgrp", "-R", "postdrop", "/var/spool/postfix/incoming" }, //
+			{ "chgrp", "-R", "postdrop", "/var/spool/postfix/deferred" }, //
+			{ "chmod", "-R", "g+rXs", "/var/spool/postfix/active" }, //
+			{ "chmod", "-R", "g+rXs", "/var/spool/postfix/hold" }, //
+			{ "chmod", "-R", "g+rXs", "/var/spool/postfix/incoming" }, //
+			{ "chmod", "-R", "g+rXs", "/var/spool/postfix/deferred" }, //
+			{ "chmod", "g+r", "/var/spool/postfix/maildrop" } };
 
 	@Override
 	public void onServerTagged(BmContext context, ItemValue<Server> itemValue, String tag) throws ServerFault {
@@ -40,8 +41,8 @@ public class PostfixTagHandler extends TickInputConfigurator {
 		}
 
 		INodeClient nodeClient = NodeActivator.get(itemValue.value.address());
-		for (String str : UNIX_ACL) {
-			NCUtils.execNoOut(nodeClient, str, 30, TimeUnit.SECONDS);
+		for (String[] argv : UNIX_ACL) {
+			NCUtils.execNoOut(nodeClient, List.of(argv), 30, TimeUnit.SECONDS);
 		}
 		if (logger.isInfoEnabled()) {
 			logger.info("Added postfix monitoring necessary rights at {}", itemValue.value.address());

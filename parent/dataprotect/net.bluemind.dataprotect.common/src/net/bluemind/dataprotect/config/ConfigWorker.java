@@ -55,9 +55,9 @@ public class ConfigWorker implements IBackupWorker {
 		script = script.replace("${dstPath}", dir);
 
 		INodeClient nc = NodeActivator.get(toBackup.value.address());
-		NCUtils.exec(nc, "mkdir -p " + dir);
+		NCUtils.exec(nc, "mkdir", "-p", dir);
 		nc.writeFile(dir + "/protectConfigurationFiles.sh", new ByteArrayInputStream(script.getBytes()));
-		NCUtils.exec(nc, "chmod +x " + dir + "/protectConfigurationFiles.sh");
+		NCUtils.exec(nc, "chmod", "+x", dir + "/protectConfigurationFiles.sh");
 		ctx.info("en", "Protect configuration files starting... ");
 		ctx.info("fr", "Démarrage de la sauvegarde des fichiers de configuration... ");
 

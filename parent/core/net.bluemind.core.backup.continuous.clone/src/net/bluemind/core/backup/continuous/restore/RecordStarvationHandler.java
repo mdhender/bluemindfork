@@ -131,8 +131,9 @@ public class RecordStarvationHandler implements IRecordStarvationStrategy, ISepp
 		IInstallation masterInstApi = prov.instance(IInstallation.class, cloneConf.sourceInstallationId);
 		monitor.log("Calling demote....");
 		IServer masterSrvApi = prov.instance(IServer.class, cloneConf.sourceInstallationId);
-        // Force reset of websocket connections to the demoted server
-		masterSrvApi.allComplete().forEach(srv -> masterSrvApi.submitAndWait(srv.uid, "service bm-nginx restart"));
+		// Force reset of websocket connections to the demoted server
+		masterSrvApi.allComplete()
+				.forEach(srv -> masterSrvApi.submitAndWait(srv.uid, "service", "bm-nginx", "restart"));
 		masterInstApi.demoteLeader();
 	}
 

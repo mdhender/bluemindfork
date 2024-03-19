@@ -294,7 +294,7 @@ public abstract class HooksTests {
 			}
 
 			String[] currentRecipients = mapLine.substring(firstSpace + 1).split(",");
-			HashSet<String> recipients = new HashSet<String>(currentRecipients.length);
+			HashSet<String> recipients = new HashSet<>(currentRecipients.length);
 			for (String recipient : currentRecipients) {
 				recipients.add(recipient);
 			}
@@ -311,7 +311,7 @@ public abstract class HooksTests {
 			INodeClient nc = NodeActivator.get(nodeIp);
 
 			for (String mapFileName : mapsFileNames) {
-				nc.executeCommandNoOut("rm -f " + mapFileName + " " + mapFileName + "-flat " + mapFileName + ".db");
+				nc.executeCommandNoOut("rm", "-f", mapFileName, mapFileName + "-flat", mapFileName + ".db");
 			}
 		}
 	}
@@ -346,7 +346,7 @@ public abstract class HooksTests {
 
 	protected void updateTestDomain(Domain domain) throws ServerFault {
 		DomainStore domainStore = new DomainStore(JdbcTestHelper.getInstance().getDataSource());
-		ContainerStoreService<Domain> domainStoreService = new ContainerStoreService<Domain>(
+		ContainerStoreService<Domain> domainStoreService = new ContainerStoreService<>(
 				JdbcTestHelper.getInstance().getDataSource(), SecurityContext.SYSTEM, domainsContainer, domainStore);
 
 		domainStoreService.update(domain.name, domain.name, domain);

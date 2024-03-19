@@ -85,7 +85,7 @@ public class NetworkHelper {
 		}
 
 		try {
-			CmdOutput ips = SystemHelper.cmdWithEnv(hostnameCmd + " -i", (Map<String, String>) null);
+			CmdOutput ips = SystemHelper.cmdWithEnv(List.of(hostnameCmd, "-i"), (Map<String, String>) null);
 			Optional<String> found = ips.getOutput().stream().filter(Objects::nonNull)
 					.filter(NetworkHelper::isIpAddress).filter(ip -> !ip.startsWith("127")).findFirst();
 

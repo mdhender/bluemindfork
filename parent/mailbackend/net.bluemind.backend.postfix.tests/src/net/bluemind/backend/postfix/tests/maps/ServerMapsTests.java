@@ -474,10 +474,10 @@ public class ServerMapsTests {
 
 		INodeClient nodeClient = NodeActivator.get(server.address());
 		for (String mapFileName : mapsFileNames) {
-			NCUtils.waitFor(nodeClient, nodeClient.executeCommand("rm -f " + mapFileName + "-flat"));
+			NCUtils.waitFor(nodeClient, nodeClient.executeCommand("rm", "-f", mapFileName + "-flat"));
 
 			ExitList status = NCUtils.waitFor(nodeClient,
-					nodeClient.executeCommand("test -e " + mapFileName + "-flat"));
+					nodeClient.executeCommand("test", "-e", mapFileName + "-flat"));
 			assertEquals(1, status.getExitCode());
 		}
 
@@ -485,7 +485,7 @@ public class ServerMapsTests {
 
 		for (String mapFileName : mapsFileNames) {
 			ExitList status = NCUtils.waitFor(nodeClient,
-					nodeClient.executeCommand("test -e " + mapFileName + "-flat"));
+					nodeClient.executeCommand("test", "-e", mapFileName + "-flat"));
 			assertEquals(0, status.getExitCode());
 		}
 	}
@@ -509,10 +509,10 @@ public class ServerMapsTests {
 
 		INodeClient nodeClient = NodeActivator.get(server.address());
 		for (String mapFileName : mapsFileNames) {
-			NCUtils.waitFor(nodeClient, nodeClient.executeCommand(
-					"rm -f " + mapFileName + "-flat.db " + mapFileName + "-flat " + mapFileName + ".db"));
+			NCUtils.waitFor(nodeClient, nodeClient.executeCommand("rm", "-f", mapFileName + "-flat.db",
+					mapFileName + "-flat", mapFileName + ".db"));
 
-			ExitList status = NCUtils.waitFor(nodeClient, nodeClient.executeCommand("test -e " + mapFileName));
+			ExitList status = NCUtils.waitFor(nodeClient, nodeClient.executeCommand("test", "-e", mapFileName));
 			assertEquals(1, status.getExitCode());
 		}
 
@@ -520,7 +520,7 @@ public class ServerMapsTests {
 		serverMaps.enableMaps();
 
 		for (String mapFileName : mapsFileNames) {
-			ExitList status = NCUtils.waitFor(nodeClient, nodeClient.executeCommand("test -e " + mapFileName + ".db"));
+			ExitList status = NCUtils.waitFor(nodeClient, nodeClient.executeCommand("test", "-e", mapFileName + ".db"));
 			assertEquals(0, status.getExitCode());
 		}
 	}
@@ -546,10 +546,10 @@ public class ServerMapsTests {
 
 		INodeClient nodeClient = NodeActivator.get(edge.address());
 		for (String mapFileName : mapsFileNames) {
-			NCUtils.waitFor(nodeClient, nodeClient.executeCommand("rm -f " + mapFileName + "-flat"));
+			NCUtils.waitFor(nodeClient, nodeClient.executeCommand("rm", "-f", mapFileName + "-flat"));
 
 			ExitList status = NCUtils.waitFor(nodeClient,
-					nodeClient.executeCommand("test -e " + mapFileName + "-flat"));
+					nodeClient.executeCommand("test", "-e", mapFileName + "-flat"));
 			assertEquals(1, status.getExitCode());
 		}
 
@@ -557,7 +557,7 @@ public class ServerMapsTests {
 
 		for (String mapFileName : mapsFileNames) {
 			ExitList status = NCUtils.waitFor(nodeClient,
-					nodeClient.executeCommand("test -e " + mapFileName + "-flat"));
+					nodeClient.executeCommand("test", "-e", mapFileName + "-flat"));
 			assertEquals(0, status.getExitCode());
 		}
 	}

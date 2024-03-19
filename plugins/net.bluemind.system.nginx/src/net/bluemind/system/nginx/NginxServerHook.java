@@ -72,9 +72,9 @@ public class NginxServerHook extends DefaultServerHook {
 		INodeClient remote = NodeActivator.get(server.value.address());
 
 		if (!remote.listFiles("/etc/nginx/BM-DONOTCONF").isEmpty()) {
-			NCUtils.exec(remote, "rm -f /etc/nginx/BM-DONOTCONF");
+			NCUtils.exec(remote, "rm", "-f", "/etc/nginx/BM-DONOTCONF");
 			remote.listFiles("/etc/nginx/sites-enabled").stream().filter(fd -> !fd.isDirectory())
-					.forEach(fd -> NCUtils.exec(remote, String.format("rm -f %s", fd.getPath())));
+					.forEach(fd -> NCUtils.exec(remote, "rm", "-f", fd.getPath()));
 		}
 
 		remote.writeFile("/etc/nginx/bm-nginx-role.conf",

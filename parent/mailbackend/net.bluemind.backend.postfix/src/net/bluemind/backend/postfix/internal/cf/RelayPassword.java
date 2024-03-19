@@ -45,7 +45,7 @@ public class RelayPassword extends AbstractConfFile {
 	@Override
 	public void write() throws ServerFault {
 		Template mcf = openTemplate("shard-relay-pwd");
-		Map<String, Object> data = new HashMap<String, Object>();
+		Map<String, Object> data = new HashMap<>();
 		data.put("relayHost", relayHost);
 		data.put("pwd", Token.admin0());
 		service.writeFile(serverUid, PostfixPaths.RELAY_PASSWORD, render(mcf, data));
@@ -55,10 +55,10 @@ public class RelayPassword extends AbstractConfFile {
 
 	private void enable() {
 		INodeClient nc = NodeActivator.get(server.value.address());
-		TaskRef tr = nc.executeCommand("chmod +x " + PostfixPaths.RELAY_PASSWORD);
+		TaskRef tr = nc.executeCommand("chmod", "+x", PostfixPaths.RELAY_PASSWORD);
 		NCUtils.waitFor(nc, tr);
 
-		tr = nc.executeCommand("postmap " + PostfixPaths.RELAY_PASSWORD);
+		tr = nc.executeCommand("postmap", PostfixPaths.RELAY_PASSWORD);
 		NCUtils.waitFor(nc, tr);
 	}
 }

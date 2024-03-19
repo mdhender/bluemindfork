@@ -164,11 +164,11 @@ public class Repack implements IMaintenanceScript {
 
 			String scriptPath = "/tmp/maintenance_repack_" + System.nanoTime() + ".sh";
 			nodeClient.writeFile(scriptPath, new ByteArrayInputStream(sb.toString().getBytes()));
-			NCUtils.exec(nodeClient, "chmod +x " + scriptPath);
+			NCUtils.exec(nodeClient, "chmod", "+x", scriptPath);
 			MonitorProcessHandler ph = new MonitorProcessHandler(monitor.subWork(server.ip, 1),
 					exitcode -> nodeClient.deleteFile(scriptPath));
 			processes.add(ph);
-			nodeClient.asyncExecute(ExecRequest.anonymous(scriptPath), ph);
+			nodeClient.asyncExecute(ExecRequest.anonymous(List.of(scriptPath)), ph);
 		}
 
 		try {

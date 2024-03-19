@@ -102,10 +102,10 @@ public class UserImportCommand extends SingleOrDomainOperation {
 
 			IServer serversApi = ctx.adminApi().instance(IServer.class, InstallationId.getIdentifier());
 
-			NodeUtils.exec(serversApi, de.value.dataLocation,
-					"bm-cli maintenance repair --ops mailboxFilesystem " + de.value.email);
-			NodeUtils.exec(serversApi, de.value.dataLocation,
-					"bm-cli maintenance repair --ops mailboxAcls " + de.value.email);
+			NodeUtils.exec(serversApi, de.value.dataLocation, "bm-cli", "maintenance", "repair", "--ops",
+					"mailboxFilesystem", de.value.email);
+			NodeUtils.exec(serversApi, de.value.dataLocation, "bm-cli", "maintenance", "repair", "--ops", "mailboxAcls",
+					de.value.email);
 
 		} catch (IOException e) {
 			ctx.error("Error extracting archive " + e.getMessage());
@@ -304,9 +304,8 @@ public class UserImportCommand extends SingleOrDomainOperation {
 	}
 
 	private void copyEmails(ItemValue<DirEntry> de, Path directory, String outputDir) {
-		String command = String.format("rsync -r %s/ %s", directory.toAbsolutePath().toString(), outputDir);
 		IServer serversApi = ctx.adminApi().instance(IServer.class, InstallationId.getIdentifier());
-		NodeUtils.exec(serversApi, de.value.dataLocation, command);
+		NodeUtils.exec(serversApi, de.value.dataLocation, "rsync", "-r", directory.toAbsolutePath() + "/", outputDir);
 	}
 
 	private char firstLetterMailbox(String mbox) {

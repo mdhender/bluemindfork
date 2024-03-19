@@ -2,6 +2,7 @@ package net.bluemind.systemcheck.collect;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -33,7 +34,7 @@ public class PsqlWorkingCollector implements IDataCollector {
 	}
 
 	private int checkPg() throws IOException {
-		CmdOutput out = SystemHelper.cmdWithEnv(SQL_PATH + "/check_pg.sh", (Map<String, String>) null);
+		CmdOutput out = SystemHelper.cmdWithEnv(List.of(SQL_PATH + "/check_pg.sh"), (Map<String, String>) null);
 		return out.getExitCode();
 	}
 }

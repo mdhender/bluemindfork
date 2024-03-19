@@ -95,7 +95,7 @@ public class NodeClientTests extends TestCase {
 
 		INodeClient nc = client();
 		try {
-			nc.executeCommand(cmd);
+			nc.executeCommand(List.of(cmd));
 			fail("That should not have started");
 		} catch (ServerFault e) {
 			// expected
@@ -108,17 +108,15 @@ public class NodeClientTests extends TestCase {
 		String cmd = "/Users/tom/exit42.sh";
 
 		INodeClient nc = client();
-		TaskRef ref = nc.executeCommand(cmd);
+		TaskRef ref = nc.executeCommand(List.of(cmd));
 		assertNotNull(ref);
 		ExitList el = NCUtils.waitFor(nc, ref);
 		assertEquals(42, el.getExitCode());
 	}
 
 	public void testExecFast() throws ServerFault {
-		String cmd = "ls /";
-
 		INodeClient nc = client();
-		TaskRef ref = nc.executeCommand(cmd);
+		TaskRef ref = nc.executeCommand(List.of("ls", "/"));
 		assertNotNull(ref);
 		List<String> output = NCUtils.waitFor(nc, ref);
 		assertNotNull(output);
@@ -134,12 +132,10 @@ public class NodeClientTests extends TestCase {
 	}
 
 	public void testExecWithClientReuse() throws ServerFault {
-		String cmd = "echo -n";
-
 		INodeClient nc = client();
 		for (int i = 0; i < 100; i++) {
 			System.out.println("Execution " + i);
-			ExitList el = NCUtils.exec(nc, cmd);
+			ExitList el = NCUtils.exec(nc, List.of("echo", "-n"));
 			assertEquals(0, el.getExitCode());
 		}
 	}
@@ -162,10 +158,9 @@ public class NodeClientTests extends TestCase {
 	}
 
 	public void testExecSlow() throws ServerFault {
-		String cmd = "sleep 5";
 
 		INodeClient nc = client();
-		TaskRef ref = nc.executeCommand(cmd);
+		TaskRef ref = nc.executeCommand(List.of("sleep", "5"));
 		assertNotNull(ref);
 		LinkedList<String> output = runTask(nc, ref);
 		assertNotNull(output);
@@ -370,7 +365,7 @@ public class NodeClientTests extends TestCase {
 		for (int i = 0; i < 500; i++) {
 
 			InputStream toTransfer = nc.openStream(pf + cnt + ".txt");
-			TaskRef mkdir = nc.executeCommand("mkdir -p " + dir);
+			TaskRef mkdir = nc.executeCommand(List.of("mkdir", "-p", dir));
 			runTask(nc, mkdir);
 			cnt++;
 			String newFilePath = pf + cnt + ".txt";
@@ -393,8 +388,8 @@ public class NodeClientTests extends TestCase {
 			for (String map : maps) {
 				byte[] mbf = nc.read(map);
 				nc.writeFile(map, new ByteArrayInputStream(mbf));
-				NCUtils.exec(nc, "/usr/sbin/postmap " + map);
-				NCUtils.exec(nc, "/bin/mv -f " + map + ".db " + map.replace("-flat", "") + ".db");
+				NCUtils.exec(nc, "/usr/sbin/postmap", map);
+				NCUtils.exec(nc, "/bin/mv", "-f", map + ".db", map.replace("-flat", "") + ".db");
 			}
 		}
 	}
@@ -462,7 +457,7 @@ public class NodeClientTests extends TestCase {
 			Runnable sleepCommand = () -> {
 				try {
 					long val = total.incrementAndGet();
-					ExitList el = NCUtils.exec(nc, "sleep " + (1 + (val % 3)));
+					ExitList el = NCUtils.exec(nc, List.of("sleep", String.valueOf((1 + (val % 3)))));
 					if (el.getExitCode() != 0) {
 						failed.incrementAndGet();
 					}
@@ -705,7 +700,7 @@ public class NodeClientTests extends TestCase {
 	public void testLongCommand() throws ServerFault {
 		INodeClient nc = client();
 
-		TaskRef ref = nc.executeCommandNoOut("find " + System.getProperty("user.home"));
+		TaskRef ref = nc.executeCommandNoOut(List.of("find", System.getProperty("user.home")));
 		System.out.println("Waiting for command ending...");
 		ExitList data = NCUtils.waitFor(nc, ref);
 		System.out.println("Output: " + data.size());

@@ -76,7 +76,7 @@ public class AlertsVerticle extends AbstractVerticle {
 			List<ItemValue<Server>> servers = prov.instance(IServer.class, InstallationId.getIdentifier())
 					.allComplete();
 
-			serverApi.submitAndWait(kapaSrv.uid, "service kapacitor restart");
+			serverApi.submitAndWait(kapaSrv.uid, "service", "kapacitor", "restart");
 			new NetworkHelper(kapaSrv.value.address()).waitForListeningPort(9092, 10, TimeUnit.SECONDS);
 
 			logger.info("Kapacitor re-configuration required.");
@@ -96,8 +96,10 @@ public class AlertsVerticle extends AbstractVerticle {
 	private void configureKapacitor(ServerSideServiceProvider prov, ItemValue<Server> kapaSrv,
 			List<ItemValue<Server>> servers) {
 		List<ITickTemplateProvider> templates = TickTemplates.template();
-		logger.info("Found {} tick script provider(s): {}", templates.size(),
-				templates.stream().map(ITickTemplateProvider::templateId).collect(Collectors.joining(",")));
+		if (logger.isInfoEnabled()) {
+			logger.info("Found {} tick script provider(s): {}", templates.size(),
+					templates.stream().map(ITickTemplateProvider::templateId).collect(Collectors.joining(",")));
+		}
 
 		for (ITickTemplateProvider template : templates) {
 			loadTemplate(template, servers, kapaSrv, prov.getContext());
@@ -113,9 +115,8 @@ public class AlertsVerticle extends AbstractVerticle {
 		try (InputStream in = template.content()) {
 			byte[] tplContent = ByteStreams.toByteArray(in);
 			srvApi.writeFile(kapaSrv.uid, "/tmp/" + template.templateId() + ".tick", tplContent);
-			String cmd = KAPACITOR + " define-template " + template.templateId() + " -tick /tmp/"
-					+ template.templateId() + ".tick";
-			CommandStatus tplDef = srvApi.submitAndWait(kapaSrv.uid, cmd);
+			CommandStatus tplDef = srvApi.submitAndWait(kapaSrv.uid, KAPACITOR, "define-template",
+					template.templateId(), "-tick", "/tmp/" + template.templateId() + ".tick");
 			if (logger.isInfoEnabled()) {
 				logger.info("Template {} defined, success: {}", template.templateId(), tplDef.successful);
 			}
@@ -144,8 +145,8 @@ public class AlertsVerticle extends AbstractVerticle {
 					byte[] defContent = td.variables.encode().getBytes();
 					String defFilePath = "/tmp/" + template.templateId() + ".json";
 					srvApi.writeFile(kapaSrv.uid, defFilePath, defContent);
-					String defCmd = KAPACITOR + " define " + td.name + " -template " + template.templateId() + " -vars "
-							+ defFilePath + " -dbrp telegraf.autogen";
+					String[] defCmd = { KAPACITOR, "define", td.name, "-template", template.templateId(), "-vars",
+							defFilePath, "-dbrp", "telegraf.autogen" };
 					CommandStatus cmdRes = srvApi.submitAndWait(kapaSrv.uid, defCmd);
 					logger.info("Template {} instanciated {}, for {}, success: {}", template.templateId(), td.name,
 							srvAddress, cmdRes.successful);
@@ -153,7 +154,7 @@ public class AlertsVerticle extends AbstractVerticle {
 						logger.error("Template {} load error: {}", template.templateId(), cmdRes.output);
 					} else {
 						// TODO: remove temporary file defFilePath
-						String enableCmd = KAPACITOR + " enable " + td.name;
+						String[] enableCmd = { KAPACITOR, "enable", td.name };
 						CommandStatus enableRes = srvApi.submitAndWait(kapaSrv.uid, enableCmd);
 						logger.info("Task {} enabled: {}", td.name, enableRes.successful);
 					}

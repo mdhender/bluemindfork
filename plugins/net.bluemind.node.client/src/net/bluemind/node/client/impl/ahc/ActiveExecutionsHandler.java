@@ -69,7 +69,7 @@ public class ActiveExecutionsHandler extends DefaultAsyncHandler<List<ExecDescri
 			for (int i = 0; i < len; i++) {
 				JsonObject descJs = descs.getJsonObject(i);
 				ExecDescriptor desc = new ExecDescriptor();
-				desc.command = descJs.getString("command");
+				desc.argv = descJs.getJsonArray("argv").stream().map(Object::toString).toList();
 				desc.group = descJs.getString("group");
 				desc.name = descJs.getString("name");
 				desc.taskRefId = descJs.getString("pid");

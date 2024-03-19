@@ -46,7 +46,7 @@ public class PimpMyRam implements IApplication {
 		try (InputStream in = PimpMyRam.class.getClassLoader().getResourceAsStream("data/sysctl/bm.conf")) {
 			Files.write(ByteStreams.toByteArray(in), new File("/etc/sysctl.d/01-bluemind.conf"));
 
-			int ret = SystemHelper.cmd("sysctl --system");
+			int ret = SystemHelper.cmd("sysctl", "--system");
 			if (ret != 0) {
 				logger.warn("Loading sysctl ending with error code {}", ret);
 			}
@@ -59,7 +59,7 @@ public class PimpMyRam implements IApplication {
 		try (InputStream in = PimpMyRam.class.getClassLoader().getResourceAsStream("data/sysfs/bm.conf")) {
 			Files.write(ByteStreams.toByteArray(in), new File("/etc/tmpfiles.d/01-bluemind-sysfs.conf"));
 
-			int ret = SystemHelper.cmd("systemd-tmpfiles --create");
+			int ret = SystemHelper.cmd("systemd-tmpfiles", "--create");
 			if (ret != 0) {
 				logger.warn("systemd-tmpfiles --create ends with error code {}", ret);
 			}

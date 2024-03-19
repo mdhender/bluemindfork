@@ -51,9 +51,11 @@ public class WebmailHook extends DefaultServerHook {
 
 		INodeClient nc = ncr.create(server.value.address());
 
-		NCUtils.execNoOut(nc, "/bin/mkdir -p /etc/bm-webmail");
+		NCUtils.execNoOut(nc, "/bin/mkdir", "-p", "/etc/bm-webmail");
 
-		logger.info("host " + server.value.address() + " tagged as " + tag + ". (Over)writing main & master.cf");
+		if (logger.isInfoEnabled()) {
+			logger.info("host {} tagged as {}. (Over)writing main & master.cf", server.value.address(), tag);
+		}
 
 		setPhpFpmMessageSizeLimit(context, nc);
 
@@ -83,9 +85,9 @@ public class WebmailHook extends DefaultServerHook {
 	}
 
 	private void reloadHttpd(INodeClient nc) throws ServerFault {
-		NCUtils.forget(nc, "service bm-php-fpm reload");
+		NCUtils.forget(nc, "service", "bm-php-fpm", "reload");
 
-		NCUtils.forget(nc, "service bm-nginx reload");
+		NCUtils.forget(nc, "service", "bm-nginx", "reload");
 	}
 
 }

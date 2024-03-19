@@ -84,11 +84,11 @@ public class ForgetTask extends BlockingServerTask implements IServerTask {
 				String path = BackupPath.get(srv, pg.tag) + "/" + pg.id;
 				monitor.log("Removing " + path);
 				String empty = "/tmp/empty" + UUID.randomUUID().toString();
-				NCUtils.execNoOut(nc, "mkdir -p " + empty);
+				NCUtils.execNoOut(nc, "mkdir", "-p", empty);
 				// run this one over websocket to avoid bm-node polling
-				NCUtils.execNoOut(nc, "/usr/bin/rsync -a --delete " + empty + "/ " + path + "/", 8, TimeUnit.HOURS);
-				NCUtils.execNoOut(nc, "rm -fr " + path);
-				NCUtils.execNoOut(nc, "rmdir " + empty);
+				NCUtils.execNoOut(nc, 8, TimeUnit.HOURS, "/usr/bin/rsync", "-a", "--delete", empty + "/", path + "/");
+				NCUtils.execNoOut(nc, "rm", "-fr", path);
+				NCUtils.execNoOut(nc, "rmdir", empty);
 			} else {
 				monitor.log("Skip removing " + pg.server + " because does not exist anymore");
 				logger.info("Skip removing {} because does not exist anymore", pg.server);

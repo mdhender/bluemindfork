@@ -29,8 +29,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
@@ -54,44 +56,19 @@ public class SystemHelper {
 		return debugMode;
 	}
 
-	public static int cmd(String cmd, IServerTaskMonitor task) throws IOException {
-		return cmd(cmd, task, null);
+	public static int cmd(List<String> argv, IServerTaskMonitor task) throws IOException {
+		return cmd(argv, task, null);
 	}
 
-	public static CmdOutput cmdWithEnv(String cmd, Map<String, String> customEnv) throws IOException {
-		logger.info("--- {} ---", cmd);
-		ProcessBuilder pb = new ProcessBuilder(cmd.split(" "));
-		pb.redirectErrorStream(true);
-		if (customEnv != null) {
-			pb.environment().putAll(customEnv);
-		}
-		Process pid = pb.start();
-		InputStream in = pid.getInputStream();
-		BufferedReader br = new BufferedReader(new InputStreamReader(in));
-		String line = null;
-
-		CmdOutput out = new CmdOutput();
-		do {
-			line = br.readLine();
-			if (line != null) {
-				out.out(line);
-			}
-			logger.info(line != null ? line : "---");
-		} while (line != null);
-		int exit = 1;
-		try {
-			exit = pid.waitFor();
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-			logger.error("cmd: '{}' interrupted", cmd);
-		}
-		logger.info("cmd: '{}' exited ({})", cmd, exit);
-		return out.code(exit);
+	public static int cmd(IServerTaskMonitor task, String... argv) throws IOException {
+		return cmd(List.of(argv), task);
 	}
 
-	public static int cmd(String cmd, IServerTaskMonitor task, Map<String, String> customEnv) throws IOException {
-		logger.info("--- {} ---", cmd);
-		ProcessBuilder pb = new ProcessBuilder(cmd.split(" "));
+	public static int cmd(List<String> argv, IServerTaskMonitor task, Map<String, String> customEnv)
+			throws IOException {
+		String stringCmd = argv.stream().collect(Collectors.joining(" "));
+		logger.info("--- {} ---", stringCmd);
+		ProcessBuilder pb = new ProcessBuilder(argv);
 		pb.redirectErrorStream(true);
 		if (customEnv != null) {
 			pb.environment().putAll(customEnv);
@@ -115,10 +92,50 @@ public class SystemHelper {
 			exit = pid.waitFor();
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
-			logger.error("cmd: '{}' interrupted", cmd);
+			logger.error("cmd: '{}' interrupted", stringCmd);
 		}
-		logger.info("cmd: '{}' exited ({})", cmd, exit);
+		logger.info("cmd: '{}' exited ({})", stringCmd, exit);
 		return exit;
+	}
+
+	public static int cmd(IServerTaskMonitor task, Map<String, String> customEnv, String... argv) throws IOException {
+		return cmd(List.of(argv), task, customEnv);
+	}
+
+	public static CmdOutput cmdWithEnv(List<String> argv, Map<String, String> customEnv) throws IOException {
+		String stringCmd = argv.stream().collect(Collectors.joining(" "));
+		logger.info("--- {} ---", stringCmd);
+		ProcessBuilder pb = new ProcessBuilder(argv);
+		pb.redirectErrorStream(true);
+		if (customEnv != null) {
+			pb.environment().putAll(customEnv);
+		}
+		Process pid = pb.start();
+		InputStream in = pid.getInputStream();
+		BufferedReader br = new BufferedReader(new InputStreamReader(in));
+		String line = null;
+
+		CmdOutput out = new CmdOutput();
+		do {
+			line = br.readLine();
+			if (line != null) {
+				out.out(line);
+			}
+			logger.info(line != null ? line : "---");
+		} while (line != null);
+		int exit = 1;
+		try {
+			exit = pid.waitFor();
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			logger.error("cmd: '{}' interrupted", stringCmd);
+		}
+		logger.info("cmd: '{}' exited ({})", stringCmd, exit);
+		return out.code(exit);
+	}
+
+	public static CmdOutput cmdWithEnv(Map<String, String> customEnv, String... argv) throws IOException {
+		return cmdWithEnv(List.of(argv), customEnv);
 	}
 
 	private static void sleep(long ms) {

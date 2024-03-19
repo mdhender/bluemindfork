@@ -18,6 +18,7 @@
  */
 package net.bluemind.backend.postfix;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -119,17 +120,21 @@ public class PostfixService {
 
 		// disable milter
 		INodeClient nc = NodeActivator.get(server.value.address());
-		nc.executeCommandNoOut("systemctl stop bm-milter");
-		nc.executeCommandNoOut("touch /etc/bm/bm-milter.disabled");
+		nc.executeCommandNoOut(List.of("systemctl", "stop", "bm-milter"));
+		nc.executeCommandNoOut(List.of("touch", "/etc/bm/bm-milter.disabled"));
 	}
 
 	public void restartPostfix(ItemValue<Server> server) {
-		logger.info("Restarting postfix on server {}", server.value.address());
+		if (logger.isInfoEnabled()) {
+			logger.info("Restarting postfix on server {}", server.value.address());
+		}
 		INodeClient nc = NodeActivator.get(server.value.address());
 
-		ExitList result = NCUtils.waitFor(nc, nc.executeCommandNoOut("service postfix restart"));
+		ExitList result = NCUtils.waitFor(nc, nc.executeCommandNoOut("service", "postfix", "restart"));
 		if (result.getExitCode() != 0) {
-			logger.error("Error during postfix restart {} ", String.join(", ", result));
+			if (logger.isErrorEnabled()) {
+				logger.error("Error during postfix restart {} ", String.join(", ", result));
+			}
 			throw new ServerFault(String.format("error during postfix restart %s", String.join(", ", result)),
 					ErrorCode.FAILURE);
 		}
@@ -137,9 +142,7 @@ public class PostfixService {
 
 	private String getHostname(Server serverItem) {
 		INodeClient nodeClient = NodeActivator.get(serverItem.address());
-		return NCUtils.exec(nodeClient, "hostname -f").stream().reduce("", (output, elem) -> {
-			return output.concat(elem);
-		});
+		return NCUtils.exec(nodeClient, "hostname", "-f").stream().reduce("", String::concat);
 	}
 
 	private static class MainConfig {
@@ -183,12 +186,16 @@ public class PostfixService {
 	}
 
 	public void reloadPostfix(ItemValue<Server> server) {
-		logger.info("Reloading postfix on server {}", server.value.address());
+		if (logger.isInfoEnabled()) {
+			logger.info("Reloading postfix on server {}", server.value.address());
+		}
 		INodeClient nc = NodeActivator.get(server.value.address());
 
-		ExitList result = NCUtils.waitFor(nc, nc.executeCommandNoOut("service postfix reload"));
+		ExitList result = NCUtils.waitFor(nc, nc.executeCommandNoOut("service", "postfix", "reload"));
 		if (result.getExitCode() != 0) {
-			logger.error("Error during postfix reload {} ", String.join(", ", result));
+			if (logger.isErrorEnabled()) {
+				logger.error("Error during postfix reload {} ", String.join(", ", result));
+			}
 			throw new ServerFault(String.format("error during postfix reload %s", String.join(", ", result)),
 					ErrorCode.FAILURE);
 		}

@@ -87,7 +87,8 @@ public class SysCommand extends AbstractVerticle {
 				if (rc != null) {
 					long et = rc.getLastCheck();
 					if (et > 0 && (cur - et > TimeUnit.SECONDS.toNanos(30))) {
-						logger.warn("[{}] ({}) unchecked for 30sec, dropped.", rc.getPid(), rc.cmd);
+						logger.warn("[{}] ({}) unchecked for 30sec, dropped.", rc.getPid(),
+								rc.argv.stream().collect(Collectors.joining(" ")));
 						interrupt(entry.getKey());
 						count++;
 					}
@@ -141,7 +142,7 @@ public class SysCommand extends AbstractVerticle {
 			JsonObject desc = new JsonObject();
 			desc.put("group", cmd.group);
 			desc.put("name", cmd.name);
-			desc.put("command", cmd.cmd);
+			desc.put("argv", cmd.argv);
 			desc.put("pid", Long.toString(cmd.getPid()));
 			execs.add(desc);
 		});
@@ -195,7 +196,8 @@ public class SysCommand extends AbstractVerticle {
 		if (logger.isInfoEnabled()) {
 			logger.info("run: {}", jso.encodePrettily());
 		}
-		String cmd = jso.getString("command");
+		List<String> argv = jso.getJsonArray("argv").stream().map(Object::toString).toList();
+		String cmdString = argv.stream().collect(Collectors.joining(" "));
 		JsonArray optionsJs = jso.getJsonArray("options");
 		Set<Options> options = EnumSet.noneOf(Options.class);
 		if (optionsJs != null) {
@@ -218,7 +220,7 @@ public class SysCommand extends AbstractVerticle {
 		if (wsWriteAddress != null) {
 			wsEP = new WsEndpoint(wsWriteAddress, wsRid);
 		}
-		RunningCommand rc = startCommand(group, name, cmd, options, wsEP);
+		RunningCommand rc = startCommand(group, name, argv, options, wsEP);
 		long ret = -1L;
 		if (rc != null) {
 			ret = rc.getPid();
@@ -228,9 +230,9 @@ public class SysCommand extends AbstractVerticle {
 			} else {
 				activeUnwatched.put(rc.getPid(), rc);
 			}
-			logger.info("[{}][options: {}] cmd: {}", rc.getPid(), options, cmd);
+			logger.info("[{}][options: {}] cmd: {}", rc.getPid(), options, cmdString);
 		} else {
-			logger.error("[FAILED] cmd: {}", cmd);
+			logger.error("[FAILED] cmd: {}", cmdString);
 			if (wsEP != null) {
 				wsEP.write("completion", new JsonObject().put("exit", 1));
 			}
@@ -274,17 +276,20 @@ public class SysCommand extends AbstractVerticle {
 		return Stream.concat(active.values().stream(), activeUnwatched.values().stream());
 	}
 
-	private RunningCommand startCommand(String group, String name, String cmd, Set<Options> options, WsEndpoint wsEP) {
+	private RunningCommand startCommand(String group, String name, List<String> argv, Set<Options> options,
+			WsEndpoint wsEP) {
+		String cmdString = argv.stream().collect(Collectors.joining(" "));
 		if (options.contains(Options.FAIL_IF_EXISTS)) {
 			boolean hasMatch = activeCommands().anyMatch(matcher(group, name));
 			if (hasMatch) {
-				logger.info("Preventing execution of [{} {} '{}'] because of FAIL_IF_EXISTS", group, name, cmd);
+				logger.info("Preventing execution of [{} {} '{}'] because of FAIL_IF_EXISTS", group, name, cmdString);
 				return null;
 			}
 		} else if (options.contains(Options.FAIL_IF_GROUP_EXISTS)) {
 			boolean hasMatch = activeCommands().anyMatch(matcher(group, null));
 			if (hasMatch) {
-				logger.info("Preventing execution of [{} {} '{}'] because of FAIL_IF_GROUP_EXISTS", group, name, cmd);
+				logger.info("Preventing execution of [{} {} '{}'] because of FAIL_IF_GROUP_EXISTS", group, name,
+						cmdString);
 				return null;
 			}
 		} else if (options.contains(Options.REPLACE_IF_EXISTS)) {
@@ -296,13 +301,13 @@ public class SysCommand extends AbstractVerticle {
 				}
 			}
 		}
-		String[] cmdAndArgs = CmdParser.args(cmd);
+		String[] cmdAndArgs = CmdParser.args(argv);
 		ProcessBuilder ps = new ProcessBuilder(cmdAndArgs);
 		ps.redirectErrorStream(true);
 		try {
 			Process proc = ps.start();
 			long procId = getPid(proc);
-			RunningCommand rc = new RunningCommand(group, name == null ? "cmd_" + procId : name, cmd, procId);
+			RunningCommand rc = new RunningCommand(group, name == null ? "cmd_" + procId : name, argv, procId);
 
 			rc.setProcess(proc);
 			if (wsEP != null) {
@@ -312,7 +317,7 @@ public class SysCommand extends AbstractVerticle {
 			final StdoutPump pump = new StdoutPump(proc, rc, recordOutput, wsEP);
 			Thread pt = new Thread(pump);
 			pt.setDaemon(true);
-			pt.setName(cmd + ":" + procId);
+			pt.setName(argv.getFirst() + ":" + procId);
 			pt.start();
 			return rc;
 		} catch (Exception t) {

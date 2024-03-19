@@ -20,12 +20,12 @@ package net.bluemind.system.ldap.export.conf;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -147,20 +147,20 @@ public class SlapdConfig {
 	}
 
 	private void initSasl(INodeClient nodeClient) {
-		NCUtils.exec(nodeClient, "/bin/mkdir -p " + sasl2Path);
+		NCUtils.exec(nodeClient, "/bin/mkdir", "-p", sasl2Path);
 		nodeClient.writeFile(sasl2Path + "/" + sasl2ConfFile,
 				getContentFromTemplate(sasl2ConfTemplate, Collections.emptyMap()));
-		NCUtils.exec(nodeClient, "/bin/chown -R " + owner + ":" + group + " " + sasl2Path);
+		NCUtils.exec(nodeClient, "/bin/chown", "-R", owner + ":" + group, sasl2Path);
 	}
 
 	private void stopSlapd(INodeClient nodeClient) {
 		logger.info("Stoping LDAP service");
-		NCUtils.exec(nodeClient, "service slapd stop");
+		NCUtils.exec(nodeClient, "service", "slapd", "stop");
 	}
 
 	private void startSlapd(INodeClient nodeClient) {
 		logger.info("Starting LDAP service");
-		NCUtils.exec(nodeClient, "service slapd start");
+		NCUtils.exec(nodeClient, "service", "slapd", "start");
 
 		new NetworkHelper(server.value.address()).waitForListeningPort(389, 10, TimeUnit.SECONDS);
 	}
@@ -170,12 +170,13 @@ public class SlapdConfig {
 
 		// Re-create database folder
 		List<FileDescription> files = nodeClient.listFiles(varLibPath);
-		if (files.size() != 0) {
-			NCUtils.exec(nodeClient, String.format("/bin/rm -rf %s",
-					files.stream().map(fd -> fd.getPath()).collect(Collectors.joining(" "))));
+		if (!files.isEmpty()) {
+			List<String> argv = new ArrayList<>(List.of("/bin/rm", "-rf"));
+			argv.addAll(files.stream().map(fd -> fd.getPath()).toList());
+			NCUtils.exec(nodeClient, argv);
 		}
-		NCUtils.exec(nodeClient, "/bin/mkdir -p " + varLibPath);
-		NCUtils.exec(nodeClient, "/bin/chown " + owner + ":" + group + " " + varLibPath);
+		NCUtils.exec(nodeClient, "/bin/mkdir", "-p", varLibPath);
+		NCUtils.exec(nodeClient, "/bin/chown", owner + ":" + group, varLibPath);
 
 		Map<String, Object> confData = new HashMap<>();
 		confData.put("varRunPath", varRunPath);
@@ -197,18 +198,18 @@ public class SlapdConfig {
 	private boolean initSlapd(INodeClient nodeClient, String template, Map<String, Object> data) {
 		String ldifPath = "/tmp/slapd.init.ldif";
 
-		NCUtils.exec(nodeClient, "/bin/rm -rf " + confPath);
-		NCUtils.exec(nodeClient, "/bin/mkdir -p " + confPath);
-		NCUtils.exec(nodeClient, "/bin/chown " + owner + ":" + group + " " + confPath);
+		NCUtils.exec(nodeClient, "/bin/rm", "-rf", confPath);
+		NCUtils.exec(nodeClient, "/bin/mkdir", "-p", confPath);
+		NCUtils.exec(nodeClient, "/bin/chown", owner + ":" + group, confPath);
 
 		nodeClient.writeFile(ldifPath, getContentFromTemplate(template, data));
-		int code = NCUtils.exec(nodeClient, "/usr/sbin/slapadd -F " + confPath + " -b cn=config -l " + ldifPath)
+		int code = NCUtils.exec(nodeClient, "/usr/sbin/slapadd", "-F", confPath, "-b", "cn=config", "-l", ldifPath)
 				.getExitCode();
 		if (code != 0) {
 			return false;
 		}
 
-		NCUtils.exec(nodeClient, "/bin/chown -R " + owner + ":" + group + " " + confPath);
+		NCUtils.exec(nodeClient, "/bin/chown", "-R", owner + ":" + group, confPath);
 		logger.info("{} generated from {} template", confPath, template);
 		return true;
 	}
@@ -236,7 +237,7 @@ public class SlapdConfig {
 
 	private void disableApparmor(INodeClient nodeClient) {
 		try {
-			if (NCUtils.exec(nodeClient, "apparmor_status --enabled").getExitCode() != 0) {
+			if (NCUtils.exec(nodeClient, List.of("apparmor_status", "--enabled")).getExitCode() != 0) {
 				return;
 			}
 		} catch (ServerFault sf) {
@@ -244,11 +245,11 @@ public class SlapdConfig {
 			return;
 		}
 
-		logger.info("Disable apparmor for LDAP service on: " + server.value.address());
+		logger.info("Disable apparmor for LDAP service on: {}", server.value.address());
 
-		NCUtils.exec(nodeClient, "ln -s " + APPARMOR_SLAPD_CONF + " " + APPARMOR_DISABLE_SLAPD);
-		NCUtils.exec(nodeClient, "service " + APPARMOR_INIT_SCRIPT + " teardown");
-		NCUtils.exec(nodeClient, "service " + APPARMOR_INIT_SCRIPT + " restart");
-		NCUtils.exec(nodeClient, "apparmor_parser -R " + APPARMOR_DISABLE_SLAPD);
+		NCUtils.exec(nodeClient, "ln", "-s", APPARMOR_SLAPD_CONF, APPARMOR_DISABLE_SLAPD);
+		NCUtils.exec(nodeClient, "service", APPARMOR_INIT_SCRIPT, "teardown");
+		NCUtils.exec(nodeClient, "service", APPARMOR_INIT_SCRIPT, "restart");
+		NCUtils.exec(nodeClient, "apparmor_parser", "-R", APPARMOR_DISABLE_SLAPD);
 	}
 }

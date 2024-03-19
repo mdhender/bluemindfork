@@ -96,7 +96,7 @@ public class RestoreContainerItemIdSeq {
 		String bumpCmdPath = "/tmp/dump-container-item-id-seq-" + System.nanoTime() + ".sh";
 		nodeClient.writeFile(bumpCmdPath, new ByteArrayInputStream(bumpCmd.getBytes()));
 		try {
-			NCUtils.execNoOut(nodeClient, "chmod +x " + bumpCmdPath);
+			NCUtils.execNoOut(nodeClient, "chmod", "+x", bumpCmdPath);
 			ExitList el = NCUtils.exec(nodeClient, bumpCmdPath);
 			for (String log : el) {
 				if (!log.isEmpty()) {
@@ -104,7 +104,7 @@ public class RestoreContainerItemIdSeq {
 				}
 			}
 		} finally {
-			NCUtils.execNoOut(nodeClient, "rm -f " + bumpCmdPath);
+			NCUtils.execNoOut(nodeClient, "rm", "-f", bumpCmdPath);
 		}
 	}
 

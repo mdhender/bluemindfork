@@ -122,7 +122,7 @@ public class NginxService {
 	 * @throws ServerFault
 	 */
 	public void reloadHttpd(INodeClient nc) throws ServerFault {
-		NCUtils.forget(nc, "service bm-php-fpm reload");
+		NCUtils.forget(nc, "service", "bm-php-fpm", "reload");
 		restart(nc);
 	}
 
@@ -133,10 +133,10 @@ public class NginxService {
 	 * @throws ServerFault
 	 */
 	public void restart(INodeClient nc) throws ServerFault {
-		TaskRef tr = nc.executeCommand("/usr/share/nginx/bm-systemd.sh startPre");
+		TaskRef tr = nc.executeCommand("/usr/share/nginx/bm-systemd.sh", "startPre");
 		NCUtils.waitFor(nc, tr);
 
-		tr = nc.executeCommand("service bm-nginx reload");
+		tr = nc.executeCommand("service", "bm-nginx", "reload");
 		NCUtils.waitFor(nc, tr);
 		logger.info("NGINX server restarted");
 	}
@@ -181,7 +181,7 @@ public class NginxService {
 		getTaggedServers().forEach(server -> {
 			logger.info("update htpasswd on {}", server);
 			INodeClient nc = NodeActivator.get(server);
-			NCUtils.exec(nc, "/usr/bin/htpasswd -bc /etc/nginx/sw.htpasswd admin '" + swPassword + "'");
+			NCUtils.exec(nc, "/usr/bin/htpasswd", "-bc", "/etc/nginx/sw.htpasswd", "admin", swPassword);
 			reloadHttpd(nc);
 		});
 	}

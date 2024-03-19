@@ -64,7 +64,7 @@ public class DiskSpace implements ITickTemplateProvider {
 	}
 
 	private String getDeviceFromMountpoint(String mountpoint, IServer serverApi, ItemValue<Server> serv) {
-		CommandStatus status = serverApi.submitAndWait(serv.uid, "df -h " + mountpoint + " --output=source");
+		CommandStatus status = serverApi.submitAndWait(serv.uid, "df", "-h", mountpoint, "--output=source");
 		String device = null;
 
 		if (status.successful) {

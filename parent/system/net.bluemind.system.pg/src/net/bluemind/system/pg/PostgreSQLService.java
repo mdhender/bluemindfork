@@ -22,6 +22,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,14 +76,14 @@ public class PostgreSQLService {
 		try {
 			logger.info(".. write dropTmpDatabase.sh");
 			nc.writeFile(tmpDropFilePath, getDropDbScript());
-		} catch (ServerFault | IOException e) {
+		} catch (ServerFault e) {
 			throw new ServerFault("Fail to read delete script", e);
 		}
-		NCUtils.execOrFail(nc, "chmod +x " + tmpDropFilePath);
+		NCUtils.execOrFail(nc, "chmod", "+x", tmpDropFilePath);
 
 		logger.info(".. exec dropTmpDatabase.sh");
 
-		String cmd = String.format("%s %s", tmpDropFilePath, dbName);
+		List<String> cmd = List.of(tmpDropFilePath, dbName);
 		ExitList ret = NCUtils.exec(nc, cmd);
 		if (ret.getExitCode() != 0) {
 			ret.forEach(logger::error);
@@ -94,7 +96,7 @@ public class PostgreSQLService {
 		}
 
 		if (ret.getExitCode() != 0) {
-			throw new ServerFault("Fail to execute command '" + cmd + "'");
+			throw new ServerFault("Fail to execute command '" + cmd.stream().collect(Collectors.joining(" ")) + "'");
 		}
 
 	}
@@ -123,7 +125,7 @@ public class PostgreSQLService {
 		} catch (ServerFault | IOException e) {
 			throw new ServerFault("Fail to read install script", e);
 		}
-		NCUtils.execOrFail(nc, "chmod +x " + tmpCreateFilePath);
+		NCUtils.execOrFail(nc, "chmod", "+x", tmpCreateFilePath);
 
 		logger.info(".. exec createdb.sh");
 
@@ -132,7 +134,7 @@ public class PostgreSQLService {
 		String user = oci.get("user");
 		String password = oci.get("password");
 
-		String cmd = String.format("%s %s %s %s fr full", tmpCreateFilePath, dbName, user, password);
+		List<String> cmd = List.of(tmpCreateFilePath, dbName, user, password, "fr", "full");
 		ExitList ret = NCUtils.exec(nc, cmd);
 		if (ret.getExitCode() != 0) {
 			ret.forEach(logger::error);
@@ -145,7 +147,7 @@ public class PostgreSQLService {
 		}
 
 		if (ret.getExitCode() != 0) {
-			throw new ServerFault("Fail to execute command '" + cmd + "'");
+			throw new ServerFault("Fail to execute command '" + cmd.stream().collect(Collectors.joining(" ")) + "'");
 		}
 
 		Pool pool;
@@ -166,19 +168,19 @@ public class PostgreSQLService {
 	private void configurePg(INodeClient nc) {
 		// copy pg conf to the brand new server
 		logger.info(".. stop postgresql");
-		NCUtils.execOrFail(nc, "service postgresql stop");
+		NCUtils.execOrFail(nc, "service", "postgresql", "stop");
 
 		logger.info(".. touch postgresql.conf.pimp");
-		NCUtils.execOrFail(nc, "touch " + PG_CONF_PATH + "/postgresql.conf.pimp");
+		NCUtils.execOrFail(nc, "touch", PG_CONF_PATH + "/postgresql.conf.pimp");
 
 		logger.info(".. touch postgresql.conf.local");
-		NCUtils.execOrFail(nc, "touch " + PG_CONF_PATH + "/postgresql.conf.local");
+		NCUtils.execOrFail(nc, "touch", PG_CONF_PATH + "/postgresql.conf.local");
 
 		try {
 			logger.info(".. write postgresql.conf");
 			nc.writeFile(PG_CONF_PATH + "/postgresql.conf", getConf("postgresql.conf"));
-			NCUtils.execOrFail(nc, "chown postgres:postgres " + PG_CONF_PATH + "/postgresql.conf " + PG_CONF_PATH
-					+ "/postgresql.conf.local " + PG_CONF_PATH + "/postgresql.conf.pimp");
+			NCUtils.execOrFail(nc, "chown", "postgres:postgres", PG_CONF_PATH + "/postgresql.conf",
+					PG_CONF_PATH + "/postgresql.conf.local", PG_CONF_PATH + "/postgresql.conf.pimp");
 		} catch (ServerFault | IOException e) {
 			throw new ServerFault("Fail to write postgresql.conf", e);
 		}
@@ -186,14 +188,14 @@ public class PostgreSQLService {
 		try {
 			logger.info(".. write pg_hba.conf");
 			nc.writeFile(PG_CONF_PATH + "/pg_hba.conf", getConf("pg_hba.conf"));
-			NCUtils.execOrFail(nc, "chown postgres:postgres " + PG_CONF_PATH + "/pg_hba.conf");
+			NCUtils.execOrFail(nc, "chown", "postgres:postgres", PG_CONF_PATH + "/pg_hba.conf");
 
 		} catch (ServerFault | IOException e) {
 			throw new ServerFault("Fail to write pg_hba.conf", e);
 		}
 
 		logger.info(".. start postgresql");
-		NCUtils.execOrFail(nc, "service postgresql start");
+		NCUtils.execOrFail(nc, "service", "postgresql", "start");
 	}
 
 	protected InputStream getCreateDbScript() throws IOException {
@@ -203,7 +205,7 @@ public class PostgreSQLService {
 		return Files.asByteSource(new File(SQL_IW_PATH)).openStream();
 	}
 
-	private InputStream getDropDbScript() throws IOException {
+	private InputStream getDropDbScript() {
 		return PostgreSQLService.class.getClassLoader().getResourceAsStream(SQL_DROP_PATH);
 	}
 

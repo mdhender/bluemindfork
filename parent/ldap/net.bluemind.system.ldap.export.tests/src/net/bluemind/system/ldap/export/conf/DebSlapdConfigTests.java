@@ -115,7 +115,7 @@ public class DebSlapdConfigTests {
 
 	private void updateUserPassword(String login, String passwd) {
 		INodeClient nodeClient = NodeActivator.get(ldapRoleServerIp);
-		NCUtils.exec(nodeClient, "/usr/local/sbin/updateUserPassword.sh " + login + " " + passwd);
+		NCUtils.exec(nodeClient, "/usr/local/sbin/updateUserPassword.sh", login, passwd);
 	}
 
 	private void getLdapRoleServer() {

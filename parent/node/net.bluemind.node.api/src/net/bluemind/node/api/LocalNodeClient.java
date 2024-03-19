@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import net.bluemind.common.io.Buffered;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.task.api.TaskRef;
@@ -99,7 +100,7 @@ public class LocalNodeClient implements INodeClient {
 	}
 
 	@Override
-	public TaskRef executeCommand(String cmd) throws ServerFault {
+	public TaskRef executeCommand(List<String> argv) throws ServerFault {
 		return THE_TASK;
 
 	}
@@ -128,8 +129,8 @@ public class LocalNodeClient implements INodeClient {
 	private static final TaskRef THE_TASK = fakeTask();
 
 	@Override
-	public TaskRef executeCommandNoOut(String cmd) throws ServerFault {
-		logger.warn("skip '{}'", cmd);
+	public TaskRef executeCommandNoOut(List<String> argv) throws ServerFault {
+		logger.warn("skip '{}'", argv);
 		return THE_TASK;
 	}
 

@@ -93,7 +93,11 @@ public interface INodeClient {
 	 * @return
 	 * @throws ServerFault
 	 */
-	TaskRef executeCommand(String cmd) throws ServerFault;
+	TaskRef executeCommand(List<String> argv) throws ServerFault;
+
+	default TaskRef executeCommand(String... argv) throws ServerFault {
+		return executeCommand(List.of(argv));
+	}
 
 	/**
 	 * Runs a command. The optional {@link ExecRequest#group} and
@@ -128,7 +132,11 @@ public interface INodeClient {
 	 * @return
 	 * @throws ServerFault
 	 */
-	TaskRef executeCommandNoOut(String cmd) throws ServerFault;
+	TaskRef executeCommandNoOut(List<String> argv) throws ServerFault;
+
+	default TaskRef executeCommandNoOut(String... argv) throws ServerFault {
+		return executeCommandNoOut(List.of(argv));
+	}
 
 	/**
 	 * Tracks the progress of a task

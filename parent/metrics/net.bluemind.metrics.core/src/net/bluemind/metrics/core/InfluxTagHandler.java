@@ -64,11 +64,11 @@ public class InfluxTagHandler extends TickInputConfigurator {
 			logger.error("Error copying file : {}", e.toString());
 			return;
 		}
-		serverApi.submitAndWait(itemValue.uid, "service influxdb restart");
+		serverApi.submitAndWait(itemValue.uid, "service", "influxdb", "restart");
 		new NetworkHelper(itemValue.value.address()).waitForListeningPort(8086, 1, TimeUnit.MINUTES);
 
-		serverApi.submitAndWait(itemValue.uid,
-				"/usr/bin/influx -execute 'alter retention policy autogen on telegraf duration 30d;'");
+		serverApi.submitAndWait(itemValue.uid, "/usr/bin/influx", "-execute",
+				"alter retention policy autogen on telegraf duration 30d;");
 		List<ItemValue<Server>> allServers = serverApi.allComplete();
 		for (ItemValue<Server> srvItem : allServers) {
 			try {
@@ -82,7 +82,7 @@ public class InfluxTagHandler extends TickInputConfigurator {
 				map.put("uid", srvItem.uid);
 				temp.process(map, out);
 				serverApi.writeFile(srvItem.uid, "/etc/telegraf/telegraf.d/output.conf", out.toString().getBytes());
-				serverApi.submitAndWait(srvItem.uid, "service telegraf restart");
+				serverApi.submitAndWait(srvItem.uid, "service", "telegraf", "restart");
 			} catch (IOException e1) {
 				logger.error("Can't open ftl template", e1);
 			} catch (TemplateException e2) {
@@ -104,9 +104,9 @@ public class InfluxTagHandler extends TickInputConfigurator {
 		logger.info("Untagging {}", itemValue.value.address());
 
 		TagHelper.deleteRemote(itemValue.value.address(), "/etc/telegraf/telegraf.d/bm-influxdb.conf");
-		logger.info("Deleted file /etc/telegraf/telegraf.d/bm-influxdb.conf at " + itemValue.value.address());
+		logger.info("Deleted file /etc/telegraf/telegraf.d/bm-influxdb.conf at {}", itemValue.value.address());
 		TagHelper.deleteRemote(itemValue.value.address(), "/etc/telegraf/telegraf.d/bm-kapacitor.conf");
-		logger.info("Deleted file /etc/telegraf/telegraf.d/bm-kapacitor.conf at " + itemValue.value.address());
+		logger.info("Deleted file /etc/telegraf/telegraf.d/bm-kapacitor.conf at {}", itemValue.value.address());
 
 		IServer serverApi = context.provider().instance(IServer.class, InstallationId.getIdentifier());
 		List<ItemValue<Server>> allServers = serverApi.allComplete();
@@ -116,12 +116,12 @@ public class InfluxTagHandler extends TickInputConfigurator {
 				cfg.setTemplateLoader(new ClassTemplateLoader(InfluxTagHandler.class, "/templates/"));
 				Template temp = cfg.getTemplate("output-influxdb_local.ftl");
 				StringWriter out = new StringWriter();
-				Map<String, String> map = new HashMap<String, String>();
+				Map<String, String> map = new HashMap<>();
 				map.put("hostAddress", srvItem.value.address());
 				map.put("uid", srvItem.uid);
 				temp.process(map, out);
 				serverApi.writeFile(srvItem.uid, "/etc/telegraf/telegraf.d/output.conf", out.toString().getBytes());
-				serverApi.submitAndWait(srvItem.uid, "service telegraf restart");
+				serverApi.submitAndWait(srvItem.uid, "service", "telegraf", "restart");
 			} catch (IOException e1) {
 				logger.error("Can't open ftl template : {}", e1.toString());
 			} catch (TemplateException e2) {

@@ -100,10 +100,10 @@ public class PostfixMapUpdaterTests {
 
 		INodeClient nodeClient = NodeActivator.get(smtp.address());
 		for (String mapFileName : mapsFileNames) {
-			NCUtils.waitFor(nodeClient, nodeClient.executeCommand(
-					"rm -f " + mapFileName + "-flat.db " + mapFileName + "-flat " + mapFileName + ".db"));
+			NCUtils.waitFor(nodeClient, nodeClient.executeCommand("rm", "-f", mapFileName + "-flat.db",
+					mapFileName + "-flat", mapFileName + ".db"));
 
-			ExitList status = NCUtils.waitFor(nodeClient, nodeClient.executeCommand("test -e " + mapFileName));
+			ExitList status = NCUtils.waitFor(nodeClient, nodeClient.executeCommand("test", "-e", mapFileName));
 			assertEquals(1, status.getExitCode());
 		}
 
@@ -112,10 +112,10 @@ public class PostfixMapUpdaterTests {
 
 		nodeClient = NodeActivator.get(smtp.address());
 		for (String mapFileName : mapsFileNames) {
-			ExitList status = NCUtils.waitFor(nodeClient, nodeClient.executeCommand("test -e " + mapFileName + ".db"));
+			ExitList status = NCUtils.waitFor(nodeClient, nodeClient.executeCommand("test", "-e", mapFileName + ".db"));
 			assertEquals(0, status.getExitCode());
 
-			status = NCUtils.waitFor(nodeClient, nodeClient.executeCommand("test -e " + mapFileName + "-flat"));
+			status = NCUtils.waitFor(nodeClient, nodeClient.executeCommand("test", "-e", mapFileName + "-flat"));
 			assertEquals(0, status.getExitCode());
 
 			String map = new String(nodeClient.read(mapFileName + "-flat"));
@@ -148,10 +148,10 @@ public class PostfixMapUpdaterTests {
 		for (Server server : Arrays.asList(smtp, edge)) {
 			INodeClient nodeClient = NodeActivator.get(server.address());
 			for (String mapFileName : mapsFileNames) {
-				NCUtils.waitFor(nodeClient, nodeClient.executeCommand(
-						"rm -f " + mapFileName + "-flat.db " + mapFileName + "-flat " + mapFileName + ".db"));
+				NCUtils.waitFor(nodeClient, nodeClient.executeCommand("rm", "-f", mapFileName + "-flat.db",
+						mapFileName + "-flat", mapFileName + ".db"));
 
-				ExitList status = NCUtils.waitFor(nodeClient, nodeClient.executeCommand("test -e " + mapFileName));
+				ExitList status = NCUtils.waitFor(nodeClient, nodeClient.executeCommand("test", "-e", mapFileName));
 				assertEquals(1, status.getExitCode());
 			}
 		}
@@ -163,10 +163,10 @@ public class PostfixMapUpdaterTests {
 			INodeClient nodeClient = NodeActivator.get(server.address());
 			for (String mapFileName : mapsFileNames) {
 				ExitList status = NCUtils.waitFor(nodeClient,
-						nodeClient.executeCommand("test -e " + mapFileName + ".db"));
+						nodeClient.executeCommand("test", "-e", mapFileName + ".db"));
 				assertEquals(0, status.getExitCode());
 
-				status = NCUtils.waitFor(nodeClient, nodeClient.executeCommand("test -e " + mapFileName + "-flat"));
+				status = NCUtils.waitFor(nodeClient, nodeClient.executeCommand("test", "-e", mapFileName + "-flat"));
 				assertEquals(0, status.getExitCode());
 
 				String map = new String(nodeClient.read(mapFileName + "-flat"));
@@ -201,10 +201,10 @@ public class PostfixMapUpdaterTests {
 		for (Server server : Arrays.asList(smtp, edge)) {
 			INodeClient nodeClient = NodeActivator.get(server.address());
 			for (String mapFileName : mapsFileNames) {
-				NCUtils.waitFor(nodeClient, nodeClient.executeCommand(
-						"rm -f " + mapFileName + "-flat.db " + mapFileName + "-flat " + mapFileName + ".db"));
+				NCUtils.waitFor(nodeClient, nodeClient.executeCommand("rm", "-f", mapFileName + "-flat.db",
+						mapFileName + "-flat", mapFileName + ".db"));
 
-				ExitList status = NCUtils.waitFor(nodeClient, nodeClient.executeCommand("test -e " + mapFileName));
+				ExitList status = NCUtils.waitFor(nodeClient, nodeClient.executeCommand("test", "-e", mapFileName));
 				assertEquals(1, status.getExitCode());
 			}
 		}
@@ -213,10 +213,10 @@ public class PostfixMapUpdaterTests {
 		postfixMapUpdater.refreshMaps();
 		INodeClient nodeClient = NodeActivator.get(smtp.address());
 		for (String mapFileName : mapsFileNames) {
-			ExitList status = NCUtils.waitFor(nodeClient, nodeClient.executeCommand("test -e " + mapFileName + ".db"));
+			ExitList status = NCUtils.waitFor(nodeClient, nodeClient.executeCommand("test", "-e", mapFileName + ".db"));
 			assertEquals(0, status.getExitCode());
 
-			status = NCUtils.waitFor(nodeClient, nodeClient.executeCommand("test -e " + mapFileName + "-flat"));
+			status = NCUtils.waitFor(nodeClient, nodeClient.executeCommand("test", "-e", mapFileName + "-flat"));
 			assertEquals(0, status.getExitCode());
 
 			String map = new String(nodeClient.read(mapFileName + "-flat"));
@@ -228,10 +228,10 @@ public class PostfixMapUpdaterTests {
 
 		nodeClient = NodeActivator.get(edge.address());
 		for (String mapFileName : mapsFileNames) {
-			ExitList status = NCUtils.waitFor(nodeClient, nodeClient.executeCommand("test -e " + mapFileName + ".db"));
+			ExitList status = NCUtils.waitFor(nodeClient, nodeClient.executeCommand("test", "-e", mapFileName + ".db"));
 			assertEquals(0, status.getExitCode());
 
-			status = NCUtils.waitFor(nodeClient, nodeClient.executeCommand("test -e " + mapFileName + "-flat"));
+			status = NCUtils.waitFor(nodeClient, nodeClient.executeCommand("test", "-e", mapFileName + "-flat"));
 			assertEquals(0, status.getExitCode());
 
 			String map = new String(nodeClient.read(mapFileName + "-flat"));
@@ -265,10 +265,10 @@ public class PostfixMapUpdaterTests {
 		for (Server server : Arrays.asList(smtp, edge)) {
 			INodeClient nodeClient = NodeActivator.get(server.address());
 			for (String mapFileName : mapsFileNames) {
-				NCUtils.waitFor(nodeClient, nodeClient.executeCommand(
-						"rm -f " + mapFileName + "-flat.db " + mapFileName + "-flat " + mapFileName + ".db"));
+				NCUtils.waitFor(nodeClient, nodeClient.executeCommand("rm", "-f", mapFileName + "-flat.db",
+						mapFileName + "-flat", mapFileName + ".db"));
 
-				ExitList status = NCUtils.waitFor(nodeClient, nodeClient.executeCommand("test -e " + mapFileName));
+				ExitList status = NCUtils.waitFor(nodeClient, nodeClient.executeCommand("test", "-e", mapFileName));
 				assertEquals(1, status.getExitCode());
 			}
 		}
@@ -280,10 +280,10 @@ public class PostfixMapUpdaterTests {
 			INodeClient nodeClient = NodeActivator.get(server.address());
 			for (String mapFileName : mapsFileNames) {
 				ExitList status = NCUtils.waitFor(nodeClient,
-						nodeClient.executeCommand("test -e " + mapFileName + ".db"));
+						nodeClient.executeCommand("test", "-e", mapFileName + ".db"));
 				assertEquals(0, status.getExitCode());
 
-				status = NCUtils.waitFor(nodeClient, nodeClient.executeCommand("test -e " + mapFileName + "-flat"));
+				status = NCUtils.waitFor(nodeClient, nodeClient.executeCommand("test", "-e", mapFileName + "-flat"));
 				assertEquals(0, status.getExitCode());
 
 				assertEquals(0, nodeClient.read(mapFileName + "-flat").length);
@@ -312,10 +312,10 @@ public class PostfixMapUpdaterTests {
 		for (Server server : Arrays.asList(smtp, edge)) {
 			INodeClient nodeClient = NodeActivator.get(server.address());
 			for (String mapFileName : mapsFileNames) {
-				NCUtils.waitFor(nodeClient, nodeClient.executeCommand(
-						"rm -f " + mapFileName + "-flat.db " + mapFileName + "-flat " + mapFileName + ".db"));
+				NCUtils.waitFor(nodeClient, nodeClient.executeCommand("rm", "-f", mapFileName + "-flat.db",
+						mapFileName + "-flat", mapFileName + ".db"));
 
-				ExitList status = NCUtils.waitFor(nodeClient, nodeClient.executeCommand("test -e " + mapFileName));
+				ExitList status = NCUtils.waitFor(nodeClient, nodeClient.executeCommand("test", "-e", mapFileName));
 				assertEquals(1, status.getExitCode());
 			}
 		}
@@ -326,7 +326,7 @@ public class PostfixMapUpdaterTests {
 			INodeClient nodeClient = NodeActivator.get(server.address());
 			for (String mapFileName : mapsFileNames) {
 				ExitList status = NCUtils.waitFor(nodeClient,
-						nodeClient.executeCommand("test -e " + mapFileName + ".db"));
+						nodeClient.executeCommand("test", "-e", mapFileName + ".db"));
 				assertEquals(0, status.getExitCode());
 			}
 		}
@@ -353,10 +353,10 @@ public class PostfixMapUpdaterTests {
 		for (Server server : Arrays.asList(smtp, edge)) {
 			INodeClient nodeClient = NodeActivator.get(server.address());
 			for (String mapFileName : mapsFileNames) {
-				NCUtils.waitFor(nodeClient, nodeClient.executeCommand(
-						"rm -f " + mapFileName + "-flat.db " + mapFileName + "-flat " + mapFileName + ".db"));
+				NCUtils.waitFor(nodeClient, nodeClient.executeCommand("rm", "-f", mapFileName + "-flat.db",
+						mapFileName + "-flat", mapFileName + ".db"));
 
-				ExitList status = NCUtils.waitFor(nodeClient, nodeClient.executeCommand("test -e " + mapFileName));
+				ExitList status = NCUtils.waitFor(nodeClient, nodeClient.executeCommand("test", "-e", mapFileName));
 				assertEquals(1, status.getExitCode());
 			}
 		}
@@ -367,7 +367,7 @@ public class PostfixMapUpdaterTests {
 			INodeClient nodeClient = NodeActivator.get(server.address());
 			for (String mapFileName : mapsFileNames) {
 				ExitList status = NCUtils.waitFor(nodeClient,
-						nodeClient.executeCommand("test -e " + mapFileName + ".db"));
+						nodeClient.executeCommand("test", "-e", mapFileName + ".db"));
 				assertEquals(0, status.getExitCode());
 			}
 		}

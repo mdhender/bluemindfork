@@ -299,8 +299,8 @@ public class OkHttpNodeClient implements INodeClient {
 	}
 
 	@Override
-	public TaskRef executeCommand(String cmd) throws ServerFault {
-		return executeCommand(ExecRequest.anonymous(cmd));
+	public TaskRef executeCommand(List<String> argv) throws ServerFault {
+		return executeCommand(ExecRequest.anonymous(argv));
 	}
 
 	@Override
@@ -312,7 +312,7 @@ public class OkHttpNodeClient implements INodeClient {
 				String pid = exResp.header("Pid");
 				return TaskRef.create(pid);
 			}
-			throw new ServerFault("Submit error for " + tsk.command + ": " + exResp.code());
+			throw new ServerFault("Submit error for " + tsk.argv + ": " + exResp.code());
 		} catch (IOException e) {
 			throw new ServerFault(e);
 		}
@@ -346,7 +346,7 @@ public class OkHttpNodeClient implements INodeClient {
 			for (int i = 0; i < len; i++) {
 				JsonObject descJs = descs.getJsonObject(i);
 				ExecDescriptor desc = new ExecDescriptor();
-				desc.command = descJs.getString("command");
+				desc.argv = descJs.getJsonArray("argv").stream().map(Object::toString).toList();
 				desc.group = descJs.getString("group");
 				desc.name = descJs.getString("name");
 				desc.taskRefId = descJs.getString("pid");
@@ -372,8 +372,8 @@ public class OkHttpNodeClient implements INodeClient {
 	}
 
 	@Override
-	public TaskRef executeCommandNoOut(String cmd) throws ServerFault {
-		return executeCommand(ExecRequest.anonymousWithoutOutput(cmd));
+	public TaskRef executeCommandNoOut(List<String> argv) throws ServerFault {
+		return executeCommand(ExecRequest.anonymousWithoutOutput(argv));
 	}
 
 	private static final JsonArray EMPTY_ARRAY = JsonArray.of();

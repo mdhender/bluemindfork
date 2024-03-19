@@ -104,7 +104,7 @@ public class SmtpTagServerHookTests extends HooksTests {
 	private String getFqdn(String mailSmtpTestIp) {
 		INodeClient nc = NodeActivator.get(mailSmtpTestIp);
 
-		TaskRef tr = nc.executeCommand("hostname -f");
+		TaskRef tr = nc.executeCommand(List.of("hostname", "-f"));
 		ExitList values = NCUtils.waitFor(nc, tr);
 		assertEquals(1, values.size());
 		assertFalse(Strings.isNullOrEmpty(values.get(0)));
@@ -120,12 +120,12 @@ public class SmtpTagServerHookTests extends HooksTests {
 		INodeClient nc = NodeActivator.get(mailSmtpTestIp);
 
 		for (String mapFileName : mapsFileNames) {
-			ExitList status = NCUtils.waitFor(nc, nc.executeCommand("test -e " + mapFileName + "-flat"));
+			ExitList status = NCUtils.waitFor(nc, nc.executeCommand(List.of("test", "-e", mapFileName + "-flat")));
 			assertEquals(0, status.getExitCode());
 
 			assertTrue(new String(nc.read(mapFileName + "-flat")).isEmpty());
 
-			status = NCUtils.waitFor(nc, nc.executeCommand("test -e " + mapFileName + ".db"));
+			status = NCUtils.waitFor(nc, nc.executeCommand(List.of("test", "-e", mapFileName + ".db")));
 			assertEquals(0, status.getExitCode());
 		}
 	}
@@ -133,7 +133,7 @@ public class SmtpTagServerHookTests extends HooksTests {
 	private void assertPostfixConfiguration(String key, String value) throws ServerFault {
 		INodeClient nc = NodeActivator.get(mailSmtpTestIp);
 
-		TaskRef tr = nc.executeCommand("postconf " + key);
+		TaskRef tr = nc.executeCommand(List.of("postconf", key));
 		ExitList values = NCUtils.waitFor(nc, tr);
 		values.forEach(v -> System.out.println(v));
 

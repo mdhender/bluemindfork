@@ -52,7 +52,7 @@ public class FileHostingServerHook extends DefaultServerHook {
 
 		INodeClient nc = ncr.create(server.value.address());
 
-		NCUtils.execNoOut(nc, "/bin/mkdir -p /etc/bm-webmail");
+		NCUtils.execNoOut(nc, "/bin/mkdir", "-p", "/etc/bm-webmail");
 
 		NginxFileHostingConf webmailFilehostingConf = new NginxFileHostingConf(nc);
 
@@ -89,7 +89,7 @@ public class FileHostingServerHook extends DefaultServerHook {
 	}
 
 	private void reloadHttpd(INodeClient nc) throws ServerFault {
-		NCUtils.forget(nc, "service bm-nginx reload");
+		NCUtils.forget(nc, "service", "bm-nginx", "reload");
 	}
 
 }

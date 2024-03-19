@@ -343,9 +343,8 @@ public class SaveAllTask extends BlockingServerTask implements IServerTask {
 
 		if (Workers.get().stream().anyMatch(worker -> worker.supportsTag(tag))) {
 			String dir = BackupPath.get(server, tag) + "/" + prev.id + "/";
-
-			String command = String.format("/usr/bin/test -d %s", dir);
-			if (NCUtils.exec(NodeActivator.get(server.value.address()), command).getExitCode() != 0) {
+			if (NCUtils.exec(NodeActivator.get(server.value.address()), "/usr/bin/test", "-d", dir)
+					.getExitCode() != 0) {
 				TaskUtils.wait(ctx.provider(), dps.forget(prev.generationId));
 				missingDirs.add(dir);
 			}
@@ -447,7 +446,7 @@ public class SaveAllTask extends BlockingServerTask implements IServerTask {
 			if (files != null && files.size() == 1) {
 				monitor.log(String.format("Running %s on server %s", scriptPath, server));
 				logger.info("Running {} on server {}", scriptPath, server);
-				TaskRef tr = nc.executeCommand(scriptPath);
+				TaskRef tr = nc.executeCommand(List.of(scriptPath));
 
 				ExitList out = NCUtils.waitFor(nc, tr);
 				out.forEach(logLine -> {

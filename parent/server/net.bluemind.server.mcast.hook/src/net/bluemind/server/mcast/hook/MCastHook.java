@@ -87,7 +87,7 @@ public class MCastHook extends DefaultServerHook {
 					new ByteArrayInputStream(ymlToWrite.getBytes()));
 
 			logger.info("elasticsearch is configured on node {}, restart", adr);
-			ExitList el = NCUtils.exec(nc, "service bm-elasticsearch restart");
+			ExitList el = NCUtils.exec(nc, "service", "bm-elasticsearch", "restart");
 			for (String out : el) {
 				logger.info("ES: {}", out);
 			}

@@ -19,6 +19,7 @@
 package net.bluemind.node.server.busmod;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Queue;
 
 import com.google.common.collect.EvictingQueue;
@@ -32,17 +33,17 @@ public final class RunningCommand {
 	private final long pid;
 	public final String group;
 	public final String name;
-	public final String cmd;
+	public final List<String> argv;
 	private Queue<String> output;
 	private Integer exitValue;
 	private long lastCheck;
 	private Process process;
 
-	public RunningCommand(String group, String name, String cmd, long pid) {
+	public RunningCommand(String group, String name, List<String> argv, long pid) {
 		this.pid = pid;
 		this.group = group;
 		this.name = name;
-		this.cmd = cmd;
+		this.argv = argv;
 		output = Queues.synchronizedQueue(EvictingQueue.create(5000));
 	}
 

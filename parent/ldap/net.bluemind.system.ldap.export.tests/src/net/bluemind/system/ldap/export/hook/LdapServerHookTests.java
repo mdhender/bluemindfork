@@ -94,14 +94,14 @@ public class LdapServerHookTests {
 		INodeClient nodeClient = NodeActivator.get(ldapRoleServerIp);
 		updateUserPassword(nodeClient, "admin0@global.virt", Token.admin0());
 
-		NCUtils.exec(nodeClient, "service slapd stop");
-		NCUtils.exec(nodeClient, "rm -rf /etc/ldap/slapd.d");
-		NCUtils.exec(nodeClient, "rm -rf /etc/ldap/sasl2/slapd.conf");
-		NCUtils.exec(nodeClient, "rm -rf /var/lib/ldap");
+		NCUtils.exec(nodeClient, "service", "slapd", "stop");
+		NCUtils.exec(nodeClient, "rm", "-rf", "/etc/ldap/slapd.d");
+		NCUtils.exec(nodeClient, "rm", "-rf", "/etc/ldap/sasl2/slapd.conf");
+		NCUtils.exec(nodeClient, "rm", "-rf", "/var/lib/ldap");
 	}
 
 	private void updateUserPassword(INodeClient nodeClient, String login, String passwd) {
-		NCUtils.exec(nodeClient, "/usr/local/sbin/updateUserPassword.sh " + login + " " + passwd);
+		NCUtils.exec(nodeClient, "/usr/local/sbin/updateUserPassword.sh", login, passwd);
 	}
 
 	private void getLdapRoleServer() {

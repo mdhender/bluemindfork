@@ -55,7 +55,11 @@ public class JsonHelper {
 
 	private static void produceNodes(ExecRequest execReq, Long wsRid, JsonGenerator generator) throws IOException {
 		generator.writeStartObject();
-		generator.writeStringField("command", execReq.command);
+		generator.writeArrayFieldStart("argv");
+		for (String arg : execReq.argv) {
+			generator.writeString(arg);
+		}
+		generator.writeEndArray();
 		if (execReq.group != null) {
 			generator.writeStringField("group", execReq.group);
 		}

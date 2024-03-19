@@ -104,7 +104,7 @@ public abstract class LdapExportTests {
 	}
 
 	private void updateUserPassword(INodeClient nodeClient, String login, String passwd) {
-		NCUtils.exec(nodeClient, "/usr/local/sbin/updateUserPassword.sh " + login + " " + passwd);
+		NCUtils.exec(nodeClient, "/usr/local/sbin/updateUserPassword.sh", login, passwd);
 	}
 
 	protected Entry getUserEntry(String userUid) throws ServerFault, LdapException, CursorException {

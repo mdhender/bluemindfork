@@ -53,12 +53,12 @@ public class TagHelper {
 
 	public static void deleteRemote(String serverIp, String file) {
 		INodeClient nodeClient = NodeActivator.get(serverIp);
-		NCUtils.execNoOut(nodeClient, "rm -f " + file, 30, TimeUnit.SECONDS);
+		NCUtils.execNoOut(nodeClient, 30, TimeUnit.SECONDS, "rm", "-f", file);
 		logger.info("Deleted file {} at {}", file, serverIp);
 	}
 
 	public static void reloadTelegraf(String serverIp) {
 		INodeClient nodeClient = NodeActivator.get(serverIp);
-		NCUtils.execNoOut(nodeClient, "service telegraf restart", 30, TimeUnit.SECONDS);
+		NCUtils.execNoOut(nodeClient, 30, TimeUnit.SECONDS, "service", "telegraf", "restart");
 	}
 }

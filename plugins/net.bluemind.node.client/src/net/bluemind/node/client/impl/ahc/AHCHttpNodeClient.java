@@ -166,8 +166,8 @@ public final class AHCHttpNodeClient implements INodeClient {
 	}
 
 	@Override
-	public TaskRef executeCommand(String cmd) {
-		return executeCommand(ExecRequest.anonymous(cmd));
+	public TaskRef executeCommand(List<String> argv) {
+		return executeCommand(ExecRequest.anonymous(argv));
 	}
 
 	@Override
@@ -182,8 +182,8 @@ public final class AHCHttpNodeClient implements INodeClient {
 	}
 
 	@Override
-	public TaskRef executeCommandNoOut(String cmd) {
-		return executeCommand(ExecRequest.anonymousWithoutOutput(cmd));
+	public TaskRef executeCommandNoOut(List<String> argv) {
+		return executeCommand(ExecRequest.anonymousWithoutOutput(argv));
 	}
 
 	@Override

@@ -100,9 +100,9 @@ public class RulesUpdaterTests {
 		String removeScript = "#!/bin/bash\nrm -f " + IptablesPath.IPTABLES_SCRIPT_PATH + " /etc/rc?.d/*"
 				+ IptablesPath.IPTABLES_SCRIPT_NAME + " " + IptablesPath.CHKCONFIG_IPTABLES_PATH;
 		nc.writeFile("/tmp/remove.sh", new ByteArrayInputStream(removeScript.getBytes()));
-		NCUtils.execNoOut(nc, "chmod +x /tmp/remove.sh");
+		NCUtils.execNoOut(nc, "chmod", "+x", "/tmp/remove.sh");
 		NCUtils.execNoOut(nc, "/tmp/remove.sh");
-		NCUtils.execNoOut(nc, "rm -f /tmp/remove.sh");
+		NCUtils.execNoOut(nc, "rm", "-f", "/tmp/remove.sh");
 	}
 
 	@Test
@@ -126,9 +126,9 @@ public class RulesUpdaterTests {
 
 		String script = "#!/bin/sh\nls /etc/rc[016].d/K??" + IptablesPath.IPTABLES_SCRIPT_NAME;
 		nc.writeFile("/tmp/list.sh", new ByteArrayInputStream(script.getBytes()));
-		NCUtils.execNoOut(nc, "chmod +x /tmp/list.sh");
+		NCUtils.execNoOut(nc, "chmod", "+x", "/tmp/list.sh");
 		ExitList list = NCUtils.exec(nc, "/tmp/list.sh");
-		NCUtils.execNoOut(nc, "rm -f /tmp/list.sh");
+		NCUtils.execNoOut(nc, "rm", "-f", "/tmp/list.sh");
 
 		assertEquals(0, list.getExitCode());
 

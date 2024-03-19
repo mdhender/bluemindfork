@@ -22,12 +22,12 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.google.common.base.Splitter;
-
 public final class CmdParser {
+	private CmdParser() {
+	}
 
 	private static final String[] fixArguments(Collection<String> args) {
-		List<String> as = new LinkedList<String>();
+		List<String> as = new LinkedList<>();
 
 		String cur = null;
 		boolean apoFound = false;
@@ -52,9 +52,8 @@ public final class CmdParser {
 		return as.toArray(new String[0]);
 	}
 
-	public static final String[] args(String cmd) {
-		List<String> spaceSplit = Splitter.on(' ').splitToList(cmd);
-		return fixArguments(spaceSplit);
+	public static final String[] args(List<String> argv) {
+		return fixArguments(argv);
 	}
 
 }

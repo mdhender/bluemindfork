@@ -305,7 +305,7 @@ public class ServerServiceTests {
 		assertNotNull(host);
 		Server srv = defaultServer(host, host);
 		service.create(host, srv);
-		String ref = service.submit(host, "ls /");
+		String ref = service.submit(host, "ls", "/");
 		System.out.println("COMMAND REF: '" + ref + "'");
 		StringBuilder sb = new StringBuilder();
 		CommandStatus status = null;
@@ -332,7 +332,7 @@ public class ServerServiceTests {
 		assertNotNull(host);
 		Server srv = defaultServer(host, host);
 		service.create(host, srv);
-		CommandStatus status = service.submitAndWait(host, "/bin/sleep 1");
+		CommandStatus status = service.submitAndWait(host, "/bin/sleep", "1");
 		assertTrue(status.successful);
 		service.delete(host);
 	}

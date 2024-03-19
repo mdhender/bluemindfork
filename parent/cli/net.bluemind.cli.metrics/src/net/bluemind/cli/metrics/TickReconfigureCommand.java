@@ -84,7 +84,7 @@ public class TickReconfigureCommand implements ICmdLet, Runnable {
 	private void reload(IServer srvApi, TagDescriptor nginxTag) {
 		Topology.getIfAvailable().flatMap(t -> t.anyIfPresent(nginxTag.getTag())).ifPresent(srv -> {
 			ctx.info("Reloading nginx " + srv + "...");
-			CommandStatus status = srvApi.submitAndWait(srv.uid, "service bm-nginx reload");
+			CommandStatus status = srvApi.submitAndWait(srv.uid, "service", "bm-nginx", "reload");
 			if (!status.successful) {
 				ctx.error(Arrays.toString(status.output.toArray()));
 			}

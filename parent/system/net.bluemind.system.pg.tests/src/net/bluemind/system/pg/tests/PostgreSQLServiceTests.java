@@ -65,9 +65,8 @@ public class PostgreSQLServiceTests {
 		service.addDataServer(server, dbName);
 
 		INodeClient nc = NodeActivator.get(server.value.address());
-		String res = NCUtils.exec(nc, "sudo -n -u postgres -i -- psql --list").stream().reduce("", (output, elem) -> {
-			return output.concat(elem);
-		});
+		String res = NCUtils.exec(nc, "sudo", "-n", "-u", "postgres", "-i", "--", "psql", "--list").stream().reduce("",
+				(output, elem) -> output.concat(elem));
 
 		System.err.println(res);
 

@@ -17,7 +17,7 @@ public class LocalesCollector implements IDataCollector {
 
 	public void collect(IServiceProvider provider, Map<String, String> ret) throws Exception {
 		try {
-			CmdOutput cmdOut = SystemHelper.cmdWithEnv("/usr/bin/locale -a", (Map<String, String>) null);
+			CmdOutput cmdOut = SystemHelper.cmdWithEnv(List.of("/usr/bin/locale", "-a"), (Map<String, String>) null);
 			List<String> output = cmdOut.getOutput();
 			String supportedLocales = Joiner.on(',').join(output);
 			ret.put("supported.locales", supportedLocales);

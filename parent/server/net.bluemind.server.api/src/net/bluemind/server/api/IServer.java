@@ -28,7 +28,6 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.QueryParam;
-
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
@@ -62,8 +61,8 @@ public interface IServer {
 	TaskRef create(@PathParam(value = "uid") String uid, Server srv) throws ServerFault;
 
 	/**
-	 * Updates a server in the database with its uid. IServerHook
-	 * implementations are invoked.
+	 * Updates a server in the database with its uid. IServerHook implementations
+	 * are invoked.
 	 * 
 	 * @param uid
 	 * @param srv
@@ -105,9 +104,9 @@ public interface IServer {
 	public List<ItemValue<Server>> allComplete() throws ServerFault;
 
 	/**
-	 * Executes a command using bm-node on the server with the given uid.
-	 * Returns a reference to the running command that must be used in
-	 * subsequent <code>getStatus</code> calls.
+	 * Executes a command using bm-node on the server with the given uid. Returns a
+	 * reference to the running command that must be used in subsequent
+	 * <code>getStatus</code> calls.
 	 * 
 	 * @param uid
 	 * @param command
@@ -116,11 +115,11 @@ public interface IServer {
 	 */
 	@POST
 	@Path("{uid}/submit_command")
-	String submit(@PathParam(value = "uid") String uid, String command) throws ServerFault;
+	String submit(@PathParam(value = "uid") String uid, String... argv) throws ServerFault;
 
 	/**
-	 * Executes a command using bm-node on the server with the given uid.
-	 * Returns command execution output and exit code ({@link CommandStatus}).
+	 * Executes a command using bm-node on the server with the given uid. Returns
+	 * command execution output and exit code ({@link CommandStatus}).
 	 * 
 	 * @param uid
 	 * @param command
@@ -129,7 +128,7 @@ public interface IServer {
 	 */
 	@POST
 	@Path("{uid}/submit_command_and_wait")
-	CommandStatus submitAndWait(@PathParam(value = "uid") String uid, String command) throws ServerFault;
+	CommandStatus submitAndWait(@PathParam(value = "uid") String uid, String... argv) throws ServerFault;
 
 	/**
 	 * Fetches the progress of a command running in bm-node
@@ -147,10 +146,8 @@ public interface IServer {
 	/**
 	 * Uses bm-node to read a file on a {@link Server} with its uid.
 	 * 
-	 * @param uid
-	 *            the server uid
-	 * @param path
-	 *            the absolute filename to read
+	 * @param uid  the server uid
+	 * @param path the absolute filename to read
 	 * @return the bytes in the file
 	 * @throws ServerFault
 	 */
@@ -161,10 +158,8 @@ public interface IServer {
 	/**
 	 * Uses bm-node to write a file on a {@link Server} with its uid.
 	 * 
-	 * @param uid
-	 *            the server uid
-	 * @param path
-	 *            the absolute filename to write
+	 * @param uid     the server uid
+	 * @param path    the absolute filename to write
 	 * @param content
 	 * @throws ServerFault
 	 */
@@ -176,11 +171,11 @@ public interface IServer {
 	// FIXME should return a TaskRef
 	/**
 	 * Assigns a Server's tag to a domain. For example, when you assign your
-	 * mail/imap Server to a domain blue-mind.net a mail partition will be
-	 * created to hold this domain data.
+	 * mail/imap Server to a domain blue-mind.net a mail partition will be created
+	 * to hold this domain data.
 	 * 
-	 * This method stores the newly made assignment in the database and
-	 * IServerHook implementations will do all the system work.
+	 * This method stores the newly made assignment in the database and IServerHook
+	 * implementations will do all the system work.
 	 * 
 	 * @param serverUid
 	 * @param domainUid

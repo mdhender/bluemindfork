@@ -23,7 +23,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,12 +33,12 @@ import org.slf4j.LoggerFactory;
 public class SystemHelper {
 	private static final Logger logger = LoggerFactory.getLogger(SystemHelper.class);
 
-	public static int cmd(String cmd) throws IOException {
-		return cmd(cmd, Collections.emptyMap());
+	public static int cmd(String... argv) throws IOException {
+		return cmd(Collections.emptyMap(), argv);
 	}
 
-	public static int cmd(String cmd, Map<String, String> customEnv) throws IOException {
-		ProcessBuilder pb = new ProcessBuilder(cmd.split(" "));
+	public static int cmd(Map<String, String> customEnv, String... argv) throws IOException {
+		ProcessBuilder pb = new ProcessBuilder(argv);
 		pb.redirectErrorStream(true);
 
 		if (customEnv != null) {
@@ -58,7 +60,7 @@ public class SystemHelper {
 			exit = pid.waitFor();
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
-			logger.error("cmd '{}' interrupted", cmd);
+			logger.error("cmd '{}' interrupted", List.of(argv).stream().collect(Collectors.joining(" ")));
 		}
 
 		return exit;

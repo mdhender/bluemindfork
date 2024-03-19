@@ -236,10 +236,10 @@ public final class ServerService implements IServer {
 	}
 
 	@Override
-	public String submit(String uid, String command) throws ServerFault {
+	public String submit(String uid, String... argv) throws ServerFault {
 		rbacManager.check(BasicRoles.ROLE_MANAGE_SERVER);
 		INodeClient client = client(uid);
-		TaskRef ref = client.executeCommand(command);
+		TaskRef ref = client.executeCommand(argv);
 		return ref.id;
 	}
 
@@ -266,11 +266,11 @@ public final class ServerService implements IServer {
 	}
 
 	@Override
-	public CommandStatus submitAndWait(String uid, String command) throws ServerFault {
+	public CommandStatus submitAndWait(String uid, String... argv) throws ServerFault {
 		rbacManager.check(BasicRoles.ROLE_MANAGE_SERVER);
 		INodeClient client = client(uid);
 
-		TaskRef ref = client.executeCommand(command);
+		TaskRef ref = client.executeCommand(argv);
 		ExitList e = NCUtils.waitFor(client, ref);
 		CommandStatus cs = new CommandStatus();
 		cs.complete = true;

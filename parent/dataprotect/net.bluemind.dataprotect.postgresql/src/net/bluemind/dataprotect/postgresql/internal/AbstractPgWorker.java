@@ -89,11 +89,11 @@ public abstract class AbstractPgWorker implements IBackupWorker {
 		s = s.replace("${pass}", dbPassword);
 		s = s.replace("${db}", dbName);
 		INodeClient nc = NodeActivator.get(toBackup.value.address());
-		NCUtils.execNoOut(nc, "mkdir -p " + dir);
+		NCUtils.execNoOut(nc, "mkdir", "-p", dir);
 		nc.writeFile(dir + "/dump.sh", new ByteArrayInputStream(s.getBytes()));
 		try {
-			NCUtils.execNoOut(nc, "chmod +x " + dir + "/dump.sh");
-			ExitList el = NCUtils.exec(nc, dir + "/dump.sh", 12, TimeUnit.HOURS);
+			NCUtils.execNoOut(nc, "chmod", "+x", dir + "/dump.sh");
+			ExitList el = NCUtils.exec(nc, 12, TimeUnit.HOURS, dir + "/dump.sh");
 
 			for (String log : el) {
 				if (!StringUtils.isBlank(log)) {
@@ -105,12 +105,12 @@ public abstract class AbstractPgWorker implements IBackupWorker {
 				throw new ServerFault("pg_dump failed with exit code " + el.getExitCode());
 			}
 		} finally {
-			NCUtils.execNoOut(nc, "rm -f " + dir + "/dump.sh");
+			NCUtils.execNoOut(nc, "rm", "-f", dir + "/dump.sh");
 		}
 
 		logger.info("Backup postgresql configuration files");
-		NCUtils.execNoOut(nc, "rm -rf " + dir + "/configuration");
-		ExitList el = NCUtils.exec(nc, "cp -r /etc/postgresql " + dir + "/configuration");
+		NCUtils.execNoOut(nc, "rm", "-rf", dir + "/configuration");
+		ExitList el = NCUtils.exec(nc, "cp", "-r", "/etc/postgresql", dir + "/configuration");
 		for (String log : el) {
 			if (!StringUtils.isBlank(log)) {
 				ctx.info("en", "copy postgresql conf: " + log);
@@ -171,8 +171,8 @@ public abstract class AbstractPgWorker implements IBackupWorker {
 
 		INodeClient nc = NodeActivator.get(server.value.address());
 		nc.writeFile(finalDir + "/restore.sh", new ByteArrayInputStream(script.getBytes()));
-		NCUtils.exec(nc, "chmod +x " + finalDir + "/restore.sh");
-		List<String> pgRestOutput = NCUtils.exec(nc, finalDir + "/restore.sh");
+		NCUtils.exec(nc, "chmod", "+x", finalDir + "/restore.sh");
+		List<String> pgRestOutput = NCUtils.exec(nc, List.of(finalDir + "/restore.sh"));
 		for (String s : pgRestOutput) {
 			ctx.info("en", "PGRESTORE: " + s);
 			ctx.info("fr", "PGRESTORE: " + s);
@@ -205,7 +205,7 @@ public abstract class AbstractPgWorker implements IBackupWorker {
 		script = script.replace("${db}", db);
 		INodeClient nc = NodeActivator.get(server.value.address());
 		nc.writeFile(finalDir + "/dropdb.sh", new ByteArrayInputStream(script.getBytes()));
-		NCUtils.exec(nc, "chmod +x " + finalDir + "/dropdb.sh");
+		NCUtils.exec(nc, "chmod", "+x", finalDir + "/dropdb.sh");
 		List<String> pgRestOutput = NCUtils.exec(nc, finalDir + "/dropdb.sh");
 		for (String s : pgRestOutput) {
 			ctx.info("en", "DROPDB: " + s);

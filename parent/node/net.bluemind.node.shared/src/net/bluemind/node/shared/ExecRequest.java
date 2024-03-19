@@ -20,6 +20,7 @@ package net.bluemind.node.shared;
 
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 
 import com.google.common.base.MoreObjects;
@@ -50,34 +51,33 @@ public class ExecRequest {
 
 	}
 
-	public final String command;
+	public final List<String> argv;
 	public final String group;
 	public final String name;
 	public final Set<Options> options;
 
-	private ExecRequest(String group, String name, String command, EnumSet<Options> opt) {
+	private ExecRequest(String group, String name, List<String> argv, EnumSet<Options> opt) {
 		this.group = group;
 		this.name = name;
-		this.command = command;
+		this.argv = argv;
 		this.options = opt;
 	}
 
-	public static ExecRequest anonymousWithoutOutput(String cmd) {
-		return new ExecRequest(null, null, cmd, EnumSet.of(Options.DISCARD_OUTPUT));
+	public static ExecRequest anonymousWithoutOutput(List<String> argv) {
+		return new ExecRequest(null, null, argv, EnumSet.of(Options.DISCARD_OUTPUT));
 	}
 
-	public static ExecRequest anonymous(String cmd) {
-		return new ExecRequest(null, null, cmd, EnumSet.noneOf(Options.class));
+	public static ExecRequest anonymous(List<String> argv) {
+		return new ExecRequest(null, null, argv, EnumSet.noneOf(Options.class));
 	}
 
-	public static ExecRequest named(String group, String name, String cmd, Options... options) {
-		return new ExecRequest(group, name, cmd,
+	public static ExecRequest named(String group, String name, List<String> argv, Options... options) {
+		return new ExecRequest(group, name, argv,
 				options.length == 0 ? EnumSet.noneOf(Options.class) : EnumSet.copyOf(Arrays.asList(options)));
 	}
 
 	@Override
 	public String toString() {
-		return MoreObjects.toStringHelper(ExecRequest.class).add("g", group).add("n", name).add("cmd", command)
-				.toString();
+		return MoreObjects.toStringHelper(ExecRequest.class).add("g", group).add("n", name).add("cmd", argv).toString();
 	}
 }

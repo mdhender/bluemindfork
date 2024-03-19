@@ -183,13 +183,13 @@ public class ServerMaps {
 		UpdateMapScript updateMapScript = new UpdateMapScript(maps);
 		nodeClient.writeFile(UpdateMapScript.SCRIPT_FILENAME,
 				new ByteArrayInputStream(updateMapScript.getContent().getBytes()));
-		TaskRef tr = nodeClient.executeCommand("chmod +x " + UpdateMapScript.SCRIPT_FILENAME);
+		TaskRef tr = nodeClient.executeCommand("chmod", "+x", UpdateMapScript.SCRIPT_FILENAME);
 		NCUtils.waitFor(nodeClient, tr);
 
 		tr = nodeClient.executeCommand(UpdateMapScript.SCRIPT_FILENAME);
 		NCUtils.waitFor(nodeClient, tr);
 
-		tr = nodeClient.executeCommand("rm -f " + UpdateMapScript.SCRIPT_FILENAME);
+		tr = nodeClient.executeCommand("rm", "-f", UpdateMapScript.SCRIPT_FILENAME);
 		NCUtils.waitFor(nodeClient, tr);
 	}
 

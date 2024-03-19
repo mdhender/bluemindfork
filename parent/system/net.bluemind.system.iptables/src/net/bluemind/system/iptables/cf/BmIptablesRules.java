@@ -59,22 +59,22 @@ public class BmIptablesRules extends AbstractConfFile {
 
 		nc.writeFile(IptablesPath.IPTABLES_SCRIPT_PATH, new ByteArrayInputStream(iptablesScripts.getBytes()));
 
-		NCUtils.execNoOut(nc, "chmod +x " + IptablesPath.IPTABLES_SCRIPT_PATH);
+		NCUtils.execNoOut(nc, "chmod", "+x", IptablesPath.IPTABLES_SCRIPT_PATH);
 
 		List<FileDescription> systemd = nc.listFiles("/run/systemd/system");
 		if (!systemd.isEmpty()) {
-			NCUtils.execNoOut(nc, "systemctl daemon-reload");
+			NCUtils.execNoOut(nc, "systemctl", "daemon-reload");
 		}
 
-		NCUtils.execNoOut(nc, "service " + IptablesPath.IPTABLES_SCRIPT_NAME + " restart");
+		NCUtils.execNoOut(nc, "service", IptablesPath.IPTABLES_SCRIPT_NAME, "restart");
 
 		List<FileDescription> rh = nc.listFiles("/etc/redhat-release");
 		if (!rh.isEmpty()) {
-			NCUtils.execNoOut(nc, "/sbin/chkconfig --add " + IptablesPath.IPTABLES_SCRIPT_NAME);
-			NCUtils.execNoOut(nc, "/sbin/chkconfig " + IptablesPath.IPTABLES_SCRIPT_NAME + " on");
+			NCUtils.execNoOut(nc, "/sbin/chkconfig", "--add", IptablesPath.IPTABLES_SCRIPT_NAME);
+			NCUtils.execNoOut(nc, "/sbin/chkconfig", IptablesPath.IPTABLES_SCRIPT_NAME, "on");
 		} else {
-			NCUtils.execNoOut(nc, "/usr/sbin/update-rc.d " + IptablesPath.IPTABLES_SCRIPT_NAME + " defaults");
-			NCUtils.execNoOut(nc, "/usr/sbin/update-rc.d " + IptablesPath.IPTABLES_SCRIPT_NAME + " enable");
+			NCUtils.execNoOut(nc, "/usr/sbin/update-rc.d", IptablesPath.IPTABLES_SCRIPT_NAME, "defaults");
+			NCUtils.execNoOut(nc, "/usr/sbin/update-rc.d", IptablesPath.IPTABLES_SCRIPT_NAME, "enable");
 		}
 	}
 

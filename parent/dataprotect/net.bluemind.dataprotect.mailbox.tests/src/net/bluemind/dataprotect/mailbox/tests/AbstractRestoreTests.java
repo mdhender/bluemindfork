@@ -424,7 +424,7 @@ public class AbstractRestoreTests {
 			try {
 				System.out.println("WARMUP node on " + s.address() + ", tag: " + s.tags.get(0));
 				INodeClient nc = NodeActivator.get(s.address());
-				NCUtils.exec(nc, "ls /");
+				NCUtils.exec(nc, List.of("ls", "/"));
 			} catch (Exception e) {
 				throw new RuntimeException(
 						"Error contacting node on " + s.ip + ", tag: " + s.tags.get(0) + ": " + e.getMessage(), e);

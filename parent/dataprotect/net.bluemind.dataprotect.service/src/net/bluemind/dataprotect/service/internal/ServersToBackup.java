@@ -128,7 +128,7 @@ public class ServersToBackup {
 			INodeClient nc = NodeActivator.get(server.value.ip);
 			try {
 				if (last == null) {
-					NCUtils.execNoOut(nc, "rm -rf " + backupTemp + " " + backupWork);
+					NCUtils.execNoOut(nc, "rm", "-rf", backupTemp, backupWork);
 					nc.mkdirs(backupTemp);
 					nc.mkdirs(backupWork);
 					nc.writeFile(fn, new ByteArrayInputStream("YOU CAN SAFELY REMOVE THIS FILE".getBytes()));
@@ -160,7 +160,7 @@ public class ServersToBackup {
 		}
 
 		if (last != null) {
-			serverApi.submitAndWait(last.uid, "rm -f " + fn);
+			serverApi.submitAndWait(last.uid, "rm", "-f", fn);
 		}
 
 		if (!validBackupStore) {
@@ -182,11 +182,10 @@ public class ServersToBackup {
 	 * @return
 	 */
 	private boolean allowedMountPoint(Optional<IServerTaskMonitor> monitor, ItemValue<Server> server, INodeClient nc) {
-		String statCmd = "/usr/bin/stat --format '%m'";
 		String backupMountPoint = backupRoot + "/";
 		List<String> forbidenMountPoint = Arrays.asList("/", "/var", "/var/");
 
-		ExitList output = NCUtils.exec(nc, statCmd + " " + backupMountPoint);
+		ExitList output = NCUtils.exec(nc, "/usr/bin/stat", "--format", "%m", backupMountPoint);
 		if (output.size() != 1) {
 			monitor.ifPresent(
 					m -> m.log(String.format("Invalid stat command output on server %s", server.value.address())));

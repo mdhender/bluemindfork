@@ -17,13 +17,15 @@
   */
 package net.bluemind.node.shared;
 
+import java.util.List;
+
 import com.google.common.base.MoreObjects;
 
 public class ExecDescriptor {
 
 	public String group;
 	public String name;
-	public String command;
+	public List<String> argv;
 	public String taskRefId;
 
 	public static ExecDescriptor forTask(String taskref) {
@@ -33,8 +35,8 @@ public class ExecDescriptor {
 	}
 
 	public String toString() {
-		return MoreObjects.toStringHelper(ExecDescriptor.class).add("group", group).add("name", name)
-				.add("cmd", command).add("pid", taskRefId).toString();
+		return MoreObjects.toStringHelper(ExecDescriptor.class).add("group", group).add("name", name).add("cmd", argv)
+				.add("pid", taskRefId).toString();
 	}
 
 }

@@ -92,8 +92,8 @@ public class HealElasticSearchOnDiskUsage extends AbstractVerticle {
 					final ServerSideServiceProvider prov = ServerSideServiceProvider
 							.getProvider(SecurityContext.SYSTEM);
 					final IServer serverApi = prov.instance(IServer.class, InstallationId.getIdentifier());
-					CommandStatus status = serverApi.submitAndWait(alert.datalocation,
-							"service " + product.name + " restart");
+					CommandStatus status = serverApi.submitAndWait(alert.datalocation, "service", product.name,
+							"restart");
 					if (!status.successful) {
 						logger.error("Unable to restart '{}': {}", product.name, String.join("\n", status.output));
 					}

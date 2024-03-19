@@ -128,20 +128,21 @@ public class StatusCommand extends AbstractNodeOperation {
 	private void checkIfBackupIsRunning(INodeClient nc) {
 		List<ExecDescriptor> active = nc.getActiveExecutions(ActiveExecQuery.byGroup("dataprotect"));
 		for (ExecDescriptor ed : active) {
-			ctx.warn(" * Command in 'dataprotect' group is running {}", ed.command);
+			ctx.warn(" * Command in 'dataprotect' group is running {}",
+					ed.argv.stream().collect(Collectors.joining(" ")));
 		}
 	}
 
 	private void checkHprofs(INodeClient nc) {
 		List<FileDescription> hprofs = nc.listFiles("/var/log", "hprof");
 		if (!hprofs.isEmpty()) {
-			Pattern hprof = Pattern.compile("java_pid([0-9]+).hprof");
+			Pattern hprof = Pattern.compile("java_pid(\\d+).hprof");
 			ctx.warn("  * " + hprofs.size() + " hprofs in /var/log/");
 			for (FileDescription fd : hprofs) {
 				Matcher match = hprof.matcher(fd.getName());
 				if (match.find()) {
 					long pid = Long.parseLong(match.group(1));
-					ExitList exitCode = NCUtils.exec(nc, "ps -p " + pid, 1, TimeUnit.SECONDS);
+					ExitList exitCode = NCUtils.exec(nc, 2, TimeUnit.SECONDS, "ps", "-p", String.valueOf(pid));
 					if (exitCode.getExitCode() == 0) {
 						ctx.error("    * /var/log/" + fd.getName() + " exists AND pid " + pid + " is active.");
 					}

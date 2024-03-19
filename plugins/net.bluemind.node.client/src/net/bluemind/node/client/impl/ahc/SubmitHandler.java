@@ -18,6 +18,8 @@
  */
 package net.bluemind.node.client.impl.ahc;
 
+import java.util.stream.Collectors;
+
 import org.asynchttpclient.BoundRequestBuilder;
 
 import io.netty.buffer.ByteBuf;
@@ -31,7 +33,7 @@ public class SubmitHandler extends DefaultAsyncHandler<TaskRef> {
 	private final ExecRequest execReq;
 
 	public SubmitHandler(ExecRequest req) {
-		super("R '" + req.command + "'", false);
+		super("R '" + req.argv.stream().collect(Collectors.joining(" ")) + "'", false);
 		this.execReq = req;
 	}
 

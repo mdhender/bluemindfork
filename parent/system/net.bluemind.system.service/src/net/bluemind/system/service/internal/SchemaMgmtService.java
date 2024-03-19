@@ -98,9 +98,8 @@ public class SchemaMgmtService implements ISchemaMgmt {
 
 					checkMigra(s, nc);
 					String tmpDbName = "refdb".concat(String.valueOf(System.currentTimeMillis()));
-					ExitList dbExisting = NCUtils.exec(nc,
-							"sudo -u postgres bash -c \"psql -lqt | cut -d \\| -f 1 | grep -w " + tmpDbName + "\"", 30,
-							TimeUnit.SECONDS);
+					ExitList dbExisting = NCUtils.exec(nc, 30, TimeUnit.SECONDS, "sudo", "-u", "postgres", "bash", "-c",
+							"psql -lqt | cut -d \\| -f 1 | grep -w " + tmpDbName);
 					if (dbExisting.getExitCode() != 0) {
 						installReferenceDb(s.value.address(), tmpDbName);
 					}
@@ -132,8 +131,7 @@ public class SchemaMgmtService implements ISchemaMgmt {
 			File compareScript, String dbName) {
 		File compareResult = new File(PG_PATH + "/output_" + s.uid + "_" + dbName + "_" + tmpDbName + ".sql");
 		try {
-			NCUtils.exec(nc, compareScript.getPath() + " " + dbName + " " + tmpDbName + " " + compareResult.getPath(),
-					30, TimeUnit.SECONDS);
+			NCUtils.exec(nc, 30, TimeUnit.SECONDS, compareScript.getPath(), dbName, tmpDbName, compareResult.getPath());
 
 			String statements = new String(nc.read(compareResult.getAbsolutePath()));
 			statements = Arrays.asList(statements.split("\n")).stream().filter(line -> !line.trim().isEmpty())
@@ -175,13 +173,13 @@ public class SchemaMgmtService implements ISchemaMgmt {
 		InputStream inputStream = SchemaMgmtService.class.getClassLoader().getResourceAsStream(COMPARE_SCHEMA_SCRIPT);
 		nc.writeFile(compareScript.getPath(), inputStream);
 
-		NCUtils.execOrFail(nc, "chmod +x " + compareScript.getPath());
+		NCUtils.execOrFail(nc, "chmod", "+x", compareScript.getPath());
 		return compareScript;
 	}
 
 	private void checkMigra(ItemValue<Server> server, INodeClient nc) {
 		try {
-			ExitList checkMigra = NCUtils.exec(nc, "pip list");
+			ExitList checkMigra = NCUtils.exec(nc, List.of("pip", "list"));
 			if (checkMigra.getExitCode() != 0 || checkMigra.getFirst() == null
 					|| !checkMigra.getFirst().contains("migra")) {
 				String errorMsg = "Migra is not installed : please run \n" //

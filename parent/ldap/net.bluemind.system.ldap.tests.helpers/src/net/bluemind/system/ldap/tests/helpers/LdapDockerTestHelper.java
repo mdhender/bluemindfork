@@ -215,30 +215,32 @@ public class LdapDockerTestHelper {
 	public static void initLdapServer(InputStream serverConfig, boolean memberOfOverlay) {
 		INodeClient nodeClient = NodeActivator.get(new BmConfIni().get(DockerContainer.LDAP.getName()));
 
-		NCUtils.exec(nodeClient, "service slapd stop");
+		NCUtils.exec(nodeClient, "service", "slapd", "stop");
 		nodeClient.writeFile("/tmp/serverConfig.ldif", serverConfig);
 		nodeClient.writeFile("/tmp/serverConfig-overlay-memberOf.ldif", new LdapDockerTestHelper().getClass()
 				.getResourceAsStream("/resources/serverConfig-overlay-memberOf.ldif"));
 		nodeClient.writeFile("/etc/default/slapd",
 				new LdapDockerTestHelper().getClass().getResourceAsStream("/resources/slapd.default"));
 
-		NCUtils.exec(nodeClient, "rm -rf /etc/ldap/slapd.d");
-		NCUtils.exec(nodeClient, "mkdir -p /etc/ldap/slapd.d");
-		NCUtils.exec(nodeClient, "/usr/sbin/slapadd -F /etc/ldap/slapd.d -b cn=config -l /tmp/serverConfig.ldif");
+		NCUtils.exec(nodeClient, "rm", "-rf", "/etc/ldap/slapd.d");
+		NCUtils.exec(nodeClient, "mkdir", "-p", "/etc/ldap/slapd.d");
+		NCUtils.exec(nodeClient, "/usr/sbin/slapadd", "-F", "/etc/ldap/slapd.d", "-b", "cn=config", "-l",
+				"/tmp/serverConfig.ldif");
 		if (memberOfOverlay) {
-			NCUtils.exec(nodeClient,
-					"/usr/sbin/slapadd -F /etc/ldap/slapd.d -b cn=config -l /tmp/serverConfig-overlay-memberOf.ldif");
+			NCUtils.exec(nodeClient, "/usr/sbin/slapadd", "-F", "/etc/ldap/slapd.d", "-b", "cn=config", "-l",
+					"/tmp/serverConfig-overlay-memberOf.ldif");
 		}
-		NCUtils.exec(nodeClient, "chown -R openldap:openldap /etc/ldap/slapd.d");
+		NCUtils.exec(nodeClient, "chown", "-R", "openldap:openldap", "/etc/ldap/slapd.d");
 
-		NCUtils.exec(nodeClient, "rm -rf /var/lib/ldap");
-		NCUtils.exec(nodeClient, "mkdir -p /var/lib/ldap");
-		NCUtils.exec(nodeClient, "chown -R openldap:openldap /var/lib/ldap");
-		NCUtils.exec(nodeClient, "chown -R openldap:openldap /var/lib/ldap");
+		NCUtils.exec(nodeClient, "rm", "-rf", "/var/lib/ldap");
+		NCUtils.exec(nodeClient, "mkdir", "-p", "/var/lib/ldap");
+		NCUtils.exec(nodeClient, "chown", "-R", "openldap:openldap", "/var/lib/ldap");
+		NCUtils.exec(nodeClient, "chown", "-R", "openldap:openldap", "/var/lib/ldap");
 
-		NCUtils.exec(nodeClient,
-				"openssl req -x509 -newkey rsa:4096 -keyout /etc/ssl/certs/bm_cert.pem -out /etc/ssl/certs/bm_cert.pem -days 365 -subj '/CN=localhost' -nodes");
+		NCUtils.exec(nodeClient, "openssl", "req", "-x509", "-newkey", "rsa:4096", "-keyout",
+				"/etc/ssl/certs/bm_cert.pem", "-out", "/etc/ssl/certs/bm_cert.pem", "-days", "365", "-subj",
+				"/CN=localhost", "-nodes");
 
-		NCUtils.exec(nodeClient, "service slapd start");
+		NCUtils.exec(nodeClient, "service", "slapd", "start");
 	}
 }

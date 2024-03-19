@@ -34,13 +34,13 @@ public class SystemdLifecycleManager extends ElasticLifecycleManager {
 	@Override
 	public void stop() {
 		INodeClient nc = NodeActivator.get(node.value.address());
-		NCUtils.exec(nc, "systemctl stop bm-elasticsearch", 90, TimeUnit.SECONDS);
+		NCUtils.exec(nc, 90, TimeUnit.SECONDS, "systemctl", "stop", "bm-elasticsearch");
 	}
 
 	@Override
 	public void start() {
 		INodeClient nc = NodeActivator.get(node.value.address());
-		NCUtils.exec(nc, "systemctl start bm-elasticsearch", 90, TimeUnit.SECONDS);
+		NCUtils.exec(nc, 90, TimeUnit.SECONDS, "systemctl", "start", "bm-elasticsearch");
 	}
 
 }

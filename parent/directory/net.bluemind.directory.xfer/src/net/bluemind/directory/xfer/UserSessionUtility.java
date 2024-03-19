@@ -25,7 +25,6 @@ package net.bluemind.directory.xfer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +65,7 @@ public class UserSessionUtility implements ISessionUtility, AutoCloseable {
 		ItemValue<Server> server = Topology.get().datalocation(dataLocation);
 		INodeClient nc = NodeActivator.get(server.value.address());
 		logger.info("Allowing user {} again on server {}", userLatd, server.displayName);
-		NCUtils.exec(nc, "cyr_deny -a " + userLatd, 10, TimeUnit.SECONDS);
+		NCUtils.exec(nc, List.of("cyr_deny", "-a", userLatd), 10, TimeUnit.SECONDS);
 	}
 
 	public void logoutUser(IServerTaskMonitor monitor) {
@@ -84,10 +83,10 @@ public class UserSessionUtility implements ISessionUtility, AutoCloseable {
 
 		// Don't allow new connections
 		isLockedOut = true;
-		NCUtils.exec(nc, "cyr_deny -m xfer-in-progress " + userLatd, 1, TimeUnit.MINUTES);
+		NCUtils.exec(nc, List.of("cyr_deny", "-m", "xfer-in-progress", userLatd), 1, TimeUnit.MINUTES);
 
 		// Retrieve existing imap sessions
-		ExitList exit = NCUtils.exec(nc, "cyr_info proc", 1, TimeUnit.MINUTES);
+		ExitList exit = NCUtils.exec(nc, List.of("cyr_info", "proc"), 1, TimeUnit.MINUTES);
 		List<String> killPids = new ArrayList<>();
 		for (String line : exit) {
 			// pid service servername [ip] latd@domainUid blue-mind.net!user.thomas^fricker
@@ -102,8 +101,11 @@ public class UserSessionUtility implements ISessionUtility, AutoCloseable {
 		// Kill sessions if any
 		if (!killPids.isEmpty()) {
 			logger.info("Sending SIGTERM signal to {} (kill sessions of {})", killPids, userLatd);
-			NCUtils.exec(nc, "kill -SIGTERM " + killPids.stream().collect(Collectors.joining(" ")), 30,
-					TimeUnit.SECONDS);
+			List<String> argv = new ArrayList<>();
+			argv.add("kill");
+			argv.add("-SIGTERM");
+			argv.addAll(killPids);
+			NCUtils.exec(nc, argv, 30, TimeUnit.SECONDS);
 		}
 	}
 

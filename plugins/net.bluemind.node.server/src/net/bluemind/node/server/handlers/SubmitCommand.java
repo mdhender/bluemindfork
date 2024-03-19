@@ -40,25 +40,20 @@ public class SubmitCommand implements Handler<HttpServerRequest> {
 			JsonObject jso = new JsonObject(body.toString());
 			logger.debug("EB cmd.request ! {}", jso);
 			event.pause();
-			VertxPlatform.eventBus().request("cmd.request", jso, new Handler<AsyncResult<Message<Long>>>() {
+			VertxPlatform.eventBus().request("cmd.request", jso, (AsyncResult<Message<Long>> ebr) -> {
+				event.resume();
+				if (ebr.failed()) {
+					event.response().setStatusCode(503).end();
+					return;
+				}
 
-				@Override
-				public void handle(AsyncResult<Message<Long>> ebr) {
-
-					event.resume();
-					if (ebr.failed()) {
-						event.response().setStatusCode(503).end();
-						return;
-					}
-
-					long pid = ebr.result().body();
-					HttpServerResponse r = event.response();
-					if (pid > 0) {
-						r.headers().add("Pid", String.valueOf(pid));
-						event.response().setStatusCode(201).end();
-					} else {
-						event.response().setStatusCode(503).end();
-					}
+				long pid = ebr.result().body();
+				HttpServerResponse r = event.response();
+				if (pid > 0) {
+					r.headers().add("Pid", String.valueOf(pid));
+					event.response().setStatusCode(201).end();
+				} else {
+					event.response().setStatusCode(503).end();
 				}
 			});
 

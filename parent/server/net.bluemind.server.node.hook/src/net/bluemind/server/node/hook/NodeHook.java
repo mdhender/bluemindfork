@@ -54,10 +54,10 @@ public class NodeHook extends DefaultServerHook {
 			}
 			INodeClient remote = NodeActivator.get(adr);
 			remote.writeFile(serverCert, new ByteArrayInputStream(Files.readAllBytes((new File(serverCert)).toPath())));
-			remote.executeCommandNoOut("chmod 400 " + serverCert);
+			remote.executeCommandNoOut("chmod", "400", serverCert);
 			remote.writeFile(trustClientCert,
 					new ByteArrayInputStream(Files.readAllBytes((new File(trustClientCert)).toPath())));
-			remote.executeCommandNoOut("chmod 400 " + trustClientCert);
+			remote.executeCommandNoOut("chmod", "400", trustClientCert);
 			remote.writeFile(cacert, new ByteArrayInputStream(Files.readAllBytes((new File(cacert)).toPath())));
 			// make it easy to figure out which server we are
 			remote.writeFile("/etc/bm/server.uid", new ByteArrayInputStream(server.uid.getBytes()));
@@ -79,14 +79,14 @@ public class NodeHook extends DefaultServerHook {
 			remote.writeFile("/etc/bm/bm.ini", new ByteArrayInputStream(Files.readAllBytes(f.toPath())));
 
 			remote.writeFile(bmcoretok, new ByteArrayInputStream(Files.readAllBytes((new File(bmcoretok)).toPath())));
-			remote.executeCommandNoOut("chmod 440 " + bmcoretok);
-			remote.executeCommandNoOut("chown root:bluemind " + bmcoretok);
+			remote.executeCommandNoOut("chmod", "440", bmcoretok);
+			remote.executeCommandNoOut("chown", "root:bluemind", bmcoretok);
 
 			copyBmCertFile(adr, remote);
 
 			if (!NCUtils.connectedToMyself(remote)) {
 				if (!new File("/etc/bm/skip.restart").exists()) {
-					NCUtils.execNoOut(remote, "/usr/bin/bmctl restart-exceptnode");
+					NCUtils.execNoOut(remote, "/usr/bin/bmctl", "restart-exceptnode");
 				}
 			}
 		} catch (Exception sf) {
@@ -191,7 +191,7 @@ public class NodeHook extends DefaultServerHook {
 		try {
 			INodeClient remote = NodeActivator.get(s.address());
 			remote.writeFile(clientCert, new ByteArrayInputStream(Files.readAllBytes((new File(clientCert)).toPath())));
-			NCUtils.execNoOut(remote, "chmod 400 " + clientCert);
+			NCUtils.execNoOut(remote, "chmod", "400", clientCert);
 		} catch (ServerFault | IOException e) {
 			logger.error(e.getMessage());
 		}

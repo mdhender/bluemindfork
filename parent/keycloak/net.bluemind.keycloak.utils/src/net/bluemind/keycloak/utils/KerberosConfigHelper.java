@@ -155,7 +155,7 @@ public class KerberosConfigHelper {
 	public static void removeKrb5Conf(String domainUid) {
 		String kcServerAddr = Topology.get().any(TagDescriptor.bm_keycloak.getTag()).value.address();
 		INodeClient nodeClient = NodeActivator.get(kcServerAddr);
-		NCUtils.execNoOut(nodeClient, "rm -f " + getKeytabFilename(domainUid));
+		NCUtils.execNoOut(nodeClient, "rm", "-f", getKeytabFilename(domainUid));
 		updateKrb5Conf();
 	}
 

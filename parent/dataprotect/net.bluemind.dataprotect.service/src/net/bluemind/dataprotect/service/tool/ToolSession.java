@@ -23,11 +23,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Semaphore;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -70,33 +72,22 @@ public class ToolSession implements IToolSession {
 		this.ctx = ctx;
 	}
 
-	private StringBuilder appendDir(StringBuilder cmd) {
-		cmd.append(BackupPath.get(cfg.getSource(), cfg.getTag()) + "/");
-		return cmd;
+	private String getBackupPath() {
+		return BackupPath.get(cfg.getSource(), cfg.getTag()) + "/";
 	}
 
 	private INodeClient nc() {
 		return NodeActivator.get(cfg.getSource().value.address());
 	}
 
-	private static class BackCommand {
-		public BackCommand(String cmd, String dir) {
-			this.cmd = cmd;
-			this.dir = dir;
-		}
-
-		public final String cmd;
-		public final String dir;
-
+	private record BackCommand(List<String> argv, String dir) {
 	}
 
 	public PartGeneration backup(PartGeneration previous, PartGeneration next) throws ServerFault {
-		StringBuilder bd = new StringBuilder();
-		appendDir(bd).append(next.id).append('/');
-		String backupDir = bd.toString();
+		String backupDir = getBackupPath() + next.id + "/";
 		INodeClient nc = nc();
 		nc.mkdirs(backupDir);
-		NCUtils.execNoOut(nc, "chmod +x /usr/share/bm-node/rsync-backup.sh");
+		NCUtils.execNoOut(nc, "chmod", "+x", "/usr/share/bm-node/rsync-backup.sh");
 
 		List<BackCommand> toRun = cfg.getDirs().stream().map(dir -> makeBackupCommand(nc, previous, next, dir))
 				.filter(Optional::isPresent).map(Optional::get).toList();
@@ -132,7 +123,7 @@ public class ToolSession implements IToolSession {
 	private long computeSize(String backupDir, INodeClient nc) {
 		logger.info("Detecting backup size of {}", backupDir);
 		long size = 0L;
-		ExitList output = NCUtils.exec(nc, "du -sBM " + backupDir);
+		ExitList output = NCUtils.exec(nc, List.of("du", "-sBM", backupDir));
 		StringBuilder duOut = new StringBuilder();
 		for (String out : output) {
 			duOut.append(out);
@@ -158,7 +149,8 @@ public class ToolSession implements IToolSession {
 
 	private CompletableFuture<Integer> runBackupCommand(INodeClient nc, PartGeneration next, BackCommand cmd,
 			Semaphore sem) {
-		ctx.info("en", "RSYNC: (permits " + sem.availablePermits() + ") " + cmd.cmd);
+		ctx.info("en", "RSYNC: (permits " + sem.availablePermits() + ") "
+				+ cmd.argv.stream().collect(Collectors.joining(" ")));
 		CompletableFuture<Integer> ret = new CompletableFuture<>();
 
 		try {
@@ -190,7 +182,7 @@ public class ToolSession implements IToolSession {
 			}
 
 		};
-		nc.asyncExecute(ExecRequest.named("dataprotect", cmd.dir, cmd.cmd, Options.FAIL_IF_EXISTS), handler);
+		nc.asyncExecute(ExecRequest.named("dataprotect", cmd.dir, cmd.argv, Options.FAIL_IF_EXISTS), handler);
 
 		return ret;
 	}
@@ -202,30 +194,29 @@ public class ToolSession implements IToolSession {
 			return Optional.empty();
 		}
 
-		StringBuilder cmd = new StringBuilder();
-		cmd.append("""
-				rsync \
-				--exclude-from=/etc/bm-node/rsync.excludes \
-				--exclude /var/backups/bluemind/sds-spool/spool \
-				--recursive \
-				--links \
-				--times \
-				--devices --specials \
-				--hard-links \
-				--delete \
-				--numeric-ids \
-				--relative \
-				--delete-excluded""");
+		List<String> cmd = new ArrayList<>();
+		cmd.addAll(List.of("rsync", //
+				"--exclude-from=/etc/bm-node/rsync.excludes", //
+				"--exclude", "/var/backups/bluemind/sds-spool/spool", //
+				"--recursive", //
+				"--links", //
+				"--times", //
+				"--devices", //
+				"--specials", //
+				"--hard-links", //
+				"--delete", //
+				"--numeric-ids", //
+				"--relative", //
+				"--delete-excluded"));
 		if (previous != null) {
-			cmd.append(" --link-dest=");
-			appendDir(cmd).append(previous.id).append('/');
+			cmd.add("--link-dest");
+			cmd.add(getBackupPath() + previous.id + "/");
 		}
 
-		cmd.append(' ').append(dir.endsWith("/") ? dir : dir + "/").append(' ');
+		cmd.add(dir.endsWith("/") ? dir : dir + "/");
+		cmd.add(getBackupPath() + next.id + "/");
 
-		appendDir(cmd).append(next.id).append('/');
-
-		return Optional.of(new BackCommand(cmd.toString(), dir));
+		return Optional.of(new BackCommand(cmd, dir));
 	}
 
 	@Override
@@ -251,20 +242,13 @@ public class ToolSession implements IToolSession {
 
 		InputStream in = ToolSession.class.getClassLoader().getResourceAsStream(script);
 		nc.writeFile(restoreScript, in);
-		NCUtils.execNoOut(nc, "chmod +x " + restoreScript);
+		NCUtils.execNoOut(nc, "chmod", "+x", restoreScript);
 
-		StringBuilder rdb = new StringBuilder();
-		String r = appendDir(rdb).append(generation).append('/').toString();
+		String r = getBackupPath() + generation + "/";
 		for (String src : what) {
-			StringBuilder args = new StringBuilder(1024);
-			args.append(restoreScript).append(' ');
-			args.append(r);
-			// remove starting slash
-			args.append(' ').append(src.substring(1));
-			args.append(' ').append(to);
-			String theCmd = args.toString();
+			List<String> theCmd = List.of(restoreScript, r, src.substring(1), to);
 			ExitList output = NCUtils.exec(nc, theCmd);
-			logger.info("Running {}", theCmd);
+			logger.info("Running {}", theCmd.stream().collect(Collectors.joining(" ")));
 			int eCode = output.getExitCode();
 			for (String s : output) {
 				if (eCode == 0) {
@@ -287,12 +271,12 @@ public class ToolSession implements IToolSession {
 			}
 
 			if (eCode > 0) {
-				NCUtils.execNoOut(nc, "rm -f " + restoreScript);
+				NCUtils.execNoOut(nc, "rm", "-f", restoreScript);
 				throw new ServerFault("Error on '" + theCmd + "'");
 			}
 		}
 
-		NCUtils.execNoOut(nc, "rm -f " + restoreScript);
+		NCUtils.execNoOut(nc, "rm", "-f", restoreScript);
 	}
 
 	@Override

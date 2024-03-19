@@ -125,8 +125,8 @@ public class NodeTests {
 	public void testListWithQuestionMarkInPath() {
 		String dn = "/tmp/qmark-??-" + System.nanoTime();
 		String fn = dn + "/" + System.nanoTime() + ".tmp";
-		assertEquals(0, NCUtils.exec(nc, "mkdir '" + dn + "'").getExitCode());
-		assertEquals(0, NCUtils.exec(nc, "touch '" + fn + "'").getExitCode());
+		assertEquals(0, NCUtils.exec(nc, List.of("mkdir", dn)).getExitCode());
+		assertEquals(0, NCUtils.exec(nc, List.of("touch", fn)).getExitCode());
 
 		List<FileDescription> exist = nc.listFiles(fn);
 		assertFalse(exist.isEmpty());
@@ -232,13 +232,13 @@ public class NodeTests {
 
 	@Test
 	public void testAnonymousSleepOne() {
-		TaskRef ref = nc.executeCommand(ExecRequest.anonymousWithoutOutput("/bin/sleep 1"));
+		TaskRef ref = nc.executeCommand(ExecRequest.anonymousWithoutOutput(List.of("/bin/sleep", "1")));
 		track(ref);
 	}
 
 	@Test
 	public void testNamedSleepOneThenFindByGroup() {
-		ExecRequest req = ExecRequest.named("junit", "x" + System.currentTimeMillis(), "/bin/sleep 1");
+		ExecRequest req = ExecRequest.named("junit", "x" + System.currentTimeMillis(), List.of("/bin/sleep", "1"));
 		TaskRef ref = nc.executeCommand(req);
 		assertNotNull(ref);
 		List<ExecDescriptor> found = nc.getActiveExecutions(ActiveExecQuery.byGroup("junit"));
@@ -248,7 +248,8 @@ public class NodeTests {
 
 	@Test
 	public void testOutputOverWebsocket() {
-		ExecRequest req = ExecRequest.named("junit", "x" + System.currentTimeMillis(), "/usr/bin/git --help");
+		ExecRequest req = ExecRequest.named("junit", "x" + System.currentTimeMillis(),
+				List.of("/usr/bin/git", "--help"));
 		BlockingHandler handler = new ProcessHandler.BlockingHandler();
 		nc.asyncExecute(req, handler);
 		ExitList el = handler.get(15, TimeUnit.SECONDS);
@@ -261,7 +262,7 @@ public class NodeTests {
 
 	@Test
 	public void testSlowReceiverOverWebsocket() {
-		ExecRequest req = ExecRequest.named("junit", "x" + System.currentTimeMillis(), "seq 1 5000");
+		ExecRequest req = ExecRequest.named("junit", "x" + System.currentTimeMillis(), List.of("seq", "1", "5000"));
 		CompletableFuture<Integer> comp = new CompletableFuture<>();
 		AtomicInteger count = new AtomicInteger();
 		nc.asyncExecute(req, new ProcessHandler() {
@@ -294,7 +295,8 @@ public class NodeTests {
 	public void testBigOutputOverWebsocket() {
 		// seq 1 1000000 on osx returns 2 times 1e+06 in the end...
 		int lines = 100_000;
-		ExecRequest req = ExecRequest.named("junit", "x" + System.currentTimeMillis(), "seq 1 " + lines);
+		ExecRequest req = ExecRequest.named("junit", "x" + System.currentTimeMillis(),
+				List.of("seq", "1", String.valueOf(lines)));
 		CompletableFuture<Integer> comp = new CompletableFuture<>();
 		AtomicInteger count = new AtomicInteger();
 		nc.asyncExecute(req, new ProcessHandler() {
@@ -324,7 +326,8 @@ public class NodeTests {
 	@Test
 	public void testVeryLongLinesOverWebsocket() {
 		int lines = 100000;
-		ExecRequest req = ExecRequest.named("junit", "x" + System.currentTimeMillis(), "seq -s - 1 " + lines);
+		ExecRequest req = ExecRequest.named("junit", "x" + System.currentTimeMillis(),
+				List.of("seq", "-s", "-", "1", String.valueOf(lines)));
 		CompletableFuture<Integer> comp = new CompletableFuture<>();
 		AtomicInteger count = new AtomicInteger();
 		AtomicInteger max = new AtomicInteger();
@@ -382,7 +385,7 @@ public class NodeTests {
 		String file = dir + "/" + System.currentTimeMillis() + ".junit";
 		nc.writeFile(file, new ByteArrayInputStream(withoutLF));
 		System.err.println(file + " written.");
-		ExecRequest req = ExecRequest.named("junit", "x" + System.currentTimeMillis(), "cat " + file);
+		ExecRequest req = ExecRequest.named("junit", "x" + System.currentTimeMillis(), List.of("cat", file));
 		CompletableFuture<Integer> comp = new CompletableFuture<>();
 		nc.asyncExecute(req, new ProcessHandler() {
 
@@ -448,7 +451,7 @@ public class NodeTests {
 		};
 
 		for (int i = 0; i < COUNT; i++) {
-			nc.asyncExecute(ExecRequest.anonymous("/usr/bin/git --help"), simple);
+			nc.asyncExecute(ExecRequest.anonymous(List.of("/usr/bin/git", "--help")), simple);
 		}
 		cdl.await(5, TimeUnit.SECONDS);
 	}
@@ -482,15 +485,15 @@ public class NodeTests {
 		};
 
 		for (int i = 0; i < count; i++) {
-			nc.asyncExecute(ExecRequest.anonymous("/bin/sleep 4"), simple);
+			nc.asyncExecute(ExecRequest.anonymous(List.of("/bin/sleep", "4")), simple);
 		}
 		assertTrue(starts.await(1, TimeUnit.SECONDS));
 		assertEquals(5, activeTasks.size());
 
 		Iterator<String> it = activeTasks.iterator();
-		nc.asyncExecute(ExecRequest.anonymous("/bin/sh -c 'kill -9 " + it.next() + "'"),
+		nc.asyncExecute(ExecRequest.anonymous(List.of("/bin/sh", "-c", "kill -9 " + it.next())),
 				new ProcessHandler.NoOutBlockingHandler());
-		nc.asyncExecute(ExecRequest.anonymous("/bin/sh -c 'kill -15 " + it.next() + "'"),
+		nc.asyncExecute(ExecRequest.anonymous(List.of("/bin/sh", "-c", "kill -15 " + it.next())),
 				new ProcessHandler.NoOutBlockingHandler());
 
 		System.err.println("Started " + activeTasks);
@@ -503,7 +506,7 @@ public class NodeTests {
 
 	@Test
 	public void testNoOutOverWebsocket() {
-		ExecRequest req = ExecRequest.named("junit", "x" + System.currentTimeMillis(), "/bin/sleep 1");
+		ExecRequest req = ExecRequest.named("junit", "x" + System.currentTimeMillis(), List.of("/bin/sleep", "1"));
 		NoOutBlockingHandler handler = new ProcessHandler.NoOutBlockingHandler();
 		nc.asyncExecute(req, handler);
 		int result = handler.get(5, TimeUnit.SECONDS);
@@ -513,7 +516,7 @@ public class NodeTests {
 	@Test
 	public void testInterruptWebsocketTask() throws InterruptedException, ExecutionException, TimeoutException {
 		System.out.println("=============== testInterruptWebsocketTask starts " + new Date());
-		ExecRequest req = ExecRequest.named("junit", "x" + System.currentTimeMillis(), "/bin/sleep 10");
+		ExecRequest req = ExecRequest.named("junit", "x" + System.currentTimeMillis(), List.of("/bin/sleep", "10"));
 		AtomicReference<String> ref = new AtomicReference<>();
 		CompletableFuture<Integer> exitFuture = new CompletableFuture<>();
 		ProcessHandler ph = new ProcessHandler() {
@@ -551,7 +554,7 @@ public class NodeTests {
 	@Test
 	public void testNamedSleepOneThenFindByName() {
 		String name = "x" + System.currentTimeMillis();
-		ExecRequest req = ExecRequest.named("junit", name, "/bin/sleep 1");
+		ExecRequest req = ExecRequest.named("junit", name, List.of("/bin/sleep", "1"));
 		TaskRef ref = nc.executeCommand(req);
 		assertNotNull(ref);
 		List<ExecDescriptor> found = nc.getActiveExecutions(ActiveExecQuery.byName("junit", name));
@@ -561,7 +564,7 @@ public class NodeTests {
 
 	@Test
 	public void testAnonSleepOneThenFindAll() {
-		ExecRequest req = ExecRequest.anonymousWithoutOutput("/bin/sleep 1");
+		ExecRequest req = ExecRequest.anonymousWithoutOutput(List.of("/bin/sleep", "1"));
 		TaskRef ref = nc.executeCommand(req);
 		assertNotNull(ref);
 		List<ExecDescriptor> found = nc.getActiveExecutions(ActiveExecQuery.all());
@@ -573,7 +576,7 @@ public class NodeTests {
 
 	@Test
 	public void testAnonSleepInterrupted() {
-		ExecRequest req = ExecRequest.anonymousWithoutOutput("/bin/sleep 4");
+		ExecRequest req = ExecRequest.anonymousWithoutOutput(List.of("/bin/sleep", "4"));
 		TaskRef ref = nc.executeCommand(req);
 		assertNotNull(ref);
 		List<ExecDescriptor> found = nc.getActiveExecutions(ActiveExecQuery.all());
@@ -587,7 +590,7 @@ public class NodeTests {
 
 	@Test
 	public void testExecOptionsFailIfExists() {
-		ExecRequest req = ExecRequest.named("ju", "nit", "/bin/sleep 2", Options.DISCARD_OUTPUT,
+		ExecRequest req = ExecRequest.named("ju", "nit", List.of("/bin/sleep", "2"), Options.DISCARD_OUTPUT,
 				Options.FAIL_IF_EXISTS);
 		TaskRef ref = nc.executeCommand(req);
 		assertNotNull(ref);
@@ -604,8 +607,8 @@ public class NodeTests {
 
 	@Test
 	public void testExecOptionsFailIfGroupExists() {
-		ExecRequest req1 = ExecRequest.named("ju", "nit1", "/bin/sleep 2");
-		ExecRequest req2 = ExecRequest.named("ju", "nit2", "/bin/sleep 2", Options.FAIL_IF_GROUP_EXISTS);
+		ExecRequest req1 = ExecRequest.named("ju", "nit1", List.of("/bin/sleep", "2"));
+		ExecRequest req2 = ExecRequest.named("ju", "nit2", List.of("/bin/sleep", "2"), Options.FAIL_IF_GROUP_EXISTS);
 		TaskRef ref = nc.executeCommand(req1);
 		assertNotNull(ref);
 		try {
@@ -622,8 +625,8 @@ public class NodeTests {
 	@Test
 	public void testExecOptionsReplace() {
 		String nit = "nit" + System.currentTimeMillis();
-		ExecRequest req1 = ExecRequest.named("ju", nit, "/bin/sleep 2");
-		ExecRequest req2 = ExecRequest.named("ju", nit, "/bin/sleep 2", Options.REPLACE_IF_EXISTS);
+		ExecRequest req1 = ExecRequest.named("ju", nit, List.of("/bin/sleep", "2"));
+		ExecRequest req2 = ExecRequest.named("ju", nit, List.of("/bin/sleep", "2"), Options.REPLACE_IF_EXISTS);
 		TaskRef ref = nc.executeCommand(req1);
 		assertNotNull(ref);
 		ActiveExecQuery query = ActiveExecQuery.byName("ju", nit);
@@ -640,7 +643,8 @@ public class NodeTests {
 
 	@Test
 	public void testExitCode() {
-		ExecRequest req = ExecRequest.named("junit", "x" + System.currentTimeMillis(), "/bin/bash -c 'exit 42'");
+		ExecRequest req = ExecRequest.named("junit", "x" + System.currentTimeMillis(),
+				List.of("/bin/bash", "-c", "exit 42"));
 		TaskRef ref = nc.executeCommand(req);
 		assertNotNull(ref);
 		ExitList el = NCUtils.waitFor(nc, ref);
@@ -649,7 +653,7 @@ public class NodeTests {
 
 	@Test
 	public void executeCommand_noFakeEmptyLines() {
-		TaskRef ref = nc.executeCommand("sleep 1");
+		TaskRef ref = nc.executeCommand(List.of("sleep", "1"));
 		ExitList values = NCUtils.waitFor(nc, ref);
 
 		assertEquals(0, values.size());

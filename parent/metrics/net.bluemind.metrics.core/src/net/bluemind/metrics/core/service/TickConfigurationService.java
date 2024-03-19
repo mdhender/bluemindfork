@@ -75,7 +75,7 @@ public class TickConfigurationService implements IInCoreTickConfiguration {
 				}
 			}
 			try {
-				serversApi.submitAndWait(server.uid, "service telegraf restart");
+				serversApi.submitAndWait(server.uid, "service", "telegraf", "restart");
 				sub.log("Telegraf restarted on " + server.value.address());
 			} catch (ServerFault sf) {
 				// node is not running on localhost in unit tests...

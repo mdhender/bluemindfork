@@ -47,14 +47,14 @@ public class RemoveForgottenParts extends AbstractConfFile {
 	@Override
 	public void write() throws ServerFault {
 		Template mcf = openTemplate(getClass(), "removeForgottenParts.sh");
-		Map<String, Object> data = new HashMap<String, Object>();
+		Map<String, Object> data = new HashMap<>();
 		data.put("validPartsIds", validPartsId);
 		data.put("backupRoot", "/var/backups/bluemind/dp_spool/rsync");
 
 		InputStream rfpScript = render(mcf, data);
 		nc.writeFile(RFP_PATH, rfpScript);
 
-		TaskRef tr = nc.executeCommandNoOut("chmod +x " + RFP_PATH);
+		TaskRef tr = nc.executeCommandNoOut("chmod", "+x", RFP_PATH);
 		NCUtils.waitFor(nc, tr);
 
 		tr = nc.executeCommand(RFP_PATH);
@@ -63,7 +63,7 @@ public class RemoveForgottenParts extends AbstractConfFile {
 			logger.info(result);
 		}
 
-		tr = nc.executeCommandNoOut("rm -f " + RFP_PATH);
+		tr = nc.executeCommandNoOut("rm", "-f", RFP_PATH);
 		NCUtils.waitFor(nc, tr);
 	}
 

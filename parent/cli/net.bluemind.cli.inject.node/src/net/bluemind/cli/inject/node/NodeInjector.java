@@ -18,6 +18,7 @@
  */
 package net.bluemind.cli.inject.node;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.LongAdder;
@@ -33,7 +34,6 @@ import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.inject.common.MailExchangeInjector;
 import net.bluemind.cli.inject.common.MinimalMessageProducer;
 import net.bluemind.cli.inject.common.TargetMailbox;
-import net.bluemind.cli.inject.common.TargetMailbox.Auth;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
@@ -103,13 +103,13 @@ public class NodeInjector extends MailExchangeInjector {
 			// list a file that does not exist
 			nc.listFiles("/" + fn);
 
-			String cmd = "find /var/log/bm-node/ -type f";
+			List<String> argv = new ArrayList<>(List.of("find", "/var/log/bm-node/", "-type", "f"));
 			if (curCycle % 1000 == 0) {
-				cmd = "sleep 10";
+				argv.addAll(List.of("sleep", "10"));
 			}
 
 			NoOutBlockingHandler handler = new ProcessHandler.NoOutBlockingHandler();
-			nc.asyncExecute(ExecRequest.anonymousWithoutOutput(cmd), handler);
+			nc.asyncExecute(ExecRequest.anonymousWithoutOutput(argv), handler);
 			String toCopy = CyrusFileSystemPathHelper.getMetaFileSystemPath(curUser.domainUid, md, partition, fn);
 
 			nc.writeFile(toCopy, new ByteBufInputStream(Unpooled.wrappedBuffer(fromBytes)));

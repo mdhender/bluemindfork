@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,9 +57,13 @@ public final class NCUtils {
 	 * @return the command output
 	 * @throws ServerFault
 	 */
-	public static ExitList exec(INodeClient nc, String cmd) throws ServerFault {
-		TaskRef taskRef = nc.executeCommand(cmd);
+	public static ExitList exec(INodeClient nc, List<String> argv) throws ServerFault {
+		TaskRef taskRef = nc.executeCommand(argv);
 		return waitFor(nc, taskRef, false);
+	}
+
+	public static ExitList exec(INodeClient nc, String... argv) throws ServerFault {
+		return exec(nc, List.of(argv));
 	}
 
 	/**
@@ -71,10 +76,14 @@ public final class NCUtils {
 	 * @return
 	 * @throws ServerFault
 	 */
-	public static ExitList exec(INodeClient nc, String cmd, long delay, TimeUnit unit) throws ServerFault {
+	public static ExitList exec(INodeClient nc, List<String> argv, long delay, TimeUnit unit) throws ServerFault {
 		BlockingHandler handle = new ProcessHandler.BlockingHandler();
-		nc.asyncExecute(ExecRequest.anonymous(cmd), handle);
+		nc.asyncExecute(ExecRequest.anonymous(argv), handle);
 		return handle.get(delay, unit);
+	}
+
+	public static ExitList exec(INodeClient nc, long delay, TimeUnit unit, String... argv) throws ServerFault {
+		return exec(nc, List.of(argv), delay, unit);
 	}
 
 	/**
@@ -84,9 +93,13 @@ public final class NCUtils {
 	 * @param cmd
 	 * @throws ServerFault
 	 */
-	public static void execNoOut(INodeClient nc, String cmd) throws ServerFault {
-		TaskRef taskRef = nc.executeCommandNoOut(cmd);
+	public static void execNoOut(INodeClient nc, List<String> argv) throws ServerFault {
+		TaskRef taskRef = nc.executeCommandNoOut(argv);
 		waitFor(nc, taskRef, true);
+	}
+
+	public static void execNoOut(INodeClient nc, String... argv) throws ServerFault {
+		execNoOut(nc, List.of(argv));
 	}
 
 	/**
@@ -98,10 +111,14 @@ public final class NCUtils {
 	 * @param unit
 	 * @throws ServerFault
 	 */
-	public static void execNoOut(INodeClient nc, String cmd, long delay, TimeUnit unit) throws ServerFault {
+	public static void execNoOut(INodeClient nc, List<String> argv, long delay, TimeUnit unit) throws ServerFault {
 		NoOutBlockingHandler handle = new ProcessHandler.NoOutBlockingHandler();
-		nc.asyncExecute(ExecRequest.anonymous(cmd), handle);
+		nc.asyncExecute(ExecRequest.anonymous(argv), handle);
 		handle.get(delay, unit);
+	}
+
+	public static void execNoOut(INodeClient nc, long delay, TimeUnit unit, String... argv) throws ServerFault {
+		execNoOut(nc, List.of(argv), delay, unit);
 	}
 
 	/**
@@ -111,12 +128,16 @@ public final class NCUtils {
 	 * @param cmd
 	 * @throws ServerFault
 	 */
-	public static void execOrFail(INodeClient nc, String cmd) throws ServerFault {
-		TaskRef taskRef = nc.executeCommandNoOut(cmd);
+	public static void execOrFail(INodeClient nc, List<String> argv) throws ServerFault {
+		TaskRef taskRef = nc.executeCommandNoOut(argv);
 		ExitList ret = waitFor(nc, taskRef, true);
 		if (ret.getExitCode() != 0) {
-			throw new ServerFault("Fail to execute command '" + cmd + "'");
+			throw new ServerFault("Fail to execute command '" + argv.stream().collect(Collectors.joining(" ")) + "'");
 		}
+	}
+
+	public static void execOrFail(INodeClient nc, String... argv) throws ServerFault {
+		execOrFail(nc, List.of(argv));
 	}
 
 	/**
@@ -127,16 +148,20 @@ public final class NCUtils {
 	 * @param cmd
 	 * @throws ServerFault
 	 */
-	public static void forget(final INodeClient nc, final String cmd) {
+	public static void forget(final INodeClient nc, final List<String> argv) {
 		forgottenTasks.execute(() -> {
 			TaskRef taskRef;
 			try {
-				taskRef = nc.executeCommandNoOut(cmd);
+				taskRef = nc.executeCommandNoOut(argv);
 				waitFor(nc, taskRef, true);
 			} catch (ServerFault e) {
 				logger.error(e.getMessage(), e);
 			}
 		});
+	}
+
+	public static void forget(final INodeClient nc, final String... argv) {
+		forget(nc, List.of(argv));
 	}
 
 	/**

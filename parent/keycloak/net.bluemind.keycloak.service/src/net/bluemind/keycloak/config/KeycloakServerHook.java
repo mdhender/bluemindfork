@@ -50,13 +50,13 @@ public class KeycloakServerHook extends DefaultServerHook {
 		NCUtils.waitFor(nc, tr);
 		logger.info("Keycloak database on server {} created", serverAddr);
 
-		nc.executeCommand("rm /etc/bm/bm-keycloak.disabled");
+		nc.executeCommand("rm", "/etc/bm/bm-keycloak.disabled");
 		NCUtils.waitFor(nc, tr);
 
-		tr = nc.executeCommand("service bm-keycloak stop");
+		tr = nc.executeCommand("service", "bm-keycloak", "stop");
 		NCUtils.waitFor(nc, tr);
 
-		tr = nc.executeCommand("service bm-keycloak start");
+		tr = nc.executeCommand("service", "bm-keycloak", "start");
 		NCUtils.waitFor(nc, tr);
 
 		logger.info("Keycloak server started on {}", serverAddr);
@@ -71,10 +71,10 @@ public class KeycloakServerHook extends DefaultServerHook {
 		String serverAddr = server.value.address();
 		INodeClient nc = ncr.create(serverAddr);
 
-		TaskRef tr = nc.executeCommand("touch /etc/bm/bm-keycloak.disabled");
+		TaskRef tr = nc.executeCommand("touch", "/etc/bm/bm-keycloak.disabled");
 		NCUtils.waitFor(nc, tr);
 
-		tr = nc.executeCommand("service bm-keycloak stop");
+		tr = nc.executeCommand("service", "bm-keycloak", "stop");
 		NCUtils.waitFor(nc, tr);
 
 		logger.info("Keycloak server stopped on {}", serverAddr);
