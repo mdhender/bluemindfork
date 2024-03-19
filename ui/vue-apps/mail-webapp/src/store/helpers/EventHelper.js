@@ -88,6 +88,16 @@ export default {
         resetParticipationStatuses(adaptedEvent.serverEvent, recuridIsoDate);
     },
 
+    removeOccurrence(event, recurid) {
+        const index = event.occurrences.findIndex(({ recurid: { iso8601 } }) => iso8601 === recurid);
+        const [occurrence] = event.occurrences.splice(index, 1);
+        if (!event.main.exdate) {
+            event.main.exdate = [];
+        }
+        event.main.exdate.push(occurrence.recurid);
+        return event;
+    },
+
     removeCounter(adaptedEvent, originator, recuridIsoDate) {
         const counterIndex = adaptedEvent.serverEvent.value.counters.findIndex(c =>
             matchCounter(c, originator, recuridIsoDate)
@@ -157,6 +167,9 @@ export default {
             );
         }
         return updatedEvent;
+    },
+    isException(event) {
+        return event.recuridIsoDate && event.serverEvent.value.main;
     }
 };
 

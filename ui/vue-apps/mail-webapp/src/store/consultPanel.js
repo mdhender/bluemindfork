@@ -74,10 +74,19 @@ export default {
                 throw "Event not found";
             }
         },
-        async [REMOVE_EVENT]({ commit }, { event }) {
+        async [REMOVE_EVENT]({ state, commit }, { event }) {
             try {
                 commit(SET_CURRENT_EVENT, { loading: LoadingStatus.ERROR });
-                await inject("CalendarPersistence", event.calendarUid).delete(event.uid, false);
+                if (EventHelper.isException(event)) {
+                    const updated = EventHelper.removeOccurrence(event.serverEvent.value, event.recuridIsoDate);
+                    await inject("CalendarPersistence", state.currentEvent.calendarUid).update(
+                        state.currentEvent.uid,
+                        updated,
+                        false
+                    );
+                } else {
+                    await inject("CalendarPersistence", event.calendarUid).delete(event.uid, false);
+                }
             } catch {
                 commit(SET_CURRENT_EVENT, event);
             }
