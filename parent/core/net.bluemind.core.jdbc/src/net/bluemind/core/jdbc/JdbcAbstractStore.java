@@ -561,13 +561,9 @@ public class JdbcAbstractStore {
 	public static <R> R doOrContinue(String action, SqlOperation<R> op) {
 		try {
 			return op.execute();
-		} catch (PSQLException e) {
-			if (ALREADY_EXISTS_STATES.contains(e.getSQLState())) {
-				throw ServerFault.alreadyExists(e);
-			}
-			throw ServerFault.sqlFault(e.getSQLState() + ":" + e.getMessage(), e);
-		} catch (SQLException e) {
-			throw ServerFault.sqlFault(e);
+		} catch (Exception e) {
+			logger.warn("ERROR APPLYING {}: {}", action, e.getMessage());
+			return null;
 		}
 	}
 
