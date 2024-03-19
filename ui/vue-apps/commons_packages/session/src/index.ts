@@ -92,7 +92,7 @@ function instance(): Promise<SessionInfos> {
 }
 
 function shouldRefreshSession() {
-    return expiration < Date.now();
+    return expiration === 0 || expiration < Date.now();
 }
 
 async function fetchSession(fallback: SessionInfos): Promise<SessionInfos> {
