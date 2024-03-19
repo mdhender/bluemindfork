@@ -24,7 +24,6 @@ install -m 644 /sources/buster/bm-node.service %{buildroot}%{_unitdir}
 mkdir -p %{buildroot}/var/lib/bm-ca
 
 %files
-%attr(0755, root, root) /usr/share/bm-node/bm-pra-restore.py
 %exclude %dir /usr
 %exclude %dir /usr/lib
 %exclude %dir /usr/lib/systemd

@@ -10,7 +10,6 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>net.bluemind.backend.cyrus.index</module>
-		<module>net.bluemind.backend.cyrus.mailboxesdb</module>
 		<module>net.bluemind.backend.cyrus.partitions</module>
 		<module>net.bluemind.backend.mail.api</module>
 		<module>net.bluemind.backend.mail.dataprotect</module>
@@ -34,7 +33,6 @@
 			<id>tests</id>
 			<modules>
 				<module>net.bluemind.backend.cyrus.index.tests</module>
-				<module>net.bluemind.backend.cyrus.mailboxesdb.tests</module>
 				<module>net.bluemind.backend.cyrus.partitions.tests</module>
 				<module>net.bluemind.backend.mail.conversation.service.tests</module>
 				<module>net.bluemind.backend.mail.parsing.tests</module>

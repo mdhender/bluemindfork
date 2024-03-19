@@ -47,7 +47,6 @@
    <bundle id="net.bluemind.authentication.sqlschema" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.aws.s3.utils" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.backend.cyrus.index" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.backend.cyrus.mailboxesdb" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.backend.cyrus.partitions" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.backend.mail.api" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.backend.mail.api.gwt" version="5.0.0.qualifier"/>

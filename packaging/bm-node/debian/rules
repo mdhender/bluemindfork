@@ -14,5 +14,4 @@ build:
 install/bm-node::
 	cp -rf ${CURDIR}/ROOT/* ${CURDIR}/debian/bm-node
 	chmod +x ${CURDIR}/debian/bm-node/usr/share/bm-node/rsync-backup.sh
-	chmod +x ${CURDIR}/debian/bm-node/usr/share/bm-node/bm-pra-restore.py
 
