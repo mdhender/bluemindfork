@@ -18,6 +18,7 @@
 package net.bluemind.maintenance.postgresql;
 
 import java.io.ByteArrayInputStream;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -30,6 +31,8 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bluemind.config.BmIni;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.service.IServerTaskMonitor;
@@ -103,6 +106,14 @@ public class Repack implements IMaintenanceScript {
 				.map(ivs -> ivs.value).collect(Collectors.toList());
 		logger.info("pg_repack servers: {}", servers);
 		List<MonitorProcessHandler> processes = new ArrayList<>();
+
+		String pgPassword;
+		try {
+			pgPassword = BmIni.getPgPassword();
+		} catch (FileNotFoundException e) {
+			throw new ServerFault("PGPASSWORD cannot be found in /etc/bm/bm.ini");
+		}
+
 		for (Server server : servers) {
 			INodeClient nodeClient = NodeActivator.get(server.address());
 			List<String> dbNames = new ArrayList<>();
@@ -120,7 +131,7 @@ public class Repack implements IMaintenanceScript {
 			StringBuilder sb = new StringBuilder();
 			sb.append("#!/bin/sh\n\n");
 			sb.append("set -e\n");
-			sb.append("export PGPASSWORD=bj PGUSER=bj PGHOST=localhost\n");
+			sb.append("export PGPASSWORD='" + pgPassword + "' PGUSER=bj PGHOST=localhost\n");
 			for (String dbName : dbNames) {
 				sb.append("partitionCount=$(psql -d " + dbName
 						+ " -AtqE -c \"SELECT COALESCE(current_setting('bm.changeset_partitions', true)::integer, "

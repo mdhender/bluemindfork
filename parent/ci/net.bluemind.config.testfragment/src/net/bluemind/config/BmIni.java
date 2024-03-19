@@ -18,6 +18,7 @@
 package net.bluemind.config;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -71,6 +72,20 @@ public class BmIni {
 			logger.warn("data/bm.ini not found");
 		}
 		return p.getProperty(key);
+	}
+
+	public static String getPgPassword() throws FileNotFoundException {
+		File iniFile = new File(BM_INI);
+		if (iniFile.exists()) {
+			throw new FileNotFoundException(BM_INI);
+		}
+		Properties p = new Properties();
+		try (InputStream in = Files.newInputStream(iniFile.toPath())) {
+			p.load(in);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+		return p.getProperty("password").replace("\"", "");
 	}
 
 }

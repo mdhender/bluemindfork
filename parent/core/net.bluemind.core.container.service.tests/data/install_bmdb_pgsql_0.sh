@@ -30,7 +30,7 @@ pw=$3
 bm_lang=$4
 host=localhost
 
-export PGPASSWORD=$pw
+export PGPASSWORD="$pw"
 
 curdir=`dirname $0`
 

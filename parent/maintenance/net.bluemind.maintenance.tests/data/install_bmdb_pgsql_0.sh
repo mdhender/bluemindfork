@@ -29,7 +29,7 @@ user=bj
 pw=bj
 host=localhost
 
-export PGPASSWORD=$pw
+export PGPASSWORD="$pw"
 
 curdir=`dirname $0`
 

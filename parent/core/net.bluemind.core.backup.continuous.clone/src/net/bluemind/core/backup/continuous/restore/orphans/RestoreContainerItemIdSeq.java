@@ -91,7 +91,7 @@ public class RestoreContainerItemIdSeq {
 				dbName, seq);
 
 		String bumpCmd = String.format(
-				"PGPASSWORD=%s psql -h localhost -c \"select setval('t_container_item_id_seq', %d)\" %s %s",
+				"PGPASSWORD='%s' psql -h localhost -c \"select setval('t_container_item_id_seq', %d)\" %s %s",
 				new BmConfIni().get("password"), shiftedSeq, dbName, "bj");
 		String bumpCmdPath = "/tmp/dump-container-item-id-seq-" + System.nanoTime() + ".sh";
 		nodeClient.writeFile(bumpCmdPath, new ByteArrayInputStream(bumpCmd.getBytes()));
