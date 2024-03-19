@@ -53,21 +53,22 @@ public class BlueMindFlowManager {
 	}
 
 	public static BlueMindFlowManager forDomain(String domainUid) {
-		return new BlueMindFlowManager(domainUid, loadDomainFlowExecutions(domainUid)).deleteDefaultFormExecution();
+		return new BlueMindFlowManager(domainUid).refreshDomainFlowExecutions().deleteDefaultFormExecution()
+				.refreshDomainFlowExecutions();
 	}
 
-	private static JsonArray loadDomainFlowExecutions(String domainUid) {
-		return kcAdminClient.call("/admin/realms/" + domainUid + "/authentication/flows/"
+	private BlueMindFlowManager(String domainUid) {
+		this.domainUid = domainUid;
+	}
+
+	private BlueMindFlowManager refreshDomainFlowExecutions() {
+		domainFlowExecutions = kcAdminClient.call("/admin/realms/" + domainUid + "/authentication/flows/"
 				+ IKeycloakUids.BLUEMIND_FLOW_ALIAS + "/executions", HttpMethod.GET, null).getJsonArray("results");
+		return this;
 	}
 
 	private String flowExecutionUri(String formExecutionId) {
 		return "/admin/realms/" + domainUid + "/authentication/executions/" + formExecutionId;
-	}
-
-	private BlueMindFlowManager(String domainUid, JsonArray domainFlowExecutions) {
-		this.domainUid = domainUid;
-		this.domainFlowExecutions = domainFlowExecutions;
 	}
 
 	private BlueMindFlowManager deleteDefaultFormExecution() {
@@ -114,7 +115,7 @@ public class BlueMindFlowManager {
 		kcAdminClient.call("/admin/realms/" + domainUid + "/authentication/executions", HttpMethod.POST, bmFormExec);
 
 		// Reload from Keycloak
-		domainFlowExecutions = loadDomainFlowExecutions(domainUid);
+		refreshDomainFlowExecutions();
 
 		JsonObject bmFormExecution = getFormExecutionOf(BM_AUTHENTICATOR_PROVIDER_ID);
 		if (bmFormExecution == null || bmFormExecution.getString("id") == null) {
@@ -128,18 +129,23 @@ public class BlueMindFlowManager {
 	}
 
 	public BlueMindFlowManager setupSessionLimits() {
-		JsonObject bmSessionLimits = new JsonObject();
-		bmSessionLimits.put("authenticator", USER_SESSION_LIMITS);
-		bmSessionLimits.put("authenticatorFlow", false);
-		bmSessionLimits.put("requirement", "REQUIRED");
-		bmSessionLimits.put("parentFlow", getParentFlowId());
-		kcAdminClient.call("/admin/realms/" + domainUid + "/authentication/executions", HttpMethod.POST,
-				bmSessionLimits);
-
-		// Reload from Keycloak
-		domainFlowExecutions = loadDomainFlowExecutions(domainUid);
-
 		JsonObject sessionLimits = getFormExecutionOf(USER_SESSION_LIMITS);
+
+		if (sessionLimits == null) {
+			JsonObject bmSessionLimits = new JsonObject();
+			bmSessionLimits.put("authenticator", USER_SESSION_LIMITS);
+			bmSessionLimits.put("authenticatorFlow", false);
+			bmSessionLimits.put("requirement", "REQUIRED");
+			bmSessionLimits.put("parentFlow", getParentFlowId());
+			kcAdminClient.call("/admin/realms/" + domainUid + "/authentication/executions", HttpMethod.POST,
+					bmSessionLimits);
+
+			// Reload from Keycloak
+			refreshDomainFlowExecutions();
+
+			sessionLimits = getFormExecutionOf(USER_SESSION_LIMITS);
+		}
+
 		if (sessionLimits == null || sessionLimits.getString("id") == null) {
 			logger.error("Unable to setup " + USER_SESSION_LIMITS);
 			return this;
