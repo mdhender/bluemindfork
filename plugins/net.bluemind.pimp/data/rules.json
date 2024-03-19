@@ -78,6 +78,7 @@
 		"product": "bm-crp",
 		"defaultHeap": 1024,
 		"defaultDirect": 128,
-		"optional": true
+		"optional": true,
+		"sparePercent": 95
 	}
 ]

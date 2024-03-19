@@ -116,12 +116,13 @@ public class PimpMyRam implements IApplication {
 		UsageFile metric = UsageFile.of("/etc/bm/usage-from-metrics.json");
 
 		for (Rule r : rules) {
-			sparePercentAlloc += r.getSparePercent();
 			if (!productEnabled(r.getProduct())) {
 				logger.info("{} {}is not installed or disabled, not configuring.", r.getProduct(),
 						r.isOptional() ? "(optional) " : "");
 				continue;
 			}
+			sparePercentAlloc += r.getSparePercent();
+
 			File f = confPath(r);
 			int fromSpare = spareMb / 100 * r.getSparePercent();
 			// our stack size is at 256k so we divide by 4 to get MB
@@ -202,8 +203,10 @@ public class PimpMyRam implements IApplication {
 		int totalPercent = 0;
 		int totalDefaultMb = 0;
 		for (Rule r : rules) {
-			totalPercent += r.getSparePercent();
-			totalDefaultMb += r.getDefaultHeap();
+			if (productEnabled(r.getProduct())) {
+				totalPercent += r.getSparePercent();
+				totalDefaultMb += r.getDefaultHeap();
+			}
 		}
 		logger.info("{}MB is allocated for all heaps.", totalDefaultMb);
 		validateTotalMemoryPercentage(totalPercent);
