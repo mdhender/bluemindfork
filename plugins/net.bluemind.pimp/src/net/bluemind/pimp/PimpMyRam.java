@@ -26,6 +26,7 @@ public class PimpMyRam implements IApplication {
 	@Override
 	public Object start(IApplicationContext context) throws Exception {
 		pimpSysCtl();
+		pimpSysfs();
 
 		Rule[] rules = loadRules();
 		printMemoryAllocation(rules);
@@ -47,6 +48,19 @@ public class PimpMyRam implements IApplication {
 			int ret = SystemHelper.cmd("sysctl --system");
 			if (ret != 0) {
 				logger.warn("Loading sysctl ending with error code {}", ret);
+			}
+		} catch (IOException e) {
+			logger.error(e.getMessage(), e);
+		}
+	}
+
+	private void pimpSysfs() {
+		try (InputStream in = PimpMyRam.class.getClassLoader().getResourceAsStream("data/sysfs/bm.conf")) {
+			Files.write(ByteStreams.toByteArray(in), new File("/etc/tmpfiles.d/01-bluemind-sysfs.conf"));
+
+			int ret = SystemHelper.cmd("systemd-tmpfiles --create");
+			if (ret != 0) {
+				logger.warn("systemd-tmpfiles --create ends with error code {}", ret);
 			}
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
