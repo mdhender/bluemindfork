@@ -32,10 +32,12 @@ import net.bluemind.core.container.api.ContainerHierarchyNode;
 import net.bluemind.core.container.api.ContainerQuery;
 import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.api.IContainers;
+import net.bluemind.core.container.api.internal.IInternalContainersFlatHierarchy;
 import net.bluemind.core.container.hierarchy.hook.HierarchyIdsHints;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ContainerModifiableDescriptor;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.rest.BmContext;
@@ -47,6 +49,7 @@ import net.bluemind.exchange.mapi.api.MapiReplica;
 import net.bluemind.exchange.mapi.hook.IMapiArtifactsHook;
 import net.bluemind.exchange.mapi.hook.MapiArtifactsHooks;
 import net.bluemind.exchange.mapi.persistence.MapiFoldersStore;
+import net.bluemind.exchange.publicfolders.common.PublicFolders;
 
 public class MapiFoldersMgmt implements IMapiFoldersMgmt {
 
@@ -119,6 +122,7 @@ public class MapiFoldersMgmt implements IMapiFoldersMgmt {
 			IContainerManagement aclApi = context.su().provider().instance(IContainerManagement.class, containerUid);
 			repairName(contApi, existingContainer, f);
 			repairAcls(aclApi);
+			repairPublicFolderHierarchyNode(existingContainer);
 		}
 	}
 
@@ -136,6 +140,20 @@ public class MapiFoldersMgmt implements IMapiFoldersMgmt {
 		List<AccessControlEntry> acls = aclApi.getAccessControlList();
 		if (acls.size() != 1 || !acls.get(0).subject.equals(domain) || acls.get(0).verb != Verb.All) {
 			aclApi.setAccessControlList(Arrays.asList(AccessControlEntry.create(domain, Verb.All)));
+		}
+	}
+
+	private void repairPublicFolderHierarchyNode(BaseContainerDescriptor existingContainer) {
+		String pfOwner = PublicFolders.mailboxGuid(domain);
+		if (!existingContainer.owner.equals(pfOwner)) {
+			return;
+		}
+		IInternalContainersFlatHierarchy hierApi = context.provider().instance(IInternalContainersFlatHierarchy.class,
+				domain, pfOwner);
+		String uid = ContainerHierarchyNode.uidFor(existingContainer.uid, existingContainer.type, domain);
+		ItemValue<ContainerHierarchyNode> node = hierApi.getComplete(uid);
+		if (node == null) {
+			hierApi.create(uid, ContainerHierarchyNode.of(existingContainer));
 		}
 	}
 
