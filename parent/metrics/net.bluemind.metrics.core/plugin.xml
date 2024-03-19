@@ -138,6 +138,12 @@
      </verticle>
    </extension>
    <extension
+       point="net.bluemind.lib.vertx.verticles">
+     <verticle
+         impl="net.bluemind.metrics.core.service.UsageReportVerticle$Reg">
+     </verticle>
+   </extension>
+   <extension
          point="net.bluemind.metrics.core.tickTemplateProvider">
          <tick_template_provider impl="net.bluemind.metrics.core.tick.scripts.MemcachedEvictions">
          </tick_template_provider>
