@@ -3,7 +3,9 @@
 		"product":"bm-core",
 		"defaultHeap":256,
 		"defaultDirect":128,
-		"sparePercent":25
+		"sparePercent":25,
+		"usageVar": "imap",
+		"usageBonus": 128
 	},
 	{
 		"product":"bm-node",
@@ -15,7 +17,9 @@
 		"product":"bm-eas",
 		"defaultHeap":128,
 		"defaultDirect":128,
-		"sparePercent":4
+		"sparePercent":4,
+		"usageVar": "mobile",
+		"usageBonus": 512
 	},
 	{
 		"product":"bm-elasticsearch",
@@ -47,7 +51,9 @@
 		"defaultHeap":512,
 		"defaultDirect":256,
 		"sparePercent":20,
-		"optional": true
+		"optional": true,
+		"usageVar": "mapi",
+		"usageBonus": 5120
 	},
 	{
 		"product":"bm-xivobridge",

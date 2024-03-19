@@ -34,6 +34,19 @@ public class Rule {
 	@JsonProperty("optional")
 	private boolean optional = false;
 
+	/**
+	 * usage variable from /etc/bm/usage-prediction.json or
+	 * /etc/bm/usage-from-metrics.json
+	 */
+	@JsonProperty("usageVar")
+	private String usageVar;
+
+	/**
+	 * Per user (see {@link Rule#usageVar}) heap bonus -KB)
+	 */
+	@JsonProperty("usageBonus")
+	private int usageBonusKb;
+
 	private Map<String, Object> additionalProperties = new HashMap<>();
 
 	@JsonProperty("product")
@@ -88,6 +101,14 @@ public class Rule {
 	@JsonProperty("cpusBoost")
 	public int getCpusBoost() {
 		return cpusBoost;
+	}
+
+	public String getUsageVar() {
+		return usageVar;
+	}
+
+	public int getUsageBonusKB() {
+		return usageBonusKb;
 	}
 
 	/**

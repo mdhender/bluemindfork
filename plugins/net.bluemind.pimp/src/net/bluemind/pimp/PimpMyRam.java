@@ -19,6 +19,7 @@ import com.google.common.io.Files;
 
 import net.bluemind.pimp.impl.Rule;
 import net.bluemind.pimp.impl.RulesBuilder;
+import net.bluemind.pimp.impl.UsageFile;
 
 public class PimpMyRam implements IApplication {
 	private static final Logger logger = LoggerFactory.getLogger(PimpMyRam.class);
@@ -110,6 +111,10 @@ public class PimpMyRam implements IApplication {
 		File parent = new File("/etc/bm/default");
 		parent.mkdirs();
 		int sparePercentAlloc = 0;
+
+		UsageFile pred = UsageFile.of("/etc/bm/usage-prediction.json");
+		UsageFile metric = UsageFile.of("/etc/bm/usage-from-metrics.json");
+
 		for (Rule r : rules) {
 			sparePercentAlloc += r.getSparePercent();
 			if (!productEnabled(r.getProduct())) {
@@ -124,7 +129,18 @@ public class PimpMyRam implements IApplication {
 			if (cpuBoostMb > 0) {
 				logger.info("CPU boost is {}MB", cpuBoostMb);
 			}
-			int memMb = r.getDefaultHeap() + fromSpare + cpuBoostMb;
+
+			int usageMb = 0;
+			if (r.getUsageVar() != null) {
+				int predicted = pred.usage.computeIfAbsent(r.getUsageVar(), k -> 0);
+				int measured = metric.usage.computeIfAbsent(r.getUsageVar(), k -> 0);
+				int considered = Math.max(predicted, measured);
+				usageMb = considered * r.getUsageBonusKB() / 1024;
+				logger.info("Usage bonus for {} -> {}MB", r.getProduct(), usageMb);
+			}
+
+			int memMb = r.getDefaultHeap() + fromSpare + cpuBoostMb + usageMb;
+
 			int dmemMb = Math.min(r.getDirectCap(), r.getDefaultDirect() + fromSpare);
 			String content = "MEM=" + memMb + "\nDMEM=" + dmemMb + "\n";
 
