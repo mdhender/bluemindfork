@@ -78,6 +78,8 @@ import net.bluemind.core.utils.DependencyResolver;
 import net.bluemind.core.utils.ImageUtils;
 import net.bluemind.core.validator.Validator;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.system.api.SystemState;
+import net.bluemind.system.state.StateContext;
 
 public class AddressBookService implements IInCoreAddressBook {
 	private static final Logger logger = LoggerFactory.getLogger(AddressBookService.class);
@@ -148,7 +150,7 @@ public class AddressBookService implements IInCoreAddressBook {
 		ItemVersion version = doCreate(item, card, null);
 		eventProducer.vcardCreated(item.uid);
 		emitNotification();
-		logger.info("createdById {} ({}) => v{}", item.id, item.uid, version);
+		logger.debug("createdById {} ({}) => v{}", item.id, item.uid, version);
 		return version;
 	}
 
@@ -703,8 +705,11 @@ public class AddressBookService implements IInCoreAddressBook {
 	}
 
 	public void emitNotification() {
-		indexStore.refresh();
-		eventProducer.changed();
+		// While cloning, we don't want to refresh or emit notifications
+		if (StateContext.getState() == SystemState.CORE_STATE_RUNNING) {
+			indexStore.refresh();
+			eventProducer.changed();
+		}
 	}
 
 	@Override
