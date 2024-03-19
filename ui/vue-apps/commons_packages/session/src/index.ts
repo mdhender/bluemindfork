@@ -73,7 +73,7 @@ let lock: Promise<SessionInfos> = Promise.resolve(ANONYMOUS);
 function instance(): Promise<SessionInfos> {
     return (lock = lock.then(async (previous: SessionInfos): Promise<SessionInfos> => {
         let infos = previous;
-        if (!shouldRefreshSession()) {
+        if (shouldRefreshSession()) {
             try {
                 infos = await fetchSession(previous);
                 expiration = Date.now() + REFRESH_SESSION_INTERVAL;
@@ -92,7 +92,7 @@ function instance(): Promise<SessionInfos> {
 }
 
 function shouldRefreshSession() {
-    return expiration === 0 || expiration < Date.now();
+    return expiration < Date.now();
 }
 
 async function fetchSession(fallback: SessionInfos): Promise<SessionInfos> {
