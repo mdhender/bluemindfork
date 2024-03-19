@@ -105,7 +105,7 @@ public class UserSettingsEditor extends CompositeGwtWidgetElement {
 
 		defaultApp = new ListBox();
 		defaultApp.addItem(messages.appCalendar(), "/cal/");
-		defaultApp.addItem(messages.appMail(), "/webmail/");
+		defaultApp.addItem(messages.appMail(), "/webapp/mail/");
 		ct(i++, messages.defaultApp(), defaultApp);
 
 		if (instance.isReadOnly()) {
