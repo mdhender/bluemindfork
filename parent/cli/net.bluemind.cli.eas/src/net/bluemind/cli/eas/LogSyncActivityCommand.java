@@ -85,7 +85,7 @@ public class LogSyncActivityCommand implements ICmdLet, Runnable {
 		}
 
 		ILogHandler handler = new SyncLogHandler(service,
-				new OutputOptions(resolveOutput, dumpData, new FilterOptions(null, null)));
+				new OutputOptions(resolveOutput, dumpData, new FilterOptions(collectionId, typeFilter)));
 
 		try {
 			String content = Files.readString(new File(file).toPath());
