@@ -27,7 +27,7 @@ import { ERROR, SUCCESS } from "@bluemind/alert.store";
 import { SAVE_ALERT } from "../../../Alerts/defaultAlerts";
 
 export default {
-    name: "PrefFilterRules",
+    name: "PrefMyFilterRules",
     components: { PrefFilterRuleModal, PrefFilterRulesSubset },
     data() {
         return { editingFilter: { addBefore: undefined, addAfter: undefined }, expanded: [] };
@@ -81,7 +81,7 @@ export default {
             }
         },
         edit(filter) {
-            this.editingFilter = filter;
+            this.editingFilter = { ...filter };
             this.$refs["filters-editing-modal"].show();
         },
         createBefore(filter) {

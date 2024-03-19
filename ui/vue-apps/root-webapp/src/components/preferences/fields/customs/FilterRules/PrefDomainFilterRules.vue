@@ -14,7 +14,7 @@ import { read as readRules } from "./filterRules";
 import PrefFilterRulesSubset from "./PrefFilterRulesSubset";
 
 export default {
-    name: "PrefFilterRules",
+    name: "PrefDomainFilterRules",
     components: { PrefFilterRulesSubset },
     data() {
         return { domainFilters: [] };

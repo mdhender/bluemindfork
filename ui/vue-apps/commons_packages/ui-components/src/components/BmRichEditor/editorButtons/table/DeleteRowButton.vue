@@ -9,7 +9,7 @@ export default {
     data() {
         return {
             title: this.$t("styleguide.rich_editor.table.delete_row"),
-            icon: "rich-editor-delete-row"
+            icon: "table-delete-row"
         };
     },
     methods: {

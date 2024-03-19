@@ -9,7 +9,7 @@ export default {
     data() {
         return {
             title: this.$t("styleguide.rich_editor.table.delete_column"),
-            icon: "rich-editor-delete-column"
+            icon: "table-delete-column"
         };
     },
     methods: {

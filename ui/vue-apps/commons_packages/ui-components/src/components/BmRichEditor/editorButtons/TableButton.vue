@@ -3,7 +3,7 @@
         class="table-button"
         variant="compact"
         size="lg"
-        icon="rich-editor-table"
+        icon="table"
         :disabled="disabled"
         no-caret
         right

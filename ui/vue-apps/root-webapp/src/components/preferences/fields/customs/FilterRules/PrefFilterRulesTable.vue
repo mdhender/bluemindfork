@@ -37,16 +37,45 @@
             </template>
             <template #cell(editable)="cell">
                 <div v-if="editable && cell.value" class="actions">
-                    <bm-icon-button variant="compact" icon="chevron-up" @click="$emit('top', cell.item)" />
-                    <bm-icon-button variant="compact" icon="arrow-up" @click="$emit('up', cell.item)" />
-                    <bm-icon-button variant="compact" icon="arrow-down" @click="$emit('down', cell.item)" />
-                    <bm-icon-button variant="compact" icon="chevron" @click="$emit('bottom', cell.item)" />
-                    <bm-icon-button variant="compact" icon="pencil" @click="$emit('edit', cell.item)" />
-                    <bm-icon-button variant="compact" icon="trash" @click="remove(cell.item)" />
-                    <div>
-                        <bm-icon-button variant="compact" icon="plus" @click="$emit('createBefore', cell.item)" />
-                        <bm-icon-button variant="compact" icon="plus" @click="$emit('createAfter', cell.item)" />
-                    </div>
+                    <bm-icon-button
+                        class="desktop-only"
+                        variant="compact"
+                        icon="pencil"
+                        @click="$emit('edit', cell.item)"
+                    />
+                    <bm-icon-button
+                        class="desktop-only"
+                        variant="compact"
+                        icon="trash"
+                        @click="remove(cell.item)"
+                    />
+                    <bm-icon-dropdown variant="compact" icon="3dots" no-caret>
+                        <bm-dropdown-item-button class="mobile-only" icon="pencil" @click="$emit('edit', cell.item)">
+                            {{ $t("common.edit") }}
+                        </bm-dropdown-item-button>
+                        <bm-dropdown-item-button class="mobile-only" icon="trash" @click="remove(cell.item)">
+                            {{ $t("common.delete") }}
+                        </bm-dropdown-item-button>
+                        <bm-dropdown-divider class="mobile-only" />
+                        <bm-dropdown-item-button icon="table-add-row-up" @click="$emit('createBefore', cell.item)">
+                            {{ $t("preferences.mail.filters.create.before") }}
+                        </bm-dropdown-item-button>
+                        <bm-dropdown-item-button icon="table-add-row-down" @click="$emit('createAfter', cell.item)">
+                            {{ $t("preferences.mail.filters.create.after") }}
+                        </bm-dropdown-item-button>
+                        <bm-dropdown-item-button icon="arrow-top" @click="$emit('top', cell.item)">
+                            {{ $t("preferences.mail.filters.move.top") }}
+                        </bm-dropdown-item-button>
+                        <bm-dropdown-item-button icon="arrow-up" @click="$emit('up', cell.item)">
+                            {{ $t("preferences.mail.filters.move.up") }}
+                        </bm-dropdown-item-button>
+                        <bm-dropdown-item-button icon="arrow-down" @click="$emit('down', cell.item)">
+                            {{ $t("preferences.mail.filters.move.down") }}
+                        </bm-dropdown-item-button>
+                        <bm-dropdown-item-button icon="arrow-bottom" @click="$emit('bottom', cell.item)">
+                            {{ $t("preferences.mail.filters.move.bottom") }}
+                        </bm-dropdown-item-button>
+                    </bm-icon-dropdown>
                 </div>
             </template>
             <template #row-details="row">
@@ -58,13 +87,34 @@
 </template>
 
 <script>
-import { BmBadge, BmButtonExpand, BmIconButton, BmFormCheckbox, BmPagination, BmTable } from "@bluemind/ui-components";
+import {
+    BmBadge,
+    BmButtonExpand,
+    BmDropdownDivider,
+    BmDropdownItemButton,
+    BmFormCheckbox,
+    BmIconButton,
+    BmIconDropdown,
+    BmPagination,
+    BmTable
+} from "@bluemind/ui-components";
 import PrefFilterRuleDetails from "./PrefFilterRuleDetails";
 import { toString as filterToString } from "./filterRules";
 
 export default {
     name: "PrefFilterRulesTable",
-    components: { BmBadge, BmButtonExpand, BmIconButton, BmFormCheckbox, BmPagination, BmTable, PrefFilterRuleDetails },
+    components: {
+        BmBadge,
+        BmButtonExpand,
+        BmDropdownDivider,
+        BmDropdownItemButton,
+        BmFormCheckbox,
+        BmIconButton,
+        BmIconDropdown,
+        BmPagination,
+        BmTable,
+        PrefFilterRuleDetails
+    },
     props: {
         editable: {
             type: Boolean,
@@ -76,7 +126,7 @@ export default {
         },
         perPage: {
             type: Number,
-            default: 5
+            default: 10
         }
     },
     data() {
