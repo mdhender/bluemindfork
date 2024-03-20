@@ -73,12 +73,27 @@ public class DOMDumper {
 		NodeList nl = c.getElementsByTagName(tagName);
 		for (int i = 0; i < nl.getLength(); i++) {
 			Node e = nl.item(i);
+			int bytes = 0;
 			NodeList children = e.getChildNodes();
 			for (int j = 0; j < children.getLength(); j++) {
 				Node child = children.item(j);
+				bytes += calculateBytes(child);
 				e.removeChild(child);
 			}
-			e.setTextContent("[trimmed_output]");
+			e.setTextContent("[trimmed_output] of " + bytes + " bytes");
 		}
+	}
+
+	private static int calculateBytes(Node node) {
+		int count = 0;
+
+		if (node.getNodeType() == Node.TEXT_NODE || node.getNodeType() == Node.CDATA_SECTION_NODE) {
+			count += node.getNodeValue().trim().length();
+		}
+		NodeList children = node.getChildNodes();
+		for (int j = 0; j < children.getLength(); j++) {
+			count += calculateBytes(children.item(j));
+		}
+		return count;
 	}
 }
