@@ -42,7 +42,6 @@ import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.HttpResponseBodyPart;
 import org.asynchttpclient.Response;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteSource;
 
 import io.netty.buffer.ByteBufOutputStream;
@@ -55,7 +54,6 @@ import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.ICalendarUids.UserCalendarType;
 import net.bluemind.calendar.api.IFreebusyUids;
 import net.bluemind.calendar.api.IVFreebusy;
-import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.api.VFreebusy;
 import net.bluemind.calendar.api.VFreebusy.Slot;
@@ -371,50 +369,35 @@ public class CalendarBackend extends CoreConnect {
 				}
 				cs.update(vevent.uid, vevent.value, true);
 			} else {
-				BmDateTime exceptionStart = BmDateTimeWrapper.fromTimestamp(instanceId.getTime(),
-						vevent.value.main.dtstart.timezone);
-				VEventOccurrence rec = vevent.value.occurrence(exceptionStart);
-				if (rec == null) {
-					// Create exception
-					VEventOccurrence exception = VEventOccurrence.fromEvent(vevent.value.main, exceptionStart);
-					Iterator<Attendee> it = exception.attendees.iterator();
-					while (it.hasNext()) {
-						Attendee a = it.next();
-						if (userMails.contains(a.mailto)) {
-							a.partStatus = partStatus;
-							a.rsvp = rsvp;
-						}
-					}
-					long duration = BmDateTimeWrapper.toTimestamp(vevent.value.main.dtend.iso8601,
-							vevent.value.main.dtend.timezone)
-							- BmDateTimeWrapper.toTimestamp(vevent.value.main.dtstart.iso8601,
-									vevent.value.main.dtstart.timezone);
+				BmDateTime startTime = vevent.value.main != null ? vevent.value.main.dtstart
+						: vevent.value.occurrences.get(0).dtstart;
+				BmDateTime resolvedRecurId = (startTime.precision == Precision.DateTime)
+						? BmDateTimeWrapper.fromTimestamp(instanceId.getTime(), startTime.timezone)
+						: new BmDateTime(DateTimeFormatter.ISO_DATE.format(Instant.ofEpochMilli(instanceId.getTime())),
+								null, Precision.Date);
 
-					exception.dtstart = exceptionStart;
-					exception.dtend = BmDateTimeWrapper.fromTimestamp(instanceId.getTime() + duration,
-							exception.dtstart.timezone);
-
-					vevent.value.occurrences = ImmutableList.<VEventOccurrence>builder()
-							.addAll(vevent.value.occurrences).add(exception).build();
-
-					cs.update(vevent.uid, vevent.value, true);
-				} else {
-					Iterator<Attendee> it = rec.attendees.iterator();
-					while (it.hasNext()) {
-						Attendee a = it.next();
-						if (userMails.contains(a.mailto)) {
-							a.partStatus = partStatus;
-							a.rsvp = rsvp;
-						}
-					}
-
-					cs.update(vevent.uid, vevent.value, true);
-				}
+				// For Android phones, the instanceId is the new meeting datetime. We must then
+				// use the occurrences event start time to find occurrence corresponding to
+				// instanceId
+				Optional.ofNullable(vevent.value.occurrence(resolvedRecurId)).or(() -> vevent.value.occurrences.stream()
+						.filter(r -> r.dtstart.equals(resolvedRecurId)).findFirst()).ifPresent(occurence -> {
+							Iterator<Attendee> it = occurence.attendees.iterator();
+							while (it.hasNext()) {
+								Attendee a = it.next();
+								if (userMails.contains(a.mailto)) {
+									a.partStatus = partStatus;
+									a.rsvp = rsvp;
+								}
+							}
+							cs.update(vevent.uid, vevent.value, true);
+						});
 
 			}
 
 			return CollectionItem.of(f.collectionId, itemId).toString();
-		} catch (Exception e) {
+		} catch (
+
+		Exception e) {
 			logger.error(e.getMessage(), e);
 		}
 		return null;

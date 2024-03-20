@@ -662,8 +662,9 @@ public class EventConverter {
 		BmDateTime resolvedRecurId = null;
 		if (recurId.isPresent()) {
 			Date recurIdDate = recurId.get();
-			if (vevent.main.dtstart.precision == Precision.DateTime) {
-				resolvedRecurId = BmDateTimeWrapper.fromTimestamp(recurIdDate.getTime(), vevent.main.dtstart.timezone);
+			BmDateTime startTime = vevent.main != null ? vevent.main.dtstart : vevent.occurrences.get(0).dtstart;
+			if (startTime.precision == Precision.DateTime) {
+				resolvedRecurId = BmDateTimeWrapper.fromTimestamp(recurIdDate.getTime(), startTime.timezone);
 			} else {
 				String iso = DateTimeFormatter.ISO_DATE.format(Instant.ofEpochMilli(recurIdDate.getTime()));
 				resolvedRecurId = new BmDateTime(iso, null, Precision.Date);

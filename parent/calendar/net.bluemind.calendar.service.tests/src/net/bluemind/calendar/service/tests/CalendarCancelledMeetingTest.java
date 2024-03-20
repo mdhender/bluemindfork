@@ -83,6 +83,7 @@ public class CalendarCancelledMeetingTest {
 		oldEvent.occurrences.get(0).status = ICalendarElement.Status.Cancelled;
 
 		VEventSeries toUpdateEvent = generateVEvent();
+		toUpdateEvent.occurrences.get(0).recurid = oldEvent.occurrences.get(0).recurid;
 		toUpdateEvent.occurrences.get(0).location = "Montauban";
 
 		VEventCancellationSanitizer.sanitize(oldEvent, toUpdateEvent);
