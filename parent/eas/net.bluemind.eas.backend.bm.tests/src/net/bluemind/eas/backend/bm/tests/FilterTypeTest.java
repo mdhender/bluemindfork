@@ -55,7 +55,7 @@ public class FilterTypeTest {
 
 		// change type
 		filterType = FilterType.THREE_DAYS_BACK; // initial
-		// SPECIFIC filter never not provokes change
+		// SPECIFIC filter never provokes change
 		hasChanged = exporter.processFilterType(bs, state, filterType, collectionId);
 		assertFalse(hasChanged);
 		// someSyncWithoutChangingAnything
