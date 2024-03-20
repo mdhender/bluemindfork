@@ -26,6 +26,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.MDC;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.eas.backend.BackendSession;
@@ -77,7 +79,8 @@ public class ContentsExporter extends CoreConnect implements IContentsExporter {
 		filterTypeCache = new ConcurrentHashMap<>();
 	}
 
-	private boolean processFilterType(BackendSession bs, SyncState state, FilterType filterType,
+	@VisibleForTesting
+	public boolean processFilterType(BackendSession bs, SyncState state, FilterType filterType,
 			CollectionId collectionId) {
 
 		String key = bs.getUniqueIdentifier() + "-" + collectionId.getFolderId();

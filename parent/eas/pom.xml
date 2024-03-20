@@ -48,6 +48,7 @@
 				<module>net.bluemind.eas.http.tests</module>
 				<module>net.bluemind.eas.protocol.tests</module>
 				<module>net.bluemind.eas.timezone.tests</module>
+				<module>net.bluemind.eas.backend.bm.tests</module>
 			</modules>
 		</profile>
 	</profiles>
