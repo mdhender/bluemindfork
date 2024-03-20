@@ -96,6 +96,10 @@ public class ContentsExporter extends CoreConnect implements IContentsExporter {
 			previous = filterTypeCache.get(key);
 		}
 
+		if (filterType == FilterType.ALL_ITEMS) {
+			filterTypeCache.put(key, filterType);
+		}
+
 		boolean hasChanged = previous != null && previous != filterType;
 		filterType.filter(state, hasChanged);
 
