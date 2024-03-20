@@ -20,7 +20,7 @@ export function matchPattern(pattern: string, target?: string | (string | null |
     return Array.isArray(target) ? target.some(matcher) : matcher(target);
 }
 
-function normalize(text: string, options?: MatchOptions) {
+export function normalize(text: string, options?: MatchOptions) {
     let normalizedText = text;
     if (!options?.caseSensitive) {
         normalizedText = normalizedText.toLowerCase();
@@ -31,4 +31,4 @@ function normalize(text: string, options?: MatchOptions) {
     return normalizedText;
 }
 
-export default { matchPattern };
+export default { matchPattern, normalize };

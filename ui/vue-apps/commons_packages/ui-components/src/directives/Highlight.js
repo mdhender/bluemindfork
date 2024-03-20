@@ -1,7 +1,29 @@
-export default { bind: toggleHighlight, componentUpdated: toggleHighlight, update: toggleHighlight };
+import { normalize } from "@bluemind/string";
 
-function toggleHighlight(el, binding) {
-    binding.value ? highlight(el, binding.value) : unhighlight(el);
+export default { bind: updateHighlight, componentUpdated: updateHighlight };
+
+/**
+ * @param binding like "myPattern"
+ *      or { pattern: "myPattern", text: "Provide current text if DOM element is re-used with different text content" }
+ */
+function updateHighlight(el, binding) {
+    const { pattern, text, previousPattern, previousText } = parseBinding(binding);
+    if (pattern !== previousPattern || text !== previousText) {
+        unhighlight(el, text);
+        if (pattern) {
+            highlight(el, pattern);
+        }
+    }
+}
+
+function parseBinding(binding) {
+    let { pattern, text } = binding.value || { pattern: "" };
+    if (pattern === undefined) {
+        pattern = binding.value;
+    }
+    const previousPattern = binding.oldValue?.pattern === undefined ? binding.oldValue : binding.oldValue.pattern;
+    const previousText = binding.oldValue?.text;
+    return { pattern, text, previousPattern, previousText };
 }
 
 function highlight(node, pattern) {
@@ -36,8 +58,7 @@ function createHighlightedElement(highlightedContent, text) {
 }
 
 function createAccentInsensitiveRegex(searchTerm) {
-    const normalizedSearchTerm = searchTerm.normalize("NFD").replace(/\p{Diacritic}/gu, "");
-    const regexString = [...normalizedSearchTerm].reduce(
+    const regexString = [...normalize(searchTerm)].reduce(
         (regexString, char, i) => regexString + enhancedRegexpChar(searchTerm[i], char),
         ""
     );
@@ -61,10 +82,10 @@ function enhancedRegexpChar(searchTerm, char) {
     return char;
 }
 
-function unhighlight(node) {
+function unhighlight(node, initialText) {
     walk(node, node => {
         if (node.attributes && node.hasAttribute(highlightAttribute)) {
-            node.nextSibling.textContent = node.getAttribute(highlightAttribute);
+            node.nextSibling.textContent = initialText || node.getAttribute(highlightAttribute);
             node.remove();
         }
     });

@@ -34,6 +34,7 @@
 
 <script>
 import { VCard } from "@bluemind/addressbook.api";
+import { normalize } from "@bluemind/string";
 import BmAvatar from "../BmAvatar";
 import BmButtonClose from "../buttons/BmButtonClose";
 import BmIcon from "../BmIcon";
@@ -78,18 +79,13 @@ export default {
 
             const tokens = this.inputValue.split(/\s+/);
             const uniqueTokens = [];
-            const normalizeFn = value =>
-                value
-                    .toLowerCase()
-                    .normalize("NFD")
-                    .replace(/\p{Diacritic}/gu, "");
 
             tokens.forEach(token => {
                 if (token?.length) {
-                    const uniqueToken = normalizeFn(token);
+                    const uniqueToken = normalize(token);
                     if (!uniqueTokens.includes(uniqueToken)) {
                         uniqueTokens.push(uniqueToken);
-                        const normalizedStr = normalizeFn(str);
+                        const normalizedStr = normalize(str);
                         let start = normalizedStr.indexOf(uniqueToken);
                         if (start !== -1) {
                             let result = str.slice(0, start);

@@ -53,28 +53,48 @@
             </template>
 
             <template #cell(name)="{ value, item }">
-                <div v-highlight="search" class="name desktop-only d-flex align-items-center position-relative">
-                    <span class="text-truncate text-nowrap position-absolute w-100">{{ value }}</span>
+                <div class="name desktop-only d-flex align-items-center position-relative">
+                    <span
+                        v-highlight="{ pattern: search, text: value }"
+                        class="text-truncate text-nowrap position-absolute w-100"
+                        >{{ value }}</span
+                    >
                 </div>
-                <div v-highlight="search" class="mobile-name-and-email mobile-only">
+                <div class="mobile-name-and-email mobile-only">
                     <div class="name d-flex align-items-center position-relative h-50">
-                        <span class="text-truncate text-nowrap position-absolute w-100">{{ value }}</span>
+                        <span
+                            v-highlight="{ pattern: search, text: value }"
+                            class="text-truncate text-nowrap position-absolute w-100"
+                            >{{ value }}</span
+                        >
                     </div>
                     <div class="email d-flex align-items-center position-relative h-50">
-                        <span class="text-truncate text-nowrap position-absolute w-100">{{ item.email }}</span>
+                        <span
+                            v-highlight="{ pattern: search, text: item.email }"
+                            class="text-truncate text-nowrap position-absolute w-100"
+                            >{{ item.email }}</span
+                        >
                     </div>
                 </div>
             </template>
 
             <template #cell(email)="{ value }">
-                <div v-highlight="search" class="email d-flex align-items-center position-relative">
-                    <span class="text-truncate text-nowrap position-absolute w-100">{{ value }}</span>
+                <div class="email d-flex align-items-center position-relative">
+                    <span
+                        v-highlight="{ pattern: search, text: value }"
+                        class="text-truncate text-nowrap position-absolute w-100"
+                        >{{ value }}</span
+                    >
                 </div>
             </template>
 
             <template #cell(company)="{ value }">
-                <div v-highlight="search" class="d-flex align-items-center position-relative">
-                    <span class="text-truncate text-nowrap position-absolute w-100">{{ value }}</span>
+                <div class="d-flex align-items-center position-relative">
+                    <span
+                        v-highlight="{ pattern: search, text: value }"
+                        class="text-truncate text-nowrap position-absolute w-100"
+                        >{{ value }}</span
+                    >
                 </div>
             </template>
         </bm-table>

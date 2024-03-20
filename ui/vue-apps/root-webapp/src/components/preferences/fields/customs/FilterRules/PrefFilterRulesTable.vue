@@ -1,7 +1,18 @@
 <template>
     <div class="pref-filter-rules-table">
+        <bm-form-input
+            v-model="pattern"
+            class="pref-filter mt-2 mb-3"
+            :placeholder="$t('common.action.search')"
+            icon="search"
+            resettable
+            left-icon
+            :aria-label="$t('common.action.search')"
+            autocomplete="off"
+            @reset="pattern = ''"
+        />
         <bm-table
-            :items="filters"
+            :items="filteredFilters"
             :fields="fields"
             :per-page="perPage"
             :current-page="currentPage"
@@ -23,12 +34,21 @@
                     <bm-button-expand :expanded="cell.detailsShowing" />
                     <div class="d-flex align-items-baseline text-truncate flex-fill">
                         <div
+                            v-highlight="{
+                                pattern: highlight,
+                                text: cell.value || $t('preferences.mail.filters.unnamed')
+                            }"
                             class="bold filter-name mr-5 text-nowrap"
                             :class="{ 'filter-inactive': !cell.item.active }"
                         >
                             {{ cell.value || $t("preferences.mail.filters.unnamed") }}
                         </div>
-                        <div class="caption text-truncate flex-fill">{{ buildDesc(cell.item) }}</div>
+                        <div
+                            v-highlight="{ pattern: highlight, text: cell.item.desc }"
+                            class="caption text-truncate flex-fill"
+                        >
+                            {{ cell.item.desc }}
+                        </div>
                         <bm-badge v-if="cell.item.terminal" class="mx-3 caption-bold" pill>
                             {{ $t("preferences.mail.filters.terminal") }}
                         </bm-badge>
@@ -43,12 +63,7 @@
                         icon="pencil"
                         @click="$emit('edit', cell.item)"
                     />
-                    <bm-icon-button
-                        class="desktop-only"
-                        variant="compact"
-                        icon="trash"
-                        @click="remove(cell.item)"
-                    />
+                    <bm-icon-button class="desktop-only" variant="compact" icon="trash" @click="remove(cell.item)" />
                     <bm-icon-dropdown variant="compact" icon="3dots" no-caret>
                         <bm-dropdown-item-button class="mobile-only" icon="pencil" @click="$emit('edit', cell.item)">
                             {{ $t("common.edit") }}
@@ -82,21 +97,25 @@
                 <pref-filter-rule-details :filter="row.item" />
             </template>
         </bm-table>
-        <bm-pagination v-model="currentPage" :total-rows="filters.length" :per-page="perPage" />
+        <bm-pagination v-model="currentPage" :total-rows="filteredFilters.length" :per-page="perPage" />
     </div>
 </template>
 
 <script>
+import debounce from "lodash.debounce";
+import { normalize } from "@bluemind/string";
 import {
     BmBadge,
     BmButtonExpand,
     BmDropdownDivider,
     BmDropdownItemButton,
     BmFormCheckbox,
+    BmFormInput,
     BmIconButton,
     BmIconDropdown,
     BmPagination,
-    BmTable
+    BmTable,
+    Highlight
 } from "@bluemind/ui-components";
 import PrefFilterRuleDetails from "./PrefFilterRuleDetails";
 import { toString as filterToString } from "./filterRules";
@@ -109,25 +128,18 @@ export default {
         BmDropdownDivider,
         BmDropdownItemButton,
         BmFormCheckbox,
+        BmFormInput,
         BmIconButton,
         BmIconDropdown,
         BmPagination,
         BmTable,
         PrefFilterRuleDetails
     },
+    directives: { Highlight },
     props: {
-        editable: {
-            type: Boolean,
-            required: true
-        },
-        filters: {
-            type: Array,
-            required: true
-        },
-        perPage: {
-            type: Number,
-            default: 10
-        }
+        editable: { type: Boolean, required: true },
+        filters: { type: Array, required: true },
+        perPage: { type: Number, default: 10 }
     },
     data() {
         return {
@@ -136,8 +148,33 @@ export default {
                 { key: "active", label: "", tdClass: "align-middle", class: "active-cell" },
                 { key: "name", label: "", tdClass: "filter-info px-0", class: "name-cell" },
                 { key: "editable", label: "", class: "actions-cell" }
-            ]
+            ],
+            pattern: "",
+            filteredFilters: [],
+            highlight: undefined,
+            filterFilters: debounce(() => {
+                this.highlight = undefined;
+                const filterFn = value => normalize(value).includes(normalize(this.pattern));
+                this.filteredFilters = this.filters?.length
+                    ? this.pattern
+                        ? this.filters.filter(({ name, desc }) => filterFn(desc) || filterFn(name))
+                        : this.filters
+                    : [];
+                this.highlight = this.pattern;
+            }, 50)
         };
+    },
+    watch: {
+        filters: {
+            handler: function () {
+                this.buildDescs();
+                this.filterFilters();
+            },
+            immediate: true
+        },
+        pattern() {
+            this.filterFilters();
+        }
     },
     methods: {
         async remove(item) {
@@ -154,8 +191,8 @@ export default {
                 this.$emit("remove", item);
             }
         },
-        buildDesc(filter) {
-            return filterToString(filter, this.$i18n);
+        buildDescs() {
+            this.filters?.forEach(filter => (filter.desc = filterToString(filter, this.$i18n)));
         }
     }
 };
