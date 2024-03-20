@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.eas.backend.bm.tests
+Bundle-SymbolicName: net.bluemind.eas.backend.bm.tests;singleton:=true
+Bundle-Version: 5.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-21
+Require-Bundle: org.junit;bundle-version="3.8.2",
+ net.bluemind.eas.backend.bm,
+ net.bluemind.eas,
+ net.bluemind.eas.dto
+Automatic-Module-Name: net.bluemind.eas.backend.bm.tests
