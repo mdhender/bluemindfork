@@ -116,52 +116,74 @@ const actions = {
             throw e;
         }
     },
-    async MOVE_UP_RULE({ commit, state }, rule) {
+    async MOVE_UP_RULE({ commit, state }, { rule, relativeTo }) {
         const userId = getUserId();
         const index = state.rules.findIndex(({ id }) => id === rule.id);
-        const newIndex = index - 1;
-        commit("MOVE_RULE", { index, newIndex });
-        try {
-            await inject("MailboxesPersistence").moveMailboxRule(userId, rule.id, RuleMoveDirection.UP);
-        } catch (e) {
-            commit("MOVE_RULE", { index: newIndex, newIndex: index });
-            throw e;
+        if (index > 0) {
+            const newIndex = relativeTo ? state.rules.findIndex(({ id }) => id === relativeTo.id) : index - 1;
+            commit("MOVE_RULE", { index, newIndex });
+            try {
+                relativeTo
+                    ? await inject("MailboxesPersistence").moveMailboxRuleRelative(
+                          userId,
+                          rule.id,
+                          RuleMoveRelativePosition.BEFORE,
+                          relativeTo.id
+                      )
+                    : await inject("MailboxesPersistence").moveMailboxRule(userId, rule.id, RuleMoveDirection.UP);
+            } catch (e) {
+                commit("MOVE_RULE", { index: newIndex, newIndex: index });
+                throw e;
+            }
         }
     },
-    async MOVE_DOWN_RULE({ commit }, rule) {
+    async MOVE_DOWN_RULE({ commit }, { rule, relativeTo }) {
         const userId = getUserId();
         const index = state.rules.findIndex(({ id }) => id === rule.id);
-        const newIndex = index + 1;
-        commit("MOVE_RULE", { index, newIndex });
-        try {
-            await inject("MailboxesPersistence").moveMailboxRule(userId, rule.id, RuleMoveDirection.DOWN);
-        } catch (e) {
-            commit("MOVE_RULE", { index: newIndex, newIndex: index });
-            throw e;
+        if (index < state.rules.length - 1) {
+            const newIndex = relativeTo ? state.rules.findIndex(({ id }) => id === relativeTo.id) : index + 1;
+            commit("MOVE_RULE", { index, newIndex });
+            try {
+                relativeTo
+                    ? await inject("MailboxesPersistence").moveMailboxRuleRelative(
+                          userId,
+                          rule.id,
+                          RuleMoveRelativePosition.AFTER,
+                          relativeTo.id
+                      )
+                    : await inject("MailboxesPersistence").moveMailboxRule(userId, rule.id, RuleMoveDirection.DOWN);
+            } catch (e) {
+                commit("MOVE_RULE", { index: newIndex, newIndex: index });
+                throw e;
+            }
         }
     },
     async MOVE_RULE_TOP({ commit, state }, rule) {
         const userId = getUserId();
         const index = state.rules.findIndex(({ id }) => id === rule.id);
-        const newIndex = 0;
-        commit("MOVE_RULE", { index, newIndex });
-        try {
-            await inject("MailboxesPersistence").moveMailboxRule(userId, rule.id, RuleMoveDirection.TOP);
-        } catch (e) {
-            commit("MOVE_RULE", { index: newIndex, newIndex: index });
-            throw e;
+        if (index > 0) {
+            const newIndex = 0;
+            commit("MOVE_RULE", { index, newIndex });
+            try {
+                await inject("MailboxesPersistence").moveMailboxRule(userId, rule.id, RuleMoveDirection.TOP);
+            } catch (e) {
+                commit("MOVE_RULE", { index: newIndex, newIndex: index });
+                throw e;
+            }
         }
     },
     async MOVE_RULE_BOTTOM({ commit, state }, rule) {
         const userId = getUserId();
         const index = state.rules.findIndex(({ id }) => id === rule.id);
-        const newIndex = state.rules.length - 1;
-        commit("MOVE_RULE", { index, newIndex });
-        try {
-            await inject("MailboxesPersistence").moveMailboxRule(userId, rule.id, RuleMoveDirection.BOTTOM);
-        } catch (e) {
-            commit("MOVE_RULE", { index: newIndex, newIndex: index });
-            throw e;
+        if (index < state.rules.length - 1) {
+            const newIndex = state.rules.length - 1;
+            commit("MOVE_RULE", { index, newIndex });
+            try {
+                await inject("MailboxesPersistence").moveMailboxRule(userId, rule.id, RuleMoveDirection.BOTTOM);
+            } catch (e) {
+                commit("MOVE_RULE", { index: newIndex, newIndex: index });
+                throw e;
+            }
         }
     }
 };

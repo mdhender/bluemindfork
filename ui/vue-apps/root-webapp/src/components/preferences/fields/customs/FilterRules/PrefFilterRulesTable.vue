@@ -81,10 +81,16 @@
                         <bm-dropdown-item-button icon="arrow-top" @click="$emit('top', cell.item)">
                             {{ $t("preferences.mail.filters.move.top") }}
                         </bm-dropdown-item-button>
-                        <bm-dropdown-item-button icon="arrow-up" @click="$emit('up', cell.item)">
+                        <bm-dropdown-item-button
+                            icon="arrow-up"
+                            @click="$emit('up', { filter: cell.item, relativeTo: filteredFilters[cell.index - 1] })"
+                        >
                             {{ $t("preferences.mail.filters.move.up") }}
                         </bm-dropdown-item-button>
-                        <bm-dropdown-item-button icon="arrow-down" @click="$emit('down', cell.item)">
+                        <bm-dropdown-item-button
+                            icon="arrow-down"
+                            @click="$emit('down', { filter: cell.item, relativeTo: filteredFilters[cell.index + 1] })"
+                        >
                             {{ $t("preferences.mail.filters.move.down") }}
                         </bm-dropdown-item-button>
                         <bm-dropdown-item-button icon="arrow-bottom" @click="$emit('bottom', cell.item)">

@@ -60,25 +60,17 @@ export default {
         removeUserFilter(filter) {
             this.dispatchWithAlert("REMOVE_RULE", filter);
         },
-        moveUp(filter) {
-            if (filter.index !== 0) {
-                this.dispatchWithAlert("MOVE_UP_RULE", filter);
-            }
+        moveUp({ filter, relativeTo }) {
+            this.dispatchWithAlert("MOVE_UP_RULE", { rule: filter, relativeTo });
         },
-        moveDown(filter) {
-            if (filter.index + 1 !== this.userFilters.length) {
-                this.dispatchWithAlert("MOVE_DOWN_RULE", filter);
-            }
+        moveDown({ filter, relativeTo }) {
+            this.dispatchWithAlert("MOVE_DOWN_RULE", { rule: filter, relativeTo });
         },
         moveTop(filter) {
-            if (filter.index !== 0) {
-                this.dispatchWithAlert("MOVE_RULE_TOP", filter);
-            }
+            this.dispatchWithAlert("MOVE_RULE_TOP", filter);
         },
         moveBottom(filter) {
-            if (filter.index + 1 !== this.userFilters.length) {
-                this.dispatchWithAlert("MOVE_RULE_BOTTOM", filter);
-            }
+            this.dispatchWithAlert("MOVE_RULE_BOTTOM", filter);
         },
         edit(filter) {
             this.editingFilter = { ...filter };
