@@ -20,6 +20,7 @@ package net.bluemind.core.backup.continuous.restore.domains;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import net.bluemind.core.backup.continuous.RecordKey;
+import net.bluemind.core.backup.continuous.tools.LockByKey;
 import net.bluemind.core.container.api.ContainerHierarchyNode;
 import net.bluemind.core.container.api.IFlatHierarchyUids;
 import net.bluemind.core.container.api.internal.IInternalContainersFlatHierarchy;
@@ -37,6 +38,7 @@ public class RestoreFlatHierarchy implements RestoreDomainType {
 	private final RestoreLogger log;
 	private ItemValue<Domain> domain;
 	private IServiceProvider target;
+	private final LockByKey<String> lock = new LockByKey<>();
 
 	public RestoreFlatHierarchy(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target) {
 		this.log = log;
@@ -54,23 +56,31 @@ public class RestoreFlatHierarchy implements RestoreDomainType {
 		ItemValue<ContainerHierarchyNode> item = mrReader.read(payload);
 		IInternalContainersFlatHierarchy intApi = target.instance(IInternalContainersFlatHierarchy.class, domain.uid,
 				key.owner);
-		ItemValue<ContainerHierarchyNode> existing = intApi.getComplete(item.uid);
 
-		if (key.operation.equals("DELETE")) {
-			if (existing != null) {
+		String lockKey = domain.uid + "-" + item.uid;
+		try {
+			lock.lock(lockKey);
+
+			ItemValue<ContainerHierarchyNode> existing = intApi.getComplete(item.uid);
+
+			if (key.operation.equals("DELETE")) {
+				if (existing != null) {
+					log.delete(type(), key);
+				}
+			} else if (existing != null && existing.internalId != item.internalId) {
 				log.delete(type(), key);
+				intApi.delete(item.uid);
+				log.create(type(), key);
+				intApi.createWithId(item.internalId, item.uid, item.value);
+			} else if (existing != null && existing.internalId == item.internalId) {
+				log.update(type(), key);
+				intApi.update(item.uid, item.value);
+			} else {
+				log.create(type(), key);
+				intApi.createWithId(item.internalId, item.uid, item.value);
 			}
-		} else if (existing != null && existing.internalId != item.internalId) {
-			log.delete(type(), key);
-			intApi.delete(item.uid);
-			log.create(type(), key);
-			intApi.createWithId(item.internalId, item.uid, item.value);
-		} else if (existing != null && existing.internalId == item.internalId) {
-			log.update(type(), key);
-			intApi.update(item.uid, item.value);
-		} else {
-			log.create(type(), key);
-			intApi.createWithId(item.internalId, item.uid, item.value);
+		} finally {
+			lock.unlock(lockKey);
 		}
 	}
 

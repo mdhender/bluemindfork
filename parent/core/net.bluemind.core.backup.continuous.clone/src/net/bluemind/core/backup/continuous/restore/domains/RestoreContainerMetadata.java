@@ -12,6 +12,7 @@ import net.bluemind.core.backup.continuous.RecordKey.Operation;
 import net.bluemind.core.backup.continuous.dto.ContainerMetadata;
 import net.bluemind.core.backup.continuous.dto.VersionnedItem;
 import net.bluemind.core.backup.continuous.restore.IDtoPreProcessor;
+import net.bluemind.core.backup.continuous.tools.LockByKey;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.api.IInternalContainerManagement;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
@@ -29,6 +30,7 @@ public class RestoreContainerMetadata implements RestoreDomainType {
 	private final IServiceProvider target;
 	private final List<IDtoPreProcessor<ContainerMetadata>> preProcs;
 	private final RestoreState state;
+	private final LockByKey<String> lock = new LockByKey<>();
 
 	public RestoreContainerMetadata(RestoreLogger log, IServiceProvider target, RestoreState state) {
 		this.log = log;
@@ -69,14 +71,21 @@ public class RestoreContainerMetadata implements RestoreDomainType {
 
 		ContainerMetadata metadata = item.value;
 
-		Optional<BaseContainerDescriptor> maybeHere = Optional
-				.ofNullable(contApi.getLightIfPresent(metadata.contDesc.uid));
-		if (!maybeHere.isPresent()) {
-			BaseContainerDescriptor cd = metadata.contDesc;
-			ContainerDescriptor fullCd = ContainerDescriptor.create(cd.uid, cd.name, cd.owner, cd.type, cd.domainUid,
-					cd.defaultContainer, metadata.settings);
-			contApi.create(cd.uid, fullCd);
-			log.create(cd.type, key);
+		String lockKey = metadata.contDesc.uid;
+		try {
+			lock.lock(lockKey);
+
+			Optional<BaseContainerDescriptor> maybeHere = Optional
+					.ofNullable(contApi.getLightIfPresent(metadata.contDesc.uid));
+			if (!maybeHere.isPresent()) {
+				BaseContainerDescriptor cd = metadata.contDesc;
+				ContainerDescriptor fullCd = ContainerDescriptor.create(cd.uid, cd.name, cd.owner, cd.type,
+						cd.domainUid, cd.defaultContainer, metadata.settings);
+				contApi.create(cd.uid, fullCd);
+				log.create(cd.type, key);
+			}
+		} finally {
+			lock.unlock(lockKey);
 		}
 
 		IInternalContainerManagement mgmtApi = target.instance(IInternalContainerManagement.class,
