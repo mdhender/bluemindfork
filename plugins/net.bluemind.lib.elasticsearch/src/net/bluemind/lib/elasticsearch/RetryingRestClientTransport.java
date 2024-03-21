@@ -50,7 +50,7 @@ import net.bluemind.lib.elasticsearch.exception.ElasticRetryException;
 public class RetryingRestClientTransport extends RestClientTransport {
 	private static Logger logger = LoggerFactory.getLogger(RetryingRestClientTransport.class);
 
-	private static final Set<Integer> retryableStatusCode = Set.of(429, 502, 503, 504);
+	private static final Set<Integer> retryableStatusCode = Set.of(409, 429, 502, 503, 504);
 
 	private final Retry retry;
 
