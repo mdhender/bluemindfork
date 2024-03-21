@@ -106,7 +106,9 @@ export default {
             immediate: true,
             handler(value, old) {
                 document.body.classList.remove(old);
-                document.body.classList.add(value);
+                if (value !== undefined) {
+                    document.body.classList.add(value);
+                }
             }
         }
     },

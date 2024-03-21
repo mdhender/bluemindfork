@@ -71,8 +71,7 @@ goog.require("net.bluemind.debug.RemoteLogger");
  * @constructor
  */
 net.bluemind.mvp.Application = function(application, base, routes) {
-    var loader = new net.bluemind.commons.ui.Loader();
-    loader.start();
+
 
     if (goog.DEBUG) {
         var debugConsole = new goog.debug.Console();
@@ -102,8 +101,10 @@ net.bluemind.mvp.Application = function(application, base, routes) {
 
     ctx.privacy = new goog.net.Cookies(document).get("BMPRIVACY") != "false";
     ctx.databaseAvailable = true;
-
+    var loader;
     if (Array.isArray(routes) && routes.length > 0) {
+        loader = new net.bluemind.commons.ui.Loader();
+        loader.start();
         var router = new net.bluemind.mvp.Router(ctx, routes);
         var helper = new net.bluemind.mvp.helper.URLHelper(router);
         ctx.helper("url", helper);
@@ -114,7 +115,9 @@ net.bluemind.mvp.Application = function(application, base, routes) {
 
     this.bootstrap(ctx).then(
         function() {
-            loader.stop();
+            if (loader) {
+              loader.stop();
+            }
             router && router.start();
             this.postBootstrap(ctx);
         },
