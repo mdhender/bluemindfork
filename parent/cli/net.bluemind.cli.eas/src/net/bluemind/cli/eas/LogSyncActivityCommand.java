@@ -89,10 +89,10 @@ public class LogSyncActivityCommand implements ICmdLet, Runnable {
 
 		try {
 			String content = Files.readString(new File(file).toPath());
-			new LogParser(content, handler).parse();
+			new LogParser(content, handler, ctx).parse();
 			ctx.info(handler.toTable());
 		} catch (Exception e) {
-			ctx.error("Cannot parse log file: {}", e.getMessage());
+			ctx.error("Cannot parse log file: {}", ctx.toStack(e));
 		}
 
 	}

@@ -104,8 +104,14 @@ public class SyncLogHandler implements ILogHandler {
 	}
 
 	private SyncOperation resolve(SyncOperation operation) {
-		long id = Long.parseLong(operation.request().collectionId().trim());
-		ItemValue<ContainerHierarchyNode> node = service.getCompleteById(id);
+		long id = 0;
+		ItemValue<ContainerHierarchyNode> node = null;
+		try {
+			id = Long.parseLong(operation.request().collectionId().trim());
+			node = service.getCompleteById(id);
+		} catch (NumberFormatException e) {
+		}
+
 		if (node == null) {
 			return operation;
 		}

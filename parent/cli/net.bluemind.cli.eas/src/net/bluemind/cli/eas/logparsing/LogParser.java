@@ -31,20 +31,24 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import net.bluemind.cli.cmd.api.CliContext;
+
 public class LogParser {
 
 	private static final String SEPARATOR = "__";
 	private final String content;
 	private final ILogHandler logHandler;
+	private final CliContext ctx;
 
 	private final Map<String, RidProcessing> rids;
 	private String currentRid;
 	private String currentDate;
 	private PARSER_STATE state;
 
-	public LogParser(String content, ILogHandler logHandler) {
+	public LogParser(String content, ILogHandler logHandler, CliContext ctx) {
 		this.content = content;
 		this.logHandler = logHandler;
+		this.ctx = ctx;
 		rids = new HashMap<>();
 	}
 
@@ -112,6 +116,12 @@ public class LogParser {
 
 		String syncKey = findByName(root, "SyncKey");
 		String collectionId = findByName(root, "CollectionId");
+
+		if (syncKey == null || collectionId == null) {
+			ctx.info("Cannot find syncKey or collectionId in data: {}", xml);
+			return new NoSyncInfo();
+		}
+
 		if (collectionId.contains(SEPARATOR)) {
 			collectionId = collectionId.split(SEPARATOR)[1];
 		}
