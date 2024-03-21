@@ -230,17 +230,9 @@ public class VEventSeriesSanitizer implements ISanitizer<VEventSeries> {
 	}
 
 	private void addToSeries(VEventSeries series, VEventCounter counter) {
-		series.counters = series.counters.stream().filter(existing -> !sameCounter(existing, counter))
+		series.counters = series.counters.stream().filter(existing -> !existing.equals(counter))
 				.collect(Collectors.toList());
 		series.counters.add(counter);
-	}
-
-	private boolean sameCounter(VEventCounter existing, VEventCounter counter) {
-		boolean same = true;
-		same &= counter.originator.equals(existing.originator);
-		same &= counter.counter.recurid == null ? existing.counter.recurid == null
-				: counter.counter.recurid.equals(existing.counter.recurid);
-		return same;
 	}
 
 	private VEventCounter createCounter(VEvent event, Set<Attendee> attendees, Attendee me) {

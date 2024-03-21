@@ -265,15 +265,15 @@ public class VEventSeriesSanitizerTests {
 		message.vevent.main.organizer = new VEvent.Organizer("Georges Abitbol", this.user.defaultEmailAddress());
 		message.vevent.main.organizer.dir = "bm://" + IDirEntryPath.path(domainUid, "georges", Kind.USER);
 		message.oldEvent = message.vevent.copy();
-		Attendee toto = Attendee.create(CUType.Individual, null, Role.NonParticipant,
-				ParticipationStatus.NeedsAction, false, null, null, this.user.defaultEmailAddress(), "Toto Matinc",
-				"bm://" + IDirEntryPath.path(domainUid, "toto", Kind.USER), null, null,
-				"toto@" + this.domainUid);
+		Attendee toto = Attendee.create(CUType.Individual, null, Role.NonParticipant, ParticipationStatus.NeedsAction,
+				false, null, null, this.user.defaultEmailAddress(), "Toto Matinc",
+				"bm://" + IDirEntryPath.path(domainUid, "toto", Kind.USER), null, null, "toto@" + this.domainUid);
 		message.vevent.main.attendees.add(toto);
 		sanitizer.update(message.oldEvent, message.vevent);
-		
+		sanitizer.update(message.oldEvent, message.vevent);
+
 		assertTrue(message.vevent.counters.size() == 1);
-		
+
 		VEventCounter counter = message.vevent.counters.get(0);
 		assertTrue(counter.counter.attendees.size() == 2);
 		assertTrue(counter.counter.attendees.stream().anyMatch(a -> a.equals(toto)));
