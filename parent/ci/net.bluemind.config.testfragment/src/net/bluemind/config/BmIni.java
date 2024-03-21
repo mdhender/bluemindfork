@@ -25,6 +25,7 @@ import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Properties;
 
 import org.slf4j.Logger;
@@ -85,7 +86,7 @@ public class BmIni {
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
-		return p.getProperty("password").replace("\"", "");
+		return Optional.ofNullable(p.getProperty("password")).orElse("").replace("\"", "");
 	}
 
 }
