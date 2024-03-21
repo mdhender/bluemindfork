@@ -23,7 +23,7 @@ public class BMRegistry extends AbstractRegistry {
 
 	public BMRegistry() {
 		super(Clock.SYSTEM);
-		comQueue = new ArrayBlockingQueue<>(64);
+		comQueue = new ArrayBlockingQueue<>(8192);
 		BluemindAgent.setupMessageQueue(comQueue);
 		webSockClient = new AgentPushClient(comQueue);
 		logger.info("Registry setup with {}", webSockClient);

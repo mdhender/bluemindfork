@@ -35,18 +35,14 @@ import com.zaxxer.hikari.metrics.PoolStats;
 import net.bluemind.metrics.registry.IdFactory;
 
 public class SpectatorMetricsTracker implements IMetricsTracker {
-	private final Timer connectionObtainTimer;
 	private final Counter connectionTimeoutCounter;
-	private final Timer connectionUsage;
 	private final Timer connectionCreation;
 
 	public SpectatorMetricsTracker(final String poolName, final PoolStats poolStats, final Registry registry,
 			final IdFactory idFactory) {
 		Tag poolTag = Tag.of("pool", poolName);
 
-		connectionObtainTimer = registry.timer(idFactory.name("connections.acquire").withTag(poolTag));
 		connectionTimeoutCounter = registry.counter(idFactory.name("connections.timeout").withTag(poolTag));
-		connectionUsage = registry.timer(idFactory.name("connections.usage").withTag(poolTag));
 		connectionCreation = registry.timer(idFactory.name("connections.creation").withTag(poolTag));
 		PolledMeter.using(registry).withId(idFactory.name("connections").withTag(poolTag)).monitorValue(poolStats,
 				PoolStats::getTotalConnections);
@@ -65,12 +61,10 @@ public class SpectatorMetricsTracker implements IMetricsTracker {
 
 	@Override
 	public void recordConnectionAcquiredNanos(final long elapsedAcquiredNanos) {
-		connectionObtainTimer.record(elapsedAcquiredNanos, TimeUnit.NANOSECONDS);
 	}
 
 	@Override
 	public void recordConnectionUsageMillis(final long elapsedBorrowedMillis) {
-		connectionUsage.record(elapsedBorrowedMillis, TimeUnit.MILLISECONDS);
 	}
 
 	@Override
