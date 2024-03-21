@@ -39,6 +39,7 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Verticle;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.server.api.TagDescriptor;
@@ -121,7 +122,7 @@ public class UsageReportVerticle extends AbstractVerticle {
 				.thenApply(HttpResponse::body).thenApply(JsonObject::new).join();
 	}
 
-	public static class Reg implements IVerticleFactory {
+	public static class Reg implements IVerticleFactory, IUniqueVerticleFactory {
 
 		@Override
 		public boolean isWorker() {
