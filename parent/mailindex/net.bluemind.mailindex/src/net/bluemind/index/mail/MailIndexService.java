@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -82,7 +81,6 @@ import net.bluemind.backend.mail.replica.indexing.IndexedMessageBody;
 import net.bluemind.backend.mail.replica.indexing.MailSummary;
 import net.bluemind.backend.mail.replica.indexing.MessageFlagsHelper;
 import net.bluemind.core.api.Stream;
-import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
@@ -210,8 +208,7 @@ public class MailIndexService implements IMailIndexService {
 	@Override
 	public long resetMailboxIndex(String mailboxUid) {
 		String index = getWriteIndexAliasName(mailboxUid);
-		return bulkDelete(index, q -> q.term(t -> t.field("owner").value(mailboxUid))).orTimeout(30, TimeUnit.SECONDS)
-				.join();
+		return bulkDelete(index, q -> q.term(t -> t.field("owner").value(mailboxUid)));
 	}
 
 	@Override
@@ -221,7 +218,7 @@ public class MailIndexService implements IMailIndexService {
 		getUserAliasIndex(boxAlias, esClient).ifPresentOrElse(boxIndex -> {
 			long count = bulkDelete(boxAlias, q -> q.bool(b -> b //
 					.must(m -> m.term(t -> t.field("owner").value(box.uid)))
-					.must(m -> m.term(t -> t.field("in").value(folderUid))))).orTimeout(30, TimeUnit.SECONDS).join();
+					.must(m -> m.term(t -> t.field("in").value(folderUid)))));
 			logger.info("deleteBox {}:{} :  {} deleted", box.uid, folderUid, count);
 			cleanupParents(boxAlias, boxIndex);
 		}, () -> logger.error("Unable to delete mails in elasticsearch, alias not found (mailbox:{}, folder:{})",
@@ -252,30 +249,9 @@ public class MailIndexService implements IMailIndexService {
 		}
 	}
 
-	public CompletableFuture<Long> bulkDelete(String indexName, Function<Query.Builder, ObjectBuilder<Query>> filter) {
+	public Long bulkDelete(String indexName, Function<Query.Builder, ObjectBuilder<Query>> filter) {
 		ElasticsearchClient esClient = getIndexClient();
-		CompletableFuture<Long> comp = new CompletableFuture<>();
-		invokeLaterWithRetries(comp, () -> bulkDeleteImpl(esClient, indexName, filter), 20);
-		return comp;
-	}
-
-	private static <T> void invokeLaterWithRetries(CompletableFuture<T> comp, Callable<T> call, int retries) {
-		if (comp.isDone()) {
-			return;
-		}
-		if (retries == 0) {
-			comp.completeExceptionally(
-					new ServerFault("Deletion on index provoques constant conflicts. Giving up.", ErrorCode.TIMEOUT));
-			return;
-		}
-		var vx = VertxPlatform.getVertx();
-		vx.setTimer(1000L, tid -> vx.executeBlocking(call, false).andThen(ar -> {
-			if (ar.failed()) {
-				invokeLaterWithRetries(comp, call, retries - 1);
-			} else {
-				comp.complete(ar.result());
-			}
-		}));
+		return bulkDeleteImpl(esClient, indexName, filter);
 	}
 
 	public long bulkDeleteImpl(ElasticsearchClient esClient, String indexName,
@@ -283,7 +259,9 @@ public class MailIndexService implements IMailIndexService {
 		try {
 			return esClient.deleteByQuery(d -> d.index(indexName) //
 					.query(t -> t.constantScore(s -> s.filter(filter)))).deleted();
-		} catch (ElasticsearchException | IOException e) {
+		} catch (ElasticsearchException ese) {
+			throw new ElasticDocumentException(indexName, ese);
+		} catch (IOException e) {
 			throw new ElasticDocumentException(indexName, e);
 		}
 	}
@@ -475,11 +453,11 @@ public class MailIndexService implements IMailIndexService {
 		if (!iter.hasNext()) {
 			return CompletableFuture.completedFuture(null);
 		} else {
-			CompletableFuture<Long> bulkDelete = bulkDelete(boxAlias, q -> q.bool(b -> b //
+			bulkDelete(boxAlias, q -> q.bool(b -> b //
 					.must(m -> m.term(t -> t.field("owner").value(boxUid)))
 					.must(m -> m.term(t -> t.field("in").value(folderUid))) //
 					.must(asFilter(iter, 1000))));
-			return bulkDelete.thenCompose(c -> expungeIteration(boxAlias, boxUid, folderUid, iter));
+			return expungeIteration(boxAlias, boxUid, folderUid, iter);
 		}
 	}
 
@@ -597,7 +575,11 @@ public class MailIndexService implements IMailIndexService {
 	@Override
 	public void deleteMailbox(String entityId) {
 		final ElasticsearchClient esClient = getIndexClient();
-		resetMailboxIndex(entityId);
+		try {
+			resetMailboxIndex(entityId);
+		} catch (Exception e) {
+			logger.warn("[es][mailbox] resetMailboxIndex {} failed: {}", entityId, e.getMessage());
+		}
 		if (IndexAliasMode.getMode() == Mode.RING) {
 			return;
 		}
