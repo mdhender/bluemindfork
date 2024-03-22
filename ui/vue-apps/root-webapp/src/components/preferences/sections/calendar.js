@@ -1,4 +1,3 @@
-import { AvailablesTimezones } from "@bluemind/date";
 import Roles from "@bluemind/roles";
 import { mapExtensions } from "@bluemind/extensions";
 
@@ -100,18 +99,6 @@ function mainCategory(i18n) {
                                     { value: "sat", text: i18n.t("common.saturday_short") },
                                     { value: "sun", text: i18n.t("common.sunday_short") }
                                 ]
-                            }
-                        }
-                    },
-                    {
-                        id: "timezone",
-                        component: {
-                            name: "PrefFieldComboBox",
-                            options: {
-                                choices: AvailablesTimezones,
-                                label: i18n.t("preferences.general.timezone"),
-                                setting: "timezone",
-                                needReload: true
                             }
                         }
                     }

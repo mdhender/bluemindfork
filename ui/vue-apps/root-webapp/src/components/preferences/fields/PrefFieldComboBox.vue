@@ -1,6 +1,8 @@
 <template>
     <bm-form-group :disabled="disabled">
-        <template #label><pref-field-label :label="label" /></template>
+        <template #label>
+            <pref-field-label :label="label" />
+        </template>
         <bm-combo-box
             v-model="input"
             :items="filtered"
@@ -28,7 +30,7 @@ export default {
             required: true
         },
         label: {
-            type: String,
+            type: [Object, String],
             required: false,
             default: ""
         }

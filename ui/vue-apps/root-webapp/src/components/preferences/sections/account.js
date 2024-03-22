@@ -1,7 +1,9 @@
 import { isAvailable } from "@bluemind/commons/utils/notification";
 import { AvailableTimeFormats, AvailableDateFormats } from "@bluemind/date";
 import { AvailableLanguages } from "@bluemind/i18n";
+import { AvailablesTimezones } from "@bluemind/date";
 import Roles from "@bluemind/roles";
+import PrefFieldTimezoneLabel from "../fields/customs/PrefFieldTimezoneLabel";
 
 import bluemindLogo from "!svg-inline-loader?removeSVGTagAttrs=false!../../../../assets/bluemind-logo.svg";
 import themeSystem from "../../../../assets/theme-system.png";
@@ -68,6 +70,36 @@ function main(i18n) {
                                 label: i18n.t("preferences.general.time_format"),
                                 setting: "timeformat",
                                 autosave: true
+                            }
+                        }
+                    },
+                    {
+                        id: "timezone",
+                        component: {
+                            name: "PrefFieldComboBox",
+                            options: {
+                                choices: AvailablesTimezones,
+                                label: {
+                                    component: PrefFieldTimezoneLabel,
+                                    options: {
+                                        label: i18n.t("preferences.general.timezone")
+                                    }
+                                },
+                                setting: "timezone",
+                                needReload: true
+                            }
+                        }
+                    },
+                    {
+                        id: "timezone_difference_reminder",
+                        component: {
+                            name: "PrefFieldCheck",
+                            options: {
+                                setting: "timezone_difference_reminder",
+                                default: "true",
+                                autosave: true,
+                                needReload: true,
+                                label: i18n.t("preferences.calendar.main.timezone_difference_reminder")
                             }
                         }
                     }
