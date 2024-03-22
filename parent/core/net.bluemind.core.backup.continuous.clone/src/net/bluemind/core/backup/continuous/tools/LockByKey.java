@@ -74,9 +74,11 @@ public class LockByKey<T> {
 
 	public void unlock(T key) {
 		LockWrapper lockWrapper = locks.get(key);
-		lockWrapper.lock.unlock();
-		if (lockWrapper.removeThreadFromQueue() == 0) {
-			locks.remove(key, lockWrapper);
+		if (lockWrapper != null) {
+			lockWrapper.lock.unlock();
+			if (lockWrapper.removeThreadFromQueue() == 0) {
+				locks.remove(key, lockWrapper);
+			}
 		}
 	}
 
