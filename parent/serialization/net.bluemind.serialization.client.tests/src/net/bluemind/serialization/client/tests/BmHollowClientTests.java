@@ -44,6 +44,8 @@ import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.serialization.client.BmHollowClient;
 import net.bluemind.serialization.client.BmHollowClient.Type;
+import net.bluemind.system.state.RunningState;
+import net.bluemind.system.state.StateContext;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class BmHollowClientTests {
@@ -52,7 +54,7 @@ public class BmHollowClientTests {
 	public void before() throws Exception {
 		cleanupHollowData();
 		JdbcTestHelper.getInstance().beforeTest();
-
+		StateContext.setInternalState(new RunningState());
 		PopulateHelper.initGlobalVirt();
 
 		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
