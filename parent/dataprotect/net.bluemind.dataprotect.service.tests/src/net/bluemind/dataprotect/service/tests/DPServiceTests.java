@@ -78,6 +78,8 @@ import net.bluemind.system.api.DomainTemplate;
 import net.bluemind.system.api.IDomainTemplate;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
+import net.bluemind.system.state.RunningState;
+import net.bluemind.system.state.StateContext;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class DPServiceTests {
@@ -101,7 +103,7 @@ public class DPServiceTests {
 	@Before
 	public void before() throws Exception {
 		prepareLocalFilesystem();
-
+		StateContext.setInternalState(new RunningState());
 		JdbcTestHelper.getInstance().beforeTest();
 		dataSource = JdbcTestHelper.getInstance().getDataSource();
 
