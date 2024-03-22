@@ -5,7 +5,7 @@ import importEml from "../../actions/importEml";
 import parsed from "./postalMimeResult.json";
 
 global.fetch = jest.fn().mockResolvedValue({
-    blob: async () => ({ ...new Blob(["fakeBlob"]), arrayBuffer: jest.fn().mockResolvedValue("") })
+    blob: async () => ({ ...new Blob(["fakeBlob"]), arrayBuffer: jest.fn().mockResolvedValue(new ArrayBuffer()) })
 });
 jest.mock("postal-mime", () => jest.fn());
 PostalMime.mockImplementation(() => ({ parse: () => parsed }));
