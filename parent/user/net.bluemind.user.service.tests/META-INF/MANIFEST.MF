@@ -48,5 +48,6 @@ Require-Bundle: org.junit,
  net.bluemind.addressbook.service;bundle-version="5.0.0",
  net.bluemind.testcontainers,
  net.bluemind.calendar.api,
- net.bluemind.tag.hooks
+ net.bluemind.tag.hooks,
+ net.bluemind.system.state
 Automatic-Module-Name: net.bluemind.user.service.tests

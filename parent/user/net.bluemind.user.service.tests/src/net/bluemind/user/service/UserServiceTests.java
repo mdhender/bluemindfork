@@ -117,6 +117,8 @@ import net.bluemind.role.api.DefaultRoles;
 import net.bluemind.role.service.IInternalRoles;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.system.state.RunningState;
+import net.bluemind.system.state.StateContext;
 import net.bluemind.tag.api.ITagUids;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.ChangePassword;
@@ -162,7 +164,7 @@ public class UserServiceTests {
 	@Before
 	public void before() throws Exception {
 		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
-
+		StateContext.setInternalState(new RunningState());
 		JdbcTestHelper.getInstance().beforeTest();
 
 		ElasticsearchTestHelper.getInstance().beforeTest();
@@ -676,12 +678,12 @@ public class UserServiceTests {
 		User user = defaultUser(login);
 		String uid = create(user);
 		System.out.println("Password from bean: " + user.password);
-		String prevPass = getPassword(user).split(":")[2];
+		String prevPass = getPassword(user);
 		Date prevDate = getPasswordLastChange(user);
 		user.password = null;
 
 		getService(domainAdminSecurityContext).update(uid, user);
-		String currentPass = getPassword(user).split(":")[2];
+		String currentPass = getPassword(user);
 		assertEquals(currentPass, prevPass);
 
 		Date currentDate = getPasswordLastChange(user);
