@@ -42,6 +42,9 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import io.vertx.core.json.JsonObject;
+import net.bluemind.addressbook.api.AddressBookBusAddresses;
+import net.bluemind.addressbook.domainbook.DomainAddressBook;
 import net.bluemind.calendar.api.CalendarDescriptor;
 import net.bluemind.calendar.api.ICalendarsMgmt;
 import net.bluemind.core.api.fault.ErrorCode;
@@ -63,6 +66,7 @@ import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.core.task.service.TaskUtils;
 import net.bluemind.core.task.service.TaskUtils.ExtendedTaskStatus;
 import net.bluemind.core.tests.BmTestContext;
+import net.bluemind.core.tests.vertx.VertxEventChecker;
 import net.bluemind.directory.api.IOrgUnits;
 import net.bluemind.directory.api.OrgUnit;
 import net.bluemind.domain.api.Domain;
@@ -71,6 +75,7 @@ import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.domain.service.internal.DomainStoreService;
 import net.bluemind.domain.service.tests.FakeDomainHook;
+import net.bluemind.externaluser.api.IExternalUser;
 import net.bluemind.group.api.IGroup;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
@@ -117,7 +122,6 @@ public class DomainsServiceTests {
 		storeService = new DomainStoreService(JdbcActivator.getInstance().getDataSource(), SecurityContext.SYSTEM,
 				domainsContainer);
 		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
-
 		FakeDomainHook.initFlags();
 	}
 
@@ -243,9 +247,9 @@ public class DomainsServiceTests {
 		PopulateHelper.createTestDomain(domainUid);
 
 		User user = PopulateHelper.getUser("test", domainUid, Routing.none);
-		String userUid = PopulateHelper.addUser(domainUid, user);
+		PopulateHelper.addUser(domainUid, user);
 		String orgUnitUid = createOrgUnit(domainUid, "organisation");
-		String calendarUid = createCalendar(domainUid, "calendar", domainUid, orgUnitUid);
+		createCalendar(domainUid, "calendar", domainUid, orgUnitUid);
 		try {
 			getService().delete(domainUid);
 			fail("should fail");
@@ -289,6 +293,7 @@ public class DomainsServiceTests {
 			try {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
 			}
 		}
 		assertTrue(task.status().state.succeed);
@@ -318,7 +323,7 @@ public class DomainsServiceTests {
 
 		// create an external user which use domain alias not yet created
 		String leftPart = "whatever";
-		PopulateHelper.addExternalUser(domainUid, leftPart + "@" + domainAlias, "externaluser");
+		String extUserUid = PopulateHelper.addExternalUser(domainUid, leftPart + "@" + domainAlias, "externaluser");
 
 		// create a user with all_alias
 		User user = PopulateHelper.getUser(leftPart, domainUid, Routing.none);
@@ -342,8 +347,17 @@ public class DomainsServiceTests {
 		IUser userService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IUser.class,
 				domainUid);
 		userService.delete(user.login);
-		// FIXME replace
-		Thread.sleep(5000);
+
+		VertxEventChecker<JsonObject> eventChecker = new VertxEventChecker<>(
+				AddressBookBusAddresses.getChangedEventAddress(DomainAddressBook.getIdentifier(domainUid)), 10000);
+		VertxEventChecker<String> syncChecker = new VertxEventChecker<>("domainbook.sync." + domainUid, 10000);
+
+		IExternalUser externalUserService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IExternalUser.class, domainUid);
+		externalUserService.delete(extUserUid);
+
+		eventChecker.shouldSuccess();
+		syncChecker.shouldSuccess();
 
 		setAliases = getService().setAliases(domainUid, Collections.emptySet());
 		alias = TaskUtils.wait(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM), setAliases);
