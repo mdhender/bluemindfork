@@ -56,7 +56,7 @@ public class RestoreDevice extends CrudItemRestore<Device> {
 
 	@Override
 	protected IDevice api(ItemValue<Domain> domain, RecordKey key) {
-		return target.instance(IDevice.class, key.uid);
+		return target.instance(IDevice.class, key.owner);
 	}
 
 }
