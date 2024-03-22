@@ -34,6 +34,7 @@ import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
@@ -66,6 +67,7 @@ public class UpdateGroupVcardVerticle extends AbstractVerticle {
 
 	public UpdateGroupVcardVerticle() {
 		Vertx vertx = VertxPlatform.getVertx();
+		ServerSideServiceProvider provider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 		ThrottleMessages<JsonObject> throttler = new ThrottleMessages<>(msg -> {
 			JsonObject body = msg.body();
 			String domainUid = body.getString("domain_uid");
@@ -75,16 +77,16 @@ public class UpdateGroupVcardVerticle extends AbstractVerticle {
 			JsonObject body = msg.body();
 			String domainUid = body.getString("domain_uid");
 			String groupUid = body.getString("group_uid");
-			this.updateGroupVcard(new GroupIdentifier(domainUid, groupUid));
+			this.updateGroupVcard(provider.getContext(), new GroupIdentifier(domainUid, groupUid));
 		}, vertx, 5000);
 		vertx.eventBus().consumer(VCARD_UPDATE_BUS_ADDRESS, throttler);
 	}
 
-	public void updateGroupVcard(GroupIdentifier gi) {
+	public void updateGroupVcard(BmContext ctx, GroupIdentifier gi) {
 		Container container;
 		DataSource ds = ServerSideServiceProvider.defaultDataSource;
 		try {
-			ContainerStore containerStore = new ContainerStore(null, ds, SecurityContext.SYSTEM);
+			ContainerStore containerStore = new ContainerStore(ctx, ds, SecurityContext.SYSTEM);
 			container = containerStore.get(gi.domainUid());
 		} catch (SQLException e) {
 			logger.error("Unable to update group vcard", e);

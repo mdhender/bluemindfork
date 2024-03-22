@@ -111,7 +111,7 @@ public class ContainerManagement implements IInternalContainerManagement {
 		rbacManager = new RBACManager(context).forContainer(container);
 
 		try {
-			Container domainContainer = new ContainerStore(null, context.getDataSource(), securityContext)
+			Container domainContainer = new ContainerStore(context, context.getDataSource(), securityContext)
 					.get(context.getSecurityContext().getContainerUid());
 			userSubscriptionStore = new UserSubscriptionStore(securityContext, context.getDataSource(),
 					domainContainer);
@@ -210,7 +210,7 @@ public class ContainerManagement implements IInternalContainerManagement {
 		}
 
 		try {
-			return new ContainerStore(null, context.getDataSource(), securityContext).listSubscriptions(container);
+			return new ContainerStore(context, context.getDataSource(), securityContext).listSubscriptions(container);
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}

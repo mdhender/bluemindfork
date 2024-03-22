@@ -46,7 +46,8 @@ public class ResourceTypesServiceFactory
 
 		String domainUid = params[0];
 		String containerId = IResourceTypeUids.getIdentifier(domainUid);
-		ContainerStore containerStore = new ContainerStore(null, context.getDataSource(), context.getSecurityContext());
+		ContainerStore containerStore = new ContainerStore(context, context.getDataSource(),
+				context.getSecurityContext());
 		Container container = null;
 		try {
 			container = containerStore.get(containerId);

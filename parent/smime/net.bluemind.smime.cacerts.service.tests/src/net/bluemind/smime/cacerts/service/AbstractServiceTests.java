@@ -142,7 +142,7 @@ public abstract class AbstractServiceTests {
 		container = containerHome.create(container);
 		assertNotNull(container);
 
-		containerHome = new ContainerStore(new BmTestContext(defaultSecurityContext),
+		containerHome = new ContainerStore(defaultContext,
 				JdbcActivator.getInstance().getDataSource(), defaultSecurityContext);
 		containerHome.createOrUpdateContainerLocation(container, datalocation);
 

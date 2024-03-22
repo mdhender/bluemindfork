@@ -237,7 +237,7 @@ public class CalendarsMgmt implements ICalendarsMgmt, IInCoreCalendarsMgmt {
 		}
 
 		DataSource ds = DataSourceRouter.get(context, cd.uid);
-		ContainerStore cs = new ContainerStore(null, ds, SecurityContext.SYSTEM);
+		ContainerStore cs = new ContainerStore(context, ds, SecurityContext.SYSTEM);
 		Container container = null;
 		try {
 			container = cs.get(cd.uid);

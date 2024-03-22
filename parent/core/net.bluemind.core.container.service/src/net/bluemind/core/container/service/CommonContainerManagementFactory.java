@@ -43,7 +43,7 @@ public abstract class CommonContainerManagementFactory<T extends IContainerManag
 	 */
 	private T get(BmContext context, String containerUid) throws ServerFault {
 		DataSource ds = DataSourceRouter.get(context, containerUid);
-		ContainerStore containerStore = new ContainerStore(null, ds, context.getSecurityContext());
+		ContainerStore containerStore = new ContainerStore(context, ds, context.getSecurityContext());
 
 		Container container = null;
 		try {

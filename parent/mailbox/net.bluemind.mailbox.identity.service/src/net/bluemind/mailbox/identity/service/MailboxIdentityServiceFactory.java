@@ -56,7 +56,8 @@ public class MailboxIdentityServiceFactory
 
 	public IMailboxIdentity getService(BmContext context, String domainUid, String mboxUid) throws ServerFault {
 
-		ContainerStore containerStore = new ContainerStore(null, context.getDataSource(), context.getSecurityContext());
+		ContainerStore containerStore = new ContainerStore(context, context.getDataSource(),
+				context.getSecurityContext());
 
 		ItemValue<Domain> domainValue = context.su().provider().instance(IDomains.class).get(domainUid);
 

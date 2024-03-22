@@ -488,7 +488,7 @@ public class AddressBooksMgmt
 		}
 
 		DataSource ds = DataSourceRouter.get(context, abContainerDescriptor.uid);
-		ContainerStore cs = new ContainerStore(null, ds, SecurityContext.SYSTEM);
+		ContainerStore cs = new ContainerStore(context, ds, SecurityContext.SYSTEM);
 		Container container = null;
 		try {
 			container = cs.get(abContainerDescriptor.uid);

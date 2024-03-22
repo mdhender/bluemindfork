@@ -146,7 +146,7 @@ public class Containers implements IContainers {
 			throw new ServerFault("Failed to create container " + container + " : Null datasource");
 		}
 		final String location = loc;
-		final ContainerStore cs = new ContainerStore(null, ds, securityContext);
+		final ContainerStore cs = new ContainerStore(context, ds, securityContext);
 		Container reloaded = JdbcAbstractStore.doOrFail(() -> cs.create(container));
 		JdbcAbstractStore.doOrFail(() -> {
 			directoryDataStore.createOrUpdateContainerLocation(reloaded, location);
