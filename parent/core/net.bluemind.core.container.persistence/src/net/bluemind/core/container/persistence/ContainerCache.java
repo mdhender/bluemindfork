@@ -73,7 +73,8 @@ public final class ContainerCache {
 
 	public Container getIfPresent(String uid) {
 		if (uidCache != null) {
-			return uidCache.getIfPresent(uid);
+			Container c = uidCache.getIfPresent(uid);
+			return c == null ? null : c.copy();
 		} else {
 			return null;
 		}
@@ -81,18 +82,20 @@ public final class ContainerCache {
 
 	public Container getIfPresent(long id) {
 		if (idCache != null) {
-			return idCache.getIfPresent(id);
+			Container c = idCache.getIfPresent(id);
+			return c == null ? null : c.copy();
 		} else {
 			return null;
 		}
 	}
 
 	public void put(String uid, long id, Container c) {
+		Container containerCopy = c.copy();
 		if (uidCache != null) {
-			uidCache.put(uid, c);
+			uidCache.put(uid, containerCopy);
 		}
 		if (idCache != null) {
-			idCache.put(id, c);
+			idCache.put(id, containerCopy);
 		}
 	}
 

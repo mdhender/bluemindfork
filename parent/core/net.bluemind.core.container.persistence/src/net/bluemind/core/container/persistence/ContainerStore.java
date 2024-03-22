@@ -219,12 +219,15 @@ public class ContainerStore extends JdbcAbstractStore {
 
 	}
 
+	private static record InsertReturn(long id, Date created, Date updated, String createdby, String updatedby) {
+	}
+
 	public Container create(Container container) throws SQLException {
 
 		String insertQuery = "INSERT INTO t_container (uid, container_type, "
 				+ "name, owner, createdby, updatedby, created, updated, defaultContainer, domain_uid, readonly) "
-				+ " VALUES (?, ?, ?, ?, ?, ?, now(), now(), ?, ?, ?)";
-		insert(insertQuery, container,
+				+ " VALUES (?, ?, ?, ?, ?, ?, now(), now(), ?, ?, ?) RETURNING id, created, updated, createdby, updatedby";
+		InsertReturn iret = insertAndReturn(insertQuery, container,
 				Arrays.<StatementValues<Container>>asList((con, statement, index, rowIndex, value) -> {
 					statement.setString(index++, value.uid);
 					statement.setString(index++, value.type);
@@ -237,15 +240,21 @@ public class ContainerStore extends JdbcAbstractStore {
 					statement.setString(index++, value.domainUid);
 					statement.setBoolean(index++, value.readOnly);
 					return index;
-				}));
-
-		Container c = get(container.uid);
-
+				}), rs -> new InsertReturn(rs.getLong(1), Date.from(rs.getTimestamp(2).toInstant()),
+						Date.from(rs.getTimestamp(3).toInstant()), rs.getString(4), rs.getString(5)),
+				null);
+		container.id = iret.id;
+		container.created = iret.created;
+		container.updated = iret.updated;
+		container.createdBy = iret.createdby;
+		container.updatedBy = iret.updatedby;
+		cache.put(container.uid, container.id, container);
 		// container settings
-		insert("INSERT INTO t_container_settings (container_id, settings) VALUES (?, '')", new Object[] { c.id });
+		insert("INSERT INTO t_container_settings (container_id, settings) VALUES (?, '')",
+				new Object[] { container.id });
 		// insert seq
-		insert("INSERT INTO t_container_sequence (container_id) VALUES (?)", new Object[] { c.id });
-		return c;
+		insert("INSERT INTO t_container_sequence (container_id) VALUES (?)", new Object[] { container.id });
+		return container;
 	}
 
 	public void update(final String uid, final String name, boolean defaultContainer) throws SQLException {
@@ -269,12 +278,12 @@ public class ContainerStore extends JdbcAbstractStore {
 					Arrays.<EntityPopulator<Container>>asList(CONTAINER_POPULATOR), new Object[] { uid });
 			if (c != null) {
 				cache.put(uid, c.id, c);
-				return c.copy();
+				return c;
 			} else {
 				return null;
 			}
 		} else {
-			return c.copy();
+			return c;
 		}
 	}
 
@@ -287,12 +296,12 @@ public class ContainerStore extends JdbcAbstractStore {
 					Arrays.<EntityPopulator<Container>>asList(CONTAINER_POPULATOR), new Object[] { id });
 			if (c != null) {
 				cache.put(c.uid, c.id, c);
-				return c.copy();
+				return c;
 			} else {
 				return null;
 			}
 		} else {
-			return c.copy();
+			return c;
 		}
 
 	}
