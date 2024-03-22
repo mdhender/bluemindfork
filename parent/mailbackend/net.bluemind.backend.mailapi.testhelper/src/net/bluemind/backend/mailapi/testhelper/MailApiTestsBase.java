@@ -169,6 +169,8 @@ public class MailApiTestsBase {
 			System.err.println(" * " + ivs);
 		});
 
+		StateContext.setInternalState(new RunningState());
+
 		long time = System.currentTimeMillis();
 		this.domUid = "devenv" + time + ".blue";
 		this.alias = "devenv" + time + ".red";
@@ -186,7 +188,6 @@ public class MailApiTestsBase {
 			this.userProvider = ServerSideServiceProvider.getProvider(userSec);
 		}
 
-		StateContext.setInternalState(new RunningState());
 		System.err.println("==== BEFORE " + testName.getMethodName() + " ends ====");
 
 	}
