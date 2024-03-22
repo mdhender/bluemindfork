@@ -56,10 +56,10 @@ public class ResyncEventCommand implements ICmdLet, Runnable {
 	private CliContext ctx;
 	private CliUtils cliUtils;
 
-	@Option(names = "--organizerEmail", description = "Organizer email")
+	@Option(names = "--organizerEmail", required = true, description = "Organizer email")
 	public String organizerEmail;
 
-	@Option(names = "--icsUid", description = "Event ICS UID")
+	@Option(names = "--icsUid", required = true, description = "Event ICS UID")
 	public String icsUid;
 
 	private String domain;
