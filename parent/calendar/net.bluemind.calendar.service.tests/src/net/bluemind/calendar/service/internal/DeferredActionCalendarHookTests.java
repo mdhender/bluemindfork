@@ -215,7 +215,7 @@ public class DeferredActionCalendarHookTests {
 				ICalendarUids.defaultUserCalendar("testuser"));
 
 		VEventSeries defaultVEvent = defaultVEvent();
-		defaultVEvent.main.dtstart = new BmDateTime("2024-01-16", null, Precision.Date);
+		defaultVEvent.main.dtstart = new BmDateTime("2044-01-16", null, Precision.Date);
 		addAlarm(defaultVEvent.main, 15 * 60 * 60);
 		VEvent.RRule rrule = new VEvent.RRule();
 		rrule.frequency = VEvent.RRule.Frequency.WEEKLY;
@@ -235,7 +235,7 @@ public class DeferredActionCalendarHookTests {
 		assertEquals(1, byActionId.size());
 		ZoneId tz = ZoneId.of("Europe/Paris");
 
-		BmDateTime expected = BmDateTimeHelper.time(ZonedDateTime.of(2024, 1, 16, 0, 0, 0, 0, tz));
+		BmDateTime expected = BmDateTimeHelper.time(ZonedDateTime.of(2044, 1, 16, 0, 0, 0, 0, tz));
 		checkDate(expected, byActionId, 15 * 60 * 60);
 	}
 
