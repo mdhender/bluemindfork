@@ -28,6 +28,13 @@ import net.bluemind.core.auditlogs.AuditLogUpdateStatus.MessageCriticity;
 
 public class AuditLogEntry {
 
+	@Override
+	public String toString() {
+		return "AuditLogEntry [securityContext=" + securityContext + ", container=" + container + ", item=" + item
+				+ ", content=" + content + ", updatemessage=" + updatemessage + ", logtype=" + logtype + ", action="
+				+ action + ", domainUid=" + domainUid + ", timestamp=" + timestamp + ", criticity=" + criticity + "]";
+	}
+
 	@JsonProperty("securitycontext")
 	public SecurityContextElement securityContext;
 

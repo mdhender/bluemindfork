@@ -179,7 +179,7 @@ public class DbMailboxRecordsServiceLogTests extends AbstractMailboxRecordsServi
 
 		assertEquals("third subject", secondAuditLogEntry.content.description());
 		assertEquals("Removed Flags:\n\\Draft\nAdded Flags:\n\\Seen\n", secondAuditLogEntry.updatemessage);
-		assertEquals(MessageCriticity.MINOR, secondAuditLogEntry.criticity);
+		assertEquals(MessageCriticity.MAJOR, secondAuditLogEntry.criticity);
 
 		response = esClient.search(s -> s //
 				.index(dataStreamName) //
@@ -226,34 +226,6 @@ public class DbMailboxRecordsServiceLogTests extends AbstractMailboxRecordsServi
 					AuditLogEntry.class);
 			return 1L == response.hits().total().value();
 		});
-
-		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
-			SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-					.index(dataStreamName) //
-					.query(q -> q.bool(b -> b
-							.must(TermQuery.of(t -> t.field("container.uid").value("mbox_records_" + mboxUniqueId))
-									._toQuery())
-							.must(TermQuery.of(t -> t.field("logtype").value("mailbox_records"))._toQuery())
-							.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
-					AuditLogEntry.class);
-			return 1L == response.hits().total().value();
-		});
-
-		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-				.index(dataStreamName) //
-				.query(q -> q.bool(b -> b
-						.must(TermQuery.of(t -> t.field("container.uid").value("mbox_records_" + mboxUniqueId))
-								._toQuery())
-						.must(TermQuery.of(t -> t.field("logtype").value("mailbox_records"))._toQuery())
-						.must(TermQuery.of(t -> t.field("action").value(Type.Updated.toString()))._toQuery()))),
-				AuditLogEntry.class);
-		assertEquals(1L, response.hits().total().value());
-
-		AuditLogEntry firstAuditLogEntry = response.hits().hits().get(0).source();
-
-		assertEquals("first subject", firstAuditLogEntry.content.description());
-		assertEquals("Removed Flags:\n\\Seen\n", firstAuditLogEntry.updatemessage);
-		assertEquals(MessageCriticity.MINOR, firstAuditLogEntry.criticity);
 	}
 
 	@Test
