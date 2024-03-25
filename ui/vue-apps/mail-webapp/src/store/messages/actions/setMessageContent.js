@@ -6,10 +6,19 @@ import { base64ToArrayBuffer } from "@bluemind/arraybuffer";
 import { PartsBuilder, MimeType, CID_DATA_ATTRIBUTE } from "@bluemind/email";
 import { SET_MESSAGE_PREVIEW } from "~/mutations";
 import { UPDATE_MESSAGE_STRUCTURE } from "~/actions";
+import { Actions, scheduleAction } from "./draftActionsScheduler";
 
 const { sanitizeTextPartForCyrus } = partUtils;
 
-export default async function setMessageContent({ dispatch, commit }, { message, content }) {
+export default async function (context, payload) {
+    return scheduleAction(() => setMessageContent(context, payload), Actions.SET_CONTENT, true);
+}
+
+export async function debouncedSetMessageContent(context, payload) {
+    return scheduleAction(() => setMessageContent(context, payload), Actions.SET_CONTENT);
+}
+
+async function setMessageContent({ dispatch, commit }, { message, content }) {
     commit(SET_MESSAGE_PREVIEW, { key: message.key, preview: html2text(content) });
     const structure = await buildBodyStructureFromContent(message, content);
     return dispatch(UPDATE_MESSAGE_STRUCTURE, { key: message.key, structure });

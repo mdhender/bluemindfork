@@ -1,40 +1,15 @@
-import debounce from "lodash/debounce";
-
+import { scheduleAction, Actions } from "./draftActionsScheduler";
 import { isReadyToBeSaved, save as doSave } from "./saveHelper";
 
-let debounceRef;
-
-const DEBOUNCE_TIME = 3000;
 export async function debouncedSave(context, { draft }) {
-    cancelDebounce();
-    return new Promise(resolve => {
-        debounceRef = debounce(() => resolve(saveOrDebounce(context, draft)), DEBOUNCE_TIME);
-        debounceRef();
-    });
+    return scheduleAction(() => save(context, draft), Actions.SAVE);
 }
 
 export async function saveAsap(context, { draft }) {
-    await waitUntilReady(draft);
-    return save(context, draft);
-}
-
-function cancelDebounce() {
-    if (debounceRef) {
-        debounceRef.cancel();
-    }
-}
-
-function saveOrDebounce(context, draft) {
-    if (context.state[draft.key]) {
-        if (!isReadyToBeSaved(draft)) {
-            return debouncedSave(context, { draft });
-        }
-        return save(context, draft);
-    }
+    return scheduleAction(() => save(context, draft), Actions.SAVE, true);
 }
 
 async function waitUntilReady(draft) {
-    cancelDebounce();
     if (!isReadyToBeSaved(draft)) {
         await new Promise(resolve => {
             setTimeout(resolve, 500);
@@ -44,6 +19,9 @@ async function waitUntilReady(draft) {
     return Promise.resolve();
 }
 
-function save(context, draft) {
-    return doSave(context, draft);
+export async function save(context, draft) {
+    if (context.state[draft.key]) {
+        await waitUntilReady(draft);
+        return doSave(context, draft);
+    }
 }

@@ -50,6 +50,7 @@ import messages from "./messages";
 import { withAlert } from "./helpers/withAlert";
 import apiFolders from "./api/apiFolders";
 import { FolderAdaptor } from "./folders/helpers/FolderAdaptor";
+import { cancelSchedulerActions } from "./messages/actions/draftActionsScheduler";
 
 const { getLastGeneratedNewMessageKey } = draftUtils;
 const { createOnlyMetadata, messageKey } = messageUtils;
@@ -324,6 +325,11 @@ async function moveConversations({ getters, commit }, { conversations, mailbox, 
 }
 
 async function removeConversations({ getters, commit }, { conversations, conversationsActivated, mailbox }) {
+    cancelSchedulerActions(() => conversations.some(({ messages }) => messages.includes(getters.ACTIVE_MESSAGE.key)));
+    doRemoveConversations({ getters, commit }, { conversations, conversationsActivated, mailbox });
+}
+
+async function doRemoveConversations({ getters, commit }, { conversations, conversationsActivated, mailbox }) {
     conversations = ensureArray(conversations);
     const messages = messagesInConversationFolder(getters, conversations);
     commit(REMOVE_CONVERSATIONS, conversations);

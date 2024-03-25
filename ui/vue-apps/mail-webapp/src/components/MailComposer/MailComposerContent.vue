@@ -114,7 +114,7 @@ export default {
         ...mapMutations("mail", [SET_DRAFT_COLLAPSED_CONTENT, SET_DRAFT_EDITOR_CONTENT]),
         ...mapActions("mail", { SET_DRAFT_CONTENT }),
         async updateEditorContent(newContent) {
-            await this.SET_DRAFT_CONTENT({ draft: this.message, html: newContent });
+            this.SET_DRAFT_CONTENT({ draft: this.message, html: newContent });
             this.debouncedSave();
         },
         expandContent() {

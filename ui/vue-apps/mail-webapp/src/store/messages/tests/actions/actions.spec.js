@@ -22,6 +22,7 @@ import {
 } from "~/actions";
 import { FETCH_MESSAGE_IF_NOT_LOADED } from "~/actions";
 import { FolderAdaptor } from "~/store/folders/helpers/FolderAdaptor";
+import { Actions, scheduleAction, cancelSchedulerActions } from "../../actions/draftActionsScheduler";
 
 // FIXME: move it in global setup ?
 jest.mock("@bluemind/i18n", () => {
@@ -351,7 +352,7 @@ describe("Messages actions", () => {
             inject("MailboxItemsPersistence").multipleDeleteById.mockRejectedValueOnce("Failure");
             try {
                 await store.dispatch(REMOVE_MESSAGES, { messages: adapted });
-            } catch {
+            } catch (e) {
                 // Nothing to do
             } finally {
                 expect(store.state[adapted.key].status).toEqual(MessageStatus.IDLE);
@@ -367,6 +368,33 @@ describe("Messages actions", () => {
                 expect(store.state[adapted.key].status).toEqual(MessageStatus.IDLE);
             }
         });
+        test("To cancel actions for message update", async () => {
+            jest.useFakeTimers();
+            let adapted = MessageAdaptor.fromMailboxItem(messages[0], folder);
+            store.getters.ACTIVE_MESSAGE = { key: adapted.key };
+
+            const setContentCallBack = jest.fn();
+            scheduleAction(setContentCallBack, Actions.SET_CONTENT);
+            store.dispatch(REMOVE_MESSAGES, { messages: [adapted] });
+
+            await jest.advanceTimersByTime(1100);
+            expect(setContentCallBack).not.toHaveBeenCalled();
+            cancelSchedulerActions();
+        });
+        test("Not to cancel if there is no pending wait", async () => {
+            jest.useFakeTimers();
+            let adapted = MessageAdaptor.fromMailboxItem(messages[0], folder);
+            store.getters.ACTIVE_MESSAGE = { key: "key" };
+            const setContentCallBack = jest.fn(() => {});
+
+            scheduleAction(setContentCallBack, Actions.SET_CONTENT);
+            store.dispatch(REMOVE_MESSAGES, { messages: [adapted] });
+            await jest.advanceTimersByTime(1000);
+
+            expect(setContentCallBack).toHaveBeenCalled();
+            cancelSchedulerActions();
+        });
+        // afterEach(() => );
     });
     describe("MOVE_MESSAGES", () => {
         const anotherFolder = { key: "folder-key2", remoteRef: { uid: "folder-key2" } };

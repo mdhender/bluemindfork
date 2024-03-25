@@ -45,8 +45,7 @@ import {
 
 import { Flag } from "@bluemind/email";
 import updateMessageStructure from "./updateMessageStructure";
-import debouncedSetMessageContent from "./debouncedSetMessageContent";
-import setMessageContent from "./setMessageContent";
+import setMessageContent, { debouncedSetMessageContent } from "./setMessageContent";
 
 const markAsUnread = ({ dispatch }, messages) => dispatch(DELETE_FLAG, { messages, flag: Flag.SEEN });
 const markAsRead = ({ dispatch }, messages) => dispatch(ADD_FLAG, { messages, flag: Flag.SEEN });
@@ -55,8 +54,7 @@ const markAsUnflagged = ({ dispatch }, messages) => dispatch(DELETE_FLAG, { mess
 const requestDSN = ({ dispatch }, messages) => dispatch(ADD_FLAG, { messages, flag: Flag.BM_DSN });
 const toggleDSNRequest = ({ dispatch }, message) =>
     dispatch(message.flags.includes(Flag.BM_DSN) ? DELETE_FLAG : ADD_FLAG, { messages: [message], flag: Flag.BM_DSN });
-const saveAs = (context, { message, messageCompose, files }) =>
-    saveAsap(context, { draft: message, messageCompose, files });
+const saveAs = (context, { message }) => saveAsap(context, { draft: message });
 export default {
     [ADD_ATTACHMENT]: addAttachment,
     [ADD_FLAG]: addFlag,

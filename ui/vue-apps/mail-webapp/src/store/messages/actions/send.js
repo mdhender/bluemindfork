@@ -5,17 +5,20 @@ import { inject } from "@bluemind/inject";
 import { retrieveTaskResult } from "@bluemind/task";
 import { folderUtils, messageUtils } from "@bluemind/mail";
 
-import { ADD_FLAG, SAVE_MESSAGE, SET_DRAFT_CONTENT } from "~/actions";
+import { ADD_FLAG } from "~/actions";
 import { REMOVE_MESSAGES, SET_MESSAGES_STATUS } from "~/mutations";
 import apiMessages from "../../api/apiMessages";
+import { scheduleAction, Actions } from "./draftActionsScheduler";
 
 const { MessageAdaptor, MessageStatus, MessageHeader, MessageCreationModes } = messageUtils;
 
+export default async function (context, args) {
+    return scheduleAction(() => send(context, args), Actions.SEND);
+}
+
 /** Send draft: save it, move it to the Outbox then flush. */
-export default async function (context, { draft, myMailboxKey, outbox, myDraftsFolder, messageCompose }) {
+async function send(context, { draft, myMailboxKey, outbox, myDraftsFolder }) {
     draft = context.state[draft.key];
-    await context.dispatch(SET_DRAFT_CONTENT, { draft, html: messageCompose.editorContent, debounce: false });
-    await context.dispatch(SAVE_MESSAGE, { draft, messageCompose });
 
     context.commit(SET_MESSAGES_STATUS, [{ key: draft.key, status: MessageStatus.SENDING }]);
 

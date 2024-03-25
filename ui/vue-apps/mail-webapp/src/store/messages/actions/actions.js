@@ -12,6 +12,7 @@ import {
 import { FETCH_MESSAGE_METADATA } from "~/actions";
 import apiMessages from "../../api/apiMessages";
 import { FolderAdaptor } from "../../folders/helpers/FolderAdaptor";
+import { cancelSchedulerActions } from "./draftActionsScheduler";
 
 const { draftKey } = draftUtils;
 const { LoadingStatus } = loadingStatusUtils;
@@ -102,7 +103,12 @@ export async function fetchMessageMetadata({ state, commit }, { messages: messag
     );
 }
 
-export async function removeMessages({ commit }, { messages }) {
+export async function removeMessages({ commit, getters }, { messages }) {
+    cancelSchedulerActions(() => messages.some(({ key }) => key === getters.ACTIVE_MESSAGE?.key));
+    return doRemoveMessages({ commit, getters }, { messages });
+}
+
+async function doRemoveMessages({ commit }, { messages }) {
     messages = Array.isArray(messages) ? messages : [messages];
     commit(REMOVE_MESSAGES, { messages });
     try {
