@@ -17,5 +17,6 @@ Require-Bundle: org.junit,
  net.bluemind.directory.service;bundle-version="5.0.0",
  net.bluemind.core.container.service;bundle-version="5.0.0",
  net.bluemind.group.api,
- net.bluemind.group.service
+ net.bluemind.group.service,
+ org.awaitility
 Automatic-Module-Name: net.bluemind.addressbook.domainbook.tests

@@ -30,11 +30,13 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import org.awaitility.Awaitility;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
+import io.vertx.core.DeploymentOptions;
 import net.bluemind.addressbook.api.IAddressBook;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Communications.Email;
@@ -91,8 +93,15 @@ public class DomainAddressBookTests {
 				.get(domainUid);
 		PopulateHelper.domainAdmin(domainUid, domainAdmin.getSubject());
 		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
+		VertxPlatform.getVertx().deployVerticle(new GroupServiceNotificationVerticle(),
+				new DeploymentOptions().setInstances(1));
 
 		testContext = new BmTestContext(SecurityContext.SYSTEM);
+	}
+
+	public void waitForGroupVcard(String domainUid, String groupUid) {
+		Awaitility.await().atMost(10, TimeUnit.SECONDS)
+				.until(() -> GroupServiceNotificationVerticle.contains(groupUid));
 	}
 
 	@Test
@@ -100,6 +109,7 @@ public class DomainAddressBookTests {
 		IAddressBook domainBook = testContext.provider().instance(IAddressBook.class,
 				DomainAddressBook.getIdentifier(domainUid));
 		usersStoreService().create("test1", TestUser.of(domainUid).login("test1").hidden().build());
+
 		testContext.provider().instance(IDomainAddressBook.class, domainUid).sync();
 
 		ItemValue<VCard> vcard = domainBook.getComplete("test1");
@@ -175,6 +185,8 @@ public class DomainAddressBookTests {
 
 		groupsStoreService().addMembers(uid,
 				Arrays.asList(Member.user("test1"), Member.group("test2"), Member.user("test3")));
+
+		waitForGroupVcard(domainUid, uid);
 
 		testContext.provider().instance(IDomainAddressBook.class, domainUid).sync();
 
