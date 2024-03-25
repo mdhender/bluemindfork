@@ -35,7 +35,6 @@ public final class OptionsHandler implements Handler<AuthorizedDeviceQuery> {
 
 	@Override
 	public void handle(AuthorizedDeviceQuery event) {
-		logger.debug("Handle OPTIONS");
 		HttpServerRequest req = event.request();
 		HttpServerResponse resp = req.response();
 		MultiMap headers = resp.headers();
@@ -43,7 +42,18 @@ public final class OptionsHandler implements Handler<AuthorizedDeviceQuery> {
 		headers.add(EasHeaders.Server.MS_SERVER, "14.3");
 
 		// BM-4843
-		headers.add(EasHeaders.Server.PROTOCOL_VERSIONS, "2.0,2.1,2.5,12.0,12.1,14.0,14.1,16.0,16.1");
+
+		String uaHeader = event.request().headers().get("User-Agent");
+		String ua = uaHeader != null ? uaHeader.toLowerCase() : "";
+
+		logger.info("Handling OPTIONS: ua: {}", ua);
+
+		if (!ua.contains("apple")) {
+			headers.add(EasHeaders.Server.PROTOCOL_VERSIONS, "2.0,2.1,2.5,12.0,12.1,14.0,14.1");
+		} else {
+			headers.add(EasHeaders.Server.PROTOCOL_VERSIONS, "2.0,2.1,2.5,12.0,12.1,14.0,14.1,16.0,16.1");
+		}
+
 		headers.add(EasHeaders.Server.SUPPORTED_COMMANDS,
 				"Sync,SendMail,SmartForward,SmartReply,GetAttachment,GetHierarchy,CreateCollection,DeleteCollection,MoveCollection,Find,FolderSync,FolderCreate,FolderDelete,FolderUpdate,MoveItems,GetItemEstimate,MeetingResponse,Search,Settings,Ping,ItemOperations,Provision,ResolveRecipients,ValidateCert");
 		headers.add("Public", "OPTIONS,POST");
