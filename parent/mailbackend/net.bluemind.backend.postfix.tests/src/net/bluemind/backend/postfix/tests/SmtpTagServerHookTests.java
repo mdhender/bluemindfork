@@ -24,7 +24,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -38,6 +37,7 @@ import com.google.common.base.Strings;
 
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
+import net.bluemind.backend.postfix.Activator;
 import net.bluemind.backend.postfix.SmtpTagServerHook;
 import net.bluemind.backend.postfix.internal.PostfixPaths;
 import net.bluemind.config.InstallationId;
@@ -82,7 +82,7 @@ public class SmtpTagServerHookTests extends HooksTests {
 	}
 
 	@Test
-	public void testOnServerTagged() throws ServerFault, SQLException, IOException {
+	public void testOnServerTagged() throws ServerFault, SQLException {
 		initBasicConfiguration(SysConfKeys.external_url.name(), "smtp.bm.lan");
 		initBasicConfiguration(SysConfKeys.mynetworks.name(), "127.0.0.1/8, 10.0.0.0/16");
 		initBasicConfiguration(SysConfKeys.message_size_limit.name(), "10000");
@@ -91,14 +91,19 @@ public class SmtpTagServerHookTests extends HooksTests {
 
 		rmMaps(new String[] { mailSmtpTestIp });
 
+		Activator.DISABLE_EVENT = false;
+		VertxEventChecker<JsonObject> dirtyMapChecker = new VertxEventChecker<>("postfix.map.dirty");
 		new SmtpTagServerHook().onServerTagged(testContext, getServer(), getTestTag());
+		Activator.DISABLE_EVENT = true;
+		dirtyMapChecker.shouldSuccess();
 
 		assertPostfixConfiguration("myhostname", mailSmtpTestFqdn);
 		assertPostfixConfiguration(SysConfKeys.mynetworks.name(), "127.0.0.1/8, 10.0.0.0/16");
 		assertPostfixConfiguration(SysConfKeys.message_size_limit.name(), "10000");
 		assertPostfixConfiguration("mailbox_size_limit", "10000");
 
-		ensureMapsExistsAndEmpty();
+		ensureMapsExistsAndEmpty(DOMAIN_UID);
+
 	}
 
 	private String getFqdn(String mailSmtpTestIp) {
@@ -116,14 +121,19 @@ public class SmtpTagServerHookTests extends HooksTests {
 				.instance(IServer.class, InstallationId.getIdentifier()).getComplete(mailSmtpTestIp);
 	}
 
-	private void ensureMapsExistsAndEmpty() throws ServerFault {
+	private void ensureMapsExistsAndEmpty(String domainUid) throws ServerFault {
 		INodeClient nc = NodeActivator.get(mailSmtpTestIp);
 
 		for (String mapFileName : mapsFileNames) {
 			ExitList status = NCUtils.waitFor(nc, nc.executeCommand(List.of("test", "-e", mapFileName + "-flat")));
 			assertEquals(0, status.getExitCode());
 
-			assertTrue(new String(nc.read(mapFileName + "-flat")).isEmpty());
+			String expected = "";
+			if (mapFileName.endsWith("virtual_domains")) {
+				expected = domainUid + " OK\n";
+			}
+			System.err.println("map: " + mapFileName);
+			assertEquals(expected, (new String(nc.read(mapFileName + "-flat"))));
 
 			status = NCUtils.waitFor(nc, nc.executeCommand(List.of("test", "-e", mapFileName + ".db")));
 			assertEquals(0, status.getExitCode());
@@ -135,7 +145,7 @@ public class SmtpTagServerHookTests extends HooksTests {
 
 		TaskRef tr = nc.executeCommand(List.of("postconf", key));
 		ExitList values = NCUtils.waitFor(nc, tr);
-		values.forEach(v -> System.out.println(v));
+		values.forEach(System.out::println);
 
 		List<String> notEmptyValues = values.stream().filter(v -> !v.isEmpty()).collect(Collectors.toList());
 
@@ -146,7 +156,7 @@ public class SmtpTagServerHookTests extends HooksTests {
 	@Test
 	public void testOnServerTaggedInvalidServerUid() throws ServerFault {
 
-		ItemValue<Server> server = new ItemValue<Server>();
+		ItemValue<Server> server = new ItemValue<>();
 		server.value = new Server();
 		server.uid = "invaliduid";
 		try {
@@ -286,7 +296,7 @@ public class SmtpTagServerHookTests extends HooksTests {
 	}
 
 	@Test
-	public void onServerAssigned_supportedTag() throws Exception {
+	public void onServerAssignedSupportedTag() throws Exception {
 		VertxEventChecker<JsonObject> dirtyMapChecker = new VertxEventChecker<>("postfix.map.dirty");
 
 		new SmtpTagServerHook().onServerAssigned(new BmTestContext(SecurityContext.SYSTEM), getServer(), domain,
@@ -297,7 +307,7 @@ public class SmtpTagServerHookTests extends HooksTests {
 	}
 
 	@Test
-	public void onServerAssigned_unsupportedTag() throws Exception {
+	public void onServerAssignedUnsupportedTag() throws Exception {
 		VertxEventChecker<JsonObject> dirtyMapChecker = new VertxEventChecker<>("postfix.map.dirty");
 
 		new SmtpTagServerHook().onServerAssigned(testContext, getServer(), domain, "nostmptag");
@@ -306,7 +316,7 @@ public class SmtpTagServerHookTests extends HooksTests {
 	}
 
 	@Test
-	public void onServerUnassigned_unsupportedTag() throws Exception {
+	public void onServerUnassignedUnsupportedTag() throws Exception {
 		VertxEventChecker<JsonObject> dirtyMapChecker = new VertxEventChecker<>("postfix.map.dirty");
 
 		new SmtpTagServerHook().onServerUnassigned(testContext, getServer(), domain, "nostmptag");
@@ -315,7 +325,7 @@ public class SmtpTagServerHookTests extends HooksTests {
 	}
 
 	@Test
-	public void onServerUnassigned_supportedTag() throws Exception {
+	public void onServerUnassignedSupportedTag() throws Exception {
 		VertxEventChecker<JsonObject> dirtyMapChecker = new VertxEventChecker<>("postfix.map.dirty");
 
 		new SmtpTagServerHook().onServerUnassigned(testContext, getServer(), domain, getTestTag());
