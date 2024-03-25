@@ -19,6 +19,7 @@
 package net.bluemind.core.container.hooks.tests;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
@@ -32,6 +33,7 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.core.sessions.Sessions;
 import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
@@ -42,10 +44,13 @@ import net.bluemind.user.api.User;
 public abstract class AbstractHookTests {
 
 	protected SecurityContext context;
+	protected SecurityContext admin0Context;
 	protected String domainUid = "dom" + System.currentTimeMillis() + ".lan";
 
 	@Before
 	public void before() throws Exception {
+		System.setProperty("core.config.path", "resources/application-test.conf");
+
 		JdbcTestHelper.getInstance().beforeTest();
 
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
@@ -61,11 +66,18 @@ public abstract class AbstractHookTests {
 		PopulateHelper.addDomainAdmin("admin", domainUid);
 		PopulateHelper.domainAdmin(domainUid, context.getSubject());
 
+		admin0Context = new SecurityContext("admin0", "admin0", Collections.<String>emptyList(),
+				Arrays.asList(SecurityContext.ROLE_SYSTEM), "global.virt");
+		PopulateHelper.addDomainAdmin("admin0", "global.virt");
+		PopulateHelper.domainAdmin("global.virt", admin0Context.getSubject());
+		Sessions.get().put(admin0Context.getSessionId(), admin0Context);
+
 	}
 
 	@After
 	public void after() throws Exception {
 		JdbcTestHelper.getInstance().afterTest();
+		System.clearProperty("core.config.path");
 	}
 
 	protected void defaultUser(String uid, String login) throws ServerFault {

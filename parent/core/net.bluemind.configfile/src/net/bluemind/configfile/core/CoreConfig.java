@@ -96,7 +96,8 @@ public class CoreConfig {
 
 	private static Config load() {
 		Config conf = ConfigFactory.load(CoreConfig.class.getClassLoader(), "resources/application.conf");
-		File local = new File(OVERRIDE_PATH); // NOSONAR
+		String configPath = System.getProperty("core.config.path");
+		File local = configPath != null ? new File(configPath) : new File(OVERRIDE_PATH); // NOSONAR
 		if (local.exists()) {
 			try {
 				Config parsed = ConfigFactory.parseFile(local);
