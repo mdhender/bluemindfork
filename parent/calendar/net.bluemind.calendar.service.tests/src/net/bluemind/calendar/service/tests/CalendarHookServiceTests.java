@@ -212,6 +212,8 @@ public class CalendarHookServiceTests {
 		BlueMindVideoRoom blueMindVideoRoom = getVideoConfSaasService().get(conferenceId);
 		assertNotNull(blueMindVideoRoom);
 
+		CalendarTestAsyncHook.waitEvent();
+
 		getCalendarService(defaultSecurityContext, container).delete(uid, true);
 
 		assertEquals(DELETE, CalendarTestSyncHook.action());
