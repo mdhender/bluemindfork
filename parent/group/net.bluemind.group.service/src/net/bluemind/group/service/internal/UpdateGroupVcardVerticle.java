@@ -104,7 +104,7 @@ public class UpdateGroupVcardVerticle extends AbstractVerticle {
 		ItemValue<Domain> domain = prov.instance(IDomains.class).get(gi.domainUid());
 		try {
 			vcardStore.update(grp.item(), adapter.asVCard(domain, grp.item().uid, grp.value));
-			grpApi.touch(grp.uid);
+			grpApi.touch(grp.uid, false);
 		} catch (SQLException e) {
 			logger.error("Unable to update group vcard", e);
 		}

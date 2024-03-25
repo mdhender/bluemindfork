@@ -219,9 +219,12 @@ public class GroupService implements IGroup, IInCoreGroup {
 	}
 
 	@Override
-	public void touch(String uid) throws ServerFault {
+	public void touch(String uid, boolean updateVcards) throws ServerFault {
 		rbacManager.forEntry(uid).check(BasicRoles.ROLE_MANAGE_GROUP);
 		var vers = storeService.touch(uid);
+		if (updateVcards) {
+			storeService.requestGroupVCardUpdate(domainUid, uid);
+		}
 		dirEventProducer.changed(uid, vers.version);
 	}
 

@@ -39,34 +39,28 @@ public class DomainBookVerticle extends AbstractVerticle {
 
 	@Override
 	public void start() {
-
-		Handler<Message<JsonObject>> h = new Handler<Message<JsonObject>>() {
-
-			@Override
-			public void handle(Message<JsonObject> event) {
-
-				if (suspended) {
-					logger.warn("Domain book update is suspended {}", event.body());
-					return;
+		Handler<Message<JsonObject>> h = (Message<JsonObject> event) -> {
+			if (suspended) {
+				logger.warn("Domain book update is suspended {}", event.body());
+				return;
+			}
+			String domain = event.body().getString("domain");
+			logger.info("Updating domain addressbook of domain {}", domain);
+			long time = System.currentTimeMillis();
+			BmContext context = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).getContext();
+			try {
+				IDomainAddressBook dBook = context.provider().instance(IDomainAddressBook.class, domain);
+				if (dBook != null) {
+					dBook.sync();
 				}
-				String domain = event.body().getString("domain");
-				logger.info("Updating domain addressbook of domain {}", domain);
-				long time = System.currentTimeMillis();
-				BmContext context = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).getContext();
-				try {
-					IDomainAddressBook dBook = context.provider().instance(IDomainAddressBook.class, domain);
-					if (dBook != null) {
-						dBook.sync();
-					}
-				} catch (Exception e) {
-					logger.error("Error during domain addressbook update: {}", e.getMessage());
-				}
-
-				logger.info("Domain addressbook update of domain {} DONE in {} ms", domain, (System.currentTimeMillis() - time));
-				// to help unit tests wait
-				vertx.eventBus().publish("domainbook.sync." + domain, "DONE");
+			} catch (Exception e) {
+				logger.error("Error during domain addressbook update: {}", e.getMessage());
 			}
 
+			logger.info("Domain addressbook update of domain {} DONE in {} ms", domain,
+					(System.currentTimeMillis() - time));
+			// to help unit tests wait
+			vertx.eventBus().publish("domainbook.sync." + domain, "DONE");
 		};
 
 		ThrottleMessages<JsonObject> tm = new ThrottleMessages<>(msg -> msg.body().getString("domain"), h, vertx, 5000);

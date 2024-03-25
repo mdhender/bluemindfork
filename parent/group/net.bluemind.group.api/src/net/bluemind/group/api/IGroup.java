@@ -27,7 +27,7 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
-
+import jakarta.ws.rs.QueryParam;
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
@@ -78,11 +78,13 @@ public interface IGroup extends IDirEntryExtIdSupport, IGroupMember {
 	 * 
 	 * @param uid
 	 * @param group
+	 * @param updateVcards: should we update the group vcards (default: true)
 	 * @throws ServerFault
 	 */
 	@POST
 	@Path("{uid}/_touch")
-	void touch(@PathParam(value = "uid") String uid) throws ServerFault;
+	void touch(@PathParam(value = "uid") String uid, @QueryParam(value = "update_vcards") boolean updateVcards)
+			throws ServerFault;
 
 	/**
 	 * Get group from UID

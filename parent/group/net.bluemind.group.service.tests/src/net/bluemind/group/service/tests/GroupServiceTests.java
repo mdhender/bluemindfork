@@ -556,8 +556,10 @@ public class GroupServiceTests {
 		assertEquals(groupItem.uid, createdGroup.uid);
 		assertEquals(groupItem.externalId, createdGroup.externalId);
 		assertEquals(groupItem.created, createdGroup.created);
-		assertEquals(groupItem.updated, createdGroup.updated);
-		assertEquals(groupItem.version, createdGroup.version);
+		// Because of the vcard updates, which does touch the group, updated and version
+		// may be bigger
+		assertTrue(groupItem.updated == createdGroup.updated || groupItem.updated.before(createdGroup.updated));
+		assertTrue(groupItem.version <= createdGroup.version);
 	}
 
 	@Test
@@ -592,6 +594,7 @@ public class GroupServiceTests {
 		IInCoreGroup groupApi = ServerSideServiceProvider.getProvider(adminSecurityContext).instance(IInCoreGroup.class,
 				domainUid);
 		groupApi.restore(groupItem, true);
+		waitForGroupVcard(domainUid, uid);
 
 		ItemValue<Group> createdGroup = getGroupService(adminSecurityContext).getComplete(uid);
 		assertIGroupValueEquals(uid, groupItem.externalId, group, createdGroup);
@@ -2087,10 +2090,12 @@ public class GroupServiceTests {
 		ItemValue<User> user = testContext.provider().instance(IUser.class, domainUid)
 				.getComplete(membersToAdd.get(1).uid);
 		assertNotNull(user);
+		assertTrue(user.value.archived);
 		user.value.archived = false;
 		testContext.provider().instance(IUser.class, domainUid).update(membersToAdd.get(1).uid, user.value);
 		// no need to call touch because of the hook
 		// getGroupService(adminSecurityContext).touch(group.uid);
+		waitForGroupVcard(domainUid, uid);
 
 		vcard = testContext.provider().instance(IDirectory.class, domainUid).getVCard(uid);
 

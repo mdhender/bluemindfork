@@ -35,9 +35,8 @@ public class UserInGroupHook extends DefaultUserHook {
 			IGroup groups = context.su().provider().instance(IGroup.class, domainUid);
 			IUser userGroups = context.su().provider().instance(IUser.class, domainUid);
 			for (String g : userGroups.memberOfGroups(current.uid)) {
-				groups.touch(g);
+				groups.touch(g, true);
 			}
-
 		}
 
 	}
