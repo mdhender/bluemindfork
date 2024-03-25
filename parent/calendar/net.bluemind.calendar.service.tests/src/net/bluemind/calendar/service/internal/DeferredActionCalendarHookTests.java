@@ -185,11 +185,13 @@ public class DeferredActionCalendarHookTests {
 				ICalendarUids.defaultUserCalendar("testuser"));
 
 		ZoneId tz = ZoneId.of("Europe/Paris");
-		ZonedDateTime start = ZonedDateTime.now(tz).plusDays(3);
+
+		ZonedDateTime start = ZonedDateTime.of(2044, 3, 3, 0, 0, 0, 0, tz);
 		VEventSeries defaultVEvent = defaultVEvent(start);
 		addAlarm(defaultVEvent.main, 120);
 		VEvent.RRule rrule = new VEvent.RRule();
 		rrule.frequency = VEvent.RRule.Frequency.DAILY;
+		rrule.until = BmDateTimeHelper.time(start.plusYears(5));
 		defaultVEvent.main.rrule = rrule;
 
 		BmDateTime ex1 = BmDateTimeHelper.time(start);
