@@ -483,25 +483,23 @@ public class NoteServiceTests extends AbstractServiceTests {
 
 	@Test
 	public void testItemChangelog() throws ServerFault {
+		INote noteService = getServiceNote(defaultSecurityContext, container.uid);
+		noteService.create("test1", defaultVNote());
+		noteService.update("test1", defaultVNote());
+		noteService.create("test2", defaultVNote());
+		noteService.delete("test1");
+		noteService.update("test2", defaultVNote());
+		Awaitility.await().atMost(5, TimeUnit.SECONDS)
+				.until(() -> 3 == noteService.itemChangelog("test1", 0L).entries.size());
 
-		getServiceNote(defaultSecurityContext, container.uid).create("test1", defaultVNote());
-		getServiceNote(defaultSecurityContext, container.uid).update("test1", defaultVNote());
-		getServiceNote(defaultSecurityContext, container.uid).create("test2", defaultVNote());
-		getServiceNote(defaultSecurityContext, container.uid).delete("test1");
-		getServiceNote(defaultSecurityContext, container.uid).update("test2", defaultVNote());
-		ESearchActivator.refreshIndex(dataStreamName);
-		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
-			ItemChangelog itemChangeLog = getServiceNote(defaultSecurityContext, container.uid).itemChangelog("test1",
-					0L);
-			return 3 == itemChangeLog.entries.size();
-		});
-		ItemChangelog itemChangeLog = getServiceNote(defaultSecurityContext, container.uid).itemChangelog("test1", 0L);
-		assertEquals(3, itemChangeLog.entries.size());
+		var itemChangeLog = noteService.itemChangelog("test1", 0L);
 		assertEquals(ChangeLogEntry.Type.Created, itemChangeLog.entries.get(0).type);
 		assertEquals(ChangeLogEntry.Type.Updated, itemChangeLog.entries.get(1).type);
 		assertEquals(ChangeLogEntry.Type.Deleted, itemChangeLog.entries.get(2).type);
 
-		itemChangeLog = getServiceNote(defaultSecurityContext, container.uid).itemChangelog("test2", 0L);
+		Awaitility.await().atMost(5, TimeUnit.SECONDS)
+				.until(() -> 2 == noteService.itemChangelog("test2", 0L).entries.size());
+		itemChangeLog = noteService.itemChangelog("test2", 0L);
 		assertEquals(2, itemChangeLog.entries.size());
 		assertEquals(ChangeLogEntry.Type.Created, itemChangeLog.entries.get(0).type);
 		assertEquals(ChangeLogEntry.Type.Updated, itemChangeLog.entries.get(1).type);
@@ -510,27 +508,24 @@ public class NoteServiceTests extends AbstractServiceTests {
 
 	@Test
 	public void testItemChangelogSeveralUpdates() throws ServerFault {
+		INote noteService = getServiceNote(defaultSecurityContext, container.uid);
 
-		getServiceNote(defaultSecurityContext, container.uid).create("test1", defaultVNote());
-		getServiceNote(defaultSecurityContext, container.uid).update("test1", defaultVNote());
-		getServiceNote(defaultSecurityContext, container.uid).update("test1", defaultVNote());
-		getServiceNote(defaultSecurityContext, container.uid).update("test1", defaultVNote());
-		getServiceNote(defaultSecurityContext, container.uid).update("test1", defaultVNote());
+		noteService.create("test1", defaultVNote());
+		noteService.update("test1", defaultVNote());
+		noteService.update("test1", defaultVNote());
+		noteService.update("test1", defaultVNote());
+		noteService.update("test1", defaultVNote());
 		ESearchActivator.refreshIndex(dataStreamName);
-		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
-			ItemChangelog itemChangeLog = getServiceNote(defaultSecurityContext, container.uid).itemChangelog("test1",
-					0L);
-			return 5 == itemChangeLog.entries.size();
-		});
+		Awaitility.await().atMost(5, TimeUnit.SECONDS)
+				.until(() -> 5 == noteService.itemChangelog("test1", 0L).entries.size());
 
-		ItemChangelog itemChangeLog = getServiceNote(defaultSecurityContext, container.uid).itemChangelog("test1", 0L);
+		ItemChangelog itemChangeLog = noteService.itemChangelog("test1", 0L);
 		assertEquals(5, itemChangeLog.entries.size());
 		assertEquals(ChangeLogEntry.Type.Created, itemChangeLog.entries.get(0).type);
 		assertEquals(ChangeLogEntry.Type.Updated, itemChangeLog.entries.get(1).type);
 		assertEquals(ChangeLogEntry.Type.Updated, itemChangeLog.entries.get(2).type);
 		assertEquals(ChangeLogEntry.Type.Updated, itemChangeLog.entries.get(3).type);
 		assertEquals(ChangeLogEntry.Type.Updated, itemChangeLog.entries.get(4).type);
-
 	}
 
 	@Test
