@@ -23,6 +23,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -266,6 +267,31 @@ public class UserMailboxFetchTests {
 					assertNotNull(fetch12);
 					System.err.println("Got " + fetch12.size() + " byte(s)");
 					assertTrue(fetch12.size() > 0);
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+		}
+	}
+
+	@Test
+	public void testFetchMultipart() throws IMAPException {
+		try (StoreClient sc = new StoreClient("127.0.0.1", 1143, "john@devenv.blue", "john")) {
+			assertTrue(sc.login());
+			try (InputStream in = UserMailboxFetchTests.class.getClassLoader()
+					.getResourceAsStream("emls/sapin_inline.eml")) {
+				int added = sc.append("INBOX", in, new FlagsList());
+				assertTrue(added > 0);
+				sc.select("INBOX");
+				Collection<Integer> existing = sc.uidSearch(new SearchQuery());
+				ArrayList<Integer> newList = new ArrayList<>(existing);
+				try (IMAPByteSource fetch12 = sc.uidFetchPart(newList.get(0), "1", null)) {
+					assertNotNull(fetch12);
+					assertTrue(fetch12.size() > 0);
+					String part = fetch12.source().asCharSource(StandardCharsets.US_ASCII).readFirstLine();
+					System.err.println(part);
+					assertTrue(part.startsWith("---=Part.79e."));
 				}
 			} catch (IOException e) {
 				e.printStackTrace();

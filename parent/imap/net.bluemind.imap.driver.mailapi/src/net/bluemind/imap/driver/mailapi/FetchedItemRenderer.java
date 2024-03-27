@@ -33,6 +33,8 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.apache.james.mime4j.codec.DecodeMonitor;
+import org.apache.james.mime4j.dom.Body;
+import org.apache.james.mime4j.dom.Entity;
 import org.apache.james.mime4j.dom.Message;
 import org.apache.james.mime4j.dom.Multipart;
 import org.apache.james.mime4j.dom.SingleBody;
@@ -42,6 +44,8 @@ import org.apache.james.mime4j.dom.field.AddressListField;
 import org.apache.james.mime4j.dom.field.UnstructuredField;
 import org.apache.james.mime4j.field.Fields;
 import org.apache.james.mime4j.field.UnstructuredFieldImpl;
+import org.apache.james.mime4j.message.MessageImpl;
+import org.apache.james.mime4j.message.MultipartImpl;
 import org.apache.james.mime4j.stream.Field;
 import org.apache.james.mime4j.stream.RawField;
 import org.apache.james.mime4j.util.MimeUtil;
@@ -52,10 +56,10 @@ import com.google.common.base.CharMatcher;
 import com.google.common.base.Strings;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.Sets;
-import com.google.common.io.ByteStreams;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
+import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import io.vertx.core.buffer.Buffer;
@@ -302,17 +306,17 @@ public class FetchedItemRenderer {
 
 	private ByteBuf getPart(ByteBuf emlBuffer, String section) {
 		try (InputStream in = new ByteBufInputStream(emlBuffer, true); Message parsed = Mime4JHelper.parse(in, false)) {
-			SingleBody body = null;
+			Body body = null;
 			if (parsed.isMultipart()) {
 				Multipart mp = (Multipart) parsed.getBody();
 				body = Mime4JHelper.expandTree(mp.getBodyParts()).stream()
-						.filter(ae -> section.equals(ae.getMimeAddress())).findAny()
-						.map(ae -> (SingleBody) ae.getBody()).orElseGet(() -> {
+						.filter(ae -> section.equals(ae.getMimeAddress())).findAny().map(Entity::getBody)
+						.orElseGet(() -> {
 							logger.warn("Part {} not found", section);
 							return null;
 						});
 			} else if (section.equals("1") || section.equals("TEXT")) {
-				body = (SingleBody) parsed.getBody();
+				body = parsed.getBody();
 			}
 			if (body == null) {
 				return Unpooled.buffer();
@@ -325,10 +329,30 @@ public class FetchedItemRenderer {
 		}
 	}
 
-	private ByteBuf buffer(SingleBody body) throws IOException {
-		try (InputStream in = body.getInputStream()) {
-			return Unpooled.wrappedBuffer(ByteStreams.toByteArray(in));
+	private ByteBuf buffer(Body b) throws IOException {
+		if (b instanceof SingleBody body) {
+			try (InputStream in = body.getInputStream()) {
+				return Unpooled.wrappedBuffer(in.readAllBytes());
+			}
+		} else if (b instanceof MultipartImpl mp) {
+			try (Message m = new MessageImpl()) {
+				mp.getParent().getHeader().getFields().forEach(f -> m.getHeader().addField(f));
+				m.setBody(mp);
+				ByteBuf out = Unpooled.buffer();
+				Mime4JHelper.serialize(m, new ByteBufOutputStream(out));
+				int endOfHeader = ByteBufUtil.indexOf(TWO_CRLF.duplicate(), out);
+				if (endOfHeader > 0) {
+					out = out.skipBytes(endOfHeader + 4);
+				}
+				return out;
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+				return Unpooled.buffer();
+			}
+		} else {
+			return Unpooled.buffer();
 		}
+
 	}
 
 	private ByteBuf headers(Supplier<MessageBody> body, Set<String> options, WithId<MailboxRecord> rec) {
