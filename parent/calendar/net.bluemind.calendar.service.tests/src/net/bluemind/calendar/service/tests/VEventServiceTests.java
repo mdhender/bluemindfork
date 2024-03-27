@@ -581,7 +581,7 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		ItemValue<VEventSeries> item = getCalendarService(userSecurityContext, userCalendarContainer)
 				.getByIcsUid("95c659b1-eaf8-4145-a314-9cb4566636b1").get(0);
 
-		VEvent vevent = item.value.occurrences.get(0);
+		VEvent vevent = item.value.main;
 		assertNotNull(vevent);
 
 		assertNotNull(vevent.rrule);
