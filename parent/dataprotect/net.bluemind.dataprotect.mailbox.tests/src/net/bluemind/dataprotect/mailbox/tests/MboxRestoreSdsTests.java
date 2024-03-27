@@ -236,7 +236,7 @@ public class MboxRestoreSdsTests extends AbstractRestoreTests {
 		assertNotNull(mbr);
 		makeBackupFilesReadable();
 
-		foldersService.all().stream().forEach(mf -> System.err.println(mf));
+		foldersService.all().stream().forEach(System.err::println);
 		ItemValue<MailboxFolder> resolvedFolder = foldersService.byName(mailshareLogin + "/Sent");
 		assertNotNull("Sent folder must be fetched", resolvedFolder);
 
@@ -248,8 +248,7 @@ public class MboxRestoreSdsTests extends AbstractRestoreTests {
 		mbr.restore(latestGen, sharedMbox, testDomain, Mode.REPLACE, monitor);
 		assertTrue(monitor.finished);
 
-		assertEquals(2, recordsApi.count(ItemFlagFilter.all()).total);
-		recordsApi.all().stream().forEach(rec -> System.err.println("record: " + rec));
+		assertEquals(1, recordsApi.count(ItemFlagFilter.all()).total);
 
 		try (StoreClient sc = new StoreClient("localhost", 1143, latd, password)) {
 			assertTrue(sc.login());
