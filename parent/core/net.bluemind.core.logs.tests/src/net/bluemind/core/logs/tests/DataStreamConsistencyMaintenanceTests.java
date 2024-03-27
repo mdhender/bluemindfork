@@ -18,13 +18,13 @@
 package net.bluemind.core.logs.tests;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.awaitility.Awaitility;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -93,7 +93,8 @@ public class DataStreamConsistencyMaintenanceTests {
 		auditLogManager.removeAuditLogBackingStore(domainUid1);
 
 		// Asserts datastream has been removed
-		assertFalse(auditLogManager.hasAuditLogBackingStore(domainUid1));
+		Awaitility.await().atMost(30, TimeUnit.SECONDS)
+				.until(() -> false == auditLogManager.hasAuditLogBackingStore(domainUid1));
 
 		List<IMaintenanceScript> scripts = MaintenanceScripts.getMaintenanceScripts();
 		scripts.stream().forEach(s -> System.err.println(s.getClass().getSimpleName()));
