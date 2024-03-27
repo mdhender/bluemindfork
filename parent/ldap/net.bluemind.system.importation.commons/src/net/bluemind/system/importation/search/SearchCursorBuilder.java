@@ -122,7 +122,7 @@ public class SearchCursorBuilder {
 		}
 		searchRequest.setDerefAliases(this.aliasDerefMode);
 		if (this.sizeLimit > 0) {
-			searchRequest.setSizeLimit(0);
+			searchRequest.setSizeLimit(this.sizeLimit);
 		}
 
 		if (logger.isDebugEnabled()) {
