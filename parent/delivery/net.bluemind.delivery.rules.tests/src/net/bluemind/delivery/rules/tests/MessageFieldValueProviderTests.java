@@ -24,7 +24,7 @@ import net.bluemind.mime4j.common.Mime4JHelper;
 
 public class MessageFieldValueProviderTests {
 
-	private static final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	private static final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
 
 	@Test
 	public void testMessageWithNullCharInTextPlainBody() {
@@ -63,7 +63,7 @@ public class MessageFieldValueProviderTests {
 		assertTrue(body.get(0).contains("Pouvez vous m'envoyer la facture concernant cette intervention"));
 
 		Date date = provider.provides(MailFilterRuleKnownField.DATE.toField());
-		assertEquals(toDate("2019-10-01 14:44:09"), date);
+		assertEquals(toDate("2019-10-01 14:44:09 +0200"), date);
 
 		List<String> replyTo = provider.provides(headerField("reply-to"));
 		assertEquals("Serge DAVEU <daveuls@orange.fr>", replyTo.get(0));
