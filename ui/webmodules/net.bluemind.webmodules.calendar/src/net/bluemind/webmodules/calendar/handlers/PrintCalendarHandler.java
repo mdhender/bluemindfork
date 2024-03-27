@@ -40,6 +40,7 @@ import net.bluemind.core.rest.http.HttpClientProvider;
 import net.bluemind.core.rest.http.ILocator;
 import net.bluemind.core.rest.http.VertxServiceProvider;
 import net.bluemind.network.topology.Topology;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.webmodule.server.NeedVertx;
 
 public class PrintCalendarHandler implements Handler<HttpServerRequest>, NeedVertx {
@@ -109,7 +110,7 @@ public class PrintCalendarHandler implements Handler<HttpServerRequest>, NeedVer
 
 	protected void print(final HttpServerRequest request, PrintOptions options) {
 		VertxServiceProvider provider = getProvider(request);
-		IPrintAsync service = provider.instance("bm/core", IPrintAsync.class);
+		IPrintAsync service = provider.instance(TagDescriptor.bm_core.getTag(), IPrintAsync.class);
 		service.print(options, new AsyncHandler<PrintData>() {
 
 			@Override

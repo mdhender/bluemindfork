@@ -30,6 +30,7 @@ import net.bluemind.core.rest.http.ILocator;
 import net.bluemind.core.rest.http.VertxServiceProvider;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.network.topology.Topology;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.todolist.api.IVTodoAsync;
 import net.bluemind.webmodule.server.NeedVertx;
 
@@ -86,7 +87,7 @@ public class ImportVTodoHandler implements Handler<HttpServerRequest>, NeedVertx
 		String containerUid = request.params().get("todolist");
 
 		VertxServiceProvider provider = getProvider(request);
-		IVTodoAsync service = provider.instance("bm/core", IVTodoAsync.class, containerUid);
+		IVTodoAsync service = provider.instance(TagDescriptor.bm_core.getTag(), IVTodoAsync.class, containerUid);
 
 		service.importIcs(ics, new AsyncHandler<TaskRef>() {
 

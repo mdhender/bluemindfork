@@ -7,11 +7,12 @@ import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.rest.http.HttpClientProvider;
 import net.bluemind.core.rest.http.ILocator;
 import net.bluemind.core.rest.http.VertxServiceProvider;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.user.api.IUserSettingsAsync;
 
 class FilterOnPref extends AbstractFilterChainLink {
-    private final ILocator locator;
-    private final HttpClientProvider clientProvider;
+	private final ILocator locator;
+	private final HttpClientProvider clientProvider;
 
 	public FilterOnPref(String webappUrl, ILocator locator, HttpClientProvider clientProvider) {
 		super(webappUrl);
@@ -28,8 +29,8 @@ class FilterOnPref extends AbstractFilterChainLink {
 		String domainUid = request.headers().get("BMUserDomainId");
 		String apiKey = request.headers().get("BMSessionId");
 		VertxServiceProvider provider = new VertxServiceProvider(clientProvider, locator, apiKey).from(request);
-		provider.instance("bm/core", IUserSettingsAsync.class, domainUid).getOne(userUid, "mail-application",
-				new AsyncHandler<String>() {
+		provider.instance(TagDescriptor.bm_core.getTag(), IUserSettingsAsync.class, domainUid).getOne(userUid,
+				"mail-application", new AsyncHandler<String>() {
 
 					@Override
 					public void success(String mailApplication) {

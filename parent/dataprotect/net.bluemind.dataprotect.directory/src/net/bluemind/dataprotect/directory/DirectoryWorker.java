@@ -40,13 +40,14 @@ import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NodeActivator;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 
 public class DirectoryWorker implements IBackupWorker {
 	private static final String dir = "/var/backups/bluemind/work/directory";
 
 	@Override
 	public boolean supportsTag(String tag) {
-		return "bm/core".equals(tag);
+		return TagDescriptor.bm_core.getTag().equals(tag);
 	}
 
 	@Override
@@ -59,7 +60,7 @@ public class DirectoryWorker implements IBackupWorker {
 		IServer srvApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IServer.class,
 				InstallationId.getIdentifier());
 		Optional<ItemValue<Server>> coreServer = srvApi.allComplete().stream()
-				.filter(s -> s.value.tags.contains("bm/core")).findFirst();
+				.filter(s -> s.value.tags.contains(TagDescriptor.bm_core.getTag())).findFirst();
 
 		if (!coreServer.isPresent()) {
 			throw new ServerFault("Unable to find server tagged as bm/core");

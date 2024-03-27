@@ -35,6 +35,7 @@ import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class CliTestHelper {
@@ -75,14 +76,14 @@ public class CliTestHelper {
 
 			Server esServer = new Server();
 			esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
-			esServer.tags = Lists.newArrayList("bm/es");
+			esServer.tags = Lists.newArrayList(TagDescriptor.bm_es.getTag());
 
 			Server dbServer = new Server();
 			dbServer.ip = ini.get("host");
-			dbServer.tags = Lists.newArrayList("bm/pgsql", "bm/pgsql-data");
+			dbServer.tags = Lists.newArrayList(TagDescriptor.bm_pgsql.getTag(), TagDescriptor.bm_pgsql_data.getTag());
 
 			Server pipo = new Server();
-			pipo.tags = Collections.singletonList("mail/imap");
+			pipo.tags = Collections.singletonList(TagDescriptor.mail_imap.getTag());
 			pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
 
 			return new CliTestHelper(ImmutableList.copyOf(domains), dbServer, pipo, esServer, domainOptions);

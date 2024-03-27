@@ -53,6 +53,7 @@ import net.bluemind.group.api.IGroup;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
@@ -97,7 +98,7 @@ public class DomainServerHookTests {
 		domain.uid = domainUid;
 		new DomainServerHook().onServerAssigned(
 				ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).getContext(), server, domain,
-				"mail/imap");
+				TagDescriptor.mail_imap.getTag());
 
 		// user and admin groups should have a datalocation
 		final String userGroupDatalocation = this.retrieveGroupDatalocation("user", domainUid);

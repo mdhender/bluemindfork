@@ -46,6 +46,7 @@ import net.bluemind.gwtconsoleapp.base.editor.gwt.CompositeGwtWidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtWidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtDelegateFactory;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtWidgetElement;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.server.api.gwt.js.JsServer;
 import net.bluemind.ui.adminconsole.system.hosts.HostKeys;
 
@@ -103,7 +104,7 @@ public class QCreateDomainWidget extends CompositeGwtWidgetElement {
 		serverMapping = new HashMap<>();
 		for (int i = 0; i < servers.length(); i++) {
 			JsItemValue<JsServer> server = servers.get(i);
-			if (JsHelper.asList(server.getValue().getTags()).contains("mail/imap")) {
+			if (JsHelper.asList(server.getValue().getTags()).contains(TagDescriptor.mail_imap.getTag())) {
 				mailServices.addItem(server.getValue().getName(), server.getUid());
 				serverMapping.put(server.getUid(), server);
 			}

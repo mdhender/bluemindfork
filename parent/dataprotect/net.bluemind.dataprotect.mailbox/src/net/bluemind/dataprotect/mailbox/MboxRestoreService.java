@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+
 import net.bluemind.authentication.api.incore.IInCoreAuthentication;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.api.IMailboxFolders;
@@ -87,6 +88,7 @@ import net.bluemind.mailbox.api.Mailbox.Type;
 import net.bluemind.mailbox.service.common.DefaultFolder;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
 import net.bluemind.system.helper.ArchiveHelper;
@@ -250,8 +252,8 @@ public class MboxRestoreService {
 		});
 
 		ItemValue<Server> coreServer = Topology.get().core();
-		Path jsonpath = Paths.get(BackupPath.get(coreServer, "bm/core"), String.valueOf(corepart.id),
-				"var/backups/bluemind/sds");
+		Path jsonpath = Paths.get(BackupPath.get(coreServer, TagDescriptor.bm_core.getTag()),
+				String.valueOf(corepart.id), "var/backups/bluemind/sds");
 		CyrusSdsBackupMailbox sdsBackupMailbox;
 		RestoreSdsMailbox rsm;
 		try {

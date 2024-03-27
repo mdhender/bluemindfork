@@ -27,6 +27,7 @@ import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NCUtils;
 import net.bluemind.node.api.NodeActivator;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.server.hook.DefaultServerHook;
 
 public class NodeHook extends DefaultServerHook {
@@ -176,7 +177,7 @@ public class NodeHook extends DefaultServerHook {
 
 	@Override
 	public void onServerTagged(BmContext context, ItemValue<Server> server, String tag) throws ServerFault {
-		if ("bm/core".equals(tag)) {
+		if (TagDescriptor.bm_core.getTag().equals(tag)) {
 			newCore(server.value);
 		}
 	}

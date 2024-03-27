@@ -81,6 +81,7 @@ import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
@@ -113,7 +114,7 @@ public class DomainsServiceTests {
 
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
-		esServer.tags = Lists.newArrayList("bm/es");
+		esServer.tags = Lists.newArrayList(TagDescriptor.bm_es.getTag());
 
 		PopulateHelper.initGlobalVirt(esServer);
 		domainsContainer = containerStore.get(DomainsContainerIdentifier.getIdentifier());

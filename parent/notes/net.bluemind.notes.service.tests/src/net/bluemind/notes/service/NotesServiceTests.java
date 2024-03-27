@@ -58,6 +58,7 @@ import net.bluemind.notes.api.VNote;
 import net.bluemind.notes.api.VNoteQuery;
 import net.bluemind.notes.api.VNotesQuery;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.persistence.UserSubscriptionStore;
 
@@ -85,7 +86,7 @@ public class NotesServiceTests extends AbstractServiceTests {
 
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
-		esServer.tags = Lists.newArrayList("bm/es");
+		esServer.tags = Lists.newArrayList(TagDescriptor.bm_es.getTag());
 		PopulateHelper.initGlobalVirt(esServer);
 		PopulateHelper.createTestDomain("bm.lan");
 		userUid = PopulateHelper.addUser("test", "bm.lan");

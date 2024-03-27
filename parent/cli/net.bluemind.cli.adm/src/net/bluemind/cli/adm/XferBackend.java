@@ -52,6 +52,7 @@ import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
@@ -94,7 +95,7 @@ public class XferBackend implements ICmdLet, Runnable {
 	@Override
 	public void run() {
 		imapServers = ctx.adminApi().instance(IServer.class, "default").allComplete().stream()
-				.filter(s -> s.value.tags.contains("mail/imap")).collect(Collectors.toList());
+				.filter(s -> s.value.tags.contains(TagDescriptor.mail_imap.getTag())).collect(Collectors.toList());
 
 		Optional<ItemValue<Server>> targetBackend = getImapServer(targetBackendId);
 		Optional<ItemValue<Server>> sourceBackend = getImapServer(sourceBackendId);

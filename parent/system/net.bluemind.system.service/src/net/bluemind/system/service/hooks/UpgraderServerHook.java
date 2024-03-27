@@ -11,6 +11,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.server.hook.DefaultServerHook;
 import net.bluemind.system.api.Database;
 import net.bluemind.system.persistence.Upgrader;
@@ -25,7 +26,7 @@ public class UpgraderServerHook extends DefaultServerHook {
 
 	@Override
 	public void onServerTagged(BmContext context, ItemValue<Server> server, String tag) throws ServerFault {
-		if (!(tag.equals("bm/pgsql") || tag.equals("bm/pgsql-data"))) {
+		if (!(tag.equals(TagDescriptor.bm_pgsql.getTag()) || tag.equals(TagDescriptor.bm_pgsql_data.getTag()))) {
 			return;
 		}
 
@@ -46,7 +47,7 @@ public class UpgraderServerHook extends DefaultServerHook {
 		}
 		for (String updater : upgraders) {
 			registerUpgrader(server.uid, store, updater);
-			if (tag.equals("bm/pgsql")) {
+			if (tag.equals(TagDescriptor.bm_pgsql.getTag())) {
 				registerUpgrader("master", store, updater);
 			}
 		}

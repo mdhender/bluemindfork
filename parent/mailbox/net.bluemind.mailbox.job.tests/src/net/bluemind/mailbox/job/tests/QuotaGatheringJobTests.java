@@ -47,6 +47,7 @@ import net.bluemind.scheduledjob.api.JobExecution;
 import net.bluemind.scheduledjob.api.JobExecutionQuery;
 import net.bluemind.scheduledjob.api.JobExitStatus;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.state.StateContext;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
@@ -74,10 +75,10 @@ public class QuotaGatheringJobTests {
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
 		Assert.assertNotNull(esServer.ip);
-		esServer.tags = Lists.newArrayList("bm/es");
+		esServer.tags = Lists.newArrayList(TagDescriptor.bm_es.getTag());
 
 		Server impaServer = new Server();
-		impaServer.tags = Collections.singletonList("mail/imap");
+		impaServer.tags = Collections.singletonList(TagDescriptor.mail_imap.getTag());
 		impaServer.ip = PopulateHelper.FAKE_CYRUS_IP;
 
 		VertxPlatform.spawnBlocking(25, TimeUnit.SECONDS);

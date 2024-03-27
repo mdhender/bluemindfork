@@ -51,6 +51,7 @@ import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailbox.api.MailboxQuota;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class MailApiBoxStorageTests {
@@ -90,10 +91,10 @@ public class MailApiBoxStorageTests {
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
 		Assert.assertNotNull(esServer.ip);
-		esServer.tags = Lists.newArrayList("bm/es");
+		esServer.tags = Lists.newArrayList(TagDescriptor.bm_es.getTag());
 
 		Server impaServer = new Server();
-		impaServer.tags = Collections.singletonList("mail/imap");
+		impaServer.tags = Collections.singletonList(TagDescriptor.mail_imap.getTag());
 		impaServer.ip = PopulateHelper.FAKE_CYRUS_IP;
 
 		VertxPlatform.spawnBlocking(25, TimeUnit.SECONDS);

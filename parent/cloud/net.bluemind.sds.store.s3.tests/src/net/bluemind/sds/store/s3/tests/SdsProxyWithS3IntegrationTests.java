@@ -70,6 +70,7 @@ import net.bluemind.sds.dto.MgetRequest.Transfer;
 import net.bluemind.sds.store.ISdsBackingStore;
 import net.bluemind.sds.store.s3.S3StoreFactory;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.state.RunningState;
@@ -105,13 +106,13 @@ public class SdsProxyWithS3IntegrationTests {
 
 		Server pipo = new Server();
 		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
-		pipo.tags = Collections.singletonList("mail/imap");
+		pipo.tags = Collections.singletonList(TagDescriptor.mail_imap.getTag());
 
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
 		System.out.println("ES is " + esServer.ip);
 		assertNotNull(esServer.ip);
-		esServer.tags = Lists.newArrayList("bm/es");
+		esServer.tags = Lists.newArrayList(TagDescriptor.bm_es.getTag());
 
 		VertxPlatform.spawnBlocking(25, TimeUnit.SECONDS);
 
@@ -128,7 +129,8 @@ public class SdsProxyWithS3IntegrationTests {
 
 		ElasticsearchTestHelper.getInstance().beforeTest();
 
-		this.partition = CyrusPartition.forServerAndDomain(Topology.get().any("mail/imap"), domainUid);
+		this.partition = CyrusPartition.forServerAndDomain(Topology.get().any(TagDescriptor.mail_imap.getTag()),
+				domainUid);
 
 		this.bucket = "junit-" + System.currentTimeMillis();
 		this.config = S3Configuration.withEndpointAndBucket("http://" + DockerEnv.getIp("bluemind/s3") + ":8000",

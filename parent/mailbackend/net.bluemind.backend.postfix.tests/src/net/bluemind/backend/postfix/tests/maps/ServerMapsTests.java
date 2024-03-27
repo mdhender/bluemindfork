@@ -55,6 +55,7 @@ import net.bluemind.node.api.NodeActivator;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class ServerMapsTests {
@@ -85,7 +86,7 @@ public class ServerMapsTests {
 		Server server = new Server();
 		server.ip = "10.0.0.1";
 
-		server.tags = Arrays.asList("mail/imap");
+		server.tags = Arrays.asList(TagDescriptor.mail_imap.getTag());
 		PopulateHelper.createServers(server);
 
 		ItemValue<Domain> domain = PopulateHelper.createTestDomain("domain.tld", server);
@@ -104,7 +105,7 @@ public class ServerMapsTests {
 		Server server = new Server();
 		server.ip = "10.0.0.1";
 
-		server.tags = Arrays.asList("mail/smtp");
+		server.tags = Arrays.asList(TagDescriptor.mail_smtp.getTag());
 		PopulateHelper.createServers(server);
 
 		PopulateHelper.createTestDomain("domain.tld", server);
@@ -126,7 +127,7 @@ public class ServerMapsTests {
 		Server server = new Server();
 		server.ip = "10.0.0.1";
 
-		server.tags = Arrays.asList("mail/smtp-edge");
+		server.tags = Arrays.asList(TagDescriptor.mail_smtp_edge.getTag());
 		PopulateHelper.createServers(server);
 
 		PopulateHelper.createTestDomain("domain.tld", server);
@@ -147,7 +148,7 @@ public class ServerMapsTests {
 		Server server = new Server();
 		server.ip = "10.0.0.1";
 
-		server.tags = Arrays.asList("mail/smtp", "mail/smtp-edge");
+		server.tags = Arrays.asList(TagDescriptor.mail_smtp.getTag(), TagDescriptor.mail_smtp_edge.getTag());
 		PopulateHelper.createServers(server);
 
 		ItemValue<Domain> domain = PopulateHelper.createTestDomain("domain.tld", server);
@@ -178,7 +179,7 @@ public class ServerMapsTests {
 		Server server = new Server();
 		server.ip = "10.0.0.1";
 
-		server.tags = Arrays.asList("mail/smtp-edge");
+		server.tags = Arrays.asList(TagDescriptor.mail_smtp_edge.getTag());
 		PopulateHelper.createServers(server);
 
 		ItemValue<Domain> domain = PopulateHelper.createTestDomain("domain.tld", server);
@@ -199,11 +200,11 @@ public class ServerMapsTests {
 	public void init_noSmtpAssigned_edgeAssigned() throws Exception {
 		Server edge = new Server();
 		edge.ip = "10.0.0.1";
-		edge.tags = Arrays.asList("mail/smtp-edge");
+		edge.tags = Arrays.asList(TagDescriptor.mail_smtp_edge.getTag());
 
 		Server smtp = new Server();
 		smtp.ip = "10.0.0.2";
-		smtp.tags = Arrays.asList("mail/smtp");
+		smtp.tags = Arrays.asList(TagDescriptor.mail_smtp.getTag());
 		PopulateHelper.createServers(smtp, edge);
 
 		ItemValue<Domain> domain = PopulateHelper.createTestDomain("domain.tld", edge);
@@ -224,11 +225,11 @@ public class ServerMapsTests {
 	public void init_smtpAndEdgeAssigned() throws Exception {
 		Server edge = new Server();
 		edge.ip = "10.0.0.1";
-		edge.tags = Arrays.asList("mail/smtp-edge");
+		edge.tags = Arrays.asList(TagDescriptor.mail_smtp_edge.getTag());
 
 		Server smtp = new Server();
 		smtp.ip = "10.0.0.2";
-		smtp.tags = Arrays.asList("mail/smtp");
+		smtp.tags = Arrays.asList(TagDescriptor.mail_smtp.getTag());
 		PopulateHelper.createServers(smtp, edge);
 
 		ItemValue<Domain> domain = PopulateHelper.createTestDomain("domain.tld", smtp, edge);
@@ -279,11 +280,11 @@ public class ServerMapsTests {
 	public void init_edgeAssigned_smtpNotFound() throws Exception {
 		Server edge = new Server();
 		edge.ip = "10.0.0.1";
-		edge.tags = Arrays.asList("mail/smtp-edge");
+		edge.tags = Arrays.asList(TagDescriptor.mail_smtp_edge.getTag());
 
 		Server smtp = new Server();
 		smtp.ip = "10.0.0.2";
-		smtp.tags = Arrays.asList("mail/smtp");
+		smtp.tags = Arrays.asList(TagDescriptor.mail_smtp.getTag());
 		PopulateHelper.createServers(smtp, edge);
 
 		ItemValue<Domain> domain = PopulateHelper.createTestDomain("domain.tld", smtp, edge);
@@ -304,15 +305,15 @@ public class ServerMapsTests {
 	public void init_multipleSmtpAssigned_OneEdgeAssigned() throws Exception {
 		Server edge = new Server();
 		edge.ip = "10.0.0.1";
-		edge.tags = Arrays.asList("mail/smtp-edge");
+		edge.tags = Arrays.asList(TagDescriptor.mail_smtp_edge.getTag());
 
 		Server smtp1 = new Server();
 		smtp1.ip = "10.0.0.2";
-		smtp1.tags = Arrays.asList("mail/smtp");
+		smtp1.tags = Arrays.asList(TagDescriptor.mail_smtp.getTag());
 
 		Server smtp2 = new Server();
 		smtp2.ip = "10.0.0.3";
-		smtp2.tags = Arrays.asList("mail/smtp");
+		smtp2.tags = Arrays.asList(TagDescriptor.mail_smtp.getTag());
 		PopulateHelper.createServers(smtp1, smtp2, edge);
 
 		ItemValue<Domain> domain = PopulateHelper.createTestDomain("domain.tld", smtp1, smtp2, edge);
@@ -383,11 +384,11 @@ public class ServerMapsTests {
 	public void init_smtp_keepMapRowsFromAssignedDomainsOnly() throws Exception {
 		Server edge = new Server();
 		edge.ip = "10.0.0.1";
-		edge.tags = Arrays.asList("mail/smtp-edge");
+		edge.tags = Arrays.asList(TagDescriptor.mail_smtp_edge.getTag());
 
 		Server smtp = new Server();
 		smtp.ip = "10.0.0.2";
-		smtp.tags = Arrays.asList("mail/smtp");
+		smtp.tags = Arrays.asList(TagDescriptor.mail_smtp.getTag());
 		PopulateHelper.createServers(smtp, edge);
 
 		ItemValue<Domain> domain1 = PopulateHelper.createTestDomain("domain1.tld", smtp);
@@ -421,11 +422,11 @@ public class ServerMapsTests {
 	public void init_edge_keepMapRowsFromAssignedDomainsOnly() throws Exception {
 		Server edge = new Server();
 		edge.ip = "10.0.0.1";
-		edge.tags = Arrays.asList("mail/smtp-edge");
+		edge.tags = Arrays.asList(TagDescriptor.mail_smtp_edge.getTag());
 
 		Server smtp = new Server();
 		smtp.ip = "10.0.0.2";
-		smtp.tags = Arrays.asList("mail/smtp");
+		smtp.tags = Arrays.asList(TagDescriptor.mail_smtp.getTag());
 		PopulateHelper.createServers(smtp, edge);
 
 		ItemValue<Domain> domain1 = PopulateHelper.createTestDomain("domain1.tld", smtp);
@@ -460,7 +461,7 @@ public class ServerMapsTests {
 		Server server = new Server();
 		server.ip = new BmConfIni().get("bluemind/smtp-role");
 
-		server.tags = Arrays.asList("mail/smtp");
+		server.tags = Arrays.asList(TagDescriptor.mail_smtp.getTag());
 		PopulateHelper.createServers(server);
 
 		PopulateHelper.createTestDomain("domain.tld", server);
@@ -495,7 +496,7 @@ public class ServerMapsTests {
 		Server server = new Server();
 		server.ip = new BmConfIni().get("bluemind/smtp-role");
 
-		server.tags = Arrays.asList("mail/smtp");
+		server.tags = Arrays.asList(TagDescriptor.mail_smtp.getTag());
 		PopulateHelper.createServers(server);
 
 		PopulateHelper.createTestDomain("domain.tld", server);
@@ -529,11 +530,11 @@ public class ServerMapsTests {
 	public void writeFlatMaps_edgeTaggedNotAssigned() throws Exception {
 		Server smtp = new Server();
 		smtp.ip = new BmConfIni().get("bluemind/smtp-role");
-		smtp.tags = Arrays.asList("mail/smtp");
+		smtp.tags = Arrays.asList(TagDescriptor.mail_smtp.getTag());
 
 		Server edge = new Server();
 		edge.ip = new BmConfIni().get("bluemind/smtp-edge-role");
-		edge.tags = Arrays.asList("mail/smtp-edge");
+		edge.tags = Arrays.asList(TagDescriptor.mail_smtp_edge.getTag());
 		PopulateHelper.createServers(smtp, edge);
 
 		PopulateHelper.createTestDomain("domain.tld", smtp);
@@ -567,7 +568,7 @@ public class ServerMapsTests {
 		Server server = new Server();
 		server.ip = "10.0.0.1";
 
-		server.tags = Arrays.asList("mail/imap");
+		server.tags = Arrays.asList(TagDescriptor.mail_imap.getTag());
 
 		PopulateHelper.createServers(server);
 
@@ -587,7 +588,7 @@ public class ServerMapsTests {
 	public void init_notAssigned_smtpTag() {
 		Server smtp = new Server();
 		smtp.ip = "10.0.0.1";
-		smtp.tags = Arrays.asList("mail/smtp");
+		smtp.tags = Arrays.asList(TagDescriptor.mail_smtp.getTag());
 
 		PopulateHelper.createServers(smtp);
 
@@ -605,7 +606,7 @@ public class ServerMapsTests {
 	public void init_notAssigned_edgeTag() {
 		Server edge = new Server();
 		edge.ip = "10.0.0.1";
-		edge.tags = Arrays.asList("mail/smtp-edge");
+		edge.tags = Arrays.asList(TagDescriptor.mail_smtp_edge.getTag());
 
 		PopulateHelper.createServers(edge);
 

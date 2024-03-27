@@ -30,6 +30,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.http.HttpClientFactory;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.ysnp.AuthConfig;
 import net.bluemind.ysnp.ICredentialValidator;
 
@@ -50,7 +51,7 @@ public class CoreCredentialValidator implements ICredentialValidator {
 		} catch (Exception e) {
 			Server core = new Server();
 			core.ip = "127.0.0.1";
-			core.tags = Arrays.asList("bm/core");
+			core.tags = Arrays.asList(TagDescriptor.bm_core.getTag());
 			Topology.update(Arrays.asList(ItemValue.create("fake-srv", core)));
 		}
 

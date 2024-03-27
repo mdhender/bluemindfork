@@ -40,6 +40,7 @@ import net.bluemind.network.topology.IServiceTopology;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class TopologyProducerTests {
@@ -59,7 +60,7 @@ public class TopologyProducerTests {
 	public void ensureTopologyIsDispatched() throws Exception {
 
 		Server imapServer = new Server();
-		imapServer.tags = Collections.singletonList("mail/imap");
+		imapServer.tags = Collections.singletonList(TagDescriptor.mail_imap.getTag());
 		imapServer.ip = PopulateHelper.FAKE_CYRUS_IP;
 
 		PopulateHelper.initGlobalVirt(imapServer);

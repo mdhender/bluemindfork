@@ -51,6 +51,7 @@ import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailbox.service.SplittedShardsMapping;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class AbstractMultibackendTests {
@@ -78,16 +79,16 @@ public class AbstractMultibackendTests {
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
 		System.out.println("ES is " + esServer.ip);
 		assertNotNull(esServer.ip);
-		esServer.tags = Lists.newArrayList("bm/es");
+		esServer.tags = Lists.newArrayList(TagDescriptor.bm_es.getTag());
 
 		Server imapServer = new Server();
 		imapServer.ip = PopulateHelper.FAKE_CYRUS_IP;
-		imapServer.tags = Lists.newArrayList("mail/imap", "bm/pgsql-data");
+		imapServer.tags = Lists.newArrayList(TagDescriptor.mail_imap.getTag(), TagDescriptor.bm_pgsql_data.getTag());
 		cyrusServer1 = ItemValue.create(imapServer.ip, imapServer);
 
 		Server imapServer2 = new Server();
 		imapServer2.ip = PopulateHelper.FAKE_CYRUS_IP_2;
-		imapServer2.tags = Lists.newArrayList("mail/imap", "bm/pgsql-data");
+		imapServer2.tags = Lists.newArrayList(TagDescriptor.mail_imap.getTag(), TagDescriptor.bm_pgsql_data.getTag());
 		cyrusServer2 = ItemValue.create(imapServer2.ip, imapServer2);
 
 		Server pg2 = new Server();

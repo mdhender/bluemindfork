@@ -42,6 +42,7 @@ import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class AddressBookDescValidatorTests {
@@ -57,7 +58,7 @@ public class AddressBookDescValidatorTests {
 		ElasticsearchTestHelper.getInstance().beforeTest();
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
-		esServer.tags = Lists.newArrayList("bm/es");
+		esServer.tags = Lists.newArrayList(TagDescriptor.bm_es.getTag());
 		PopulateHelper.initGlobalVirt(esServer);
 
 		domainUid = "test" + System.currentTimeMillis() + ".lan";

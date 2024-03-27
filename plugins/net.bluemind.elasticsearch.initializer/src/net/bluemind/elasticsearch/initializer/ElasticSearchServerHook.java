@@ -34,11 +34,12 @@ import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.lib.elasticsearch.ESearchActivator.Authentication;
 import net.bluemind.lib.elasticsearch.ESearchActivator.AuthenticationCredential;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.server.hook.DefaultServerHook;
 
 public class ElasticSearchServerHook extends DefaultServerHook {
 	private static final Logger logger = LoggerFactory.getLogger(ElasticSearchServerHook.class);
-	private static final String TAGS = "bm/es";
+	private static final String TAGS = TagDescriptor.bm_es.getTag();
 	private static final List<ISchemaInitializer> initializers = init();
 
 	private static List<ISchemaInitializer> init() {

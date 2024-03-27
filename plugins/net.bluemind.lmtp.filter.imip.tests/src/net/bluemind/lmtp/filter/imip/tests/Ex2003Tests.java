@@ -57,6 +57,7 @@ import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mime4j.common.Mime4JHelper;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
@@ -94,10 +95,10 @@ public class Ex2003Tests {
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
 		System.out.println("IP " + esServer.ip);
-		esServer.tags = Lists.newArrayList("bm/es");
+		esServer.tags = Lists.newArrayList(TagDescriptor.bm_es.getTag());
 
 		Server pipo = new Server();
-		pipo.tags = Collections.singletonList("mail/imap");
+		pipo.tags = Collections.singletonList(TagDescriptor.mail_imap.getTag());
 		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
 
 		PopulateHelper.initGlobalVirt(esServer, pipo);

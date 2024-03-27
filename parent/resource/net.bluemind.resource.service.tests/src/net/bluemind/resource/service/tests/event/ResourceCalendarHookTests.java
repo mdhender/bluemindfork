@@ -89,6 +89,7 @@ import net.bluemind.resource.api.ResourceDescriptor;
 import net.bluemind.resource.api.ResourceReservationMode;
 import net.bluemind.resource.service.event.ResourceCalendarHook;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.tag.api.TagRef;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.User;
@@ -540,11 +541,11 @@ public class ResourceCalendarHookTests {
 		// register elasticsearch to locator
 		// Server esServer = new Server();
 		// esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
-		// esServer.tags = Lists.newArrayList("bm/es");
+		// esServer.tags = Lists.newArrayList(TagDescriptor.bm_es.getTag());
 
 		Server esServer = new Server();
 		esServer.ip = new BmConfIni().get("es-host");
-		esServer.tags = Lists.newArrayList("bm/es");
+		esServer.tags = Lists.newArrayList(TagDescriptor.bm_es.getTag());
 
 		PopulateHelper.initGlobalVirt(esServer);
 

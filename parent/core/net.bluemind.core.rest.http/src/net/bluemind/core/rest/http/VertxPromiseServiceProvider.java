@@ -31,6 +31,7 @@ import net.bluemind.core.api.BMPromiseApi;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.common.PromiseInvocationHandler;
+import net.bluemind.server.api.TagDescriptor;
 
 public class VertxPromiseServiceProvider extends VertxServiceProvider implements IServiceProvider {
 
@@ -67,7 +68,7 @@ public class VertxPromiseServiceProvider extends VertxServiceProvider implements
 
 	@Override
 	public <T> T instance(Class<T> interfaceClass, String... params) throws ServerFault {
-		return instance("bm/core", interfaceClass, params);
+		return instance(TagDescriptor.bm_core.getTag(), interfaceClass, params);
 	}
 
 	@Override

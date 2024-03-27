@@ -50,6 +50,7 @@ import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.directory.service.DirEntryHandler;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IInternalUserSubscription;
 import net.bluemind.user.api.IUserSubscription;
@@ -68,10 +69,10 @@ public class UserSubscriptionServiceTests {
 
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
-		esServer.tags = Lists.newArrayList("bm/es");
+		esServer.tags = Lists.newArrayList(TagDescriptor.bm_es.getTag());
 
 		Server pipo = new Server();
-		pipo.tags = Collections.singletonList("mail/imap");
+		pipo.tags = Collections.singletonList(TagDescriptor.mail_imap.getTag());
 		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
 
 		System.out.println(DirEntryHandler.class);

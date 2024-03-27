@@ -86,6 +86,7 @@ import net.bluemind.directory.service.DirEntryHandlers;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.server.api.IServer;
+import net.bluemind.server.api.TagDescriptor;
 
 public class AddressBooksMgmt
 		implements IAddressBooksMgmt, IInCoreAddressBooksMgmt, IRestoreCrudSupport<AddressBookDescriptor> {
@@ -575,7 +576,7 @@ public class AddressBooksMgmt
 		DirEntry entry = DirEntry.create(descriptor.orgUnitUid, descriptor.domainUid + "/addressbooks/" + uid,
 				DirEntry.Kind.ADDRESSBOOK, uid, descriptor.name, null, false, descriptor.system, false);
 		List<String> assignedServers = context.su().provider().instance(IServer.class, InstallationId.getIdentifier())
-				.byAssignment(descriptor.domainUid, "mail/imap");
+				.byAssignment(descriptor.domainUid, TagDescriptor.mail_imap.getTag());
 		if (!assignedServers.isEmpty()) {
 			entry.dataLocation = assignedServers.get(0);
 		}

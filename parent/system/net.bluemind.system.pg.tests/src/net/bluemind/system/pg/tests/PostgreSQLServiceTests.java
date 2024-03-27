@@ -34,6 +34,7 @@ import net.bluemind.node.api.NCUtils;
 import net.bluemind.node.api.NodeActivator;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.pg.PostgreSQLService;
 
 public class PostgreSQLServiceTests {
@@ -56,7 +57,7 @@ public class PostgreSQLServiceTests {
 		srv.fqdn = dbHost;
 		srv.ip = dbHost;
 		srv.name = dbHost;
-		srv.tags = Lists.newArrayList("bm/pgsql-data");
+		srv.tags = Lists.newArrayList(TagDescriptor.bm_pgsql_data.getTag());
 
 		ItemValue<Server> server = ItemValue.create(UUID.randomUUID().toString(), srv);
 

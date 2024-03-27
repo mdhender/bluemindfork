@@ -40,6 +40,7 @@ import net.bluemind.filehosting.api.FileHostingItem;
 import net.bluemind.filehosting.api.IInternalBMFileSystemAsync;
 import net.bluemind.filehosting.api.Metadata;
 import net.bluemind.network.topology.Topology;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.webmodule.server.IWebFilter;
 import net.bluemind.webmodule.server.NeedVertx;
 import net.bluemind.webmodule.server.WebserverConfiguration;
@@ -154,7 +155,7 @@ public class FileHostingHandler implements IWebFilter, NeedVertx {
 
 	protected IInternalBMFileSystemAsync getService(HttpServerRequest request) {
 		ITaggedServiceProvider sp = getProvider(null, request);
-		return sp.instance("bm/core", IInternalBMFileSystemAsync.class, "default");
+		return sp.instance(TagDescriptor.bm_core.getTag(), IInternalBMFileSystemAsync.class, "default");
 	}
 
 	private static final ILocator locator = (String service, AsyncHandler<String[]> asyncHandler) -> {

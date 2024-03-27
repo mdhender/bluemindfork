@@ -55,6 +55,7 @@ import net.bluemind.node.api.NCUtils;
 import net.bluemind.node.api.NodeActivator;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.iptables.IptablesPath;
 import net.bluemind.tests.defaultdata.PopulateHelper;
@@ -88,7 +89,7 @@ public class RulesUpdaterTests {
 
 		Server nodeServer = new Server();
 		nodeServer.ip = NODE_IP;
-		nodeServer.tags = Lists.newArrayList("mail/smtp", "mail/imap");
+		nodeServer.tags = Lists.newArrayList(TagDescriptor.mail_smtp.getTag(), TagDescriptor.mail_imap.getTag());
 
 		PopulateHelper.createServers(nodeServer);
 	}

@@ -57,6 +57,7 @@ import net.bluemind.network.topology.Topology;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.server.persistence.ServerStore;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
@@ -132,7 +133,7 @@ public class PopulateHelper {
 			core = new Server();
 			core.ip = "127.0.0.1";
 			core.name = "localhost";
-			core.tags = Lists.newArrayList("bm/core");
+			core.tags = Lists.newArrayList(TagDescriptor.bm_core.getTag());
 			servers = (Server[]) ArrayUtils.add(servers, core);
 		}
 
@@ -141,7 +142,7 @@ public class PopulateHelper {
 		boolean createFakeImap = true;
 		for (Server s : servers) {
 			for (String tag : s.tags) {
-				if ("mail/imap".equals(tag)) {
+				if (TagDescriptor.mail_imap.getTag().equals(tag)) {
 					createFakeImap = false;
 				}
 			}
@@ -150,7 +151,7 @@ public class PopulateHelper {
 			// Create a fake cyrus
 			Server fakeImapServer = new Server();
 			fakeImapServer.ip = FAKE_CYRUS_IP;
-			fakeImapServer.tags = Lists.newArrayList("mail/imap");
+			fakeImapServer.tags = Lists.newArrayList(TagDescriptor.mail_imap.getTag());
 			createServers(fakeImapServer);
 
 		}
@@ -192,7 +193,7 @@ public class PopulateHelper {
 
 		for (Server s : servers) {
 			for (String tag : s.tags) {
-				if ("mail/imap".equals(tag)) {
+				if (TagDescriptor.mail_imap.getTag().equals(tag)) {
 					createFakeImap = false;
 				}
 				logger.info("Assign {} to {} for {}", tag, s.address(), domainUid);
@@ -201,10 +202,10 @@ public class PopulateHelper {
 		}
 
 		if (createFakeImap) {
-			serverStore.assign(FAKE_CYRUS_IP, domainUid, "mail/imap");
+			serverStore.assign(FAKE_CYRUS_IP, domainUid, TagDescriptor.mail_imap.getTag());
 		}
 
-		serverStore.assign("127.0.0.1", domainUid, "bm/core");
+		serverStore.assign("127.0.0.1", domainUid, TagDescriptor.bm_core.getTag());
 		return domains.get(domainUid);
 	}
 
@@ -214,7 +215,7 @@ public class PopulateHelper {
 		ServerStore serverStore = new ServerStore(JdbcActivator.getInstance().getDataSource(),
 				cs.get(installationId()));
 
-		serverStore.unassign(FAKE_CYRUS_IP, domainUid, "mail/imap");
+		serverStore.unassign(FAKE_CYRUS_IP, domainUid, TagDescriptor.mail_imap.getTag());
 	}
 
 	public static void domainAdmin(String domainUid, String userUid) throws Exception {
@@ -288,12 +289,13 @@ public class PopulateHelper {
 
 		Server host = new Server();
 		host.ip = new BmConfIni().get("host");
-		host.tags = Lists.newArrayList("mail/imap", "bm/pgsql", "bm/es");
+		host.tags = Lists.newArrayList(TagDescriptor.mail_imap.getTag(), TagDescriptor.bm_pgsql.getTag(),
+				TagDescriptor.bm_es.getTag());
 		srvService.create("vm", host);
 
 		Server core = new Server();
 		core.ip = "127.0.0.1";
-		core.tags = Lists.newArrayList("bm/core");
+		core.tags = Lists.newArrayList(TagDescriptor.bm_core.getTag());
 		srvService.create("localhost", core);
 
 		addDomainAdmin("admin0", "global.virt");

@@ -18,6 +18,7 @@ import net.bluemind.central.reverse.proxy.model.common.DomainSettings;
 import net.bluemind.central.reverse.proxy.model.common.InstallationInfo;
 import net.bluemind.central.reverse.proxy.model.common.MemberInfo;
 import net.bluemind.central.reverse.proxy.model.common.mapper.RecordValueMapper;
+import net.bluemind.server.api.TagDescriptor;
 
 public class ByteArrayRecordValueMapper implements RecordValueMapper<byte[]> {
 	private final Logger logger = LoggerFactory.getLogger(ByteArrayRecordValueMapper.class);
@@ -29,8 +30,8 @@ public class ByteArrayRecordValueMapper implements RecordValueMapper<byte[]> {
 	public Optional<InstallationInfo> mapInstallation(String uid, byte[] value) {
 		JsonObject json = new JsonObject(new String(value));
 		JsonArray tags = json.getJsonObject("value", EMPTY).getJsonArray("tags", EMPTY_ARRAY);
-		boolean hasNginx = tags.getList().contains("bm/nginx");
-		boolean hasCore = tags.getList().contains("bm/core");
+		boolean hasNginx = tags.getList().contains(TagDescriptor.bm_nginx.getTag());
+		boolean hasCore = tags.getList().contains(TagDescriptor.bm_core.getTag());
 		if (hasNginx || hasCore) {
 			String dataLocation = json.getString("uid");
 			String ip = json.getJsonObject("value", EMPTY).getString("ip");

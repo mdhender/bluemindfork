@@ -56,6 +56,7 @@ import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.api.DomainTemplate;
 import net.bluemind.system.api.IDomainTemplate;
 import net.bluemind.system.api.ISystemConfiguration;
@@ -94,15 +95,16 @@ public class RestoreWebAppDataTaskTests {
 
 		Server core = new Server();
 		core.ip = new BmConfIni().get("node-host");
-		core.tags = getTagsExcept("bm/pgsql", "bm/pgsql-data", "mail/imap");
+		core.tags = getTagsExcept(TagDescriptor.bm_pgsql.getTag(), TagDescriptor.bm_pgsql_data.getTag(),
+				TagDescriptor.mail_imap.getTag());
 
 		Server imapServer = new Server();
 		imapServer.ip = PopulateHelper.FAKE_CYRUS_IP;
-		imapServer.tags = Lists.newArrayList("mail/imap");
+		imapServer.tags = Lists.newArrayList(TagDescriptor.mail_imap.getTag());
 
 		Server dbServer = new Server();
 		dbServer.ip = new BmConfIni().get("host");
-		dbServer.tags = Lists.newArrayList("bm/pgsql", "bm/pgsql-data");
+		dbServer.tags = Lists.newArrayList(TagDescriptor.bm_pgsql.getTag(), TagDescriptor.bm_pgsql_data.getTag());
 
 		PopulateHelper.initGlobalVirt(false, core, dbServer, imapServer);
 		PopulateHelper.addDomainAdmin("admin0", "global.virt");

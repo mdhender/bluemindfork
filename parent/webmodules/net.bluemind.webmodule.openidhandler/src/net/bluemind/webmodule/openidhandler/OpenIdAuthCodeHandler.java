@@ -35,6 +35,7 @@ import net.bluemind.core.rest.http.ILocator;
 import net.bluemind.core.rest.http.ITaggedServiceProvider;
 import net.bluemind.core.rest.http.VertxServiceProvider;
 import net.bluemind.network.topology.Topology;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.webmodule.server.IWebFilter;
 import net.bluemind.webmodule.server.NeedVertx;
 import net.bluemind.webmodule.server.WebserverConfiguration;
@@ -69,7 +70,7 @@ public class OpenIdAuthCodeHandler implements IWebFilter, NeedVertx {
 
 				@Override
 				public void failure(Throwable e) {
-					
+
 					resp.headers().set("Content-Type", "text/html");
 					resp.setStatusCode(500).end(
 							"<html><body><script type='text/javascript'>window.opener.bmOpenIdAuthicationCallback.reject();window.close();</script>Authentication failed, You can close this window</body></html>");
@@ -85,7 +86,7 @@ public class OpenIdAuthCodeHandler implements IWebFilter, NeedVertx {
 
 	protected IUserAccessTokenAsync getService(HttpServerRequest request) {
 		ITaggedServiceProvider sp = getProvider(Token.admin0(), request);
-		return sp.instance("bm/core", IUserAccessTokenAsync.class);
+		return sp.instance(TagDescriptor.bm_core.getTag(), IUserAccessTokenAsync.class);
 	}
 
 	private static final ILocator locator = (String service, AsyncHandler<String[]> asyncHandler) -> {

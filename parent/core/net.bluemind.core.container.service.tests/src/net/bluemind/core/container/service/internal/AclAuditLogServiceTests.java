@@ -71,6 +71,7 @@ import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.state.StateContext;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUser;
@@ -101,13 +102,13 @@ public class AclAuditLogServiceTests {
 
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
-		esServer.tags = Lists.newArrayList("bm/es");
+		esServer.tags = Lists.newArrayList(TagDescriptor.bm_es.getTag());
 
 		VertxPlatform.spawnBlocking(20, TimeUnit.SECONDS);
 
 		Server pipo = new Server();
 		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
-		pipo.tags = Collections.singletonList("mail/imap");
+		pipo.tags = Collections.singletonList(TagDescriptor.mail_imap.getTag());
 
 		PopulateHelper.initGlobalVirt(esServer, pipo);
 

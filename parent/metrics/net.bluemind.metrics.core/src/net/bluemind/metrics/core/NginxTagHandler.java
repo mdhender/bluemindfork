@@ -12,13 +12,14 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.metrics.core.tick.TickInputConfigurator;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 
 public class NginxTagHandler extends TickInputConfigurator {
 	private static final Logger logger = LoggerFactory.getLogger(NginxTagHandler.class);
 
 	@Override
 	public void onServerTagged(BmContext context, ItemValue<Server> itemValue, String tag) throws ServerFault {
-		if (!tag.equals("bm/nginx")) {
+		if (!tag.equals(TagDescriptor.bm_nginx.getTag())) {
 			return;
 		}
 		try {
@@ -33,7 +34,7 @@ public class NginxTagHandler extends TickInputConfigurator {
 
 	@Override
 	public void onServerUntagged(BmContext context, ItemValue<Server> itemValue, String tag) throws ServerFault {
-		if (!tag.equals("bm/nginx")) {
+		if (!tag.equals(TagDescriptor.bm_nginx.getTag())) {
 			return;
 		}
 		TagHelper.deleteRemote(itemValue.value.address(), "/etc/telegraf/telegraf.d/bm-nginx.conf");

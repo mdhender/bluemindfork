@@ -39,6 +39,7 @@ import net.bluemind.keycloak.api.IKeycloakKerberosAdmin;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public abstract class AbstractServiceTests {
@@ -52,7 +53,7 @@ public abstract class AbstractServiceTests {
 		Server kcServer = new Server();
 		kcServer.ip = new BmConfIni().get("keycloak");
 		ArrayList<String> kcTagsLst = new ArrayList<String>();
-		kcTagsLst.add("bm/keycloak");
+		kcTagsLst.add(TagDescriptor.bm_keycloak.getTag());
 		kcServer.tags = kcTagsLst;
 
 		PopulateHelper.initGlobalVirt(kcServer);

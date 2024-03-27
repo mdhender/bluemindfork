@@ -54,6 +54,7 @@ import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.IUserMailIdentities;
@@ -103,14 +104,14 @@ public class UserMailIdentitySanitizerTests {
 
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
-		esServer.tags = Lists.newArrayList("bm/es");
+		esServer.tags = Lists.newArrayList(TagDescriptor.bm_es.getTag());
 
 		Server server = new Server();
 		server.ip = "prec";
 		server.tags = Lists.newArrayList("blue/job", "ur/anus");
 
 		Server pipo = new Server();
-		pipo.tags = Collections.singletonList("mail/imap");
+		pipo.tags = Collections.singletonList(TagDescriptor.mail_imap.getTag());
 		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
 
 		System.out.println(DirEntryHandler.class);

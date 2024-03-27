@@ -76,6 +76,7 @@ import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.role.api.DefaultRoles;
 import net.bluemind.role.service.IInternalRoles;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.state.StateContext;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUser;
@@ -92,7 +93,7 @@ public class AuthenticationTests {
 
 		Server esServer = new Server();
 		esServer.ip = new BmConfIni().get("es-host");
-		esServer.tags = Lists.newArrayList("bm/es");
+		esServer.tags = Lists.newArrayList(TagDescriptor.bm_es.getTag());
 
 		PopulateHelper.initGlobalVirt(esServer);
 

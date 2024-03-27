@@ -73,6 +73,7 @@ import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.pop3.endpoint.Pop3Config;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.state.RunningState;
 import net.bluemind.system.state.StateContext;
 import net.bluemind.tests.defaultdata.PopulateHelper;
@@ -114,11 +115,11 @@ public class Pop3TestsBase {
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
 		Assert.assertNotNull(esServer.ip);
-		esServer.tags = Lists.newArrayList("bm/es");
+		esServer.tags = Lists.newArrayList(TagDescriptor.bm_es.getTag());
 
 		Server imapServer = new Server();
 		imapServer.ip = PopulateHelper.FAKE_CYRUS_IP;
-		imapServer.tags = Lists.newArrayList("mail/imap");
+		imapServer.tags = Lists.newArrayList(TagDescriptor.mail_imap.getTag());
 
 		PopulateHelper.initGlobalVirt(esServer, imapServer);
 		ElasticsearchTestHelper.getInstance().beforeTest();

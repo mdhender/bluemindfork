@@ -67,6 +67,7 @@ import net.bluemind.hornetq.client.Topic;
 import net.bluemind.keycloak.api.IKeycloakUids;
 import net.bluemind.keycloak.utils.endpoints.KeycloakEndpoints;
 import net.bluemind.network.topology.Topology;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.webmodule.authenticationfilter.internal.AuthenticationCookie;
 import net.bluemind.webmodule.authenticationfilter.internal.CodeVerifierCache;
 import net.bluemind.webmodule.authenticationfilter.internal.DomainsHelper;
@@ -543,8 +544,8 @@ public class AuthenticationFilter implements IWebFilter, NeedVertx {
 			headers.add("BMPartition", CyrusPartition.forServerAndDomain(sd.dataLocation, sd.domainUid).name);
 			Topology.getIfAvailable().ifPresent(topo -> {
 				// prevent roundcube from trying locator calls
-				headers.add("bmTopoCore", topo.any("bm/core").value.address());
-				headers.add("bmTopoEs", topo.any("bm/es").value.address());
+				headers.add("bmTopoCore", topo.any(TagDescriptor.bm_core.getTag()).value.address());
+				headers.add("bmTopoEs", topo.any(TagDescriptor.bm_es.getTag()).value.address());
 				headers.add("bmTopoImap", topo.datalocation(sd.dataLocation).value.address());
 				topo.anyIfPresent("cti/frontend").ifPresent(cti -> headers.add("bmTopoCti", cti.value.address()));
 			});

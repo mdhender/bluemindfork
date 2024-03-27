@@ -50,6 +50,7 @@ import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.pg.PostgreSQLService;
 
 public class ContainerStoreServiceTests {
@@ -176,7 +177,7 @@ public class ContainerStoreServiceTests {
 		srv.fqdn = dbHost;
 		srv.ip = dbHost;
 		srv.name = dbHost;
-		srv.tags = Lists.newArrayList("bm/pgsql-data");
+		srv.tags = Lists.newArrayList(TagDescriptor.bm_pgsql_data.getTag());
 
 		ItemValue<Server> server = ItemValue.create(dbHost, srv);
 

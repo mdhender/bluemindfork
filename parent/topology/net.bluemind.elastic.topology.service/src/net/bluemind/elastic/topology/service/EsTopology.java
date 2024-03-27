@@ -46,10 +46,10 @@ public class EsTopology {
 
 	public Set<NodeRole> nodeRoles(Server s) {
 		EnumSet<NodeRole> ret = EnumSet.noneOf(NodeRole.class);
-		if (s.tags.contains("bm/es")) {
+		if (s.tags.contains(TagDescriptor.bm_es.getTag())) {
 			ret.add(NodeRole.MASTER);
 		}
-		if (s.tags.contains("bm/es-data")) {
+		if (s.tags.contains(TagDescriptor.bm_es_data.getTag())) {
 			ret.add(NodeRole.DATA);
 		}
 		return ret;

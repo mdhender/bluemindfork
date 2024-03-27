@@ -34,6 +34,7 @@ import net.bluemind.core.rest.tests.services.ComplexRequest;
 import net.bluemind.core.rest.tests.services.ComplexResponse;
 import net.bluemind.core.rest.tests.services.IRestTestServicePromise;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.server.api.TagDescriptor;
 
 public class PromiseServiceProviderTests {
 
@@ -61,7 +62,8 @@ public class PromiseServiceProviderTests {
 		Vertx vertx = VertxPlatform.getVertx();
 		HttpClientProvider prov = new HttpClientProvider(vertx);
 		VertxPromiseServiceProvider sp = new VertxPromiseServiceProvider(prov, locator, null);
-		IRestTestServicePromise promiseProxy = sp.instance("bm/core", IRestTestServicePromise.class);
+		IRestTestServicePromise promiseProxy = sp.instance(TagDescriptor.bm_core.getTag(),
+				IRestTestServicePromise.class);
 		assertNotNull(promiseProxy);
 		ComplexRequest cr = new ComplexRequest();
 		CompletableFuture<ComplexResponse> promise = promiseProxy.complex(cr);

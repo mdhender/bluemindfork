@@ -80,6 +80,7 @@ import net.bluemind.kafka.container.ZkKafkaContainer;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class SyncToKafkaStoreTests {
@@ -124,11 +125,11 @@ public class SyncToKafkaStoreTests {
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
 		System.out.println("ES is " + esServer.ip);
 		assertNotNull(esServer.ip);
-		esServer.tags = Collections.singletonList("bm/es");
+		esServer.tags = Collections.singletonList(TagDescriptor.bm_es.getTag());
 
 		Server imapServer = new Server();
 		imapServer.ip = PopulateHelper.FAKE_CYRUS_IP;
-		imapServer.tags = Collections.singletonList("mail/imap");
+		imapServer.tags = Collections.singletonList(TagDescriptor.mail_imap.getTag());
 
 		await().atMost(20, TimeUnit.SECONDS).until(DefaultLeader.leader()::isLeader);
 		PopulateHelper.initGlobalVirt(esServer, imapServer);

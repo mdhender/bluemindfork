@@ -50,14 +50,14 @@ public class ShardSmtpConfServerHook extends DefaultServerHook {
 				.allComplete();
 
 		Optional<ItemValue<Server>> smtpServer = servers.stream()
-				.filter(s -> s.value.tags.contains("mail/smtp") && !s.uid.equals(server.uid)).findAny();
+				.filter(s -> s.value.tags.contains(TagDescriptor.mail_smtp.getTag()) && !s.uid.equals(server.uid)).findAny();
 
 		ItemValue<Server> dbServer = context.provider().instance(IServer.class, InstallationId.getIdentifier())
 				.getComplete(server.uid);
 
 		// if shard && mail/imap : write postfix conf
 		// disable milter
-		if (smtpServer.isPresent() && !dbServer.value.tags.contains("mail/smtp")) {
+		if (smtpServer.isPresent() && !dbServer.value.tags.contains(TagDescriptor.mail_smtp.getTag())) {
 
 			logger.info("** initialize shard postfix conf, stop and disable milter, server {}, ip {}", dbServer.uid,
 					dbServer.value.ip);

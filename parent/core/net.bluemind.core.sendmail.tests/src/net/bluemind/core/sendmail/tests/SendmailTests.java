@@ -47,6 +47,7 @@ import net.bluemind.core.sendmail.SendmailCredentials;
 import net.bluemind.core.sendmail.SendmailResponse;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 
 public class SendmailTests {
 
@@ -71,7 +72,7 @@ public class SendmailTests {
 		server.start();
 
 		Server smtp = new Server();
-		smtp.tags = Arrays.asList("mail/smtp");
+		smtp.tags = Arrays.asList(TagDescriptor.mail_smtp.getTag());
 		smtp.ip = "127.0.0.1";
 		Topology.update(Arrays.asList(ItemValue.create("bm-master", smtp)));
 	}

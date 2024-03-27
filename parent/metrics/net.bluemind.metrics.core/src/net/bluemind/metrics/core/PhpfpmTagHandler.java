@@ -18,7 +18,7 @@ public class PhpfpmTagHandler extends TickInputConfigurator {
 
 	@Override
 	public void onServerTagged(BmContext context, ItemValue<Server> itemValue, String tag) throws ServerFault {
-		if (!tag.equals("bm/webmail")) {
+		if (!tag.equals("TagDescriptor.bm_webmail.getTag()")) {
 			return;
 		}
 		try {
@@ -37,7 +37,7 @@ public class PhpfpmTagHandler extends TickInputConfigurator {
 
 	@Override
 	public void onServerUntagged(BmContext context, ItemValue<Server> itemValue, String tag) throws ServerFault {
-		if (!tag.equals("bm/webmail")) {
+		if (!tag.equals("TagDescriptor.bm_webmail.getTag()")) {
 			return;
 		}
 		TagHelper.deleteRemote(itemValue.value.address(), "/etc/telegraf/telegraf.d/bm-phpfpm.conf");

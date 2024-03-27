@@ -121,6 +121,7 @@ import net.bluemind.node.server.busmod.SysCommand;
 import net.bluemind.sds.store.ISdsBackingStore;
 import net.bluemind.sds.store.s3.S3StoreFactory;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.api.CloneConfiguration;
 import net.bluemind.system.api.CloneConfiguration.Mode;
 import net.bluemind.system.api.SysConfKeys;
@@ -180,7 +181,7 @@ public class PopulateKafkaTests {
 		this.dumpData = populateKafka();
 
 		Server pipo = new Server();
-		pipo.tags = Collections.singletonList("mail/imap");
+		pipo.tags = Collections.singletonList(TagDescriptor.mail_imap.getTag());
 		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
 		pipo.name = "bm-master";
 
@@ -188,7 +189,7 @@ public class PopulateKafkaTests {
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
 		System.out.println("ES is " + esServer.ip);
 		assertNotNull(esServer.ip);
-		esServer.tags = Lists.newArrayList("bm/es");
+		esServer.tags = Lists.newArrayList(TagDescriptor.bm_es.getTag());
 
 		PopulateHelper.initGlobalVirt(pipo, esServer);
 		ElasticsearchTestHelper.getInstance().beforeTest();

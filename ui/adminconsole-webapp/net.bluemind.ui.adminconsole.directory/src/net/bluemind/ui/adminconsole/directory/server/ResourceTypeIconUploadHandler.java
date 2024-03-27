@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.resource.api.type.IResourceTypesAsync;
+import net.bluemind.server.api.TagDescriptor;
 
 public class ResourceTypeIconUploadHandler extends BaseUploadHandler<IResourceTypesAsync> {
 
@@ -36,7 +37,7 @@ public class ResourceTypeIconUploadHandler extends BaseUploadHandler<IResourceTy
 
 	@Override
 	protected IResourceTypesAsync entityService(final HttpServerRequest request, final String domainUid) {
-		return getProvider(request).instance("bm/core", IResourceTypesAsync.class, domainUid);
+		return getProvider(request).instance(TagDescriptor.bm_core.getTag(), IResourceTypesAsync.class, domainUid);
 	}
 
 	@Override

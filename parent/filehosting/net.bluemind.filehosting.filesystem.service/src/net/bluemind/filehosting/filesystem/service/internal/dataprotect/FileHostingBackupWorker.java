@@ -28,12 +28,13 @@ import net.bluemind.dataprotect.api.IBackupWorker;
 import net.bluemind.dataprotect.api.IDPContext;
 import net.bluemind.filehosting.filesystem.service.internal.FileSystemFileHostingService;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 
 public class FileHostingBackupWorker implements IBackupWorker {
 
 	@Override
 	public boolean supportsTag(String tag) {
-		return "filehosting/data".equals(tag);
+		return TagDescriptor.bm_filehosting.getTag().equals(tag);
 	}
 
 	@Override

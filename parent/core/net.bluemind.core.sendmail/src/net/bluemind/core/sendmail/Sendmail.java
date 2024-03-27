@@ -42,6 +42,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.commons.logs.MdcLogUser;
 import net.bluemind.mime4j.common.Mime4JHelper;
 import net.bluemind.network.topology.Topology;
+import net.bluemind.server.api.TagDescriptor;
 
 public class Sendmail implements ISendmail {
 
@@ -148,7 +149,7 @@ public class Sendmail implements ISendmail {
 		SendmailResponse sendmailResponse = null;
 		List<FailedRecipient> failedRecipients = new ArrayList<>();
 
-		String ip = Topology.get().any("mail/smtp").value.address();
+		String ip = Topology.get().any(TagDescriptor.mail_smtp.getTag()).value.address();
 		try (SMTPProtocol smtp = new SMTPProtocol(ip,
 				Integer.parseInt(System.getProperty(SMTP_SUBMIT_PORT_PROP, "587")))) {
 			boolean useTls = Boolean.parseBoolean(System.getProperty(SMTP_STARTTLS_PROP, "true"));

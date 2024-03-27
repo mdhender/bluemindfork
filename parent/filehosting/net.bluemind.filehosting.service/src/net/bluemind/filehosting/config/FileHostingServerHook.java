@@ -42,7 +42,7 @@ public class FileHostingServerHook extends DefaultServerHook {
 
 	@Override
 	public void onServerTagged(BmContext context, ItemValue<Server> server, String tag) throws ServerFault {
-		if (tag.endsWith("filehosting/data")) {
+		if (tag.equals(TagDescriptor.bm_filehosting.getTag())) {
 			FileHostingRolesVerifier.reset();
 		}
 
@@ -71,7 +71,7 @@ public class FileHostingServerHook extends DefaultServerHook {
 
 	@Override
 	public void onServerUntagged(BmContext context, ItemValue<Server> itemValue, String tag) throws ServerFault {
-		if (tag.endsWith("filehosting/data")) {
+		if (tag.equals(TagDescriptor.bm_filehosting.getTag())) {
 			FileHostingRolesVerifier.reset();
 		}
 	}
@@ -79,7 +79,7 @@ public class FileHostingServerHook extends DefaultServerHook {
 	@Override
 	public void onServerUnassigned(BmContext context, ItemValue<Server> itemValue, ItemValue<Domain> domain, String tag)
 			throws ServerFault {
-		if (tag.endsWith("filehosting/data")) {
+		if (tag.equals(TagDescriptor.bm_filehosting.getTag())) {
 			FileHostingRolesVerifier.reset();
 		}
 	}

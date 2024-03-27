@@ -37,6 +37,7 @@ import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.node.api.NodeActivator;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
 import net.bluemind.tests.defaultdata.PopulateHelper;
@@ -54,7 +55,7 @@ public class HttpProxyHookObserverTests {
 		Server server = new Server();
 		server.ip = BM_TEST_SERVER;
 		server.name = "test-" + System.nanoTime();
-		server.tags = Arrays.asList("mail/imap");
+		server.tags = Arrays.asList(TagDescriptor.mail_imap.getTag());
 		PopulateHelper.initGlobalVirt(false, server);
 
 		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);

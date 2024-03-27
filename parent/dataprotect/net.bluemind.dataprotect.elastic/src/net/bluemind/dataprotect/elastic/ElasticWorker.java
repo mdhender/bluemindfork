@@ -38,6 +38,7 @@ import net.bluemind.dataprotect.api.IBackupWorker;
 import net.bluemind.dataprotect.api.IDPContext;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 
 public class ElasticWorker implements IBackupWorker {
 	private static final Logger logger = LoggerFactory.getLogger(ElasticWorker.class);
@@ -56,7 +57,7 @@ public class ElasticWorker implements IBackupWorker {
 
 	@Override
 	public boolean supportsTag(String tag) {
-		return "bm/es".equals(tag);
+		return TagDescriptor.bm_es.getTag().equals(tag);
 	}
 
 	@Override

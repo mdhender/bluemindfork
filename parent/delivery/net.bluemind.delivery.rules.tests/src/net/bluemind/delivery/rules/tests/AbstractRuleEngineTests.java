@@ -50,6 +50,7 @@ import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleKnownField;
 import net.bluemind.mime4j.common.AddressableEntity;
 import net.bluemind.mime4j.common.Mime4JHelper;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
@@ -83,13 +84,13 @@ public class AbstractRuleEngineTests {
 
 		var pipo = new Server();
 		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
-		pipo.tags = Collections.singletonList("mail/imap");
+		pipo.tags = Collections.singletonList(TagDescriptor.mail_imap.getTag());
 
 		VertxPlatform.spawnBlocking(25, TimeUnit.SECONDS);
 
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
-		esServer.tags = Lists.newArrayList("bm/es");
+		esServer.tags = Lists.newArrayList(TagDescriptor.bm_es.getTag());
 
 		PopulateHelper.initGlobalVirt(pipo, esServer);
 		PopulateHelper.addDomain(domainUid, Routing.none);

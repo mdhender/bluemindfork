@@ -54,6 +54,7 @@ import net.bluemind.core.sessions.Sessions;
 import net.bluemind.icalendar.api.ICalendarElement.Status;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.tag.api.TagRef;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.todolist.api.ITodoList;
@@ -88,7 +89,7 @@ public class TodoListsServiceTests {
 
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
-		esServer.tags = Lists.newArrayList("bm/es");
+		esServer.tags = Lists.newArrayList(TagDescriptor.bm_es.getTag());
 		PopulateHelper.initGlobalVirt(esServer);
 		PopulateHelper.createTestDomain("bm.lan");
 		userUid = PopulateHelper.addUser("test", "bm.lan");

@@ -92,6 +92,7 @@ import net.bluemind.node.api.FileDescription;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NodeActivator;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.api.GlobalSettingsKeys;
 import net.bluemind.system.api.IGlobalSettings;
 import net.bluemind.system.api.ISystemConfiguration;
@@ -118,10 +119,10 @@ public class FileSystemFileHostingServiceTests {
 
 		Server nodeServer = new Server();
 		nodeServer.ip = DockerEnv.getIp("bluemind/node-tests");
-		nodeServer.tags = Lists.newArrayList("filehosting/data");
+		nodeServer.tags = Lists.newArrayList(TagDescriptor.bm_filehosting.getTag());
 
 		Server pipo = new Server();
-		pipo.tags = Collections.singletonList("mail/imap");
+		pipo.tags = Collections.singletonList(TagDescriptor.mail_imap.getTag());
 		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
 
 		PopulateHelper.initGlobalVirt(nodeServer, pipo);
@@ -170,7 +171,7 @@ public class FileSystemFileHostingServiceTests {
 	}
 
 	private INodeClient getNodeClient() {
-		String ip = Topology.get().any("filehosting/data").value.address();
+		String ip = Topology.get().any(TagDescriptor.bm_filehosting.getTag()).value.address();
 		return NodeActivator.get(ip);
 	}
 

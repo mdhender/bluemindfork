@@ -48,6 +48,7 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.sessions.Sessions;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.persistence.UserSubscriptionStore;
 
@@ -65,7 +66,7 @@ public class FreebusyMgmtTests {
 		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
 		Server imapServer = new Server();
-		imapServer.tags = Collections.singletonList("mail/imap");
+		imapServer.tags = Collections.singletonList(TagDescriptor.mail_imap.getTag());
 		imapServer.ip = PopulateHelper.FAKE_CYRUS_IP;
 
 		PopulateHelper.initGlobalVirt(imapServer);

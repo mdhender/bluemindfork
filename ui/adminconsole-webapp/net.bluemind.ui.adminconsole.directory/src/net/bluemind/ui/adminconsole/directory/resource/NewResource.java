@@ -48,6 +48,7 @@ import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtDelegateFactory;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtWidgetElement;
 import net.bluemind.resource.api.gwt.js.JsResourceDescriptor;
 import net.bluemind.resource.api.gwt.js.JsResourceDescriptorPropertyValue;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.ui.admin.client.forms.TextEdit;
 import net.bluemind.ui.adminconsole.base.ui.DelegationEdit;
 import net.bluemind.ui.adminconsole.base.ui.MailAddressTableEditor;
@@ -97,7 +98,7 @@ public class NewResource extends CompositeGwtWidgetElement {
 	@UiField
 	CheckBox hidden;
 
-	ServerFinder serverFinder = new ServerFinder("mail/imap");
+	ServerFinder serverFinder = new ServerFinder(TagDescriptor.mail_imap.getTag());
 
 	private ItemValue<Domain> domain;
 

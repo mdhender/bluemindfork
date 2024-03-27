@@ -61,7 +61,7 @@ public class NginxServerHook extends DefaultServerHook {
 
 		ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IServer.class, InstallationId.getIdentifier()).allComplete().stream()
-				.filter(s -> s.value.tags.contains("metrics/influxdb")).forEach(metricsInfluxServer -> nginxService
+				.filter(s -> s.value.tags.contains(TagDescriptor.bm_metrics_influx.getTag())).forEach(metricsInfluxServer -> nginxService
 						.updateTickUpstream(server.value.address(), metricsInfluxServer.value.address()));
 
 		nginxService.reloadHttpd(NodeActivator.get(server.value.address()));

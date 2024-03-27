@@ -85,6 +85,7 @@ import net.bluemind.mailbox.service.common.DefaultFolder;
 import net.bluemind.mailshare.api.IMailshare;
 import net.bluemind.mailshare.api.Mailshare;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.state.RunningState;
 import net.bluemind.system.state.StateContext;
 import net.bluemind.tests.defaultdata.PopulateHelper;
@@ -111,12 +112,12 @@ public class SharedMailboxTests {
 
 		Server pipo = new Server();
 		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
-		pipo.tags = Collections.singletonList("mail/imap");
+		pipo.tags = Collections.singletonList(TagDescriptor.mail_imap.getTag());
 
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
 		Assert.assertNotNull(esServer.ip);
-		esServer.tags = Lists.newArrayList("bm/es");
+		esServer.tags = Lists.newArrayList(TagDescriptor.bm_es.getTag());
 
 		VertxPlatform.spawnBlocking(25, TimeUnit.SECONDS);
 

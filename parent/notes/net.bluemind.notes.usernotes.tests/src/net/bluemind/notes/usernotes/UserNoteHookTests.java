@@ -40,6 +40,7 @@ import net.bluemind.notes.api.INote;
 import net.bluemind.notes.api.INoteUids;
 import net.bluemind.notes.api.VNote;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUser;
 
@@ -55,7 +56,7 @@ public class UserNoteHookTests {
 		ElasticsearchTestHelper.getInstance().beforeTest();
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
-		esServer.tags = Lists.newArrayList("bm/es");
+		esServer.tags = Lists.newArrayList(TagDescriptor.bm_es.getTag());
 		PopulateHelper.initGlobalVirt(esServer);
 
 		domainUid = "dom" + System.currentTimeMillis() + ".test";

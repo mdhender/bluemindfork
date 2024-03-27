@@ -47,6 +47,7 @@ import net.bluemind.domain.api.IDomains;
 import net.bluemind.lib.vertx.utils.PasswordDecoder;
 import net.bluemind.network.topology.IServiceTopology;
 import net.bluemind.network.topology.Topology;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.user.api.IUser;
@@ -202,11 +203,11 @@ public final class Nginx implements Handler<HttpServerRequest>, NeedVertxExecuto
 			if (topology.singleNode()) {
 				backendSrv = topology.core().value.address();
 			} else {
-				backendSrv = topology.any("bm/core").value.address();
+				backendSrv = topology.any(TagDescriptor.bm_core.getTag()).value.address();
 			}
 
 			long time = System.currentTimeMillis() - qp.time;
-			logger.info("[name={};protocol={},oip={};backend={}] resolved in {}ms.", qp.latd, qp.protocol, qp.clientIp, 
+			logger.info("[name={};protocol={},oip={};backend={}] resolved in {}ms.", qp.latd, qp.protocol, qp.clientIp,
 					backendSrv, time);
 			return AuthResponse.of(kind, backendLatd, backendSrv);
 		}

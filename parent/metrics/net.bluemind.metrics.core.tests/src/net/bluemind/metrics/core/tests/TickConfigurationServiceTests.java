@@ -37,6 +37,7 @@ import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.metrics.alerts.api.ITickConfiguration;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class TickConfigurationServiceTests {
@@ -52,7 +53,7 @@ public class TickConfigurationServiceTests {
 		JdbcTestHelper.getInstance().beforeTest();
 		JdbcTestHelper.getInstance().getDbSchemaService().initialize();
 		Server pipo = new Server();
-		pipo.tags = Collections.singletonList("mail/imap");
+		pipo.tags = Collections.singletonList(TagDescriptor.mail_imap.getTag());
 		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
 		PopulateHelper.initGlobalVirt(pipo);
 

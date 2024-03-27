@@ -74,6 +74,7 @@ import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.api.DomainTemplate;
 import net.bluemind.system.api.IDomainTemplate;
 import net.bluemind.system.api.ISystemConfiguration;
@@ -109,19 +110,20 @@ public class DPServiceTests {
 
 		Server core = new Server();
 		core.ip = new BmConfIni().get("node-host");
-		core.tags = getTagsExcept("bm/es", "mail/imap", "bm/pgsql", "bm/pgsql-data");
+		core.tags = getTagsExcept(TagDescriptor.bm_es.getTag(), TagDescriptor.mail_imap.getTag(),
+				TagDescriptor.bm_pgsql.getTag(), TagDescriptor.bm_pgsql_data.getTag());
 
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
-		esServer.tags = Lists.newArrayList("bm/es");
+		esServer.tags = Lists.newArrayList(TagDescriptor.bm_es.getTag());
 
 		Server imapServer = new Server();
 		imapServer.ip = PopulateHelper.FAKE_CYRUS_IP;
-		imapServer.tags = Lists.newArrayList("mail/imap");
+		imapServer.tags = Lists.newArrayList(TagDescriptor.mail_imap.getTag());
 
 		Server dbServer = new Server();
 		dbServer.ip = new BmConfIni().get("host");
-		dbServer.tags = Lists.newArrayList("bm/pgsql", "bm/pgsql-data");
+		dbServer.tags = Lists.newArrayList(TagDescriptor.bm_pgsql.getTag(), TagDescriptor.bm_pgsql_data.getTag());
 
 		PopulateHelper.initGlobalVirt(false, core, esServer, imapServer, dbServer);
 		PopulateHelper.createDomain("bm.lan");

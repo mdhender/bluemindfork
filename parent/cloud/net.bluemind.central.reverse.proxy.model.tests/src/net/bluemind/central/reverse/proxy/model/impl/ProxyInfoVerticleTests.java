@@ -42,6 +42,7 @@ import net.bluemind.central.reverse.proxy.model.common.mapper.RecordValueMapper;
 import net.bluemind.central.reverse.proxy.stream.DirEntriesStreamVerticle;
 import net.bluemind.kafka.container.ZkKafkaContainer;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.server.api.TagDescriptor;
 
 public class ProxyInfoVerticleTests {
 	private final Logger logger = LoggerFactory.getLogger(ProxyInfoVerticleTests.class);
@@ -184,7 +185,8 @@ public class ProxyInfoVerticleTests {
 	private ProducerRecord<byte[], byte[]> createInstallation(String uid, String ip) {
 		JsonObject key = new JsonObject().put("type", "installation").put("owner", "owner").put("uid", "uid")
 				.put("id", new Random().nextInt()).put("valueClass", "valueClass");
-		JsonObject installationValue = new JsonObject().put("tags", new JsonArray().add("bm/nginx")).put("ip", ip);
+		JsonObject installationValue = new JsonObject()
+				.put("tags", new JsonArray().add(TagDescriptor.bm_nginx.getTag())).put("ip", ip);
 		JsonObject installation = new JsonObject().put("uid", uid).put("value", installationValue);
 		return new ProducerRecord<>(ORPHANS_TOPIC_NAME, key.encode().getBytes(), installation.encode().getBytes());
 	}

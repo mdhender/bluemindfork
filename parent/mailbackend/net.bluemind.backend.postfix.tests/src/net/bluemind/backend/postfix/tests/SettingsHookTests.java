@@ -50,6 +50,7 @@ import net.bluemind.node.api.NodeActivator;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
@@ -92,7 +93,7 @@ public class SettingsHookTests extends HooksTests {
 
 	@Override
 	protected String getTestTag() {
-		return "mail/smtp";
+		return TagDescriptor.mail_smtp.getTag();
 	}
 
 	@Override

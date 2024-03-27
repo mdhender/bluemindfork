@@ -21,6 +21,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.server.hook.DefaultServerHook;
 import net.bluemind.system.pg.PostgreSQLService;
 
@@ -28,7 +29,7 @@ public class OnBmDataServerTag extends DefaultServerHook {
 
 	@Override
 	public void onServerTagged(BmContext context, ItemValue<Server> itemValue, String tag) throws ServerFault {
-		if (!"bm/pgsql-data".equals(tag)) {
+		if (!TagDescriptor.bm_pgsql_data.getTag().equals(tag)) {
 			return;
 		}
 

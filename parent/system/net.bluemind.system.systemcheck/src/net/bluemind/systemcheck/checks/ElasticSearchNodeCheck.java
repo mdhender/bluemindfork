@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.network.topology.Topology;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.api.InstallationVersion;
 
 public class ElasticSearchNodeCheck extends AbstractCheck {
@@ -20,7 +21,7 @@ public class ElasticSearchNodeCheck extends AbstractCheck {
 
 	@Override
 	public boolean canCheckWithVersion(InstallationVersion version) {
-		return version.databaseVersion.startsWith("4.");
+		return version.databaseVersion.startsWith("4.") || version.databaseVersion.startsWith("5.");
 	}
 
 	@Override
@@ -28,7 +29,7 @@ public class ElasticSearchNodeCheck extends AbstractCheck {
 			throws Exception {
 		CheckResult cr = ok("check.elasticsearch");
 
-		String elasticSearchServer = Topology.get().any("bm/es").value.address();
+		String elasticSearchServer = Topology.get().any(TagDescriptor.bm_es.getTag()).value.address();
 
 		logger.info("Checking ES cluster status of server {}", elasticSearchServer);
 		if (!elasticSearchOk(elasticSearchServer)) {

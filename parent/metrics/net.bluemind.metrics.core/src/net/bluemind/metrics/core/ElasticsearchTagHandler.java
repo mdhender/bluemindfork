@@ -12,13 +12,14 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.metrics.core.tick.TickInputConfigurator;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 
 public class ElasticsearchTagHandler extends TickInputConfigurator {
 	private static final Logger logger = LoggerFactory.getLogger(ElasticsearchTagHandler.class);
 
 	@Override
 	public void onServerTagged(BmContext context, ItemValue<Server> itemValue, String tag) throws ServerFault {
-		if (!tag.equals("bm/es")) {
+		if (!tag.equals(TagDescriptor.bm_es.getTag())) {
 			return;
 		}
 		try {
@@ -36,7 +37,7 @@ public class ElasticsearchTagHandler extends TickInputConfigurator {
 
 	@Override
 	public void onServerUntagged(BmContext context, ItemValue<Server> itemValue, String tag) throws ServerFault {
-		if (!tag.equals("bm/es")) {
+		if (!tag.equals(TagDescriptor.bm_es.getTag())) {
 			return;
 		}
 		TagHelper.deleteRemote(itemValue.value.address(), "/etc/telegraf/telegraf.d/bm-elasticsearch.conf");

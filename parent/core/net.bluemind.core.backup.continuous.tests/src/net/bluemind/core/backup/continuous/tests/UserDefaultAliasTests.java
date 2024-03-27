@@ -48,6 +48,7 @@ import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.network.topology.Topology;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
@@ -72,7 +73,7 @@ public class UserDefaultAliasTests extends MailApiWithKafkaBaseTests {
 		User user = new User();
 		user.login = "dingo";
 		user.password = "dingo";
-		user.dataLocation = Topology.get().any("mail/imap").uid;
+		user.dataLocation = Topology.get().any(TagDescriptor.mail_imap.getTag()).uid;
 		user.routing = Routing.internal;
 		user.accountType = AccountType.FULL;
 		VCard card = new VCard();

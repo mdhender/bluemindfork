@@ -75,6 +75,7 @@ import net.bluemind.icalendar.api.ICalendarElement.Status;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.IUserSettings;
@@ -98,10 +99,10 @@ public class VEventSanitizerTests {
 
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
-		esServer.tags = Lists.newArrayList("bm/es");
+		esServer.tags = Lists.newArrayList(TagDescriptor.bm_es.getTag());
 
 		Server imapServer = new Server();
-		imapServer.tags = Collections.singletonList("mail/imap");
+		imapServer.tags = Collections.singletonList(TagDescriptor.mail_imap.getTag());
 		imapServer.ip = PopulateHelper.FAKE_CYRUS_IP;
 
 		PopulateHelper.initGlobalVirt(esServer, imapServer);

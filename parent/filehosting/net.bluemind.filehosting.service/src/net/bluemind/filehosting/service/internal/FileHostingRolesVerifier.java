@@ -14,6 +14,7 @@ import net.bluemind.filehosting.api.FileHostingInfo.Type;
 import net.bluemind.filehosting.api.IFileHosting;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.role.provider.IRolesVerifier;
+import net.bluemind.server.api.TagDescriptor;
 
 public class FileHostingRolesVerifier implements IRolesVerifier {
 
@@ -47,7 +48,7 @@ public class FileHostingRolesVerifier implements IRolesVerifier {
 	private void verifyServerPresence() throws ServerFault {
 		if (null == FileHostingRolesVerifier.serverPresent) {
 			FileHostingRolesVerifier.serverPresent = Topology.getIfAvailable()
-					.map(t -> t.anyIfPresent("filehosting/data").isPresent()).orElse(null);
+					.map(t -> t.anyIfPresent(TagDescriptor.bm_filehosting.getTag()).isPresent()).orElse(null);
 		}
 	}
 

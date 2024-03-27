@@ -34,6 +34,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.server.hook.DefaultServerHook;
 
 public class RecordIndexActivator implements BundleActivator {
@@ -45,7 +46,7 @@ public class RecordIndexActivator implements BundleActivator {
 
 		@Override
 		public void onServerTagged(BmContext context, ItemValue<Server> itemValue, String tag) {
-			if ("bm/es".equals(tag)) {
+			if (TagDescriptor.bm_es.getTag().equals(tag)) {
 				logger.info("Refresh mail indexer for new ES tag.");
 				loadIndexer();
 			}

@@ -52,6 +52,7 @@ import net.bluemind.mailbox.service.SplittedShardsMapping;
 import net.bluemind.server.api.Assignment;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 
 /**
  * Checks a {@link Mailbox} object to ensure it is in a sane state for CRUD
@@ -242,7 +243,7 @@ public class MailboxValidator {
 			}
 
 			assigned = true;
-			if (assignment.tag.equals("mail/imap")) {
+			if (assignment.tag.equals(TagDescriptor.mail_imap.getTag())) {
 				assignedAsImapServer = true;
 			}
 		}

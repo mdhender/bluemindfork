@@ -18,6 +18,7 @@
 package net.bluemind.dataprotect.postgresql;
 
 import net.bluemind.dataprotect.postgresql.internal.AbstractPgWorker;
+import net.bluemind.server.api.TagDescriptor;
 
 public class PgWorkerBmData extends AbstractPgWorker {
 	public PgWorkerBmData() {
@@ -27,7 +28,7 @@ public class PgWorkerBmData extends AbstractPgWorker {
 
 	@Override
 	public boolean supportsTag(String tag) {
-		return "bm/pgsql-data".equals(tag);
+		return TagDescriptor.bm_pgsql_data.getTag().equals(tag);
 	}
 
 	@Override

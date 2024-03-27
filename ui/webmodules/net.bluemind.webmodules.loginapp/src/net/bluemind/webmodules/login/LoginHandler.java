@@ -41,6 +41,7 @@ import net.bluemind.core.rest.http.ILocator;
 import net.bluemind.core.rest.http.ITaggedServiceProvider;
 import net.bluemind.core.rest.http.VertxServiceProvider;
 import net.bluemind.network.topology.Topology;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.api.IInstallationAsync;
 import net.bluemind.system.api.InstallationVersion;
 import net.bluemind.webmodule.server.CSRFTokenManager;
@@ -184,7 +185,7 @@ public class LoginHandler extends AbstractIndexHandler implements NeedVertx {
 	}
 
 	private void loadVersion() {
-		vertx.setTimer(2000, timerId -> getProvider().instance("bm/core", IInstallationAsync.class)
+		vertx.setTimer(2000, timerId -> getProvider().instance(TagDescriptor.bm_core.getTag(), IInstallationAsync.class)
 				.getVersion(new AsyncHandler<InstallationVersion>() {
 
 					@Override

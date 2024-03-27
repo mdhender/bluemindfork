@@ -25,6 +25,7 @@ import com.google.common.collect.ImmutableList;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.network.topology.IServiceTopology;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 
 public class DefaultServiceTopology implements IServiceTopology {
 
@@ -38,7 +39,7 @@ public class DefaultServiceTopology implements IServiceTopology {
 		if (singleNode) {
 			core = servers.get(0);
 		} else {
-			core = any("bm/core");
+			core = any(TagDescriptor.bm_core.getTag());
 		}
 	}
 

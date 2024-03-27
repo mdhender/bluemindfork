@@ -31,6 +31,7 @@ import net.bluemind.filehosting.api.FileHostingInfo.Type;
 import net.bluemind.filehosting.api.IFileHosting;
 import net.bluemind.server.api.Assignment;
 import net.bluemind.server.api.IServer;
+import net.bluemind.server.api.TagDescriptor;
 
 public class FileHostingRoleValidator implements IRoleValidator {
 
@@ -46,7 +47,8 @@ public class FileHostingRoleValidator implements IRoleValidator {
 			List<Assignment> assignments = context.provider().instance(IServer.class, InstallationId.getIdentifier())
 					.getAssignments(domain);
 
-			return assignments.stream().anyMatch(assignment -> assignment.tag.equals("filehosting/data"));
+			return assignments.stream()
+					.anyMatch(assignment -> assignment.tag.equals(TagDescriptor.bm_filehosting.getTag()));
 		} else {
 			return true;
 		}

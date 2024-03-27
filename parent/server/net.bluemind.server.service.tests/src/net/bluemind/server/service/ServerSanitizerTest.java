@@ -25,6 +25,7 @@ import org.junit.Test;
 import com.google.common.collect.Lists;
 
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 
 public class ServerSanitizerTest {
 
@@ -53,14 +54,14 @@ public class ServerSanitizerTest {
 	@Test
 	public void tagMailPgData() {
 		Server srv = new Server();
-		srv.tags = Lists.newArrayList("mail/imap");
+		srv.tags = Lists.newArrayList(TagDescriptor.mail_imap.getTag());
 		sanitizer.create(srv);
-		assertTrue(srv.tags.contains("bm/pgsql-data"));
+		assertTrue(srv.tags.contains(TagDescriptor.bm_pgsql_data.getTag()));
 
 		srv = new Server();
-		srv.tags = Lists.newArrayList("bm/pgsql-data");
+		srv.tags = Lists.newArrayList(TagDescriptor.bm_pgsql_data.getTag());
 		sanitizer.create(srv);
-		assertTrue(srv.tags.contains("mail/imap"));
+		assertTrue(srv.tags.contains(TagDescriptor.mail_imap.getTag()));
 	}
 
 }

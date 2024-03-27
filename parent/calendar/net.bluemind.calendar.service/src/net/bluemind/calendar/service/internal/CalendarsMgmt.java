@@ -69,6 +69,7 @@ import net.bluemind.directory.service.DirEntryHandlers;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.server.api.IServer;
+import net.bluemind.server.api.TagDescriptor;
 
 public class CalendarsMgmt implements ICalendarsMgmt, IInCoreCalendarsMgmt {
 	private static final Logger logger = LoggerFactory.getLogger(CalendarsMgmt.class);
@@ -376,7 +377,7 @@ public class CalendarsMgmt implements ICalendarsMgmt, IInCoreCalendarsMgmt {
 		DirEntry entry = DirEntry.create(descriptor.orgUnitUid, descriptor.domainUid + "/calendars/" + uid,
 				DirEntry.Kind.CALENDAR, uid, descriptor.name, null, false, false, false);
 		List<String> assignedServers = context.su().provider().instance(IServer.class, InstallationId.getIdentifier())
-				.byAssignment(descriptor.domainUid, "mail/imap");
+				.byAssignment(descriptor.domainUid, TagDescriptor.mail_imap.getTag());
 		if (!assignedServers.isEmpty()) {
 			entry.dataLocation = assignedServers.get(0);
 		}

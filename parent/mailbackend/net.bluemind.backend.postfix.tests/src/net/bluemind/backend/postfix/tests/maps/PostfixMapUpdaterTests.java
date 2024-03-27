@@ -43,6 +43,7 @@ import net.bluemind.node.api.NCUtils;
 import net.bluemind.node.api.NodeActivator;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class PostfixMapUpdaterTests {
@@ -74,7 +75,7 @@ public class PostfixMapUpdaterTests {
 		Server needlessServer = new Server();
 		needlessServer.ip = "10.0.0.1";
 		needlessServer.name = "test-" + System.nanoTime();
-		needlessServer.tags = Arrays.asList("mail/imap");
+		needlessServer.tags = Arrays.asList(TagDescriptor.mail_imap.getTag());
 		PopulateHelper.createServers(needlessServer);
 
 		PopulateHelper.createTestDomain("domain.tld", needlessServer);
@@ -88,12 +89,12 @@ public class PostfixMapUpdaterTests {
 		Server needlessServer = new Server();
 		needlessServer.ip = "10.0.0.1";
 		needlessServer.name = "test-" + System.nanoTime();
-		needlessServer.tags = Arrays.asList("mail/imap");
+		needlessServer.tags = Arrays.asList(TagDescriptor.mail_imap.getTag());
 
 		Server smtp = new Server();
 		smtp.ip = new BmConfIni().get("bluemind/smtp-role");
 		smtp.name = "test-" + System.nanoTime();
-		smtp.tags = Arrays.asList("mail/smtp");
+		smtp.tags = Arrays.asList(TagDescriptor.mail_smtp.getTag());
 		PopulateHelper.createServers(needlessServer, smtp);
 
 		PopulateHelper.createTestDomain("domain.tld", needlessServer, smtp);
@@ -130,17 +131,17 @@ public class PostfixMapUpdaterTests {
 		Server needlessServer = new Server();
 		needlessServer.ip = "10.0.0.1";
 		needlessServer.name = "test-" + System.nanoTime();
-		needlessServer.tags = Arrays.asList("mail/imap");
+		needlessServer.tags = Arrays.asList(TagDescriptor.mail_imap.getTag());
 
 		Server smtp = new Server();
 		smtp.ip = new BmConfIni().get("bluemind/smtp-role");
 		smtp.name = "test-" + System.nanoTime();
-		smtp.tags = Arrays.asList("mail/smtp");
+		smtp.tags = Arrays.asList(TagDescriptor.mail_smtp.getTag());
 
 		Server edge = new Server();
 		edge.ip = new BmConfIni().get("bluemind/smtp-edge-role");
 		edge.name = "test-" + System.nanoTime();
-		edge.tags = Arrays.asList("mail/smtp-edge");
+		edge.tags = Arrays.asList(TagDescriptor.mail_smtp_edge.getTag());
 		PopulateHelper.createServers(needlessServer, smtp, edge);
 
 		PopulateHelper.createTestDomain("domain.tld", needlessServer, smtp, edge);
@@ -182,17 +183,17 @@ public class PostfixMapUpdaterTests {
 		Server needlessServer = new Server();
 		needlessServer.ip = "10.0.0.1";
 		needlessServer.name = "test-" + System.nanoTime();
-		needlessServer.tags = Arrays.asList("mail/imap");
+		needlessServer.tags = Arrays.asList(TagDescriptor.mail_imap.getTag());
 
 		Server smtp = new Server();
 		smtp.ip = new BmConfIni().get("bluemind/smtp-role");
 		smtp.name = "test-" + System.nanoTime();
-		smtp.tags = Arrays.asList("mail/smtp");
+		smtp.tags = Arrays.asList(TagDescriptor.mail_smtp.getTag());
 
 		Server edge = new Server();
 		edge.ip = new BmConfIni().get("bluemind/smtp-edge-role");
 		edge.name = "test-" + System.nanoTime();
-		edge.tags = Arrays.asList("mail/smtp-edge");
+		edge.tags = Arrays.asList(TagDescriptor.mail_smtp_edge.getTag());
 		PopulateHelper.createServers(needlessServer, smtp, edge);
 
 		PopulateHelper.createTestDomain("domain1.tld", needlessServer, smtp, edge);
@@ -247,17 +248,17 @@ public class PostfixMapUpdaterTests {
 		Server needlessServer = new Server();
 		needlessServer.ip = "10.0.0.1";
 		needlessServer.name = "test-" + System.nanoTime();
-		needlessServer.tags = Arrays.asList("mail/imap");
+		needlessServer.tags = Arrays.asList(TagDescriptor.mail_imap.getTag());
 
 		Server smtp = new Server();
 		smtp.ip = new BmConfIni().get("bluemind/smtp-role");
 		smtp.name = "test-" + System.nanoTime();
-		smtp.tags = Arrays.asList("mail/smtp");
+		smtp.tags = Arrays.asList(TagDescriptor.mail_smtp.getTag());
 
 		Server edge = new Server();
 		edge.ip = new BmConfIni().get("bluemind/smtp-edge-role");
 		edge.name = "test-" + System.nanoTime();
-		edge.tags = Arrays.asList("mail/smtp-edge");
+		edge.tags = Arrays.asList(TagDescriptor.mail_smtp_edge.getTag());
 		PopulateHelper.createServers(needlessServer, smtp, edge);
 
 		PopulateHelper.createTestDomain("domain1.tld", needlessServer);
@@ -296,12 +297,12 @@ public class PostfixMapUpdaterTests {
 		Server smtp = new Server();
 		smtp.ip = new BmConfIni().get("bluemind/smtp-role");
 		smtp.name = "test-" + System.nanoTime();
-		smtp.tags = Arrays.asList("mail/smtp");
+		smtp.tags = Arrays.asList(TagDescriptor.mail_smtp.getTag());
 
 		Server edge = new Server();
 		edge.ip = new BmConfIni().get("bluemind/smtp-edge-role");
 		edge.name = "test-" + System.nanoTime();
-		edge.tags = Arrays.asList("mail/smtp-edge");
+		edge.tags = Arrays.asList(TagDescriptor.mail_smtp_edge.getTag());
 		PopulateHelper.createServers(smtp, edge);
 
 		PopulateHelper.createTestDomain("domain.tld", smtp, edge);
@@ -337,12 +338,12 @@ public class PostfixMapUpdaterTests {
 		Server smtp = new Server();
 		smtp.ip = new BmConfIni().get("bluemind/smtp-role");
 		smtp.name = "test-" + System.nanoTime();
-		smtp.tags = Arrays.asList("mail/smtp");
+		smtp.tags = Arrays.asList(TagDescriptor.mail_smtp.getTag());
 
 		Server edge = new Server();
 		edge.ip = new BmConfIni().get("bluemind/smtp-edge-role");
 		edge.name = "test-" + System.nanoTime();
-		edge.tags = Arrays.asList("mail/smtp-edge");
+		edge.tags = Arrays.asList(TagDescriptor.mail_smtp_edge.getTag());
 		PopulateHelper.createServers(smtp, edge);
 
 		PopulateHelper.createTestDomain("domain.tld", smtp);

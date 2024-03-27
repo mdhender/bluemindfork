@@ -13,7 +13,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.lib.vertx;bundle-version="1.0.0",
  net.bluemind.eclipse.common;bundle-version="1.0.0",
  net.bluemind.system.api,
- slf4j.api
+ slf4j.api,
+ net.bluemind.server.api
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.central.reverse.proxy.model.common,

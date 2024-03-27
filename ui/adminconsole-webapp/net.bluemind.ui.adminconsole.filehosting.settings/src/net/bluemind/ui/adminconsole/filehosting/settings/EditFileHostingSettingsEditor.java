@@ -40,6 +40,7 @@ import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtWidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtDelegateFactory;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtWidgetElement;
 import net.bluemind.gwtconsoleapp.base.handler.DefaultAsyncHandler;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.api.GlobalSettingsKeys;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.ui.adminconsole.system.SettingsModel;
@@ -122,7 +123,7 @@ public class EditFileHostingSettingsEditor extends CompositeGwtWidgetElement {
 			backupFileHostingDataLabel.setVisible(true);
 			if (map.get(SysConfKeys.dpBackupSkipTags.name()) != null) {
 				this.skipTagList = map.get(SysConfKeys.dpBackupSkipTags.name()).toString();
-				if (this.skipTagList.contains("filehosting/data")) {
+				if (this.skipTagList.contains(TagDescriptor.bm_filehosting.getTag())) {
 					backupFileHostingData.setValue(false);
 				}
 			} else {
@@ -149,12 +150,12 @@ public class EditFileHostingSettingsEditor extends CompositeGwtWidgetElement {
 		map.putString(GlobalSettingsKeys.mail_autoDetachmentLimit.name(), sanitizedAutoDetachmentSize);
 		if (!domainConfig) {
 			if (backupFileHostingData.getValue()) {
-				if (this.skipTagList.contains("filehosting/data")) {
-					removeTag("filehosting/data");
+				if (this.skipTagList.contains(TagDescriptor.bm_filehosting.getTag())) {
+					removeTag(TagDescriptor.bm_filehosting.getTag());
 				}
 			} else {
-				if (!this.skipTagList.contains("filehosting/data")) {
-					addTag("filehosting/data");
+				if (!this.skipTagList.contains(TagDescriptor.bm_filehosting.getTag())) {
+					addTag(TagDescriptor.bm_filehosting.getTag());
 				}
 			}
 			map.putString(SysConfKeys.dpBackupSkipTags.name(), this.skipTagList);
@@ -212,10 +213,10 @@ public class EditFileHostingSettingsEditor extends CompositeGwtWidgetElement {
 
 	private String sanitizeMbIntegerValue(IntegerBox field, int defaultValue) {
 		try {
-			float asFloat= Math.round(Float.parseFloat(field.getText()));
-			long value = ((long)asFloat) * (1024 * 1024);	
+			float asFloat = Math.round(Float.parseFloat(field.getText()));
+			long value = ((long) asFloat) * (1024 * 1024);
 			return String.valueOf(value);
-		} catch (Exception e){
+		} catch (Exception e) {
 			return String.valueOf(defaultValue);
 		}
 	}

@@ -48,6 +48,7 @@ import net.bluemind.group.api.Member;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.server.api.IServer;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
 import net.datafaker.Faker;
@@ -188,7 +189,8 @@ public class UserQuickCreateCommand implements ICmdLet, Runnable {
 
 		if (randomDatalocation == null || !randomDatalocation) {
 			u.dataLocation = ctx.adminApi().instance(IServer.class, "default").allComplete().stream()
-					.filter(s -> s.value.tags.contains("mail/imap")).findAny().map(s -> s.uid).orElse(null);
+					.filter(s -> s.value.tags.contains(TagDescriptor.mail_imap.getTag())).findAny().map(s -> s.uid)
+					.orElse(null);
 		}
 
 		IUser userApi = ctx.adminApi().instance(IUser.class, domainUid);

@@ -42,6 +42,7 @@ import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NodeActivator;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 
 public class GenerationWriter {
 	private static final String backupFolder = "/var/backups/bluemind";
@@ -177,7 +178,7 @@ public class GenerationWriter {
 		IServer srvApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IServer.class,
 				InstallationId.getIdentifier());
 		Optional<ItemValue<Server>> coreServer = srvApi.allComplete().stream()
-				.filter(s -> s.value.tags.contains("bm/core")).findFirst();
+				.filter(s -> s.value.tags.contains(TagDescriptor.bm_core.getTag())).findFirst();
 
 		if (!coreServer.isPresent()) {
 			throw new ServerFault("Unable to find server tagged as bm/core");

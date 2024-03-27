@@ -40,6 +40,7 @@ import net.bluemind.core.rest.http.ILocator;
 import net.bluemind.core.rest.http.VertxServiceProvider;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.network.topology.Topology;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.webmodule.server.IWebFilter;
 import net.bluemind.webmodule.server.NeedVertx;
 import net.bluemind.webmodule.server.WebserverConfiguration;
@@ -79,7 +80,8 @@ public class PublishCalendarFilter implements IWebFilter, NeedVertx {
 
 		VertxServiceProvider provider = new VertxServiceProvider(clientProvider, locator, null).from(request);
 
-		provider.instance("bm/core", IPublishCalendarAsync.class, container).publish(params[5], handler(request));
+		provider.instance(TagDescriptor.bm_core.getTag(), IPublishCalendarAsync.class, container).publish(params[5],
+				handler(request));
 
 		return CompletableFuture.completedFuture(null);
 	}

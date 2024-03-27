@@ -84,12 +84,13 @@ import net.bluemind.lib.elasticsearch.exception.ElasticIndexException;
 import net.bluemind.network.topology.IServiceTopology;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.network.utils.NetworkHelper;
+import net.bluemind.server.api.TagDescriptor;
 
 public final class ESearchActivator implements BundleActivator {
 	private static Logger logger = LoggerFactory.getLogger(ESearchActivator.class);
 
 	private static Config config;
-	private static final String ES_TAG = "bm/es";
+	private static final String ES_TAG = TagDescriptor.bm_es.getTag();
 	private static final Map<String, ElasticsearchTransport> transports = new ConcurrentHashMap<>();
 	private static final Map<String, Lock> refreshLocks = new ConcurrentHashMap<>();
 	private static final Map<String, IndexDefinition> indexes = new HashMap<>();

@@ -81,6 +81,7 @@ import net.bluemind.resource.helper.IResourceTemplateHelper;
 import net.bluemind.resource.helper.ResourceTemplateHelpers;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.tag.api.TagRef;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.User;
@@ -113,7 +114,7 @@ public class VEventSeriesSanitizerTests {
 		this.provider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 
 		Server imapServer = new Server();
-		imapServer.tags = Collections.singletonList("mail/imap");
+		imapServer.tags = Collections.singletonList(TagDescriptor.mail_imap.getTag());
 		imapServer.ip = PopulateHelper.FAKE_CYRUS_IP;
 
 		PopulateHelper.initGlobalVirt(imapServer);

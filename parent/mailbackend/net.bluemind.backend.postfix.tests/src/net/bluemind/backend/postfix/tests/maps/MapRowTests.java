@@ -70,6 +70,7 @@ import net.bluemind.resource.api.IResources;
 import net.bluemind.resource.api.ResourceDescriptor;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
@@ -89,7 +90,7 @@ public class MapRowTests {
 
 		Server imapServer = new Server();
 		imapServer.ip = PopulateHelper.FAKE_CYRUS_IP;
-		imapServer.tags = Lists.newArrayList("mail/imap");
+		imapServer.tags = Lists.newArrayList(TagDescriptor.mail_imap.getTag());
 
 		PopulateHelper.initGlobalVirt(imapServer);
 

@@ -56,6 +56,7 @@ import net.bluemind.pool.Pool;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.application.registration.model.ApplicationInfo;
 import net.bluemind.system.state.StateContext;
 import net.bluemind.system.validation.ProductChecks;
@@ -169,7 +170,7 @@ public class ApplicationLauncher implements IApplication {
 			String password = oci.get("password");
 
 			for (ItemValue<Server> s : servers) {
-				boolean bjdata = s.value.tags.contains("bm/pgsql-data");
+				boolean bjdata = s.value.tags.contains(TagDescriptor.bm_pgsql_data.getTag());
 				if (bjdata) {
 					Pool pool = BMPoolActivator.getDefault().startPool(dbType, login, password, s.value.ip, "bj-data");
 					mailboxDataSource.put(s.uid, pool.getDataSource());

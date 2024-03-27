@@ -31,6 +31,7 @@ import net.bluemind.cli.inject.common.TargetMailbox;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.network.topology.Topology;
+import net.bluemind.server.api.TagDescriptor;
 
 public class SmtpInjector extends MailExchangeInjector {
 
@@ -40,7 +41,7 @@ public class SmtpInjector extends MailExchangeInjector {
 
 		public SmtpTargetMailbox(TargetMailbox.Auth auth) {
 			super(auth);
-			this.prot = new SMTPProtocol(Topology.get().any("mail/smtp").value.address(), 587);
+			this.prot = new SMTPProtocol(Topology.get().any(TagDescriptor.mail_smtp.getTag()).value.address(), 587);
 			this.lock = new Semaphore(1);
 		}
 

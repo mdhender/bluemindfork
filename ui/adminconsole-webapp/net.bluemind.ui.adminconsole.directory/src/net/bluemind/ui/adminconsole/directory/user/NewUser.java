@@ -63,6 +63,7 @@ import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtWidgetElement;
 import net.bluemind.mailbox.api.gwt.js.JsMailboxRouting;
 import net.bluemind.role.api.IRolesPromise;
 import net.bluemind.role.api.gwt.endpoint.RolesGwtEndpoint;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.ui.adminconsole.base.DomainsHolder;
 import net.bluemind.ui.adminconsole.base.SubscriptionInfoHolder;
 import net.bluemind.ui.adminconsole.base.ui.DelegationEdit;
@@ -126,7 +127,7 @@ public class NewUser extends CompositeGwtWidgetElement {
 	@UiField
 	Label errorLabel;
 
-	ServerFinder serverFinder = new ServerFinder("mail/imap");
+	ServerFinder serverFinder = new ServerFinder(TagDescriptor.mail_imap.getTag());
 
 	private NewUser() {
 		HTMLPanel dlp = uiBinder.createAndBindUi(this);

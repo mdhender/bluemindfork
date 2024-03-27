@@ -29,13 +29,13 @@ import com.google.common.base.Strings;
 import net.bluemind.cli.inject.common.IMessageProducer;
 import net.bluemind.cli.inject.common.MailExchangeInjector;
 import net.bluemind.cli.inject.common.TargetMailbox;
-import net.bluemind.cli.inject.common.TargetMailbox.Auth;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.imap.ListInfo;
 import net.bluemind.imap.StoreClient;
 import net.bluemind.imap.TaggedResult;
 import net.bluemind.network.topology.Topology;
+import net.bluemind.server.api.TagDescriptor;
 import net.datafaker.Faker;
 import net.datafaker.providers.food.Beer;
 
@@ -52,7 +52,8 @@ public class ImapHierarchyChangesInjector extends MailExchangeInjector {
 
 		public ImapTargetMailbox(TargetMailbox.Auth auth, int folders) {
 			super(auth);
-			this.sc = new StoreClient(Topology.get().any("mail/imap").value.address(), 1143, auth.email(), auth.sid());
+			this.sc = new StoreClient(Topology.get().any(TagDescriptor.mail_imap.getTag()).value.address(), 1143,
+					auth.email(), auth.sid());
 			this.lock = new Semaphore(1);
 			this.faker = new Faker().beer();
 			this.target = new ArrayList<>(folders);

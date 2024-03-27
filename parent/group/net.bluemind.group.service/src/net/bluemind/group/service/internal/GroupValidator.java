@@ -10,6 +10,7 @@ import net.bluemind.group.api.Group;
 import net.bluemind.server.api.Assignment;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 
 public class GroupValidator {
 	private IServer serverService;
@@ -51,7 +52,7 @@ public class GroupValidator {
 			if (assignment.serverUid.equals(group.dataLocation)) {
 				assigned = true;
 
-				if (assignment.tag.equals("mail/imap")) {
+				if (assignment.tag.equals(TagDescriptor.mail_imap.getTag())) {
 					taggedAsImap = true;
 				}
 			}

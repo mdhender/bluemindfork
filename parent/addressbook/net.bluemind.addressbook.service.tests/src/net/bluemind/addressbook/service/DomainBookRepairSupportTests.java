@@ -55,6 +55,7 @@ import net.bluemind.directory.service.RepairTaskMonitor;
 import net.bluemind.directory.service.internal.DirEntryRepairSupports;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.tag.api.Tag;
 import net.bluemind.tag.api.TagRef;
 import net.bluemind.tag.persistence.TagRefStore;
@@ -92,7 +93,7 @@ public class DomainBookRepairSupportTests {
 		ElasticsearchTestHelper.getInstance().beforeTest();
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
-		esServer.tags = Lists.newArrayList("bm/es");
+		esServer.tags = Lists.newArrayList(TagDescriptor.bm_es.getTag());
 		PopulateHelper.initGlobalVirt(esServer);
 		PopulateHelper.addDomain(domainUid);
 

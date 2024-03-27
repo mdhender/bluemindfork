@@ -66,6 +66,7 @@ import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.User;
 
@@ -104,20 +105,20 @@ public abstract class AbstractMailboxServiceTests {
 
 		smtpServer = new Server();
 		smtpServer.ip = new BmConfIni().get("smtp-role");
-		smtpServer.tags = Lists.newArrayList("mail/smtp");
+		smtpServer.tags = Lists.newArrayList(TagDescriptor.mail_smtp.getTag());
 
 		pipo = new Server();
-		pipo.tags = Collections.singletonList("mail/imap");
+		pipo.tags = Collections.singletonList(TagDescriptor.mail_imap.getTag());
 		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
 
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
 		assertNotNull(esServer.ip);
-		esServer.tags = Lists.newArrayList("bm/es");
+		esServer.tags = Lists.newArrayList(TagDescriptor.bm_es.getTag());
 
 		imapServerNotAssigned = new Server();
 		imapServerNotAssigned.ip = "3.3.3.3";
-		imapServerNotAssigned.tags = Lists.newArrayList("mail/imap");
+		imapServerNotAssigned.tags = Lists.newArrayList(TagDescriptor.mail_imap.getTag());
 
 		PopulateHelper.initGlobalVirt(smtpServer, pipo, imapServerNotAssigned, esServer);
 		ElasticsearchTestHelper.getInstance().beforeTest();

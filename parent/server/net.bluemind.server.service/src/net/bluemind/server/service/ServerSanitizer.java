@@ -23,6 +23,7 @@ import java.util.HashSet;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.sanitizer.ISanitizer;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 
 public class ServerSanitizer implements ISanitizer<Server> {
 
@@ -44,12 +45,12 @@ public class ServerSanitizer implements ISanitizer<Server> {
 			srv.fqdn = null;
 		}
 
-		if (srv.tags.contains("mail/imap")) {
-			srv.tags.add("bm/pgsql-data");
-		} else if (srv.tags.contains("bm/pgsql-data")) {
-			srv.tags.add("mail/imap");
+		if (srv.tags.contains(TagDescriptor.mail_imap.getTag())) {
+			srv.tags.add(TagDescriptor.bm_pgsql_data.getTag());
+		} else if (srv.tags.contains(TagDescriptor.bm_pgsql_data.getTag())) {
+			srv.tags.add(TagDescriptor.mail_imap.getTag());
 		}
-		srv.tags = new ArrayList<String>(new HashSet<>(srv.tags)); 
+		srv.tags = new ArrayList<String>(new HashSet<>(srv.tags));
 	}
 
 }

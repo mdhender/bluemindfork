@@ -34,6 +34,7 @@ import net.bluemind.core.rest.http.HttpClientProvider;
 import net.bluemind.core.rest.http.ILocator;
 import net.bluemind.core.rest.http.VertxServiceProvider;
 import net.bluemind.network.topology.Topology;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.user.api.IUserSettingsAsync;
 import net.bluemind.webmodule.server.IWebFilter;
 import net.bluemind.webmodule.server.NeedVertx;
@@ -73,8 +74,8 @@ public class TryMailAppFilter implements IWebFilter, NeedVertx {
 				String domainUid = request.headers().get("BMUserDomainId");
 				String apiKey = request.headers().get("BMSessionId");
 				VertxServiceProvider provider = new VertxServiceProvider(clientProvider, locator, apiKey).from(request);
-				provider.instance("bm/core", IUserSettingsAsync.class, domainUid).getOne(userUid, "mail-application",
-						new AsyncHandler<String>() {
+				provider.instance(TagDescriptor.bm_core.getTag(), IUserSettingsAsync.class, domainUid).getOne(userUid,
+						"mail-application", new AsyncHandler<String>() {
 
 							@Override
 							public void success(String mailApplication) {

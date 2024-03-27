@@ -41,6 +41,7 @@ import net.bluemind.network.topology.Topology;
 import net.bluemind.network.topology.TopologyException;
 import net.bluemind.network.topology.dto.TopologyPayload;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 
 public class TopologyConsumerTests {
 
@@ -76,7 +77,7 @@ public class TopologyConsumerTests {
 		Server dumb = new Server();
 		ItemValue<Server> item = ItemValue.create("dumb", dumb);
 		dumb.ip = "172.16.17.1";
-		dumb.tags = Arrays.asList("bm/core");
+		dumb.tags = Arrays.asList(TagDescriptor.bm_core.getTag());
 		List<ItemValue<Server>> fullList = Arrays.asList(item);
 		JsonObject js = new JsonObject(JsonUtils.asString(TopologyPayload.of(fullList)));
 		System.err.println("------- send new server's list");

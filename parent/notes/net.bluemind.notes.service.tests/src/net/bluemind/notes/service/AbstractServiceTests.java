@@ -65,6 +65,7 @@ import net.bluemind.notes.api.VNote;
 import net.bluemind.notes.persistence.VNoteIndexStore;
 import net.bluemind.notes.persistence.VNoteStore;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.state.StateContext;
@@ -113,7 +114,7 @@ public abstract class AbstractServiceTests {
 		ElasticsearchTestHelper.getInstance().beforeTest();
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
-		esServer.tags = Lists.newArrayList("bm/es");
+		esServer.tags = Lists.newArrayList(TagDescriptor.bm_es.getTag());
 		PopulateHelper.initGlobalVirt(esServer);
 
 		datalocation = PopulateHelper.FAKE_CYRUS_IP;

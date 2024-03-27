@@ -21,6 +21,7 @@ package net.bluemind.ui.adminconsole.directory.server;
 import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.resource.api.IResourcesAsync;
+import net.bluemind.server.api.TagDescriptor;
 
 public class ResourceIconUploadHandler extends BaseUploadHandler<IResourcesAsync> {
 
@@ -31,7 +32,7 @@ public class ResourceIconUploadHandler extends BaseUploadHandler<IResourcesAsync
 
 	@Override
 	protected IResourcesAsync entityService(final HttpServerRequest request, final String domainUid) {
-		return getProvider(request).instance("bm/core", IResourcesAsync.class, domainUid);
+		return getProvider(request).instance(TagDescriptor.bm_core.getTag(), IResourcesAsync.class, domainUid);
 	}
 
 	@Override

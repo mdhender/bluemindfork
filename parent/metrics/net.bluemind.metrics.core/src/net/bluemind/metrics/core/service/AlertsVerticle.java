@@ -130,7 +130,7 @@ public class AlertsVerticle extends AbstractVerticle {
 
 			IServer serverApi = bmContext.getServiceProvider().instance(IServer.class, InstallationId.getIdentifier());
 			Optional<ItemValue<Server>> core = serverApi.allComplete().stream()
-					.filter(iv -> iv.value.tags.contains("bm/core")).findFirst();
+					.filter(iv -> iv.value.tags.contains(TagDescriptor.bm_core.getTag())).findFirst();
 			if (!core.isPresent()) {
 				logger.error("Missing core");
 				return;

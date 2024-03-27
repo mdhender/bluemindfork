@@ -17,6 +17,7 @@ import net.bluemind.node.api.NCUtils;
 import net.bluemind.node.api.NodeActivator;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 
 public class PostfixTagHandler extends TickInputConfigurator {
 
@@ -36,7 +37,7 @@ public class PostfixTagHandler extends TickInputConfigurator {
 
 	@Override
 	public void onServerTagged(BmContext context, ItemValue<Server> itemValue, String tag) throws ServerFault {
-		if (!tag.equals("mail/smtp")) {
+		if (!tag.equals(TagDescriptor.mail_smtp.getTag())) {
 			return;
 		}
 
@@ -61,7 +62,7 @@ public class PostfixTagHandler extends TickInputConfigurator {
 
 	@Override
 	public void onServerUntagged(BmContext context, ItemValue<Server> itemValue, String tag) throws ServerFault {
-		if (!tag.equals("mail/smtp")) {
+		if (!tag.equals(TagDescriptor.mail_smtp.getTag())) {
 			return;
 		}
 		TagHelper.deleteRemote(itemValue.value.address(), "/etc/telegraf/telegraf.d/bm-postfix.conf");

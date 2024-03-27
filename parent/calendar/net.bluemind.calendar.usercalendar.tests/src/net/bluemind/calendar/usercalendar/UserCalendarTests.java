@@ -72,6 +72,7 @@ import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.tag.api.TagRef;
 import net.bluemind.tests.defaultdata.BmDateTimeHelper;
 import net.bluemind.tests.defaultdata.PopulateHelper;
@@ -95,7 +96,7 @@ public class UserCalendarTests {
 
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
-		esServer.tags = Lists.newArrayList("bm/es");
+		esServer.tags = Lists.newArrayList(TagDescriptor.bm_es.getTag());
 
 		PopulateHelper.initGlobalVirt(esServer);
 		PopulateHelper.addDomain(domainUid);
@@ -199,7 +200,6 @@ public class UserCalendarTests {
 		List<AccessControlEntry> expected = List.of(AccessControlEntry.create(user.uid, Verb.All),
 				AccessControlEntry.create(domainUid, Verb.Read));
 		assertACLMatch(expected, list);
-
 
 		TaskRef tr = getService(defaultSecurityContext).delete(user.uid);
 		TaskUtils.wait(ServerSideServiceProvider.getProvider(defaultSecurityContext), tr);

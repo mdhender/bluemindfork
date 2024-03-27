@@ -117,6 +117,7 @@ import net.bluemind.role.api.DefaultRoles;
 import net.bluemind.role.service.IInternalRoles;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.state.RunningState;
 import net.bluemind.system.state.StateContext;
 import net.bluemind.tag.api.ITagUids;
@@ -189,14 +190,14 @@ public class UserServiceTests {
 
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
-		esServer.tags = Lists.newArrayList("bm/es");
+		esServer.tags = Lists.newArrayList(TagDescriptor.bm_es.getTag());
 
 		Server server = new Server();
 		server.ip = "prec";
 		server.tags = Lists.newArrayList("blue/job", "ur/anus");
 
 		Server pipo = new Server();
-		pipo.tags = Collections.singletonList("mail/imap");
+		pipo.tags = Collections.singletonList(TagDescriptor.mail_imap.getTag());
 		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
 
 		PopulateHelper.initGlobalVirt(esServer, server, pipo);

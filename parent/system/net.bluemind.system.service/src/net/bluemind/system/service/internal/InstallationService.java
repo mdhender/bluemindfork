@@ -91,6 +91,7 @@ import net.bluemind.node.client.AHCNodeClientFactory;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.api.CloneConfiguration;
 import net.bluemind.system.api.CustomLogo;
 import net.bluemind.system.api.IInstallation;
@@ -432,7 +433,7 @@ public class InstallationService implements IInstallation {
 					c -> c.identifier.equals(installedComp.identifier) && c.version.equals(installedComp.version));
 		});
 		ret.needsUpgrade = !upToDate;
-		componentDbVersion.stream().filter(comp -> comp.identifier.equals("bm/core")).findFirst()
+		componentDbVersion.stream().filter(comp -> comp.identifier.equals(TagDescriptor.bm_core.getTag())).findFirst()
 				.ifPresent(cp -> ret.databaseVersion = cp.version);
 		return ret;
 	}

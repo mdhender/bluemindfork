@@ -32,6 +32,7 @@ import net.bluemind.network.topology.Topology;
 import net.bluemind.sds.store.ISdsBackingStoreFactory;
 import net.bluemind.sds.store.ISdsSyncStore;
 import net.bluemind.sds.store.noop.NoopStoreFactory;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.api.ArchiveKind;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
@@ -58,7 +59,7 @@ public class DefaultSdsStoreLoader implements ISdsStoreLoader {
 			if (Topology.get().singleNode()) {
 				logger.warn("ArchiveKind {} is sharded by datalocation. A 'real' SDS store is recommended for cloning.",
 						archiveKind);
-				locToUse = Topology.get().any("bm/core").uid;
+				locToUse = Topology.get().any(TagDescriptor.bm_core.getTag()).uid;
 			} else {
 				throw new ServerFault("ArchiveKind " + archiveKind
 						+ " is sharded by datalocation. A 'real' SDS store is needed for cloning.");

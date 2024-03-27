@@ -75,6 +75,7 @@ import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtScreenRoot;
 import net.bluemind.gwtconsoleapp.base.handler.DefaultAsyncHandler;
 import net.bluemind.gwtconsoleapp.base.notification.Notification;
 import net.bluemind.server.api.IServerPromise;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.server.api.gwt.endpoint.ServerGwtEndpoint;
 import net.bluemind.ui.adminconsole.base.DomainsHolder;
 import net.bluemind.ui.adminconsole.base.IDomainChangedListener;
@@ -608,7 +609,7 @@ public class DirectoryCenter extends Composite implements IGwtScreenRoot, IDomai
 		IServerPromise serverService = new ServerGwtEndpoint(Ajax.TOKEN.getSessionId(), "default").promiseApi();
 		serverService.getAssignments(domainUid).thenAccept(servers -> {
 			filterByShard.addItem(constants.all(), "");
-			servers.stream().filter(s -> "mail/imap".equals(s.tag)).forEach(server -> {
+			servers.stream().filter(s -> TagDescriptor.mail_imap.getTag().equals(s.tag)).forEach(server -> {
 				serverService.getComplete(server.serverUid).thenAccept(s -> {
 					filterByShard.addItem(s.value.name, s.uid);
 				});

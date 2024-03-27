@@ -31,6 +31,7 @@ import net.bluemind.core.rest.http.ILocator;
 import net.bluemind.core.rest.http.VertxServiceProvider;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.network.topology.Topology;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.webmodule.server.NeedVertx;
 
 public class ImportVCardHandler implements Handler<HttpServerRequest>, NeedVertx {
@@ -86,7 +87,8 @@ public class ImportVCardHandler implements Handler<HttpServerRequest>, NeedVertx
 		String containerUid = request.params().get("containerUid");
 
 		VertxServiceProvider provider = getProvider(request);
-		IVCardServiceAsync service = provider.instance("bm/core", IVCardServiceAsync.class, containerUid);
+		IVCardServiceAsync service = provider.instance(TagDescriptor.bm_core.getTag(), IVCardServiceAsync.class,
+				containerUid);
 
 		service.importCards(vcard, new AsyncHandler<TaskRef>() {
 

@@ -19,6 +19,7 @@ import net.bluemind.node.api.NCUtils;
 import net.bluemind.node.api.NodeActivator;
 import net.bluemind.node.client.AHCNodeClientFactory;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.server.hook.DefaultServerHook;
 
 public class MCastHook extends DefaultServerHook {
@@ -60,7 +61,7 @@ public class MCastHook extends DefaultServerHook {
 	@Override
 	public void onServerTagged(BmContext context, ItemValue<Server> server, String tag) throws ServerFault {
 
-		if (tag.equals("bm/es")) {
+		if (tag.equals(TagDescriptor.bm_es.getTag())) {
 			updateESClusterName(server, tag);
 		}
 	}

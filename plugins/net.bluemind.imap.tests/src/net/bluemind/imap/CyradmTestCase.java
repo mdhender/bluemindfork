@@ -37,6 +37,7 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public abstract class CyradmTestCase {
@@ -60,7 +61,7 @@ public abstract class CyradmTestCase {
 
 		Server pipo = new Server();
 		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
-		pipo.tags = Collections.singletonList("mail/imap");
+		pipo.tags = Collections.singletonList(TagDescriptor.mail_imap.getTag());
 
 		PopulateHelper.initGlobalVirt(pipo);
 

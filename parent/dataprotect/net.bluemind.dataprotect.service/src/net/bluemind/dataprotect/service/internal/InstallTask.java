@@ -32,6 +32,7 @@ import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.dataprotect.api.DataProtectGeneration;
 import net.bluemind.dataprotect.api.PartGeneration;
+import net.bluemind.server.api.TagDescriptor;
 
 public class InstallTask extends BlockingServerTask implements IServerTask {
 
@@ -48,7 +49,7 @@ public class InstallTask extends BlockingServerTask implements IServerTask {
 		List<PartGeneration> parts = gen.parts;
 		PartGeneration pgPart = null;
 		for (PartGeneration part : parts) {
-			if ("bm/pgsql".equals(part.tag)) {
+			if (TagDescriptor.bm_pgsql.getTag().equals(part.tag)) {
 				pgPart = part;
 				break;
 			}

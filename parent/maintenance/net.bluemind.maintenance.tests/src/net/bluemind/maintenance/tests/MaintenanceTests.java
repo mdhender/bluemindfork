@@ -69,7 +69,7 @@ public class MaintenanceTests {
 
 		BmConfIni ini = new BmConfIni();
 		Server pipo = new Server();
-		pipo.tags = Collections.singletonList("mail/imap");
+		pipo.tags = Collections.singletonList(TagDescriptor.mail_imap.getTag());
 		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
 
 		Server pg = new Server();

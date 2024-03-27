@@ -36,6 +36,7 @@ import net.bluemind.elastic.topology.service.TopologyChangePlan;
 import net.bluemind.elastic.topology.service.TopologyChangePlanner;
 import net.bluemind.elastic.topology.service.tests.TopologySpawn.ContainerBasedTopology;
 import net.bluemind.elastic.topology.service.tests.TopologySpawn.EsSpawnedNode;
+import net.bluemind.server.api.TagDescriptor;
 
 public class SpawnElasticNodesTests {
 
@@ -44,9 +45,9 @@ public class SpawnElasticNodesTests {
 
 		try (TopologySpawn ts = new TopologySpawn()) {
 			ContainerBasedTopology topo = ts//
-					.addNode("bm/es")//
-					.addNode("bm/es-data")//
-					.addNode("bm/es-data")//
+					.addNode(TagDescriptor.bm_es.getTag())//
+					.addNode(TagDescriptor.bm_es_data.getTag())//
+					.addNode(TagDescriptor.bm_es_data.getTag())//
 					.build();
 			assertNotNull(topo);
 
@@ -68,7 +69,7 @@ public class SpawnElasticNodesTests {
 
 		try (TopologySpawn ts = new TopologySpawn()) {
 			ContainerBasedTopology topo = ts//
-					.addNode("bm/es", "bm/es-data")//
+					.addNode(TagDescriptor.bm_es.getTag(), TagDescriptor.bm_es_data.getTag())//
 					.build();
 			assertNotNull(topo);
 
@@ -85,9 +86,9 @@ public class SpawnElasticNodesTests {
 
 		try (TopologySpawn ts = new TopologySpawn()) {
 			ContainerBasedTopology topo = ts//
-					.addNode("bm/es", "bm/es-data")//
-					.addNode("bm/es", "bm/es-data")//
-					.addNode("bm/es", "bm/es-data")//
+					.addNode(TagDescriptor.bm_es.getTag(), TagDescriptor.bm_es_data.getTag())//
+					.addNode(TagDescriptor.bm_es.getTag(), TagDescriptor.bm_es_data.getTag())//
+					.addNode(TagDescriptor.bm_es.getTag(), TagDescriptor.bm_es_data.getTag())//
 					.build();
 			assertNotNull(topo);
 
@@ -112,8 +113,8 @@ public class SpawnElasticNodesTests {
 
 		try (TopologySpawn ts = new TopologySpawn()) {
 			ContainerBasedTopology topo = ts//
-					.addNode("bm/es", "bm/es-data")//
-					.addNode("bm/es", "bm/es-data")//
+					.addNode(TagDescriptor.bm_es.getTag(), TagDescriptor.bm_es_data.getTag())//
+					.addNode(TagDescriptor.bm_es.getTag(), TagDescriptor.bm_es_data.getTag())//
 					.build();
 			assertNotNull(topo);
 
@@ -139,7 +140,7 @@ public class SpawnElasticNodesTests {
 	private void checkCluster(TopologySpawn ts) throws URISyntaxException, IOException, InterruptedException {
 		HttpClient jdkHC = HttpClient.newHttpClient();
 		for (EsSpawnedNode n : ts.getNodes()) {
-			if (n.srv().value.tags.contains("bm/es")) {
+			if (n.srv().value.tags.contains(TagDescriptor.bm_es.getTag())) {
 				jsonReq(jdkHC, n, "");
 				jsonReq(jdkHC, n, "/_cluster/health");
 				jsonReq(jdkHC, n, "/_nodes/usage");

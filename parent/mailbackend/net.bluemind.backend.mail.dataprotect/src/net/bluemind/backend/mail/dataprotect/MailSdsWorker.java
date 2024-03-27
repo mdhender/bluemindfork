@@ -43,6 +43,7 @@ import net.bluemind.domain.api.IDomains;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NodeActivator;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.serviceprovider.SPResolver;
 import net.bluemind.system.api.SystemConf;
 import net.bluemind.system.helper.ArchiveHelper;
@@ -54,7 +55,7 @@ public class MailSdsWorker implements IBackupWorker {
 
 	@Override
 	public boolean supportsTag(String tag) {
-		return "bm/core".equals(tag);
+		return TagDescriptor.bm_core.getTag().equals(tag);
 	}
 
 	@Override

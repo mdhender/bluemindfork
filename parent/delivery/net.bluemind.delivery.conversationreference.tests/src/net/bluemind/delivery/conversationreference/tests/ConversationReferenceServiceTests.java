@@ -43,6 +43,7 @@ import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class ConversationReferenceServiceTests {
@@ -88,7 +89,7 @@ public class ConversationReferenceServiceTests {
 		hashMessage2Id = hf.hashBytes(message2Id.getBytes()).asLong();
 
 		Server srv = new Server();
-		srv.tags = Collections.singletonList("mail/imap");
+		srv.tags = Collections.singletonList(TagDescriptor.mail_imap.getTag());
 		srv.ip = "10.1.2.3";
 
 		PopulateHelper.initGlobalVirt(srv);

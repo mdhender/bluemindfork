@@ -68,6 +68,7 @@ import net.bluemind.network.topology.Topology;
 import net.bluemind.node.api.FileDescription;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NodeActivator;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
 import net.bluemind.system.sysconf.helper.LocalSysconfCache;
@@ -353,7 +354,8 @@ public class FileSystemFileHostingService implements IInternalFileHostingService
 
 	private INodeClient getNodeClient() throws ServerFault {
 		if (null == this.nodeClient) {
-			this.nodeClient = NodeActivator.get(Topology.get().any("filehosting/data").value.address());
+			this.nodeClient = NodeActivator
+					.get(Topology.get().any(TagDescriptor.bm_filehosting.getTag()).value.address());
 		}
 
 		return this.nodeClient;

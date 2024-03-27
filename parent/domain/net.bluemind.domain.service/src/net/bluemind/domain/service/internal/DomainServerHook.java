@@ -30,6 +30,7 @@ import net.bluemind.group.api.Group;
 import net.bluemind.group.api.GroupSearchQuery;
 import net.bluemind.group.api.IGroup;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.server.hook.DefaultServerHook;
 
 public class DomainServerHook extends DefaultServerHook {
@@ -45,7 +46,7 @@ public class DomainServerHook extends DefaultServerHook {
 	private void addMissingDatalocationForUserAndAdminGroups(final BmContext context, final ItemValue<Server> server,
 			final ItemValue<Domain> assignedDomain, final String tag) throws ServerFault {
 
-		if (!tag.equals("mail/imap")) {
+		if (!tag.equals(TagDescriptor.mail_imap.getTag())) {
 			logger.debug("Tag {} for server {} is not an imap assignment", tag, server.uid);
 			return;
 		}

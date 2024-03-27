@@ -16,6 +16,7 @@ import net.bluemind.metrics.core.tick.TickInputConfigurator;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 
 public class PostgresqlTagHandler extends TickInputConfigurator {
 	private static final Logger logger = LoggerFactory.getLogger(PostgresqlTagHandler.class);
@@ -25,7 +26,7 @@ public class PostgresqlTagHandler extends TickInputConfigurator {
 
 	@Override
 	public void onServerTagged(BmContext context, ItemValue<Server> server, String tag) throws ServerFault {
-		if (!tag.equals("bm/pgsql")) {
+		if (!tag.equals(TagDescriptor.bm_pgsql.getTag())) {
 			return;
 		}
 
@@ -55,7 +56,7 @@ public class PostgresqlTagHandler extends TickInputConfigurator {
 
 	@Override
 	public void onServerUntagged(BmContext context, ItemValue<Server> server, String tag) throws ServerFault {
-		if (!tag.equals("bm/pgsql")) {
+		if (!tag.equals(TagDescriptor.bm_pgsql.getTag())) {
 			return;
 		}
 		for (String telegrafConfig : telegrafConfigs) {

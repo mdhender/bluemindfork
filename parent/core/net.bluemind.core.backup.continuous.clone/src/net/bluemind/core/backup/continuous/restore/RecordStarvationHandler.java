@@ -35,6 +35,7 @@ import net.bluemind.core.rest.http.ClientSideServiceProvider;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.api.CloneConfiguration;
 import net.bluemind.system.api.IInstallation;
 import net.bluemind.system.api.SystemState;
@@ -77,7 +78,7 @@ public class RecordStarvationHandler implements IRecordStarvationStrategy, ISepp
 			if (!demoteAsked) {
 				// connect to upstream
 				ItemValue<Server> leaderCore = orphans.topology.values().stream().map(ps -> ps.leader)
-						.filter(iv -> iv.value.tags.contains("bm/core")).findFirst().orElse(null);
+						.filter(iv -> iv.value.tags.contains(TagDescriptor.bm_core.getTag())).findFirst().orElse(null);
 				monitor.log("Ask active leader " + leaderCore + " to relinquish control....");
 				if (leaderCore != null) {
 					demoteLeader(leaderCore);

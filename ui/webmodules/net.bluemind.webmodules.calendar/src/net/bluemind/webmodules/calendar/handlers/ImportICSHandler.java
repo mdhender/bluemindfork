@@ -32,6 +32,7 @@ import net.bluemind.core.rest.http.ILocator;
 import net.bluemind.core.rest.http.VertxServiceProvider;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.network.topology.Topology;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.webmodule.server.NeedVertx;
 
 public class ImportICSHandler implements Handler<HttpServerRequest>, NeedVertx {
@@ -87,9 +88,9 @@ public class ImportICSHandler implements Handler<HttpServerRequest>, NeedVertx {
 		String containerUid = request.params().get("calendar");
 
 		VertxServiceProvider provider = getProvider(request);
-		IVEventAsync service = provider.instance("bm/core", IVEventAsync.class, containerUid);
+		IVEventAsync service = provider.instance(TagDescriptor.bm_core.getTag(), IVEventAsync.class, containerUid);
 
-		service.importIcs(GenericStream.simpleValue(ics, i -> i.getBytes()), new AsyncHandler<TaskRef>() {
+		service.importIcs(GenericStream.simpleValue(ics, String::getBytes), new AsyncHandler<TaskRef>() {
 
 			@Override
 			public void success(TaskRef value) {

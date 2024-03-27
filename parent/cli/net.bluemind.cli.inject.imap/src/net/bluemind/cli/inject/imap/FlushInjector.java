@@ -47,6 +47,7 @@ import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.mailbox.api.Mailbox.Type;
 import net.bluemind.network.topology.Topology;
+import net.bluemind.server.api.TagDescriptor;
 
 public class FlushInjector extends MailExchangeInjector {
 
@@ -78,7 +79,7 @@ public class FlushInjector extends MailExchangeInjector {
 				return;
 			}
 			try {
-				String url = "http://" + Topology.get().any("bm/core").value.address() + ":8090";
+				String url = "http://" + Topology.get().any(TagDescriptor.bm_core.getTag()).value.address() + ":8090";
 				ClientSideServiceProvider prov = ClientSideServiceProvider.getProvider(url, from.auth.sid());
 				IAuthentication authApi = prov.instance(IAuthentication.class);
 				AuthUser me = authApi.getCurrentUser();

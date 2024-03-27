@@ -67,6 +67,7 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.state.StateContext;
 import net.bluemind.tag.api.ITagUids;
 import net.bluemind.tag.api.Tag;
@@ -128,7 +129,7 @@ public abstract class AbstractServiceTests {
 		ElasticsearchTestHelper.getInstance().beforeTest();
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
-		esServer.tags = Lists.newArrayList("bm/es");
+		esServer.tags = Lists.newArrayList(TagDescriptor.bm_es.getTag());
 		PopulateHelper.initGlobalVirt(esServer);
 
 		datalocation = PopulateHelper.FAKE_CYRUS_IP;

@@ -29,6 +29,7 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.sanitizer.ISanitizer;
 import net.bluemind.core.sanitizer.ISanitizerFactory;
 import net.bluemind.server.api.IServer;
+import net.bluemind.server.api.TagDescriptor;
 
 public class DirDomainValueSanitizer implements ISanitizer<DirDomainValue<?>> {
 
@@ -73,7 +74,7 @@ public class DirDomainValueSanitizer implements ISanitizer<DirDomainValue<?>> {
 		if (obj.value.dataLocation == null) {
 
 			List<String> assignedServers = context.provider().instance(IServer.class, InstallationId.getIdentifier())
-					.byAssignment(obj.domainUid, "mail/imap");
+					.byAssignment(obj.domainUid, TagDescriptor.mail_imap.getTag());
 
 			if (!assignedServers.isEmpty()) {
 				obj.value.dataLocation = roundRobin(assignedServers);

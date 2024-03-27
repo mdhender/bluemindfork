@@ -113,7 +113,7 @@ public class DomainSettingsConfigFileUpdateTests {
 		nodeClient = NodeActivator.get(nodeServer.ip);
 
 		Server pipo = new Server();
-		pipo.tags = Collections.singletonList("mail/imap");
+		pipo.tags = Collections.singletonList(TagDescriptor.mail_imap.getTag());
 		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
 
 		domainUid = "testdomain" + System.currentTimeMillis() + ".loc";

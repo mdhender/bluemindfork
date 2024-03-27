@@ -58,6 +58,7 @@ import net.bluemind.mailbox.identity.api.SignatureFormat;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.IUserMailIdentities;
@@ -83,10 +84,10 @@ public class UserMailIdentitiesHookTests {
 		// register elasticsearch to locator
 		Server esServer = new Server();
 		esServer.ip = new BmConfIni().get("es-host");
-		esServer.tags = Lists.newArrayList("bm/es");
+		esServer.tags = Lists.newArrayList(TagDescriptor.bm_es.getTag());
 
 		Server pipo = new Server();
-		pipo.tags = Collections.singletonList("mail/imap");
+		pipo.tags = Collections.singletonList(TagDescriptor.mail_imap.getTag());
 		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
 
 		PopulateHelper.initGlobalVirt(esServer, pipo);
@@ -94,7 +95,7 @@ public class UserMailIdentitiesHookTests {
 		PopulateHelper.createTestDomain(domainUid);
 		PopulateHelper.unAssignFakeCyrus(domainUid);
 		testContext.provider().instance(IServer.class, InstallationId.getIdentifier())
-				.assign(PopulateHelper.FAKE_CYRUS_IP, domainUid, "mail/imap");
+				.assign(PopulateHelper.FAKE_CYRUS_IP, domainUid, TagDescriptor.mail_imap.getTag());
 
 		userUid = PopulateHelper.addUser("test", domainUid, Mailbox.Routing.internal);
 	}

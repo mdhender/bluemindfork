@@ -80,6 +80,7 @@ import net.bluemind.node.api.NodeActivator;
 import net.bluemind.server.api.Assignment;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.service.internal.ContainerUserStoreService;
 
@@ -156,7 +157,7 @@ public abstract class HooksTests {
 		// register elasticsearch to locator
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
-		esServer.tags = Lists.newArrayList("bm/es");
+		esServer.tags = Lists.newArrayList(TagDescriptor.bm_es.getTag());
 
 		// register TEST_TAG host to locator
 		mailSmtpTestIp = getServerIp();

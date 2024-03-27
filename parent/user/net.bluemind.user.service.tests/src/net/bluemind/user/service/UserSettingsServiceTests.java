@@ -49,6 +49,7 @@ import net.bluemind.domain.service.DomainsContainerIdentifier;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUserSettings;
 import net.bluemind.user.api.UserSettings;
@@ -89,7 +90,7 @@ public class UserSettingsServiceTests {
 		testDom = "dom." + System.nanoTime() + ".lan";
 
 		Server pipo = new Server();
-		pipo.tags = Collections.singletonList("mail/imap");
+		pipo.tags = Collections.singletonList(TagDescriptor.mail_imap.getTag());
 		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
 
 		PopulateHelper.initGlobalVirt(pipo);

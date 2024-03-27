@@ -34,7 +34,6 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTMLPanel;
-import com.google.gwt.user.client.ui.IntegerBox;
 
 import net.bluemind.dataprotect.api.RetentionPolicy;
 import net.bluemind.dataprotect.api.gwt.endpoint.DataProtectGwtEndpoint;
@@ -43,6 +42,7 @@ import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtScreenRoot;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtDelegateFactory;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtScreenRoot;
 import net.bluemind.gwtconsoleapp.base.handler.DefaultAsyncHandler;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
 import net.bluemind.system.api.gwt.endpoint.SystemConfigurationGwtEndpoint;
@@ -59,12 +59,12 @@ public class DPPolicy extends Composite implements IGwtScreenRoot {
 
 	private static final DPPolicyUI binder = GWT.create(DPPolicyUI.class);
 	final String _SDS_BACKUP_RETENTION_DAYS_DEFAULT = "90";
-	
+
 	public static final String TYPE = "bm.ac.DPPolicy";
 
 	@UiField
 	IntTextEdit daily;
-	
+
 	@UiField
 	IntTextEdit retentionDays;
 
@@ -111,11 +111,10 @@ public class DPPolicy extends Composite implements IGwtScreenRoot {
 						}
 
 						if (!backupES.getValue().booleanValue()) {
-							skipTags.add("bm/es");
+							skipTags.add(TagDescriptor.bm_es.getTag());
 						} else {
-							skipTags.remove("bm/es");
+							skipTags.remove(TagDescriptor.bm_es.getTag());
 						}
-						
 
 						values.put(SysConfKeys.dpBackupSkipTags.name(), toString(skipTags));
 						values.put(SysConfKeys.dataprotect_skip_datatypes.name(), toString(skipDataTypes));
@@ -157,11 +156,13 @@ public class DPPolicy extends Composite implements IGwtScreenRoot {
 
 					@Override
 					public void success(SystemConf value) {
-						retentionDays.setStringValue(Optional.ofNullable(value.stringValue(SysConfKeys.sds_backup_rentention_days.name()))
-								.orElse(_SDS_BACKUP_RETENTION_DAYS_DEFAULT));
+						retentionDays.setStringValue(
+								Optional.ofNullable(value.stringValue(SysConfKeys.sds_backup_rentention_days.name()))
+										.orElse(_SDS_BACKUP_RETENTION_DAYS_DEFAULT));
 						backupMails.setValue(
 								!value.stringList(SysConfKeys.dataprotect_skip_datatypes.name()).contains("sds-spool"));
-						backupES.setValue(!value.stringList(SysConfKeys.dpBackupSkipTags.name()).contains("bm/es"));
+						backupES.setValue(!value.stringList(SysConfKeys.dpBackupSkipTags.name())
+								.contains(TagDescriptor.bm_es.getTag()));
 
 					}
 				});

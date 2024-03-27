@@ -17,6 +17,7 @@ import net.bluemind.dataprotect.mailbox.MboxRestoreService.Mode;
 import net.bluemind.dataprotect.service.IRestoreActionProvider;
 import net.bluemind.dataprotect.service.action.IRestoreActionData;
 import net.bluemind.dataprotect.service.action.RestoreActionExecutor;
+import net.bluemind.server.api.TagDescriptor;
 
 public abstract class AbstractRestoreActionProvider implements IRestoreActionProvider {
 
@@ -50,12 +51,12 @@ public abstract class AbstractRestoreActionProvider implements IRestoreActionPro
 		RestoreOperation replace = new RestoreOperation();
 		replace.identifier = "replace.mailbox";
 		replace.kind = kind;
-		replace.requiredTag = "mail/imap";
+		replace.requiredTag = TagDescriptor.mail_imap.getTag();
 
 		RestoreOperation sub = new RestoreOperation();
 		sub.identifier = "subfolder.mailbox";
 		sub.kind = kind;
-		replace.requiredTag = "mail/imap";
+		replace.requiredTag = TagDescriptor.mail_imap.getTag();
 
 		return Arrays.asList(replace, sub);
 	}

@@ -13,7 +13,8 @@ Require-Bundle: slf4j.api,
  net.bluemind.utils,
  net.bluemind.core.rest.common,
  org.asynchttpclient.async-http-client;bundle-version="2.10.4";visibility:=reexport,
- org.reactivestreams.reactive-streams;bundle-version="1.0.3"
+ org.reactivestreams.reactive-streams;bundle-version="1.0.3",
+ net.bluemind.server.api
 Bundle-Activator: net.bluemind.core.rest.http.RestHttpActivator
 Export-Package: net.bluemind.core.rest.http,
  net.bluemind.core.rest.http.internal

@@ -65,6 +65,7 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 
 public class TransactionalContext implements BmContext {
 	private SecurityContext securityContext;
@@ -456,20 +457,21 @@ public class TransactionalContext implements BmContext {
 		} catch (Exception e) {
 			logger.error("Unable to start directory transactional pool: {}", e.getMessage(), e);
 		}
-		servers.stream().filter(ivserver -> ivserver.value.tags.contains("bm/pgsql-data")).forEach(ivserver -> {
-			try {
-				PGSimpleDataSource dataDs = new PGSimpleDataSource();
-				dataDs.setServerNames(new String[] { ivserver.value.ip });
-				dataDs.setDatabaseName("bj-data");
-				dataDs.setUser(dbLogin);
-				dataDs.setPassword(dbPassword);
-				UnpooledDataSource unpooledDataSource = new UnpooledDataSource(dataDs);
-				mailboxDataSources.put(ivserver.uid, unpooledDataSource);
-				connections.add(unpooledDataSource.getUnwrappedConnection());
-			} catch (Exception e) {
-				logger.error("Unable to start shard transactional pool: {}", e.getMessage(), e);
-			}
-		});
+		servers.stream().filter(ivserver -> ivserver.value.tags.contains(TagDescriptor.bm_pgsql_data.getTag()))
+				.forEach(ivserver -> {
+					try {
+						PGSimpleDataSource dataDs = new PGSimpleDataSource();
+						dataDs.setServerNames(new String[] { ivserver.value.ip });
+						dataDs.setDatabaseName("bj-data");
+						dataDs.setUser(dbLogin);
+						dataDs.setPassword(dbPassword);
+						UnpooledDataSource unpooledDataSource = new UnpooledDataSource(dataDs);
+						mailboxDataSources.put(ivserver.uid, unpooledDataSource);
+						connections.add(unpooledDataSource.getUnwrappedConnection());
+					} catch (Exception e) {
+						logger.error("Unable to start shard transactional pool: {}", e.getMessage(), e);
+					}
+				});
 	}
 
 	@Override

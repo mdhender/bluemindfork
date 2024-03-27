@@ -53,6 +53,7 @@ import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtModelHandler;
 import net.bluemind.gwtconsoleapp.base.notification.Notification;
 import net.bluemind.server.api.IServerPromise;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.server.api.gwt.endpoint.ServerGwtEndpoint;
 import net.bluemind.server.api.gwt.js.JsServer;
 import net.bluemind.server.api.gwt.serder.ServerGwtSerDer;
@@ -157,7 +158,8 @@ public class QCreateDomainModelHandler implements IGwtModelHandler {
 
 	private static Set<String> skipTags() {
 		Set<String> ret = new HashSet<>();
-		ret.addAll(Arrays.asList("mail/imap", "bm/pgsql-data", "mail/smtp-edge"));
+		ret.addAll(Arrays.asList(TagDescriptor.mail_imap.getTag(), TagDescriptor.bm_pgsql_data.getTag(),
+				TagDescriptor.mail_smtp_edge.getTag()));
 		return ret;
 	}
 
@@ -168,7 +170,7 @@ public class QCreateDomainModelHandler implements IGwtModelHandler {
 		CompletableFuture<List<ItemValue<Server>>> allServersProm = servers.allComplete();
 		CompletableFuture<Set<String>> toSetProm = dt.getTemplate().thenApply(template -> {
 			Set<String> toApply = new LinkedHashSet<>();
-			toApply.add("bm/core");
+			toApply.add(TagDescriptor.bm_core.getTag());
 			for (DomainTemplate.Kind kind : template.kinds) {
 				for (DomainTemplate.Tag tag : kind.tags) {
 					if (tag.autoAssign && !banned.contains(tag.value)) {

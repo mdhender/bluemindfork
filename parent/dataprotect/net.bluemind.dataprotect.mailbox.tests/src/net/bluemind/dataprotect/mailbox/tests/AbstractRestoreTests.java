@@ -81,6 +81,7 @@ import net.bluemind.node.api.NCUtils;
 import net.bluemind.node.api.NodeActivator;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.api.DomainTemplate;
 import net.bluemind.system.api.IDomainTemplate;
 import net.bluemind.tests.defaultdata.PopulateHelper;
@@ -151,19 +152,20 @@ public class AbstractRestoreTests {
 
 		Server core = new Server();
 		core.ip = new BmConfIni().get("node-host");
-		core.tags = getTagsExcept("bm/es", "mail/imap", "bm/pgsql", "bm/pgsql-data");
+		core.tags = getTagsExcept(TagDescriptor.bm_es.getTag(), TagDescriptor.mail_imap.getTag(),
+				TagDescriptor.bm_pgsql.getTag(), TagDescriptor.bm_pgsql_data.getTag());
 
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
-		esServer.tags = Lists.newArrayList("bm/es");
+		esServer.tags = Lists.newArrayList(TagDescriptor.bm_es.getTag());
 
 		imapServer = new Server();
 		imapServer.ip = PopulateHelper.FAKE_CYRUS_IP;
-		imapServer.tags = Lists.newArrayList("mail/imap", "mail/archive");
+		imapServer.tags = Lists.newArrayList(TagDescriptor.mail_imap.getTag(), "mail/archive");
 
 		Server dbServer = new Server();
 		dbServer.ip = new BmConfIni().get("host");
-		dbServer.tags = Lists.newArrayList("bm/pgsql", "bm/pgsql-data");
+		dbServer.tags = Lists.newArrayList(TagDescriptor.bm_pgsql.getTag(), TagDescriptor.bm_pgsql_data.getTag());
 
 		warmUpNodes(esServer, dbServer);
 

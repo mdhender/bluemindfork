@@ -51,6 +51,7 @@ import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.state.StateContext;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
@@ -84,11 +85,11 @@ public class LoginAuditLogTests {
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
 		System.out.println("ES is " + esServer.ip);
 		assertNotNull(esServer.ip);
-		esServer.tags = Lists.newArrayList("bm/es");
+		esServer.tags = Lists.newArrayList(TagDescriptor.bm_es.getTag());
 
 		Server pipo = new Server();
 		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
-		pipo.tags = Lists.newArrayList("mail/imap");
+		pipo.tags = Lists.newArrayList(TagDescriptor.mail_imap.getTag());
 
 		PopulateHelper.initGlobalVirt(pipo, esServer);
 		PopulateHelper.addDomainAdmin("admin0", "global.virt", Routing.none);

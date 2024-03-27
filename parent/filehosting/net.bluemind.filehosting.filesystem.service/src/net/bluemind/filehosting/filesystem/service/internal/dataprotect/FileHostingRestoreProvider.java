@@ -56,6 +56,7 @@ import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NodeActivator;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 
 public class FileHostingRestoreProvider implements IRestoreActionProvider {
 
@@ -83,7 +84,7 @@ public class FileHostingRestoreProvider implements IRestoreActionProvider {
 				String serverUid = null;
 				PartGeneration part = null;
 				for (PartGeneration pg : backup.parts) {
-					if ("bm/core".equals(pg.tag)) {
+					if (TagDescriptor.bm_core.getTag().equals(pg.tag)) {
 						serverUid = pg.server;
 						part = pg;
 						break;
@@ -96,7 +97,7 @@ public class FileHostingRestoreProvider implements IRestoreActionProvider {
 				IServiceProvider sp = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 				IServer srvApi = sp.instance(IServer.class, InstallationId.getIdentifier());
 				ItemValue<Server> source = srvApi.getComplete(serverUid);
-				IToolConfig conf = restTool.configure(source, "bm/core", new HashSet<String>());
+				IToolConfig conf = restTool.configure(source, TagDescriptor.bm_core.getTag(), new HashSet<String>());
 				IToolSession session = restTool.newSession(conf);
 				String target = session.tmpDirectory();
 				Set<String> folders = new HashSet<>();
@@ -148,7 +149,7 @@ public class FileHostingRestoreProvider implements IRestoreActionProvider {
 		RestoreOperation restore = new RestoreOperation();
 		restore.identifier = "restore.filehosting";
 		restore.kind = RestorableKind.DOMAIN;
-		restore.requiredTag = "filehosting/data";
+		restore.requiredTag = TagDescriptor.bm_filehosting.getTag();
 		return Arrays.asList(new RestoreOperation[] { restore });
 	}
 

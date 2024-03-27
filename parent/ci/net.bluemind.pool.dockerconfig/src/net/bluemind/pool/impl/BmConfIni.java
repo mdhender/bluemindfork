@@ -50,13 +50,13 @@ public class BmConfIni extends IniFile {
 		System.out.println("Docker based conf.");
 
 		List<ItemValue<Server>> topo = new LinkedList<>();
-		topo.add(tagged("127.0.0.1", "bm/core"));
+		topo.add(tagged("127.0.0.1", TagDescriptor.bm_core.getTag()));
 
 		overrideMap.putAll(DockerEnv.getImagesMap());
 		String esHost = DockerEnv.getIp(DockerContainer.ELASTICSEARCH.getName());
 		if (esHost != null) {
 			overrideMap.put(DockerContainer.ELASTICSEARCH.getHostProperty(), esHost);
-			topo.add(tagged(esHost, "bm/es"));
+			topo.add(tagged(esHost, TagDescriptor.bm_es.getTag()));
 		}
 
 		String host = DockerEnv.getIp(DockerContainer.POSTGRES.getName());

@@ -114,6 +114,7 @@ import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.resource.api.IResources;
 import net.bluemind.resource.api.ResourceDescriptor;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.tests.defaultdata.PopulateHelper;
@@ -157,15 +158,15 @@ public class ImipFilterVEventTests {
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
 		System.out.println("IP " + esServer.ip);
-		esServer.tags = Lists.newArrayList("bm/es");
+		esServer.tags = Lists.newArrayList(TagDescriptor.bm_es.getTag());
 
 		Server pipo = new Server();
-		pipo.tags = Collections.singletonList("mail/imap");
+		pipo.tags = Collections.singletonList(TagDescriptor.mail_imap.getTag());
 		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
 
 		Server nodeServer = new Server();
 		nodeServer.ip = DockerEnv.getIp("bluemind/node-tests");
-		nodeServer.tags = Lists.newArrayList("filehosting/data");
+		nodeServer.tags = Lists.newArrayList(TagDescriptor.bm_filehosting.getTag());
 
 		PopulateHelper.initGlobalVirt(pipo, nodeServer);
 

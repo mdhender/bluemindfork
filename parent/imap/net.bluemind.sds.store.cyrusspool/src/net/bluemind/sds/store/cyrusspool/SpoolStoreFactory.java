@@ -37,6 +37,7 @@ import net.bluemind.sds.store.ISdsBackingStore;
 import net.bluemind.sds.store.ISdsBackingStoreFactory;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.serviceprovider.SPResolver;
 import net.bluemind.system.api.ArchiveKind;
 
@@ -49,7 +50,7 @@ public class SpoolStoreFactory implements ISdsBackingStoreFactory {
 	public SpoolStoreFactory() {
 		this.serviceProvider = SPResolver.get().resolve(Token.admin0());
 		this.backends = serviceProvider.instance(IServer.class, "default").allComplete().stream()
-				.filter(ivs -> ivs.value.tags.contains("mail/imap")).collect(Collectors.toList());
+				.filter(ivs -> ivs.value.tags.contains(TagDescriptor.mail_imap.getTag())).collect(Collectors.toList());
 
 		for (ItemValue<Server> b : backends) {
 			setupFolders(b);

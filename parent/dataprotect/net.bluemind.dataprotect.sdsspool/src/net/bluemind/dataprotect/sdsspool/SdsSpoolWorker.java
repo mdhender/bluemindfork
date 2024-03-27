@@ -81,7 +81,7 @@ public class SdsSpoolWorker implements IBackupWorker {
 
 	@Override
 	public boolean supportsTag(String tag) {
-		return "bm/core".equals(tag);
+		return TagDescriptor.bm_core.getTag().equals(tag);
 	}
 
 	@Override

@@ -62,6 +62,7 @@ import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.smime.cacerts.api.ISmimeCACert;
 import net.bluemind.smime.cacerts.api.ISmimeCacertUids;
 import net.bluemind.smime.cacerts.api.ISmimeRevocation;
@@ -99,7 +100,7 @@ public abstract class AbstractServiceTests {
 		ElasticsearchTestHelper.getInstance().beforeTest();
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
-		esServer.tags = Lists.newArrayList("bm/es");
+		esServer.tags = Lists.newArrayList(TagDescriptor.bm_es.getTag());
 		TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
 		JdbcTestHelper.getInstance().beforeTest();
 		PopulateHelper.initGlobalVirt(esServer);
@@ -142,8 +143,8 @@ public abstract class AbstractServiceTests {
 		container = containerHome.create(container);
 		assertNotNull(container);
 
-		containerHome = new ContainerStore(defaultContext,
-				JdbcActivator.getInstance().getDataSource(), defaultSecurityContext);
+		containerHome = new ContainerStore(defaultContext, JdbcActivator.getInstance().getDataSource(),
+				defaultSecurityContext);
 		containerHome.createOrUpdateContainerLocation(container, datalocation);
 
 		return container;

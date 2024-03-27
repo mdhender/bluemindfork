@@ -50,6 +50,7 @@ import net.bluemind.gwtconsoleapp.base.editor.gwt.CompositeGwtWidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtWidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtDelegateFactory;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtWidgetElement;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.ui.adminconsole.base.DomainsHolder;
 import net.bluemind.ui.adminconsole.base.ui.DelegationEdit;
 import net.bluemind.ui.adminconsole.base.ui.UserOrExternalUserOrGroupEntityEdit;
@@ -101,7 +102,7 @@ public class NewGroup extends CompositeGwtWidgetElement {
 
 	private ItemValue<Domain> groupDomain;
 
-	ServerFinder serverFinder = new ServerFinder("mail/imap");
+	ServerFinder serverFinder = new ServerFinder(TagDescriptor.mail_imap.getTag());
 
 	private NewGroup() {
 		dlp = uiBinder.createAndBindUi(this);

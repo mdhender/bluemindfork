@@ -41,6 +41,7 @@ import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.maintenance.IMaintenanceScript;
 import net.bluemind.maintenance.MaintenanceScripts;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.state.StateContext;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
@@ -62,7 +63,7 @@ public class DataStreamConsistencyMaintenanceTests {
 
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
-		esServer.tags = Lists.newArrayList("bm/es");
+		esServer.tags = Lists.newArrayList(TagDescriptor.bm_es.getTag());
 
 		SecurityContext admin = new SecurityContext("testUser", "test", Arrays.<String>asList(),
 				Arrays.<String>asList(SecurityContext.ROLE_ADMIN), "bm.lan");

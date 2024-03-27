@@ -86,6 +86,7 @@ import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.pool.impl.docker.DockerContainer;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.state.StateContext;
 import net.bluemind.tests.defaultdata.BmDateTimeHelper;
 import net.bluemind.tests.defaultdata.PopulateHelper;
@@ -146,11 +147,11 @@ public class CalendarLogServiceQueryTests {
 
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
-		esServer.tags = Lists.newArrayList("bm/es");
+		esServer.tags = Lists.newArrayList(TagDescriptor.bm_es.getTag());
 
 		Server nodeServer = new Server();
 		nodeServer.ip = DockerEnv.getIp(DockerContainer.NODE.getName());
-		nodeServer.tags = Lists.newArrayList("filehosting/data");
+		nodeServer.tags = Lists.newArrayList(TagDescriptor.bm_filehosting.getTag());
 
 		PopulateHelper.initGlobalVirt(esServer, nodeServer);
 

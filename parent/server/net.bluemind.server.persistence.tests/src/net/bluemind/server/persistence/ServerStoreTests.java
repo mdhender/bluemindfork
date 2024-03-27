@@ -41,6 +41,7 @@ import net.bluemind.core.container.persistence.ItemStore;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 
 public class ServerStoreTests {
 
@@ -95,7 +96,7 @@ public class ServerStoreTests {
 		assertNotNull(found);
 		assertEquals(created.fqdn, found.fqdn);
 
-		serverStore.assign(uid, "toto.fr", "mail/imap");
+		serverStore.assign(uid, "toto.fr", TagDescriptor.mail_imap.getTag());
 
 		serverStore.delete(item);
 		found = serverStore.get(item);

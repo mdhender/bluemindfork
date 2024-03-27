@@ -75,6 +75,7 @@ import net.bluemind.role.api.BasicRoles;
 import net.bluemind.role.api.IRoles;
 import net.bluemind.role.api.RoleDescriptor;
 import net.bluemind.server.api.IServer;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.api.SystemState;
 import net.bluemind.system.state.StateContext;
 import net.bluemind.user.service.IInCoreUser;
@@ -606,8 +607,8 @@ public class GroupService implements IGroup, IInCoreGroup {
 	public void restore(ItemValue<Group> item, boolean isCreate) {
 		if (item.value.dataLocation == null) {
 			IServiceTopology topo = Topology.get();
-			if (topo.all("mail/imap").size() == 1) {
-				item.value.dataLocation = Topology.get().any("mail/imap").uid;
+			if (topo.all(TagDescriptor.mail_imap.getTag()).size() == 1) {
+				item.value.dataLocation = Topology.get().any(TagDescriptor.mail_imap.getTag()).uid;
 			}
 		}
 		if (isCreate) {

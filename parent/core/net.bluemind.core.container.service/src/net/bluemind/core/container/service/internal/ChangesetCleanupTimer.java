@@ -16,6 +16,7 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.network.topology.Topology;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
 
@@ -49,7 +50,8 @@ public class ChangesetCleanupTimer extends AbstractVerticle {
 	}
 
 	private Set<String> getServers() {
-		return Topology.get().nodes().stream().filter(iv -> iv.value.tags.contains("bm/pgsql-data")).map(iv -> iv.uid)
+		return Topology.get().nodes().stream()
+				.filter(iv -> iv.value.tags.contains(TagDescriptor.bm_pgsql_data.getTag())).map(iv -> iv.uid)
 				.collect(Collectors.toSet());
 	}
 

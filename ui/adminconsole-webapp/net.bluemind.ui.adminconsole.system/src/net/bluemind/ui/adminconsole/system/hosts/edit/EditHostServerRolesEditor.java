@@ -37,6 +37,7 @@ import net.bluemind.gwtconsoleapp.base.editor.gwt.CompositeGwtWidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtWidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtDelegateFactory;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtWidgetElement;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.server.api.gwt.js.JsServer;
 import net.bluemind.system.api.gwt.js.JsDomainTemplate;
 import net.bluemind.system.api.gwt.js.JsDomainTemplateKind;
@@ -126,7 +127,7 @@ public class EditHostServerRolesEditor extends CompositeGwtWidgetElement {
 				JsDomainTemplateTag tag = tags.get(j);
 				BooleanEdit be = new BooleanEdit(tag.getValue());
 
-				if ("mail/imap".equals(tag.getValue())) {
+				if (TagDescriptor.mail_imap.getTag().equals(tag.getValue())) {
 					continue;
 				}
 

@@ -47,6 +47,7 @@ import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtWidgetElement;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailbox.api.gwt.js.JsMailboxRouting;
 import net.bluemind.mailshare.api.gwt.js.JsMailshare;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.ui.adminconsole.base.ui.DelegationEdit;
 import net.bluemind.ui.adminconsole.base.ui.MailAddressTableEditor;
 import net.bluemind.ui.adminconsole.directory.mailshare.l10n.MailshareConstants;
@@ -89,7 +90,7 @@ public class NewMailshare extends CompositeGwtWidgetElement {
 	@UiField
 	CheckBox mailperms;
 
-	ServerFinder serverFinder = new ServerFinder("mail/imap");
+	ServerFinder serverFinder = new ServerFinder(TagDescriptor.mail_imap.getTag());
 
 	@UiHandler("mailperms")
 	void clickMailPerms(ClickEvent e) {

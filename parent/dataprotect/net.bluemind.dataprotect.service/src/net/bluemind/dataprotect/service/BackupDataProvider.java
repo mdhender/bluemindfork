@@ -59,6 +59,7 @@ import net.bluemind.pool.Pool;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.api.Database;
 import net.bluemind.system.api.IInstallation;
 import net.bluemind.system.api.UpgradeReport;
@@ -82,8 +83,8 @@ public class BackupDataProvider implements AutoCloseable {
 	private static Logger logger = LoggerFactory.getLogger(BackupDataProvider.class);
 	private List<PgContext> pgContext;
 	private IServerTaskMonitor monitor;
-	private static final String pgsqlDataTag = "bm/pgsql-data";
-	private static final String pgsqlTag = "bm/pgsql";
+	private static final String pgsqlDataTag = TagDescriptor.bm_pgsql_data.getTag();
+	private static final String pgsqlTag = TagDescriptor.bm_pgsql.getTag();
 
 	/**
 	 * @param target the name of the database the data will be restored into
@@ -99,7 +100,7 @@ public class BackupDataProvider implements AutoCloseable {
 		List<IBackupWorker> workers = Workers.get();
 		IBackupWorker pgWorker = null;
 		for (IBackupWorker bw : workers) {
-			if (bw.supportsTag("bm/pgsql")) {
+			if (bw.supportsTag(TagDescriptor.bm_pgsql.getTag())) {
 				pgWorker = bw;
 				break;
 			}
