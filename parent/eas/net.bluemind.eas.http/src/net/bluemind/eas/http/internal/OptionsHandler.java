@@ -18,6 +18,8 @@
  */
 package net.bluemind.eas.http.internal;
 
+import java.io.File;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +35,8 @@ import net.bluemind.vertx.common.request.Requests;
 public final class OptionsHandler implements Handler<AuthorizedDeviceQuery> {
 
 	private static final Logger logger = LoggerFactory.getLogger(OptionsHandler.class);
+
+	private static final boolean ALLOW_PROTO_ANDROID_16 = new File("/etc/bm-eas/allow.android.proto16").exists();
 
 	@Override
 	public void handle(AuthorizedDeviceQuery event) {
@@ -50,7 +54,7 @@ public final class OptionsHandler implements Handler<AuthorizedDeviceQuery> {
 
 		logger.info("Handling OPTIONS: ua: {}", ua);
 
-		if (!ua.contains("apple")) {
+		if (!ALLOW_PROTO_ANDROID_16 && !ua.contains("apple")) {
 			headers.add(EasHeaders.Server.PROTOCOL_VERSIONS, "2.0,2.1,2.5,12.0,12.1,14.0,14.1");
 		} else {
 			headers.add(EasHeaders.Server.PROTOCOL_VERSIONS, "2.0,2.1,2.5,12.0,12.1,14.0,14.1,16.0,16.1");
