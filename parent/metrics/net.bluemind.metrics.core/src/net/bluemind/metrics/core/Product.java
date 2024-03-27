@@ -20,8 +20,6 @@ public enum Product {
 	ES("bm-elasticsearch", Family.JVM, new String[] { "/var/spool/bm-elasticsearch" }, false,
 			TagDescriptor.bm_es.getTag()),
 
-	HPS("bm-hps", Family.JVM, new String[0], true, TagDescriptor.bm_hps.getTag()),
-
 	MILTER("bm-milter", Family.JVM, new String[0], false, TagDescriptor.mail_smtp.getTag(),
 			TagDescriptor.mail_smtp_edge.getTag()),
 
