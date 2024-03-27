@@ -28,6 +28,7 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.util.concurrent.TimeUnit;
 
+import org.awaitility.Awaitility;
 import org.junit.Test;
 
 import io.vertx.core.json.JsonObject;
@@ -92,7 +93,15 @@ public class SpawnElasticNodesTests {
 
 			configureCluster(topo);
 
-			checkCluster(ts);
+			Awaitility.await().atMost(1, TimeUnit.MINUTES).until(() -> {
+				try {
+					checkCluster(ts);
+				} catch (Exception e) {
+					e.printStackTrace(System.err);
+					return false;
+				}
+				return true;
+			});
 
 		}
 
@@ -110,7 +119,15 @@ public class SpawnElasticNodesTests {
 
 			configureCluster(topo);
 
-			checkCluster(ts);
+			Awaitility.await().atMost(1, TimeUnit.MINUTES).until(() -> {
+				try {
+					checkCluster(ts);
+				} catch (Exception e) {
+					e.printStackTrace(System.err);
+					return false;
+				}
+				return true;
+			});
 
 			System.err.println("**************** RECONFIG ************* ");
 			configureCluster(topo);
