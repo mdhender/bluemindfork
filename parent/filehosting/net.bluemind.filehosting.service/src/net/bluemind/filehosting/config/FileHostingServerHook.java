@@ -60,7 +60,7 @@ public class FileHostingServerHook extends DefaultServerHook {
 				.instance(IGlobalSettings.class);
 		Map<String, String> map = settingsService.get();
 
-		String maxDataSize = map.getOrDefault(GlobalSettingsKeys.filehosting_max_filesize, String.valueOf(0));
+		String maxDataSize = map.getOrDefault(GlobalSettingsKeys.filehosting_max_filesize.name(), String.valueOf(0));
 
 		webmailFilehostingConf.setMessageSizeLimit(Integer.parseInt(maxDataSize));
 		webmailFilehostingConf.write();
