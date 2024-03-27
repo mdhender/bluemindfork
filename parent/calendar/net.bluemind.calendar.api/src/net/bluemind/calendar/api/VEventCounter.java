@@ -67,4 +67,11 @@ public class VEventCounter {
 		}
 
 	}
+
+	public VEventCounter copy() {
+		VEventCounter copy = new VEventCounter();
+		copy.originator = CounterOriginator.from(this.originator.commonName, this.originator.email);
+		copy.counter = counter.copy();
+		return copy;
+	}
 }

@@ -128,7 +128,8 @@ public class CalendarAuditLogMapper implements ILogMapperProvider<VEventSeries> 
 		return sBuilder.toString();
 	}
 
-	private ContentElement buildContent(VEventSeries value) {
+	private ContentElement buildContent(VEventSeries series) {
+		VEventSeries value = series.copy();
 		ContentElementBuilder builder = new ContentElement.ContentElementBuilder();
 		builder.key(value.icsUid);
 		if (value.main == null && value.occurrences.isEmpty()) {

@@ -64,6 +64,14 @@ public class VEventSeries {
 		});
 		copy.occurrences = copyOccurrences;
 
+		List<VEventCounter> copyCounters = new ArrayList<>();
+		if (this.counters != null) {
+			this.counters.forEach(counter -> {
+				copyCounters.add(counter.copy());
+			});
+		}
+		copy.counters = copyCounters;
+
 		if (this.properties != null) {
 			copy.properties = new HashMap<>(this.properties);
 		}
