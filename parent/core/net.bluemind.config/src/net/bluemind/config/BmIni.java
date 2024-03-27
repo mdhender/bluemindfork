@@ -44,7 +44,7 @@ public class BmIni {
 	}
 
 	public static String getPgPassword() throws FileNotFoundException {
-		if (iniFile.exists()) {
+		if (!iniFile.exists()) {
 			throw new FileNotFoundException(BM_INI);
 		}
 		Properties p = new Properties();
