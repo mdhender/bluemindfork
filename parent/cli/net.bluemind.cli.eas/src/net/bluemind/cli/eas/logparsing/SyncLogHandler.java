@@ -140,7 +140,7 @@ public class SyncLogHandler implements ILogHandler {
 		}
 
 		private String toSyncDate(SyncInfo syncInfo) {
-			if (syncInfo == null || syncInfo.syncKey() == null) {
+			if (syncInfo == null || syncInfo.syncKey() == null || syncInfo.syncKey().equals("0")) {
 				return "";
 			}
 
