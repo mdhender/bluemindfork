@@ -58,4 +58,10 @@ public class ContainerUpdatesResult {
 	public int synced() {
 		return added.size() + updated.size() + removed.size();
 	}
+
+	public String summary() {
+		return String.format("Added: %d, Updated: %d, Removed: %d, Unhandled: %d", added.size(), updated.size(),
+				removed.size(), unhandled.size());
+	}
+
 }

@@ -101,7 +101,7 @@ public abstract class ICSImportTask extends BlockingServerTask implements IServe
 				}
 				service.updates(changes, false);
 			}
-			monitor.end(true, ret.total() + " events synchronized", JsonUtils.asString(ret));
+			monitor.end(true, ret.total() + " events synchronized", ret.summary());
 		} finally {
 			if (ret.synced() > 0) {
 				service.emitNotification();
