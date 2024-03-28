@@ -411,11 +411,6 @@ public class InstallationService implements IInstallation {
 			throw new ServerFault("Invalid security context", ErrorCode.PERMISSION_DENIED);
 		}
 
-		SystemState coreState = StateContext.getState();
-		if (coreState.equals(SystemState.CORE_STATE_NOT_INSTALLED)) {
-			throw new ServerFault("Core not installed", ErrorCode.PERMISSION_DENIED);
-		}
-
 		InstallationVersion ret = new InstallationVersion();
 
 		ret.softwareVersion = BMVersion.getVersion();
