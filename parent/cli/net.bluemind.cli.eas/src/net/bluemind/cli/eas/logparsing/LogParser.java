@@ -166,7 +166,7 @@ public class LogParser {
 
 	}
 
-	record SyncInfo(String syncKey, String collectionId, String xml) implements ISyncInfo {
+	public record SyncInfo(String syncKey, String collectionId, String xml) implements ISyncInfo {
 
 		@Override
 		public boolean isSync() {
