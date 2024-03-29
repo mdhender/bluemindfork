@@ -60,8 +60,8 @@ public class ContainerUpdatesResult {
 	}
 
 	public String summary() {
-		return String.format("Added: %d, Updated: %d, Removed: %d, Unhandled: %d", added.size(), updated.size(),
-				removed.size(), unhandled.size());
+		return "Added: " + added.size() + ", Updated: " + updated.size() + ", Removed: " + removed.size()
+				+ ", Unhandled: " + unhandled.size();
 	}
 
 }
