@@ -1,13 +1,15 @@
 <template>
     <div class="pref-filter-rule-forward-action-editor">
         <contact-input
+            class="flex-fill"
+            variant="underline"
             :contacts.sync="contacts"
             :max-contacts="maxContacts"
             :autocomplete-results="autocompleteResults"
             :validate-address-fn="validateAddress"
             @search="onSearch"
         />
-        <bm-form-checkbox v-model="keepCopy" :value="true" :unchecked-value="false" class="mt-3 mb-2">
+        <bm-form-checkbox v-model="keepCopy" :value="true" :unchecked-value="false">
             {{ $t("preferences.mail.filters.action.REDIRECT.keep_copy") }}
         </bm-form-checkbox>
     </div>
@@ -71,3 +73,13 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+@import "@bluemind/ui-components/src/css/utils/variables";
+
+.pref-filter-rule-forward-action-editor {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-5;
+}
+</style>

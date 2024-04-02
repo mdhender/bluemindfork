@@ -3,6 +3,7 @@
         <a
             :id="uniqueId"
             :role="enableCard ? 'button' : 'none'"
+            class="d-flex"
             :class="{
                 btn: enableCard,
                 'btn-link': enableCard,
@@ -267,7 +268,7 @@ $avatar-text-gap: $sp-4;
         }
     }
 
-    a.btn {
+    a {
         text-decoration: none;
     }
     a.no-hover:hover {

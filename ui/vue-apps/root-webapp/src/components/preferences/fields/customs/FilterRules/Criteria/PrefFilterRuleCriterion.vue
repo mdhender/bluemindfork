@@ -1,5 +1,5 @@
 <template>
-    <div class="pref-filter-rule-criterion d-flex align-items-center">
+    <div class="pref-filter-rule-criterion d-flex align-items-center flex-wrap">
         <span class="regular mr-3"> {{ criterion.text }} </span>
         <slot />
     </div>

@@ -11,6 +11,7 @@
             id="pref-filter-rule-modal-name-input"
             ref="name-input"
             v-model="name"
+            variant="underline"
             :placeholder="$t('preferences.mail.filters.modal.name.placeholder')"
             :state="inputState"
             required
@@ -47,12 +48,14 @@ export default {
 </script>
 
 <style lang="scss">
-@use "sass:math";
-@import "~@bluemind/ui-components/src/css/utils/variables";
+@import "@bluemind/ui-components/src/css/utils/responsiveness";
+@import "./variables";
 
 .pref-filter-rule-modal-name {
-    #pref-filter-rule-modal-name-input {
-        width: calc(#{math.percentage(math.div(11, 2 * 12))} - #{$sp-3 + $sp-2});
+    @include from-lg {
+        #pref-filter-rule-modal-name-input {
+            width: calc(100% - $close-gutter);
+        }
     }
 }
 </style>

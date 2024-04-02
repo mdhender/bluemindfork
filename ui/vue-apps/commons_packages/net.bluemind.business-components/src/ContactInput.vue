@@ -12,7 +12,7 @@
                     v-for="(contact, index) in contacts_"
                     :key="contact.key"
                     class="align-items-center d-inline-flex contact-and-input"
-                    :class="{ 'flex-fill': contact.edit }"
+                    :class="{ 'flex-fill': contact.edit, 'overflow-hidden': !autoCollapsible }"
                 >
                     <div
                         :class="{ active: contact.selected, 'flex-fill': contact.edit }"
@@ -480,7 +480,7 @@ export default {
             this.collapsed = show ? false : this.collapsed;
         },
         hideContactsIfApplicable(overflownEvent) {
-            if (this.autoCollapsible) {
+            if (this.autoCollapsible && this.maxContacts > 1) {
                 this.hideContacts(overflownEvent);
             }
         },

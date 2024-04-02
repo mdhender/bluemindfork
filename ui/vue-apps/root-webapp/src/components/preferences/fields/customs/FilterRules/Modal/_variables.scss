@@ -1,0 +1,8 @@
+@use "sass:map";
+@use "sass:math";
+@import "~@bluemind/ui-components/src/css/utils/variables";
+
+$name-value-close-gap: $sp-4;
+$btn-close-size: map-get($btn-close-sizes, "md");
+$close-gutter: $btn-close-size + $name-value-close-gap;
+$close-offset-top: math.div($input-height - $btn-close-size, 2);

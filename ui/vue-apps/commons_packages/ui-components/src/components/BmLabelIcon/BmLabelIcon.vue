@@ -1,7 +1,7 @@
 <template>
     <div class="bm-label-icon" :class="{ 'd-inline-flex align-items-center align-middle': inline }">
         <bm-icon :icon="icon" :size="iconSize" fixed-width class="mr-3" />
-        <div :class="inline ? 'flex-fill' : 'd-inline'" :title="tooltip"><slot /></div>
+        <div class="bm-label-icon-label" :class="inline ? 'flex-fill' : 'd-inline'" :title="tooltip"><slot /></div>
     </div>
 </template>
 

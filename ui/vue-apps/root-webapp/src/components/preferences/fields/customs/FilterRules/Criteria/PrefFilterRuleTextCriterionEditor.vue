@@ -1,5 +1,5 @@
 <template>
-    <bm-form-input v-model="value" class="pref-filter-rule-text-criterion-editor" required />
+    <bm-form-input v-model="value" class="pref-filter-rule-text-criterion-editor" variant="underline" required />
 </template>
 
 <script>
@@ -17,7 +17,7 @@ export default {
     computed: {
         value: {
             get() {
-                return this.criterion.value;
+                return this.criterion.sanitize ? this.criterion.sanitize(this.criterion).value : this.criterion.value;
             },
             set(value) {
                 this.$emit("update:criterion", { ...this.criterion, value });

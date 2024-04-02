@@ -1,23 +1,38 @@
 <template>
-    <div class="pref-filter-rule-header-criterion-editor d-flex flex-fill">
-        <div class="d-flex col-6">
-            <bm-button variant="outline" class="font-weight-normal" @click="$emit('reset')">
-                {{ $t("preferences.mail.filters.target.headers", { name: "" }) }}
-                <bm-icon class="ml-3 text-neutral" icon="caret-down" size="xs" />
-            </bm-button>
-            <bm-form-input
-                v-model="target"
-                class="ml-3 flex-fill"
-                :placeholder="$t('preferences.mail.filters.modal.criteria.header.name.placeholder')"
-                required
-            />
+    <div class="pref-filter-rule-header-criterion-editor">
+        <div class="criterion-name">
+            <div class="header-criterion-group">
+                <bm-form-select
+                    class="header-criterion-group-left"
+                    variant="underline"
+                    :options="[{ value: 0, text: $t('preferences.mail.filters.target.headers', { name: '' }) }]"
+                    :value="0"
+                    :auto-min-width="false"
+                    @click="$emit('reset')"
+                />
+                <bm-form-input
+                    v-model="target"
+                    class="header-criterion-group-right"
+                    variant="underline"
+                    :placeholder="$t('preferences.mail.filters.modal.criteria.header.name.placeholder')"
+                    required
+                />
+            </div>
+            <bm-button-close class="mobile-only" @click="$emit('remove')" />
         </div>
-        <div class="d-flex col-6">
-            <bm-form-select v-model="matcher" :options="options" />
+        <div class="header-criterion-group criterion-value">
+            <bm-form-select
+                v-model="matcher"
+                class="header-criterion-group-left"
+                variant="underline"
+                :auto-min-width="false"
+                :options="options"
+            />
             <bm-form-input
                 v-if="matcher !== CRITERIA_MATCHERS.EXISTS"
                 v-model="value"
-                class="ml-3 flex-fill"
+                class="header-criterion-group-right"
+                variant="underline"
                 required
             />
         </div>
@@ -26,11 +41,11 @@
 
 <script>
 import { CRITERIA_MATCHERS } from "../filterRules.js";
-import { BmButton, BmIcon, BmFormInput, BmFormSelect } from "@bluemind/ui-components";
+import { BmButtonClose, BmFormInput, BmFormSelect } from "@bluemind/ui-components";
 
 export default {
     name: "PrefFilterRuleHeaderCriterionEditor",
-    components: { BmButton, BmFormInput, BmFormSelect, BmIcon },
+    components: { BmButtonClose, BmFormInput, BmFormSelect },
     props: {
         criterion: {
             type: Object,
@@ -79,3 +94,36 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+@import "@bluemind/ui-components/src/css/utils/responsiveness";
+@import "@bluemind/ui-components/src/css/utils/variables";
+@import "../Modal/variables";
+
+.pref-filter-rule-header-criterion-editor {
+    display: flex;
+    align-items: center;
+    gap: $name-value-close-gap;
+    flex: 1 1 auto;
+    min-width: 0;
+    @include until-lg {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .header-criterion-group {
+        display: flex;
+        flex: 1;
+        min-width: 0;
+        align-items: center;
+        gap: $name-value-close-gap;
+
+        .header-criterion-group-left {
+            flex: 0 1 base-px-to-rem(128);
+        }
+        .header-criterion-group-right {
+            flex: 1;
+        }
+    }
+}
+</style>

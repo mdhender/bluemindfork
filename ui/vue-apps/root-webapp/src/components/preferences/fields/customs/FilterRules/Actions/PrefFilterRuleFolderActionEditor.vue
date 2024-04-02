@@ -5,6 +5,7 @@
         :options="userFolders"
         :auto-min-width="false"
         class="pref-filter-rule-folder-action-editor"
+        variant="underline"
         scrollbar
     >
         <template #selected="slotProps">

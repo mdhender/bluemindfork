@@ -6,33 +6,29 @@
         label-class="circled-number three d-flex align-items-center"
     >
         <template v-for="(action, index) in actions">
-            <div
-                v-if="resolvedActions[index]"
-                :key="index"
-                class="d-flex align-items-start justify-content-between row mb-4"
-            >
-                <div class="d-flex col-11 align-items-start">
-                    <div class="col-6">
-                        <bm-form-select
-                            ref="actionCombo"
-                            class="w-100"
-                            :value="actionComboValue(action)"
-                            :options="actionChoices(action.isNew)"
-                            :placeholder="$t('preferences.mail.filters.modal.actions.add.placeholder')"
-                            :auto-min-width="false"
-                            @input="modifyActionType(index, $event)"
-                        />
-                    </div>
-                    <div v-if="resolvedActions[index].editor" class="col-6">
-                        <component
-                            :is="resolvedActions[index].editor"
-                            :action="action"
-                            class="w-100"
-                            @update:action="updateAction(index, $event)"
-                        />
-                    </div>
+            <div v-if="resolvedActions[index]" :key="index" class="rule-action">
+                <div class="rule-action-name">
+                    <bm-form-select
+                        ref="actionCombo"
+                        class="flex-fill"
+                        variant="underline"
+                        :value="actionComboValue(action)"
+                        :options="actionChoices(action.isNew)"
+                        :placeholder="$t('preferences.mail.filters.modal.actions.add.placeholder')"
+                        :auto-min-width="false"
+                        @input="modifyActionType(index, $event)"
+                    />
+                    <bm-button-close class="mobile-only" @click="removeAction(index)" />
                 </div>
-                <bm-icon-button variant="compact" icon="cross" @click="removeAction(index)" />
+                <div v-if="resolvedActions[index].editor" class="rule-action-value">
+                    <component
+                        :is="resolvedActions[index].editor"
+                        :action="action"
+                        class="flex-fill"
+                        @update:action="updateAction(index, $event)"
+                    />
+                </div>
+                <bm-button-close class="desktop-only" @click="removeAction(index)" />
             </div>
         </template>
         <bm-button v-if="!actions || !actions.some(c => c.isNew)" variant="text-accent" @click="addNewAction">
@@ -44,11 +40,11 @@
 <script>
 import { all, resolve } from "../Actions/actionResolver.js";
 import { ACTIONS } from "../filterRules";
-import { BmButton, BmIconButton, BmFormGroup, BmFormSelect } from "@bluemind/ui-components";
+import { BmButton, BmButtonClose, BmFormGroup, BmFormSelect } from "@bluemind/ui-components";
 
 export default {
     name: "PrefFilterRuleModalActions",
-    components: { BmButton, BmIconButton, BmFormGroup, BmFormSelect },
+    components: { BmButton, BmButtonClose, BmFormGroup, BmFormSelect },
     props: {
         actions: {
             type: Array,
@@ -119,9 +115,41 @@ export default {
 </script>
 
 <style lang="scss">
+@import "@bluemind/ui-components/src/css/utils/responsiveness";
+@import "@bluemind/ui-components/src/css/utils/variables";
+@import "./variables";
+
 .pref-filter-rule-modal-actions {
-    .col-11 {
-        padding-left: 0 !important;
+    .rule-action {
+        display: flex;
+        margin-bottom: $sp-4;
+        gap: $name-value-close-gap;
+        @include until-lg {
+            flex-direction: column;
+            margin-bottom: $sp-6;
+        }
+
+        .rule-action-name,
+        .rule-action-value {
+            display: flex;
+            align-items: center;
+            min-width: 0;
+            gap: $name-value-close-gap;
+        }
+        @include from-lg {
+            align-items: start;
+            .rule-action-name {
+                flex: 1;
+            }
+            .rule-action-value {
+                flex: 1.5;
+            }
+        }
+
+        > .bm-button-close {
+            position: relative;
+            top: $close-offset-top;
+        }
     }
 }
 </style>

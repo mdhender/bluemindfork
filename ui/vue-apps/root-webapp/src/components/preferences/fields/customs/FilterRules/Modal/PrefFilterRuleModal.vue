@@ -101,7 +101,9 @@ export default {
 function sanitize(filter) {
     return {
         ...filter,
-        criteria: filter.criteria.filter(({ isNew }) => !isNew),
+        criteria: filter.criteria
+            .filter(({ isNew }) => !isNew)
+            .map(criterion => (criterion.sanitize ? criterion.sanitize(criterion) : criterion)),
         exceptions: filter.exceptions.filter(({ isNew }) => !isNew),
         actions: filter.actions.filter(({ isNew }) => !isNew)
     };
@@ -120,14 +122,23 @@ function areEqual(filterA, filterB) {
 </script>
 
 <style lang="scss">
+@import "@bluemind/ui-components/src/css/utils/responsiveness";
 @import "@bluemind/ui-components/src/css/utils/typography";
-@import "~@bluemind/ui-components/src/css/utils/variables";
+@import "@bluemind/ui-components/src/css/utils/variables";
 
-$circled-number-size: base-px-to-rem(36);
+$circled-number-size: base-px-to-rem(24);
+$circled-number-size-lg: base-px-to-rem(36);
 $circled-number-right-margin: $sp-4;
 $field-left-margin: calc(#{$circled-number-size} + #{$circled-number-right-margin});
 
 .pref-filter-rule-modal-dialog {
+    @include until-lg {
+        .modal-body {
+            padding-left: $sp-5;
+            padding-right: $sp-5;
+        }
+    }
+
     label,
     legend {
         &.circled-number {
@@ -135,6 +146,13 @@ $field-left-margin: calc(#{$circled-number-size} + #{$circled-number-right-margi
                 display: inline-flex;
                 width: $circled-number-size;
                 height: $circled-number-size;
+                font-weight: $font-weight-light;
+                font-size: base-px-to-rem(20);
+                @include from-lg {
+                    width: $circled-number-size-lg;
+                    height: $circled-number-size-lg;
+                    font-size: base-px-to-rem(30);
+                }
                 align-items: center;
                 justify-content: center;
                 margin-right: $circled-number-right-margin;
@@ -142,7 +160,6 @@ $field-left-margin: calc(#{$circled-number-size} + #{$circled-number-right-margi
                 border-radius: 50%;
                 border: solid 1px $secondary-fg;
 
-                @include h1;
                 color: $secondary-fg;
                 margin-bottom: 0;
             }
@@ -161,13 +178,15 @@ $field-left-margin: calc(#{$circled-number-size} + #{$circled-number-right-margi
         }
     }
 
-    .pref-filter-rule-modal-name,
-    .pref-filter-rule-modal-criteria,
-    .pref-filter-rule-modal-actions,
-    .pref-filter-rule-modal-exceptions,
-    .pref-filter-rule-modal-terminal {
-        & > :not(label):not(legend) {
-            margin-left: $field-left-margin;
+    @include from-lg {
+        .pref-filter-rule-modal-name,
+        .pref-filter-rule-modal-criteria,
+        .pref-filter-rule-modal-actions,
+        .pref-filter-rule-modal-exceptions,
+        .pref-filter-rule-modal-terminal {
+            & > :not(label):not(legend) {
+                margin-left: $field-left-margin;
+            }
         }
     }
 }

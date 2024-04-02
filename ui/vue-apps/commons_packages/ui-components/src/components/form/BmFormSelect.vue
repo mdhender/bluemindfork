@@ -15,7 +15,10 @@
         :right="right"
         size="lg"
         :menu-class="dropdownMenuClasses"
-        @show="isShown = true"
+        @show="
+            $emit('click');
+            isShown = true;
+        "
         @shown="scrollToSelected"
         @hidden="isShown = false"
     >

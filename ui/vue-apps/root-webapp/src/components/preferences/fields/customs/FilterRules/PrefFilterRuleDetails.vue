@@ -1,6 +1,14 @@
 <template>
     <div class="row pref-filter-rule-details">
-        <div class="col-6">
+        <div v-if="filter.terminal" class="d-flex align-items-center my-5">
+            <h3 class="m-0">
+                <bm-badge class="caption-bold" pill>
+                    {{ $t("preferences.mail.filters.modal.terminal") }}
+                </bm-badge>
+            </h3>
+            <bm-read-more class="ml-5" :href="readMore" :text="$t('preferences.mail.filters.modal.terminal.desc')" />
+        </div>
+        <div class="col-lg-6">
             <strong>{{ $tc("preferences.mail.filters.details.conditions", positiveCriteria.length || 1) }}</strong>
             <ol>
                 <template v-if="positiveCriteria.length > 0">
@@ -21,7 +29,7 @@
                 </ol>
             </template>
         </div>
-        <div class="col-6">
+        <div class="col-lg-6">
             <strong>{{ $tc("preferences.mail.filters.details.actions", actions.length) }}</strong>
             <ol>
                 <li v-for="(action, index) in actions" :key="index">
@@ -33,16 +41,24 @@
 </template>
 
 <script>
+import { BmBadge, BmReadMore } from "@bluemind/ui-components";
 import { resolve as resolveAction } from "./Actions/actionResolver.js";
 import { resolve as resolveCriterion } from "./Criteria/criterionResolver.js";
 
 export default {
     name: "PrefFilterRuleDetails",
+    components: { BmBadge, BmReadMore },
     props: {
         filter: {
             type: Object,
             required: true
         }
+    },
+    data() {
+        return {
+            readMore:
+                "https://doc.bluemind.net/release/5.0/guide_de_l_utilisateur/la_messagerie/appliquer_des_regles_de_tri_et_d_actions#ordonner-les-filtres-automatiques"
+        };
     },
     computed: {
         positiveCriteria() {

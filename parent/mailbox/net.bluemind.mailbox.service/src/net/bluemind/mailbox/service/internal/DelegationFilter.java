@@ -32,6 +32,8 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import net.bluemind.core.api.Email;
 import net.bluemind.mailbox.api.rules.DelegationRule;
 import net.bluemind.mailbox.api.rules.MailFilterRule;
@@ -72,6 +74,7 @@ public class DelegationFilter extends MailFilterRule {
 		super.type = mf.type;
 	}
 
+	@JsonIgnore
 	public Optional<String> getCalendarUid() {
 		return this.conditions.stream().map(c -> c.filter)
 				.filter(rf -> rf.operator == MailFilterRuleOperatorName.CONTAINS && rf.fields.contains(CAL_HEADER))
@@ -79,6 +82,7 @@ public class DelegationFilter extends MailFilterRule {
 				.findFirst();
 	}
 
+	@JsonIgnore
 	public boolean getBmEventReadOnlyFlag() {
 		return this.actions.stream().filter(a -> a.name == MailFilterRuleActionName.SET_FLAGS)
 				.map(a -> (MailFilterRuleActionSetFlags) a).findFirst().stream()
@@ -112,10 +116,12 @@ public class DelegationFilter extends MailFilterRule {
 				getBmEventReadOnlyFlag());
 	}
 
+	@JsonIgnore
 	public static boolean isDelegationRule(MailFilterRule rule) {
 		return rule.name.equals(NAME) && rule.client.equals(CLIENT);
 	}
 
+	@JsonIgnore
 	public static DelegationRule getDelegationFilterRule(List<MailFilterRule> imipFilterRule, String mailboxUid) {
 		imipFilterRule.stream().filter(r -> isDelegationRule(r)).collect(Collectors.toList());
 		if (imipFilterRule.isEmpty()) {

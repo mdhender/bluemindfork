@@ -30,26 +30,26 @@
                 />
             </template>
             <template #cell(name)="cell">
-                <div class="d-flex align-items-center" @click="cell.toggleDetails">
+                <div class="d-flex align-items-center mr-5" @click="cell.toggleDetails">
                     <bm-button-expand :expanded="cell.detailsShowing" />
-                    <div class="d-flex align-items-baseline text-truncate flex-fill">
+                    <div class="d-flex overflow-hidden align-items-center flex-fill">
                         <div
                             v-highlight="{
                                 pattern: highlight,
                                 text: cell.value || $t('preferences.mail.filters.unnamed')
                             }"
-                            class="bold filter-name mr-5 text-nowrap"
+                            class="bold filter-name mr-5 text-nowrap text-truncate"
                             :class="{ 'filter-inactive': !cell.item.active }"
                         >
                             {{ cell.value || $t("preferences.mail.filters.unnamed") }}
                         </div>
                         <div
                             v-highlight="{ pattern: highlight, text: cell.item.desc }"
-                            class="caption text-truncate flex-fill"
+                            class="filter-desc desktop-only caption text-truncate flex-fill text-right"
                         >
                             {{ cell.item.desc }}
                         </div>
-                        <bm-badge v-if="cell.item.terminal" class="mx-3 caption-bold" pill>
+                        <bm-badge v-if="cell.item.terminal" class="desktop-only ml-3 caption-bold" pill>
                             {{ $t("preferences.mail.filters.terminal") }}
                         </bm-badge>
                     </div>
@@ -78,22 +78,32 @@
                         <bm-dropdown-item-button icon="table-add-row-down" @click="$emit('createAfter', cell.item)">
                             {{ $t("preferences.mail.filters.create.after") }}
                         </bm-dropdown-item-button>
-                        <bm-dropdown-item-button icon="arrow-top" @click="$emit('top', cell.item)">
+                        <bm-dropdown-item-button
+                            icon="arrow-top"
+                            :disabled="filterIndex(cell.item) === 0"
+                            @click="$emit('top', cell.item)"
+                        >
                             {{ $t("preferences.mail.filters.move.top") }}
                         </bm-dropdown-item-button>
                         <bm-dropdown-item-button
                             icon="arrow-up"
+                            :disabled="filterIndex(cell.item) === 0"
                             @click="$emit('up', { filter: cell.item, relativeTo: filteredFilters[cell.index - 1] })"
                         >
                             {{ $t("preferences.mail.filters.move.up") }}
                         </bm-dropdown-item-button>
                         <bm-dropdown-item-button
                             icon="arrow-down"
+                            :disabled="filterIndex(cell.item) === filters.length - 1"
                             @click="$emit('down', { filter: cell.item, relativeTo: filteredFilters[cell.index + 1] })"
                         >
                             {{ $t("preferences.mail.filters.move.down") }}
                         </bm-dropdown-item-button>
-                        <bm-dropdown-item-button icon="arrow-bottom" @click="$emit('bottom', cell.item)">
+                        <bm-dropdown-item-button
+                            icon="arrow-bottom"
+                            :disabled="filterIndex(cell.item) === filters.length - 1"
+                            @click="$emit('bottom', cell.item)"
+                        >
                             {{ $t("preferences.mail.filters.move.bottom") }}
                         </bm-dropdown-item-button>
                     </bm-icon-dropdown>
@@ -199,13 +209,17 @@ export default {
         },
         buildDescs() {
             this.filters?.forEach(filter => (filter.desc = filterToString(filter, this.$i18n)));
+        },
+        filterIndex(filter) {
+            return this.filters.findIndex(({ id }) => id === filter.id);
         }
     }
 };
 </script>
 
 <style lang="scss">
-@import "~@bluemind/ui-components/src/css/utils/variables";
+@import "@bluemind/ui-components/src/css/utils/responsiveness";
+@import "@bluemind/ui-components/src/css/utils/variables";
 
 .pref-filter-rules-table {
     .b-table {
@@ -226,12 +240,24 @@ export default {
             max-width: 0; // needed by sub elements with text-truncate class
             cursor: pointer;
         }
-        .filter-name.filter-inactive {
-            color: $neutral-fg-disabled;
+        .filter-name {
+            flex: 1 0 auto;
+            &.filter-inactive {
+                color: $neutral-fg-disabled;
+            }
+        }
+        .filter-desc {
+            flex: 1 1 auto;
+        }
+        .bm-badge {
+            height: base-px-to-rem(20);
         }
     }
     .actions-cell {
-        width: base-px-to-rem(170);
+        width: base-px-to-rem(40);
+        @include from-lg {
+            width: base-px-to-rem(120);
+        }
         .actions {
             display: flex;
             justify-content: end;

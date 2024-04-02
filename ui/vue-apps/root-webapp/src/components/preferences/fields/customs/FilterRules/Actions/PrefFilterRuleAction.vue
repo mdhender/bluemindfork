@@ -1,5 +1,5 @@
 <template>
-    <div class="pref-filter-rule-action d-flex align-items-center text-nowrap">
+    <div class="pref-filter-rule-action d-flex align-items-center text-nowrap flex-wrap">
         <span class="regular mr-3">{{ action.text }}</span>
         <slot />
     </div>

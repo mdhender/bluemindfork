@@ -8,38 +8,35 @@
         :label-class="labelClass"
     >
         <template v-for="(criterion, index) in criteria">
-            <div
-                v-if="resolvedCriteria[index]"
-                :key="index"
-                class="d-flex align-items-center justify-content-between row mb-4"
-            >
-                <div class="d-flex col-11">
-                    <div v-show="!resolvedCriteria[index] || !resolvedCriteria[index].fullEditor" class="col-6">
-                        <bm-form-select
-                            ref="criterionCombo"
-                            class="w-100"
-                            :value="criterionComboValue(criterion)"
-                            :options="criterionChoices"
-                            :placeholder="
-                                negative
-                                    ? $t('preferences.mail.filters.modal.exceptions.add.placeholder')
-                                    : $t('preferences.mail.filters.modal.criteria.add.placeholder')
-                            "
-                            :auto-min-width="false"
-                            @input="modifyCriterionType(index, $event)"
-                        />
-                    </div>
-                    <div :class="resolvedCriteria[index].fullEditor ? 'w-100' : 'col-6'">
-                        <component
-                            :is="resolvedCriteria[index].editor"
-                            :criterion="criterion"
-                            class="w-100"
-                            @update:criterion="updateCriterion(index, $event)"
-                            @reset="resetCriterion(index)"
-                        />
-                    </div>
+            <div v-if="resolvedCriteria[index]" :key="index" class="criterion">
+                <div v-if="!resolvedCriteria[index] || !resolvedCriteria[index].fullEditor" class="criterion-name">
+                    <bm-form-select
+                        ref="criterionCombo"
+                        class="flex-fill"
+                        variant="underline"
+                        :value="criterionComboValue(criterion)"
+                        :options="criterionChoices"
+                        :placeholder="
+                            negative
+                                ? $t('preferences.mail.filters.modal.exceptions.add.placeholder')
+                                : $t('preferences.mail.filters.modal.criteria.add.placeholder')
+                        "
+                        :auto-min-width="false"
+                        @input="modifyCriterionType(index, $event)"
+                    />
+                    <bm-button-close class="mobile-only" @click="removeCriterion(index)" />
                 </div>
-                <bm-icon-button variant="compact" icon="cross" @click="removeCriterion(index)" />
+                <div class="criterion-value" :class="{ 'flex-fill': !!resolvedCriteria[index].fullEditor }">
+                    <component
+                        :is="resolvedCriteria[index].editor"
+                        :criterion="criterion"
+                        class="flex-fill"
+                        @update:criterion="updateCriterion(index, $event)"
+                        @reset="resetCriterion(index)"
+                        @remove="removeCriterion(index)"
+                    />
+                </div>
+                <bm-button-close class="desktop-only" @click="removeCriterion(index)" />
             </div>
         </template>
         <bm-button v-if="!resolvedCriteria.some(c => c.isNew)" variant="text-accent" @click="addNewCriterion">
@@ -54,11 +51,11 @@
 
 <script>
 import { all as allCriteria, resolve as resolveCriterion } from "../Criteria/criterionResolver.js";
-import { BmButton, BmIconButton, BmFormGroup, BmFormSelect } from "@bluemind/ui-components";
+import { BmButton, BmButtonClose, BmFormGroup, BmFormSelect } from "@bluemind/ui-components";
 
 export default {
     name: "PrefFilterRuleModalCriteria",
-    components: { BmButton, BmIconButton, BmFormGroup, BmFormSelect },
+    components: { BmButton, BmButtonClose, BmFormGroup, BmFormSelect },
     props: {
         criteria: {
             type: Array,
@@ -124,10 +121,8 @@ export default {
             );
         },
         resetCriterion(index) {
-            this.$emit(
-                "update:criteria",
-                this.criteria.filter((criterion, i) => index !== i).concat(this.createCriterion())
-            );
+            const newCriteria = this.criteria.toSpliced(index, 1, this.createCriterion(this.criteria[index].value));
+            this.$emit("update:criteria", newCriteria);
             this.showBoxOnNextUpdate = true;
         },
         async showCriterionCombo() {
@@ -136,17 +131,45 @@ export default {
             const lastCombo = combos[combos.length - 1];
             lastCombo.$refs.dropdown.show();
         },
-        createCriterion() {
-            return { isNew: true, exception: this.negative };
+        createCriterion(value) {
+            return { isNew: true, exception: this.negative, value };
         }
     }
 };
 </script>
 
 <style lang="scss">
+@import "@bluemind/ui-components/src/css/utils/responsiveness";
+@import "@bluemind/ui-components/src/css/utils/variables";
+@import "./variables";
+
 .pref-filter-rule-modal-criteria {
-    .col-11 {
-        padding-left: 0 !important;
+    .criterion {
+        display: flex;
+        align-items: center;
+        margin-bottom: $sp-4;
+        gap: $name-value-close-gap;
+        @include until-lg {
+            flex-direction: column;
+            align-items: stretch;
+            margin-bottom: $sp-6;
+        }
+
+        .criterion-name,
+        .criterion-value {
+            display: flex;
+            align-items: center;
+            min-width: 0;
+            gap: $name-value-close-gap;
+        }
+        @include from-lg {
+            .criterion-name {
+                flex: 1;
+            }
+            .criterion-value {
+                flex: 1.5;
+            }
+        }
     }
 }
 </style>
