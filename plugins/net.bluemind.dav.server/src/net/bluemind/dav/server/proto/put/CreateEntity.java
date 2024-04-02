@@ -151,7 +151,7 @@ abstract class CreateEntity {
 
 			ICalendar calApi = lc.getCore().instance(ICalendar.class, cal.uid);
 			if (events.size() != 1) {
-				throw new ServerFault("More than one event has been submitted to creation");
+				throw new ServerFault(events.size() + " events have been submitted for creation");
 			}
 
 			ItemValue<VEventSeries> series = events.get(0);
@@ -186,7 +186,7 @@ abstract class CreateEntity {
 			AddressbookPutQuery abQuery = (AddressbookPutQuery) query;
 			List<net.fortuna.ical4j.vcard.VCard> parsed = VCardAdapter.parse(abQuery.addressbook);
 			if (parsed.size() != 1) {
-				throw new ServerFault("More than one vcard has been submitted to creation");
+				throw new ServerFault(parsed.size() + " vcards have been submitted for creation");
 			}
 
 			String seed = "" + System.currentTimeMillis();

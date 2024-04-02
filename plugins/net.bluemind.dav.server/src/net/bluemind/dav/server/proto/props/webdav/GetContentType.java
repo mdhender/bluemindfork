@@ -69,6 +69,9 @@ public class GetContentType implements IPropertyValue {
 		case VSTUFF:
 			type = "text/calendar;charset=utf-8";
 			break;
+		case VCARD:
+			type = "text/vcard;charset=utf-8";
+			break;
 		default:
 			throw new RuntimeException("Unknown contenttype for " + dr.getPath());
 		}
