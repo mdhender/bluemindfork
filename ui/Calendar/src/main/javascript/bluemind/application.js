@@ -173,13 +173,13 @@ bm.cal.Application.prototype.render_ = function() {
   var content, view;
   bluemind.manager = this.manager_;
   bluemind.manager.visibleCalendars_ = new goog.structs.Map();
- var body = soy.renderAsFragment(bluemind.calendar.template.body);
+  var body = soy.renderAsFragment(bluemind.calendar.template.body);
   goog.dom.appendChild(document.body, body);
 
   var tb = bluemind.ui.Toolbar.getInstance();
   tb.render(goog.dom.getElement('toolbar'));
   content = goog.dom.getElement('pageHeader');
- view = new bluemind.cal.view.HeaderView();
+  view = new bluemind.cal.view.HeaderView();
   view.setModel(this.auth_.getUser());
   view.render(content);
   
@@ -194,7 +194,7 @@ bm.cal.Application.prototype.render_ = function() {
   this.manager_.switchTab('bm-selector-calendars');
 
   var settings = this.auth_.getSettings();
-  
+
   var tzData =
     bluemind.timezone.Detector.getInstance().get(settings.get('timezone'));
   
@@ -202,23 +202,28 @@ bm.cal.Application.prototype.render_ = function() {
   this.manager_.setSettings(settings);
   bluemind.view = new bluemind.calendar.View(this.manager_);
   var dv = settings.get('defaultview');
-  switch (dv) {
-  case 'day':
-    bluemind.view.day();
-    break;
-  case 'week':
+  if(!dv) {
     bluemind.view.week();
-    break;
-  case 'month':
-    bluemind.view.month();
-    break;
-  case 'agenda':
-    bluemind.view.agenda();
-    break;
-  default:
-    bluemind.view.week();
-    break;
-}
+    return;
+  }
 
-  
+  dv = dv.toLowerCase();
+  switch (dv) {
+    case 'day':
+      bluemind.view.day();
+      break;
+    case 'week':
+      bluemind.view.week();
+      break;
+    case 'month':
+      bluemind.view.month();
+      break;
+    case 'agenda':
+      bluemind.view.agenda();
+      break;
+    default:
+      bluemind.view.week();
+      break;
+  }
+
 };

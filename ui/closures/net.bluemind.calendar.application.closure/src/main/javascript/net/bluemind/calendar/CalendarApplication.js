@@ -201,7 +201,7 @@ net.bluemind.calendar.CalendarApplication.prototype.bootstrap = function(ctx) {
     return view;
   }).then(function(view) {
     if (view && view.value) {
-      return ctx.session.set('defaultview', view.value.type);
+      return ctx.session.set('defaultview', ctx.settings.get('defaultview'));
     }
   }, null, this).then(function() {
     return this.initializeVideoConferencingResources_(ctx);

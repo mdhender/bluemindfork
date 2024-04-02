@@ -40,6 +40,11 @@ goog.inherits(net.bluemind.calendar.defaultview.DefaultViewHandler,
 /** @override */
 net.bluemind.calendar.defaultview.DefaultViewHandler.prototype.createPresenter = function(ctx) {
   var v = ctx.session.get('defaultview');
+  if(!v) {
+    return new net.bluemind.calendar.day.DayPresenter(ctx);
+  }
+
+  v = v.toUpperCase();
   if (v == 'DAY') {
     return new net.bluemind.calendar.day.DayPresenter(ctx);
   } else if (v == 'MONTH') {
