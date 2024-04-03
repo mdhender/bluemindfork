@@ -55,6 +55,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Strings;
 
 import io.netty.handler.codec.http.HttpHeaders;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.calendar.api.internal.IInternalCalendar;
 import net.bluemind.calendar.service.internal.ICSImportTask;
 import net.bluemind.calendar.service.internal.SingleCalendarICSImport;
@@ -63,7 +64,6 @@ import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerSyncResult;
 import net.bluemind.core.container.model.ContainerSyncStatus;
 import net.bluemind.core.container.model.ContainerSyncStatus.Status;
-import net.bluemind.core.container.model.ContainerUpdatesResult;
 import net.bluemind.core.container.persistence.ContainerSettingsStore;
 import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.container.sync.ISyncableContainer;
@@ -75,7 +75,6 @@ import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.core.task.service.TaskUtils;
-import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.directory.api.BaseDirEntry;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.IDirectory;
@@ -233,16 +232,16 @@ public class CalendarContainerSync implements ISyncableContainer {
 				TaskStatus status = TaskUtils.wait(context.provider(), syncIcs(service, in));
 
 				logger.info("Sync ICS result: {}", status.result);
-				ContainerUpdatesResult result = JsonUtils.read(status.result, ContainerUpdatesResult.class);
-				ret.added = result.added.size();
-				ret.updated = result.updated.size();
-				ret.removed = result.removed.size();
-				ret.unhandled = result.unhandled.size();
+				JsonObject result = new JsonObject(status.result);
+				ret.added = result.getInteger("added");
+				ret.updated = result.getInteger("updated");
+				ret.removed = result.getInteger("removed");
+				ret.unhandled = result.getInteger("unhandled");
 				ret.status.lastSync = new Date();
 				ret.status.syncStatus = Status.SUCCESS;
 
-				if (result.synced() > MAX_SYNC_OPERATIONS) {
-					throw new TooManySyncElementsException(result.synced());
+				if (result.getInteger("synced") > MAX_SYNC_OPERATIONS) {
+					throw new TooManySyncElementsException(result.getInteger("synced"));
 				}
 			} catch (TooManySyncElementsException e) {
 				ret.status.syncStatus = Status.SUCCESS;
@@ -427,16 +426,14 @@ public class CalendarContainerSync implements ISyncableContainer {
 		if (calOwnerType != Kind.CALENDAR) {
 			// owner tags
 			ITags service = context.provider().instance(ITags.class, ITagUids.defaultTags(container.owner));
-			allTags.addAll(
-					service.all().stream().map(tag -> TagRef.create(ITagUids.defaultTags(container.owner), tag))
-							.collect(Collectors.toList()));
+			allTags.addAll(service.all().stream().map(tag -> TagRef.create(ITagUids.defaultTags(container.owner), tag))
+					.collect(Collectors.toList()));
 		}
 
 		// domain tags
 		ITags service = context.provider().instance(ITags.class, ITagUids.defaultTags(container.domainUid));
-		allTags.addAll(
-				service.all().stream().map(tag -> TagRef.create(ITagUids.defaultTags(container.domainUid), tag))
-						.collect(Collectors.toList()));
+		allTags.addAll(service.all().stream().map(tag -> TagRef.create(ITagUids.defaultTags(container.domainUid), tag))
+				.collect(Collectors.toList()));
 
 		return context.provider().instance(ITasksManager.class)
 				.run(new SingleCalendarICSImport(calendarService, stream,

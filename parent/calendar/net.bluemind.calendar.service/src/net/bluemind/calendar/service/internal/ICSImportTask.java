@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 
+import io.vertx.core.json.JsonObject;
 import net.bluemind.calendar.EventChangesMerge;
 import net.bluemind.calendar.api.VEventChanges;
 import net.bluemind.calendar.api.VEventChanges.ItemDelete;
@@ -101,7 +102,20 @@ public abstract class ICSImportTask extends BlockingServerTask implements IServe
 				}
 				service.updates(changes, false);
 			}
-			monitor.end(true, ret.total() + " events synchronized", ret.summary());
+
+			JsonObject summary = new JsonObject();
+			summary.put("added", ret.added.size());
+			summary.put("updated", ret.updated.size());
+			summary.put("removed", ret.removed.size());
+			if (ret.errors != null) {
+				summary.put("errors", ret.errors.size());
+			} else {
+				summary.put("errors", 0);
+			}
+			summary.put("unhandled", ret.unhandled.size());
+			summary.put("synced", ret.synced());
+
+			monitor.end(true, ret.total() + " events synchronized", summary.encode());
 		} finally {
 			if (ret.synced() > 0) {
 				service.emitNotification();

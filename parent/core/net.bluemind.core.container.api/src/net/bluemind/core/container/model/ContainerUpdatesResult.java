@@ -59,9 +59,4 @@ public class ContainerUpdatesResult {
 		return added.size() + updated.size() + removed.size();
 	}
 
-	public String summary() {
-		return "Added: " + added.size() + ", Updated: " + updated.size() + ", Removed: " + removed.size()
-				+ ", Unhandled: " + unhandled.size();
-	}
-
 }
