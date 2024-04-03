@@ -86,6 +86,7 @@ public class ProgressiveVCardBuilder implements Iterator<VCard>, AutoCloseable {
 				endOfCard = true;
 			}
 		}
+		String asString = currentElement.toString();
 		if (Strings.isNullOrEmpty(line)) {
 			endOfFile = true;
 		} else {
@@ -97,7 +98,6 @@ public class ProgressiveVCardBuilder implements Iterator<VCard>, AutoCloseable {
 				currentElement.append(lookAhead).append(CRLF);
 			}
 		}
-		String asString = currentElement.toString();
 		if (asString.trim().length() == 0) {
 			return null;
 		}

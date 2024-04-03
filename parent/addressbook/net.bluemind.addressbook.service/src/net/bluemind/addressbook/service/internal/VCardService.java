@@ -18,7 +18,6 @@
  */
 package net.bluemind.addressbook.service.internal;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URISyntaxException;
@@ -35,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.addressbook.adapter.AddressbookOwner;
+import net.bluemind.addressbook.adapter.ProgressiveVCardBuilder;
 import net.bluemind.addressbook.adapter.VCardAdapter;
 import net.bluemind.addressbook.adapter.VCardVersion;
 import net.bluemind.addressbook.api.IVCardService;
@@ -59,13 +59,11 @@ import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.directory.api.BaseDirEntry;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.IDirectory;
-import net.bluemind.lib.ical4j.vcard.Builder;
 import net.bluemind.tag.api.ITagUids;
 import net.bluemind.tag.api.ITags;
 import net.bluemind.tag.api.TagRef;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.vcard.Parameter;
-import net.fortuna.ical4j.vcard.VCardBuilder;
 import net.fortuna.ical4j.vcard.property.Photo;
 import net.fortuna.ical4j.vcard.property.Uid;
 
@@ -167,27 +165,14 @@ public class VCardService implements IVCardService {
 	private ImportStats importCards(String vcard, IServerTaskMonitor monitor)
 			throws ServerFault, IOException, ParserException {
 		monitor.begin(3, "Begin import");
-		BufferedReader br = new BufferedReader(new StringReader(vcard));
-		String line = null;
-		StringBuilder sb = new StringBuilder(vcard.length());
-
-		while ((line = br.readLine()) != null) {
-
-			// Yahoo! Crap vcard workaround.
-			// SOURCE:Yahoo! AddressBook (http://address.yahoo.com) => invalid
-			// see http://tools.ietf.org/html/rfc2425#section-6.1
-			//
-			// REV;CHARSET=utf-8:53 => invalid
-			// see http://tools.ietf.org/html/rfc6350#section-6.7.4
-			if (line.startsWith("SOURCE") || line.startsWith("REV")) {
-				continue;
+		List<net.fortuna.ical4j.vcard.VCard> cards = new ArrayList<>();
+		try (ProgressiveVCardBuilder builder = new ProgressiveVCardBuilder(new StringReader(vcard))) {
+			while (builder.hasNext()) {
+				cards.add(builder.next());
 			}
-			sb.append(line);
-			sb.append("\r\n");
+		} catch (Exception e) {
+			throw new ServerFault(e);
 		}
-		VCardBuilder builder = Builder.from(new BufferedReader(new StringReader(sb.toString())));
-
-		List<net.fortuna.ical4j.vcard.VCard> cards = builder.buildAll();
 		List<ItemValue<VCard>> bmCards = new ArrayList<>(cards.size());
 
 		String seed = "" + System.currentTimeMillis();
@@ -221,9 +206,8 @@ public class VCardService implements IVCardService {
 
 		// domain tags
 		ITags service = context.su().provider().instance(ITags.class, ITagUids.defaultTags(container.domainUid));
-		allTags.addAll(
-				service.all().stream().map(tag -> TagRef.create(ITagUids.defaultTags(container.domainUid), tag))
-						.collect(Collectors.toList()));
+		allTags.addAll(service.all().stream().map(tag -> TagRef.create(ITagUids.defaultTags(container.domainUid), tag))
+				.collect(Collectors.toList()));
 
 		return allTags;
 	}
