@@ -137,6 +137,10 @@ public class DbMessageBodiesService implements IInternalDbMessageBodies {
 			eventBus.publish(SdsSyncEvent.BODYADD.busName(),
 					new Body(ByteBufUtil.decodeHexDump(uid), objectStore.dataLocation()).toJson(),
 					new DeliveryOptions().setLocalOnly(true));
+		} catch (Throwable t) {
+			BodiesCache.bodies.invalidate(uid);
+			logger.info("upload {} failed: {}", uid, t.getMessage());
+			throw t;
 		} finally {
 			tmpFile.delete(); // NOSONAR
 		}
@@ -169,6 +173,7 @@ public class DbMessageBodiesService implements IInternalDbMessageBodies {
 
 	@Override
 	public void delete(String uid) {
+		BodiesCache.bodies.invalidate(uid);
 		try {
 			bodyStore.delete(uid);
 		} catch (SQLException e) {
@@ -269,7 +274,7 @@ public class DbMessageBodiesService implements IInternalDbMessageBodies {
 	public void update(MessageBody mb) {
 		try {
 			bodyStore.store(mb);
-			BodiesCache.bodies.put(mb.guid, mb);
+			BodiesCache.bodies.invalidate(mb.guid);
 			bodyTierChangeService.get().createBody(mb);
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
