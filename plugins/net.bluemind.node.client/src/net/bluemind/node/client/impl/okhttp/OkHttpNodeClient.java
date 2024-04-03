@@ -292,6 +292,7 @@ public class OkHttpNodeClient implements INodeClient {
 		try (Response writeResp = client.newCall(postStream).execute()) {
 			if (!writeResp.isSuccessful()) {
 				logger.error("Write to {} failed: {}", path, writeResp.code());
+				throw new ServerFault("write to " + path + " failed: " + writeResp.message());
 			}
 		} catch (IOException e) {
 			throw new ServerFault(e);
