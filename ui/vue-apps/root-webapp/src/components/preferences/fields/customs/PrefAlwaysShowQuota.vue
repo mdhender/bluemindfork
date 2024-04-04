@@ -7,6 +7,7 @@
             class="d-inline-block mr-3"
             :variant="usedQuotaPercentage > USED_QUOTA_PERCENTAGE_WARNING ? 'danger' : 'secondary'"
             show-progress
+            use-ceil
         >
             <template v-if="hasNoQuota">{{ $t("preferences.mail.quota.unlimited") }}</template>
         </bm-progress>

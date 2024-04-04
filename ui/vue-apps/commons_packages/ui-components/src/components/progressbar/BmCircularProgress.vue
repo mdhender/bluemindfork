@@ -25,12 +25,22 @@ import { BProgress } from "bootstrap-vue";
 export default {
     name: "BmCircularProgress",
     extends: BProgress,
+    props: {
+        useCeil: {
+            type: Boolean,
+            default: false
+        }
+    },
     data() {
         return { width: 100, SIZE: "6" };
     },
     computed: {
         computePrecision() {
-            return ((this.value / this.max) * 100).toFixed(this.precision) || 0;
+            let percentageValue = (this.value / this.max) * 100;
+            if (this.useCeil === true) {
+                return Math.ceil(percentageValue);
+            }
+            return percentageValue.toFixed(this.precision) || 0;
         },
         dash() {
             const filled = Math.ceil((210 * this.computePrecision) / 100);

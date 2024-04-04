@@ -19,6 +19,10 @@ export default {
         circular: {
             type: Boolean,
             default: false
+        },
+        useCeil: {
+            type: Boolean,
+            default: false
         }
     }
 };
