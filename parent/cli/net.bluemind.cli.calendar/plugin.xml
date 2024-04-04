@@ -35,6 +35,10 @@
             impl="net.bluemind.cli.calendar.ListEventDetailsCommand$Reg"
             priority="400">
       </registration>
+      <registration
+            impl="net.bluemind.cli.calendar.TouchEventCommand$Reg"
+            priority="400">
+      </registration>
 
    </extension>
 
