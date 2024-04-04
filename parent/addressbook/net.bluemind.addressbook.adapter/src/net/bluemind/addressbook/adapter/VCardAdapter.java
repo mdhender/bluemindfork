@@ -52,6 +52,7 @@ import net.bluemind.addressbook.api.VCard.DeliveryAddressing;
 import net.bluemind.addressbook.api.VCard.Parameter;
 import net.bluemind.core.api.Regex;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.utils.UIDGenerator;
 import net.bluemind.directory.api.BaseDirEntry;
@@ -129,6 +130,12 @@ public final class VCardAdapter {
 
 	public static final ItemValue<VCard> adaptCard(net.fortuna.ical4j.vcard.VCard card,
 			Function<String, String> uidGenerator, Optional<AddressbookOwner> addressbookOwner, List<TagRef> allTags) {
+		return adaptCard(card, uidGenerator, addressbookOwner, allTags, null);
+	}
+
+	public static final ItemValue<VCard> adaptCard(net.fortuna.ical4j.vcard.VCard card,
+			Function<String, String> uidGenerator, Optional<AddressbookOwner> addressbookOwner, List<TagRef> allTags,
+			IServiceProvider provider) {
 		String retUid = UIDGenerator.uid();
 		VCard retCard = new VCard();
 
@@ -186,7 +193,7 @@ public final class VCardAdapter {
 		retCard.deliveryAddressing = das;
 
 		retCard.explanatory.categories = parseVcfCategories(card.getProperties(Id.CATEGORIES), addressbookOwner,
-				allTags);
+				allTags, provider);
 
 		List<Property> telProps = card.getProperties(Id.TEL);
 		List<Tel> tels = new ArrayList<>(telProps.size());
@@ -352,7 +359,7 @@ public final class VCardAdapter {
 	}
 
 	private static List<TagRef> parseVcfCategories(List<Property> categoriesPropList, Optional<AddressbookOwner> owner,
-			List<TagRef> allTags) {
+			List<TagRef> allTags, IServiceProvider provider) {
 		if (categoriesPropList == null || categoriesPropList.isEmpty()) {
 			return null;
 		}
@@ -365,37 +372,48 @@ public final class VCardAdapter {
 		Optional<String> containerUid = abOwner.kind != BaseDirEntry.Kind.ADDRESSBOOK
 				&& abOwner.kind != BaseDirEntry.Kind.RESOURCE ? Optional.of(ITagUids.defaultTags(abOwner.userUid))
 						: Optional.empty();
-		Optional<ITags> service = containerUid.map(uid -> {
-			try (Sudo asUser = new Sudo(abOwner.userUid, abOwner.domainUid)) {
-				return ServerSideServiceProvider.getProvider(asUser.context).instance(ITags.class, uid);
-			}
-		});
-
+		ITags service = null;
+		Sudo sudo = null;
 		List<TagRef> categories = new ArrayList<>(categoriesPropList.size());
-
-		for (@SuppressWarnings("unchecked")
-		Iterator<Property> it = categoriesPropList.iterator(); it.hasNext();) {
-			Property category = it.next();
-			String labelValue = category.getValue();
-			if (Strings.isNullOrEmpty(labelValue)) {
-				continue;
-			}
-			String[] values = labelValue.split(",");
-			for (String label : values) {
-				Optional<TagRef> exsistingTag = allTags.stream().filter(tag -> label.equals(tag.label)).findFirst();
-				if (exsistingTag.isPresent()) {
-					categories.add(exsistingTag.get());
-				} else {
-					// 3d98ff blue
-					service.ifPresent(s -> {
-						String uid = UUID.randomUUID().toString();
-						s.create(uid, Tag.create(label, "3d98ff"));
-
-						TagRef tr = TagRef.create(containerUid.get(), s.getComplete(uid));
-						allTags.add(tr);
-						categories.add(tr);
-					});
+		try {
+			if (containerUid.isPresent()) {
+				try {
+					sudo = new Sudo(abOwner.userUid, abOwner.domainUid);
+					service = ServerSideServiceProvider.getProvider(sudo.context).instance(ITags.class,
+							containerUid.get());
+				} catch (Exception e) {
+					sudo = null;
 				}
+			}
+
+			for (@SuppressWarnings("unchecked")
+			Iterator<Property> it = categoriesPropList.iterator(); it.hasNext();) {
+				Property category = it.next();
+				String labelValue = category.getValue();
+				if (Strings.isNullOrEmpty(labelValue)) {
+					continue;
+				}
+				String[] values = labelValue.split(",");
+				for (String label : values) {
+					Optional<TagRef> exsistingTag = allTags.stream().filter(tag -> label.equals(tag.label)).findFirst();
+					if (exsistingTag.isPresent()) {
+						categories.add(exsistingTag.get());
+					} else {
+						// 3d98ff blue
+						if (service != null) {
+							String uid = UUID.randomUUID().toString();
+							service.create(uid, Tag.create(label, "3d98ff"));
+
+							TagRef tr = TagRef.create(containerUid.get(), service.getComplete(uid));
+							allTags.add(tr);
+							categories.add(tr);
+						}
+					}
+				}
+			}
+		} finally {
+			if (sudo != null) {
+				sudo.close();
 			}
 		}
 		return categories;
