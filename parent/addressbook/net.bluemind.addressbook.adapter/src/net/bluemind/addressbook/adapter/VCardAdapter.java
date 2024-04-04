@@ -52,7 +52,6 @@ import net.bluemind.addressbook.api.VCard.DeliveryAddressing;
 import net.bluemind.addressbook.api.VCard.Parameter;
 import net.bluemind.core.api.Regex;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.utils.UIDGenerator;
 import net.bluemind.directory.api.BaseDirEntry;
@@ -130,12 +129,6 @@ public final class VCardAdapter {
 
 	public static final ItemValue<VCard> adaptCard(net.fortuna.ical4j.vcard.VCard card,
 			Function<String, String> uidGenerator, Optional<AddressbookOwner> addressbookOwner, List<TagRef> allTags) {
-		return adaptCard(card, uidGenerator, addressbookOwner, allTags, null);
-	}
-
-	public static final ItemValue<VCard> adaptCard(net.fortuna.ical4j.vcard.VCard card,
-			Function<String, String> uidGenerator, Optional<AddressbookOwner> addressbookOwner, List<TagRef> allTags,
-			IServiceProvider provider) {
 		String retUid = UIDGenerator.uid();
 		VCard retCard = new VCard();
 
@@ -193,7 +186,7 @@ public final class VCardAdapter {
 		retCard.deliveryAddressing = das;
 
 		retCard.explanatory.categories = parseVcfCategories(card.getProperties(Id.CATEGORIES), addressbookOwner,
-				allTags, provider);
+				allTags);
 
 		List<Property> telProps = card.getProperties(Id.TEL);
 		List<Tel> tels = new ArrayList<>(telProps.size());
@@ -359,7 +352,7 @@ public final class VCardAdapter {
 	}
 
 	private static List<TagRef> parseVcfCategories(List<Property> categoriesPropList, Optional<AddressbookOwner> owner,
-			List<TagRef> allTags, IServiceProvider provider) {
+			List<TagRef> allTags) {
 		if (categoriesPropList == null || categoriesPropList.isEmpty()) {
 			return null;
 		}
