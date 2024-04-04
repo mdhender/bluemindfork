@@ -22,7 +22,7 @@ public class FreebusyAclHook implements IAclHook {
 						|| container.uid.equals(ICalendarUids.resourceCalendar(container.owner)))) {
 			String containerUidToSynchronize = IFreebusyUids.getFreebusyContainerUid(container.owner);
 			synchronizeFreebusyRights(context, containerUidToSynchronize, current);
-		}	
+		}
 	}
 
 	private void synchronizeFreebusyRights(BmContext context, String containerUidToSynchronize,

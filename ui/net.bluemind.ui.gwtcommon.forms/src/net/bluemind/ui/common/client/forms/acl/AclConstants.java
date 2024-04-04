@@ -51,11 +51,11 @@ public interface AclConstants extends Messages {
 
 	String aclAdmin();
 
+	String aclCalendarInvite();
+
 	String aclCalendarAccess();
 
 	String aclCalendarRead();
-
-	String aclCalendarReadOnly();
 
 	String aclCalendarWrite();
 
@@ -98,10 +98,6 @@ public interface AclConstants extends Messages {
 	String aclBookWrite();
 
 	String aclBookAdmin();
-
-	String aclFreebusyRead();
-
-	String aclFreebusyAdmin();
 
 	String aclMailRead();
 

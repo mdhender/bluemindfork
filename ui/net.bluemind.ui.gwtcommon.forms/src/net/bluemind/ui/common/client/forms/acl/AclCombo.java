@@ -49,6 +49,9 @@ public class AclCombo extends Composite {
 
 	private void initValue(Map<String, String> values) {
 		if (values == null || values.size() == 0) {
+			combo.addItem(constants.aclAccess(), "invite");
+			items.put("invite", items.size());
+
 			combo.addItem(constants.aclAccess(), "access");
 			items.put("access", items.size());
 
@@ -61,6 +64,10 @@ public class AclCombo extends Composite {
 			combo.addItem(constants.aclAdmin(), "admin");
 			items.put("admin", items.size());
 		} else {
+			if (values.containsKey("invite")) {
+				combo.addItem(values.get("invite"), "invite");
+				items.put("invite", items.size());
+			}
 			if (values.containsKey("access")) {
 				combo.addItem(values.get("access"), "access");
 				items.put("access", items.size());
@@ -87,9 +94,11 @@ public class AclCombo extends Composite {
 			combo.setSelectedIndex(items.get("write"));
 		} else if (r == Verb.Read) {
 			combo.setSelectedIndex(items.get("read"));
-		} else if (r == Verb.Invitation && items.containsKey("access")) {
+		} else if (r == Verb.Freebusy && items.containsKey("access")) {
 			combo.setSelectedIndex(items.get("access"));
-		} 
+		} else if (r == Verb.Invitation && items.containsKey("invite")) {
+			combo.setSelectedIndex(items.get("invite"));
+		}
 	}
 
 	public Verb getValue() {
@@ -102,8 +111,10 @@ public class AclCombo extends Composite {
 	 */
 	private Verb getRightFromValue(String value) {
 		Verb r = null;
-		if (value.equals("access")) {
-			r = Verb.Invitation; // FIXME
+		if (value.equals("invite")) {
+			r = Verb.Invitation;
+		} else if (value.equals("access")) {
+			r = Verb.Freebusy;
 		} else if (value.equals("read")) {
 			r = Verb.Read;
 		} else if (value.equals("write")) {

@@ -165,7 +165,7 @@ public abstract class BaseSharingsModelHandler implements IGwtModelHandler {
 							acl.add(accessControlEntry);
 						} else if (!AclComparator.isPermanentAcl(accessControlEntry)) {
 							acl.add(accessControlEntry);
- 						}
+						}
 					}
 
 					cm.setAccessControlList(acl, new DefaultAsyncHandler<Void>(handler) {

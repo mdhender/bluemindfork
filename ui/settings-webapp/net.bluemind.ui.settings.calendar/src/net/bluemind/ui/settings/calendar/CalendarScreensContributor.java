@@ -30,8 +30,6 @@ import net.bluemind.gwtconsoleapp.base.editor.TabContainer;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.ui.gwtuser.client.CalendarManagementModelHandler;
 import net.bluemind.ui.gwtuser.client.CalendarsSubscriptionsEditor;
-import net.bluemind.ui.gwtuser.client.FreebusySharingEditor;
-import net.bluemind.ui.gwtuser.client.FreebusySharingModelHandler;
 import net.bluemind.ui.gwtuser.client.UserCalendarsSharingsEditor;
 import net.bluemind.ui.gwtuser.client.UserCalendarsSubscriptionModelHandler;
 import net.bluemind.ui.gwtuser.client.UserSettingsCalendarsSharingModelHandler;
@@ -75,10 +73,6 @@ public class CalendarScreensContributor implements ScreenElementContributorUnwra
 		contribs.push(ScreenElementContribution.create("myCalendars", "childrens",
 				ScreenElement.create(null, MyCalendarsPartWidget.TYPE)));
 
-		ScreenElement fbSharingEditor = ScreenElement.create(null, FreebusySharingEditor.TYPE);
-		fbSharingEditor.setTitle(FreeBusyConstants.INST.sharing());
-		contribs.push(ScreenElementContribution.create("myCalendars", "childrens", fbSharingEditor));
-
 		contribs.push(ScreenElementContribution.create("base", "modelHandlers",
 				ScreenElement.create(null, UserSettingsCalendarsSharingModelHandler.TYPE)));
 
@@ -87,8 +81,6 @@ public class CalendarScreensContributor implements ScreenElementContributorUnwra
 
 		contribs.push(ScreenElementContribution.create("base", "modelHandlers",
 				ScreenElement.create(null, CalendarManagementModelHandler.TYPE)));
-		contribs.push(ScreenElementContribution.create("base", "modelHandlers",
-				ScreenElement.create(null, FreebusySharingModelHandler.TYPE)));
 
 		return contribs;
 	}

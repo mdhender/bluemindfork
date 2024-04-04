@@ -40,9 +40,6 @@ import net.bluemind.ui.adminconsole.directory.calendar.CalendarSettingsEditor;
 import net.bluemind.ui.adminconsole.directory.calendar.CalendarSettingsModelHandler;
 import net.bluemind.ui.adminconsole.directory.mailshare.DomainLoader;
 import net.bluemind.ui.adminconsole.directory.resource.l10n.ResourceMenusConstants;
-import net.bluemind.ui.gwtuser.client.FreebusySharingEditor;
-import net.bluemind.ui.gwtuser.client.FreebusySharingModelHandler;
-import net.bluemind.ui.gwtuser.client.l10n.FreeBusyConstants;
 
 public class EditResourceScreen extends BaseEditScreen {
 
@@ -88,16 +85,13 @@ public class EditResourceScreen extends BaseEditScreen {
 
 		ScreenRoot screenRoot = ScreenRoot.create("editResource", TYPE).cast();
 		screenRoot.getHandlers().push(ModelHandler.create(null, ResourceModelHandler.TYPE).readOnly()
-				.withRole(BasicRoles.ROLE_MANAGE_RESOURCE).<ModelHandler> cast());
+				.withRole(BasicRoles.ROLE_MANAGE_RESOURCE).<ModelHandler>cast());
 		screenRoot.getHandlers().push(ModelHandler.create(null, ResourceCalendarSharingModelHandler.TYPE)
-				.withRole(BasicRoles.ROLE_MANAGE_RESOURCE_SHARINGS).<ModelHandler> cast());
-		screenRoot.getHandlers().push(ModelHandler.create(null, DomainLoader.TYPE).<ModelHandler> cast());
-
-		screenRoot.getHandlers().push(ModelHandler.create(null, FreebusySharingModelHandler.TYPE)
-				.withRole(BasicRoles.ROLE_MANAGE_RESOURCE_SHARINGS).<ModelHandler> cast());
+				.withRole(BasicRoles.ROLE_MANAGE_RESOURCE_SHARINGS).<ModelHandler>cast());
+		screenRoot.getHandlers().push(ModelHandler.create(null, DomainLoader.TYPE).<ModelHandler>cast());
 
 		screenRoot.getHandlers().push(ModelHandler.create(null, CalendarSettingsModelHandler.TYPE)
-				.withRole(BasicRoles.ROLE_MANAGE_RESOURCE).<ModelHandler> cast());
+				.withRole(BasicRoles.ROLE_MANAGE_RESOURCE).<ModelHandler>cast());
 
 		JsArray<Tab> tabs = JavaScriptObject.createArray().cast();
 		tabs.push(Tab.create(null, c.basicParameterTab(),
@@ -112,11 +106,6 @@ public class EditResourceScreen extends BaseEditScreen {
 				.withRole(BasicRoles.ROLE_MANAGE_RESOURCE_SHARINGS);
 		calendarSharing.setTitle(c.calendarSharing());
 		calendarsContent.push(calendarSharing);
-
-		ScreenElement fbSharingEditor = ScreenElement.create(null, FreebusySharingEditor.TYPE)
-				.withRole(BasicRoles.ROLE_MANAGE_RESOURCE_SHARINGS);
-		fbSharingEditor.setTitle(FreeBusyConstants.INST.sharing());
-		calendarsContent.push(fbSharingEditor);
 
 		tabs.push(Tab.create(null, c.calendarSharing(),
 				ContainerElement.create("resourceCalendarSharing", calendarsContent)));

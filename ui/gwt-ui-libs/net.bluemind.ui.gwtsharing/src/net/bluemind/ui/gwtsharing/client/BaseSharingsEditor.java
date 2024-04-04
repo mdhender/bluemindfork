@@ -113,20 +113,16 @@ public class BaseSharingsEditor extends CompositeGwtWidgetElement {
 				if (type.equals("calendar")) {
 					boolean isDomainCalendar = value.ownerDirEntryPath.startsWith(value.domainUid + "/calendars/");
 					if (!value.readOnly && !isDomainCalendar) {
+						verbs.put("invite", constants.aclCalendarInvite());
 						verbs.put("access", constants.aclCalendarAccess());
 					}
 					verbs.put("read",
-							isDomainCalendar ? constants.aclDomainCalendarRead() : constants.aclCalendarReadOnly());
+							isDomainCalendar ? constants.aclDomainCalendarRead() : constants.aclCalendarRead());
 					if (!value.readOnly) {
 						verbs.put("write",
 								isDomainCalendar ? constants.aclDomainCalendarWrite() : constants.aclCalendarWrite());
 						verbs.put("admin",
 								isDomainCalendar ? constants.aclDomainCalendarAdmin() : constants.aclCalendarAdmin());
-					}
-				} else if ("freebusy".equals(type)) {
-					verbs.put("read", constants.aclFreebusyRead());
-					if (!value.readOnly) {
-						verbs.put("admin", constants.aclFreebusyAdmin());
 					}
 				} else if ("addressbook".equals(type)) {
 					verbs.put("read", constants.aclBookRead());
@@ -188,13 +184,11 @@ public class BaseSharingsEditor extends CompositeGwtWidgetElement {
 		AclConstants constants = GWT.create(AclConstants.class);
 
 		if (type.equals("calendar")) {
+			verbs.put("invite", constants.aclCalendarInvite());
 			verbs.put("access", constants.aclCalendarAccess());
-			verbs.put("read", constants.aclCalendarReadOnly());
+			verbs.put("read", constants.aclCalendarRead());
 			verbs.put("write", constants.aclCalendarWrite());
 			verbs.put("admin", constants.aclCalendarAdmin());
-		} else if ("freebusy".equals(type)) {
-			verbs.put("read", constants.aclFreebusyRead());
-			verbs.put("admin", constants.aclFreebusyAdmin());
 		} else if ("addressbook".equals(type)) {
 			verbs.put("read", constants.aclBookRead());
 			verbs.put("write", constants.aclBookWrite());

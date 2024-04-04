@@ -48,8 +48,6 @@ import net.bluemind.ui.gwtrole.client.UserRolesModelHandler;
 import net.bluemind.ui.gwtuser.client.BooksSubscriptionsEditor;
 import net.bluemind.ui.gwtuser.client.CalendarManagementModelHandler;
 import net.bluemind.ui.gwtuser.client.CalendarsSubscriptionsEditor;
-import net.bluemind.ui.gwtuser.client.FreebusySharingEditor;
-import net.bluemind.ui.gwtuser.client.FreebusySharingModelHandler;
 import net.bluemind.ui.gwtuser.client.UserBooksSharingModelHandler;
 import net.bluemind.ui.gwtuser.client.UserBooksSharingsEditor;
 import net.bluemind.ui.gwtuser.client.UserBooksSubscriptionModelHandler;
@@ -61,7 +59,6 @@ import net.bluemind.ui.gwtuser.client.UserTodolistsSharingModelHandler;
 import net.bluemind.ui.gwtuser.client.UserTodolistsSharingsEditor;
 import net.bluemind.ui.gwtuser.client.UserTodolistsSubscriptionModelHandler;
 import net.bluemind.ui.gwtuser.client.UserTodolistsSubscriptionsEditor;
-import net.bluemind.ui.gwtuser.client.l10n.FreeBusyConstants;
 import net.bluemind.ui.mailbox.filter.MailSettingsModelHandler;
 import net.bluemind.ui.mailbox.identity.UserMailIdentitiesModelHandler;
 import net.bluemind.ui.settings.calendar.GeneralPartWidget;
@@ -158,8 +155,6 @@ public class EditUserScreen extends BaseDirEntryEditScreen {
 				.withRole(BasicRoles.ROLE_MANAGE_USER_SHARINGS).<ModelHandler>cast());
 		screenRoot.getHandlers().push(ModelHandler.create(null, UserTodolistsSubscriptionModelHandler.TYPE)
 				.withRole(BasicRoles.ROLE_MANAGE_USER_SUBSCRIPTIONS).<ModelHandler>cast());
-		screenRoot.getHandlers().push(ModelHandler.create(null, FreebusySharingModelHandler.TYPE)
-				.withRole(BasicRoles.ROLE_MANAGE_USER_SHARINGS).<ModelHandler>cast());
 		screenRoot.getHandlers().push(ModelHandler.create(null, CalendarManagementModelHandler.TYPE)
 				.withRole(BasicRoles.ROLE_MANAGE_USER).<ModelHandler>cast());
 
@@ -205,11 +200,6 @@ public class EditUserScreen extends BaseDirEntryEditScreen {
 
 		calendarsContent.push(ScreenElement.create(null, UserCalendarsSharingsEditor.TYPE)
 				.witTitle(c.calendarsSharingTab()).withRole(BasicRoles.ROLE_MANAGE_USER_SHARINGS));
-
-		ScreenElement fbSharingEditor = ScreenElement.create(null, FreebusySharingEditor.TYPE)
-				.withRole(BasicRoles.ROLE_MANAGE_USER_SHARINGS);
-		fbSharingEditor.setTitle(FreeBusyConstants.INST.sharing());
-		calendarsContent.push(fbSharingEditor);
 
 		calendarsContent.push(ScreenElement.create(null, CalendarsSubscriptionsEditor.TYPE)
 				.withRole(BasicRoles.ROLE_MANAGE_USER_SUBSCRIPTIONS));

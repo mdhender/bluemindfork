@@ -23,8 +23,6 @@ import net.bluemind.gwtconsoleapp.base.menus.MenuContributor;
 import net.bluemind.ui.gwtcalendar.client.GwtCalendarBundle;
 import net.bluemind.ui.gwtuser.client.CalendarManagementModelHandler;
 import net.bluemind.ui.gwtuser.client.CalendarsSubscriptionsEditor;
-import net.bluemind.ui.gwtuser.client.FreebusySharingEditor;
-import net.bluemind.ui.gwtuser.client.FreebusySharingModelHandler;
 import net.bluemind.ui.gwtuser.client.UserCalendarsSharingModelHandler;
 import net.bluemind.ui.gwtuser.client.UserCalendarsSharingsEditor;
 import net.bluemind.ui.gwtuser.client.UserCalendarsSubscriptionModelHandler;
@@ -42,9 +40,6 @@ public class CalendarSettingsPlugin {
 
 		UserCalendarsSharingsEditor.registerType();
 		UserCalendarsSharingModelHandler.registerType();
-
-		FreebusySharingEditor.registerType();
-		FreebusySharingModelHandler.registerType();
 
 		CalendarsSubscriptionsEditor.registerType();
 		GeneralPartWidget.registerType();

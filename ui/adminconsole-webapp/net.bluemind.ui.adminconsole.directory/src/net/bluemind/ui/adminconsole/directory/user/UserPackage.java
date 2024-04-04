@@ -26,8 +26,6 @@ import net.bluemind.ui.gwtrole.client.UserRolesModelHandler;
 import net.bluemind.ui.gwtuser.client.BooksSubscriptionsEditor;
 import net.bluemind.ui.gwtuser.client.CalendarManagementModelHandler;
 import net.bluemind.ui.gwtuser.client.CalendarsSubscriptionsEditor;
-import net.bluemind.ui.gwtuser.client.FreebusySharingEditor;
-import net.bluemind.ui.gwtuser.client.FreebusySharingModelHandler;
 import net.bluemind.ui.gwtuser.client.UserBooksSharingModelHandler;
 import net.bluemind.ui.gwtuser.client.UserBooksSharingsEditor;
 import net.bluemind.ui.gwtuser.client.UserBooksSubscriptionModelHandler;
@@ -88,8 +86,6 @@ public class UserPackage {
 
 		RolesEditor.registerType();
 		UserRolesModelHandler.registerType();
-		FreebusySharingEditor.registerType();
-		FreebusySharingModelHandler.registerType();
 
 		UserCalendarsEditor.registerType();
 		CalendarManagementModelHandler.registerType();
