@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
+import net.bluemind.addressbook.api.IAddressBook;
 import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -102,9 +103,15 @@ public class DeleteProtocol implements IDavProtocol<DeleteQuery, DeleteResponse>
 			} else if ("todolist".equals(cd.type)) {
 				Matcher m = rt.matcher(dres.getPath());
 				m.find();
-				String veventUid = m.group(3);
-				ITodoList calApi = lc.getCore().instance(ITodoList.class, cd.uid);
-				calApi.delete(veventUid);
+				String todoUid = m.group(3);
+				ITodoList todoApi = lc.getCore().instance(ITodoList.class, cd.uid);
+				todoApi.delete(todoUid);
+			} else if ("addressbook".equals(cd.type)) {
+				Matcher m = rt.matcher(dres.getPath());
+				m.find();
+				String addressbook = m.group(3);
+				IAddressBook abApi = lc.getCore().instance(IAddressBook.class, cd.uid);
+				abApi.delete(addressbook);
 			} else {
 				logger.error("Not supported path {}", dres.getPath());
 				resp.setStatus(404);
