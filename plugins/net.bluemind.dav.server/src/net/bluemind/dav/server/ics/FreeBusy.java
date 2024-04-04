@@ -36,6 +36,7 @@ import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.VFreebusyQuery;
 import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.dav.server.store.LoggedCore;
+import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.icalendar.parser.ICal4jHelper;
@@ -111,7 +112,11 @@ public class FreeBusy {
 		String domain = lc.getDomain();
 		DirEntry byEmail = lc.getCore().instance(IDirectory.class, domain).getByEmail(mailto);
 		return Optional.ofNullable(byEmail).map(dirEntry -> {
-			return new CalRequest(ICalendarUids.defaultUserCalendar(byEmail.entryUid), range);
+			if (dirEntry.kind == Kind.RESOURCE) {
+				return new CalRequest(ICalendarUids.resourceCalendar(byEmail.entryUid), range);
+			} else {
+				return new CalRequest(ICalendarUids.defaultUserCalendar(byEmail.entryUid), range);
+			}
 		});
 	}
 
