@@ -74,7 +74,7 @@ public class DataProtectJob implements IScheduledJob {
 			GregorianCalendar gc = new GregorianCalendar();
 			gc.setTime(startDate);
 			if (gc.get(Calendar.MINUTE) != 0 || gc.get(Calendar.HOUR_OF_DAY) != 1) {
-				logger.info("automatic mode, not running at {}", gc.getTime());
+				logger.debug("automatic mode, not running at {}", gc.getTime());
 				return;
 			}
 		}

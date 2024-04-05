@@ -86,7 +86,7 @@ public class SessionsMgmt implements ISessionsMgmt {
 		if (!context.getSecurityContext().fromGlobalVirt() && sid != null) {
 			SecurityContext current = Sessions.get().getIfPresent(sid);
 			Sessions.get().put(sid, current.from(ud.remoteIps));
-			logger.info("Remote IPs updated to {}", ud.remoteIps);
+			logger.debug("Remote IPs updated to {}", ud.remoteIps);
 		}
 	}
 }

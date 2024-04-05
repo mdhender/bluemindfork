@@ -102,7 +102,7 @@ public class DbMessageBodiesService implements IInternalDbMessageBodies {
 	 */
 	private void _create(String uid, Date deliveryDate, Stream pristine) {
 		if (exists(uid)) {
-			logger.warn("Skipping existing body {}", uid);
+			logger.debug("Skipping existing body {}", uid);
 			VertxStream.sink(pristine).orTimeout(10, TimeUnit.SECONDS).join();
 			return;
 		}

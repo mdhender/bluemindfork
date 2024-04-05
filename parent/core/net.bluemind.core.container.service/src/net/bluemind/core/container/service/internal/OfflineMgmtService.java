@@ -35,14 +35,14 @@ public class OfflineMgmtService implements IOfflineMgmt {
 
 	public OfflineMgmtService(DataSource dataSource) {
 		this.dataSource = dataSource;
-		logger.info("Created with ds={}", dataSource);
+		logger.debug("Created with ds={}", dataSource);
 	}
 
 	@Override
 	public IdRange allocateOfflineIds(int idCount) {
 		OfflineMgmtStore store = new OfflineMgmtStore(dataSource);
 		long startValue = JdbcAbstractStore.doOrFail(() -> store.reserveItemIds(idCount));
-		logger.info("Allocated {} local replica ids, starting at {}", idCount, startValue);
+		logger.debug("Allocated {} local replica ids, starting at {}", idCount, startValue);
 		return IdRange.create(idCount, startValue);
 	}
 

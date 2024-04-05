@@ -103,21 +103,22 @@ public class ResourceCalendarHook implements ICalendarHook {
 											attendee.partStatus = ParticipationStatus.Declined;
 											attendee.responseComment = getMessages(
 													getOwnerLocale(message.vevent.main, message.container.domainUid))
-															.getString("autorefuse");
+													.getString("autorefuse");
 											needUpdate = true;
 										}
 									} else {
 										attendee.partStatus = ParticipationStatus.Accepted;
 										attendee.responseComment = getMessages(
 												getOwnerLocale(message.vevent.main, message.container.domainUid))
-														.getString("autoaccept");
+												.getString("autoaccept");
 										needUpdate = true;
 									}
 								}
 							}
 						}
 					} catch (TentativeEventException | RecurringEventException e) {
-						logger.warn("Could not automatically set a decision for {}", vEvent.summary, e);
+						logger.info("Could not automatically set a decision for {}:{}", vEvent.summary,
+								e.getClass().getName());
 					}
 				}
 				if (needUpdate) {

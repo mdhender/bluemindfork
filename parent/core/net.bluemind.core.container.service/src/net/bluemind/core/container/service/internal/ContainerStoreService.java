@@ -303,7 +303,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			return null;
 		}
 		T value = getValue(item);
-		if (value == null) {
+		if (value == null && !itemValueStore.toString().equals("UserSettingsStore")) {
 			logger.warn("null value for existing item {} with store {}", item, itemValueStore);
 		}
 		ItemValue<T> ret = ItemValue.create(item, value);
