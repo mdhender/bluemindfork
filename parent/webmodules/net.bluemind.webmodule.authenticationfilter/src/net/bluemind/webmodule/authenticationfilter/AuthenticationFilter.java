@@ -405,12 +405,14 @@ public class AuthenticationFilter implements IWebFilter, NeedVertx {
 			return CompletableFuture.completedFuture(null);
 		}
 
-		return CompletableFuture.completedFuture(request.setExpectMultipart(true)
-				.endHandler(v1 -> backChannelLogoutProcesRequest(request)).exceptionHandler(e -> {
+		request.setExpectMultipart(true).endHandler(v1 -> backChannelLogoutProcesRequest(request))
+				.exceptionHandler(e -> {
 					logger.error("JWT logout token process error from {}: {}",
 							request.headers().getAll("X-Forwarded-For"), e.getMessage(), e);
 					backChannelLogoutError(request, "JWT logout token process error: " + e.getMessage());
-				}));
+				});
+
+		return CompletableFuture.completedFuture(null);
 	}
 
 	private void backChannelLogoutProcesRequest(HttpServerRequest request) {
