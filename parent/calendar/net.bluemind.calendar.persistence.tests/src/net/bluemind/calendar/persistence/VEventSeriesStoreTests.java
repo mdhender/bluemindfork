@@ -57,6 +57,7 @@ import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.container.model.SortDescriptor;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.ItemStore;
 import net.bluemind.core.context.SecurityContext;
@@ -1077,6 +1078,59 @@ public class VEventSeriesStoreTests {
 		evt = vEventStore.get(item);
 
 		assertFalse(evt.acceptCounters);
+	}
+
+	@Test
+	public void testSortedByIds() throws Exception {
+		ItemValue<VEventSeries> event1 = defaultVEvent();
+		event1.value.icsUid = "1";
+		event1.value.acceptCounters = true;
+		event1.value.main.dtend = BmDateTimeWrapper.create(ZonedDateTime.now(), Precision.DateTime);
+		Item item1 = itemStore.create(Item.create(event1.uid, null));
+		vEventStore.create(item1, event1.value);
+		Long id1 = itemStore.get(event1.uid).id;
+
+		ItemValue<VEventSeries> event2 = defaultVEvent();
+		event2.value.icsUid = "2";
+		event2.value.acceptCounters = true;
+		event2.value.main.dtend = BmDateTimeWrapper.create(ZonedDateTime.now().plusHours(1), Precision.DateTime);
+		Item item2 = itemStore.create(Item.create(event2.uid, null));
+		vEventStore.create(item2, event2.value);
+		Long id2 = itemStore.get(event2.uid).id;
+
+		ItemValue<VEventSeries> event3 = defaultVEvent();
+		event3.value.icsUid = "3";
+		event3.value.acceptCounters = false;
+		event3.value.main.dtend = BmDateTimeWrapper.create(ZonedDateTime.now().plusMinutes(10), Precision.DateTime);
+		Item item3 = itemStore.create(Item.create(event3.uid, null));
+		vEventStore.create(item3, event3.value);
+		Long id3 = itemStore.get(event3.uid).id;
+
+		// default: ORDER BY item.created DESC
+		SortDescriptor descriptor = new SortDescriptor();
+		List<Long> sortedIds = vEventStore.sortedIds(descriptor);
+		assertEquals(id3, sortedIds.get(0));
+		assertEquals(id2, sortedIds.get(1));
+		assertEquals(id1, sortedIds.get(2));
+
+		// ORDER BY series.accept_counters ASC,series.ics_uid DESC
+		descriptor = new SortDescriptor();
+		descriptor.fields = Arrays.asList(SortDescriptor.Field.create("accept_counters", SortDescriptor.Direction.Asc),
+				SortDescriptor.Field.create("ics_uid", SortDescriptor.Direction.Desc));
+		sortedIds = vEventStore.sortedIds(descriptor);
+		assertEquals(id3, sortedIds.get(0));
+		assertEquals(id2, sortedIds.get(1));
+		assertEquals(id1, sortedIds.get(2));
+
+		// ORDER BY ev.dtend_timestamp DESC
+		descriptor = new SortDescriptor();
+		descriptor.fields = Arrays.asList(SortDescriptor.Field.create("i-dont-exists", SortDescriptor.Direction.Asc),
+				SortDescriptor.Field.create("PidLidAppointmentEndWhole", SortDescriptor.Direction.Desc));
+		sortedIds = vEventStore.sortedIds(descriptor);
+		assertEquals(id2, sortedIds.get(0));
+		assertEquals(id3, sortedIds.get(1));
+		assertEquals(id1, sortedIds.get(2));
+
 	}
 
 	private VEventCounter counter(String cn, String email, VEventOccurrence counterEvent) {

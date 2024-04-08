@@ -41,9 +41,9 @@ import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.SortDescriptor;
-import net.bluemind.core.container.model.SortDescriptor.Direction;
 import net.bluemind.core.container.model.SortDescriptor.Field;
 import net.bluemind.core.container.persistence.AbstractItemValueStore;
+import net.bluemind.core.container.persistence.ItemStore;
 import net.bluemind.core.container.persistence.LongCreator;
 import net.bluemind.core.container.persistence.StringCreator;
 
@@ -241,44 +241,47 @@ public class VEventSeriesStore extends AbstractItemValueStore<VEventSeries> {
 	}
 
 	public List<Long> sortedIds(SortDescriptor sorted) throws SQLException {
-		logger.debug("sorted by {}", sorted);
-		String query = "SELECT item.id FROM t_calendar_series rec "
-				+ "INNER JOIN t_container_item item ON rec.item_id = item.id " //
-				+ "INNER JOIN t_calendar_vevent ev ON (rec.item_id = ev.item_id AND ev.recurid_timestamp IS NULL) "//
+		String sortColumns = String.join(",", sorted.fields.stream() //
+				.map(this::mapiReplacement) //
+				.filter(field -> columnExists(field.column)) //
+				.map(field -> getColumnPrefix(field.column) + field.column + " " + field.dir.name().toUpperCase()) //
+				.toList());
+		sortColumns = sortColumns.trim().isEmpty() ? "item.created DESC" : sortColumns;
+
+		String query = "SELECT item.id FROM t_calendar_series series "
+				+ "INNER JOIN t_container_item item ON series.item_id = item.id " //
+				+ "INNER JOIN t_calendar_vevent ev ON (series.item_id = ev.item_id AND ev.recurid_timestamp IS NULL) "//
 				+ "WHERE item.container_id=? " //
 				+ "AND (item.flags::bit(32) & 2::bit(32)) = 0::bit(32) " // not deleted
-		;
-		int added = 0;
-		for (int i = 0; i < sorted.fields.size(); i++) {
-			Field field = sorted.fields.get(i);
-			switch (field.column) {
-			case "PidLidAppointmentEndWhole":
-				if (added > 0) {
-					query += ", ";
-				} else if (added == 0) {
-					query += "ORDER BY ";
-				}
-				query += "ev.dtend_timestamp " + dir(field);
-				added++;
-				break;
-			case "PidLidRecurring":
-				if (added > 0) {
-					query += ", ";
-				} else if (added == 0) {
-					query += "ORDER BY ";
-				}
-				query += "ev.rrule_frequency IS NOT NULL " + dir(field);
-				added++;
-				break;
-			default:
-				break;
-			}
-		}
+				+ "ORDER BY " + sortColumns;
+
 		return select(query, LongCreator.FIRST, Collections.emptyList(), new Object[] { container.id });
 	}
 
-	private String dir(Field field) {
-		return field.dir == Direction.Asc ? "ASC" : "DESC";
+	private String getColumnPrefix(String column) {
+		if (ItemStore.COLUMNS.cols.stream().anyMatch(col -> col.name.equals(column))) {
+			return "item.";
+		} else if (VEventColumns.ALL.cols.stream().anyMatch(col -> col.name.equals(column))) {
+			return "ev.";
+		} else {
+			return "series.";
+		}
+	}
+
+	private SortDescriptor.Field mapiReplacement(SortDescriptor.Field column) {
+		if ("PidLidAppointmentEndWhole".equalsIgnoreCase(column.column)) {
+			return Field.create("dtend_timestamp", column.dir);
+		} else if ("PidLidRecurring".equalsIgnoreCase(column.column)) {
+			return Field.create("rrule_frequency", column.dir);
+		} else {
+			return column;
+		}
+	}
+
+	private boolean columnExists(String column) {
+		return ItemStore.COLUMNS.cols.stream().anyMatch(col -> col.name.equals(column)) //
+				|| VEventColumns.ALL.cols.stream().anyMatch(col -> col.name.equals(column)) //
+				|| SeriesColumns.cols.cols.stream().anyMatch(col -> col.name.equals(column));
 	}
 
 	public List<String> searchPendingPropositions(String owner) throws SQLException {
