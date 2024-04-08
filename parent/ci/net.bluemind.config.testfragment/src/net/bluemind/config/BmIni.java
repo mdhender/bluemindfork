@@ -25,7 +25,6 @@ import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.Properties;
 
 import org.slf4j.Logger;
@@ -76,17 +75,7 @@ public class BmIni {
 	}
 
 	public static String getPgPassword() throws FileNotFoundException {
-		File iniFile = new File(BM_INI);
-		if (!iniFile.exists()) {
-			throw new FileNotFoundException(BM_INI);
-		}
-		Properties p = new Properties();
-		try (InputStream in = Files.newInputStream(iniFile.toPath())) {
-			p.load(in);
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-		}
-		return Optional.ofNullable(p.getProperty("password")).orElse("").replace("\"", "");
+		return "bj";
 	}
 
 }

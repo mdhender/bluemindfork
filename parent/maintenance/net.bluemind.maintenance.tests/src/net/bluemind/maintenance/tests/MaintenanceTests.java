@@ -111,8 +111,8 @@ public class MaintenanceTests {
 	public void testMaintenanceAnalyze() throws ServerFault {
 		List<IMaintenanceScript> scripts = MaintenanceScripts.getMaintenanceScripts();
 		scripts.stream().forEach(s -> System.err.println(s.getClass().getSimpleName()));
-		IMaintenanceScript analyze = scripts.stream().filter(s -> "Analyze".equals(s.getClass().getSimpleName()))
-				.findFirst().get();
+		IMaintenanceScript analyze = scripts.stream().filter(s -> "Analyze".equals(s.getClass().getSimpleName())) // NOSONAR
+				.findFirst().orElseThrow();
 		TestMonitor monitor = new TestMonitor();
 		analyze.run(monitor);
 		int analyzeRuns = 0;
@@ -132,7 +132,7 @@ public class MaintenanceTests {
 		initDataServer();
 		IServer service = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).getContext().provider()
 				.instance(IServer.class, "default");
-		service.allComplete().stream().forEach(s -> System.err.println(s));
+		service.allComplete().stream().forEach(System.err::println);
 		List<Server> servers = service.allComplete().stream()
 				.filter(ivs -> ivs.value.tags.contains(TagDescriptor.bm_pgsql.getTag())
 						|| ivs.value.tags.contains(TagDescriptor.bm_pgsql_data.getTag()))
@@ -141,12 +141,13 @@ public class MaintenanceTests {
 			System.err.println("server: " + s);
 		}
 		List<IMaintenanceScript> scripts = MaintenanceScripts.getMaintenanceScripts();
-		IMaintenanceScript repack = scripts.stream().filter(s -> s.getClass().getSimpleName().equals("Repack"))
+		IMaintenanceScript repack = scripts.stream().filter(s -> s.getClass().getSimpleName().equals("Repack")) // NOSONAR:
+																												// export
 				.findFirst().orElseThrow(() -> new ServerFault("missing repack"));
 
 		TestMonitor monitor = new TestMonitor();
 		repack.run(monitor);
-		monitor.logs.stream().filter(Objects::nonNull).forEach(l -> System.err.println(l));
+		monitor.logs.stream().filter(Objects::nonNull).forEach(System.err::println);
 		long createIndexes = monitor.logs.stream().filter(Objects::nonNull)
 				.filter(l -> l.contains("CREATE UNIQUE INDEX CONCURRENTLY")).count();
 
@@ -157,7 +158,7 @@ public class MaintenanceTests {
 		System.err.println("relaunch effective this time ?");
 		// Effective repack
 		repack.run(monitor);
-		monitor.logs.stream().filter(Objects::nonNull).forEach(l -> System.err.println(l));
+		monitor.logs.stream().filter(Objects::nonNull).forEach(System.err::println);
 		long repackedTables = monitor.logs.stream().filter(Objects::nonNull).filter(l -> l.contains("repacking table"))
 				.count();
 		assertTrue(repackedTables > 0);
