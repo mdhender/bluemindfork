@@ -37,10 +37,12 @@ import org.slf4j.LoggerFactory;
 
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Identification.FormatedName;
+import net.bluemind.addressbook.api.VCard.Identification.Nickname;
 import net.bluemind.addressbook.api.VCard.Parameter;
 import net.bluemind.addressbook.api.VCard.Security.Key;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
+import net.bluemind.core.container.model.SortDescriptor;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.ItemStore;
 import net.bluemind.core.context.SecurityContext;
@@ -497,6 +499,85 @@ public class VCardStoreTests {
 
 		vCardStore.delete(item);
 		assertNull(vCardStore.get(item));
+	}
+
+	@Test
+	public void testSortedByIds() throws SQLException {
+		VCard card = defaultVCard();
+		card.identification.formatedName = FormatedName.create("aaaaaaaaaaa");
+		card.identification.nickname = Nickname.create("aaaaaaaaaaa");
+		String uid = "test_" + System.nanoTime();
+
+		VCard card2 = defaultVCard();
+		card2.identification.formatedName = FormatedName.create("bbbbbbbbbbb");
+		card2.identification.nickname = Nickname.create("aaaaaaaaaaa");
+		String uid2 = "test2_" + System.nanoTime();
+
+		VCard card3 = defaultVCard();
+		card3.identification.formatedName = FormatedName.create("ccccccccccc");
+		card3.identification.nickname = Nickname.create("ccccccccccc");
+		String uid3 = "test3_" + System.nanoTime();
+
+		createAndGet(uid, card);
+		Long id1 = itemStore.get(uid).id;
+		createAndGet(uid2, card2);
+		Long id2 = itemStore.get(uid2).id;
+		createAndGet(uid3, card3);
+		Long id3 = itemStore.get(uid3).id;
+
+		SortDescriptor sortDescriptor = new SortDescriptor();
+		List<Long> sortedIds = vCardStore.sortedIds(sortDescriptor);
+
+		// default: ORDER BY item.created DESC
+		assertEquals(id3, sortedIds.get(0));
+		assertEquals(id2, sortedIds.get(1));
+		assertEquals(id1, sortedIds.get(2));
+
+		// ORDER BY rec.formated_name ASC
+		sortDescriptor = new SortDescriptor();
+		sortDescriptor.fields = Arrays
+				.asList(SortDescriptor.Field.create("formated_name", SortDescriptor.Direction.Asc));
+		sortedIds = vCardStore.sortedIds(sortDescriptor);
+		assertEquals(id1, sortedIds.get(0));
+		assertEquals(id2, sortedIds.get(1));
+		assertEquals(id3, sortedIds.get(2));
+
+		// ORDER BY rec.nickname ASC,rec.formated_name DESC
+		sortDescriptor = new SortDescriptor();
+		sortDescriptor.fields = Arrays.asList(SortDescriptor.Field.create("nickname", SortDescriptor.Direction.Asc),
+				SortDescriptor.Field.create("formated_name", SortDescriptor.Direction.Desc));
+		sortedIds = vCardStore.sortedIds(sortDescriptor);
+		assertEquals(id2, sortedIds.get(0));
+		assertEquals(id1, sortedIds.get(1));
+		assertEquals(id3, sortedIds.get(2));
+
+		// ORDER BY item.uid ASC,rec.formated_name DESC
+		sortDescriptor = new SortDescriptor();
+		sortDescriptor.fields = Arrays.asList(SortDescriptor.Field.create("uid", SortDescriptor.Direction.Asc),
+				SortDescriptor.Field.create("formated_name", SortDescriptor.Direction.Desc));
+		sortedIds = vCardStore.sortedIds(sortDescriptor);
+		assertEquals(id1, sortedIds.get(0));
+		assertEquals(id2, sortedIds.get(1));
+		assertEquals(id3, sortedIds.get(2));
+
+		// ORDER rec.formated_name DESC, filter non-existing columns
+		sortDescriptor = new SortDescriptor();
+		sortDescriptor.fields = Arrays.asList(SortDescriptor.Field.create("i-dont-exist", SortDescriptor.Direction.Asc),
+				SortDescriptor.Field.create("formated_name", SortDescriptor.Direction.Desc),
+				SortDescriptor.Field.create("i-dont-exist2", SortDescriptor.Direction.Desc));
+		sortedIds = vCardStore.sortedIds(sortDescriptor);
+		assertEquals(id3, sortedIds.get(0));
+		assertEquals(id2, sortedIds.get(1));
+		assertEquals(id1, sortedIds.get(2));
+
+		// Mapi replacement
+		sortDescriptor = new SortDescriptor();
+		sortDescriptor.fields = Arrays
+				.asList(SortDescriptor.Field.create("PidTagNormalizedSubject", SortDescriptor.Direction.Asc));
+		sortedIds = vCardStore.sortedIds(sortDescriptor);
+		assertEquals(id1, sortedIds.get(0));
+		assertEquals(id2, sortedIds.get(1));
+		assertEquals(id3, sortedIds.get(2));
 	}
 
 	private VCard createAndGet(String uid, VCard card) {

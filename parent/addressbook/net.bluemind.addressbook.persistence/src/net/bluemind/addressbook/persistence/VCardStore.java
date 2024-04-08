@@ -34,7 +34,9 @@ import net.bluemind.addressbook.api.VCard.Kind;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.SortDescriptor;
+import net.bluemind.core.container.model.SortDescriptor.Field;
 import net.bluemind.core.container.persistence.AbstractItemValueStore;
+import net.bluemind.core.container.persistence.ItemStore;
 import net.bluemind.core.container.persistence.LongCreator;
 import net.bluemind.core.container.persistence.StringCreator;
 
@@ -122,16 +124,34 @@ public class VCardStore extends AbstractItemValueStore<VCard> {
 	}
 
 	public List<Long> sortedIds(SortDescriptor sorted) throws SQLException {
-		logger.debug("sorted by {}");
-		SortDescriptor.Field sortField = sorted.fields.isEmpty() ? null : sorted.fields.getFirst();
-		String sortColumn = sortField == null ? "item.created" : "rec." + sortField.column;
-		String sortDirection = sortField == null ? "DESC" : sortField.dir.name();
+		String sortColumns = String.join(",", sorted.fields.stream() //
+				.map(this::mapiReplacement) //
+				.filter(field -> columnExists(field.column)) //
+				.map(field -> (ItemStore.COLUMNS.cols.stream().anyMatch(col -> col.name.equals(field.column)) ? "item."
+						: "rec.") + field.column + " " + field.dir.name().toUpperCase()) //
+				.toList());
+		sortColumns = sortColumns.trim().isEmpty() ? "item.created DESC" : sortColumns;
+
 		String query = "SELECT item.id FROM t_addressbook_vcard rec "
 				+ "INNER JOIN t_container_item item ON rec.item_id = item.id " //
 				+ "WHERE item.container_id = ? " //
 				+ "AND (item.flags::bit(32) & 2::bit(32)) = 0::bit(32) " // not deleted
-				+ "ORDER BY " + sortColumn + " " + sortDirection;
+				+ "ORDER BY " + sortColumns;
+
 		return select(query, LongCreator.FIRST, Collections.emptyList(), new Object[] { container.id });
+	}
+
+	private SortDescriptor.Field mapiReplacement(SortDescriptor.Field column) {
+		if ("pidtagnormalizedsubject".equalsIgnoreCase(column.column)) {
+			return Field.create("formated_name", column.dir);
+		} else {
+			return column;
+		}
+	}
+
+	private boolean columnExists(String column) {
+		return ItemStore.COLUMNS.cols.stream().anyMatch(col -> col.name.equals(column))
+				|| VCardColumns.COLUMNS_MAIN.cols.stream().anyMatch(col -> col.name.equals(column));
 	}
 
 }

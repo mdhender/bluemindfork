@@ -32,7 +32,7 @@ import net.bluemind.core.api.BMApi;
 public class SortDescriptor {
 
 	@BMApi(version = "3")
-	public static enum Direction {
+	public enum Direction {
 		Asc, Desc;
 	}
 
@@ -40,6 +40,13 @@ public class SortDescriptor {
 	public static class Field {
 		public String column;
 		public Direction dir;
+
+		public static Field create(String column, Direction direction) {
+			Field field = new Field();
+			field.column = column;
+			field.dir = direction;
+			return field;
+		}
 	}
 
 	public List<Field> fields = Collections.emptyList();
