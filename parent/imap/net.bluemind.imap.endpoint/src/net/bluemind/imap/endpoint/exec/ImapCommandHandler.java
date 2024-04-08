@@ -61,6 +61,7 @@ public class ImapCommandHandler implements Handler<RawImapCommand> {
 		try {
 			analyze(event);
 		} catch (Exception ere) {
+			logger.error("server error during analyze", ere);
 			ctx.write(event.tag() + " BAD " + ere.getMessage() + "\r\n");
 		}
 	}
