@@ -171,9 +171,9 @@ public class ItemOperationsFormatter implements IEasResponseFormatter<ItemOperat
 							}
 						}
 					}
-					logger.info("Getting mime from body preferences => {}", contentType);
+					logger.debug("Getting mime from body preferences => {}", contentType);
 				} else {
-					logger.warn("Using default content type of application/octet-stream");
+					logger.debug("Using default content type of application/octet-stream");
 				}
 				b.text(NamespaceMapping.AIR_SYNC_BASE, "ContentType", contentType);
 				data.endContainer(); // Properties
