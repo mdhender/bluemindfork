@@ -174,6 +174,7 @@ public class CalendarHookServiceTests {
 //				"John Doe", ICalendarUids.TYPE + ":Default:" + testuser.uid, testuser.uid);
 
 		CalendarTestAsyncHook.reset();
+		CalendarTestSyncHook.reset();
 
 	}
 
@@ -198,6 +199,11 @@ public class CalendarHookServiceTests {
 
 		getCalendarService(defaultSecurityContext, container).create(uid, event, true);
 
+		assertEquals(CalendarTestHook.Action.CREATE, CalendarTestSyncHook.action());
+		assertEquals(CalendarTestHook.Action.CREATE, CalendarTestAsyncHook.action());
+		CalendarTestAsyncHook.reset();
+		CalendarTestSyncHook.reset();
+
 		// test anonymous
 		try {
 			getCalendarService(SecurityContext.ANONYMOUS, container).delete(uid, true);
@@ -212,8 +218,6 @@ public class CalendarHookServiceTests {
 		assertNotNull(conferenceId);
 		BlueMindVideoRoom blueMindVideoRoom = getVideoConfSaasService().get(conferenceId);
 		assertNotNull(blueMindVideoRoom);
-
-		CalendarTestAsyncHook.waitEvent();
 
 		getCalendarService(defaultSecurityContext, container).delete(uid, true);
 
@@ -241,6 +245,7 @@ public class CalendarHookServiceTests {
 	public void after() throws Exception {
 		JdbcTestHelper.getInstance().afterTest();
 		CalendarTestAsyncHook.reset();
+		CalendarTestSyncHook.reset();
 	}
 
 	protected ICalendar getCalendarService(SecurityContext context, Container container) throws ServerFault {

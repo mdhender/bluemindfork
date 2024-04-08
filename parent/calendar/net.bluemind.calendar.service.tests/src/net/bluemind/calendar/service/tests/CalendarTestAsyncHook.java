@@ -20,6 +20,8 @@ public class CalendarTestAsyncHook extends CalendarTestHook {
 
 	public static void reset() {
 		latch = new CountDownLatch(1);
+		action = null;
+		receivedMessage = null;
 	}
 
 	public static VEventMessage message() {
