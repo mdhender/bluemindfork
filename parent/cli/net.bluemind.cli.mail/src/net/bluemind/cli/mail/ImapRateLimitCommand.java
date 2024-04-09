@@ -23,7 +23,7 @@ import net.bluemind.configfile.imap.ImapConfig;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Command(name = "imap-rate-limit", description = "Shows the number of indexed messages")
+@Command(name = "imap-rate-limit", description = "Configures the imap rate limit")
 public class ImapRateLimitCommand implements ICmdLet, Runnable {
 
 	public static class Reg implements ICmdLetRegistration {
