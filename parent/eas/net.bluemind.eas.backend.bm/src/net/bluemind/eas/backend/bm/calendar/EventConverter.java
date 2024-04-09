@@ -113,7 +113,7 @@ public class EventConverter {
 				exceptions = new ArrayList<>(vevent.occurrences.size());
 			}
 			for (VEventOccurrence recurrence : vevent.occurrences) {
-				convertOccurrence(bs.getUser(), tz, exceptions, recurrence);
+				convertOccurrence(bs, tz, exceptions, recurrence);
 			}
 			mse.setExceptions(exceptions);
 
@@ -125,7 +125,7 @@ public class EventConverter {
 
 	}
 
-	private void convertOccurrence(MSUser me, TimeZone tz, List<EventException> exceptions,
+	private void convertOccurrence(BackendSession bs, TimeZone tz, List<EventException> exceptions,
 			VEventOccurrence recurrence) {
 		EventException e = new EventException();
 		e.deleted = false;
@@ -143,6 +143,12 @@ public class EventConverter {
 
 		e.calendar.dtStamp = new Date();
 		e.calendar.subject = recurrence.summary;
+
+		if (recurrence.status.equals(Status.Cancelled)) {
+			ResourceBundle res = ResourceBundle.getBundle("lang/cancelled_event", new Locale(bs.getLang()));
+			String cancelledField = res.getString("cancelled");
+			e.calendar.subject = cancelledField + recurrence.summary;
+		}
 
 		e.location = recurrence.location;
 
@@ -182,7 +188,7 @@ public class EventConverter {
 				a.type = CalendarResponse.Attendee.AttendeeType.OPTIONAL;
 			}
 
-			if (me.getDefaultEmail().equals(attendee.mailto)) {
+			if (bs.getUser().getDefaultEmail().equals(attendee.mailto)) {
 				switch (attendee.partStatus) {
 				case Accepted:
 					e.responseType = CalendarResponse.ResponseType.ACCEPTED;
@@ -650,7 +656,6 @@ public class EventConverter {
 
 	public ConvertedVEvent convert(BackendSession bs, VEventSeries vevent, IApplicationData appliData,
 			Optional<Date> recurId, Optional<List<AttachedFile>> attachments) {
-
 		if (vevent == null) {
 			vevent = new VEventSeries();
 		}
@@ -723,7 +728,6 @@ public class EventConverter {
 			ret.vevent.occurrences = occurrences;
 			break;
 		}
-
 		return ret;
 	}
 

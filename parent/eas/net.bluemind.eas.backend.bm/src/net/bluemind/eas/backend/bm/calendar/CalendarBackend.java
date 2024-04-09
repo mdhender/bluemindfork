@@ -102,6 +102,7 @@ import net.bluemind.eas.dto.user.MSUser;
 import net.bluemind.eas.exception.ActiveSyncException;
 import net.bluemind.eas.store.ISyncStorage;
 import net.bluemind.eas.utils.EasLogUser;
+import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
 import net.bluemind.icalendar.api.ICalendarElement.Organizer;
 import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;
@@ -384,8 +385,10 @@ public class CalendarBackend extends CoreConnect {
 				// For Android phones, the instanceId is the new meeting datetime. We must then
 				// use the occurrences event start time to find occurrence corresponding to
 				// instanceId
-				Optional.ofNullable(vevent.value.occurrence(resolvedRecurId)).or(() -> vevent.value.occurrences.stream()
-						.filter(r -> r.dtstart.equals(resolvedRecurId)).findFirst()).ifPresent(occurence -> {
+				Optional.ofNullable(vevent.value.occurrence(resolvedRecurId))
+						.or(() -> vevent.value.occurrences.stream().filter(r -> r.dtstart.equals(resolvedRecurId))
+								.findFirst())
+						.filter(r -> !r.status.equals(ICalendarElement.Status.Cancelled)).ifPresent(occurence -> {
 							Iterator<Attendee> it = occurence.attendees.iterator();
 							while (it.hasNext()) {
 								Attendee a = it.next();
