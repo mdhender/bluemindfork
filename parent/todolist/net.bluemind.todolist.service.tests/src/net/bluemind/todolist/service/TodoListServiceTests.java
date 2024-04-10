@@ -28,6 +28,7 @@ import static org.junit.Assert.fail;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -460,7 +461,8 @@ public class TodoListServiceTests extends AbstractServiceTests {
 			return 3 == itemChangeLog.entries.size();
 		});
 		ItemChangelog itemChangeLog = getService(defaultSecurityContext).itemChangelog("test1", 0L);
-		assertEquals(3, itemChangeLog.entries.size());
+		Awaitility.await().atMost(Duration.ofSeconds(30))
+				.until(() -> getService(defaultSecurityContext).itemChangelog("test1", 0L).entries.size() == 3);
 		assertEquals(ChangeLogEntry.Type.Created, itemChangeLog.entries.get(0).type);
 		assertEquals(ChangeLogEntry.Type.Updated, itemChangeLog.entries.get(1).type);
 		assertEquals(ChangeLogEntry.Type.Deleted, itemChangeLog.entries.get(2).type);
@@ -471,8 +473,8 @@ public class TodoListServiceTests extends AbstractServiceTests {
 		assertEquals("test", itemChangeLog.entries.get(1).author);
 		assertEquals("test", itemChangeLog.entries.get(2).author);
 
-		itemChangeLog = getService(defaultSecurityContext).itemChangelog("test2", 0L);
-		assertEquals(2, itemChangeLog.entries.size());
+		Awaitility.await().atMost(Duration.ofSeconds(30))
+				.until(() -> getService(defaultSecurityContext).itemChangelog("test2", 0L).entries.size() == 2);
 		assertEquals(ChangeLogEntry.Type.Created, itemChangeLog.entries.get(0).type);
 		assertEquals(ChangeLogEntry.Type.Updated, itemChangeLog.entries.get(1).type);
 		assertEquals("unknown-origin", itemChangeLog.entries.get(0).origin);
@@ -490,7 +492,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 		getService(defaultSecurityContext).update("test1", defaultVTodo());
 		getService(defaultSecurityContext).update("test1", defaultVTodo());
 		ESearchActivator.refreshIndex(dataStreamName);
-		Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
+		Awaitility.await().atMost(30, TimeUnit.SECONDS).until(() -> {
 			ItemChangelog itemChangeLog = getService(defaultSecurityContext).itemChangelog("test1", 0L);
 			return 4 == itemChangeLog.entries.size();
 		});

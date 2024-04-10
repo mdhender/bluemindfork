@@ -24,6 +24,8 @@ import static org.junit.Assert.assertNotNull;
 import java.util.List;
 import java.util.UUID;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import io.vertx.core.eventbus.Message;
@@ -39,10 +41,17 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.sendmail.Mail;
 import net.bluemind.core.sendmail.SendMailAddress;
 import net.bluemind.core.tests.vertx.VertxEventChecker;
+import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
 
 public class EmailHookTests extends AbstractHookTests {
+	@After
+	@Before
+	public void afterTestFlushOut() {
+		VertxPlatform.eventBus().request(AclChangedNotificationVerticle.ACL_CHANGED_NOTIFICATION_TEARDOWN_BUS_ADDRESS,
+				null);
+	}
 
 	@Test
 	public void test_SameUserOwnerAcl_shouldFail() throws ServerFault {

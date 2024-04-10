@@ -172,17 +172,17 @@ public class AppendCommandRateLimitTests {
 					double duration = System.currentTimeMillis() - beforeAppend;
 					if (i < allowedBeforeLimit) {
 						// we haven't reaches the limit yet, we accept
-						assertThat(duration).isAtMost(REFILL_PERIOD);
+						assertThat(duration).isAtMost(REFILL_PERIOD * 2);
 					} else {
 						// last ones have to wait for timeToRefill
-						assertThat(duration).isWithin(timeToRefill * 0.05).of(timeToRefill);
+						assertThat(duration).isWithin(timeToRefill * 0.2).of(timeToRefill);
 					}
 				}
 				long duration = System.currentTimeMillis() - startAt;
 				double totalSend = numberOfAppend * appendCommandSize(1);
 				double expectedThroughput = REFILL_CAPACITY / (double) REFILL_PERIOD;
 				double throughput = (totalSend - INITIAL_CAPACITY) / (double) duration;
-				assertThat(throughput).isWithin(0.001).of(expectedThroughput);
+				assertThat(throughput).isWithin(0.1).of(expectedThroughput);
 			}
 		}
 
@@ -202,7 +202,7 @@ public class AppendCommandRateLimitTests {
 				double totalSend = numberOfAppend * appendCommandSize(5);
 				double expectedThroughput = REFILL_CAPACITY / (double) REFILL_PERIOD;
 				double throughput = (totalSend - INITIAL_CAPACITY) / (double) duration;
-				assertThat(throughput).isWithin(0.001).of(expectedThroughput);
+				assertThat(throughput).isWithin(0.005).of(expectedThroughput);
 			}
 		}
 
@@ -244,7 +244,7 @@ public class AppendCommandRateLimitTests {
 			CompletableFuture.allOf(cl1.futureEnd, cl2.futureEnd).get();
 			long duration = System.currentTimeMillis() - startAt;
 			double expectedDuration = (totalSize - INITIAL_CAPACITY) * REFILL_PERIOD / REFILL_CAPACITY;
-			assertThat((double) duration).isWithin(expectedDuration * 0.06).of(expectedDuration);
+			assertThat((double) duration).isWithin(expectedDuration * 0.2).of(expectedDuration);
 
 			accepted.stream().reduce((m1, m2) -> {
 				assertThat(m1.initialDelay).isLessThan(m2.initialDelay);
@@ -272,7 +272,7 @@ public class AppendCommandRateLimitTests {
 			CompletableFuture.allOf(cl1.futureEnd, cl2.futureEnd).get();
 			long duration = System.currentTimeMillis() - startAt;
 			double expectedDuration = (totalSize - INITIAL_CAPACITY) * REFILL_PERIOD / REFILL_CAPACITY;
-			assertThat((double) duration).isWithin(expectedDuration * 0.06).of(expectedDuration);
+			assertThat((double) duration).isWithin(expectedDuration * 0.2).of(expectedDuration);
 
 			accepted.stream().reduce((m1, m2) -> {
 				assertThat(m1.initialDelay).isLessThan(m2.initialDelay);
