@@ -18,22 +18,28 @@
  */
 package net.bluemind.imap.impl;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 import net.bluemind.imap.ITagProducer;
 
 public class TagProducer implements ITagProducer {
 
 	private long count;
+	private char letter;
 
 	public TagProducer() {
-		count = 0;
+		ThreadLocalRandom r = ThreadLocalRandom.current();
+		count = r.nextInt(32768);
+		// A-Z
+		letter = (char) r.nextInt(65, 90);
 	}
 
 	public String currentTag() {
-		return "A" + count;
+		return String.valueOf(letter) + count;
 	}
 
 	public String nextTag() {
-		return "A" + (count++);
+		return String.valueOf(letter) + (count++);
 	}
 
 }
