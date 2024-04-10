@@ -18,11 +18,12 @@
  */
 package net.bluemind.imap.command;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.Arrays;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import net.bluemind.imap.NameSpaceInfo;
 import net.bluemind.imap.impl.IMAPResponse;
@@ -31,7 +32,7 @@ public class NamespaceCommandTests {
 
 	private NamespaceCommand command;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		command = new NamespaceCommand();
 	}
@@ -41,10 +42,10 @@ public class NamespaceCommandTests {
 		IMAPResponse response = createImapResponseFromPayload("* NAMESPACE ((\"\" \"/\")) NIL NIL");
 		command.responseReceived(Arrays.asList(response));
 		NameSpaceInfo namespaceInfo = command.getReceivedData();
-		Assert.assertEquals(1, namespaceInfo.getPersonal().size());
-		Assert.assertEquals(0, namespaceInfo.getOtherUsers().size());
-		Assert.assertEquals(0, namespaceInfo.getMailShares().size());
-		Assert.assertEquals("", namespaceInfo.getPersonal().get(0));
+		assertEquals(1, namespaceInfo.getPersonal().size());
+		assertEquals(0, namespaceInfo.getOtherUsers().size());
+		assertEquals(0, namespaceInfo.getMailShares().size());
+		assertEquals("", namespaceInfo.getPersonal().get(0));
 	}
 
 	@Test
@@ -52,10 +53,10 @@ public class NamespaceCommandTests {
 		IMAPResponse response = createImapResponseFromPayload("* NAMESPACE NIL NIL ((\"\" \".\"))");
 		command.responseReceived(Arrays.asList(response));
 		NameSpaceInfo namespaceInfo = command.getReceivedData();
-		Assert.assertEquals(0, namespaceInfo.getPersonal().size());
-		Assert.assertEquals(0, namespaceInfo.getOtherUsers().size());
-		Assert.assertEquals(1, namespaceInfo.getMailShares().size());
-		Assert.assertEquals("", namespaceInfo.getMailShares().get(0));
+		assertEquals(0, namespaceInfo.getPersonal().size());
+		assertEquals(0, namespaceInfo.getOtherUsers().size());
+		assertEquals(1, namespaceInfo.getMailShares().size());
+		assertEquals("", namespaceInfo.getMailShares().get(0));
 	}
 
 	@Test
@@ -64,11 +65,11 @@ public class NamespaceCommandTests {
 				"* NAMESPACE ((\"\" \"/\")) NIL ((\"Public Folders/\" \"/\"))");
 		command.responseReceived(Arrays.asList(response));
 		NameSpaceInfo namespaceInfo = command.getReceivedData();
-		Assert.assertEquals(1, namespaceInfo.getPersonal().size());
-		Assert.assertEquals(0, namespaceInfo.getOtherUsers().size());
-		Assert.assertEquals(1, namespaceInfo.getMailShares().size());
-		Assert.assertEquals("", namespaceInfo.getPersonal().get(0));
-		Assert.assertEquals("Public Folders/", namespaceInfo.getMailShares().get(0));
+		assertEquals(1, namespaceInfo.getPersonal().size());
+		assertEquals(0, namespaceInfo.getOtherUsers().size());
+		assertEquals(1, namespaceInfo.getMailShares().size());
+		assertEquals("", namespaceInfo.getPersonal().get(0));
+		assertEquals("Public Folders/", namespaceInfo.getMailShares().get(0));
 	}
 
 	// @Test
@@ -79,12 +80,12 @@ public class NamespaceCommandTests {
 	// "(\"#ftp/\" \"/\")(\"#news.\" \".\"))");
 	// command.responseReceived(Arrays.asList(response));
 	// NameSpaceInfo namespaceInfo = command.getReceivedData();
-	// Assert.assertEquals(1, namespaceInfo.getPersonal().size());
-	// Assert.assertEquals(1, namespaceInfo.getOtherUsers().size());
-	// Assert.assertEquals(4, namespaceInfo.getMailShares().size());
-	// Assert.assertEquals("", namespaceInfo.getPersonal().get(0));
-	// Assert.assertEquals("~", namespaceInfo.getOtherUsers().get(0));
-	// Assert.assertEquals(Arrays.asList("#shared/", "#public/", "#ftp/",
+	// assertEquals(1, namespaceInfo.getPersonal().size());
+	// assertEquals(1, namespaceInfo.getOtherUsers().size());
+	// assertEquals(4, namespaceInfo.getMailShares().size());
+	// assertEquals("", namespaceInfo.getPersonal().get(0));
+	// assertEquals("~", namespaceInfo.getOtherUsers().get(0));
+	// assertEquals(Arrays.asList("#shared/", "#public/", "#ftp/",
 	// "#news."),
 	// namespaceInfo.getMailShares());
 	// }
@@ -94,10 +95,10 @@ public class NamespaceCommandTests {
 		IMAPResponse response = createImapResponseFromPayload("* NAMESPACE ((\"INBOX.\" \".\")) NIL  NIL");
 		command.responseReceived(Arrays.asList(response));
 		NameSpaceInfo namespaceInfo = command.getReceivedData();
-		Assert.assertEquals(1, namespaceInfo.getPersonal().size());
-		Assert.assertEquals(0, namespaceInfo.getOtherUsers().size());
-		Assert.assertEquals(0, namespaceInfo.getMailShares().size());
-		Assert.assertEquals("INBOX.", namespaceInfo.getPersonal().get(0));
+		assertEquals(1, namespaceInfo.getPersonal().size());
+		assertEquals(0, namespaceInfo.getOtherUsers().size());
+		assertEquals(0, namespaceInfo.getMailShares().size());
+		assertEquals("INBOX.", namespaceInfo.getPersonal().get(0));
 	}
 
 	// @Test
@@ -107,11 +108,11 @@ public class NamespaceCommandTests {
 	// \"FLAG2\"))) NIL NIL");
 	// command.responseReceived(Arrays.asList(response));
 	// NameSpaceInfo namespaceInfo = command.getReceivedData();
-	// Assert.assertEquals(2, namespaceInfo.getPersonal().size());
-	// Assert.assertEquals(0, namespaceInfo.getOtherUsers().size());
-	// Assert.assertEquals(0, namespaceInfo.getMailShares().size());
-	// Assert.assertEquals("", namespaceInfo.getPersonal().get(0));
-	// Assert.assertEquals("#mh/", namespaceInfo.getPersonal().get(1));
+	// assertEquals(2, namespaceInfo.getPersonal().size());
+	// assertEquals(0, namespaceInfo.getOtherUsers().size());
+	// assertEquals(0, namespaceInfo.getMailShares().size());
+	// assertEquals("", namespaceInfo.getPersonal().get(0));
+	// assertEquals("#mh/", namespaceInfo.getPersonal().get(1));
 	// }
 
 	@Test
@@ -120,11 +121,11 @@ public class NamespaceCommandTests {
 				"* NAMESPACE ((\"\" \"/\")) ((\"Other Users/\" \"/\")) NIL");
 		command.responseReceived(Arrays.asList(response));
 		NameSpaceInfo namespaceInfo = command.getReceivedData();
-		Assert.assertEquals(1, namespaceInfo.getPersonal().size());
-		Assert.assertEquals(1, namespaceInfo.getOtherUsers().size());
-		Assert.assertEquals(0, namespaceInfo.getMailShares().size());
-		Assert.assertEquals("", namespaceInfo.getPersonal().get(0));
-		Assert.assertEquals("Other Users/", namespaceInfo.getOtherUsers().get(0));
+		assertEquals(1, namespaceInfo.getPersonal().size());
+		assertEquals(1, namespaceInfo.getOtherUsers().size());
+		assertEquals(0, namespaceInfo.getMailShares().size());
+		assertEquals("", namespaceInfo.getPersonal().get(0));
+		assertEquals("Other Users/", namespaceInfo.getOtherUsers().get(0));
 	}
 
 	@Test
@@ -132,11 +133,11 @@ public class NamespaceCommandTests {
 		IMAPResponse response = createImapResponseFromPayload("* NAMESPACE ((\"\" \"/\")) ((\"#Users/\" \"/\")) NIL");
 		command.responseReceived(Arrays.asList(response));
 		NameSpaceInfo namespaceInfo = command.getReceivedData();
-		Assert.assertEquals(1, namespaceInfo.getPersonal().size());
-		Assert.assertEquals(1, namespaceInfo.getOtherUsers().size());
-		Assert.assertEquals(0, namespaceInfo.getMailShares().size());
-		Assert.assertEquals("", namespaceInfo.getPersonal().get(0));
-		Assert.assertEquals("#Users/", namespaceInfo.getOtherUsers().get(0));
+		assertEquals(1, namespaceInfo.getPersonal().size());
+		assertEquals(1, namespaceInfo.getOtherUsers().size());
+		assertEquals(0, namespaceInfo.getMailShares().size());
+		assertEquals("", namespaceInfo.getPersonal().get(0));
+		assertEquals("#Users/", namespaceInfo.getOtherUsers().get(0));
 	}
 
 	@Test
@@ -144,11 +145,11 @@ public class NamespaceCommandTests {
 		IMAPResponse response = createImapResponseFromPayload("* NAMESPACE ((\"\" \"/\")) ((\"~\" \"/\")) NIL");
 		command.responseReceived(Arrays.asList(response));
 		NameSpaceInfo namespaceInfo = command.getReceivedData();
-		Assert.assertEquals(1, namespaceInfo.getPersonal().size());
-		Assert.assertEquals(1, namespaceInfo.getOtherUsers().size());
-		Assert.assertEquals(0, namespaceInfo.getMailShares().size());
-		Assert.assertEquals("", namespaceInfo.getPersonal().get(0));
-		Assert.assertEquals("~", namespaceInfo.getOtherUsers().get(0));
+		assertEquals(1, namespaceInfo.getPersonal().size());
+		assertEquals(1, namespaceInfo.getOtherUsers().size());
+		assertEquals(0, namespaceInfo.getMailShares().size());
+		assertEquals("", namespaceInfo.getPersonal().get(0));
+		assertEquals("~", namespaceInfo.getOtherUsers().get(0));
 	}
 
 	@Test
@@ -157,10 +158,10 @@ public class NamespaceCommandTests {
 				"* NAMESPACE ((\"Bo&AO4-tes partag&AOk-es/\" \"/\")) NIL NIL");
 		command.responseReceived(Arrays.asList(response));
 		NameSpaceInfo namespaceInfo = command.getReceivedData();
-		Assert.assertEquals(0, namespaceInfo.getMailShares().size());
-		Assert.assertEquals(0, namespaceInfo.getOtherUsers().size());
-		Assert.assertEquals(1, namespaceInfo.getPersonal().size());
-		Assert.assertEquals("Boîtes partagées/", namespaceInfo.getPersonal().get(0));
+		assertEquals(0, namespaceInfo.getMailShares().size());
+		assertEquals(0, namespaceInfo.getOtherUsers().size());
+		assertEquals(1, namespaceInfo.getPersonal().size());
+		assertEquals("Boîtes partagées/", namespaceInfo.getPersonal().get(0));
 	}
 
 	private IMAPResponse createImapResponseFromPayload(String payload) {

@@ -18,7 +18,7 @@
  */
 package net.bluemind.imap;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -50,7 +50,7 @@ public class Appender implements Runnable {
 			IMAPByteSource msg = null;
 			try {
 				boolean select = sc.select("INBOX");
-				assertTrue("inbox select failed", select);
+				assertTrue(select, () -> "inbox select failed");
 				if (result == 0) {
 					msg = mp.newMessageStream();
 				} else {
@@ -67,10 +67,10 @@ public class Appender implements Runnable {
 				} else {
 					ok.incrementAndGet();
 					boolean ok = sc.uidStore(Arrays.asList(newResult), del, true);
-					assertTrue("flagging of " + newResult + " failed", ok);
+					assertTrue(ok, () -> "flagging of " + newResult + " failed");
 					result = newResult;
 					ok = sc.noop();
-					assertTrue("noop failed", ok);
+					assertTrue(ok, () -> "noop failed");
 				}
 			} catch (Exception e) {
 				failed.incrementAndGet();

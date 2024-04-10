@@ -18,18 +18,18 @@
  */
 package net.bluemind.imap;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 
 import com.google.common.collect.Lists;
 
@@ -48,21 +48,21 @@ public abstract class LoggedTestCase {
 	protected String domainUid;
 	protected String loginUid;
 
-	@BeforeClass
+	@BeforeAll
 	public static void beforeClass() {
 		System.setProperty("node.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP + "," + PopulateHelper.FAKE_CYRUS_IP_2);
 		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP + "," + PopulateHelper.FAKE_CYRUS_IP_2);
 		System.setProperty("ahcnode.fail.https.ok", "true");
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void afterClass() {
 		System.clearProperty("node.local.ipaddr");
 		System.clearProperty("imap.local.ipaddr");
 		System.clearProperty("ahcnode.fail.https.ok");
 	}
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 
@@ -89,7 +89,7 @@ public abstract class LoggedTestCase {
 		PopulateHelper.addUser(loginUid, domainUid);
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() throws Exception {
 		System.err.println("===== AFTER starts =====");
 		JdbcTestHelper.getInstance().afterTest();
@@ -119,15 +119,15 @@ public abstract class LoggedTestCase {
 	}
 
 	public InputStream getRfc822Message() {
-		String m = "From: Thomas Cataldo <thomas@zz.com>\r\n" + "Subject: test message " + System.currentTimeMillis()
-				+ "\r\n" + "MIME-Version: 1.0\r\n" + "Content-Type: text/plain; CHARSET=UTF-8\r\n\r\n"
+		String m = "From: Thomas Cataldo <thomas@zz.com>\r\n" + "Subject: test message " + System.nanoTime() + "\r\n"
+				+ "MIME-Version: 1.0\r\n" + "Content-Type: text/plain; CHARSET=UTF-8\r\n\r\n"
 				+ "Hi, this is message about my 300euros from the casino.\r\n\r\n";
 		return new ByteArrayInputStream(m.getBytes());
 	}
 
 	public IMAPByteSource getUtf8Rfc822Message() {
-		String m = "From: Thomas Cataldo <thomas@zz.com>\r\n" + "Subject: test message " + System.currentTimeMillis()
-				+ "\r\n" + "MIME-Version: 1.0\r\n" + "Content-Type: text/plain; CHARSET=UTF-8\r\n\r\n"
+		String m = "From: Thomas Cataldo <thomas@zz.com>\r\n" + "Subject: test message " + System.nanoTime() + "\r\n"
+				+ "MIME-Version: 1.0\r\n" + "Content-Type: text/plain; CHARSET=UTF-8\r\n\r\n"
 				+ "Hi, this is message about my 300€ from the casino.\r\n\r\n";
 		Random r = new Random();
 		int val = r.nextInt(1000);
@@ -140,8 +140,8 @@ public abstract class LoggedTestCase {
 	}
 
 	public InputStream getUtf8Rfc822Message(int kiloBytes) {
-		String m = "From: Thomas Cataldo <thomas@zz.com>\r\n" + "Subject: test message " + System.currentTimeMillis()
-				+ "\r\n" + "MIME-Version: 1.0\r\n" + "Content-Type: text/plain; CHARSET=UTF-8\r\n\r\n"
+		String m = "From: Thomas Cataldo <thomas@zz.com>\r\n" + "Subject: test message " + System.nanoTime() + "\r\n"
+				+ "MIME-Version: 1.0\r\n" + "Content-Type: text/plain; CHARSET=UTF-8\r\n\r\n"
 				+ "Hi, this is message about my 300€ from the casino.\r\n\r\n";
 		Random r = new Random();
 		int val = r.nextInt(1000);

@@ -18,6 +18,10 @@
  */
 package net.bluemind.imap;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.ZonedDateTime;
@@ -25,14 +29,16 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Locale;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
+
 import net.bluemind.imap.impl.DecoderUtils;
 import net.bluemind.imap.impl.DecodingException;
 
-public class DateParsingSpeedTests extends TestCase {
+public class DateParsingSpeedTests {
 
 	int CNT = 20000;
 
+	@Test
 	public void testOldMethod() {
 		// 22-Mar-2010 14:26:18 +0100
 
@@ -48,9 +54,10 @@ public class DateParsingSpeedTests extends TestCase {
 			}
 		}
 		time = System.currentTimeMillis() - time;
-		System.out.println(getName() + " Done in " + time + "ms.");
+		System.out.println("Done in " + time + "ms.");
 	}
 
+	@Test
 	public void testJavaTime() {
 		DateTimeFormatter df = DateTimeFormatter.ofPattern("dd-MMM-yyyy HH:mm:ss Z");
 		df = df.withLocale(Locale.US);
@@ -66,10 +73,11 @@ public class DateParsingSpeedTests extends TestCase {
 			}
 		}
 		time = System.currentTimeMillis() - time;
-		System.out.println(getName() + " Done in " + time + "ms.");
+		System.out.println("Done in " + time + "ms.");
 
 	}
 
+	@Test
 	public void testJames() {
 		String d2 = " 9-Dec-2012 18:38:26 +0100";
 		String d = "22-Mar-2010 14:26:18 +0100";
@@ -91,10 +99,11 @@ public class DateParsingSpeedTests extends TestCase {
 			}
 		}
 		time = System.currentTimeMillis() - time;
-		System.out.println(getName() + " Done in " + time + "ms.");
+		System.out.println("Done in " + time + "ms.");
 
 	}
 
+	@Test
 	public void testEquals() throws ParseException, DecodingException {
 		DateTimeFormatter df = DateTimeFormatter.ofPattern("d-MMM-yyyy HH:mm:ss Z");
 		df = df.withLocale(Locale.US);

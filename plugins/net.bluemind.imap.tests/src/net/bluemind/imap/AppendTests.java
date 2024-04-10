@@ -18,9 +18,9 @@
  */
 package net.bluemind.imap;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.InputStream;
 import java.time.LocalDateTime;
@@ -33,7 +33,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.james.mime4j.dom.Message;
-import org.junit.Test;
+import org.junit.jupiter.api.RepeatedTest;
+import org.junit.jupiter.api.Test;
 
 import net.bluemind.mime4j.common.Mime4JHelper;
 import net.bluemind.mime4j.common.OffloadedBodyFactory;
@@ -42,17 +43,33 @@ public class AppendTests extends LoggedTestCase implements IMessageProducer {
 
 	@Test
 	public void testBug4809ThreadedAppend() throws InterruptedException {
-		try (StoreClient sc1 = newStore(false); StoreClient sc2 = newStore(false)) {
+		try (StoreClient sc1 = newStore(false);
+				StoreClient sc2 = newStore(false);
+				StoreClient sc3 = newStore(false);
+				StoreClient sc4 = newStore(false);
+				StoreClient sc5 = newStore(false)) {
 			Appender ap1 = new Appender(sc1, this);
 			var thread1 = CompletableFuture.runAsync(ap1);
 
 			Appender ap2 = new Appender(sc2, this);
 			var thread2 = CompletableFuture.runAsync(ap2);
 
-			CompletableFuture.allOf(thread1, thread2).orTimeout(1, TimeUnit.MINUTES).join();
+			Appender ap3 = new Appender(sc3, this);
+			var thread3 = CompletableFuture.runAsync(ap3);
+
+			Appender ap4 = new Appender(sc4, this);
+			var thread4 = CompletableFuture.runAsync(ap4);
+
+			Appender ap5 = new Appender(sc5, this);
+			var thread5 = CompletableFuture.runAsync(ap5);
+
+			CompletableFuture.allOf(thread1, thread2, thread3, thread4, thread5).orTimeout(1, TimeUnit.MINUTES).join();
 
 			assertEquals(0, ap1.getFailed());
 			assertEquals(0, ap2.getFailed());
+			assertEquals(0, ap3.getFailed());
+			assertEquals(0, ap4.getFailed());
+			assertEquals(0, ap5.getFailed());
 		}
 	}
 

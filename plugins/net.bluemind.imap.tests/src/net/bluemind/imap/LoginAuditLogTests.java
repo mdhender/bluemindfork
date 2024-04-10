@@ -18,19 +18,19 @@
  */
 package net.bluemind.imap;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.Lists;
 
@@ -62,17 +62,17 @@ public class LoginAuditLogTests {
 	private static final String domainUid = "test.devenv";
 	private static final String DATASTREAM_NAME = AuditLogConfig.resolveDataStreamName(domainUid);
 
-	@AfterClass
+	@AfterAll
 	public static void afterClass() {
 		System.clearProperty("retry.queue.no.debounce");
 	}
 
-	@BeforeClass
+	@BeforeAll
 	public static void beforeClass() throws Exception {
 		System.setProperty("retry.queue.no.debounce", "true");
 	}
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 		ElasticsearchTestHelper.getInstance().beforeTest();
@@ -102,7 +102,7 @@ public class LoginAuditLogTests {
 		StateContext.setState("core.started");
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() throws Exception {
 		JdbcTestHelper.getInstance().afterTest();
 		ElasticsearchTestHelper.getInstance().afterTest();

@@ -18,15 +18,15 @@
  */
 package net.bluemind.imap;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.concurrent.TimeUnit;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.Lists;
 
@@ -50,7 +50,7 @@ public class LoginTests {
 	private String loginUid;
 	private String domainUid;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 
@@ -77,7 +77,7 @@ public class LoginTests {
 		PopulateHelper.addUser(loginUid, domainUid);
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() throws Exception {
 		JdbcTestHelper.getInstance().afterTest();
 	}

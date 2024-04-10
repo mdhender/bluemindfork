@@ -18,10 +18,10 @@
  */
 package net.bluemind.imap;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -38,12 +38,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.Lists;
 
@@ -70,14 +70,14 @@ public class UidSearchTests {
 	private static final int PORT = 1143;
 	private static final String TOPIC_ES_INDEXING_COUNT = "es.indexing.count";
 
-	@BeforeClass
+	@BeforeAll
 	public static void beforeClass() {
 		System.setProperty("node.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP + "," + PopulateHelper.FAKE_CYRUS_IP_2);
 		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP + "," + PopulateHelper.FAKE_CYRUS_IP_2);
 		System.setProperty("ahcnode.fail.https.ok", "true");
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void afterClass() {
 		System.clearProperty("node.local.ipaddr");
 		System.clearProperty("imap.local.ipaddr");
@@ -88,7 +88,7 @@ public class UidSearchTests {
 	private String loginUid;
 	private AtomicInteger indexedCount;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 
@@ -120,7 +120,7 @@ public class UidSearchTests {
 		});
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() throws Exception {
 		System.err.println("===== AFTER starts =====");
 		JdbcTestHelper.getInstance().afterTest();
@@ -1125,7 +1125,7 @@ public class UidSearchTests {
 		}
 	}
 
-	@Ignore("Must modify code to allow custom flags to be taken into account for StoreClient")
+	@Disabled("Must modify code to allow custom flags to be taken into account for StoreClient")
 	@Test
 	public void testGetKeyword() throws IMAPException, InterruptedException, IOException {
 		try (StoreClient sc = newStore(false)) {
@@ -1150,7 +1150,7 @@ public class UidSearchTests {
 		}
 	}
 
-	@Ignore("Must modify code to allow custom flags to be taken into account for StoreClient")
+	@Disabled("Must modify code to allow custom flags to be taken into account for StoreClient")
 	@Test
 	public void testGetNotKeyword() throws IMAPException, InterruptedException, IOException {
 		try (StoreClient sc = newStore(false)) {
@@ -1176,7 +1176,7 @@ public class UidSearchTests {
 		}
 	}
 
-	@Ignore("Must modify code to allow custom flags to be taken into account for StoreClient")
+	@Disabled("Must modify code to allow custom flags to be taken into account for StoreClient")
 	@Test
 	public void testGetUnkeyword() throws IMAPException, InterruptedException, IOException {
 		try (StoreClient sc = newStore(false)) {
@@ -1201,7 +1201,7 @@ public class UidSearchTests {
 		}
 	}
 
-	@Ignore("Must modify code to allow custom flags to be taken into account for StoreClient")
+	@Disabled("Must modify code to allow custom flags to be taken into account for StoreClient")
 	@Test
 	public void testGetNotUnkeyword() throws IMAPException, InterruptedException, IOException {
 		try (StoreClient sc = newStore(false)) {

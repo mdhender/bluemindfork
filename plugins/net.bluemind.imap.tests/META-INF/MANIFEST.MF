@@ -4,8 +4,7 @@ Bundle-Name: net.bluemind.imap.tests
 Bundle-SymbolicName: net.bluemind.imap.tests
 Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: blue-mind.net
-Require-Bundle: org.junit,
- net.bluemind.imap,
+Require-Bundle: net.bluemind.imap,
  net.bluemind.utils;bundle-version="1.0.0",
  net.bluemind.mime4j.common;bundle-version="1.0.0",
  org.apache.mina.core;bundle-version="2.0.7",
@@ -43,6 +42,7 @@ Require-Bundle: org.junit,
  net.bluemind.core.auditlogs.client.es,
  net.bluemind.system.state,
  net.bluemind.core.auditlogs.client.loader,
- net.bluemind.authentication.mgmt.service;bundle-version="5.0.0"
+ net.bluemind.authentication.mgmt.service;bundle-version="5.0.0",
+ junit-jupiter-api
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.imap.tests

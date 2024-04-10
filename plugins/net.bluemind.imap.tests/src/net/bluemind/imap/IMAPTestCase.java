@@ -18,10 +18,9 @@
  */
 package net.bluemind.imap;
 
-import junit.framework.TestCase;
 import net.bluemind.pool.impl.BmConfIni;
 
-public abstract class IMAPTestCase extends TestCase {
+public abstract class IMAPTestCase {
 
 	protected String cyrusIp = new BmConfIni().get("imap-role");
 	protected String testLogin = "test";

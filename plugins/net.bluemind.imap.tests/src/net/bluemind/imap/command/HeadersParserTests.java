@@ -18,13 +18,15 @@
  */
 package net.bluemind.imap.command;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.HashSet;
 import java.util.Map;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.Sets;
 
@@ -40,36 +42,36 @@ public class HeadersParserTests {
 	public void testParsingBasicHeaders() throws IOException {
 		String data = "headername: headervalue";
 		Map<String, String> headers = parseStringAsHeaders(data);
-		Assert.assertEquals(1, headers.size());
-		Assert.assertArrayEquals(new String[] { "headername" }, headers.keySet().toArray());
-		Assert.assertArrayEquals(new String[] { "headervalue" }, headers.values().toArray());
+		assertEquals(1, headers.size());
+		assertArrayEquals(new String[] { "headername" }, headers.keySet().toArray());
+		assertArrayEquals(new String[] { "headervalue" }, headers.values().toArray());
 	}
 
 	@Test
 	public void testParsingBasicHeadersKeyCaseInsensitive() throws IOException {
 		String data = "headerName: headervalue";
 		Map<String, String> headers = parseStringAsHeaders(data);
-		Assert.assertEquals(1, headers.size());
-		Assert.assertArrayEquals(new String[] { "headername" }, headers.keySet().toArray());
-		Assert.assertArrayEquals(new String[] { "headervalue" }, headers.values().toArray());
+		assertEquals(1, headers.size());
+		assertArrayEquals(new String[] { "headername" }, headers.keySet().toArray());
+		assertArrayEquals(new String[] { "headervalue" }, headers.values().toArray());
 	}
 
 	@Test
 	public void testParsingBasicHeadersValueCaseSensitive() throws IOException {
 		String data = "headername: headerValue";
 		Map<String, String> headers = parseStringAsHeaders(data);
-		Assert.assertEquals(1, headers.size());
-		Assert.assertArrayEquals(new String[] { "headername" }, headers.keySet().toArray());
-		Assert.assertArrayEquals(new String[] { "headerValue" }, headers.values().toArray());
+		assertEquals(1, headers.size());
+		assertArrayEquals(new String[] { "headername" }, headers.keySet().toArray());
+		assertArrayEquals(new String[] { "headerValue" }, headers.values().toArray());
 	}
 
 	@Test
 	public void testParsingHeadersValueContainsColon() throws IOException {
 		String data = "headername: header:Value";
 		Map<String, String> headers = parseStringAsHeaders(data);
-		Assert.assertEquals(1, headers.size());
-		Assert.assertArrayEquals(new String[] { "headername" }, headers.keySet().toArray());
-		Assert.assertArrayEquals(new String[] { "header:Value" }, headers.values().toArray());
+		assertEquals(1, headers.size());
+		assertArrayEquals(new String[] { "headername" }, headers.keySet().toArray());
+		assertArrayEquals(new String[] { "header:Value" }, headers.values().toArray());
 	}
 
 	@Test
@@ -85,58 +87,53 @@ public class HeadersParserTests {
 		String headerName = sb.toString();
 		String data = headerName + ": headerValue";
 		Map<String, String> headers = parseStringAsHeaders(data);
-		Assert.assertEquals(1, headers.size());
-		Assert.assertArrayEquals(new String[] { headerName.toLowerCase() }, headers.keySet().toArray());
-		Assert.assertArrayEquals(new String[] { "headerValue" }, headers.values().toArray());
+		assertEquals(1, headers.size());
+		assertArrayEquals(new String[] { headerName.toLowerCase() }, headers.keySet().toArray());
+		assertArrayEquals(new String[] { "headerValue" }, headers.values().toArray());
 	}
 
 	@Test
 	public void testParsingHeadersRFC822Ch311Ex1() throws IOException {
 		String data = "To:  \"Joe & J. Harvey\" <ddd @Org>, JJV @ BBN";
 		Map<String, String> headers = parseStringAsHeaders(data);
-		Assert.assertEquals(1, headers.size());
-		Assert.assertArrayEquals(new String[] { "to" }, headers.keySet().toArray());
-		Assert.assertArrayEquals(new String[] { "\"Joe & J. Harvey\" <ddd @Org>, JJV @ BBN" },
-				headers.values().toArray());
+		assertEquals(1, headers.size());
+		assertArrayEquals(new String[] { "to" }, headers.keySet().toArray());
+		assertArrayEquals(new String[] { "\"Joe & J. Harvey\" <ddd @Org>, JJV @ BBN" }, headers.values().toArray());
 	}
 
 	@Test
 	public void testParsingHeadersRFC822Ch311Ex2() throws IOException {
 		String data = "To:  \"Joe & J. Harvey\" <ddd @Org>,\n" + "        JJV @ BBN";
 		Map<String, String> headers = parseStringAsHeaders(data);
-		Assert.assertEquals(1, headers.size());
-		Assert.assertArrayEquals(new String[] { "to" }, headers.keySet().toArray());
-		Assert.assertArrayEquals(new String[] { "\"Joe & J. Harvey\" <ddd @Org>, JJV @ BBN" },
-				headers.values().toArray());
+		assertEquals(1, headers.size());
+		assertArrayEquals(new String[] { "to" }, headers.keySet().toArray());
+		assertArrayEquals(new String[] { "\"Joe & J. Harvey\" <ddd @Org>, JJV @ BBN" }, headers.values().toArray());
 	}
 
 	@Test
 	public void testParsingHeadersRFC822Ch311WithHTAB() throws IOException {
 		String data = "To:  \"Joe & J. Harvey\" <ddd @Org>,\n" + "\tJJV @ BBN";
 		Map<String, String> headers = parseStringAsHeaders(data);
-		Assert.assertEquals(1, headers.size());
-		Assert.assertArrayEquals(new String[] { "to" }, headers.keySet().toArray());
-		Assert.assertArrayEquals(new String[] { "\"Joe & J. Harvey\" <ddd @Org>, JJV @ BBN" },
-				headers.values().toArray());
+		assertEquals(1, headers.size());
+		assertArrayEquals(new String[] { "to" }, headers.keySet().toArray());
+		assertArrayEquals(new String[] { "\"Joe & J. Harvey\" <ddd @Org>, JJV @ BBN" }, headers.values().toArray());
 	}
 
 	@Test
 	public void testParsingHeadersWithCr() throws IOException {
 		String data = "To:  \"Joe & J. Harvey\" <ddd @Org>,\r" + "        JJV @ BBN";
 		Map<String, String> headers = parseStringAsHeaders(data);
-		Assert.assertEquals(1, headers.size());
-		Assert.assertArrayEquals(new String[] { "to" }, headers.keySet().toArray());
-		Assert.assertArrayEquals(new String[] { "\"Joe & J. Harvey\" <ddd @Org>, JJV @ BBN" },
-				headers.values().toArray());
+		assertEquals(1, headers.size());
+		assertArrayEquals(new String[] { "to" }, headers.keySet().toArray());
+		assertArrayEquals(new String[] { "\"Joe & J. Harvey\" <ddd @Org>, JJV @ BBN" }, headers.values().toArray());
 	}
 
 	@Test
 	public void testParsingHeadersWithCrLf() throws IOException {
 		String data = "To:  \"Joe & J. Harvey\" <ddd @Org>,\r\n" + "        JJV @ BBN";
 		Map<String, String> headers = parseStringAsHeaders(data);
-		Assert.assertEquals(1, headers.size());
-		Assert.assertArrayEquals(new String[] { "to" }, headers.keySet().toArray());
-		Assert.assertArrayEquals(new String[] { "\"Joe & J. Harvey\" <ddd @Org>, JJV @ BBN" },
-				headers.values().toArray());
+		assertEquals(1, headers.size());
+		assertArrayEquals(new String[] { "to" }, headers.keySet().toArray());
+		assertArrayEquals(new String[] { "\"Joe & J. Harvey\" <ddd @Org>, JJV @ BBN" }, headers.values().toArray());
 	}
 }

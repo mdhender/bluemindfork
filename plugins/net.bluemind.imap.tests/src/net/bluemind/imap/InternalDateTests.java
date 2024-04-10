@@ -18,19 +18,18 @@
  */
 package net.bluemind.imap;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Collection;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class InternalDateTests extends LoggedTestCase {
 
 	@Test
 	public void testInternalDate() throws IMAPException {
 		try (StoreClient sc = newStore(false)) {
-			;
 			sc.select("INBOX");
 			long time = System.currentTimeMillis();
 			Collection<Integer> uids = sc.uidSearch(new SearchQuery());

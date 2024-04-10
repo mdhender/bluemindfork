@@ -18,18 +18,23 @@
  */
 package net.bluemind.imap;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
+
 import net.bluemind.imap.command.parser.BodyStructureParser;
 import net.bluemind.imap.mime.BodyParam;
 import net.bluemind.imap.mime.MimePart;
 import net.bluemind.imap.mime.MimeTree;
 import net.bluemind.utils.FileUtils;
 
-public class BodyStructureParserTests extends TestCase {
+public class BodyStructureParserTests {
 
 	public byte[] openTestStructure(String filePath) {
 		InputStream is = getClass().getClassLoader().getResourceAsStream(filePath);
@@ -42,6 +47,7 @@ public class BodyStructureParserTests extends TestCase {
 		return null;
 	}
 
+	@Test
 	public void testParseRFC2231EncodedParam() {
 		byte[] bs = openTestStructure("data/rfc2231-param-encoding.dat");
 		BodyStructureParser bsp = new BodyStructureParser();
@@ -55,6 +61,7 @@ public class BodyStructureParserTests extends TestCase {
 		fail("expected pdf not found");
 	}
 
+	@Test
 	public void testParseMozDeleted() {
 		byte[] bs = openTestStructure("data/bs_01.dat");
 		BodyStructureParser bsp = new BodyStructureParser();
@@ -67,6 +74,7 @@ public class BodyStructureParserTests extends TestCase {
 		}
 	}
 
+	@Test
 	public void testParseBS04() {
 		byte[] bs = openTestStructure("data/bs_04.dat");
 		BodyStructureParser bsp = new BodyStructureParser();
@@ -75,6 +83,7 @@ public class BodyStructureParserTests extends TestCase {
 		System.out.println("mt:\n" + mt);
 	}
 
+	@Test
 	public void testParseBS05() {
 		byte[] bs = openTestStructure("data/bs_05.dat");
 		BodyStructureParser bsp = new BodyStructureParser();
@@ -88,6 +97,7 @@ public class BodyStructureParserTests extends TestCase {
 		}
 	}
 
+	@Test
 	public void testParseBS06() {
 		byte[] bs = openTestStructure("data/bs_06.dat");
 		BodyStructureParser bsp = new BodyStructureParser();
@@ -105,18 +115,7 @@ public class BodyStructureParserTests extends TestCase {
 		}
 	}
 
-	// public void testInfinitLoop() {
-	// byte[] bs = openTestStructure("data/bs_02.dat");
-	// BodyStructureParser bsp = new BodyStructureParser();
-	// try {
-	// MimeTree mt = bsp.parse(bs);
-	// assertNotNull(mt);
-	// } catch (Throwable t) {
-	// t.printStackTrace();
-	// fail();
-	// }
-	// }
-
+	@Test
 	public void testNestedWithDominoDisclaimer() {
 		byte[] bs = openTestStructure("data/bs_03.dat");
 		BodyStructureParser bsp = new BodyStructureParser();

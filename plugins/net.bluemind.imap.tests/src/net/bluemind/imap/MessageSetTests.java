@@ -18,31 +18,40 @@
  */
 package net.bluemind.imap;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.Arrays;
 import java.util.Collection;
+
+import org.junit.jupiter.api.Test;
 
 import net.bluemind.imap.impl.MessageSet;
 
 public class MessageSetTests extends IMAPTestCase {
 
+	@Test
 	private void testParse(Collection<Integer> data, String expectedSet, Collection<Integer> expectedCollection) {
 		String set = MessageSet.asString(data);
 		assertEquals(expectedSet, set);
 		assertEquals(expectedCollection, MessageSet.asLongCollection(set, data.size()));
 	}
 
+	@Test
 	public void testParse1() {
 		testParse(Arrays.asList(1, 2, 3, 8, 9, 10, 12), "1:3,8:10,12", Arrays.asList(1, 2, 3, 8, 9, 10, 12));
 	}
 
+	@Test
 	public void testParse2() {
 		testParse(Arrays.asList(8, 2, 3, 4, 9, 10, 12, 13), "2:4,8:10,12:13", Arrays.asList(2, 3, 4, 8, 9, 10, 12, 13));
 	}
 
+	@Test
 	public void testParse3() {
 		testParse(Arrays.asList(1, 2), "1:2", Arrays.asList(1, 2));
 	}
 
+	@Test
 	public void testParse4() {
 		testParse(Arrays.asList(1), "1", Arrays.asList(1));
 	}

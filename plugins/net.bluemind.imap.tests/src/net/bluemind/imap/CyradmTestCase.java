@@ -18,16 +18,16 @@
  */
 package net.bluemind.imap;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
@@ -52,7 +52,7 @@ public abstract class CyradmTestCase {
 	protected String loginUid;
 	ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
@@ -86,7 +86,7 @@ public abstract class CyradmTestCase {
 
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() throws Exception {
 		JdbcTestHelper.getInstance().afterTest();
 		if (mboxCyrusName != null) {
