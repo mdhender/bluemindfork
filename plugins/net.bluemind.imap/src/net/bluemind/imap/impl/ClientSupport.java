@@ -208,8 +208,8 @@ public final class ClientSupport {
 	@SuppressWarnings("unchecked")
 	private <T> T run(ICommand<T> cmd) {
 		if (logger.isDebugEnabled()) {
-			logger.debug(Integer.toHexString(hashCode()) + " CMD: " + cmd.getClass().getName() + " Permits: "
-					+ lock.availablePermits());
+			logger.debug("{} CMD: {} Permits: {}", Integer.toHexString(hashCode()), cmd.getClass().getName(),
+					lock.availablePermits());
 		}
 		// grab lock, this one should be ok, except on first call
 		// where we might wait for cyrus welcome text.

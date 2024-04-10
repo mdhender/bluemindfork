@@ -19,6 +19,7 @@
 package net.bluemind.imap.command;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import net.bluemind.imap.IMAPByteSource;
 import net.bluemind.imap.impl.IMAPResponse;
@@ -34,8 +35,7 @@ public class UIDFetchMessageCommand extends Command<IMAPByteSource> {
 	@Override
 	protected CommandArgument buildCommand() {
 		String cmd = new StringBuilder("UID FETCH ").append(uid).append(" (UID BODY.PEEK[])").toString();
-		CommandArgument args = new CommandArgument(cmd, null);
-		return args;
+		return new CommandArgument(cmd, null);
 	}
 
 	@Override
@@ -51,15 +51,14 @@ public class UIDFetchMessageCommand extends Command<IMAPByteSource> {
 			data = stream.getStreamData();
 		} else {
 			if (ok.isOk()) {
-				logger.warn("fetch message uid " + uid
-						+ " is ok with no stream in response. Printing received responses :");
-				for (IMAPResponse ir : rs) {
-					logger.warn("    <= " + ir.getPayload());
+				if (logger.isWarnEnabled()) {
+					logger.warn(
+							"fetch message uid {} is ok with no stream in response. Printing received responses : {}",
+							uid, rs.stream().map(IMAPResponse::getPayload).collect(Collectors.joining(",")));
 				}
 				data = IMAPByteSource.wrap(new byte[0]);
-
 			} else {
-				logger.error("UIDFetchMessage failed for uid " + uid + ": " + ok.getPayload());
+				logger.error("UIDFetchMessage failed for uid {}: {}", uid, ok.getPayload());
 			}
 		}
 	}
