@@ -55,6 +55,10 @@ public class Appender implements Runnable {
 					msg = mp.newMessageStream();
 				} else {
 					msg = sc.uidFetchMessage(result);
+					if (msg.source().isEmpty()) {
+						// Msg was removed by another thread doing expunge
+						msg = mp.newMessageStream();
+					}
 				}
 				int newResult = sc.append("INBOX", msg.source().openStream(), unflagged);
 				if (newResult <= 0) {
