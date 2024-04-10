@@ -20,7 +20,6 @@ package net.bluemind.addressbook.api;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -72,7 +71,7 @@ public class VCard {
 	}
 
 	public Identification identification = new Identification();
-	public List<DeliveryAddressing> deliveryAddressing = Collections.emptyList();
+	public List<DeliveryAddressing> deliveryAddressing = new ArrayList<>();
 	public Communications communications = new Communications();
 	public Organizational organizational = new Organizational();
 	public Explanatory explanatory = new Explanatory();
@@ -271,10 +270,10 @@ public class VCard {
 	@BMApi(version = "3")
 	public static class Communications {
 
-		public List<Tel> tels = Collections.emptyList();
-		public List<Email> emails = Collections.emptyList();
-		public List<Impp> impps = Collections.emptyList();
-		public List<Lang> langs = Collections.emptyList();
+		public List<Tel> tels = new ArrayList<>();
+		public List<Email> emails = new ArrayList<>();
+		public List<Impp> impps = new ArrayList<>();
+		public List<Lang> langs = new ArrayList<>();
 
 		/**
 		 * To specify the telephone number for telephony communication with the object
@@ -417,7 +416,7 @@ public class VCard {
 		/**
 		 * To include a member in the group this vCard represents.
 		 */
-		public List<Member> member = Collections.emptyList();
+		public List<Member> member = new ArrayList<>();
 
 		/**
 		 * To specify the organizational name and units associated with the vCard.
@@ -500,13 +499,13 @@ public class VCard {
 		 * vCard refers. Examples for individuals include personal web sites, blogs, and
 		 * social networking site identifiers.
 		 */
-		public List<Url> urls = Collections.emptyList();
+		public List<Url> urls = new ArrayList<>();
 
 		/**
 		 * To specify application category information about the vCard, also known as
 		 * "tags".
 		 */
-		public List<TagRef> categories = Collections.emptyList();
+		public List<TagRef> categories = new ArrayList<>();
 
 		/**
 		 * To specify supplemental information or a comment that is associated with the
@@ -609,7 +608,7 @@ public class VCard {
 
 	@BMApi(version = "3")
 	public static class BasicAttribute {
-		public List<Parameter> parameters = Collections.emptyList();
+		public List<Parameter> parameters = new ArrayList<>();
 		@Required
 		public String value;
 
