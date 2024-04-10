@@ -234,7 +234,7 @@ public class AclChangedNotificationVerticle extends AbstractVerticle {
 	private String applyTemplate(Map<String, Object> ftlData, Locale locale) throws TemplateException, IOException {
 		StringWriter sw = new StringWriter();
 		Configuration cfg = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
-		cfg.setClassForTemplateLoading(this.getClass(), "/");
+		cfg.setClassForTemplateLoading(this.getClass(), "/templates");
 		cfg.getTemplate("AclChangedNotification.ftl", locale).process(ftlData, sw);
 		sw.flush();
 		return sw.toString();
