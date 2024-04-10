@@ -58,15 +58,13 @@ public class ElasticContainer extends GenericContainer<ElasticContainer> {
 		withEnv("discovery.type", "single-node");
 		withLogConsumer(new LogConsumer());
 		waitingFor(new org.testcontainers.containers.wait.strategy.AbstractWaitStrategy() {
-
 			@Override
 			protected void waitUntilReady() {
 				NetworkHelper nh = new NetworkHelper(inspectAddress());
 				System.err.println("Waiting for " + inspectAddress() + ":" + 9200);
-				nh.waitForListeningPort(9200, 60, TimeUnit.SECONDS);
+				nh.waitForListeningPort(9200, 120, TimeUnit.SECONDS);
 				System.err.println("Ready");
 			}
-
 		});
 	}
 
