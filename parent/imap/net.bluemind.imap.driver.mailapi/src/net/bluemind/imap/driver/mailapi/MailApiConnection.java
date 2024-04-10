@@ -608,8 +608,12 @@ public class MailApiConnection implements MailboxConnection {
 
 	@Override
 	public AppendStatus append(SelectedFolder selected, List<String> flags, Date deliveryDate, ByteBuf buffer) {
-
 		if (selected == null) {
+			return new AppendStatus(WriteStatus.EXCEPTIONNALY_REJECTED, 0L, 0L, null);
+		}
+
+		/* Client sent a APPEND "inbox" {0+} */
+		if (buffer == null || buffer.readableBytes() == 0) {
 			return new AppendStatus(WriteStatus.EXCEPTIONNALY_REJECTED, 0L, 0L, null);
 		}
 

@@ -31,6 +31,11 @@ public abstract class AnalyzedCommand {
 
 	private final RawImapCommand raw;
 
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(AnalyzedCommand.class).add("raw", raw).toString();
+	}
+
 	public static class FlatCommand {
 		String fullCmd;
 		ByteBuf[] literals;

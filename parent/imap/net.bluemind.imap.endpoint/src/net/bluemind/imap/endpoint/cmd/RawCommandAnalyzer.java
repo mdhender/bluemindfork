@@ -45,6 +45,9 @@ public class RawCommandAnalyzer {
 		}
 
 		String cmd = raw.cmd().toLowerCase();
+		if (cmd.isBlank() || cmd.isEmpty()) {
+			return null;
+		}
 		char base = cmd.charAt(0);
 		switch (base) {
 		case 'a':

@@ -44,8 +44,13 @@ public class AppendCommand extends AnalyzedCommand {
 		FlatCommand flat = flattenAtoms(false, 0);
 		int postFolderStart = -1;
 		int lastLiteralStart = flat.fullCmd.lastIndexOf('{');
-		this.buffer = flat.literals[flat.literals.length - 1];
-		if (flat.literals.length == 1) {
+
+		if (flat.literals.length > 0) {
+			this.buffer = flat.literals[flat.literals.length - 1];
+		} else {
+			this.buffer = null;
+		}
+		if (flat.literals.length <= 1) {
 			// folder is given as text
 			String utf7Folder;
 			int folderStart = "append ".length();
