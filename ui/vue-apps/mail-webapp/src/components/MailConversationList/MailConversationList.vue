@@ -9,12 +9,15 @@
         <search-input-mobile v-if="HAS_PATTERN" class="mobile-only" />
         <search-result v-if="IS_SEARCH_ENABLED" class="mail-conversation-list-content" />
         <folder-result v-else class="mail-conversation-list-content" />
+        <MailFolderQuotaSidebar v-if="quota.isAboveDangerThreshold()" :quota="quota" class="mobile-only" />
     </section>
 </template>
 
 <script>
 import { mapGetters, mapState, mapActions, mapMutations } from "vuex";
 import debounce from "lodash.debounce";
+import { Quota } from "@bluemind/quota";
+import MailFolderQuotaSidebar from "../MailFolder/MailFolderQuotaSidebar";
 
 import {
     CONVERSATION_LIST_COUNT,
@@ -43,7 +46,8 @@ export default {
         FolderResultHeader,
         SearchInputMobile,
         SearchResult,
-        SearchResultHeader
+        SearchResultHeader,
+        MailFolderQuotaSidebar
     },
     data() {
         return {
@@ -73,6 +77,9 @@ export default {
         },
         incompleteSearch() {
             return !!this.hasMoreResults && this.CONVERSATION_LIST_COUNT < MAX_CHUNK_SIZE;
+        },
+        quota() {
+            return new Quota(this.$store.state["root-app"].quota);
         }
     },
     watch: {

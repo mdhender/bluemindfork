@@ -1,5 +1,5 @@
 import sortedIndexBy from "lodash.sortedindexby";
-import { RoleCondition, StoreFieldCondition } from "../conditions";
+import { RoleCondition, StoreFieldCondition, QuotaCondition } from "../conditions";
 
 export function merge(existing, extension) {
     return mergeInternal(existing, normalize(extension));
@@ -161,6 +161,7 @@ function sanitizeCondition(value, fallback) {
 const conditionFns = {
     RoleCondition,
     StoreFieldCondition,
+    QuotaCondition,
     Function
 };
 

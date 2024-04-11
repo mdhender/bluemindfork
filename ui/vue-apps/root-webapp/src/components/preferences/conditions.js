@@ -30,3 +30,9 @@ StoreFieldCondition.current = function (id, value) {
 StoreFieldCondition.saved = function (id, value) {
     return vm => isEqual(vm.$store.state.preferences.fields[id]?.saved?.value, value);
 };
+
+export const QuotaCondition = function () {};
+
+QuotaCondition.hasLimit = function () {
+    return vm => !isEqual(vm.$store.state["root-app"].quota.total, Infinity);
+};

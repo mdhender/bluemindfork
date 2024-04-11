@@ -123,6 +123,13 @@
             "private_event_not_sent_to_delegates": {
                 "warning": "Delegates did not receive this private invitation."
             },
+            "almost_used_quota": {
+                "warning": "Your storage space will soon be full. Please free up some space as soon as possible.",
+                "error": "Your storage space is almost full. Free up some space so you can continue to use your messaging service without functional limitations."
+            },
+            "used_quota": {
+                "error": "Your storage space is full. You may no longer be able to send or receive messages, or save drafts."
+            },
             "read_only_folder": {
                 "info": "Read-only message. Some actions (like Move or Remove) may not be available."
             },
@@ -378,7 +385,7 @@
     "mail.list.sr_info.unread": "Unread.",
     "mail.list.sr_info": "{title}{props}",
     "mail.list.unread.none": "No unread messages.",
-    "mail.mailbox.quota.used": "{usedQuotaPercentage} % storage used",
+    "mail.mailbox.quota.used": "{usedQuota} used out of {availableQuota} ({usedQuotaPercentage}%)",
     "mail.main.new": "New message",
     "mail.main.new_full": "Write a new message",
     "mail.main.switch.webmail": "Try the new webmail",
@@ -389,12 +396,16 @@
     "mail.message.select.all.search": "Select all messages from search",
     "mail.message.selected": "{count} messages selected",
     "mail.message.starter": "Select an item",
+    "mail.message.starter.display.inbox_full": "Free up space",
     "mail.message.starter.display.drafts": "View drafts",
     "mail.message.starter.display.inbox": "Go back to inbox",
     "mail.message.starter.display.outbox": "View messages waiting to be sent",
     "mail.message.starter.display.recoverable": "View recoverable messages",
     "mail.message.starter.display.sent": "View sent messages",
     "mail.message.starter.display.templates": "View templates",
+    "mail.message.starter.display.junks": "View spam messages",
+    "mail.message.starter.display.trash": "View trash",
+    "mail.message.starter.inbox_full.details.": "Your storage space is full.",
     "mail.message.starter.draft.details": "This folder contains messages you have started composing and have not yet sent.",
     "mail.message.starter.recoverable.details": "to recover from trash",
     "mail.message.starter.elements_counts": "1 item|{count} items",

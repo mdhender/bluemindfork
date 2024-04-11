@@ -273,6 +273,9 @@ function main(i18n) {
                 fields: [
                     {
                         id: "field",
+                        visible: {
+                            name: "QuotaCondition.hasLimit"
+                        },
                         component: {
                             name: "PrefFieldSwitch",
                             options: {

@@ -123,6 +123,13 @@
             "private_event_not_sent_to_delegates": {
                 "warning": "Die Delegierten haben diese private Einladung nicht erhalten."
             },
+            "almost_used_quota": {
+                "warning": "Ihr Speicherplatz wird bald voll sein. Bitte geben Sie so schnell wie möglich etwas Platz frei.",
+                "error": "Ihr Speicherplatz ist fast voll. Geben Sie Speicherplatz frei, damit Sie den E-Mail Dienst weiterhin ohne funktionale Einschränkungen nutzen können."
+            },
+            "used_quota": {
+                "error": "Ihr Speicherplatz ist voll. Möglicherweise können Sie keine Nachrichten mehr senden oder empfangen oder Entwürfe speichern."
+            },
             "read_only_folder": {
                 "info": "E-Mail im Lesemdodus. Einige Aktionen (z.B. Löschen/Verschieben) sind nicht auswählbar."
             },
@@ -378,7 +385,7 @@
     "mail.list.sr_info.unread": "Ungelesen.",
     "mail.list.sr_info": "{title}{props}",
     "mail.list.unread.none": "Keine ungelesenen E-Mails.",
-    "mail.mailbox.quota.used": "{usedQuotaPercentage} % des Speicherplatzes in Gebrauch",
+    "mail.mailbox.quota.used": "{usedQuota} von {availableQuota} genutzt ({usedQuotaPercentage}%)",
     "mail.main.new": "Neue E-Mail",
     "mail.main.new_full": "Neue E-Mail schreiben",
     "mail.message.found_none": "No E-Mail gefunden",
@@ -389,12 +396,16 @@
     "mail.message.select.all.search": "Alle Suchergebnisse ausgewählten",
     "mail.message.selected": "{count} E-Mails ausgewählt",
     "mail.message.starter": "Element auswählen",
+    "mail.message.starter.display.inbox_full": "Machen Sie Platz frei",
     "mail.message.starter.display.drafts": "Entwürfe sehen",
     "mail.message.starter.display.inbox": "Zum Posteingang zurückgehen",
     "mail.message.starter.display.outbox": "Nachrichten im Wartestatus vor dem Absenden sehen",
     "mail.message.starter.display.recoverable": "Abrufbare Nachrichten anzeigen",
     "mail.message.starter.display.sent": "Gesendet Nachrichten sehen",
     "mail.message.starter.display.templates": "Vorlagen sehen",
+    "mail.message.starter.display.junks": "Spam-Nachrichten anzeigen",
+    "mail.message.starter.display.trash": "Den Papierkorb ansehen",
+    "mail.message.starter.inbox_full.details.": "Ihr Speicherplatz ist voll.",
     "mail.message.starter.draft.details": "Dieser Ordner enthält Nachrichten, die Sie angefangen haben zu verfassen, aber noch nicht gesendet haben.",
     "mail.message.starter.elements_counts": "1 Element|{count} Elemente",
     "mail.message.starter.outbox.details": "Dieser Ordner enthält die Nachrichten, die aus technischen Gründen (Verbindung, Serverstatus) noch nicht Ihrem Mailserver erreicht haben.",

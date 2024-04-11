@@ -23,7 +23,12 @@
             </div>
         </bm-navbar>
 
-        <new-message class="new-mobile" :template="activeFolder === MY_TEMPLATES.key" mobile />
+        <new-message
+            class="new-mobile"
+            :class="quota.isAboveDangerThreshold() ? 'offset-for-quota' : ''"
+            :template="activeFolder === MY_TEMPLATES.key"
+            mobile
+        />
     </div>
 </template>
 
@@ -37,6 +42,8 @@ import MailMailboxIcon from "../../MailMailboxIcon";
 import MailSearchBox from "../../MailSearch/MailSearchBox";
 import MessagesOptionsForMobile from "../../MessagesOptionsForMobile";
 import NewMessage from "../../NewMessage";
+import { Quota } from "@bluemind/quota";
+
 const { folderIcon } = folderUtils;
 
 export default {
@@ -73,6 +80,9 @@ export default {
         },
         folderIcon() {
             return folderIcon(this.currentFolder.path, this.CURRENT_MAILBOX.type);
+        },
+        quota() {
+            return new Quota(this.$store.state["root-app"].quota);
         }
     }
 };
@@ -82,6 +92,8 @@ export default {
 @import "~@bluemind/ui-components/src/css/utils/variables";
 @import "~@bluemind/ui-components/src/css/utils/responsiveness";
 @import "~@bluemind/ui-components/src/css/utils/typography";
+@import "../../MailFolder/variables.scss";
+
 .topbar-conversation-list-mobile {
     .main {
         .folder-menu-mobile {
@@ -118,5 +130,8 @@ export default {
         width: 100%;
         z-index: 1;
     }
+}
+.bm-floating-action-button.new-message.offset-for-quota {
+    margin-bottom: $quota-height;
 }
 </style>

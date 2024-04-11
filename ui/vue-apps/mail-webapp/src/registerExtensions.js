@@ -11,6 +11,7 @@ import NotifyOrganizerAlert from "./calendar/components/alerts/NotifyOrganizerAl
 import ForwardEventHandler from "./calendar/handlers/ForwardEventHandler";
 import ForwardedEventAlert from "./calendar/components/alerts/ForwardedEventAlert";
 import PrivateEventNotSentToDelegatesAlert from "./calendar/components/alerts/PrivateEventNotSentToDelegatesAlert";
+import UsedQuotaAlert from "./components/MailAlerts//UsedQuotaAlert";
 
 const { MailTipTypes } = mailTipUtils;
 
@@ -53,6 +54,7 @@ export default function () {
     });
     Vue.component("ForwardedEventAlert", ForwardedEventAlert);
     Vue.component("PrivateEventNotSentToDelegatesAlert", PrivateEventNotSentToDelegatesAlert);
+    Vue.component("UsedQuotaAlert", UsedQuotaAlert);
     Vue.component("NotifyOrganizerAlert", NotifyOrganizerAlert);
     Vue.component("NotifyOrganizerTrigger", NotifyOrganizerTrigger);
     extensions.register("webapp.mail", "net.bluemind.webapp.mail.js", {

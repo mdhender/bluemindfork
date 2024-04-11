@@ -8,8 +8,6 @@ import mailText2Html from "./mailText2Html";
 import MimeType from "./MimeType";
 import PartsBuilder from "./PartsBuilder";
 
-const USED_QUOTA_PERCENTAGE_WARNING = 80; // quota usage is considered as "to be watched" if it's more than 80%
-
 const WEBSERVER_HANDLER_BASE_URL = "part/url/";
 
 function getPartUrl(folderUid, imapUid, { address, charset, encoding, mime }) {
@@ -51,6 +49,5 @@ export {
     mailText2Html,
     MimeType,
     PartsBuilder,
-    USED_QUOTA_PERCENTAGE_WARNING,
     WEBSERVER_HANDLER_BASE_URL
 };

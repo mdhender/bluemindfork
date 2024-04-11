@@ -4,43 +4,28 @@
         <nav id="folder-sidebar" class="mail-folder-sidebar scroller-y-stable flex-grow-1">
             <folder-list />
         </nav>
-        <div v-if="mustDisplayQuota" class="my-1" :class="showQuotaWarning ? 'text-danger' : ''">
-            <hr class="my-1" />
-            <bm-icon v-if="showQuotaWarning" icon="exclamation-circle" class="ml-2 align-middle" />
-            <span :class="showQuotaWarning ? 'pl-1' : 'pl-2'" class="align-middle">{{
-                $t("mail.mailbox.quota.used", { usedQuotaPercentage })
-            }}</span>
-        </div>
+        <MailFolderQuotaSidebar v-if="quota.isAboveWarningThreshold() || alwaysShowQuotaSetting" :quota="quota" />
     </bm-col>
 </template>
 
 <script>
-import { mapState } from "vuex";
+import MailFolderQuotaSidebar from "./MailFolderQuotaSidebar";
 
-import { BmCol, BmIcon } from "@bluemind/ui-components";
-import { USED_QUOTA_PERCENTAGE_WARNING } from "@bluemind/email";
+import { BmCol } from "@bluemind/ui-components";
 
 import MailFolderSidebarHeader from "./MailFolderSidebarHeader";
 import FolderList from "./FolderList";
+import { Quota } from "@bluemind/quota";
 
 export default {
     name: "MailFolderSidebar",
-    components: { BmCol, BmIcon, FolderList, MailFolderSidebarHeader },
+    components: { BmCol, FolderList, MailFolderSidebarHeader, MailFolderQuotaSidebar },
     computed: {
-        ...mapState("root-app", ["quota"]),
         alwaysShowQuotaSetting() {
-            return this.$store.state.settings.always_show_quota;
+            return this.$store.state.settings.always_show_quota === "true";
         },
-        usedQuotaPercentage() {
-            return Math.ceil((this.quota.used / this.quota.total) * 100);
-        },
-        mustDisplayQuota() {
-            return (
-                this.quota.used && this.quota.total && (this.alwaysShowQuotaSetting === "true" || this.showQuotaWarning)
-            );
-        },
-        showQuotaWarning() {
-            return this.usedQuotaPercentage >= USED_QUOTA_PERCENTAGE_WARNING;
+        quota() {
+            return new Quota(this.$store.state["root-app"].quota);
         }
     }
 };

@@ -123,6 +123,13 @@
             "private_event_not_sent_to_delegates": {
                 "warning": "Les délégués n'ont pas reçu cette invitation privée."
             },
+            "almost_used_quota": {
+                "warning": "Votre espace de stockage est bientôt saturé. Veuillez libérer de l’espace dès que possible.",
+                "error": "Votre espace de stockage est presque saturé. Libérez de l’espace pour pouvoir continuer à utiliser la messagerie sans limitations fonctionnelles."
+            },
+            "used_quota": {
+                "error": "Votre espace de stockage est saturé. Vous risquez de ne plus pouvoir envoyer ou recevoir de messages, ni enregistrer de brouillons."
+            },
             "read_only_folder": {
                 "info": "Message en lecture seule. Certaines actions (comme Supprimer ou Déplacer) peuvent être indisponibles."
             },
@@ -378,7 +385,7 @@
     "mail.list.sr_info.title": "Message:",
     "mail.list.sr_info.unread": "Non lu.",
     "mail.list.unread.none": "Aucun message non lu.",
-    "mail.mailbox.quota.used": "{usedQuotaPercentage} % de stockage utilisé",
+    "mail.mailbox.quota.used": "{usedQuota} utilisés sur {availableQuota} ({usedQuotaPercentage} %)",
     "mail.main.new": "Nouveau message",
     "mail.main.new_full": "Écrire un nouveau message",
     "mail.main.switch.webmail": "Essayer le nouveau webmail",
@@ -389,12 +396,16 @@
     "mail.message.select.all.search": "Sélectionner tous les messages de la recherche",
     "mail.message.selected": "{count} messages sélectionnés",
     "mail.message.starter": "Sélectionner un élément",
+    "mail.message.starter.display.inbox_full": "Libérez de l'espace",
     "mail.message.starter.display.drafts": "Voir les brouillons",
     "mail.message.starter.display.inbox": "Retourner à la boîte de réception",
     "mail.message.starter.display.outbox": "Voir les messages en attente d'envoi",
     "mail.message.starter.display.recoverable": "Voir les messages récupérables",
     "mail.message.starter.display.sent": "Voir les messages envoyés",
     "mail.message.starter.display.templates": "Voir les modèles",
+    "mail.message.starter.display.junks": "Voir les messages indésirables",
+    "mail.message.starter.display.trash": "Voir la corbeille",
+    "mail.message.starter.inbox_full.details": "Votre espace de stockage est saturé.",
     "mail.message.starter.draft.details": "Ce dossier contient des messages que vous avez commencé à composer et que vous n'avez pas encore envoyés.",
     "mail.message.starter.elements_counts": "1 élément|{count} éléments",
     "mail.message.starter.outbox.details": "Ce dossier contient les messages qui ne sont pas encore parvenus à votre serveur de messagerie pour des raisons techniques (connexion, état des serveurs).",
@@ -403,7 +414,7 @@
     "mail.message.starter.shared.info": "Vous êtes dans un dossier partagé.",
     "mail.message.starter.templates": "Choisir un modèle",
     "mail.message.starter.templates.details": "afin de l'utiliser pour un nouveau message ou le modifier",
-    "mail.messages.multiple.drag_shadow": "La conversation séléctionnée | {count} conversations séléctionnées",
+    "mail.messages.multiple.drag_shadow": "La conversation sélectionnée | {count} conversations sélectionnées",
     "mail.new.attachments.drop.zone": "Déposer votre fichier en tant que pièce jointe | Déposer vos fichiers en tant que pièces jointes",
     "mail.new.attachments.eml.drop.zone": "Déposer votre message en tant que pièce jointe | Déposer vos messages en tant que pièces jointes",
     "mail.new.attachments.images.drop.zone": "Déposer votre image en tant que pièce jointe | Déposer vos images en tant que pièces jointes",

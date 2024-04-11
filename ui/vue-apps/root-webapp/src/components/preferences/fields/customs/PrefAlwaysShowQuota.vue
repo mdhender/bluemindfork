@@ -5,9 +5,8 @@
             :value="quota.used"
             :max="quota.total"
             class="d-inline-block mr-3"
-            :variant="usedQuotaPercentage > USED_QUOTA_PERCENTAGE_WARNING ? 'danger' : 'secondary'"
+            :variant="quota.isAboveWarningThreshold() ? 'danger' : 'secondary'"
             show-progress
-            use-ceil
         >
             <template v-if="hasNoQuota">{{ $t("preferences.mail.quota.unlimited") }}</template>
         </bm-progress>
@@ -21,34 +20,28 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
-
-import { USED_QUOTA_PERCENTAGE_WARNING } from "@bluemind/email";
 import { BaseField } from "@bluemind/preferences";
-import i18n from "@bluemind/i18n";
 import { computeUnit } from "@bluemind/file-utils";
 import { BmProgress } from "@bluemind/ui-components";
+import { Quota } from "@bluemind/quota";
+import i18n from "@bluemind/i18n";
 
 export default {
     name: "PrefAlwaysShowQuota",
     components: { BmProgress },
     mixins: [BaseField],
-    data() {
-        return { USED_QUOTA_PERCENTAGE_WARNING };
-    },
     computed: {
-        ...mapState("root-app", ["quota"]),
         hasNoQuota() {
-            return this.quota && !this.quota.total;
+            return this.quota && this.quota.total === Infinity;
+        },
+        quota() {
+            return new Quota(this.$store.state["root-app"].quota);
         },
         displayedUsedQuota() {
-            return computeUnit(this.quota.used * 1000, i18n);
+            return computeUnit(this.quota.used * 1000, i18n, { precision: 3 });
         },
         displayedTotalQuota() {
-            return computeUnit(this.quota.total * 1000, i18n);
-        },
-        usedQuotaPercentage() {
-            return (this.quota.used / this.quota.total) * 100;
+            return computeUnit(this.quota.total * 1000, i18n, { precision: 3 });
         }
     }
 };
