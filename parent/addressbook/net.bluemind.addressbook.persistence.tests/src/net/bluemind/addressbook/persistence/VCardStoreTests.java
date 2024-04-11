@@ -506,7 +506,7 @@ public class VCardStoreTests {
 		VCard card = defaultVCard();
 		card.identification.formatedName = FormatedName.create("aaaaaaaaaaa");
 		card.identification.nickname = Nickname.create("aaaaaaaaaaa");
-		String uid = "test_" + System.nanoTime();
+		String uid = "test1_" + System.nanoTime();
 
 		VCard card2 = defaultVCard();
 		card2.identification.formatedName = FormatedName.create("bbbbbbbbbbb");
