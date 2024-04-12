@@ -103,8 +103,8 @@ public class SendMailProtocol implements IEasProtocol<SendMailRequest, SendMailR
 					});
 
 		} else {
-			EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger, "Skipping duplicate send {} for {}",
-					query.clientId, bs.getLoginAtDomain());
+			EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger, "Skipping duplicate send {} for {}", query.clientId,
+					bs.getLoginAtDomain());
 			SendMailResponse response = new SendMailResponse();
 			response.status = Status.PREVIOUSLY_SENT;
 			responseHandler.handle(response);
@@ -123,7 +123,8 @@ public class SendMailProtocol implements IEasProtocol<SendMailRequest, SendMailR
 			completion.handle(null);
 		} else {
 			SendMailResponseFormatter formatter = new SendMailResponseFormatter();
-			IResponseBuilder builder = new WbxmlResponseBuilder(bs.getLoginAtDomain(), responder.asOutput());
+			IResponseBuilder builder = new WbxmlResponseBuilder(bs.getProtocolVersion(), bs.getLoginAtDomain(),
+					responder.asOutput());
 			formatter.format(builder, bs.getProtocolVersion(), response, data -> completion.handle(null));
 		}
 	}

@@ -108,7 +108,8 @@ public class SmartForwardProtocol implements IEasProtocol<SmartForwardRequest, S
 			completion.handle(null);
 		} else {
 			SmartForwardResponseFormatter formatter = new SmartForwardResponseFormatter();
-			IResponseBuilder builder = new WbxmlResponseBuilder(bs.getLoginAtDomain(), responder.asOutput());
+			IResponseBuilder builder = new WbxmlResponseBuilder(bs.getProtocolVersion(), bs.getLoginAtDomain(),
+					responder.asOutput());
 			formatter.format(builder, bs.getProtocolVersion(), response, data -> completion.handle(null));
 		}
 	}

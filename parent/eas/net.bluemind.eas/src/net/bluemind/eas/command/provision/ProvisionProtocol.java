@@ -113,7 +113,7 @@ public class ProvisionProtocol implements IEasProtocol<ProvisionRequest, Provisi
 			return;
 		}
 		ProvisionResponseFormatter formatter = new ProvisionResponseFormatter();
-		IResponseBuilder builder = new WbxmlResponseBuilder(bs.getLoginAtDomain(),
+		IResponseBuilder builder = new WbxmlResponseBuilder(bs.getProtocolVersion(), bs.getLoginAtDomain(),
 				responder.asOutput(ConnectionHeader.CLOSE));
 		formatter.format(builder, bs.getProtocolVersion(), response, data -> completion.handle(null));
 	}

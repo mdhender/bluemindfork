@@ -286,7 +286,8 @@ public class PingProtocol implements IEasProtocol<PingRequest, PingResponse> {
 	@Override
 	public void write(BackendSession bs, Responder responder, PingResponse response, final Handler<Void> completion) {
 		PingResponseFormatter formatter = new PingResponseFormatter();
-		WbxmlResponseBuilder builder = new WbxmlResponseBuilder(bs.getLoginAtDomain(), responder.asOutput());
+		WbxmlResponseBuilder builder = new WbxmlResponseBuilder(bs.getProtocolVersion(), bs.getLoginAtDomain(),
+				responder.asOutput());
 		formatter.format(builder, bs.getProtocolVersion(), response, data -> completion.handle(data));
 	}
 

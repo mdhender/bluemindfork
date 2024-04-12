@@ -84,7 +84,7 @@ public class ResponseBuilderTests {
 	public void testRootOnlyDocument() throws IOException, TransformerException {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		WbxmlOutput output = WbxmlOutput.of(bos);
-		WbxmlResponseBuilder builder = new WbxmlResponseBuilder(null, output);
+		WbxmlResponseBuilder builder = new WbxmlResponseBuilder(14.1, null, output);
 		LatchCountdown completion = new LatchCountdown();
 		builder.start(NamespaceMapping.SYNC).end(completion);
 		completion.expectCompletion();
@@ -99,7 +99,7 @@ public class ResponseBuilderTests {
 	public void testNestedContainer() throws IOException, TransformerException {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		WbxmlOutput output = WbxmlOutput.of(bos);
-		WbxmlResponseBuilder builder = new WbxmlResponseBuilder(null, output);
+		WbxmlResponseBuilder builder = new WbxmlResponseBuilder(14.1, null, output);
 		LatchCountdown completion = new LatchCountdown();
 		builder.start(NamespaceMapping.SYNC);
 		builder.container("Collections").container("Collection").endContainer().endContainer().end(completion);
@@ -119,7 +119,7 @@ public class ResponseBuilderTests {
 	public void testSiblingContainer() throws IOException, TransformerException {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		WbxmlOutput output = WbxmlOutput.of(bos);
-		WbxmlResponseBuilder builder = new WbxmlResponseBuilder(null, output);
+		WbxmlResponseBuilder builder = new WbxmlResponseBuilder(14.1, null, output);
 		LatchCountdown completion = new LatchCountdown();
 		builder.start(NamespaceMapping.SYNC);
 		builder.container("Collections");
@@ -139,7 +139,7 @@ public class ResponseBuilderTests {
 	public void testContainerWithContent() throws IOException, TransformerException {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		WbxmlOutput output = WbxmlOutput.of(bos);
-		WbxmlResponseBuilder builder = new WbxmlResponseBuilder(null, output);
+		WbxmlResponseBuilder builder = new WbxmlResponseBuilder(14.1, null, output);
 		LatchCountdown completion = new LatchCountdown();
 		builder.start(NamespaceMapping.SYNC);
 		builder.container("Collections").container("Collection");
@@ -161,7 +161,7 @@ public class ResponseBuilderTests {
 		SlowWriteStream sl = new SlowWriteStream();
 		WbxmlOutput output = new VertxTestOutput(sl);
 
-		WbxmlResponseBuilder builder = new WbxmlResponseBuilder(null, output);
+		WbxmlResponseBuilder builder = new WbxmlResponseBuilder(14.1, null, output);
 		final LatchCountdown completion = new LatchCountdown();
 		builder.start(NamespaceMapping.SYNC);
 		builder.container("Collections").container("Collection");
@@ -192,7 +192,7 @@ public class ResponseBuilderTests {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		WbxmlOutput output = WbxmlOutput.of(bos);
 
-		WbxmlResponseBuilder builder = new WbxmlResponseBuilder(null, output);
+		WbxmlResponseBuilder builder = new WbxmlResponseBuilder(14.1, null, output);
 		final LatchCountdown completion = new LatchCountdown();
 		builder.start(NamespaceMapping.SYNC);
 		builder.container("Collections").container("Collection");
@@ -227,7 +227,7 @@ public class ResponseBuilderTests {
 	public void testContainerWithMultipleStreams() throws IOException, TransformerException {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		WbxmlOutput output = WbxmlOutput.of(bos);
-		IResponseBuilder builder = new WbxmlResponseBuilder(null, output);
+		IResponseBuilder builder = new WbxmlResponseBuilder(14.1, null, output);
 		final LatchCountdown completion = new LatchCountdown();
 		builder.start(NamespaceMapping.SYNC);
 		builder.container("Collections").container("Collection");

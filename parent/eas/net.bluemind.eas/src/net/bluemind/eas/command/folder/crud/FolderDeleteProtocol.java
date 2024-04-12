@@ -108,7 +108,8 @@ public class FolderDeleteProtocol implements IEasProtocol<FolderDeleteRequest, F
 		}
 
 		FolderDeleteResponseFormatter format = new FolderDeleteResponseFormatter();
-		IResponseBuilder builder = new WbxmlResponseBuilder(bs.getLoginAtDomain(), responder.asOutput());
+		IResponseBuilder builder = new WbxmlResponseBuilder(bs.getProtocolVersion(), bs.getLoginAtDomain(),
+				responder.asOutput());
 		format.format(builder, bs.getProtocolVersion(), response, data -> completion.handle(null));
 	}
 

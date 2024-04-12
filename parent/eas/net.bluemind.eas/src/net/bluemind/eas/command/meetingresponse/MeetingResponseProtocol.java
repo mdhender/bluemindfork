@@ -235,7 +235,8 @@ public class MeetingResponseProtocol implements IEasProtocol<MeetingResponseRequ
 	public void write(BackendSession bs, Responder responder, MeetingResponseResponse response,
 			final Handler<Void> completion) {
 		MeetingResponseResponseFormatter formatter = new MeetingResponseResponseFormatter();
-		IResponseBuilder builder = new WbxmlResponseBuilder(bs.getLoginAtDomain(), responder.asOutput());
+		IResponseBuilder builder = new WbxmlResponseBuilder(bs.getProtocolVersion(), bs.getLoginAtDomain(),
+				responder.asOutput());
 		formatter.format(builder, bs.getProtocolVersion(), response, data -> completion.handle(null));
 	}
 

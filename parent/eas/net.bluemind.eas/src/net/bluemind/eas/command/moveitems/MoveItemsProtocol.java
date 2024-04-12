@@ -187,7 +187,8 @@ public class MoveItemsProtocol implements IEasProtocol<MoveItemsRequest, MoveIte
 			EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "******** Writing *******");
 		}
 		MoveItemsFormatter formatter = new MoveItemsFormatter();
-		IResponseBuilder builder = new WbxmlResponseBuilder(bs.getLoginAtDomain(), responder.asOutput());
+		IResponseBuilder builder = new WbxmlResponseBuilder(bs.getProtocolVersion(), bs.getLoginAtDomain(),
+				responder.asOutput());
 		formatter.format(builder, bs.getProtocolVersion(), response, data -> completion.handle(null));
 	}
 

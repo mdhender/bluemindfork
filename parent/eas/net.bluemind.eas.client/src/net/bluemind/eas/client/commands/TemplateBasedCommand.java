@@ -68,6 +68,9 @@ public abstract class TemplateBasedCommand<T> implements IEasCommand<T> {
 			customizeTemplate(ai, opc);
 		}
 		Document response = opc.postXml(namespace, tpl, cmd);
+		if (response == null) {
+			return null;
+		}
 		T ret = parseResponse(response.getDocumentElement());
 		return ret;
 	}

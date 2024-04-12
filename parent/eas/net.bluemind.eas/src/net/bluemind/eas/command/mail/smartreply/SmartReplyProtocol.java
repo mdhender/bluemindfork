@@ -107,7 +107,8 @@ public class SmartReplyProtocol implements IEasProtocol<SmartReplyRequest, Smart
 			completion.handle(null);
 		} else {
 			SmartReplyResponseFormatter formatter = new SmartReplyResponseFormatter();
-			IResponseBuilder builder = new WbxmlResponseBuilder(bs.getLoginAtDomain(), responder.asOutput());
+			IResponseBuilder builder = new WbxmlResponseBuilder(bs.getProtocolVersion(), bs.getLoginAtDomain(),
+					responder.asOutput());
 			formatter.format(builder, bs.getProtocolVersion(), response, data -> completion.handle(null));
 		}
 	}

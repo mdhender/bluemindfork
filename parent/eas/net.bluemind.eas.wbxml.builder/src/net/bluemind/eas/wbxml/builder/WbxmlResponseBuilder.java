@@ -55,12 +55,14 @@ public class WbxmlResponseBuilder implements IResponseBuilder {
 	private final WbxmlOutput output;
 	private final Deque<Element> containerNamesStack; // for "debugging" purpose
 	private final String loginForSifting;
+	private final double protocolVersion;
 	private Document debugDom;
 	private NamespaceMapping currentNS;
 	private WbxmlEncoder encoder;
 
-	public WbxmlResponseBuilder(String loginForSifting, WbxmlOutput output) {
+	public WbxmlResponseBuilder(double protocolVersion, String loginForSifting, WbxmlOutput output) {
 		this.output = output;
+		this.protocolVersion = protocolVersion;
 		this.containerNamesStack = new ArrayDeque<>();
 		this.loginForSifting = loginForSifting != null ? loginForSifting.replace("@", "_at_") : EasLogUser.ANONYMOUS;
 	}
@@ -175,8 +177,7 @@ public class WbxmlResponseBuilder implements IResponseBuilder {
 					EasLogUser.logDebugAsUser(loginForSifting, logger, "Ignore unknown stream");
 				} else {
 					if (logger.isDebugEnabled()) {
-						EasLogUser.logDebugAsUser(loginForSifting, logger, "Received chunk ({}byte(s))",
-								c.buf.length);
+						EasLogUser.logDebugAsUser(loginForSifting, logger, "Received chunk ({}byte(s))", c.buf.length);
 					}
 					total += c.buf.length;
 					output.write(c.buf, () -> {
@@ -315,7 +316,7 @@ public class WbxmlResponseBuilder implements IResponseBuilder {
 	private void dumpDom(String requestId) {
 		boolean valid = false;
 		try {
-			Validator.get().checkResponse(14.1, debugDom);
+			Validator.get().checkResponse(protocolVersion, debugDom);
 			valid = true;
 		} catch (ValidationException ve) {
 			EasLogUser.logErrorExceptionAsUser(loginForSifting, ve, logger,

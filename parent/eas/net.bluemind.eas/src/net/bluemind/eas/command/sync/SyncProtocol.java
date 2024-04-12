@@ -168,8 +168,7 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 				try {
 					maxInterval = Integer.parseInt(maxString);
 				} catch (NumberFormatException nfe) {
-					EasLogUser.logErrorAsUser(bs.getLoginAtDomain(), logger, "Invalid heartbeat value: {}",
-							maxString);
+					EasLogUser.logErrorAsUser(bs.getLoginAtDomain(), logger, "Invalid heartbeat value: {}", maxString);
 				}
 			}
 			if (sr.heartbeatInterval > maxInterval) {
@@ -422,7 +421,8 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 			Backends.internalStorage().updateLastSync(bs);
 			completion.handle(null);
 		};
-		IResponseBuilder builder = new WbxmlResponseBuilder(bs.getLoginAtDomain(), responder.asOutput());
+		IResponseBuilder builder = new WbxmlResponseBuilder(bs.getProtocolVersion(), bs.getLoginAtDomain(),
+				responder.asOutput());
 		SyncResponseFormatter srf = new SyncResponseFormatter();
 		srf.format(builder, bs.getProtocolVersion(), response, cb);
 	}

@@ -128,7 +128,8 @@ public class FolderUpdateProtocol implements IEasProtocol<FolderUpdateRequest, F
 		}
 
 		FolderUpdateResponseFormatter format = new FolderUpdateResponseFormatter();
-		IResponseBuilder builder = new WbxmlResponseBuilder(bs.getLoginAtDomain(), responder.asOutput());
+		IResponseBuilder builder = new WbxmlResponseBuilder(bs.getProtocolVersion(), bs.getLoginAtDomain(),
+				responder.asOutput());
 		format.format(builder, bs.getProtocolVersion(), response, data -> completion.handle(null));
 	}
 

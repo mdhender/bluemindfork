@@ -167,7 +167,8 @@ public class FolderCreateProtocol implements IEasProtocol<FolderCreateRequest, F
 	public void write(BackendSession bs, Responder responder, FolderCreateResponse response,
 			final Handler<Void> completion) {
 		FolderCreateResponseFormatter format = new FolderCreateResponseFormatter();
-		IResponseBuilder builder = new WbxmlResponseBuilder(bs.getLoginAtDomain(), responder.asOutput());
+		IResponseBuilder builder = new WbxmlResponseBuilder(bs.getProtocolVersion(), bs.getLoginAtDomain(),
+				responder.asOutput());
 		format.format(builder, bs.getProtocolVersion(), response, data -> completion.handle(null));
 	}
 

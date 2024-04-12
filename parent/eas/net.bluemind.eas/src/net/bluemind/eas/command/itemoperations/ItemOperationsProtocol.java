@@ -189,11 +189,12 @@ public class ItemOperationsProtocol implements IEasProtocol<ItemOperationsReques
 		ItemOperationsFormatter format = new ItemOperationsFormatter();
 		if (response.style == ResponseStyle.INLINE) {
 			WbxmlOutput output = responder.asOutput();
-			IResponseBuilder builder = new WbxmlResponseBuilder(bs.getLoginAtDomain(), output);
+			IResponseBuilder builder = new WbxmlResponseBuilder(bs.getProtocolVersion(), bs.getLoginAtDomain(), output);
 			format.format(builder, bs.getProtocolVersion(), response, data -> completion.handle(null));
 		} else {
 			final ByteArrayOutputStream forWbxml = new ByteArrayOutputStream();
-			IResponseBuilder wbxmlBuilder = new WbxmlResponseBuilder(bs.getLoginAtDomain(), WbxmlOutput.of(forWbxml));
+			IResponseBuilder wbxmlBuilder = new WbxmlResponseBuilder(bs.getProtocolVersion(), bs.getLoginAtDomain(),
+					WbxmlOutput.of(forWbxml));
 			format.format(wbxmlBuilder, bs.getProtocolVersion(), response, data -> {
 				MultipartBuilder multipart = new MultipartBuilder();
 				multipart.wbxml(forWbxml.toByteArray());
@@ -352,8 +353,8 @@ public class ItemOperationsProtocol implements IEasProtocol<ItemOperationsReques
 					content.body = new AirSyncBaseResponse.Body();
 					content.contentType = data.getContentType();
 					content.body.data = data.getFile();
-					EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger,
-							"Finished async loading of {} attachment.", content.contentType);
+					EasLogUser.logInfoAsUser(bs.getLoginAtDomain(), logger, "Finished async loading of {} attachment.",
+							content.contentType);
 					onLoad.onResult(content);
 				} catch (Exception e) {
 					EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);

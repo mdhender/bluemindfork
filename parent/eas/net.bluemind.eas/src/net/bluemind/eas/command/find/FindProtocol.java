@@ -76,7 +76,8 @@ public class FindProtocol implements IEasProtocol<FindRequest, FindResponse> {
 	@Override
 	public void write(BackendSession bs, Responder responder, FindResponse response, Handler<Void> completion) {
 		FindResponseFormatter formatter = new FindResponseFormatter();
-		IResponseBuilder builder = new WbxmlResponseBuilder(bs.getLoginAtDomain(), responder.asOutput());
+		IResponseBuilder builder = new WbxmlResponseBuilder(bs.getProtocolVersion(), bs.getLoginAtDomain(),
+				responder.asOutput());
 		formatter.format(builder, bs.getProtocolVersion(), response, data -> completion.handle(null));
 	}
 

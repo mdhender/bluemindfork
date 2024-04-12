@@ -65,8 +65,7 @@ public class OPClient {
 		XTrustProvider.install();
 	}
 
-	public OPClient(String loginAtDomain, String password, String devId, String devType, String userAgent, String url)
-			throws Exception {
+	public OPClient(String loginAtDomain, String password, String devId, String devType, String userAgent, String url) {
 
 		setProtocolVersion(ProtocolVersion.V121);
 		this.ai = new AccountInfos(loginAtDomain, password, devId, devType, url, userAgent);

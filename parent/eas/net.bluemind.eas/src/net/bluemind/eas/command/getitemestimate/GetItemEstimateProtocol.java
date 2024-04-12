@@ -103,7 +103,8 @@ public class GetItemEstimateProtocol implements IEasProtocol<GetItemEstimateRequ
 			EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "******** Writing *******");
 		}
 		GetItemEstimateResponseFormatter formatter = new GetItemEstimateResponseFormatter();
-		IResponseBuilder builder = new WbxmlResponseBuilder(bs.getLoginAtDomain(), responder.asOutput());
+		IResponseBuilder builder = new WbxmlResponseBuilder(bs.getProtocolVersion(), bs.getLoginAtDomain(),
+				responder.asOutput());
 		formatter.format(builder, bs.getProtocolVersion(), response, data -> completion.handle(null));
 	}
 
