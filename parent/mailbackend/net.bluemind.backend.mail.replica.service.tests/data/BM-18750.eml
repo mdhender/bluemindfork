@@ -17,9 +17,7 @@ From: "no-reply@devenv.blue" <no-reply@devenv.blue>
 To: "nico DEVENV.BLUE" <nico@devenv.blue>
 Content-Type: text/html; charset=UTF-8;
 Content-Transfer-Encoding: quoted-printable
-X-BM-FolderUid:
- calendar:Default:cli-created-d095c2ea-2d5f-31c0-9224-30b8143818c1
-X-BM-FolderType: calendar
+X-BM-FolderUid: calendar:Default:cli-created-d095c2ea-2d5f-31c0-9224-30b8143818c1; type=calendar
 Message-Id: <20220713123323.EA68B2C1FFB@focal>
 X-Bm-Milter-Handled: 50f3bc92-057e-44bd-9e28-af7a310ff19c
 X-Bm-Transport-Timestamp: 1657715604016

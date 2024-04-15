@@ -60,7 +60,10 @@ public final class Mail implements Cloneable {
 		h.setField(Fields.contentTransferEncoding("quoted-printable"));
 		for (RawField rf : headers) {
 			UnstructuredField field = UnstructuredFieldImpl.PARSER.parse(rf, DecodeMonitor.SILENT);
-			h.setField(field);
+			if (h.getFields(field.getName()).stream()
+					.noneMatch(f -> f.getBody().toString().equalsIgnoreCase(field.getValue()))) {
+				h.addField(field);
+			}
 		}
 		m.setHeader(h);
 

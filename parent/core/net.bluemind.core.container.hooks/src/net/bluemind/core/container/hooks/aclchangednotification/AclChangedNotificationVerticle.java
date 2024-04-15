@@ -191,13 +191,18 @@ public class AclChangedNotificationVerticle extends AbstractVerticle {
 		m.subject = resolver.translate("subject", new Object[] { getActorName(sourceUser, resolver) });
 
 		Map<String, Object> ftlData = prepareFtlData(resolver, sourceUser, status);
+		Map<String, String> folderUidType = new HashMap<>();
 
 		aclChangeInfo.newVerbsByContainer.values().stream()
 				.filter(newVerbs -> !newVerbs.verbs.isEmpty() && !newVerbs.listVerbByStatus(status).isEmpty())
 				.forEach(newVerbs -> {
 					buildFtlData(ftlData, newVerbs, resolver, lang, aclChangeInfo, status);
-					addContainerTypeHeader(m, newVerbs);
+					addContainerTypeHeader(m, newVerbs, folderUidType);
 				});
+
+		List<RawField> list = folderUidType.entrySet().stream().map(e -> e.getKey() + "; type=" + e.getValue())
+				.map(h -> new RawField("X-BM-FolderUid", h)).toList();
+		m.headers.addAll(list);
 
 		return ftlData;
 	}
@@ -275,12 +280,11 @@ public class AclChangedNotificationVerticle extends AbstractVerticle {
 	public record Permission(String level, String target) {
 	}
 
-	private void addContainerTypeHeader(Mail m, NewVerbs newVerbs) {
+	private void addContainerTypeHeader(Mail m, NewVerbs newVerbs, Map<String, String> folderUidType) {
 		if (newVerbs.containerType.equals(IMailboxAclUids.TYPE)) {
 			m.headers.add(new RawField("X-BM-MailboxSharing", newVerbs.containerUid));
 		} else {
-			m.headers.add(new RawField("X-BM-FolderUid", newVerbs.containerUid));
-			m.headers.add(new RawField("X-BM-FolderType", newVerbs.containerType));
+			folderUidType.put(newVerbs.containerUid, newVerbs.containerType);
 		}
 	}
 

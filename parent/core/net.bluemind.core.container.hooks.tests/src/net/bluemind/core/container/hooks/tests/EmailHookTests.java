@@ -132,6 +132,9 @@ public class EmailHookTests extends AbstractHookTests {
 		assertNotNull(message);
 		Mail mail = message.body().getValue();
 		assertEquals("admin a modifié vos droits d’accés.", mail.subject);
+		String[] fields = mail.getMessage().getHeader().getFields("X-BM-FolderUid").getFirst().getBody().split("; ");
+		assertEquals("type=calendar", fields[1]);
+		assertEquals("calendar:Default:admin", fields[0]);
 	}
 
 	@Test
@@ -162,6 +165,9 @@ public class EmailHookTests extends AbstractHookTests {
 		assertNotNull(message);
 		Mail mail = message.body().getValue();
 		assertEquals("L’administrateur a modifié vos droits d’accés.", mail.subject);
+		String[] fields = mail.getMessage().getHeader().getFields("X-BM-FolderUid").getFirst().getBody().split("; ");
+		assertEquals("type=calendar", fields[1]);
+		assertEquals("calendar:Default:" + test.uid, fields[0]);
 	}
 
 	@Test
@@ -195,6 +201,9 @@ public class EmailHookTests extends AbstractHookTests {
 		assertNotNull(message);
 		Mail mail = message.body().getValue();
 		assertEquals("L’administrateur a modifié vos droits d’accés.", mail.subject);
+		String[] fields = mail.getMessage().getHeader().getFields("X-BM-FolderUid").getFirst().getBody().split("; ");
+		assertEquals("type=calendar", fields[1]);
+		assertEquals("calendar:Default:admin", fields[0]);
 	}
 
 }
