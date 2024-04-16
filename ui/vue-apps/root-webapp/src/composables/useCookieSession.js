@@ -14,7 +14,6 @@ export function useCookieSession(name, value) {
             const cookie = cookies[i].trim();
             if (cookie.startsWith(`${name}=`)) {
                 const cookieValue = cookie.substring(name.length + 1);
-                console.log(cookieValue);
                 if (cookieValue === "undefined") {
                     return null;
                 }
