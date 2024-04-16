@@ -319,9 +319,9 @@ export default {
 };
 
 function buildAllContacts(addressBookId, perPage, resultsInPage, pageStartIndex, totalLength) {
-    return Array.from({ length: totalLength })
-        .toSpliced(pageStartIndex, perPage, ...resultsInPage)
-        .map(contact => transformRawContact(contact, addressBookId));
+    const rawContacts = Array.from({ length: totalLength });
+    rawContacts.splice(pageStartIndex, perPage, ...resultsInPage);
+    return rawContacts.map(contact => transformRawContact(contact, addressBookId));
 }
 
 function toContact(contactItem) {

@@ -50,6 +50,7 @@
 </template>
 
 <script>
+import cloneDeep from "lodash.clonedeep";
 import { all as allCriteria, resolve as resolveCriterion } from "../Criteria/criterionResolver.js";
 import { BmButton, BmButtonClose, BmFormGroup, BmFormSelect } from "@bluemind/ui-components";
 
@@ -121,7 +122,8 @@ export default {
             );
         },
         resetCriterion(index) {
-            const newCriteria = this.criteria.toSpliced(index, 1, this.createCriterion(this.criteria[index].value));
+            const newCriteria = [...this.criteria];
+            newCriteria.splice(index, 1, this.createCriterion(this.criteria[index].value));
             this.$emit("update:criteria", newCriteria);
             this.showBoxOnNextUpdate = true;
         },

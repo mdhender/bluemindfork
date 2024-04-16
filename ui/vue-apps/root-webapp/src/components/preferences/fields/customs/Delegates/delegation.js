@@ -1,4 +1,5 @@
 import without from "lodash.without";
+import cloneDeep from "lodash.clonedeep";
 import { computed, ref, watch } from "vue";
 import { Verb } from "@bluemind/core.container.api";
 import i18n from "@bluemind/i18n";
@@ -230,7 +231,7 @@ export function useDelegation() {
     const getContactsRight = delegate => getRight(delegates.value[delegate][addressBookUid.value]);
 
     const addDelegateToCopyImipMailboxRule = async ({ uid, receiveImipOption }) => {
-        const imipRule = structuredClone(store.state.preferences.mailboxFilter.imipRule) || { delegateUids: [] };
+        const imipRule = cloneDeep(store.state.preferences.mailboxFilter.imipRule) || { delegateUids: [] };
         if (!imipRule.delegateUids.includes(uid)) {
             imipRule.delegateUids.push(uid);
             imipRule.keepCopy = receiveImipOption !== receiveImipOptions.ONLY_DELEGATE;
@@ -241,7 +242,7 @@ export function useDelegation() {
     const receiveImipOptions = { ONLY_DELEGATE: 0, BOTH: 1, COPY: 2 };
 
     const updateReceiveImipOption = async receiveImipOption => {
-        const imipRule = structuredClone(store.state.preferences.mailboxFilter.imipRule);
+        const imipRule = cloneDeep(store.state.preferences.mailboxFilter.imipRule);
         imipRule.keepCopy = receiveImipOption !== receiveImipOptions.ONLY_DELEGATE;
         imipRule.readOnly = receiveImipOption === receiveImipOptions.COPY;
         store.dispatch("preferences/SAVE_IMIP_RULE", { imipRule, calendarUid: calendarUid.value });
@@ -268,7 +269,7 @@ export function useDelegation() {
     };
 
     const removeDelegateFromCopyImipMailboxRule = async uid => {
-        const imipRule = structuredClone(store.state.preferences.mailboxFilter.imipRule);
+        const imipRule = cloneDeep(store.state.preferences.mailboxFilter.imipRule);
         const index = imipRule.delegateUids.indexOf(uid);
         if (index >= 0) {
             imipRule.delegateUids.splice(index, 1);

@@ -1,3 +1,4 @@
+import cloneDeep from "lodash.clonedeep";
 import { Flag, MimeType } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
 
@@ -87,7 +88,7 @@ async function createEmlOnServer({ commit }, draft, service) {
  * Needed by BM core to detect if mail has changed when using IMailboxItems.updateById
  */
 function forceMailRewriteOnServer(draft) {
-    const headers = structuredClone(draft.headers);
+    const headers = cloneDeep(draft.headers);
     const saveDate = new Date();
 
     const xBmDraftKeyHeader = headers.find(header => header.name === MessageHeader.X_BM_DRAFT_REFRESH_DATE);

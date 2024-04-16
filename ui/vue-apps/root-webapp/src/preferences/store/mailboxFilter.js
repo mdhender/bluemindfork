@@ -202,7 +202,9 @@ const mutations = {
         state.rules = rules;
     },
     ADD_RULE: (state, { rule, index }) => {
-        state.rules = state.rules.toSpliced(index, 0, rule);
+        const rules = [...state.rules];
+        rules.splice(index, 0, rule);
+        state.rules = rules;
     },
     REMOVE_RULE: (state, rule) => {
         state.rules = state.rules.filter(r => r.id !== rule.id);
@@ -212,7 +214,10 @@ const mutations = {
         state.rules = state.rules.with(index, rule);
     },
     MOVE_RULE: (state, { index, newIndex }) => {
-        state.rules = state.rules.toSpliced(index, 1).toSpliced(newIndex, 0, state.rules[index]);
+        const rules = [...state.rules];
+        rules.splice(index, 1);
+        rules.splice(newIndex, 0, state.rules[index]);
+        state.rules = rules;
     }
 };
 
