@@ -12,7 +12,7 @@ type MatchOptions = {
  * Available options:
  * - caseSensitive: Enables case sensitivity
  * - accentsSensitive: Enables strict accents mode, a letter with accent will only match the same letter and accent
- * - startsWith: The target must start with the pattern. By default, the target only need to include the pattern to match
+ * - startsWith: The target must start with the pattern. By default, the target only needs to include the pattern to match
  */
 export function matchPattern(pattern: string, target?: string | (string | null | undefined)[], options?: MatchOptions) {
     const matcher = (text?: string | null) =>

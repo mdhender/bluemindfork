@@ -98,7 +98,7 @@ describe("Preferences store", () => {
 
     test("SEARCH_PATTERN getters", () => {
         store.state.search = " Blabla ";
-        expect(preferencesStore.getters.SEARCH_PATTERN(store.state)).toEqual("blabla");
+        expect(preferencesStore.getters.SEARCH_PATTERN(store.state)).toEqual(" Blabla ");
     });
 
     test("SET_EXTERNAL_ACCOUNTS mutation", () => {

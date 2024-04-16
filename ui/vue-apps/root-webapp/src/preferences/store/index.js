@@ -123,8 +123,8 @@ const getters = {
             .find(c => c.id === categoryId)
             ?.groups.find(g => g.id === groupId);
     },
-    SEARCH_PATTERN: ({ search }) => search.trim().toLowerCase(),
-    HAS_SEARCH: (state, { SEARCH_PATTERN }) => SEARCH_PATTERN !== ""
+    SEARCH_PATTERN: ({ search }) => search,
+    HAS_SEARCH: (state, { SEARCH_PATTERN }) => !!SEARCH_PATTERN?.trim()
 };
 
 export default {

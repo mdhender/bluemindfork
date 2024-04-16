@@ -20,6 +20,7 @@ import debounce from "lodash.debounce";
 import { mapActions, mapGetters, mapState } from "vuex";
 
 import { ERROR, REMOVE, WARNING } from "@bluemind/alert.store";
+import { matchPattern } from "@bluemind/string";
 
 import PrefRightPanelFooter from "./PrefRightPanelFooter";
 import PrefRightPanelHeader from "./PrefRightPanelHeader";
@@ -165,7 +166,7 @@ function getGroupsFromKeywords(pattern, sections) {
 }
 
 function doesNodeMatch(node, pattern) {
-    if (node.nodeType === Node.TEXT_NODE && node.textContent.toLowerCase().includes(pattern)) {
+    if (node.nodeType === Node.TEXT_NODE && matchPattern(pattern, node.textContent)) {
         return true;
     }
     let i = 0;
