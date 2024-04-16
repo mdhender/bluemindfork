@@ -44,6 +44,7 @@ describe("Store session", () => {
             mail_message_list_style: "compact",
             mail_thread: "false",
             theme: "system",
+            timezone_difference_reminder: "true",
             trust_every_remote_content: "false"
         });
     });
