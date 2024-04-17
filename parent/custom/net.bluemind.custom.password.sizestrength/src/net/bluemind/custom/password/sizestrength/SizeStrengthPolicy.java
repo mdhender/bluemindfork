@@ -40,7 +40,8 @@ public class SizeStrengthPolicy implements IPasswordValidator {
 
 	@Override
 	public void validate(Optional<String> currentPassword, String password) throws ServerFault {
-		if (!strengthPolicy.enabled || context.getSecurityContext().isDomainGlobal()) {
+		if (!strengthPolicy.enabled || (context.getSecurityContext().isDomainGlobal()
+				&& !context.getSecurityContext().getOrigin().equals("keycloak"))) {
 			return;
 		}
 

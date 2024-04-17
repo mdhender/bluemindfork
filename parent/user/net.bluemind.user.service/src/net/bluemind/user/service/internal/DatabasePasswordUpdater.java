@@ -56,7 +56,7 @@ public class DatabasePasswordUpdater implements IPasswordUpdater {
 		userService.passwordValidator.validate(newPassword);
 
 		if (Boolean.FALSE.equals(userService.checkPassword(user, currentPassword))) {
-			throw new ServerFault("password is not valid " + user.uid, ErrorCode.AUTHENTICATION_FAIL);
+			throw new ServerFault("Invalid password for user: " + user.uid, ErrorCode.AUTHENTICATION_FAIL);
 		}
 
 		userService.setPassword(user.uid, HashFactory.getDefault().create(newPassword), true);
@@ -72,6 +72,15 @@ public class DatabasePasswordUpdater implements IPasswordUpdater {
 				.instance(IInCoreUser.class, domainUid);
 
 		userService.passwordValidator.validate(newPassword);
+
+		try {
+			if (context.getOrigin().equals("keycloak")
+					&& Boolean.TRUE.equals(userService.checkPassword(user, newPassword))) {
+				throw new ServerFault("New password must not be the current one", ErrorCode.OLD_PASSWORD_SAME_AS_NEW);
+			}
+		} catch (IllegalArgumentException iae) {
+			// Ignore if user current password use unsupported hash
+		}
 
 		// we support setting the user password as a hash, directly
 		// this is used for external user importers

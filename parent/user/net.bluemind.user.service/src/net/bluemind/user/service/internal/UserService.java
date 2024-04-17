@@ -754,8 +754,7 @@ public class UserService implements IInCoreUser, IUser {
 		}
 
 		for (IPasswordUpdater ipu : userPasswordUpdaters) {
-			boolean ret = ipu.update(context, domainName, userItem, password);
-			if (ret) {
+			if (ipu.update(context, domainName, userItem, password)) {
 				break;
 			}
 		}
