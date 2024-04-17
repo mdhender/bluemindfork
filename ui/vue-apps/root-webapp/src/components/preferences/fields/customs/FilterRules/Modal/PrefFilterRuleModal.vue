@@ -116,7 +116,8 @@ function areEqual(filterA, filterB) {
             filterA.name === filterB.name &&
             filterA.terminal === filterB.terminal &&
             JSON.stringify(filterA.criteria) === JSON.stringify(filterB.criteria) &&
-            JSON.stringify(filterA.actions) === JSON.stringify(filterB.actions))
+            JSON.stringify(filterA.actions) === JSON.stringify(filterB.actions) &&
+            JSON.stringify(filterA.exceptions) === JSON.stringify(filterB.exceptions))
     );
 }
 </script>
