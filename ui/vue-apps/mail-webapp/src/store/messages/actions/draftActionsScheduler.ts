@@ -65,6 +65,7 @@ export async function cancelSchedulerActions(checkCondition: () => boolean = () 
         registeredCallback.clear();
         waitingRoom.cancel();
         reject("CANCEL");
+        promise = undefined;
     }
     return;
 }

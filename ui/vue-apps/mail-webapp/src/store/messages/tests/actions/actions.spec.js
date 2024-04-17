@@ -394,7 +394,6 @@ describe("Messages actions", () => {
             expect(setContentCallBack).toHaveBeenCalled();
             cancelSchedulerActions();
         });
-        // afterEach(() => );
     });
     describe("MOVE_MESSAGES", () => {
         const anotherFolder = { key: "folder-key2", remoteRef: { uid: "folder-key2" } };
