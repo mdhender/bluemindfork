@@ -57,12 +57,8 @@ public class CalendarManagementModelHandler implements IGwtModelHandler {
 			public void success(List<ContainerDescriptor> value) {
 				cmm.setCalendars(value);
 
-				if (Ajax.TOKEN.getSubject().contains("global.virt")) {
-					handler.success(null);
-					return;
-				}
 				FreebusyMgmtGwtEndpoint fb = new FreebusyMgmtGwtEndpoint(Ajax.TOKEN.getSessionId(),
-						"freebusy:" + Ajax.TOKEN.getSubject());
+						"freebusy:" + owner);
 				fb.get(new AsyncHandler<List<String>>() {
 
 					@Override
@@ -87,15 +83,12 @@ public class CalendarManagementModelHandler implements IGwtModelHandler {
 
 	@Override
 	public void save(JavaScriptObject model, final AsyncHandler<Void> handler) {
-		if (Ajax.TOKEN.getSubject().contains("global.virt")) {
-			handler.success(null);
-			return;
-		}
+
+		String owner = ((JsMapStringString) model.cast()).get("userId");
 
 		CalendarManagementModel cmm = model.cast();
 		FreebusyMgmtGwtEndpoint fb = new FreebusyMgmtGwtEndpoint(Ajax.TOKEN.getSessionId(),
-				"freebusy:" + Ajax.TOKEN.getSubject());
-
+				"freebusy:" + owner);
 		fb.set(cmm.getFreebusyAsList(), new DefaultAsyncHandler<Void>(handler) {
 
 			@Override
