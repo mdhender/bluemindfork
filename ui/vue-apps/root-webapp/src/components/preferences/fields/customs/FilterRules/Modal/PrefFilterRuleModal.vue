@@ -99,12 +99,11 @@ export default {
 };
 
 function sanitize(filter) {
+    const sanitize = criterion => (criterion.sanitize ? criterion.sanitize(criterion) : criterion);
     return {
         ...filter,
-        criteria: filter.criteria
-            .filter(({ isNew }) => !isNew)
-            .map(criterion => (criterion.sanitize ? criterion.sanitize(criterion) : criterion)),
-        exceptions: filter.exceptions.filter(({ isNew }) => !isNew),
+        criteria: filter.criteria.filter(({ isNew }) => !isNew).map(sanitize),
+        exceptions: filter.exceptions.filter(({ isNew }) => !isNew).map(sanitize),
         actions: filter.actions.filter(({ isNew }) => !isNew)
     };
 }
