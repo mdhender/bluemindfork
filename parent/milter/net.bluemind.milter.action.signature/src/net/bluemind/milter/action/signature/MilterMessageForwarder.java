@@ -43,7 +43,7 @@ public class MilterMessageForwarder implements IMessageForwarder {
 		switch (event) {
 		case "dir.changed":
 			msg = new JsonObject();
-			msg.put("domain", domain);
+			msg.put("domainUid", domain);
 			msg.put("uid", message.getStringProperty("uid"));
 			vertx.eventBus().send(eventAddressChanged, msg);
 			break;

@@ -26,9 +26,10 @@ import net.bluemind.hornetq.client.vertx.IMessageForwarder;
 
 public class MilterMessageForwarder implements IMessageForwarder {
 
-	private static String eventAddressBase = "bm.milter.mailflow.event.";
-	public static String eventAddressChanged = eventAddressBase + "changed";
-	public static String domainChanged = "bm.domain.config.changed";
+	private static final String eventAddressBase = "bm.milter.mailflow.event.";
+	public static final String eventAddressChanged = eventAddressBase + "changed";
+	public static final String domainChanged = "bm.domain.config.changed";
+	public static final String domainUidKey = "domainUid";
 
 	@Override
 	public String getTopic() {
@@ -39,19 +40,19 @@ public class MilterMessageForwarder implements IMessageForwarder {
 	public void forward(Vertx vertx, OOPMessage message) {
 
 		String event = message.getStringProperty("event");
-		String domain = message.getStringProperty("domainUid");
+		String domain = message.getStringProperty(domainUidKey);
 
 		JsonObject msg = null;
 		switch (event) {
 		case "assignments.changed":
 			msg = new JsonObject();
-			msg.put("domainUid", domain);
-			vertx.eventBus().send(eventAddressChanged, msg);
+			msg.put(domainUidKey, domain);
+			vertx.eventBus().publish(eventAddressChanged, msg);
 			break;
 		case "domain.config.changed":
 			msg = new JsonObject();
-			msg.put("domainUid", domain);
-			vertx.eventBus().send(domainChanged, msg);
+			msg.put(domainUidKey, domain);
+			vertx.eventBus().publish(domainChanged, msg);
 			break;
 		}
 	}

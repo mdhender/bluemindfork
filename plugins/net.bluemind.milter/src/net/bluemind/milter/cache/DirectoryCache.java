@@ -47,7 +47,6 @@ import net.bluemind.directory.api.IDirectory;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.mailflow.rbe.IClientContext;
-import net.bluemind.milter.mq.MilterMessageForwarder;
 import net.bluemind.network.topology.Topology;
 
 public class DirectoryCache extends AbstractVerticle {
@@ -72,7 +71,7 @@ public class DirectoryCache extends AbstractVerticle {
 
 		logger.info("Registering directory cache listener");
 		EventBus eb = vertx.eventBus();
-		eb.consumer(MilterMessageForwarder.eventAddressChanged, (message) -> {
+		eb.consumer("dir.changed", message -> {
 			if (!provider.isPresent()) {
 				String host = "http://" + Topology.get().core().value.address() + ":8090";
 				provider = Optional.ofNullable(ClientSideServiceProvider.getProvider(host, Token.admin0()));
@@ -82,7 +81,9 @@ public class DirectoryCache extends AbstractVerticle {
 				}
 			}
 
-			String domainUid = ((JsonObject) message.body()).getString("domain");
+			String domainUid = ((JsonObject) message.body()).getString("domainUid");
+
+			logger.info("Directory content changed on domain {}", domainUid);
 
 			IDomains domainService = provider.get().instance(IDomains.class);
 			ItemValue<Domain> domainVal = domainService.get(domainUid);

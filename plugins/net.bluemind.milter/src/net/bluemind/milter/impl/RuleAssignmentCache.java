@@ -43,7 +43,7 @@ public class RuleAssignmentCache extends AbstractVerticle {
 	public void start() {
 		logger.info("Registering rule assignment cache listener");
 		VertxPlatform.eventBus().consumer(MilterMessageForwarder.eventAddressChanged, (message) -> {
-			String domainUid = ((JsonObject) message.body()).getString("domainUid");
+			String domainUid = ((JsonObject) message.body()).getString(MilterMessageForwarder.domainUidKey);
 			logger.info("Invalidating rule assignment cache for domain {}", domainUid);
 			cache.remove(domainUid);
 		});
@@ -51,10 +51,8 @@ public class RuleAssignmentCache extends AbstractVerticle {
 
 	public static List<MailRuleActionAssignment> getStoredRuleAssignments(IClientContext mailflowContext,
 			String domain) {
-		if (!cache.containsKey(domain)) {
-			cache.put(domain, mailflowContext.provider().instance(IMailflowRules.class, domain).listAssignments());
-		}
-		return cache.get(domain);
+		return cache.computeIfAbsent(domain,
+				d -> mailflowContext.provider().instance(IMailflowRules.class, d).listAssignments());
 	}
 
 }
