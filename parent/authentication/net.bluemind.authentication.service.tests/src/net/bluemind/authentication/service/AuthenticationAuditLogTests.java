@@ -22,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -30,6 +31,7 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import org.awaitility.Awaitility;
@@ -217,15 +219,20 @@ public class AuthenticationAuditLogTests {
 		assertTrue(loggedUserMailsBmLan.contains("nomail@" + domainUid));
 		assertTrue(loggedUserMailsBmLan.contains("expiredpassword@" + domainUid));
 
-		AuditLogEntry auditLogEntryBmLan = esResponseBmLan.hits().hits().get(0).source();
-		assertEquals("nomail", auditLogEntryBmLan.securityContext.uid());
-		assertEquals("nomail", auditLogEntryBmLan.securityContext.displayName());
-		assertEquals("junit", auditLogEntryBmLan.securityContext.origin());
-		assertEquals("nomail@" + domainUid, auditLogEntryBmLan.securityContext.email());
+		Optional<AuditLogEntry> auditLogEntryBmLan = esResponseBmLan.hits().hits().stream().map(ale -> ale.source())
+				.filter(ale -> ale.securityContext.uid().equals("nomail")).findAny();
+		assertTrue(auditLogEntryBmLan.isPresent());
 
-		assertTrue(auditLogEntryBmLan.container == null);
-		assertTrue(auditLogEntryBmLan.item == null);
-		assertTrue(auditLogEntryBmLan.content.with().contains("nomail@" + domainUid));
+		auditLogEntryBmLan.ifPresentOrElse(alebl -> {
+			assertEquals("nomail", alebl.securityContext.uid());
+			assertEquals("nomail", alebl.securityContext.displayName());
+			assertEquals("junit", alebl.securityContext.origin());
+			assertEquals("nomail@" + domainUid, alebl.securityContext.email());
+
+			assertTrue(alebl.container == null);
+			assertTrue(alebl.item == null);
+			assertTrue(alebl.content.with().contains("nomail@" + domainUid));
+		}, () -> fail("No audit log entry found with uid: nomail"));
 	}
 
 	private void initState() {
