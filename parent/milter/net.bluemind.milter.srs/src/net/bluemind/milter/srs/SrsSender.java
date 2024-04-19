@@ -33,6 +33,7 @@ import net.bluemind.config.InstallationId;
 import net.bluemind.lib.srs.SrsData;
 import net.bluemind.lib.srs.SrsHash;
 import net.bluemind.milter.MilterHeaders;
+import net.bluemind.milter.SysconfHelper;
 import net.bluemind.milter.action.MilterPreAction;
 import net.bluemind.milter.action.MilterPreActionsFactory;
 import net.bluemind.milter.action.UpdatedMailMessage;
@@ -78,7 +79,7 @@ public class SrsSender implements MilterPreAction {
 
 	@Override
 	public boolean execute(UpdatedMailMessage modifiedMail) {
-		if (Boolean.TRUE.equals(SysconfHelper.srsDisabled.get())) {
+		if (Boolean.TRUE.equals(SrsSysconfHelper.srsDisabled.get())) {
 			return false;
 		}
 

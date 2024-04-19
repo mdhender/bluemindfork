@@ -1,4 +1,5 @@
-package net.bluemind.milter.srs;
+package net.bluemind.milter;
+
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
@@ -32,14 +33,11 @@ import net.bluemind.system.api.SysConfKeys;
 
 public class SysconfHelper {
 	public static final Supplier<String> defaultDomain;
-	public static final Supplier<Boolean> srsDisabled;
+	public static AtomicReference<SharedMap<String, String>> sysconf;
 
 	static {
-		AtomicReference<SharedMap<String, String>> sysconf = new AtomicReference<>();
+		sysconf = new AtomicReference<>();
 		MQ.init().thenAccept(v -> sysconf.set(MQ.sharedMap("system.configuration")));
-
-		srsDisabled = () -> Optional.ofNullable(sysconf.get())
-				.map(sc -> Boolean.valueOf(sc.get(SysConfKeys.srs_disabled.name()))).orElse(false);
 
 		defaultDomain = () -> Optional.ofNullable(sysconf.get())
 				.map(sm -> sm.get(SysConfKeys.default_domain.name()) != null

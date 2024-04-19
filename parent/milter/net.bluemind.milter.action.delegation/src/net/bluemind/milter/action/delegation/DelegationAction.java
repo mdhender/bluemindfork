@@ -30,6 +30,9 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Strings;
 
 import net.bluemind.addressbook.api.VCard;
+import net.bluemind.core.api.Regex;
+import net.bluemind.core.api.fault.ErrorCode;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
@@ -38,6 +41,7 @@ import net.bluemind.domain.api.Domain;
 import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.mailflow.rbe.IClientContext;
 import net.bluemind.milter.IMilterListener;
+import net.bluemind.milter.SysconfHelper;
 import net.bluemind.milter.action.MilterAction;
 import net.bluemind.milter.action.MilterActionException;
 import net.bluemind.milter.action.MilterActionsFactory;
@@ -94,16 +98,42 @@ public class DelegationAction implements MilterAction {
 
 	private void verifyAclAndApplyHeader(UpdatedMailMessage modifier, IClientContext context,
 			DelegationHeaderInfo info) {
-		DirectoryCache.getUserUidByEmail(context, context.getSenderDomain().uid, info.sender)
-				.ifPresentOrElse(senderUserUid -> DirectoryCache
-						.getUserUidByEmail(context, context.getSenderDomain().uid, info.from)
-						.ifPresentOrElse(fromUserUid -> {
-							if (!senderUserUid.equals(fromUserUid)) {
-								canSendAsOnBehalf(context, modifier, senderUserUid, fromUserUid, info);
-							}
-						}, () -> {
-							verifySenderCanUseExternalIdentity(senderUserUid, modifier, context, info.sender);
-						}), () -> logger.error("User (email sender) matching to address '{}' not found", info.sender));
+		try {
+			DirectoryCache.getUserUidByEmail(context, context.getSenderDomain().uid, info.sender)
+					.ifPresentOrElse(senderUserUid -> DirectoryCache
+							.getUserUidByEmail(context, context.getSenderDomain().uid, info.from)
+							.ifPresentOrElse(fromUserUid -> {
+								if (!senderUserUid.equals(fromUserUid)) {
+									canSendAsOnBehalf(context, modifier, senderUserUid, fromUserUid, info);
+								}
+							}, () -> {
+								verifySenderCanUseExternalIdentity(senderUserUid, modifier, context, info.sender);
+							}),
+							() -> logger.error("User (email sender) matching to address '{}' not found", info.sender));
+		} catch (ServerFault e) {
+			if (e.getCode() == ErrorCode.INVALID_PARAMETER) {
+				modifier.errorStatus = SMTP_ERROR_STATUS;
+				String errorMsg = """
+						Message cannot be delivered because one of these login email have not been found
+						Sender: '%s'
+						From: '%s'
+
+						Return SMTP Status: %s
+						""".formatted(info.sender, info.from, SMTP_ERROR_STATUS);
+				logger.error(errorMsg);
+			} else {
+				modifier.errorStatus = SMTP_ERROR_STATUS;
+				String errorMsg = """
+						Message cannot be delivered
+						Sender: '%s'
+						From: '%s'
+
+						Return SMTP Status: %s
+						Error message: %s
+						""".formatted(info.sender, info.from, SMTP_ERROR_STATUS, e.getMessage());
+				logger.error(errorMsg);
+			}
+		}
 	}
 
 	private void verifySenderCanUseExternalIdentity(String senderUserUid, UpdatedMailMessage modifier,
@@ -127,22 +157,28 @@ public class DelegationAction implements MilterAction {
 
 	private Optional<DelegationHeaderInfo> resolveConnectedUserAddress(IClientContext context,
 			UpdatedMailMessage modifier) {
-		return Optional.ofNullable(modifier.properties.get("{auth_authen}")) //
-				.flatMap(authAuthens -> authAuthens.stream() //
-						.map(Strings::emptyToNull) //
-						.filter(Objects::nonNull).findFirst()) //
-				.map(auth -> {
-					if (isAdmin(auth)) {
-						return null;
-					}
 
-					String fromAddress = modifier.getMessage().getFrom().get(0).getAddress();
-					if (!auth.equalsIgnoreCase(fromAddress)) {
-						return DelegationHeaderInfo.create(this, auth, fromAddress);
-					}
+		Optional<String> authentLogin = Optional.ofNullable(modifier.properties.get("{auth_authen}"))
+				.map(authAuthens -> authAuthens.stream().map(Strings::emptyToNull).filter(Objects::nonNull).findFirst()
+						.orElse(null));
 
-					return null;
-				});
+		Optional<String> sender = authentLogin.filter(a -> !Regex.EMAIL.validate(a))
+				.map(a -> DomainAliasCache.getDomainFromEmail(a).map(DomainAliasCache::getDomainAlias)
+						.orElseGet(() -> DomainAliasCache.getDomainAlias(SysconfHelper.defaultDomain.get())))
+				.map(d -> Optional.ofNullable(authentLogin.get().concat("@").concat(d))).orElse(authentLogin);
+
+		return sender.map(senderAddress -> {
+			if (isAdmin(senderAddress)) {
+				return null;
+			}
+
+			String fromAddress = modifier.getMessage().getFrom().get(0).getAddress();
+			if (!senderAddress.equalsIgnoreCase(fromAddress)) {
+				return DelegationHeaderInfo.create(this, senderAddress, fromAddress);
+			}
+
+			return null;
+		});
 	}
 
 	private void canSendAsOnBehalf(IClientContext context, UpdatedMailMessage modifier, String senderUid,

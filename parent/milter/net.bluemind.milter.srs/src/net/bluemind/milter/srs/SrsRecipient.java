@@ -57,7 +57,7 @@ public class SrsRecipient implements RecipientCanonical {
 
 	@Override
 	public Optional<String> execute(String email) {
-		if (Boolean.TRUE.equals(SysconfHelper.srsDisabled.get())) {
+		if (Boolean.TRUE.equals(SrsSysconfHelper.srsDisabled.get())) {
 			return Optional.empty();
 		}
 

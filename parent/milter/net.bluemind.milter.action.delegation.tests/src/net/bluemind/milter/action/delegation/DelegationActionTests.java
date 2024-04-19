@@ -388,6 +388,24 @@ public class DelegationActionTests {
 	}
 
 	@Test
+	public void testWithMySelf_login() throws Exception {
+		String senderAddress = "hpot";
+		UpdatedMailMessage mm = loadTemplate("sendMe_sameAlias.eml", senderAddress);
+
+		SmtpAddress sender = new SmtpAddress(senderAddress + "@" + domainUid);
+		SmtpAddress from = new SmtpAddress("hpot@" + DOMAIN_ALIAS);
+		SmtpAddress recipient = new SmtpAddress("hgran@test.bm.lan");
+
+		assertMessage(mm, from, recipient);
+
+		new DelegationAction().execute(mm, null, null, cliContext);
+
+		assertMessage(mm, from, recipient);
+		assertMessageHeaders(mm, sender, null);
+		assertFalse(smtpError(mm));
+	}
+
+	@Test
 	public void testWithMySelf_sameAlias() throws Exception {
 		String senderAddress = "hpot@" + domainUid;
 		UpdatedMailMessage mm = loadTemplate("sendMe_sameAlias.eml", senderAddress);
