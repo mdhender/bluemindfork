@@ -50,7 +50,7 @@ public class SyncLogHandler implements ILogHandler {
 
 	@Override
 	public void syncRequest(String rid, String date, SyncInfo request) {
-		syncs.add(new SyncOperation(rid, date, request, null, null));
+		syncs.add(new SyncOperation(rid, date, request));
 	}
 
 	@Override
@@ -59,8 +59,11 @@ public class SyncLogHandler implements ILogHandler {
 	}
 
 	@Override
-	public void syncResponseProcessed(String rid, String code) {
-		setOnLastEntry(rid, existingOp -> existingOp.code = code);
+	public void syncResponseProcessed(String rid, String code, String device) {
+		setOnLastEntry(rid, existingOp -> {
+			existingOp.code = code;
+			existingOp.device = device;
+		});
 	}
 
 	private void setOnLastEntry(String rid, Consumer<SyncOperation> op) {
@@ -101,6 +104,7 @@ public class SyncLogHandler implements ILogHandler {
 		} else {
 			return AsciiTable.getTable(filtered, Arrays.asList( //
 					new Column().header("Date").dataAlign(HorizontalAlign.LEFT).with(op -> op.date), //
+					new Column().header("Device").dataAlign(HorizontalAlign.LEFT).with(op -> op.device), //
 					new Column().header("RID").dataAlign(HorizontalAlign.LEFT).with(op -> op.rid), //
 					new Column().header("SyncKey").dataAlign(HorizontalAlign.LEFT).with(r -> r.request.syncKey()), //
 					new Column().header("CollectionId").dataAlign(HorizontalAlign.LEFT)
@@ -115,6 +119,7 @@ public class SyncLogHandler implements ILogHandler {
 			id = Long.parseLong(operation.request.collectionId().trim());
 			node = service.getCompleteById(id);
 		} catch (NumberFormatException e) {
+			// sonar
 		}
 
 		if (node == null) {
@@ -122,7 +127,8 @@ public class SyncLogHandler implements ILogHandler {
 		}
 		SyncInfo request = new SyncInfo(operation.request.syncKey(), id + "(" + node.value.name + ")",
 				operation.request.xml());
-		return new SyncOperation(operation.rid, operation.date, request, operation.response, operation.code);
+		return new SyncOperation(operation.rid, operation.date, request, operation.response, operation.code,
+				operation.device);
 	}
 
 	private boolean filter(SyncOperation operation) {
@@ -131,6 +137,7 @@ public class SyncLogHandler implements ILogHandler {
 				|| operation.request.syncKey().contains(options.filter().typeFilter());
 		ok &= options.filter().collectionFilter() == null
 				|| operation.request.collectionId().equals(options.filter().collectionFilter());
+		ok &= options.filter().deviceFilter() == null || operation.device.equals(options.filter().deviceFilter());
 		return ok;
 	}
 
@@ -141,21 +148,27 @@ public class SyncLogHandler implements ILogHandler {
 		SyncInfo request;
 		SyncInfo response;
 		String code;
+		String device;
 
-		public SyncOperation(String rid, String date, SyncInfo request, SyncInfo response, String code) {
+		public SyncOperation(String rid, String date, SyncInfo request) {
+			this(rid, date, request, null, null, null);
+		}
+
+		public SyncOperation(String rid, String date, SyncInfo request, SyncInfo response, String code, String device) {
 			this.rid = rid;
 			this.date = date;
 			this.request = request;
 			this.response = response;
 			this.code = code;
+			this.device = device;
 		}
 
 		@Override
 		public String toString() {
 			return String.format(
-					"Date: %s%nRID: %s%nSyncKey: %s%nSyncRequestFrom: %s%nSyncResponseTo: %s%nCollectionId: %s%nResponseCode: %s",
+					"Date: %s%nRID: %s%nSyncKey: %s%nSyncRequestFrom: %s%nSyncResponseTo: %s%nCollectionId: %s%nResponseCode: %s%nDevice: %s",
 					date, rid, request.syncKey(), toSyncDate(request), toSyncDate(response), request.collectionId(),
-					code);
+					code, device);
 		}
 
 		private String toSyncDate(SyncInfo syncInfo) {
@@ -164,8 +177,8 @@ public class SyncLogHandler implements ILogHandler {
 			}
 
 			String[] split = syncInfo.syncKey().split("-");
-			String date = split[1];
-			ZonedDateTime parsedDate = ZonedDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(date)),
+			String extractedDate = split[1];
+			ZonedDateTime parsedDate = ZonedDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(extractedDate)),
 					ZoneId.of("Europe/Paris"));
 			return DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(parsedDate);
 		}
@@ -175,7 +188,7 @@ public class SyncLogHandler implements ILogHandler {
 	public record OutputOptions(RESOLVE resolve, DATA data, FilterOptions filter) {
 	}
 
-	public record FilterOptions(String collectionFilter, String typeFilter) {
+	public record FilterOptions(String collectionFilter, String typeFilter, String deviceFilter) {
 	}
 
 	public enum DATA {

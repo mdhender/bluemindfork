@@ -26,7 +26,7 @@ public interface ILogHandler {
 
 	void syncResponse(String rid, SyncInfo response);
 
-	void syncResponseProcessed(String rid, String code);
+	void syncResponseProcessed(String rid, String code, String device);
 
 	String toTable();
 

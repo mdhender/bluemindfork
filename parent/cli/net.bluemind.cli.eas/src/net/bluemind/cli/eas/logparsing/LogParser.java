@@ -79,7 +79,8 @@ public class LogParser {
 		if (line.contains("WrappedResponse") && line.contains("cmd: Sync")) {
 			String rid = extractRid(line);
 			String code = extractHttpCode(line);
-			logHandler.syncResponseProcessed(rid, code);
+			String device = extractDevice(line);
+			logHandler.syncResponseProcessed(rid, code, device);
 			state = PARSER_STATE.UNKNOWN;
 			return;
 		}
@@ -149,6 +150,12 @@ public class LogParser {
 	private String extractHttpCode(String line) {
 		int beginIndex = line.indexOf("http.out: ") + 10;
 		int endIndex = line.indexOf("]", beginIndex);
+		return line.substring(beginIndex, endIndex);
+	}
+
+	private String extractDevice(String line) {
+		int beginIndex = line.indexOf("device: ") + 8;
+		int endIndex = line.indexOf(",", beginIndex);
 		return line.substring(beginIndex, endIndex);
 	}
 

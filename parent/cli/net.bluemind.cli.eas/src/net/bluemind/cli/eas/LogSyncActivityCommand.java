@@ -66,6 +66,9 @@ public class LogSyncActivityCommand implements ICmdLet, Runnable {
 	@Option(required = false, names = { "--collectionfilter" }, description = "filter by collectionId")
 	String collectionId;
 
+	@Option(required = false, names = { "--devicefilter" }, description = "filter by device")
+	String deviceFilter;
+
 	@Parameters(paramLabel = "<file>", description = "EAS detail log file")
 	public String file;
 
@@ -85,7 +88,7 @@ public class LogSyncActivityCommand implements ICmdLet, Runnable {
 		}
 
 		ILogHandler handler = new SyncLogHandler(service,
-				new OutputOptions(resolveOutput, dumpData, new FilterOptions(collectionId, typeFilter)));
+				new OutputOptions(resolveOutput, dumpData, new FilterOptions(collectionId, typeFilter, deviceFilter)));
 
 		try {
 			String content = Files.readString(new File(file).toPath());
