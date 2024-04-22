@@ -44,7 +44,7 @@ export default {
                 this.$emit("update:criterion", {
                     ...this.criterion,
                     value,
-                    sanitize: criterion => ({ ...criterion, value: criterion?.value?.address })
+                    sanitize: criterion => ({ ...criterion, value: criterion.value?.address || criterion.value })
                 });
                 this.autocompleteResults = [];
             }
