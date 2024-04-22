@@ -35,6 +35,8 @@ import net.bluemind.configfile.imap.ImapConfig;
 import net.bluemind.lib.vertx.ContextNetSocket;
 import net.bluemind.lib.vertx.IVerticleFactory;
 import net.bluemind.lib.vertx.VertxContext;
+import net.bluemind.system.api.SystemState;
+import net.bluemind.system.state.StateContext;
 
 public class ImapVerticle extends AbstractVerticle {
 
@@ -54,7 +56,7 @@ public class ImapVerticle extends AbstractVerticle {
 	}
 
 	@Override
-	public void start(Promise<Void> startPromise) throws Exception {
+	public void start(Promise<Void> startPromise) {
 		Config conf = EndpointConfig.get();
 		int idle = (int) conf.getDuration(ImapConfig.IDLE_TIMEOUT, TimeUnit.SECONDS);
 		NetServerOptions opts = new NetServerOptions();
@@ -68,6 +70,17 @@ public class ImapVerticle extends AbstractVerticle {
 
 		int port = conf.getInt(ImapConfig.PORT);
 		srv.connectHandler(ns -> {
+
+			var curState = StateListener.state();
+			var inCore = StateContext.getState();
+			curState = inCore == SystemState.CORE_STATE_RUNNING ? inCore : curState;
+
+			if (curState != SystemState.CORE_STATE_RUNNING) {
+				logger.debug("Invalid state {}, rejecting for now", curState);
+				vertx.setTimer(2000, tid -> ns.close());
+				return;
+			}
+
 			Context context = VertxContext.getOrCreateDuplicatedContext(vertx);
 			context.runOnContext(
 					v -> ImapSession.create(vertx, context, new ContextNetSocket(context, ns), metricsHolder));

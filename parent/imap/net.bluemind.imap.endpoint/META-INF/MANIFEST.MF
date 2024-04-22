@@ -21,7 +21,10 @@ Require-Bundle: org.eclipse.core.runtime,
  com.typesafe.config;visibility:=reexport,
  com.github.ben-manes.caffeine,
  it.unimi.dsi.fastutil,
- net.bluemind.jna.utils;bundle-version="5.0.0"
+ net.bluemind.jna.utils;bundle-version="5.0.0",
+ net.bluemind.system.api,
+ net.bluemind.system.stateobserver,
+ net.bluemind.system.state
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.imap.endpoint
 Bundle-ActivationPolicy: lazy

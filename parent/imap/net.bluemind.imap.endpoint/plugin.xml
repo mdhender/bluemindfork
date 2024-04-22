@@ -33,5 +33,11 @@
          </property>
       </product>
    </extension>
+   <extension
+         point="net.bluemind.system.state">
+      <state-listener
+            class="net.bluemind.imap.endpoint.StateListener">
+      </state-listener>
+   </extension>
 
 </plugin>
