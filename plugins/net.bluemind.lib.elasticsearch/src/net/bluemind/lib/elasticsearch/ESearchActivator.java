@@ -201,7 +201,7 @@ public final class ESearchActivator implements BundleActivator {
 		return buildClient(ES_TAG, transport, ElasticsearchClient::new);
 	}
 
-	public static ElasticsearchAsyncClient getAysncClient() {
+	public static ElasticsearchAsyncClient getAsyncClient() {
 		ElasticsearchTransport transport = transports.computeIfAbsent(ES_TAG, ESearchActivator::initTransport);
 		return buildClient(ES_TAG, transport, ElasticsearchAsyncClient::new);
 	}
