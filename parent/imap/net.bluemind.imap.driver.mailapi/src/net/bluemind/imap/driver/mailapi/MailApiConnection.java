@@ -121,6 +121,7 @@ import net.bluemind.lib.elasticsearch.Pit.PaginationParams;
 import net.bluemind.lib.elasticsearch.exception.ElasticIndexException;
 import net.bluemind.lib.jutf7.UTF7Converter;
 import net.bluemind.lib.vertx.VertxContext;
+import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
@@ -486,32 +487,37 @@ public class MailApiConnection implements MailboxConnection {
 	private void pushNext(Context fetchContext, Map<Long, Integer> seqIndex, FetchedItemRenderer renderer,
 			Iterator<List<Long>> idSliceIterator, Iterator<WithId<MailboxRecord>> recsIterator,
 			CompletableFuture<Void> ret, WriteStream<FetchedItem> output) {
-		while (recsIterator.hasNext() && !ret.isCompletedExceptionally()) {
+		if (recsIterator.hasNext() && !ret.isCompletedExceptionally()) {
 			WithId<MailboxRecord> rec = recsIterator.next();
-			if (rec.value.internalFlags.contains(InternalFlag.expunged)) {
-				continue;
+			if (rec.value.internalFlags.contains(InternalFlag.expunged) || seqIndex.get(rec.itemId) == null) {
+				pushNext(fetchContext, seqIndex, renderer, idSliceIterator, recsIterator, ret, output);
+			} else {
+				VertxPlatform.getVertx().executeBlocking(() -> {
+					long imapUid = rec.value.imapUid;
+					FetchedItem fi = new FetchedItem();
+					fi.uid = (int) imapUid;
+					fi.seq = seqIndex.get(rec.itemId);
+					fi.properties = renderer.renderFields(rec);
+					return fi;
+				}).andThen(ar -> fetchContext.runOnContext(v -> {
+					if (ar.failed()) {
+						ret.completeExceptionally(ar.cause());
+					} else {
+						output.write(ar.result(), ack -> {
+							if (ack.failed()) {
+								ret.completeExceptionally(ack.cause());
+							}
+						});
+						if (output.writeQueueFull()) {
+							output.drainHandler(vv -> fetchContext.runOnContext(w -> pushNext(fetchContext, seqIndex,
+									renderer, idSliceIterator, recsIterator, ret, output)));
+						} else {
+							pushNext(fetchContext, seqIndex, renderer, idSliceIterator, recsIterator, ret, output);
+						}
+					}
+				}));
 			}
-
-			long imapUid = rec.value.imapUid;
-			FetchedItem fi = new FetchedItem();
-			fi.uid = (int) imapUid;
-			Integer maybeNullSeq = seqIndex.get(rec.itemId);
-			if (maybeNullSeq == null) {
-				logger.warn("seqindex unknown for {} using {}", rec, seqIndex);
-				continue;
-			}
-			fi.seq = seqIndex.get(rec.itemId);
-			fi.properties = renderer.renderFields(rec);
-			output.write(fi, ack -> {
-				if (ack.failed()) {
-					ret.completeExceptionally(ack.cause());
-				}
-			});
-			if (output.writeQueueFull()) {
-				output.drainHandler(v -> fetchContext.runOnContext(
-						w -> pushNext(fetchContext, seqIndex, renderer, idSliceIterator, recsIterator, ret, output)));
-				return;
-			}
+			return;
 		}
 
 		if (idSliceIterator.hasNext()) {

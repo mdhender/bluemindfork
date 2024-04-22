@@ -43,6 +43,7 @@ import net.bluemind.imap.IMAPByteSource;
 import net.bluemind.imap.IMAPException;
 import net.bluemind.imap.SearchQuery;
 import net.bluemind.imap.StoreClient;
+import net.bluemind.imap.TaggedResult;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.server.api.Server;
@@ -202,6 +203,28 @@ public class UserMailboxFetchTests {
 				e.printStackTrace();
 			}
 
+		}
+	}
+
+	@Test
+	public void testFetchPeekTwo() throws IMAPException {
+		try (StoreClient sc = new StoreClient("127.0.0.1", 1143, "john@devenv.blue", "john")) {
+			assertTrue(sc.login());
+			addSapinInline(sc);
+			addSapinInline(sc);
+			sc.select("INBOX");
+			TaggedResult fetched = sc.tagged("UID FETCH 1:* (UID BODY.PEEK[])");
+			assertTrue(fetched.isOk());
+		}
+	}
+
+	private void addSapinInline(StoreClient sc) {
+		try (InputStream in = UserMailboxFetchTests.class.getClassLoader()
+				.getResourceAsStream("emls/sapin_inline.eml")) {
+			int added = sc.append("INBOX", in, new FlagsList());
+			assertTrue(added > 0);
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
