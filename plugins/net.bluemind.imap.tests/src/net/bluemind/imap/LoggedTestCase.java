@@ -40,6 +40,8 @@ import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.server.api.Server;
 import net.bluemind.server.api.TagDescriptor;
+import net.bluemind.system.state.RunningState;
+import net.bluemind.system.state.StateContext;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public abstract class LoggedTestCase {
@@ -82,6 +84,8 @@ public abstract class LoggedTestCase {
 		PopulateHelper.initGlobalVirt(pipo, esServer);
 		PopulateHelper.addDomainAdmin("admin0", "global.virt", Routing.none);
 		ElasticsearchTestHelper.getInstance().beforeTest();
+
+		StateContext.setInternalState(new RunningState());
 
 		domainUid = "test.devenv";
 		loginUid = "user" + System.currentTimeMillis();

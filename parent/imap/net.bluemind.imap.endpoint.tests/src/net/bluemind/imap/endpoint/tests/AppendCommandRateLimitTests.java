@@ -53,6 +53,7 @@ import net.bluemind.imap.endpoint.ratelimiter.ThroughputLimiterRegistry.Strategy
 import net.bluemind.imap.endpoint.tests.driver.MockConnection;
 import net.bluemind.imap.endpoint.tests.driver.MockMailboxDriver;
 import net.bluemind.imap.endpoint.tests.driver.MockModel;
+import net.bluemind.system.stateobserver.testhelper.StateTestHelper;
 import net.bluemind.tests.extensions.WithVertxExtension;
 
 @ExtendWith(WithVertxExtension.class)
@@ -86,6 +87,8 @@ public class AppendCommandRateLimitTests {
 
 		MockMailboxDriver.maxLiteralSize = INITIAL_CAPACITY;
 		MockConnection.maxLiteralSize = INITIAL_CAPACITY;
+
+		StateTestHelper.blockUntilRunning().orTimeout(30, TimeUnit.SECONDS).join();
 	}
 
 	@AfterEach

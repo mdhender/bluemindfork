@@ -46,6 +46,8 @@ import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.sds.sync.api.SdsSyncEvent;
 import net.bluemind.server.api.Server;
 import net.bluemind.server.api.TagDescriptor;
+import net.bluemind.system.state.RunningState;
+import net.bluemind.system.state.StateContext;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class ImapInjectorTests {
@@ -83,6 +85,8 @@ public class ImapInjectorTests {
 				JdbcTestHelper.getInstance().getMailboxDataDataSource());
 
 		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
+
+		StateContext.setInternalState(new RunningState());
 
 		MQ.init().get(30, TimeUnit.SECONDS);
 

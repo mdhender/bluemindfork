@@ -42,6 +42,7 @@ import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailbox.api.Mailbox.Type;
 import net.bluemind.server.api.Server;
 import net.bluemind.server.api.TagDescriptor;
+import net.bluemind.system.stateobserver.testhelper.StateTestHelper;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public abstract class WithMailboxTests {
@@ -84,6 +85,8 @@ public abstract class WithMailboxTests {
 		PopulateHelper.initGlobalVirt(pipo, esServer);
 
 		ElasticsearchTestHelper.getInstance().beforeTest();
+
+		StateTestHelper.blockUntilRunning().orTimeout(30, TimeUnit.SECONDS).join();
 
 		this.domain = "test" + System.currentTimeMillis() + ".lab";
 		this.localPart = "u" + System.currentTimeMillis();

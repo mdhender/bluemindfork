@@ -55,6 +55,8 @@ import net.bluemind.imap.TaggedResult;
 import net.bluemind.imap.endpoint.EndpointConfig;
 import net.bluemind.imap.endpoint.tests.driver.MockModel;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.system.state.RunningState;
+import net.bluemind.system.state.StateContext;
 
 public class ClientBasedTests {
 	private int port;
@@ -64,6 +66,8 @@ public class ClientBasedTests {
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
+
+		StateContext.setInternalState(new RunningState());
 
 		this.port = EndpointConfig.get().getInt("imap.port");
 

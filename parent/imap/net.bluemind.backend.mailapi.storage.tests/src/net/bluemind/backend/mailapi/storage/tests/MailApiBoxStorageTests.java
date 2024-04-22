@@ -52,6 +52,7 @@ import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailbox.api.MailboxQuota;
 import net.bluemind.server.api.Server;
 import net.bluemind.server.api.TagDescriptor;
+import net.bluemind.system.stateobserver.testhelper.StateTestHelper;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class MailApiBoxStorageTests {
@@ -102,6 +103,8 @@ public class MailApiBoxStorageTests {
 		PopulateHelper.initGlobalVirt(esServer, impaServer);
 
 		ElasticsearchTestHelper.getInstance().beforeTest(1);
+
+		StateTestHelper.blockUntilRunning().orTimeout(30, TimeUnit.SECONDS).join();
 
 		PopulateHelper.addDomain(domainUid, Routing.none);
 		PopulateHelper.addUser(loginUser1, domainUid, Routing.internal);
