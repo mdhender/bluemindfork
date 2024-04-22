@@ -34,7 +34,6 @@ import net.bluemind.imap.endpoint.ImapContext;
 import net.bluemind.imap.endpoint.cmd.UidSearchCommand;
 import net.bluemind.imap.endpoint.locks.ISequenceCheckpoint;
 import net.bluemind.imap.endpoint.locks.ISequenceReader;
-import net.bluemind.lib.vertx.Result;
 
 public class UidSearchProcessor extends SelectedStateCommandProcessor<UidSearchCommand>
 		implements ISequenceReader, ISequenceCheckpoint {
@@ -59,16 +58,15 @@ public class UidSearchProcessor extends SelectedStateCommandProcessor<UidSearchC
 		if (imapUids.isEmpty()) {
 			long ms = chrono.elapsed(TimeUnit.MILLISECONDS);
 			ctx.write(forCheckpoint.toString() + "* SEARCH\r\n" + command.raw().tag() + " OK Completed (took " + ms
-					+ "ms)\r\n");
+					+ "ms)\r\n").onComplete(completed);
 		} else {
 			String uidsResp = imapUids.stream().mapToLong(Long::longValue).mapToObj(Long::toString)
 					.collect(Collectors.joining(" ", forCheckpoint.toString() + "* SEARCH ",
 							"\r\n" + command.raw().tag() + " OK Completed\r\n"));
-			ctx.write(uidsResp);
+			ctx.write(uidsResp).onComplete(completed);
 		}
-		completed.handle(Result.success());
 	}
-	
+
 	@Override
 	public Class<UidSearchCommand> handledType() {
 		return UidSearchCommand.class;

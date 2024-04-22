@@ -31,7 +31,6 @@ import io.vertx.core.Handler;
 import net.bluemind.imap.endpoint.ImapContext;
 import net.bluemind.imap.endpoint.cmd.SearchCommand;
 import net.bluemind.imap.endpoint.locks.ISequenceReader;
-import net.bluemind.lib.vertx.Result;
 
 public class SearchProcessor extends SelectedStateCommandProcessor<SearchCommand> implements ISequenceReader {
 	@Override
@@ -48,16 +47,15 @@ public class SearchProcessor extends SelectedStateCommandProcessor<SearchCommand
 		List<Integer> asSequences = imapUids.stream().map(imapToSeq::get).filter(Objects::nonNull).toList();
 		if (asSequences.isEmpty()) {
 			long ms = chrono.elapsed(TimeUnit.MILLISECONDS);
-			ctx.write("* SEARCH\r\n" + command.raw().tag() + " OK Completed (took " + ms + "ms)\r\n");
+			ctx.write("* SEARCH\r\n" + command.raw().tag() + " OK Completed (took " + ms + "ms)\r\n")
+					.onComplete(completed);
 		} else {
 			String uidsResp = asSequences.stream().mapToInt(Integer::intValue).mapToObj(Integer::toString)
 					.collect(Collectors.joining(" ", "* SEARCH ", "\r\n" + command.raw().tag() + " OK Completed\r\n"));
-			ctx.write(uidsResp);
+			ctx.write(uidsResp).onComplete(completed);
 		}
-		completed.handle(Result.success());
-
 	}
-	
+
 	@Override
 	public Class<SearchCommand> handledType() {
 		return SearchCommand.class;
