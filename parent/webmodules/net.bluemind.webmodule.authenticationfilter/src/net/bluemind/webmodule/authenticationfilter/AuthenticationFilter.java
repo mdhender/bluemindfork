@@ -412,6 +412,11 @@ public class AuthenticationFilter implements IWebFilter, NeedVertx {
 					backChannelLogoutError(request, "JWT logout token process error: " + e.getMessage());
 				});
 
+		if (!request.isEnded()) {
+			// 202404: may be necessary on some environment - KC timeout after 5s
+			request.resume();
+		}
+
 		return CompletableFuture.completedFuture(null);
 	}
 
@@ -472,7 +477,7 @@ public class AuthenticationFilter implements IWebFilter, NeedVertx {
 		}
 
 		if (contentLength == null || contentLength > 1000 * 100) {
-			logger.info("TOO BIG: {}", contentLength);
+			logger.error("Backchannel request too Big: {}", contentLength);
 			backChannelLogoutError(request, "Too big");
 			return false;
 		}
