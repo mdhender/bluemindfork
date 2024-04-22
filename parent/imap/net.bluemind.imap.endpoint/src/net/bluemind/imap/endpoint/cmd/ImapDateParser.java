@@ -52,7 +52,10 @@ public class ImapDateParser {
 
 	public static Date readDateTime(String dateStr) throws DateParseException {
 		return readDate(dateStr, true);
+	}
 
+	public static Date readDate(String dateStr) throws DateParseException {
+		return readDate(dateStr, false);
 	}
 
 	private static Date readDate(String dateStr, boolean datetime) throws DateParseException {

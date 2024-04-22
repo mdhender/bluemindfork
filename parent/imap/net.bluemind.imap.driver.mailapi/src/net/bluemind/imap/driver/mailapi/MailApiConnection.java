@@ -95,6 +95,7 @@ import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.MQ.SharedMap;
 import net.bluemind.hornetq.client.Topic;
 import net.bluemind.imap.driver.mailapi.UidSearchAnalyzer.QueryBuilderResult;
+import net.bluemind.imap.driver.mailapi.search.UidSearchFastPaths;
 import net.bluemind.imap.endpoint.EndpointRuntimeException;
 import net.bluemind.imap.endpoint.driver.AppendStatus;
 import net.bluemind.imap.endpoint.driver.AppendStatus.WriteStatus;
@@ -820,6 +821,11 @@ public class MailApiConnection implements MailboxConnection {
 
 	@Override
 	public List<Long> uids(SelectedFolder sel, String query) {
+		return UidSearchFastPaths.lookup(query).map(fp -> fp.search(sel, query))
+				.orElseGet(() -> uidsSlowES(sel, query));
+	}
+
+	private List<Long> uidsSlowES(SelectedFolder sel, String query) {
 		String index = IndexAliasMapping.get().getReadAliasByMailboxUid(sel.mailbox.owner.uid);
 		// Really ?!
 		try {
