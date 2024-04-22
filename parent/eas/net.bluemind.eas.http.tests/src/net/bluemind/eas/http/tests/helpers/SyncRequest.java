@@ -18,29 +18,38 @@
  */
 package net.bluemind.eas.http.tests.helpers;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.w3c.dom.Document;
 
-public record SyncRequest(boolean getChanges, Document[] clientChangesAdd) {
+public record SyncRequest(boolean getChanges, List<Document> clientChangesAdd,
+		List<ClientChangesModify> clientChangesModify) {
 
 	public static class SyncRequestBuilder {
 		boolean getChanges = false;
-		Document[] clientChangesAdd = new Document[0];
+		List<Document> clientChangesAdd = new ArrayList<>();
+		List<ClientChangesModify> clientChangesModify = new ArrayList<>();
 
 		public SyncRequestBuilder withChanges() {
 			getChanges = true;
 			return this;
 		}
 
-		public SyncRequestBuilder withClientChangesAdd(Document... clientChanges) {
-			this.clientChangesAdd = clientChanges;
+		public SyncRequestBuilder withClientChangesAdd(Document clientChange) {
+			this.clientChangesAdd.add(clientChange);
+			return this;
+		}
+
+		public SyncRequestBuilder withClientChangesModify(String serverId, Document clientChange) {
+			this.clientChangesModify.add(new ClientChangesModify(serverId, clientChange));
 			return this;
 		}
 
 		public SyncRequest build() {
-			return new SyncRequest(getChanges, clientChangesAdd);
+			return new SyncRequest(getChanges, clientChangesAdd, clientChangesModify);
 		}
+
 	}
 
 	public SyncRequestBuilder copy() {
@@ -49,32 +58,8 @@ public record SyncRequest(boolean getChanges, Document[] clientChangesAdd) {
 			syncRequestBuilder.withChanges();
 		}
 		syncRequestBuilder.clientChangesAdd = clientChangesAdd;
+		syncRequestBuilder.clientChangesModify = clientChangesModify;
 		return syncRequestBuilder;
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + Arrays.hashCode(clientChangesAdd);
-		result = prime * result + (getChanges ? 1231 : 1237);
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		SyncRequest other = (SyncRequest) obj;
-		if (!Arrays.equals(clientChangesAdd, other.clientChangesAdd))
-			return false;
-		if (getChanges != other.getChanges)
-			return false;
-		return true;
 	}
 
 	@Override
@@ -82,4 +67,6 @@ public record SyncRequest(boolean getChanges, Document[] clientChangesAdd) {
 		return getClass().getName();
 	}
 
+	public record ClientChangesModify(String serverId, Document data) {
+	}
 }

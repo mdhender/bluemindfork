@@ -295,7 +295,7 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 
 	private void setEventCalendar(BackendSession bs, MSEvent calendar, Element domSource) {
 
-		calendar.setLocation(getLocation(domSource));
+		calendar.setLocation(getLocation(domSource, bs.getProtocolVersion()));
 
 		// description
 		Element body = DOMUtils.getUniqueElement(domSource, "Body");
@@ -358,39 +358,27 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 		}
 	}
 
-	private String getLocation(Element dom) {
+	private String getLocation(Element dom, double version) {
 		Element element = DOMUtils.getUniqueElement(dom, "Location");
 		if (element == null) {
 			return null;
 		}
 
-		if (!element.hasChildNodes()) {
-			// protocol < 16
-			// <Location>In the kitchen</Location>
-			return parseDOMString(element);
+		if (version < 16) {
+			return DOMUtils.getElementText(element);
+		} else {
+			StringBuilder location = new StringBuilder();
+			Element displayName = DOMUtils.getUniqueElement(element, "DisplayName");
+			if (displayName != null) {
+				location.append(displayName.getTextContent()).append(" ");
+			}
+			Element annotation = DOMUtils.getUniqueElement(element, "Annotation");
+			if (annotation != null) {
+				location.append(annotation.getTextContent()).append(" ");
+			}
+			return location.toString();
 		}
 
-		// protocol > 16
-		// <Location xmlns="AirSyncBase">
-		// <DisplayName>BlueMind</DisplayName>
-		// <Annotation>40 Rue du Village d'Entreprises 31670 Labège France</Annotation>
-		// <Latitude>43.54280248150819</Latitude>
-		// <Longitude>1.51013808765032</Longitude>
-		// </Location>
-		//
-		// ignore Latitude and Longitude
-
-		StringBuilder location = new StringBuilder();
-		Element displayName = DOMUtils.getUniqueElement(element, "DisplayName");
-		if (displayName != null) {
-			location.append(displayName.getTextContent()).append(" ");
-		}
-		Element annotation = DOMUtils.getUniqueElement(element, "Annotation");
-		if (annotation != null) {
-			location.append(annotation.getTextContent()).append(" ");
-		}
-
-		return location.toString();
 	}
 
 	private void setEventDescription(BackendSession bs, MSEvent calendar, Element body) {
@@ -407,8 +395,7 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 				calendar.setDescription(txt);
 				EasLogUser.logDebugAsUser(bs.getLoginAtDomain(), logger, "Desc: {}", txt);
 			} else {
-				EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger, "Unsupported body type: {}\n{}", bodyType,
-						txt);
+				EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger, "Unsupported body type: {}\n{}", bodyType, txt);
 			}
 		} else {
 			calendar.setDescription(null);

@@ -24,9 +24,12 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 
 import com.google.common.collect.Lists;
 
+import net.bluemind.addressbook.domainbook.verticle.DomainBookVerticle;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
@@ -51,10 +54,18 @@ public class AbstractEasTest {
 	protected String password;
 	protected String latd;
 
+	@BeforeClass
+	public static void beforeClass() {
+		System.setProperty("node.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP + "," + PopulateHelper.FAKE_CYRUS_IP_2);
+		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP + "," + PopulateHelper.FAKE_CYRUS_IP_2);
+		System.setProperty("ahcnode.fail.https.ok", "true");
+		System.setProperty("mapi.notification.fresh", "true");
+	}
+
 	@Before
 	public void setUp() throws Exception {
+		DomainBookVerticle.suspended = true;
 		GlobalConfig.DISABLE_POLICIES = true;
-		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
 		StateContext.setInternalState(new RunningState());
 		CoreStateListener.state = SystemState.CORE_STATE_RUNNING;
 		JdbcTestHelper.getInstance().beforeTest();
@@ -64,28 +75,28 @@ public class AbstractEasTest {
 
 		String domainUid = "dom" + System.currentTimeMillis() + ".test";
 
+		Server imap = new Server();
+		imap.ip = PopulateHelper.FAKE_CYRUS_IP;
+		imap.tags = Collections.singletonList(TagDescriptor.mail_imap.getTag());
+
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
 		esServer.tags = Lists.newArrayList(TagDescriptor.bm_es.getTag());
 
-		Server server = new Server();
-		server.ip = "prec";
-		server.tags = Lists.newArrayList("blue/job", "ur/anus");
-
-		Server pipo = new Server();
-		pipo.tags = Collections.singletonList(TagDescriptor.mail_imap.getTag());
-		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
-
-		PopulateHelper.initGlobalVirt(esServer, server, pipo);
-		domain = PopulateHelper.createTestDomain(domainUid, esServer, pipo);
+		PopulateHelper.initGlobalVirt(esServer);
+		domain = PopulateHelper.createTestDomain(domainUid, esServer, imap);
 
 		PopulateHelper.addUserWithRoles("user", domainUid, "hasEAS");
 		latd = "user@" + domainUid;
 		password = "user";
 		login = latd;
 
-		ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ISystemConfiguration.class)
-				.updateMutableValues(Map.of("eas_sync_unknown", "true"));
+		try {
+			ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ISystemConfiguration.class)
+					.updateMutableValues(Map.of("eas_sync_unknown", "true"));
+		} catch (ServerFault e) {
+
+		}
 	}
 
 	@After

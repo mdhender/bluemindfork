@@ -23,12 +23,14 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import net.bluemind.eas.client.SyncResponse;
+import net.bluemind.eas.dto.sync.SyncStatus;
 import net.bluemind.eas.http.tests.helpers.SyncHelper;
 import net.bluemind.utils.DOMUtils;
 
@@ -61,7 +63,7 @@ public class SyncResponseValidator extends DomValidator<SyncResponseValidator> {
 		return this;
 	}
 
-	public SyncResponseValidator assertEventConfirmation(int eventCount) {
+	public SyncResponseValidator assertServerConfirmation(int eventCount) {
 		AtomicInteger count = new AtomicInteger(0);
 		DOMUtils.forEachElement(currentSyncResponse.dom.getDocumentElement(), "Add", add -> {
 			count.incrementAndGet();
@@ -76,8 +78,8 @@ public class SyncResponseValidator extends DomValidator<SyncResponseValidator> {
 						idValid = true;
 					}
 				} else if (node.getNodeName().equals("Status")) {
-					int status = Integer.parseInt(node.getTextContent().trim());
-					if (status == 1) {
+					String status = node.getTextContent().trim();
+					if (status.equals(SyncStatus.OK.asXmlValue())) {
 						validated = true;
 					}
 				}
@@ -86,6 +88,25 @@ public class SyncResponseValidator extends DomValidator<SyncResponseValidator> {
 			assertTrue(idValid);
 		});
 		assertEquals(eventCount, count.get());
+		return this;
+	}
+
+	public SyncResponseValidator assertResponseStatus(long collectionId, int itemId, SyncStatus status) {
+		AtomicBoolean ok = new AtomicBoolean();
+		DOMUtils.forEachElement(currentSyncResponse.dom.getDocumentElement(), "Change", add -> {
+			NodeList children = add.getChildNodes();
+			boolean mustValidateStatus = false;
+			for (int i = 0; i < children.getLength(); i++) {
+				Node node = children.item(i);
+				if (node.getNodeName().equals("ServerId")) {
+					String id = node.getTextContent().trim();
+					mustValidateStatus = id.equals(collectionId + ":" + itemId);
+				} else if (node.getNodeName().equals("Status") && mustValidateStatus) {
+					ok.set(node.getTextContent().trim().equals(status.asXmlValue()));
+				}
+			}
+		});
+		assertTrue(ok.get());
 		return this;
 	}
 

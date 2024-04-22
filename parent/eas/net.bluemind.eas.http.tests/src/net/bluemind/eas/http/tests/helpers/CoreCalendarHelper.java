@@ -18,38 +18,25 @@
  */
 package net.bluemind.eas.http.tests.helpers;
 
-import java.io.ByteArrayOutputStream;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
+import static org.junit.Assert.assertEquals;
+
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Predicate;
 
 import org.w3c.dom.Document;
 
 import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.ICalendarUids;
-import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.core.container.api.ContainerHierarchyNode;
 import net.bluemind.core.container.api.IContainersFlatHierarchy;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.eas.backend.BackendSession;
-import net.bluemind.eas.backend.MSEvent;
-import net.bluemind.eas.backend.bm.calendar.EventConverter;
-import net.bluemind.eas.backend.bm.compat.OldFormats;
 import net.bluemind.eas.client.ProtocolVersion;
-import net.bluemind.eas.dto.NamespaceMapping;
-import net.bluemind.eas.dto.calendar.CalendarResponse;
-import net.bluemind.eas.dto.user.MSUser;
-import net.bluemind.eas.serdes.calendar.CalendarResponseFormatter;
-import net.bluemind.eas.wbxml.WBXMLTools;
-import net.bluemind.eas.wbxml.WbxmlOutput;
-import net.bluemind.eas.wbxml.builder.WbxmlResponseBuilder;
-import net.bluemind.tests.defaultdata.BmDateTimeHelper;
+import net.bluemind.eas.http.tests.builders.CalendarBuilder;
+import net.bluemind.utils.DOMUtils;
 
 public class CoreCalendarHelper {
 
@@ -74,7 +61,7 @@ public class CoreCalendarHelper {
 	}
 
 	public static void addEvent(String uid) {
-		VEventSeries series = defaultEvent();
+		VEventSeries series = CalendarBuilder.defaultEvent();
 		addEvent(uid, series);
 	}
 
@@ -84,57 +71,83 @@ public class CoreCalendarHelper {
 	}
 
 	private static ICalendar getService() {
-		ICalendar service = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ICalendar.class,
+		return ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ICalendar.class,
 				ICalendarUids.defaultUserCalendar("user"));
-		return service;
-	}
-
-	private static VEventSeries defaultEvent() {
-		VEventSeries series = new VEventSeries();
-		series.icsUid = UUID.randomUUID().toString();
-
-		VEvent event = new VEvent();
-
-		event.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2022, 2, 13, 1, 0, 0, 0, ZoneId.of("Asia/Ho_Chi_Minh")));
-		event.dtend = BmDateTimeHelper.time(ZonedDateTime.of(2022, 2, 15, 1, 0, 0, 0, ZoneId.of("Asia/Ho_Chi_Minh")));
-		event.summary = "event " + System.currentTimeMillis();
-		event.location = "Toulouse";
-		event.description = "Lorem ipsum";
-		event.transparency = VEvent.Transparency.Opaque;
-		event.classification = VEvent.Classification.Private;
-		event.status = VEvent.Status.Confirmed;
-		event.priority = 3;
-
-		event.attendees = new ArrayList<>();
-		series.main = event;
-		return series;
-	}
-
-	public static Document getClientEventData(ProtocolVersion version) throws Exception {
-		MSUser msUser = new MSUser("user", "user", "user", "user", null, null, false, null, Collections.emptySet(),
-				null);
-		BackendSession bs = new BackendSession(msUser, null, 0);
-		EventConverter converter = new EventConverter();
-		VEventSeries defaultEvent = defaultEvent();
-		MSEvent msEvent = converter.convert(bs, ItemValue.create(defaultEvent.icsUid, defaultEvent));
-		CalendarResponse response = OldFormats.update(msEvent, bs.getUser());
-
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		WbxmlOutput output = WbxmlOutput.of(bos);
-		double valueOfVersion = Double.parseDouble(version.toString());
-		WbxmlResponseBuilder builder = new WbxmlResponseBuilder(valueOfVersion, null, output);
-		CalendarResponseFormatter cf = new CalendarResponseFormatter();
-		builder.start(NamespaceMapping.SYNC);
-		cf.append(builder, valueOfVersion, response, (a) -> {
-		});
-		builder.end((a) -> {
-		});
-		Document xml = WBXMLTools.toXml(bos.toByteArray());
-		return xml;
 	}
 
 	public static List<ItemValue<VEventSeries>> getAllEvents() {
-		return getService().all().stream().map(uid -> getService().getComplete(uid)).toList();
+		List<ItemValue<VEventSeries>> list = getService().all().stream().map(uid -> getService().getComplete(uid))
+				.toList();
+		list.forEach(e -> {
+			System.err.println(e.value.main.location);
+		});
+		return list;
+	}
+
+	public static Runnable validateEventCount(int count) {
+		return () -> assertEquals(count, CoreCalendarHelper.getAllEvents().size());
+	}
+
+	public static Runnable validateDefaultEvent(ProtocolVersion version,
+			Predicate<ItemValue<VEventSeries>> testDataFilter) {
+		return validateEvent(version, CalendarBuilder.defaultEvent(), CoreCalendarHelper.getAllEvents().stream()
+				.filter(testDataFilter).findAny().map(series -> series.value).orElseThrow());
+	}
+
+	public static Runnable validateEvent(ProtocolVersion version, VEventSeries expected,
+			Predicate<ItemValue<VEventSeries>> testDataFilter) {
+		return validateEvent(version, expected, CoreCalendarHelper.getAllEvents().stream().filter(testDataFilter)
+				.findAny().map(series -> series.value).orElseThrow());
+	}
+
+	public static Runnable validateEvent(ProtocolVersion version, VEventSeries expected, VEventSeries testData) {
+		return () -> {
+			Document testDataEvent = null;
+			Document expectedEvent = null;
+			try {
+				expectedEvent = CalendarBuilder.getEvent(version, expected);
+				testDataEvent = CalendarBuilder.getEvent(version, testData);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			String locationServer = null;
+			String locationSource = null;
+
+			if (Float.parseFloat(version.toString()) < 16.0) {
+				locationServer = DOMUtils.getElementText(testDataEvent.getDocumentElement(), "Location").trim();
+				locationSource = DOMUtils.getElementText(expectedEvent.getDocumentElement(), "Location").trim();
+			} else {
+				locationServer = DOMUtils.getElementText(DOMUtils.getUniqueElement(
+						DOMUtils.getUniqueElement(testDataEvent.getDocumentElement(), "Location"), "DisplayName"));
+				locationSource = DOMUtils.getElementText(DOMUtils.getUniqueElement(
+						DOMUtils.getUniqueElement(expectedEvent.getDocumentElement(), "Location"), "DisplayName"));
+			}
+
+			assertElement(expectedEvent, testDataEvent, "Subject");
+			assertElement(expectedEvent, testDataEvent, "OrganizerName");
+			assertElement(expectedEvent, testDataEvent, "StartTime");
+			assertElement(expectedEvent, testDataEvent, "EndTime");
+			assertElement(expectedEvent, testDataEvent, "AllDayEvent");
+			assertElement(expectedEvent, testDataEvent, "Sensitivity");
+			assertElement(expectedEvent, testDataEvent, "BusyStatus");
+			assertElement(expectedEvent, testDataEvent, "MeetingStatus");
+			assertElement(expectedEvent, testDataEvent, "DisallowNewTimeProposal");
+
+			assertEquals(locationSource.trim(), locationServer.trim());
+
+		};
+	}
+
+	private static void assertElement(Document expected, Document test, String element) {
+		String text1 = DOMUtils.getElementText(DOMUtils.getUniqueElement(expected.getDocumentElement(), element))
+				.trim();
+		String text2 = DOMUtils.getElementText(DOMUtils.getUniqueElement(test.getDocumentElement(), element)).trim();
+		assertEquals(text1, text2);
+	}
+
+	public static Predicate<ItemValue<VEventSeries>> eventBySummary(String summary) {
+		return evt -> evt.value.flatten().stream().anyMatch(event -> event.summary.equals(summary));
 	}
 
 }

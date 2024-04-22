@@ -19,6 +19,7 @@
 package net.bluemind.eas.http.tests.validators;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -37,6 +38,11 @@ public class DomValidator<T> {
 	public T assertNamespace(String element, String namespace) {
 		Element uniqueElement = DOMUtils.getUniqueElement(document.getDocumentElement(), element);
 		assertEquals(namespace, uniqueElement.getNamespaceURI());
+		return (T) this;
+	}
+
+	public T assertMissingElement(String element) {
+		assertNull(DOMUtils.getUniqueElement(document.getDocumentElement(), element));
 		return (T) this;
 	}
 

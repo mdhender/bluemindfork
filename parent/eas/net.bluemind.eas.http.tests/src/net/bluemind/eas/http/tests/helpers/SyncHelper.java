@@ -30,6 +30,7 @@ import org.w3c.dom.NodeList;
 import net.bluemind.eas.client.OPClient;
 import net.bluemind.eas.client.ProtocolVersion;
 import net.bluemind.eas.client.SyncResponse;
+import net.bluemind.eas.http.tests.helpers.SyncRequest.ClientChangesModify;
 import net.bluemind.eas.http.tests.validators.SyncResponseValidator;
 import net.bluemind.utils.DOMUtils;
 
@@ -64,20 +65,36 @@ public class SyncHelper extends EasTestHelper<SyncHelper> {
 		DOMUtils.createElementAndText(collection, "CollectionId", collectionId);
 		DOMUtils.createElementAndText(collection, "GetChanges", request.getChanges() ? "1" : "0");
 
-		if (request.clientChangesAdd().length > 0) {
+		if (!request.clientChangesAdd().isEmpty() || !request.clientChangesModify().isEmpty()) {
 			Element commands = DOMUtils.createElement(collection, "Commands");
-			for (int i = 0; i < request.clientChangesAdd().length; i++) {
-				Document clientChange = request.clientChangesAdd()[i];
-				Element add = DOMUtils.createElement(commands, "Add");
-				DOMUtils.createElementAndText(add, "ClientId", "" + i + 1);
-				Element appData = DOMUtils.createElement(add, "ApplicationData");
-				NodeList children = clientChange.getDocumentElement().getChildNodes();
-				for (int j = 0; j < children.getLength(); j++) {
-					Node node = children.item(j);
-					appData.appendChild(sync.adoptNode(node.cloneNode(true)));
+			if (!request.clientChangesAdd().isEmpty()) {
+				for (int i = 0; i < request.clientChangesAdd().size(); i++) {
+					Document clientChange = request.clientChangesAdd().get(i);
+					Element add = DOMUtils.createElement(commands, "Add");
+					DOMUtils.createElementAndText(add, "ClientId", "" + i + 1);
+					Element appData = DOMUtils.createElement(add, "ApplicationData");
+					NodeList children = clientChange.getDocumentElement().getChildNodes();
+					for (int j = 0; j < children.getLength(); j++) {
+						Node node = children.item(j);
+						appData.appendChild(sync.adoptNode(node.cloneNode(true)));
+					}
+				}
+			}
+			if (!request.clientChangesModify().isEmpty()) {
+				for (int i = 0; i < request.clientChangesModify().size(); i++) {
+					ClientChangesModify clientChange = request.clientChangesModify().get(0);
+					Element add = DOMUtils.createElement(commands, "Change");
+					DOMUtils.createElementAndText(add, "ServerId", clientChange.serverId());
+					Element appData = DOMUtils.createElement(add, "ApplicationData");
+					NodeList children = clientChange.data().getDocumentElement().getChildNodes();
+					for (int j = 0; j < children.getLength(); j++) {
+						Node node = children.item(j);
+						appData.appendChild(sync.adoptNode(node.cloneNode(true)));
+					}
 				}
 			}
 		}
+		logger.info(DOMUtils.logDom(sync));
 
 		currentSyncResponse = client.sync(sync);
 		currentSyncKey = extractSyncKey();

@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2022
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -16,22 +16,22 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.eas.http.tests;
-
-import static org.junit.Assert.assertEquals;
+package net.bluemind.eas.http.tests.synchronization;
 
 import org.junit.Test;
 
 import net.bluemind.eas.client.ProtocolVersion;
+import net.bluemind.eas.http.tests.AbstractEasTest;
+import net.bluemind.eas.http.tests.builders.CalendarBuilder;
 import net.bluemind.eas.http.tests.helpers.CoreCalendarHelper;
 import net.bluemind.eas.http.tests.helpers.SyncHelper;
 import net.bluemind.eas.http.tests.helpers.SyncRequest;
 import net.bluemind.eas.http.tests.helpers.SyncRequest.SyncRequestBuilder;
 
-public class SyncTests extends AbstractEasTest {
+public class CalendarSynchronizationTests extends AbstractEasTest {
 
 	@Test
-	public void testSimpleCalendarSyncV16() throws Exception {
+	public void testServerCreationSyncV16() throws Exception {
 		long calId = CoreCalendarHelper.getUserCalendarId("user", domain.uid);
 
 		SyncRequest request = new SyncRequestBuilder().withChanges().build();
@@ -48,6 +48,7 @@ public class SyncTests extends AbstractEasTest {
 				.startValidation() //
 				.assertSyncKeyChanged() //
 				.assertNamespace("Location", "AirSyncBase") //
+				.assertNamespace("DisplayName", "AirSyncBase") //
 				.endValidation() //
 				.sync(request) //
 				.startValidation() //
@@ -56,7 +57,7 @@ public class SyncTests extends AbstractEasTest {
 	}
 
 	@Test
-	public void testSimpleCalendarSyncV14() throws Exception {
+	public void testServerCreationSyncV14() throws Exception {
 		long calId = CoreCalendarHelper.getUserCalendarId("user", domain.uid);
 
 		SyncRequest request = new SyncRequestBuilder().withChanges().build();
@@ -73,6 +74,7 @@ public class SyncTests extends AbstractEasTest {
 				.startValidation() //
 				.assertSyncKeyChanged() //
 				.assertNamespace("Location", "Calendar") //
+				.assertMissingElement("DisplayName") //
 				.endValidation() //
 				.sync(request) //
 				.startValidation() //
@@ -81,7 +83,7 @@ public class SyncTests extends AbstractEasTest {
 	}
 
 	@Test
-	public void testCalendarSyncClientChangesV16() throws Exception {
+	public void testClientCreationSyncV16() throws Exception {
 		long calId = CoreCalendarHelper.getUserCalendarId("user", domain.uid);
 
 		SyncRequest request = new SyncRequestBuilder().withChanges().build();
@@ -89,22 +91,45 @@ public class SyncTests extends AbstractEasTest {
 				.withAuth(latd, password) //
 				.withCollectionId(calId) //
 				.withProtocolVersion(ProtocolVersion.V161).build() //
-				.execute(this.validateEventCount(0)) //
+				.execute(CoreCalendarHelper.validateEventCount(0)) //
 				.sync(request) //
 				.startValidation() //
 				.assertEmptyResponse() //
 				.endValidation() //
 				.sync(request.copy() //
-						.withClientChangesAdd(CoreCalendarHelper.getClientEventData(ProtocolVersion.V161) //
+						.withClientChangesAdd(CalendarBuilder.getSimpleEvent(ProtocolVersion.V161) //
 						).build()) //
 				.startValidation() //
-				.assertEventConfirmation(1) //
+				.assertServerConfirmation(1) //
 				.endValidation() //
-				.execute(this.validateEventCount(1));
+				.execute(CoreCalendarHelper.validateEventCount(1)) //
+				.execute(CoreCalendarHelper.validateDefaultEvent(ProtocolVersion.V161,
+						CoreCalendarHelper.eventBySummary("event")));
 	}
 
-	private Runnable validateEventCount(int count) {
-		return () -> assertEquals(count, CoreCalendarHelper.getAllEvents().size());
+	@Test
+	public void testClientCreationSyncV14() throws Exception {
+		long calId = CoreCalendarHelper.getUserCalendarId("user", domain.uid);
+
+		SyncRequest request = new SyncRequestBuilder().withChanges().build();
+		new SyncHelper.SyncHelperBuilder() //
+				.withAuth(latd, password) //
+				.withCollectionId(calId) //
+				.withProtocolVersion(ProtocolVersion.V141).build() //
+				.execute(CoreCalendarHelper.validateEventCount(0)) //
+				.sync(request) //
+				.startValidation() //
+				.assertEmptyResponse() //
+				.endValidation() //
+				.sync(request.copy() //
+						.withClientChangesAdd(CalendarBuilder.getSimpleEvent(ProtocolVersion.V141) //
+						).build()) //
+				.startValidation() //
+				.assertServerConfirmation(1) //
+				.endValidation() //
+				.execute(CoreCalendarHelper.validateEventCount(1)) //
+				.execute(CoreCalendarHelper.validateDefaultEvent(ProtocolVersion.V141,
+						CoreCalendarHelper.eventBySummary("event")));
 	}
 
 }
