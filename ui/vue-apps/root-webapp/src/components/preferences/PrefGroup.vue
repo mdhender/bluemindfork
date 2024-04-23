@@ -70,6 +70,7 @@ import PrefSwitchWebmail from "./fields/customs/PrefSwitchWebmail";
 import PrefTags from "./fields/customs/Tags/PrefTags";
 import PrefWorkHours from "./fields/customs/PrefWorkHours";
 import PrefWorkingDays from "./fields/customs/PrefWorkingDays";
+import PrefThread from "./fields/customs/PrefThread";
 
 import { BmFormGroup, BmLabelIcon } from "@bluemind/ui-components";
 import Navigation from "./mixins/Navigation";
@@ -119,7 +120,8 @@ export default {
         PrefSwitchWebmail,
         PrefTags,
         PrefWorkHours,
-        PrefWorkingDays
+        PrefWorkingDays,
+        PrefThread
     },
     mixins: [Navigation],
     props: {

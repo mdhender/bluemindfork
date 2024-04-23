@@ -55,6 +55,17 @@ function main(i18n) {
                                 ]
                             }
                         }
+                    },
+                    {
+                        id: "thread",
+                        disabled: { name: "StoreFieldCondition", args: ["mail.main.thread.field", "false"] },
+                        component: {
+                            name: "PrefThread",
+                            options: {
+                                needReload: false,
+                                autosave: true
+                            }
+                        }
                     }
                 ]
             },

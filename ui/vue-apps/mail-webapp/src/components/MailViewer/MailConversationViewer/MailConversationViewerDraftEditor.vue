@@ -251,9 +251,28 @@ export default {
 <style lang="scss">
 @import "~@bluemind/ui-components/src/css/utils/variables";
 
+@mixin sticky-top-margin($sticky-element, $reference-element, $margin-top) {
+    #{$sticky-element} {
+        pointer-events: none;
+        margin-top: $margin-top;
+        > * {
+            pointer-events: initial;
+        }
+    }
+
+    #{$reference-element} {
+        margin-bottom: -$margin-top;
+    }
+}
+
 .mail-conversation-viewer-draft-editor {
     padding-right: $sp-6;
 
+    @include sticky-top-margin(
+        ".sticky-bottom",
+        ".before-sticky-bottom",
+        $line-height-medium * 2 + $input-height + ($sp-6 + $sp-4)
+    );
     .mail-composer-content .bm-rich-editor {
         padding-left: 0;
         padding-right: 0;

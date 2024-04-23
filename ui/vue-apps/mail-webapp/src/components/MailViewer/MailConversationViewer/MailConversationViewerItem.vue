@@ -32,7 +32,7 @@
                 <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" after-avatar />
                 <mail-viewer-recipients :message="message" class="flex-fill mt-2 mb-4" @click.native.stop />
             </div>
-            <div class="d-flex conversation-viewer-row flex-nowrap">
+            <div class="d-flex conversation-viewer-row flex-nowrap" :class="{ 'before-sticky-bottom': stickyBottom }">
                 <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" after-avatar />
                 <slot name="content" />
             </div>
@@ -107,8 +107,10 @@ export default {
 
 .mail-conversation-viewer-item {
     .avatar-wrapper {
-        height: $input-height;
         padding-top: math.div($input-height - $avatar-height, 2);
+        &.last {
+            height: $input-height;
+        }
     }
     hr {
         margin-top: 0;

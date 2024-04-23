@@ -1,25 +1,27 @@
 <template>
     <bm-toolbar class="mail-conversation-viewer-footer">
-        <mail-open-in-popup-with-shift v-slot="action" :href="replyRoute(lastNonDraft)">
-            <bm-toolbar-button
-                variant="fill-accent"
-                :title="action.label($t('mail.content.reply.aria'))"
-                :icon="action.icon('reply')"
-                @click="action.execute(() => reply(lastNonDraft, conversation))"
-            >
-                {{ $t("mail.content.reply.aria") }}
-            </bm-toolbar-button>
-        </mail-open-in-popup-with-shift>
-        <mail-open-in-popup-with-shift v-slot="action" :href="replyAllRoute(lastNonDraft)">
-            <bm-toolbar-button
-                variant="fill-accent"
-                :title="action.label($t('mail.content.reply_all.aria'))"
-                :icon="action.icon('reply-all')"
-                @click="action.execute(() => replyAll(lastNonDraft, conversation))"
-            >
-                {{ $t("mail.content.reply_all.aria") }}
-            </bm-toolbar-button>
-        </mail-open-in-popup-with-shift>
+        <div class="mail-conversation-viewer-footer-shadow">
+            <mail-open-in-popup-with-shift v-slot="action" :href="replyRoute(lastNonDraft)">
+                <bm-toolbar-button
+                    variant="fill-accent"
+                    :title="action.label($t('mail.content.reply.aria'))"
+                    :icon="action.icon('reply')"
+                    @click="action.execute(() => reply(lastNonDraft, conversation))"
+                >
+                    {{ $t("mail.content.reply.aria") }}
+                </bm-toolbar-button>
+            </mail-open-in-popup-with-shift>
+            <mail-open-in-popup-with-shift v-slot="action" :href="replyAllRoute(lastNonDraft)">
+                <bm-toolbar-button
+                    variant="fill-accent"
+                    :title="action.label($t('mail.content.reply_all.aria'))"
+                    :icon="action.icon('reply-all')"
+                    @click="action.execute(() => replyAll(lastNonDraft, conversation))"
+                >
+                    {{ $t("mail.content.reply_all.aria") }}
+                </bm-toolbar-button>
+            </mail-open-in-popup-with-shift>
+        </div>
     </bm-toolbar>
 </template>
 
@@ -63,12 +65,25 @@ export default {
 @import "../variables.scss";
 
 .mail-conversation-viewer-footer {
-    padding-top: $sp-4;
-    padding-left: $conversation-main-padding-left;
-    @include from-lg {
-        padding-left: $conversation-main-padding-left-lg + $sp-7;
+    .mail-conversation-viewer-footer-shadow {
+        display: flex;
+        width: 100%;
+        height: 100%;
+        margin-left: $sp-1;
+        padding-top: $sp-4;
+        padding-left: $conversation-padding-left;
+        @include from-lg {
+            padding-left: $conversation-padding-left-lg;
+        }
+        padding-bottom: $sp-4;
+        gap: $sp-6;
+        box-shadow: $box-shadow-sm;
     }
-    padding-bottom: $sp-7;
-    gap: $sp-6;
+    background-color: $surface-hi1;
+    bottom: 0;
+    position: fixed !important;
+    width: 100%;
+    z-index: $zindex-sticky;
+    overflow-x: clip;
 }
 </style>

@@ -116,6 +116,7 @@ export default {
         }),
         ...mapState("mail", ["activeFolder", "folders", "mailboxes"]),
         ...mapState("mail", { messages: ({ conversations }) => conversations.messages }),
+        ...mapState("settings", ["mail_thread_recipients_order"]),
         isMessageListStyleFull() {
             return this.$store.state.settings.mail_message_list_style === "full";
         },
@@ -153,9 +154,11 @@ export default {
                     : this.conversation.bcc?.length
                     ? this.conversation.bcc
                     : [];
-                return recipients;
+                return this.mail_thread_recipients_order === "ASC" ? recipients.reverse() : recipients;
             } else {
-                return this.conversation.senders;
+                return this.mail_thread_recipients_order === "ASC"
+                    ? this.conversation.senders.slice().reverse()
+                    : this.conversation.senders;
             }
         },
         fromOrTo() {

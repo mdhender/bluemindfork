@@ -1,7 +1,7 @@
 <template>
     <div class="mail-conversation-viewer bg-surface pt-6" :class="{ darkened }">
         <mail-conversation-viewer-header
-            :subject="conversationMessages[0].subject"
+            :subject="conversationMessages[firstConversationMessageIndex].subject"
             :expanded="expanded"
             @do-show-hidden-messages="showHiddenMessages = conversationMessages.map(Boolean)"
             @expand="expandAll()"
@@ -14,6 +14,7 @@
                     :index="index"
                     :count="hiddenGroupSize(index)"
                     :conversation-size="conversationMessages.length"
+                    :is-user-pref-chronological-order="isUserPrefChronologicalOrder"
                     @do-show-hidden-messages="doShowHiddenMessages(index)"
                 />
                 <mail-conversation-viewer-compo-switcher
@@ -98,6 +99,14 @@ export default {
     computed: {
         ...mapGetters("mail", { CONVERSATION_LIST_UNREAD_FILTER_ENABLED, CONVERSATION_MESSAGE_BY_KEY, MY_DRAFTS }),
         ...mapState("mail", ["folders"]),
+        ...mapState("settings", ["mail_thread_messages_order"]),
+        isUserPrefChronologicalOrder() {
+            // !== DESC to keep ASC as the default/fallback option
+            return this.mail_thread_messages_order !== "DESC";
+        },
+        firstConversationMessageIndex() {
+            return this.isUserPrefChronologicalOrder ? 0 : this.conversationMessages.length - 1;
+        },
         trustRemoteContent() {
             return this.$store.state.settings.trust_every_remote_content !== "false";
         },
@@ -105,7 +114,11 @@ export default {
             return this.$store.state.mail.consultPanel.remoteImages.mustBeBlocked;
         },
         conversationMessages() {
-            return sortConversationMessages(this.CONVERSATION_MESSAGE_BY_KEY(this.conversation.key), this.folders);
+            return sortConversationMessages(
+                this.CONVERSATION_MESSAGE_BY_KEY(this.conversation.key),
+                this.folders,
+                this.mail_thread_messages_order
+            );
         },
         noDraftOpened() {
             return this.conversationMessages.every(message => !message.composing);
@@ -116,11 +129,11 @@ export default {
             );
         },
         lastNonDraft() {
-            let lastNonDraft;
-            for (let i = this.conversationMessages.length - 1; i >= 0 && !lastNonDraft; i--) {
-                lastNonDraft = !this.isDraft(i) && this.conversationMessages[i];
-            }
-            return lastNonDraft;
+            const nonDraftMessage = this.conversationMessages.filter((message, index) => {
+                return !this.isDraft(index);
+            });
+
+            return this.isUserPrefChronologicalOrder ? nonDraftMessage[nonDraftMessage.length - 1] : nonDraftMessage[0];
         },
         expanded() {
             return this.conversationMessages.every((m, index) => this.expandedMessages[index]);
@@ -197,7 +210,10 @@ export default {
         },
         isHiddenCandidate(index) {
             return (
-                !this.showHiddenMessages[index] && index !== 0 && !this.expandedMessages[index] && !this.isDraft(index)
+                !this.showHiddenMessages[index] &&
+                index !== this.firstConversationMessageIndex &&
+                !this.expandedMessages[index] &&
+                !this.isDraft(index)
             );
         },
         isUnread(index) {
@@ -215,7 +231,13 @@ export default {
             let lastNonDraftFound = false;
             let atLeastOneUnread = false;
             const lastIndex = this.conversationMessages.length - 1;
-            for (let i = lastIndex; i >= 0; i--) {
+            const iterateDirection = this.isUserPrefChronologicalOrder ? -1 : 1;
+
+            for (
+                let i = this.isUserPrefChronologicalOrder ? lastIndex : 0;
+                this.isUserPrefChronologicalOrder ? i >= 0 : i <= lastIndex;
+                i += iterateDirection
+            ) {
                 const isUnread = this.isUnread(i) && this.isInConversationFolder(i);
                 atLeastOneUnread = isUnread || atLeastOneUnread;
                 if (!lastNonDraftFound || isUnread) {
@@ -243,7 +265,10 @@ export default {
             return !!this.draftStates[index + 1];
         },
         isFirstOfHiddenGroup(index) {
-            return this.hiddenMessages[index] && (index === 0 || !this.hiddenMessages[index - 1]);
+            return (
+                this.hiddenMessages[index] &&
+                (index === this.firstConversationMessageIndex || !this.hiddenMessages[index - 1])
+            );
         },
         hiddenGroupSize(index) {
             let currentIndex = index;
@@ -288,6 +313,9 @@ export default {
     & > .container {
         max-width: unset;
         padding: 0;
+        & > div:last-child {
+            margin-bottom: ($sp-4 + $sp-4) + ($sp-4 + $sp-4) + map-get($icon-sizes, "md");
+        }
     }
 
     .conversation-viewer-row {
@@ -306,7 +334,7 @@ export default {
         background-repeat: no-repeat;
         background-position: center center;
         &.first {
-            background-size: 1px 50%;
+            background-size: 1px calc(100% - #{$sp-4});
             background-position: bottom center;
         }
         &.last {

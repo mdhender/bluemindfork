@@ -1,7 +1,7 @@
 <template>
     <div class="mail-conversation-viewer-hidden-items">
         <div class="conversation-viewer-row d-flex">
-            <div class="vertical-line" />
+            <div v-if="isUserPrefChronologicalOrder || index > 0" class="vertical-line" />
             <div class="col spacer" />
         </div>
         <div class="conversation-viewer-row d-flex align-items-center item-count-and-expand-button">
@@ -36,6 +36,11 @@ export default {
         index: {
             type: Number,
             required: true
+        },
+        isUserPrefChronologicalOrder: {
+            type: Boolean,
+            required: false,
+            default: true
         }
     },
     computed: {

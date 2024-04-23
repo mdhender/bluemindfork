@@ -37,11 +37,14 @@ export function firstMessageFolderKey(conversation) {
 }
 
 /**
- * Sort by date, ascending, except for draft which should be just after its related message. */
-export function sortConversationMessages(messages, folders) {
+ * Sort by date, asc or desc depending on order, except for draft which should be next to its related message. */
+export function sortConversationMessages(messages, folders, order) {
     // sort by date
-    const sorted = messages.sort((a, b) => a.date - b.date);
-
+    const sorted = messages
+        .filter(m => !isDraftFolder(folders[m.folderRef.key].path))
+        .sort((a, b) => {
+            return order === "DESC" ? b.date - a.date : a.date - b.date;
+        });
     // search for drafts
     const drafts = messages.filter(m => isDraftFolder(folders[m.folderRef.key].path));
     const allowedCreationModes = [
@@ -61,11 +64,9 @@ export function sortConversationMessages(messages, folders) {
             const relatedIndex = sorted.findIndex(
                 s => s.remoteRef.internalId === draftInfo.messageInternalId && s.folderRef.uid === draftInfo.folderUid
             );
-            const draftIndex = sorted.findIndex(s => s.key === c.key);
-            // remove
-            const draft = sorted.splice(draftIndex, 1)[0];
             // insert
-            sorted.splice(relatedIndex + 1, 0, draft);
+            const insertionIndex = order === "DESC" ? relatedIndex : relatedIndex + 1;
+            sorted.splice(insertionIndex, 0, c);
         }
     });
 
