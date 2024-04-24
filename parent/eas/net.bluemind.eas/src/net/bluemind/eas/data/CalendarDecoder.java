@@ -183,7 +183,7 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 			exception.startTime = parseDOMDate(DOMUtils.getUniqueElement(subnode, "StartTime"));
 			exception.endTime = parseDOMDate(DOMUtils.getUniqueElement(subnode, "EndTime"));
 			exception.subject = parseDOMString(DOMUtils.getUniqueElement(subnode, "Subject"));
-			exception.location = getLocation(subnode);
+			exception.location = getLocation(subnode, bs.getProtocolVersion());
 
 			Element attendeesNode = DOMUtils.getDirectChildElement(subnode, "Attendees");
 			if (attendeesNode != null) {
