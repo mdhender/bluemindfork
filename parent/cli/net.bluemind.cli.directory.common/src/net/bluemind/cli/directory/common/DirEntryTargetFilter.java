@@ -156,7 +156,7 @@ public class DirEntryTargetFilter {
 
 	private List<DirEntryWithDomain> getDomainEntries(String domainUid, Optional<String> dirEntryUid,
 			Optional<String> email) {
-		IDirectory dirApi = ctx.adminApi().instance(IDirectory.class, domainUid);
+		IDirectory dirApi = ctx.longRequestTimeoutAdminApi().instance(IDirectory.class, domainUid);
 		List<ItemValue<DirEntry>> entries = new ArrayList<>();
 
 		dirEntryUid.filter(deu -> deu.equals(domainUid)).map(deu -> getRoot(dirApi, domainUid)).ifPresentOrElse(
