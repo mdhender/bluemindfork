@@ -19,6 +19,7 @@ package net.bluemind.keycloak.internal;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -68,6 +69,27 @@ public class KeycloakAdminService extends KeycloakAdminClient implements IKeyclo
 		} catch (Exception e) {
 			throw new ServerFault("Failed to create realm", e);
 		}
+
+		response = execute(REALMS_ADMIN_URL + "/" + domainId + "/authentication/required-actions", HttpMethod.GET);
+
+		try {
+			response.get(TIMEOUT, TimeUnit.SECONDS).getJsonArray("results").stream().filter(Objects::nonNull)
+					.filter(JsonObject.class::isInstance).map(ra -> (JsonObject) ra)
+					.filter(ra -> "VERIFY_PROFILE".equals(ra.getString("alias"))).map(ra -> ra.put("enabled", false))
+					.findAny().ifPresent(ra -> {
+						CompletableFuture<JsonObject> r = execute(
+								REALMS_ADMIN_URL + "/" + domainId + "/authentication/required-actions/VERIFY_PROFILE",
+								HttpMethod.PUT, ra);
+						try {
+							r.get(TIMEOUT, TimeUnit.SECONDS);
+						} catch (Exception e) {
+							throw new ServerFault("Failed to disable VERIFY_PROFILE required action", e);
+						}
+					});
+		} catch (Exception e) {
+			throw new ServerFault("Failed to get realm required actions", e);
+		}
+
 	}
 
 	@Override
