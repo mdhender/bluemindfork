@@ -17,7 +17,6 @@
   */
 package net.bluemind.backend.mail.replica.api;
 
-import java.util.Date;
 import java.util.List;
 
 import jakarta.ws.rs.DELETE;
@@ -26,6 +25,7 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.QueryParam;
 import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.Stream;
@@ -55,7 +55,7 @@ public interface IDbMessageBodies extends IRestoreCrudSupport<MessageBody> {
 	 */
 	@PUT
 	@Path("{uid}/_withdeliverydate")
-	void createWithDeliveryDate(@PathParam("uid") String uid, Date deliveryDate, Stream eml);
+	void createWithDeliveryDate(@PathParam("uid") String uid, @QueryParam("date") long deliveryDate, Stream eml);
 
 	@GET
 	@Path("{uid}/complete")

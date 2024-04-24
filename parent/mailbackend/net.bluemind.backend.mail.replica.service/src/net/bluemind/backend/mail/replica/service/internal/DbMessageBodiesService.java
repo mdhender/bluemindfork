@@ -93,8 +93,8 @@ public class DbMessageBodiesService implements IInternalDbMessageBodies {
 	}
 
 	@Override
-	public void createWithDeliveryDate(String uid, Date deliveryDate, Stream pristine) {
-		_create(uid, deliveryDate, pristine);
+	public void createWithDeliveryDate(String uid, long deliveryDate, Stream pristine) {
+		_create(uid, new Date(deliveryDate), pristine);
 	}
 
 	/*

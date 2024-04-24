@@ -399,7 +399,7 @@ public class MboxRestoreService {
 					AppendTx appendTx = mailboxApi.prepareAppend(folder.internalId, 1);
 					Date bodyDeliveryDate = msg.date == null ? new Date(appendTx.internalStamp) : msg.date;
 
-					bodiesApi.createWithDeliveryDate(msg.guid, bodyDeliveryDate, VertxStream.localPath(p));
+					bodiesApi.createWithDeliveryDate(msg.guid, bodyDeliveryDate.getTime(), VertxStream.localPath(p));
 					MessageBody messageBody = bodiesApi.getComplete(msg.guid);
 					Set<String> references = (messageBody.references != null) ? Sets.newHashSet(messageBody.references)
 							: Sets.newHashSet();
