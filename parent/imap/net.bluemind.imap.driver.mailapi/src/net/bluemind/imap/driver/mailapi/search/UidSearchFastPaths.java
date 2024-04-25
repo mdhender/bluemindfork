@@ -45,13 +45,35 @@ public class UidSearchFastPaths {
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(UidSearchFastPaths.class);
-	private static final List<SearchFastPath> tunedSearches = List.of(new OutlookUidSince());
+	private static final List<SearchFastPath> tunedSearches = List.of(new OutlookUidSince(), new OutlookSince());
 
 	public static Optional<SearchFastPath> lookup(String query) {
 		return tunedSearches.stream().filter(sp -> sp.supports(query)).findAny().map(fp -> {
 			logger.info("Using fast-path {} for '{}'", fp, query);
 			return fp;
 		});
+	}
+
+	private static class OutlookSince implements SearchFastPath {
+
+		private static final Pattern outlookSearch = Pattern.compile("since (.+)", Pattern.CASE_INSENSITIVE);
+		private OutlookUidSince delegate = new OutlookUidSince();
+
+		@Override
+		public List<Long> search(SelectedFolder sel, String query) {
+			return delegate.search(sel, "uid 1:* " + query);
+		}
+
+		@Override
+		public boolean supports(String query) {
+			return outlookSearch.matcher(query).matches();
+		}
+
+		@Override
+		public String toString() {
+			return "OutlookSince";
+		}
+
 	}
 
 	private static class OutlookUidSince implements SearchFastPath {
