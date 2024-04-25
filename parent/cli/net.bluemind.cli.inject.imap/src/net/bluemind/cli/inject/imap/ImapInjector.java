@@ -33,6 +33,7 @@ import net.bluemind.cli.inject.common.TargetMailbox;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.imap.FlagsList;
+import net.bluemind.imap.ListInfo;
 import net.bluemind.imap.StoreClient;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.network.topology.Topology;
@@ -68,12 +69,15 @@ public class ImapInjector extends MailExchangeInjector {
 			this.lock = new Semaphore(1);
 			this.target = new ArrayList<>(1 + folders * folders);
 			this.target.add("INBOX");
-			this.bound = 1;
+			this.bound = target.size();
 			this.folders = folders;
 		}
 
 		public boolean prepare() {
 			boolean ret = sc.login();
+			sc.listAll().stream().filter(ListInfo::isSelectable).map(ListInfo::getName).forEach(target::add);
+			this.bound = target.size();
+
 			if (ret && folders > 0) {
 				try {
 					Country country = new Faker().country();
