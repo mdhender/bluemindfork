@@ -8,6 +8,8 @@ public class ImapConfig {
 	public static final String PROXY_PROTOCOL = "imap.proxy-protocol";
 	public static final String IDLE_TIMEOUT = "imap.idle-timeout";
 	public static final String CHUNK_SIZE = "imap.chunk-size";
+	public static final String TCP_NODELAY = "imap.tcp-nodelay";
+	public static final String TCP_CORK = "imap.tcp-cork";
 
 	public static class Throughput {
 		private Throughput() {

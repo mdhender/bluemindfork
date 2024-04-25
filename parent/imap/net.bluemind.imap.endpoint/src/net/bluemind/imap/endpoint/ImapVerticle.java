@@ -61,7 +61,12 @@ public class ImapVerticle extends AbstractVerticle {
 		int idle = (int) conf.getDuration(ImapConfig.IDLE_TIMEOUT, TimeUnit.SECONDS);
 		NetServerOptions opts = new NetServerOptions();
 		opts.setIdleTimeout(idle).setIdleTimeoutUnit(TimeUnit.SECONDS);
-		opts.setTcpFastOpen(true).setTcpNoDelay(true).setTcpQuickAck(true);
+		opts //
+				.setTcpFastOpen(true)//
+				.setTcpNoDelay(conf.getBoolean(ImapConfig.TCP_NODELAY))//
+				.setTcpQuickAck(true)//
+				.setTcpCork(conf.getBoolean(ImapConfig.TCP_CORK))//
+		;
 		opts.setRegisterWriteHandler(true);
 		opts.setUseProxyProtocol(conf.getBoolean(ImapConfig.PROXY_PROTOCOL));
 		NetServer srv = vertx.createNetServer(opts);
