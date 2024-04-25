@@ -1,12 +1,13 @@
 import cloneDeep from "lodash.clonedeep";
 import { inject } from "@bluemind/inject";
-import { partUtils } from "@bluemind/mail";
+import { partUtils, messageUtils } from "@bluemind/mail";
 import { html2text } from "@bluemind/html-utils";
 import { base64ToArrayBuffer } from "@bluemind/arraybuffer";
 import { PartsBuilder, MimeType, CID_DATA_ATTRIBUTE } from "@bluemind/email";
-import { SET_MESSAGE_PREVIEW } from "~/mutations";
+import { SET_MESSAGE_PREVIEW, SET_MESSAGES_STATUS, SET_SAVE_ERROR } from "~/mutations";
 import { UPDATE_MESSAGE_STRUCTURE } from "~/actions";
 import { Actions, scheduleAction } from "./draftActionsScheduler";
+const { MessageStatus } = messageUtils;
 
 const { sanitizeTextPartForCyrus } = partUtils;
 
@@ -19,9 +20,18 @@ export async function debouncedSetMessageContent(context, payload) {
 }
 
 async function setMessageContent({ dispatch, commit }, { message, content }) {
-    commit(SET_MESSAGE_PREVIEW, { key: message.key, preview: html2text(content) });
-    const structure = await buildBodyStructureFromContent(message, content);
-    return dispatch(UPDATE_MESSAGE_STRUCTURE, { key: message.key, structure });
+    try {
+        commit(SET_MESSAGE_PREVIEW, { key: message.key, preview: html2text(content) });
+        const structure = await buildBodyStructureFromContent(message, content);
+        const resolved = await dispatch(UPDATE_MESSAGE_STRUCTURE, { key: message.key, structure });
+        commit(SET_SAVE_ERROR, null);
+        return resolved;
+    } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error(err);
+        commit(SET_MESSAGES_STATUS, [{ key: message.key, status: MessageStatus.SAVE_ERROR }]);
+        commit(SET_SAVE_ERROR, err);
+    }
 }
 
 async function buildBodyStructureFromContent(message, html) {

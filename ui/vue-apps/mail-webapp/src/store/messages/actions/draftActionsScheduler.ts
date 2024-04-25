@@ -20,8 +20,9 @@ function executeActions(immediate = false) {
             .then(execute.bind(null, Actions.SEND))
             .then(clear)
             .catch(err => {
+                promise = undefined;
                 if (err !== "CANCEL") {
-                    console.error(err);
+                    throw err;
                 }
             });
     }
@@ -65,7 +66,6 @@ export async function cancelSchedulerActions(checkCondition: () => boolean = () 
         registeredCallback.clear();
         waitingRoom.cancel();
         reject("CANCEL");
-        promise = undefined;
     }
     return;
 }
