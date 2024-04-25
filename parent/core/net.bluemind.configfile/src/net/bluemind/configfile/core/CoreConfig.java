@@ -41,6 +41,7 @@ public class CoreConfig {
 
 		public static final String TASKS_SIZE = "core.pool.tasks.size";
 		public static final String TASKS_COMPLETED_TIMEOUT = "core.pool.tasks.completed-timeout";
+		public static final String WORKER_SIZE = "core.pool.worker.size";
 		public static final String EXECUTOR_SIZE = "core.pool.executor.size";
 		public static final String EXECUTOR_COMPLETION_TIMEOUT = "core.pool.executor.completion-timeout";
 	}

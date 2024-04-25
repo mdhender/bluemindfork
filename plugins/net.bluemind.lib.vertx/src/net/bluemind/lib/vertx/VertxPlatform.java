@@ -30,6 +30,8 @@ import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.typesafe.config.Config;
+
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.Slf4JLoggerFactory;
 import io.opentelemetry.api.GlobalOpenTelemetry;
@@ -45,6 +47,7 @@ import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.MessageCodec;
 import io.vertx.tracing.opentelemetry.OpenTelemetryOptions;
 import net.bluemind.common.vertx.contextlogging.ContextualData;
+import net.bluemind.configfile.core.CoreConfig;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.lib.vertx.internal.BMModule;
 import net.bluemind.lib.vertx.internal.Result;
@@ -84,10 +87,18 @@ public final class VertxPlatform implements BundleActivator {
 
 		openTelemetry = GlobalOpenTelemetry.get();
 
+		Config coreConf = CoreConfig.get();
+		int workers = Runtime.getRuntime().availableProcessors() * 2 + 2;
+		if (coreConf.hasPath(CoreConfig.Pool.WORKER_SIZE)) {
+			workers = coreConf.getInt(CoreConfig.Pool.WORKER_SIZE);
+		}
+
 		// LC: Don't disable setPreferNativeTransport as it will disable unix sockets
 		// too!
 		vertx = Vertx.vertx(new VertxOptions() //
 				.setPreferNativeTransport(true) //
+				.setEventLoopPoolSize(workers)//
+				.setWorkerPoolSize(workers)//
 				.setMetricsOptions(new SpectatorMetricsOptions().setEnabled(true))//
 				.setTracingOptions(new OpenTelemetryOptions(openTelemetry)));
 
