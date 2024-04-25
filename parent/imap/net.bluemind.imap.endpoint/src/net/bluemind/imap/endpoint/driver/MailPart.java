@@ -17,6 +17,7 @@
  */
 package net.bluemind.imap.endpoint.driver;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -27,7 +28,7 @@ public class MailPart {
 	public final Set<String> options;
 	public final String partial;
 	private final String toString;
-	private String outName;
+	private final byte[] outName;
 
 	public MailPart(String name, String section, Set<String> options, String partial) {
 		this.name = name;
@@ -35,7 +36,8 @@ public class MailPart {
 		this.options = options;
 		this.partial = partial;
 		this.toString = toStringImpl();
-		this.outName = toString.replace(".peek", "").replace(".PEEK", "");
+		this.outName = (" " + toString + " ").replace(".peek", "").replace(".PEEK", "")
+				.getBytes(StandardCharsets.US_ASCII);
 	}
 
 	private String toStringImpl() {
@@ -55,7 +57,7 @@ public class MailPart {
 		return toString;
 	}
 
-	public String outName() {
+	public byte[] outName() {
 		return outName;
 	}
 

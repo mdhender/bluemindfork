@@ -17,6 +17,7 @@
  */
 package net.bluemind.imap.endpoint.exec;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -102,20 +103,24 @@ public class FetchedItemStream implements WriteStream<FetchedItem> {
 		return this;
 	}
 
+	private Buffer ascii(Buffer b, String s) {
+		return b.appendBytes(s.getBytes(StandardCharsets.US_ASCII));
+	}
+
+	private static final byte[] FETCH_END = ")\r\n".getBytes(StandardCharsets.US_ASCII);
+
 	private Buffer toBuffer(FetchedItem fetched) {
-		Buffer b = Buffer.buffer();
-		b.appendString("* " + fetched.seq + " FETCH (UID " + fetched.uid);
+		Buffer b = Buffer.buffer(8192);
+		ascii(b, "* " + fetched.seq + " FETCH (UID " + fetched.uid);
 
 		for (MailPart mp : spec) {
 			String k = mp.toString();
 			ByteBuf v = fetched.properties.get(k);
 			if (v != null) {
-				b.appendByte((byte) ' ');
-				b.appendString(mp.outName()).appendByte((byte) ' ');
-				b.appendBuffer(Buffer.buffer(v));
+				b.appendBytes(mp.outName()).appendBuffer(Buffer.buffer(v));
 			}
 		}
-		b.appendString(")\r\n");
+		b.appendBytes(FETCH_END);
 		return b;
 	}
 

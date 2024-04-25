@@ -499,7 +499,7 @@ public class MailApiConnection implements MailboxConnection {
 					fi.seq = seqIndex.get(rec.itemId);
 					fi.properties = renderer.renderFields(rec);
 					return fi;
-				}).andThen(ar -> fetchContext.runOnContext(v -> {
+				}, false).andThen(ar -> fetchContext.runOnContext(v -> {
 					if (ar.failed()) {
 						ret.completeExceptionally(ar.cause());
 					} else {
