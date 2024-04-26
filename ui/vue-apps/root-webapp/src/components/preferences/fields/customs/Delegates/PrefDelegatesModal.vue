@@ -108,7 +108,7 @@
                 <span class="ml-4">
                     {{ $t("preferences.account.delegates.calendar.invitations.no_private_event") }}
                     <bm-read-more
-                        href="https://doc.bluemind.net/release/5.0/guide_de_l_utilisateur/parametrer_le_compte_utilisateur#2-donner-les-droits-de-gestion-des-invitations"
+                        href="https://doc.bluemind.net/release/5.1/guide_de_l_utilisateur/parametrer_le_compte_utilisateur#2-donner-les-droits-de-gestion-des-invitations"
                     />
                 </span>
             </div>

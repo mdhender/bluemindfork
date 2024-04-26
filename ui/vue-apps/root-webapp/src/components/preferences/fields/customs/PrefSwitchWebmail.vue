@@ -8,7 +8,7 @@
                     <em>{{ feature }}</em>
                 </li>
             </ul>
-            <bm-read-more href="https://doc.bluemind.net/release/5.0/category/la-messagerie" />
+            <bm-read-more href="https://doc.bluemind.net/release/5.1/category/la-messagerie" />
         </div>
     </div>
 </template>

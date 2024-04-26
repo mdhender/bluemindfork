@@ -27,7 +27,7 @@
             </banner-entry>
       </extension>
       <extension point="net.bluemind.webapp">
-	      <application href="/webapp/contacts/" name="%banner-entry.name" priority="128" role="hasMail" help="https://doc.bluemind.net/release/5.0/category/les-contacts" shortcut="true">
+	      <application href="/webapp/contacts/" name="%banner-entry.name" priority="128" role="hasMail" help="https://doc.bluemind.net/release/5.1/category/les-contacts" shortcut="true">
                   <icon>
                         <svg>
                               <![CDATA[

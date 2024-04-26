@@ -76,7 +76,7 @@ watchEffect(() => {
                     </span>
                     <bm-read-more
                         class="d-inline-flex"
-                        href="https://doc.bluemind.net/release/5.0/category/guide_de_l_utilisateur/parametrer_le_compte_utilisateur#manage-my-invitations"
+                        href="https://doc.bluemind.net/release/5.1/category/guide_de_l_utilisateur/parametrer_le_compte_utilisateur#manage-my-invitations"
                     />
                 </span>
             </div>

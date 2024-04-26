@@ -32,7 +32,7 @@
             </web-filter>
       </extension>
       <extension point="net.bluemind.webapp">
-	      <application href="/webapp/calendar/" name="%banner-entry.name" priority="64" shortcut="true" role="hasCalendar" help="https://doc.bluemind.net/release/5.0/category/lagenda">
+	      <application href="/webapp/calendar/" name="%banner-entry.name" priority="64" shortcut="true" role="hasCalendar" help="https://doc.bluemind.net/release/5.1/category/lagenda">
                   <icon>
                         <svg>
                         <![CDATA[

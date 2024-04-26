@@ -107,7 +107,7 @@
                name="%banner-entry.name"
                priority="16"
                role="hasAdminConsole"
-               help="https://doc.bluemind.net/release/5.0/category/guide-de-ladministrateur">
+               help="https://doc.bluemind.net/release/5.1/category/guide-de-ladministrateur">
                <icon>
                      <svg>
                      <![CDATA[

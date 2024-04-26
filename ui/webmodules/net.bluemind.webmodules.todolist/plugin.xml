@@ -24,7 +24,7 @@
             </banner-entry>
       </extension>
       <extension point="net.bluemind.webapp">
-	      <application href="/webapp/tasks/" name="%banner-entry.name" priority="32" role="hasCalendar" help="https://doc.bluemind.net/release/5.0/category/les-t%C3%A2ches">
+	      <application href="/webapp/tasks/" name="%banner-entry.name" priority="32" role="hasCalendar" help="https://doc.bluemind.net/release/5.1/category/les-t%C3%A2ches">
                   <icon>
                         <svg>
                               <![CDATA[

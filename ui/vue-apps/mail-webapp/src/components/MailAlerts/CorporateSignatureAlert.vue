@@ -2,7 +2,7 @@
     <span>
         <default-alert :alert="alert" />
         <bm-read-more
-            href="https://doc.bluemind.net/release/5.0/guide_de_l_administrateur/configurer_les_domaines/signatures_d_entreprise"
+            href="https://doc.bluemind.net/release/5.1/guide_de_l_administrateur/configurer_les_domaines/signatures_d_entreprise"
         />
     </span>
 </template>

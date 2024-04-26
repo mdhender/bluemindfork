@@ -9,7 +9,7 @@
             </template>
         </i18n>
         <bm-read-more
-            href="https://doc.bluemind.net/release/5.0/guide_de_l_utilisateur/la_messagerie/envoyer_des_messages/transferer_une_invitation#fwd-invitation"
+            href="https://doc.bluemind.net/release/5.1/guide_de_l_utilisateur/la_messagerie/envoyer_des_messages/transferer_une_invitation#fwd-invitation"
         />
     </span>
 </template>
