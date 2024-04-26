@@ -8,6 +8,8 @@ import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.typesafe.config.Config;
+
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.DeploymentOptions;
@@ -15,6 +17,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.Promise;
 import io.vertx.core.Verticle;
 import io.vertx.core.Vertx;
+import net.bluemind.configfile.core.CoreConfig;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
@@ -85,6 +88,11 @@ public class BMModule extends AbstractVerticle {
 
 		logger.info("deploying {} verticle {}", vf.isWorker() ? "worker" : "std", vf);
 		int cpus = Runtime.getRuntime().availableProcessors();
+		Config coreConf = CoreConfig.get();
+		if (coreConf.hasPath(CoreConfig.Pool.WORKER_SIZE)) {
+			cpus = coreConf.getInt(CoreConfig.Pool.WORKER_SIZE);
+		}
+
 		if (vf instanceof IUniqueVerticleFactory) {
 			cpus = 1;
 		}
