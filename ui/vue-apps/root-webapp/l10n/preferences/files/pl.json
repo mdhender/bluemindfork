@@ -21,7 +21,7 @@
     "preferences.mail.signature.insert": "Automatycznie wstaw podpis",
     "preferences.mail.logout": "Podczas wylogowania",
     "preferences.mail.logout.empty.trash": "Opróżnij kosz",
-    "preferences.mail.quota.always.display": "Zawsze wyświetlaj pojemność pamięci",
+    "preferences.mail.quota.always.display": "Zawsze wyświetlaj używaną pamięć",
     "preferences.mail.remote.images.explanations": "BlueMind domyślnie pobiera zdalne treści tylko od znanych nadawców. Aby chronić swoją prywatność, zalecamy pozostawienie tej opcji wyłączonej.",
     "preferences.save.error": "Błąd podczas zapisywania ustawień, sprawdź połączenie sieciowe",
     "preferences.save.success": "Zmiany zapisane",

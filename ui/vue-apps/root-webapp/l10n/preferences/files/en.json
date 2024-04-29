@@ -1,5 +1,5 @@
 {
-    "alert.preferences.change_preferences" : "set in your preferences",
+    "alert.preferences.change_preferences": "set in your preferences",
     "alert.preferences.containers.create_and_import_data.warning": "Creation was successful but some data could not be imported.",
     "alert.preferences.field.save.error": "Error while saving {name}",
     "alert.preferences.mail.mailto_links.action.error": "Your browser does not support the registering of the mailto protocol.",
@@ -296,7 +296,7 @@
     "preferences.mail.message.list.display.normal": "Normal",
     "preferences.mail.message.list.display.compact": "Compact",
     "preferences.mail.quota": "Storage capacity",
-    "preferences.mail.quota.always.display": "Always display storage capacity",
+    "preferences.mail.quota.always.display": "Always display storage usage",
     "preferences.mail.quota.unlimited": "Unlimited",
     "preferences.mail.quota.used": "{used} out of {total} used",
     "preferences.mail.remote.images": "Remote images",

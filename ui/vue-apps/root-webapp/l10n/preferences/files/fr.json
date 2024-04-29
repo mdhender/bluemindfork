@@ -1,5 +1,5 @@
 {
-    "alert.preferences.change_preferences" : "dans vos préférences",
+    "alert.preferences.change_preferences": "dans vos préférences",
     "alert.preferences.containers.create_and_import_data.warning": "La création a bien été effectuée mais certaines données n'ont pas pu être importées.",
     "alert.preferences.field.save.error": "Erreur lors de l'enregistrement de {name}",
     "alert.preferences.mail.mailto_links.action.error": "Votre navigateur ne prend pas en charge la gestion des liens mailto.",
@@ -296,7 +296,7 @@
     "preferences.mail.message.list.display.normal": "Normale",
     "preferences.mail.message.list.display.compact": "Dense",
     "preferences.mail.quota": "Capacité de stockage",
-    "preferences.mail.quota.always.display": "Toujours afficher la capacité de stockage",
+    "preferences.mail.quota.always.display": "Toujours afficher le stockage utilisé",
     "preferences.mail.quota.unlimited": "Illimité",
     "preferences.mail.quota.used": "{used} utilisé sur {total}",
     "preferences.mail.remote.images": "Images distantes",

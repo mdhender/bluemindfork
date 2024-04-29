@@ -1,5 +1,5 @@
 {
-    "alert.preferences.change_preferences" : "in Ihren Einstellungen festlegen",
+    "alert.preferences.change_preferences": "in Ihren Einstellungen festlegen",
     "alert.preferences.containers.create_and_import_data.warning": " Das Anlegen wurde erfolgreich abgeschlossen, es konnten jedoch nicht alle Daten importiert werden.",
     "alert.preferences.field.save.error": "Fehler beim Speichern von {name}",
     "alert.preferences.mail.mailto_links.action.error": "Ihr Browser unterstützt die Registrierung des mailto-Protokolls nicht.",
@@ -296,7 +296,7 @@
     "preferences.mail.message.list.display.normal": "Normal",
     "preferences.mail.message.list.display.compact": "Kompact",
     "preferences.mail.quota": "Speicherkapazität",
-    "preferences.mail.quota.always.display": "Speicherkapazität immer anzeigen",
+    "preferences.mail.quota.always.display": "Den verwendeten Speicher immer anzeigen",
     "preferences.mail.quota.unlimited": "Unbegrenzt",
     "preferences.mail.quota.used": "{used} von {total} verwendet",
     "preferences.mail.remote.images": "Externe Bilddateien",
