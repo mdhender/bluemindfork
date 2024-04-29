@@ -135,6 +135,8 @@ public class TopologyChangePlanner {
 				: clusterUUID(firstMaster.value);
 		// do NOT bootstrap nodes that share the same cluster id as our first master
 		return esNodes.nodes().stream()//
+				.filter(iv -> iv.value.tags.contains(EsTopology.ES_TAG)
+						|| iv.value.tags.contains(EsTopology.ES_DATA_TAG))
 				.filter(iv -> doClearFirst || iv.internalId != firstMaster.internalId)
 				.filter(iv -> !preservedClusterUid.equals(clusterUUID(iv.value)))//
 				.map(iv -> iv.uid).collect(Collectors.toSet());

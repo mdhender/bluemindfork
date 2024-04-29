@@ -18,6 +18,7 @@
 package net.bluemind.elastic.topology.service.tests;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.net.URI;
@@ -26,16 +27,28 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.awaitility.Awaitility;
 import org.junit.Test;
+import org.slf4j.LoggerFactory;
 
 import io.vertx.core.json.JsonObject;
+import net.bluemind.common.task.Tasks;
+import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.core.task.api.TaskRef;
+import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.elastic.topology.service.TopologyChangePlan;
 import net.bluemind.elastic.topology.service.TopologyChangePlanner;
+import net.bluemind.elastic.topology.service.impl.EsTopologyService;
 import net.bluemind.elastic.topology.service.tests.TopologySpawn.ContainerBasedTopology;
 import net.bluemind.elastic.topology.service.tests.TopologySpawn.EsSpawnedNode;
+import net.bluemind.network.topology.Topology;
+import net.bluemind.server.api.Server;
 import net.bluemind.server.api.TagDescriptor;
 
 public class SpawnElasticNodesTests {
@@ -133,6 +146,22 @@ public class SpawnElasticNodesTests {
 			System.err.println("**************** RECONFIG ************* ");
 			configureCluster(topo);
 
+			System.err.println("**************** RECONFIG WITH API ************* ");
+			List<ItemValue<Server>> withCore = new ArrayList<>();
+			ItemValue<Server> core = ItemValue.create("core", Server.tagged("127.0.0.1", "bm/core"));
+			withCore.add(core);
+			withCore.addAll(ts.getNodes().stream().map(es -> es.srv()).toList());
+			Topology.update(withCore);
+
+			ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
+			EsTopologyService api = new EsTopologyService(prov.getContext(), Topology::get, ts.getLifecycle());
+			System.err.println("Reconfigure....");
+			TaskRef ref = api.resetAndReconfigure();
+			TaskStatus status = Tasks
+					.followStream(prov, LoggerFactory.getLogger(SpawnElasticNodesTests.class), null, ref)
+					.orTimeout(4, TimeUnit.MINUTES).join();
+			System.err.println("RECONFIG is done");
+			assertTrue(status.state.succeed);
 		}
 
 	}

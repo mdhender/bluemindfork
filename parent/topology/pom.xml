@@ -13,6 +13,7 @@
 		<module>net.bluemind.network.topology.producer</module>
 		<module>net.bluemind.network.topology.consumer</module>
 		<module>net.bluemind.elastic.topology.service</module>
+		<module>net.bluemind.elastic.topology.api</module>
 	</modules>
 	<profiles>
 		<profile>

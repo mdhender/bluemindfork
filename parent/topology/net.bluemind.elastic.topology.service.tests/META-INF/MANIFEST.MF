@@ -14,7 +14,10 @@ Require-Bundle: slf4j.api;bundle-version="1.7.36",
  net.bluemind.network.topology,
  net.bluemind.core.task.spi,
  net.bluemind.lib.vertx,
- org.awaitility
+ org.awaitility,
+ net.bluemind.core.rest,
+ net.bluemind.elastic.topology.api,
+ net.bluemind.common.task
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.elastic.topology.service.tests
 Bundle-ActivationPolicy: lazy

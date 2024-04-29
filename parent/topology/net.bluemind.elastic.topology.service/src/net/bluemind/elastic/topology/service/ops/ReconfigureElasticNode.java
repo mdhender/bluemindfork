@@ -63,7 +63,7 @@ public class ReconfigureElasticNode implements IServerTask {
 
 		if (resetData) {
 			monitor.log("Resetting elastic data on {}", node);
-			NCUtils.exec(nc, 2, TimeUnit.MINUTES, "rm", "-fr", "/var/spool/bm-elasticsearch/data/nodes");
+			NCUtils.exec(nc, "rm", "-fr", "/var/spool/bm-elasticsearch/data/nodes");
 
 			configBuild.bootstrapRequired();
 		}

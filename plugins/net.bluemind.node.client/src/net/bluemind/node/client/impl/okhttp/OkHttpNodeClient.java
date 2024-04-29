@@ -190,7 +190,7 @@ public class OkHttpNodeClient implements INodeClient {
 		}
 
 		if (websocket == null) {
-			logger.error("Error command as websocket is missing");
+			logger.error("Error command as websocket is missing for {}", wsReq);
 			ph.completed(1);
 		} else {
 			long rid = wsIdGen.incrementAndGet();

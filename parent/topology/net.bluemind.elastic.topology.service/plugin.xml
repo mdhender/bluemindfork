@@ -8,4 +8,11 @@
       </hook>
    </extension>
 
+   <extension
+         point="net.bluemind.core.rest.serviceFactory">
+      <serviceFactory
+            class="net.bluemind.elastic.topology.service.impl.EsTopologyService$Factory">
+      </serviceFactory>
+   </extension>
+
 </plugin>

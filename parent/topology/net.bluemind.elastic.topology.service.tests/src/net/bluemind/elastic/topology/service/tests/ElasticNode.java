@@ -90,7 +90,7 @@ public class ElasticNode extends GenericContainer<ElasticNode> {
 	}
 
 	public ElasticNode() {
-		super("docker.bluemind.net/bluemind/elasticsearch-tests:5.0");
+		super("docker.bluemind.net/bluemind/elasticsearch-tests:5.0.6980");
 		withExposedPorts(9200, 9300, 8021);
 		withReuse(false);
 		waitingFor(new org.testcontainers.containers.wait.strategy.AbstractWaitStrategy() {
@@ -105,8 +105,8 @@ public class ElasticNode extends GenericContainer<ElasticNode> {
 				INodeClient nc = NodeActivator.get(inspectAddress());
 				InputStream input = ElasticNode.class.getClassLoader().getResourceAsStream("scripts/restart-es.sh");
 				nc.writeFile("/restart-es.sh", input);
-				NCUtils.exec(nc, "chmod", "+x", "/restart-es.sh");
-				System.err.println("/restart-es.sh overriden.");
+				ExitList out = NCUtils.exec(nc, "/usr/bin/chmod", "+x", "/restart-es.sh");
+				System.err.println("/restart-es.sh overriden (exit " + out.getExitCode() + ")");
 			}
 
 		});
@@ -140,10 +140,10 @@ public class ElasticNode extends GenericContainer<ElasticNode> {
 		String ip = inspectAddress();
 		INodeClient nc = NodeActivator.get(ip);
 		System.err.println("Stop in docker " + ip);
-		ExitList res = NCUtils.exec(nc, 2, TimeUnit.MINUTES, "pkill", "-F", "/var/spool/bm-elasticsearch/data/es.pid");
+		ExitList res = NCUtils.exec(nc, "pkill", "-F", "/var/spool/bm-elasticsearch/data/es.pid");
 		System.err.println("Stop result: " + res.getExitCode());
-		ExitList clearLock = NCUtils.exec(nc, 2, TimeUnit.MINUTES, "find", "/var/spool/bm-elasticsearch/data/", "-type",
-				"f", "-name", "node.lock", "-delete");
+		ExitList clearLock = NCUtils.exec(nc, "find", "/var/spool/bm-elasticsearch/data/", "-type", "f", "-name",
+				"node.lock", "-delete");
 		System.err.println("Clear lock: " + clearLock.getExitCode());
 
 	}
@@ -152,7 +152,7 @@ public class ElasticNode extends GenericContainer<ElasticNode> {
 		String ip = inspectAddress();
 		INodeClient nc = NodeActivator.get(ip);
 		System.err.println("Restarting in docker " + ip + " from " + Thread.currentThread().getName());
-		int exitCode = NCUtils.exec(nc, 2, TimeUnit.MINUTES, "/restart-es.sh").getExitCode();
+		int exitCode = NCUtils.exec(nc, "/restart-es.sh").getExitCode();
 		try {
 			new NetworkHelper(ip).waitForListeningPort(9300, 30, TimeUnit.SECONDS);
 			System.err.println(ip + ":9300 is ok, restart existed with code " + exitCode);
