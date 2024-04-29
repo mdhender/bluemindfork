@@ -98,6 +98,10 @@ public class LdapParameters extends Parameters {
 				Optional.ofNullable(domain.properties.get(LdapProperties.import_ldap_lastupdate.name())));
 	}
 
+	public static boolean isImportEnabled(Domain domain) {
+		return Boolean.TRUE.equals(Boolean.valueOf(domain.properties.get(LdapProperties.import_ldap_enabled.name())));
+	}
+
 	private static String getHostname(String ldapHostname) {
 		if (ldapHostname.contains(":")) {
 			return ldapHostname.split(":")[0];

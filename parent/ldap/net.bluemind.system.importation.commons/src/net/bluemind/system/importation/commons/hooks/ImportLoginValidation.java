@@ -34,16 +34,20 @@ import net.bluemind.system.importation.commons.CoreServices;
 import net.bluemind.system.importation.commons.ICoreServices;
 import net.bluemind.system.importation.commons.Parameters;
 import net.bluemind.system.importation.commons.managers.UserManager;
+import net.bluemind.user.api.User;
 
 /**
  * @author Anthony Prades <anthony.prades@blue-mind.net>
  *
  */
 public abstract class ImportLoginValidation implements ILoginValidationListener {
-
 	@Override
 	public void onValidLogin(IAuthProvider authenticationService, boolean userExists, String userLogin,
 			String domainUid, String password) {
+		if (userExists) {
+			return;
+		}
+
 		if (!mustValidLogin(authenticationService)) {
 			return;
 		}
@@ -54,30 +58,52 @@ public abstract class ImportLoginValidation implements ILoginValidationListener 
 			throw new ServerFault(String.format("Domain uid %s not found", domainUid));
 		}
 
-		if (userExists) {
-			return;
+		importUserFromLogin(domain, userLogin);
+	}
+
+	@Override
+	public ItemValue<User> onSu(ItemValue<Domain> domain, String login) {
+		if (!isImportEnabled(domain)) {
+			return null;
 		}
 
+		return importUserFromLogin(domain, login);
+
+	}
+
+	private ItemValue<User> importUserFromLogin(ItemValue<Domain> domain, String userLogin) {
 		Map<String, String> domainSettings = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IDomainSettings.class, domain.uid).get();
 		Parameters directoryParameters = getDirectoryParameters(domain, domainSettings);
 
 		Optional<UserManager> optionalUserManager = getDirectoryUser(directoryParameters, domain, userLogin);
 		if (!optionalUserManager.isPresent()) {
-			throw new ServerFault(String.format("Can't find user: %s@%s in directory server", userLogin, domainUid));
+			throw new ServerFault(String.format("Can't find user: %s@%s in directory server", userLogin, domain.uid));
 		}
 
 		UserManager userManager = optionalUserManager.get();
 		if (userManager.create) {
-			ICoreServices coreService = CoreServices.build(domainUid);
+			ICoreServices coreService = CoreServices.build(domain.uid);
 			coreService.createUser(userManager.user);
 			userManager.getUpdatedMailFilter().ifPresent(mf -> coreService.setMailboxFilter(userManager.user.uid, mf));
 
 			manageUserGroups(coreService, directoryParameters, userManager);
+
+			return userManager.user;
 		}
+
+		return null;
 	}
 
 	protected abstract void manageUserGroups(ICoreServices build, Parameters ldapParameters, UserManager userManager);
+
+	/**
+	 * Is import enabled for this domain
+	 * 
+	 * @param domain
+	 * @return
+	 */
+	protected abstract boolean isImportEnabled(ItemValue<Domain> domain);
 
 	/**
 	 * @return

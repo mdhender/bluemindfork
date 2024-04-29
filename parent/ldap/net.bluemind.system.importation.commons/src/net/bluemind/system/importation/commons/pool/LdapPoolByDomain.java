@@ -99,7 +99,8 @@ public class LdapPoolByDomain {
 		}
 		LdapPoolWrapper pool = poolByDomain.get(ldapParameters);
 
-		return new LdapConnectionContext(pool.getPool().getConnection(), pool.ldapConnectionConfig, ldapParameters);
+		return new LdapConnectionContext(pool.getPool().getConnection(), pool.getLdapConnectionConfig(),
+				ldapParameters);
 	}
 
 	/**

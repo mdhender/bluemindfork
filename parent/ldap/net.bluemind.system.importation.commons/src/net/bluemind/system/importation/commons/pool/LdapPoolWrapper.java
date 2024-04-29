@@ -51,7 +51,7 @@ public class LdapPoolWrapper {
 
 	private LdapConnectionPool pool;
 	private Parameters ldapParameters;
-	protected LdapConnectionConfig ldapConnectionConfig;
+	private LdapConnectionConfig ldapConnectionConfig;
 
 	public LdapPoolWrapper(Parameters parameters) {
 		this.ldapParameters = parameters;
@@ -66,7 +66,7 @@ public class LdapPoolWrapper {
 				throw new NoLdapHostAvailableFault("No LDAP hosts available for: " + ldapParameters.toString());
 			}
 
-			logger.info("Connected to LDAP: " + ldapConnectionConfig.getLdapHost());
+			logger.info("Connected to LDAP: {}", ldapConnectionConfig.getLdapHost());
 		}
 
 		return pool;
@@ -82,7 +82,7 @@ public class LdapPoolWrapper {
 		while (pool == null && ldapHostsIterator.hasNext()) {
 			Host ldapHost = ldapHostsIterator.next();
 
-			LdapConnectionConfig ldapConnectionConfig = getLdapConnectionConfig(ldapParameters, ldapHost);
+			ldapConnectionConfig = setLdapConnectionConfig(ldapParameters, ldapHost);
 
 			try {
 				tryConnection(ldapHost, ldapConnectionConfig);
@@ -98,9 +98,9 @@ public class LdapPoolWrapper {
 	}
 
 	private void tryConnection(Host ldapHost, LdapConnectionConfig ldapConnectionConfig) {
-		logger.info("Trying to connect to: {} {}:{}",
-				ldapConnectionConfig.isUseSsl() ? "ssl:" : ldapConnectionConfig.isUseTls() ? "tls:" : "",
-				ldapHost.hostname, ldapHost.port);
+		if (logger.isInfoEnabled()) {
+			logger.info("Trying to connect to: {}", getLdapConnectionURI(ldapHost, ldapConnectionConfig));
+		}
 
 		DefaultPoolableLdapConnectionFactory bpcf = new DefaultPoolableLdapConnectionFactory(ldapConnectionConfig);
 
@@ -121,27 +121,35 @@ public class LdapPoolWrapper {
 
 			try {
 				tmpPool.close();
-			} catch (Exception e1) {
+			} catch (Exception ignored) {
 				// ok
 			}
 
-			if (e instanceof LdapOperationException
-					&& (((LdapOperationException) e).getResultCode() == ResultCodeEnum.UNAVAILABLE)
+			if (e instanceof LdapOperationException loe && (loe.getResultCode() == ResultCodeEnum.UNAVAILABLE)
 					&& ldapConnectionConfig.isUseTls()) {
 				throw new StartTlsFault();
 			}
 		}
 	}
 
-	private LdapConnectionConfig getLdapConnectionConfig(Parameters ldapParameters, Host ldapHost) {
+	private String getLdapConnectionURI(Host ldapHost, LdapConnectionConfig ldapConnectionConfig) {
+		String hostPort = ldapHost.hostname + ":" + ldapHost.port;
+
+		if (ldapConnectionConfig.isUseSsl()) {
+			return "ssl:" + hostPort;
+		}
+
+		return (ldapConnectionConfig.isUseTls() ? "tls:" : "plain:") + hostPort;
+	}
+
+	private LdapConnectionConfig setLdapConnectionConfig(Parameters ldapParameters, Host ldapHost) {
 		LdapConnectionConfig config = new LdapConnectionConfig();
 		config.setLdapHost(ldapHost.hostname);
 		config.setLdapPort(ldapHost.port);
 		config.setTimeout(LDAP_TIMEOUT);
 
 		switch (ldapParameters.ldapServer.protocol) {
-		case TLS:
-		case TLSPLAIN:
+		case TLS, TLSPLAIN:
 			config.setUseTls(true);
 			config.setUseSsl(false);
 			break;
@@ -163,5 +171,9 @@ public class LdapPoolWrapper {
 		config.setBinaryAttributeDetector(detector);
 
 		return config;
+	}
+
+	public LdapConnectionConfig getLdapConnectionConfig() {
+		return ldapConnectionConfig;
 	}
 }

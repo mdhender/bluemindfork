@@ -97,6 +97,11 @@ public class GroupManagerTests {
 		protected boolean isSplitDomainNestedGroup() {
 			return false;
 		}
+
+		@Override
+		protected void manageEmails(List<String> groupEmails) {
+			super.manageEmails(groupEmails);
+		}
 	}
 
 	private ItemValue<Domain> getDomain() {

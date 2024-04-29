@@ -20,7 +20,6 @@ package net.bluemind.system.ldap.importation.hooks;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +30,6 @@ import net.bluemind.domain.api.Domain;
 import net.bluemind.lib.ldap.LdapConProxy;
 import net.bluemind.system.importation.commons.ICoreServices;
 import net.bluemind.system.importation.commons.Parameters;
-import net.bluemind.system.importation.commons.UuidMapper;
 import net.bluemind.system.importation.commons.hooks.ImportLoginValidation;
 import net.bluemind.system.importation.commons.managers.UserManager;
 import net.bluemind.system.importation.commons.scanner.Scanner;
@@ -61,11 +59,12 @@ public class ImportLdapLoginValidation extends ImportLoginValidation {
 	 */
 	@Override
 	protected boolean mustValidLogin(IAuthProvider authenticationService) {
-		if (!authenticationService.getClass().equals(ImportLdapAuthenticationService.class)) {
-			return false;
-		}
+		return authenticationService.getClass().equals(ImportLdapAuthenticationService.class);
+	}
 
-		return true;
+	@Override
+	protected boolean isImportEnabled(ItemValue<Domain> domain) {
+		return LdapParameters.isImportEnabled(domain.value);
 	}
 
 	/*
@@ -84,13 +83,7 @@ public class ImportLdapLoginValidation extends ImportLoginValidation {
 	@Override
 	protected void manageUserGroups(ICoreServices coreService, Parameters ldapParameters, UserManager userManager) {
 		try (LdapConProxy ldapCon = LdapHelper.connectLdap(ldapParameters)) {
-			Scanner.manageUserGroups(ldapCon, coreService, userManager,
-					new Function<String, Optional<? extends UuidMapper>>() {
-						@Override
-						public Optional<? extends UuidMapper> apply(String externalId) {
-							return LdapUuidMapper.fromExtId(externalId);
-						}
-					});
+			Scanner.manageUserGroups(ldapCon, coreService, userManager, LdapUuidMapper::fromExtId);
 		} catch (Exception e) {
 			logger.error(String.format("Unable to import user %s (%s) groups", userManager.user.uid,
 					userManager.user.value.login), e);

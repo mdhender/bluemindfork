@@ -19,13 +19,32 @@
 
 package net.bluemind.authentication.provider;
 
+import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.domain.api.Domain;
+import net.bluemind.user.api.User;
+
 public interface ILoginValidationListener {
 
-	void onValidLogin(IAuthProvider provider, boolean userExists, String login, String domain, String password);
+	default void onValidLogin(IAuthProvider provider, boolean userExists, String login, String domain,
+			String password) {
+	}
 
 	default void onFailedLogin(IAuthProvider provider, boolean userExists, String login, String domain,
 			String password) {
-
 	}
 
+	/**
+	 * Called by
+	 * {@link net.bluemind.authentication.service.Authentication#findOrGetUser()} if
+	 * user not found in database.
+	 * 
+	 * Return freshly created user if found and created by plugin
+	 * 
+	 * @param domain
+	 * @param login
+	 * @return freshly create user or null
+	 */
+	default ItemValue<User> onSu(ItemValue<Domain> domain, String login) {
+		return null;
+	}
 }

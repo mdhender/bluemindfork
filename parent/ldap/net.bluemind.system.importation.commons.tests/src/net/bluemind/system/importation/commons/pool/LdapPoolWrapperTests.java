@@ -116,7 +116,7 @@ public class LdapPoolWrapperTests {
 		assertNotNull(pool);
 		assertEquals(pool, lpw.getPool());
 
-		assertEquals(new BmConfIni().get(DockerContainer.LDAP.getName()), lpw.ldapConnectionConfig.getLdapHost());
+		assertEquals(new BmConfIni().get(DockerContainer.LDAP.getName()), lpw.getLdapConnectionConfig().getLdapHost());
 	}
 
 	@Test

@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -498,21 +499,21 @@ public class Authentication implements IInCoreAuthentication {
 		String domainPart = splitted.next();
 
 		ItemValue<Domain> domain = findDomainByNameOrAliases(domainPart);
-		if (domain != null) {
-			domainPart = domain.uid;
-		}
-
-		IUser userService;
-		try {
-			userService = ServerSideServiceProvider.getProvider(securityContext).instance(IUser.class, domainPart);
-		} catch (ServerFault sf) {
-			logger.error("Cannot find domain alias {}", domainPart, sf);
+		if (domain == null) {
+			logger.error("Cannot find domain alias {}", domainPart);
 			LoginResponse resp = new LoginResponse();
 			resp.status = Status.Bad;
 			return resp;
 		}
 
-		ItemValue<User> user = userService.byLogin(localPart);
+		ItemValue<User> user;
+		try {
+			user = findOrGetUser(domain, localPart);
+		} catch (ServerFault sf) {
+			LoginResponse resp = new LoginResponse();
+			resp.status = Status.Bad;
+			return resp;
+		}
 
 		if (user == null) {
 			logger.error("Cannot find user with login {} in {}", localPart, domainPart);
@@ -525,35 +526,50 @@ public class Authentication implements IInCoreAuthentication {
 			LoginResponse resp = new LoginResponse();
 			resp.status = Status.Bad;
 			return resp;
-		} else {
-			new RBACManager(context).forDomain(domainPart).forEntry(user.uid).check(BasicRoles.ROLE_SUDO);
-
-			LoginResponse resp = new LoginResponse();
-			resp.latd = user.value.login + "@" + domainPart;
-			resp.status = Status.Ok;
-			resp.authKey = UUID.randomUUID().toString();
-
-			ServerSideServiceProvider sp = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
-			Map<String, String> settings = sp.instance(IUserSettings.class, domainPart).get(user.uid);
-
-			SecurityContext builtContext = buildSecurityContext(resp.authKey, user, domainPart, settings,
-					securityContext.getOrigin(), false, interactive);
-
-			final String finalDomainPart = domainPart;
-			auditLogServiceSupplier.get().ifPresent(auditLogService -> {
-				try {
-					auditLogService.logCreate(builtContext, finalDomainPart);
-				} catch (Exception e) {
-					logger.error("Error with authentication auditlog: {}", e.getMessage());
-				}
-			});
-
-			resp.authUser = AuthUser.create(builtContext.getContainerUid(), builtContext.getSubject(), user.displayName,
-					user.value, new HashSet<>(builtContext.getRoles()), builtContext.getRolesByOrgUnits(), settings);
-			Sessions.get().put(resp.authKey, builtContext);
-			return resp;
 		}
 
+		return doSu(interactive, domainPart, user);
+	}
+
+	private ItemValue<User> findOrGetUser(ItemValue<Domain> domain, String localPart) {
+		IUser userService = ServerSideServiceProvider.getProvider(securityContext).instance(IUser.class, domain.uid);
+
+		ItemValue<User> user = userService.byLogin(localPart);
+		if (user == null) {
+			user = loginListeners.stream().map(vl -> vl.onSu(domain, localPart)).filter(Objects::nonNull).findAny()
+					.orElse(null);
+		}
+
+		return user;
+	}
+
+	private LoginResponse doSu(boolean interactive, String domainPart, ItemValue<User> user) {
+		new RBACManager(context).forDomain(domainPart).forEntry(user.uid).check(BasicRoles.ROLE_SUDO);
+
+		LoginResponse resp = new LoginResponse();
+		resp.latd = user.value.login + "@" + domainPart;
+		resp.status = Status.Ok;
+		resp.authKey = UUID.randomUUID().toString();
+
+		ServerSideServiceProvider sp = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
+		Map<String, String> settings = sp.instance(IUserSettings.class, domainPart).get(user.uid);
+
+		SecurityContext builtContext = buildSecurityContext(resp.authKey, user, domainPart, settings,
+				securityContext.getOrigin(), false, interactive);
+
+		final String finalDomainPart = domainPart;
+		auditLogServiceSupplier.get().ifPresent(auditLogService -> {
+			try {
+				auditLogService.logCreate(builtContext, finalDomainPart);
+			} catch (Exception e) {
+				logger.error("Error with authentication auditlog: {}", e.getMessage());
+			}
+		});
+
+		resp.authUser = AuthUser.create(builtContext.getContainerUid(), builtContext.getSubject(), user.displayName,
+				user.value, new HashSet<>(builtContext.getRoles()), builtContext.getRolesByOrgUnits(), settings);
+		Sessions.get().put(resp.authKey, builtContext);
+		return resp;
 	}
 
 	@Override

@@ -19,6 +19,7 @@ package net.bluemind.system.importation.commons.hooks;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -36,7 +37,6 @@ import org.junit.Test;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.authentication.provider.IAuthProvider;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcTestHelper;
@@ -75,11 +75,6 @@ public class ImportLoginValidationTests {
 			return false;
 		}
 
-		ItemValue<User> getBMUser(String userLogin, String domainName) {
-			fail("Must not be there!");
-			return null;
-		}
-
 		@Override
 		protected void manageUserGroups(ICoreServices build, Parameters ldapParameters, UserManager userManager) {
 			fail("Must not be there!");
@@ -96,10 +91,20 @@ public class ImportLoginValidationTests {
 		protected Parameters getDirectoryParameters(ItemValue<Domain> domain, Map<String, String> domainSettings) {
 			return Parameters.disabled();
 		}
-	};
+
+		@Override
+		protected boolean isImportEnabled(ItemValue<Domain> domain) {
+			return false;
+		}
+	}
 
 	@Test
-	public void ImportLoginValidation_unsupportedAuthProvider() {
+	public void importNotEnabledOnSu() {
+		assertNull(new ImportLoginValidationTest().onSu(domain, null));
+	}
+
+	@Test
+	public void unsupportedAuthProviderOnValidLogin() {
 		ImportLoginValidation unsupportedAuthProvider = new ImportLoginValidationTest() {
 			@Override
 			protected boolean mustValidLogin(IAuthProvider authenticationService) {
@@ -111,7 +116,7 @@ public class ImportLoginValidationTests {
 	}
 
 	@Test
-	public void ImportLoginValidation_invalidDomainUid() {
+	public void invalidDomainUidOnValidLogin() {
 		ImportLoginValidation importLoginValidationTest = new ImportLoginValidationTest() {
 			@Override
 			protected boolean mustValidLogin(IAuthProvider authenticationService) {
@@ -128,31 +133,16 @@ public class ImportLoginValidationTests {
 	}
 
 	@Test
-	public void ImportLoginValidation_userAlreadyExists() {
-		ImportLoginValidation importLoginValidationTest = new ImportLoginValidationTest() {
-			@Override
-			protected boolean mustValidLogin(IAuthProvider authenticationService) {
-				return true;
-			}
-
-			ItemValue<User> getBMUser(String userLogin, String domainName) {
-				return ItemValue.create(Item.create("uid", "externalId"), new User());
-			}
-		};
-
-		importLoginValidationTest.onValidLogin(fakeAuthProvider, true, "login", domain.uid, null);
+	public void userAlreadyExistsOnValidLogin() {
+		new ImportLoginValidationTest().onValidLogin(fakeAuthProvider, true, "login", domain.uid, null);
 	}
 
 	@Test
-	public void ImportLoginValidation_userNotFoundInDirectory() {
+	public void userNotFoundInDirectoryOnValidLogin() {
 		ImportLoginValidation importLoginValidationTest = new ImportLoginValidationTest() {
 			@Override
 			protected boolean mustValidLogin(IAuthProvider authenticationService) {
 				return true;
-			}
-
-			ItemValue<User> getBMUser(String userLogin, String domainName) {
-				return null;
 			}
 
 			@Override
@@ -170,95 +160,140 @@ public class ImportLoginValidationTests {
 	}
 
 	@Test
-	public void ImportLoginValidation_userFoundInDirectory() {
-		class UserManagerTestImpl extends UserManager {
-			public UserManagerTestImpl(ItemValue<Domain> domain) {
-				super(domain, null);
-				user = ItemValue.create("" + System.nanoTime(), new User());
-				user.value.login = "login-" + System.nanoTime();
-				user.value.routing = Routing.internal;
-				user.value.contactInfos = new VCard();
-				user.value.contactInfos.identification.name.familyNames = "myName";
-			}
-
+	public void userNotFoundInDirectoryOnSu() {
+		ImportLoginValidation importLoginValidationTest = new ImportLoginValidationTest() {
 			@Override
-			public List<? extends UuidMapper> getUserGroupsMemberGuid(LdapConnection ldapCon) {
-				return Collections.emptyList();
-			}
-
-			@Override
-			public String getExternalId(IImportLogger importLogger) {
-				return null;
-			}
-
-			@Override
-			protected void setLoginFromDefaultAttribute(IImportLogger importLogger)
-					throws LdapInvalidAttributeValueException {
-			}
-
-			@Override
-			protected void manageArchived() {
-			}
-
-			@Override
-			protected void setMailRouting() {
-			}
-
-			@Override
-			protected List<String> getEmails() {
-				return Collections.emptyList();
-			}
-
-			@Override
-			protected Parameters getDirectoryParameters() {
-				return null;
-			}
-
-			@Override
-			protected List<IEntityEnhancer> getEntityEnhancerHooks() {
-				return Collections.emptyList();
-			}
-
-			@Override
-			protected void manageContactInfos() throws LdapInvalidAttributeValueException {
-			}
-
-			@Override
-			protected void manageQuota(IImportLogger importLogger) throws LdapInvalidAttributeValueException {
-			}
-		}
-
-		UserManager userManagerTest = new UserManagerTestImpl(domain);
-
-		class ImportLoginValidationFake extends ImportLoginValidationTest {
-			public boolean userGroupsManaged = false;
-
-			@Override
-			protected boolean mustValidLogin(IAuthProvider authenticationService) {
+			protected boolean isImportEnabled(ItemValue<Domain> domain) {
 				return true;
-			}
-
-			ItemValue<User> getBMUser(String userLogin, String domainName) {
-				return null;
-			}
-
-			@Override
-			protected void manageUserGroups(ICoreServices build, Parameters ldapParameters, UserManager userManager) {
-				userGroupsManaged = true;
 			}
 
 			@Override
 			protected Optional<UserManager> getDirectoryUser(Parameters adParameters, ItemValue<Domain> domain,
 					String userLogin) throws ServerFault {
-				return Optional.of(userManagerTest);
+				return Optional.empty();
 			}
+		};
+
+		try {
+			importLoginValidationTest.onSu(domain, "login");
+		} catch (ServerFault sf) {
+			assertEquals("Can't find user: login@" + domain.uid + " in directory server", sf.getMessage());
+		}
+	}
+
+	class UserManagerTestImpl extends UserManager {
+		public UserManagerTestImpl(ItemValue<Domain> domain) {
+			super(domain, null);
+			user = ItemValue.create("" + System.nanoTime(), new User());
+			user.value.login = "login-" + System.nanoTime();
+			user.value.routing = Routing.internal;
+			user.value.contactInfos = new VCard();
+			user.value.contactInfos.identification.name.familyNames = "myName";
 		}
 
-		ImportLoginValidationFake importLoginValidationTest = new ImportLoginValidationFake();
+		@Override
+		public List<? extends UuidMapper> getUserGroupsMemberGuid(LdapConnection ldapCon) {
+			return Collections.emptyList();
+		}
+
+		@Override
+		public String getExternalId(IImportLogger importLogger) {
+			return null;
+		}
+
+		@Override
+		protected void setLoginFromDefaultAttribute(IImportLogger importLogger)
+				throws LdapInvalidAttributeValueException {
+		}
+
+		@Override
+		protected void manageArchived() {
+		}
+
+		@Override
+		protected void setMailRouting() {
+		}
+
+		@Override
+		protected List<String> getEmails() {
+			return Collections.emptyList();
+		}
+
+		@Override
+		protected Parameters getDirectoryParameters() {
+			return null;
+		}
+
+		@Override
+		protected List<IEntityEnhancer> getEntityEnhancerHooks() {
+			return Collections.emptyList();
+		}
+
+		@Override
+		protected void manageContactInfos() throws LdapInvalidAttributeValueException {
+		}
+
+		@Override
+		protected void manageQuota(IImportLogger importLogger) throws LdapInvalidAttributeValueException {
+		}
+	}
+
+	class ImportLoginValidationFake extends ImportLoginValidationTest {
+		private final UserManager userManager;
+		public boolean userGroupsManaged = false;
+
+		public ImportLoginValidationFake(UserManager userManagerTest) {
+			this.userManager = userManagerTest;
+		}
+
+		@Override
+		protected boolean mustValidLogin(IAuthProvider authenticationService) {
+			return true;
+		}
+
+		@Override
+		protected void manageUserGroups(ICoreServices build, Parameters ldapParameters, UserManager userManager) {
+			userGroupsManaged = true;
+		}
+
+		@Override
+		protected Optional<UserManager> getDirectoryUser(Parameters adParameters, ItemValue<Domain> domain,
+				String userLogin) throws ServerFault {
+			return Optional.of(userManager);
+		}
+
+		@Override
+		protected boolean isImportEnabled(ItemValue<Domain> domain) {
+			return true;
+		}
+	}
+
+	@Test
+	public void userFoundInDirectoryOnValidLogin() {
+		UserManager userManagerTest = new UserManagerTestImpl(domain);
+
+		ImportLoginValidationFake importLoginValidationTest = new ImportLoginValidationFake(userManagerTest);
 		importLoginValidationTest.onValidLogin(fakeAuthProvider, false, "login", domain.uid, null);
 
 		assertNotNull(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IUser.class, domain.uid)
 				.getComplete(userManagerTest.user.uid));
+		assertTrue(importLoginValidationTest.userGroupsManaged);
+	}
+
+	@Test
+	public void userFoundInDirectoryOnSu() {
+		UserManager userManagerTest = new UserManagerTestImpl(domain);
+
+		ImportLoginValidationFake importLoginValidationTest = new ImportLoginValidationFake(userManagerTest);
+		ItemValue<User> user = importLoginValidationTest.onSu(domain, "login");
+		assertNotNull(user);
+		assertEquals(userManagerTest.user.uid, user.uid);
+
+		ItemValue<User> userFromCore = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IUser.class, domain.uid).getComplete(userManagerTest.user.uid);
+		assertNotNull(userFromCore);
+		assertEquals(userFromCore.value.login, user.value.login);
+
 		assertTrue(importLoginValidationTest.userGroupsManaged);
 	}
 
