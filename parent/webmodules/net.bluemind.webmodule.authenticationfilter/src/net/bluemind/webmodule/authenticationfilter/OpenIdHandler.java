@@ -36,6 +36,7 @@ import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.google.common.base.Strings;
 
+import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
@@ -46,6 +47,7 @@ import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.RequestOptions;
+import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.common.cache.persistence.CacheBackingStore;
 import net.bluemind.core.api.auth.AuthDomainProperties;
@@ -116,38 +118,44 @@ public class OpenIdHandler extends AbstractAuthHandler implements Handler<HttpSe
 	private static final Decoder b64UrlDecoder = Base64.getUrlDecoder();
 
 	@Override
-	public void handle(HttpServerRequest event) {
-		if (Strings.isNullOrEmpty(event.params().get("code"))) {
-			event.response().end();
+	public void handle(HttpServerRequest request) {
+		List<String> forwadedFor = new ArrayList<>(request.headers().getAll("X-Forwarded-For"));
+		forwadedFor.add(request.remoteAddress().host());
+
+		JsonObject stateRequestParameter = getRequestStateParam(request, forwadedFor);
+		if (Strings.isNullOrEmpty(request.params().get("code")) || stateRequestParameter == null) {
+			if (logger.isDebugEnabled()) {
+				logger.error("[{}][{}] null or empty 'code' or invalid 'state' request parameter", forwadedFor,
+						request.path());
+			}
+
+			request.response().headers().add(HttpHeaders.LOCATION, "/");
+			request.response().setStatusCode(302);
+			request.response().end();
 			return;
 		}
 
-		String code = event.params().get("code");
-		String state = event.params().get("state");
-
-		JsonObject jsonState = new JsonObject(new String(b64UrlDecoder.decode(state.getBytes())));
-
-		if (sessionExists(event)) {
-			event.response().headers().add(HttpHeaders.LOCATION, getRedirectTo(event, jsonState));
-			event.response().setStatusCode(302);
-			event.response().end();
+		if (sessionExists(request)) {
+			request.response().headers().add(HttpHeaders.LOCATION,
+					getRedirectTo(request, stateRequestParameter.getString("path")));
+			request.response().setStatusCode(302);
+			request.response().end();
 			return;
 		}
 
-		List<String> forwadedFor = new ArrayList<>(event.headers().getAll("X-Forwarded-For"));
-		forwadedFor.add(event.remoteAddress().host());
-
-		String key = jsonState.getString("codeVerifierKey");
-		String codeVerifier = CodeVerifierCache.verify(key);
+		String codeVerifierKey = stateRequestParameter.getString("codeVerifierKey");
+		String codeVerifier = CodeVerifierCache.verify(codeVerifierKey);
 		if (Strings.isNullOrEmpty(codeVerifier)) {
-			error(event, new Throwable("OpenId codeVerifier key '" + key + "' not found in cache, ignore request from ["
-					+ String.join(",", forwadedFor) + "]. Webserver restart ?"));
+			error(request,
+					new Throwable("OpenId codeVerifier key '" + codeVerifierKey
+							+ "' not found in cache, ignore request from [" + String.join(",", forwadedFor)
+							+ "]. Webserver restart ?"));
 			return;
 		}
 
-		CodeVerifierCache.invalidate(key);
+		CodeVerifierCache.invalidate(codeVerifierKey);
 
-		String realm = jsonState.getString("domain_uid");
+		String realm = stateRequestParameter.getString("domain_uid");
 		Map<String, String> domainSettings = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
 				.get(realm);
 
@@ -161,41 +169,8 @@ public class OpenIdHandler extends AbstractAuthHandler implements Handler<HttpSe
 
 						if (reqHandler.succeeded()) {
 							HttpClientRequest r = reqHandler.result();
-							r.response(respHandler -> {
-								if (respHandler.succeeded()) {
-									HttpClientResponse resp = respHandler.result();
-									resp.body(body -> {
-										JsonObject jwtToken = new JsonObject(new String(body.result().getBytes()));
-
-										Optional<SessionData> existingSession = Optional.empty();
-										CacheBackingStore<SessionData> cache = SessionsCache.get();
-										synchronized (cache) {
-											existingSession = cache.asMap().values().stream()
-													.filter(sessionData -> sessionData.jwtToken != null)
-													.filter(sessionData -> jwtToken.getValue(JWT_SESSION_STATE)
-															.equals(sessionData.jwtToken.getValue(JWT_SESSION_STATE)))
-													.findAny();
-										}
-
-										existingSession.ifPresentOrElse(sessionData -> {
-											logger.info(
-													"BlueMind session {} already exists for JWT session_state {}, don't create a new one, redirect to {}",
-													sessionData.authKey, jwtToken.getValue(JWT_SESSION_STATE),
-													getRedirectTo(event, jsonState));
-											new SessionConsumer(vertx, event, realm, openIdClientSecret, jwtToken)
-													.decorateResponse(sessionData);
-											event.response().headers().add(HttpHeaders.LOCATION,
-													getRedirectTo(event, jsonState));
-											event.response().setStatusCode(302);
-											event.response().end();
-										}, () -> validateToken(event, forwadedFor, jsonState, jwtToken,
-												new SessionConsumer(vertx, event, realm, openIdClientSecret,
-														jwtToken)));
-									});
-								} else {
-									error(event, respHandler.cause());
-								}
-							});
+							r.response(respHandler -> tokenEndpointResponseHandler(request, forwadedFor, realm,
+									openIdClientSecret, stateRequestParameter, respHandler));
 
 							MultiMap headers = r.headers();
 							headers.add(HttpHeaders.ACCEPT_CHARSET, StandardCharsets.UTF_8.name());
@@ -209,9 +184,10 @@ public class OpenIdHandler extends AbstractAuthHandler implements Handler<HttpSe
 										+ encode(domainSettings.get(AuthDomainProperties.OPENID_CLIENT_ID.name()));
 							}
 							params += "&client_secret=" + encode(openIdClientSecret);
-							params += "&code=" + encode(code);
+							params += "&code=" + encode(request.params().get("code"));
 							params += "&code_verifier=" + encode(codeVerifier);
-							params += "&redirect_uri=" + encode("https://" + event.authority().host() + "/auth/openid");
+							params += "&redirect_uri="
+									+ encode("https://" + request.authority().host() + "/auth/openid");
 							params += "&scope=openid";
 
 							byte[] postData = params.getBytes(StandardCharsets.UTF_8);
@@ -219,21 +195,76 @@ public class OpenIdHandler extends AbstractAuthHandler implements Handler<HttpSe
 							r.write(Buffer.buffer(postData));
 							r.end();
 						} else {
-							error(event, reqHandler.cause());
+							error(request, reqHandler.cause());
 						}
 					});
 
 			return;
 		} catch (Exception e) {
-			error(event, e);
+			error(request, e);
 		}
 
-		event.response().end();
+		request.response().end();
 	}
 
-	private String getRedirectTo(HttpServerRequest request, JsonObject jsonState) {
-		String redirectTo = jsonState.getString("path");
+	private JsonObject getRequestStateParam(HttpServerRequest request, List<String> forwadedFor) {
+		String stateAsString = request.params().get("state");
+		if (stateAsString == null || stateAsString.isBlank()) {
+			if (logger.isDebugEnabled()) {
+				logger.error("[{}][{}] 'state' parameter is null or blank", forwadedFor, request.path());
+			}
+			return null;
+		}
 
+		try {
+			return new JsonObject(new String(b64UrlDecoder.decode(stateAsString.getBytes())));
+		} catch (DecodeException | IllegalArgumentException | IndexOutOfBoundsException e) {
+			if (logger.isDebugEnabled()) {
+				logger.error("[{}][{}] invalid 'state' parameter", forwadedFor, request.path(), e);
+			}
+
+			return null;
+		}
+	}
+
+	private void tokenEndpointResponseHandler(HttpServerRequest request, List<String> forwadedFor, String realm,
+			String openIdClientSecret, JsonObject stateRequestParameter, AsyncResult<HttpClientResponse> response) {
+		if (response.succeeded()) {
+			HttpClientResponse resp = response.result();
+			resp.body(body -> {
+				JsonObject jwtToken = new JsonObject(new String(body.result().getBytes()));
+
+				Optional<SessionData> existingSession = Optional.empty();
+				CacheBackingStore<SessionData> cache = SessionsCache.get();
+				synchronized (cache) {
+					existingSession = cache.asMap().values().stream()
+							.filter(sessionData -> sessionData.jwtToken != null)
+							.filter(sessionData -> jwtToken.getValue(JWT_SESSION_STATE)
+									.equals(sessionData.jwtToken.getValue(JWT_SESSION_STATE)))
+							.findAny();
+				}
+
+				existingSession.ifPresentOrElse(sessionData -> {
+					logger.info(
+							"BlueMind session {} already exists for JWT session_state {}, don't create a new one, redirect to {}",
+							sessionData.authKey, jwtToken.getValue(JWT_SESSION_STATE),
+							getRedirectTo(request, stateRequestParameter.getString("path")));
+					new SessionConsumer(vertx, request, realm, openIdClientSecret, jwtToken)
+							.decorateResponse(sessionData);
+					request.response().headers().add(HttpHeaders.LOCATION,
+							getRedirectTo(request, stateRequestParameter.getString("path")));
+					request.response().setStatusCode(302);
+					request.response().end();
+				}, () -> validateToken(request, forwadedFor,
+						getRedirectTo(request, stateRequestParameter.getString("path")), jwtToken,
+						new SessionConsumer(vertx, request, realm, openIdClientSecret, jwtToken)));
+			});
+		} else {
+			error(request, response.cause());
+		}
+	}
+
+	private String getRedirectTo(HttpServerRequest request, String redirectTo) {
 		if (redirectTo == null) {
 			redirectTo = "/";
 		}
@@ -270,7 +301,7 @@ public class OpenIdHandler extends AbstractAuthHandler implements Handler<HttpSe
 		return URLEncoder.encode(s, StandardCharsets.UTF_8);
 	}
 
-	private void validateToken(HttpServerRequest request, List<String> forwadedFor, JsonObject jsonState,
+	private void validateToken(HttpServerRequest request, List<String> forwadedFor, String redirectTo,
 			JsonObject jwtToken, Consumer<SessionData> handlerSessionConsumer) {
 		DecodedJWT accessToken = null;
 		try {
@@ -290,6 +321,6 @@ public class OpenIdHandler extends AbstractAuthHandler implements Handler<HttpSe
 
 		ExternalCreds creds = new ExternalCreds();
 		creds.setLoginAtDomain(email.asString());
-		createSession(request, prov, forwadedFor, creds, getRedirectTo(request, jsonState), handlerSessionConsumer);
+		createSession(request, prov, forwadedFor, creds, redirectTo, handlerSessionConsumer);
 	}
 }
