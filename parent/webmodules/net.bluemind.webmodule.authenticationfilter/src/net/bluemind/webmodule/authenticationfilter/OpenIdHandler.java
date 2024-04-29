@@ -189,11 +189,8 @@ public class OpenIdHandler extends AbstractAuthHandler implements Handler<HttpSe
 											event.response().setStatusCode(302);
 											event.response().end();
 										}, () -> validateToken(event, forwadedFor, jsonState, jwtToken,
-												internalAuth
-														? new SessionConsumer(vertx, event, realm, openIdClientSecret,
-																jwtToken)
-														: s -> {
-														}));
+												new SessionConsumer(vertx, event, realm, openIdClientSecret,
+														jwtToken)));
 									});
 								} else {
 									error(event, respHandler.cause());
