@@ -24,12 +24,13 @@ import java.util.List;
 import org.w3c.dom.Document;
 
 public record SyncRequest(boolean getChanges, List<Document> clientChangesAdd,
-		List<ClientChangesModify> clientChangesModify) {
+		List<ClientChangesModify> clientChangesModify, List<ClientChangesDelete> clientChangesDelete) {
 
 	public static class SyncRequestBuilder {
 		boolean getChanges = false;
 		List<Document> clientChangesAdd = new ArrayList<>();
 		List<ClientChangesModify> clientChangesModify = new ArrayList<>();
+		List<ClientChangesDelete> clientChangesDelete = new ArrayList<>();
 
 		public SyncRequestBuilder withChanges() {
 			getChanges = true;
@@ -46,8 +47,13 @@ public record SyncRequest(boolean getChanges, List<Document> clientChangesAdd,
 			return this;
 		}
 
+		public SyncRequestBuilder withClientChangesDeleteOccurrence(String serverId, String recurId) {
+			this.clientChangesDelete.add(new ClientChangesDelete(serverId, recurId));
+			return this;
+		}
+
 		public SyncRequest build() {
-			return new SyncRequest(getChanges, clientChangesAdd, clientChangesModify);
+			return new SyncRequest(getChanges, clientChangesAdd, clientChangesModify, clientChangesDelete);
 		}
 
 	}
@@ -59,6 +65,7 @@ public record SyncRequest(boolean getChanges, List<Document> clientChangesAdd,
 		}
 		syncRequestBuilder.clientChangesAdd = clientChangesAdd;
 		syncRequestBuilder.clientChangesModify = clientChangesModify;
+		syncRequestBuilder.clientChangesDelete = clientChangesDelete;
 		return syncRequestBuilder;
 	}
 
@@ -68,5 +75,8 @@ public record SyncRequest(boolean getChanges, List<Document> clientChangesAdd,
 	}
 
 	public record ClientChangesModify(String serverId, Document data) {
+	}
+
+	public record ClientChangesDelete(String serverId, String recurId) {
 	}
 }

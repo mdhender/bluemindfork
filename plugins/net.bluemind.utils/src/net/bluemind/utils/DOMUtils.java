@@ -253,10 +253,23 @@ public final class DOMUtils {
 			throw new NullPointerException("null text");
 		}
 		Element el = parent.getOwnerDocument().createElement(elementName);
+		setElementText(parent, text, el);
+		return el;
+	}
+
+	public static Element createElementAndText(Element parent, String namespace, String elementName, String text) {
+		if (text == null) {
+			throw new NullPointerException("null text");
+		}
+		Element el = parent.getOwnerDocument().createElementNS(namespace, elementName);
+		setElementText(parent, text, el);
+		return el;
+	}
+
+	private static void setElementText(Element parent, String text, Element el) {
 		parent.appendChild(el);
 		Text txt = el.getOwnerDocument().createTextNode(stripNonValidXMLCharacters(text));
 		el.appendChild(txt);
-		return el;
 	}
 
 	public static Element createElement(Element parent, String elementName) {

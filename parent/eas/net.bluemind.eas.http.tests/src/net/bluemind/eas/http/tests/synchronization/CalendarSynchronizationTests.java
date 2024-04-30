@@ -18,6 +18,9 @@
  */
 package net.bluemind.eas.http.tests.synchronization;
 
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.junit.Test;
 
 import net.bluemind.eas.client.ProtocolVersion;
@@ -27,6 +30,7 @@ import net.bluemind.eas.http.tests.helpers.CoreCalendarHelper;
 import net.bluemind.eas.http.tests.helpers.SyncHelper;
 import net.bluemind.eas.http.tests.helpers.SyncRequest;
 import net.bluemind.eas.http.tests.helpers.SyncRequest.SyncRequestBuilder;
+import net.bluemind.icalendar.api.ICalendarElement.RRule.Frequency;
 
 public class CalendarSynchronizationTests extends AbstractEasTest {
 
@@ -130,6 +134,41 @@ public class CalendarSynchronizationTests extends AbstractEasTest {
 				.execute(CoreCalendarHelper.validateEventCount(1)) //
 				.execute(CoreCalendarHelper.validateDefaultEvent(ProtocolVersion.V141,
 						CoreCalendarHelper.eventBySummary("event")));
+	}
+
+	@Test
+	public void testClientDeleteEventOccurrenceSyncV16() throws Exception {
+		long calId = CoreCalendarHelper.getUserCalendarId("user", domain.uid);
+		String eventUid = UUID.randomUUID().toString();
+		AtomicLong eventItemId = new AtomicLong();
+
+		SyncRequest request = new SyncRequestBuilder().withChanges().build();
+		new SyncHelper.SyncHelperBuilder() //
+				.withAuth(latd, password) //
+				.withCollectionId(calId) //
+				.withProtocolVersion(ProtocolVersion.V161).build() //
+				.execute(CoreCalendarHelper.validateEventCount(0)) //
+				.sync(request) //
+				.startValidation() //
+				.assertEmptyResponse() //
+				.endValidation() //
+				.execute(() -> CoreCalendarHelper.addEvent(eventUid,
+						CalendarBuilder.Builder.defaultEventBuilder().withReccurrence(Frequency.DAILY)
+								.withException(3, 2).get())) //
+				.execute(() -> CoreCalendarHelper.eventByUid(eventUid, series -> eventItemId.set(series.internalId))) //
+				.sync(request) //
+				.startValidation() //
+				.assertSyncKeyChanged() //
+				.assertElementText("0", "Recurrence", "Type") //
+				.assertElementText("0", "Exceptions", "Exception", "Deleted") //
+				.assertElementText("20220216T090000Z", "Exceptions", "Exception", "ExceptionStartTime") //
+				.assertElementText("20220216T110000Z", "Exceptions", "Exception", "StartTime") //
+				.assertElementText("20220216T130000Z", "Exceptions", "Exception", "EndTime") //
+				.endValidation() //
+				.sync(new SyncRequestBuilder() //
+						.withClientChangesDeleteOccurrence(calId + ":" + eventItemId, "20220216T090000Z") //
+						.build()) //
+				.execute(CoreCalendarHelper.validateExDate(eventUid, "20220216T090000Z"));
 	}
 
 }

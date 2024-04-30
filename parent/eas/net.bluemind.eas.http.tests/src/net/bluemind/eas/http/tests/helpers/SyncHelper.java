@@ -30,6 +30,7 @@ import org.w3c.dom.NodeList;
 import net.bluemind.eas.client.OPClient;
 import net.bluemind.eas.client.ProtocolVersion;
 import net.bluemind.eas.client.SyncResponse;
+import net.bluemind.eas.http.tests.helpers.SyncRequest.ClientChangesDelete;
 import net.bluemind.eas.http.tests.helpers.SyncRequest.ClientChangesModify;
 import net.bluemind.eas.http.tests.validators.SyncResponseValidator;
 import net.bluemind.utils.DOMUtils;
@@ -65,7 +66,8 @@ public class SyncHelper extends EasTestHelper<SyncHelper> {
 		DOMUtils.createElementAndText(collection, "CollectionId", collectionId);
 		DOMUtils.createElementAndText(collection, "GetChanges", request.getChanges() ? "1" : "0");
 
-		if (!request.clientChangesAdd().isEmpty() || !request.clientChangesModify().isEmpty()) {
+		if (!request.clientChangesAdd().isEmpty() || !request.clientChangesModify().isEmpty()
+				|| !request.clientChangesDelete().isEmpty()) {
 			Element commands = DOMUtils.createElement(collection, "Commands");
 			if (!request.clientChangesAdd().isEmpty()) {
 				for (int i = 0; i < request.clientChangesAdd().size(); i++) {
@@ -90,6 +92,16 @@ public class SyncHelper extends EasTestHelper<SyncHelper> {
 					for (int j = 0; j < children.getLength(); j++) {
 						Node node = children.item(j);
 						appData.appendChild(sync.adoptNode(node.cloneNode(true)));
+					}
+				}
+			}
+			if (!request.clientChangesDelete().isEmpty()) {
+				for (int i = 0; i < request.clientChangesDelete().size(); i++) {
+					ClientChangesDelete clientDelete = request.clientChangesDelete().get(0);
+					Element add = DOMUtils.createElement(commands, "Delete");
+					DOMUtils.createElementAndText(add, "ServerId", clientDelete.serverId());
+					if (clientDelete.recurId() != null) {
+						DOMUtils.createElementAndText(add, "AirSyncBase", "InstanceId", clientDelete.recurId());
 					}
 				}
 			}

@@ -113,5 +113,4 @@ public class SyncResponseValidator extends DomValidator<SyncResponseValidator> {
 	public SyncHelper endValidation() {
 		return sync;
 	}
-
 }

@@ -119,5 +119,6 @@ Require-Bundle: org.junit;bundle-version="3.8.2",
  net.bluemind.core.sendmail,
  net.bluemind.core.auditlogs.client.loader,
  net.bluemind.core.jdbc.testshelper;bundle-version="5.0.0",
- net.bluemind.calendar.helper
+ net.bluemind.calendar.helper,
+ net.bluemind.calendar.occurrence
 Automatic-Module-Name: net.bluemind.eas.http.tests

@@ -19,9 +19,11 @@
 package net.bluemind.eas.http.tests.helpers;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import org.w3c.dom.Document;
@@ -29,6 +31,8 @@ import org.w3c.dom.Document;
 import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.VEventSeries;
+import net.bluemind.core.api.date.BmDateTime;
+import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.container.api.ContainerHierarchyNode;
 import net.bluemind.core.container.api.IContainersFlatHierarchy;
 import net.bluemind.core.container.model.ItemValue;
@@ -36,6 +40,7 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.eas.client.ProtocolVersion;
 import net.bluemind.eas.http.tests.builders.CalendarBuilder;
+import net.bluemind.eas.serdes.DateFormat;
 import net.bluemind.utils.DOMUtils;
 
 public class CoreCalendarHelper {
@@ -65,7 +70,7 @@ public class CoreCalendarHelper {
 		addEvent(uid, series);
 	}
 
-	private static void addEvent(String uid, VEventSeries series) {
+	public static void addEvent(String uid, VEventSeries series) {
 		ICalendar service = getService();
 		service.create(uid, series, false);
 	}
@@ -98,6 +103,21 @@ public class CoreCalendarHelper {
 			Predicate<ItemValue<VEventSeries>> testDataFilter) {
 		return validateEvent(version, expected, CoreCalendarHelper.getAllEvents().stream().filter(testDataFilter)
 				.findAny().map(series -> series.value).orElseThrow());
+	}
+
+	public static Runnable validateExDate(String uid, String exDate) {
+		return () -> {
+			ItemValue<VEventSeries> event = getService().getComplete(uid);
+			long exDataAsMillis = DateFormat.parse(exDate).getTime();
+			boolean found = false;
+			for (BmDateTime eventExDate : event.value.main.exdate) {
+				long eventExDateAsMillis = BmDateTimeWrapper.toTimestamp(eventExDate.iso8601, eventExDate.timezone);
+				if (eventExDateAsMillis == exDataAsMillis) {
+					found = true;
+				}
+			}
+			assertTrue(found);
+		};
 	}
 
 	public static Runnable validateEvent(ProtocolVersion version, VEventSeries expected, VEventSeries testData) {
@@ -148,6 +168,13 @@ public class CoreCalendarHelper {
 
 	public static Predicate<ItemValue<VEventSeries>> eventBySummary(String summary) {
 		return evt -> evt.value.flatten().stream().anyMatch(event -> event.summary.equals(summary));
+	}
+
+	public static void eventByUid(String uid, Consumer<ItemValue<VEventSeries>> result) {
+		ItemValue<VEventSeries> event = getService().getComplete(uid);
+		if (event != null) {
+			result.accept(event);
+		}
 	}
 
 }

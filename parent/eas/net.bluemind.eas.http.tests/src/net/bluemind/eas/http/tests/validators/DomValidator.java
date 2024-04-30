@@ -46,4 +46,13 @@ public class DomValidator<T> {
 		return (T) this;
 	}
 
+	public T assertElementText(String value, String... subPath) {
+		Element element = DOMUtils.getUniqueElement(document.getDocumentElement(), subPath[0]);
+		for (int i = 1; i < subPath.length; i++) {
+			element = DOMUtils.getUniqueElement(element, subPath[i]);
+		}
+		assertEquals(value, DOMUtils.getElementText(element));
+		return (T) this;
+	}
+
 }
