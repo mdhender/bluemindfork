@@ -23,9 +23,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -52,6 +54,7 @@ import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.server.api.Server;
 import net.bluemind.server.api.TagDescriptor;
+import net.bluemind.system.state.RunningState;
 import net.bluemind.system.state.StateContext;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
@@ -78,6 +81,8 @@ public class LoginAuditLogTests {
 		ElasticsearchTestHelper.getInstance().beforeTest();
 
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
+
+		StateContext.setInternalState(new RunningState());
 
 		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
@@ -132,16 +137,22 @@ public class LoginAuditLogTests {
 		ElasticsearchClient esClient = ESearchActivator.getClient();
 		ESearchActivator.refreshIndex(DATASTREAM_NAME);
 
-		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
-				.index(DATASTREAM_NAME) //
-				.query(q -> q.bool(b -> b.must(TermQuery.of(t -> t.field("logtype").value("login"))._toQuery())
-						.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
-				AuditLogEntry.class);
+		Awaitility.await().atMost(5, TimeUnit.SECONDS).until(() -> search(esClient).hits().total().value() > 0);
+		SearchResponse<AuditLogEntry> response = search(esClient);
 
 		assertEquals(2L, response.hits().total().value());
 		List<String> origins = response.hits().hits().stream().map(h -> h.source().securityContext.origin()).toList();
 		assertTrue(origins.contains("testSIDLoginLogout"));
 		assertTrue(origins.contains("imap-endpoint"));
+	}
+
+	private SearchResponse<AuditLogEntry> search(ElasticsearchClient esClient) throws IOException {
+		SearchResponse<AuditLogEntry> response = esClient.search(s -> s //
+				.index(DATASTREAM_NAME) //
+				.query(q -> q.bool(b -> b.must(TermQuery.of(t -> t.field("logtype").value("login"))._toQuery())
+						.must(TermQuery.of(t -> t.field("action").value(Type.Created.toString()))._toQuery()))),
+				AuditLogEntry.class);
+		return response;
 	}
 
 }

@@ -41,6 +41,8 @@ import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.server.api.Server;
 import net.bluemind.server.api.TagDescriptor;
+import net.bluemind.system.state.RunningState;
+import net.bluemind.system.state.StateContext;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class LoginTests {
@@ -55,6 +57,8 @@ public class LoginTests {
 		JdbcTestHelper.getInstance().beforeTest();
 
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
+
+		StateContext.setInternalState(new RunningState());
 
 		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
