@@ -523,7 +523,8 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		logger.debug("[{}] Upload starts {}...", addr, part);
 		try (ReadInputStream ri = new ReadInputStream(VertxStream.read(part));
 				OutputStream out = Buffered.output(Files.newOutputStream(partFile(addr).toPath()))) {
-			ri.transferTo(out);
+			long partSize = ri.transferTo(out);
+			logger.info("Part {} ({}bytes) added", addr, partSize);
 			time = System.currentTimeMillis() - time;
 			if (time > 500) {
 				logger.warn("[{}] Upload Part tooks {}ms", addr, time);
