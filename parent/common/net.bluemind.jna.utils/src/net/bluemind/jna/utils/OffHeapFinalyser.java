@@ -39,7 +39,7 @@ public class OffHeapFinalyser extends PhantomReference<OffHeapTemporaryFile> {
 	 */
 	public boolean finalizeResources() {
 		if (!cleaner.isClosed()) {
-			logger.warn("user failed to explicitely close {}, reclaiming automagically", cleaner.name());
+			logger.debug("user failed to explicitely close {}, reclaiming automagically", cleaner.name());
 			cleaner.run();
 			return true;
 		}

@@ -16,6 +16,7 @@
 		<module>net.bluemind.imap.driver.mailapi</module>
 		<module>net.bluemind.sds.store.cyrusspool</module>
 		<module>net.bluemind.backend.mailapi.storage</module>
+		<module>net.bluemind.imap.vt</module>
 	</modules>
 	<profiles>
 		<profile>
@@ -25,6 +26,7 @@
 				<module>net.bluemind.imap.endpoint.imaptest.tests</module>
 				<module>net.bluemind.imap.fullstack.tests</module>
 				<module>net.bluemind.backend.mailapi.storage.tests</module>
+				<module>net.bluemind.imap.vt.tests</module>
 			</modules>
 		</profile>
 	</profiles>

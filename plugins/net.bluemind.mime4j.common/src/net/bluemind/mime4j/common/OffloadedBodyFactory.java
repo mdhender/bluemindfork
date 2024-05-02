@@ -24,6 +24,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
 
@@ -127,7 +128,7 @@ public class OffloadedBodyFactory implements BodyFactory {
 
 	}
 
-	private static final Charset FALLBACK_CHARSET = CharsetUtil.DEFAULT_CHARSET;
+	private static final Charset FALLBACK_CHARSET = StandardCharsets.US_ASCII;
 
 	public interface SizedBody {
 		int size();
