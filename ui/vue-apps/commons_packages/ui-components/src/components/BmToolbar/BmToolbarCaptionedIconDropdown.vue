@@ -51,7 +51,8 @@ export default {
                             ...options.value,
                             attrs,
                             props,
-                            scopedSlots: slots
+                            scopedSlots: slots,
+                            ref: "dropdown"
                         }),
                     menu: () =>
                         h(
@@ -59,7 +60,8 @@ export default {
                             {
                                 ...options.value,
                                 attrs: { ...attrs, variant: undefined },
-                                props: { icon: props.icon, text: props.caption }
+                                props: { icon: props.icon, text: props.caption },
+                                ref: "dropdown"
                             },
                             slots.default && slots.default()
                         ),
@@ -69,13 +71,22 @@ export default {
                             {
                                 ...options.value,
                                 attrs: { ...attrs, variant: undefined },
-                                props: { icon: props.icon, text: props.caption }
+                                props: { icon: props.icon, text: props.caption },
+                                ref: "dropdown"
                             },
                             [slots.default && slots.default(), ...extensions]
                         )
                 }
             });
         };
+    },
+    methods: {
+        hide() {
+            this.$refs["dropdown"]?.hide?.();
+        },
+        show() {
+            this.$refs["dropdown"]?.show?.();
+        }
     }
 };
 </script>

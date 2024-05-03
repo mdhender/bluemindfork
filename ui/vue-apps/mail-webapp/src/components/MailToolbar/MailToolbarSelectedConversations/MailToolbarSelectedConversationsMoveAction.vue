@@ -12,7 +12,7 @@
         @shown="openMoveAutocomplete"
         @hide="resetPattern"
     >
-        <global-events @keydown.tab.capture="forceCloseMoveAutocomplete" />
+        <global-events @keydown.tab.capture="isDropdownVisible && forceCloseMoveAutocomplete" />
         <bm-dropdown-autocomplete
             ref="moveAutocomplete"
             v-slot="{ item }"
@@ -132,6 +132,9 @@ export default {
         },
         invalidCharacter() {
             return getInvalidCharacter(this.pattern);
+        },
+        isDropdownVisible() {
+            return this.$refs["moveAutocomplete"].$el?.checkVisibility?.();
         }
     },
     methods: {

@@ -46,15 +46,25 @@ export default {
                 scopedSlots: {
                     toolbar: () => h(BmIconDropdown, { ...options, attrs }, slots.default()),
                     menu: () =>
-                        h(BmDropdown, { ...options, attrs: { ...attrs, variant: undefined } }, [slots.default()]),
+                        h(BmDropdown, { ...options, attrs: { ...attrs, variant: undefined }, ref: "dropdown" }, [
+                            slots.default()
+                        ]),
                     "menu-with-extensions": ({ extensions }) =>
-                        h(BmDropdown, { ...options, attrs: { ...attrs, variant: undefined } }, [
+                        h(BmDropdown, { ...options, attrs: { ...attrs, variant: undefined }, ref: "dropdown" }, [
                             slots.default(),
                             ...extensions
                         ])
                 }
             });
         };
+    },
+    methods: {
+        hide() {
+            this.$refs["dropdown"]?.hide?.();
+        },
+        $show() {
+            this.$refs["dropdown"]?.show?.();
+        }
     }
 };
 </script>
