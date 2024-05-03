@@ -12,21 +12,21 @@
     >
         <bm-dropdown-item-button
             icon="reply"
-            @click="initRelatedMessage(MY_DRAFTS, MessageCreationModes.REPLY, message)"
+            @click="initRelatedMessage(MY_DRAFTS, MessageCreationModes.REPLY, messageRemoteRefs)"
         >
             {{ $t("mail.content.reply.aria") }}
         </bm-dropdown-item-button>
         <bm-dropdown-divider />
         <bm-dropdown-item-button
             icon="reply-all"
-            @click="initRelatedMessage(MY_DRAFTS, MessageCreationModes.REPLY_ALL, message)"
+            @click="initRelatedMessage(MY_DRAFTS, MessageCreationModes.REPLY_ALL, messageRemoteRefs)"
         >
             {{ $t("mail.content.reply_all.aria") }}
         </bm-dropdown-item-button>
         <bm-dropdown-divider />
         <bm-dropdown-item-button
             icon="forward"
-            @click="initRelatedMessage(MY_DRAFTS, MessageCreationModes.FORWARD, message)"
+            @click="initRelatedMessage(MY_DRAFTS, MessageCreationModes.FORWARD, messageRemoteRefs)"
         >
             {{ $t("common.forward") }}
         </bm-dropdown-item-button>
@@ -110,7 +110,10 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail", { CONVERSATION_LIST_DELETED_FILTER_ENABLED, MY_DRAFTS })
+        ...mapGetters("mail", { CONVERSATION_LIST_DELETED_FILTER_ENABLED, MY_DRAFTS }),
+        messageRemoteRefs() {
+            return { internalId: this.message.remoteRef.internalId, folderKey: this.message.folderRef.key };
+        }
     },
     methods: {
         ...mapActions("mail", {
