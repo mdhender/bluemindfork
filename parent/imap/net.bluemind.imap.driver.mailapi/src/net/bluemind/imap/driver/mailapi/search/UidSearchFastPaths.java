@@ -45,7 +45,8 @@ public class UidSearchFastPaths {
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(UidSearchFastPaths.class);
-	private static final List<SearchFastPath> tunedSearches = List.of(new OutlookUidSince(), new OutlookSince());
+	private static final List<SearchFastPath> tunedSearches = List.of(new OutlookUidSince(), new OutlookSince(),
+			new OutlookSinceAll());
 
 	public static Optional<SearchFastPath> lookup(String query) {
 		return tunedSearches.stream().filter(sp -> sp.supports(query)).findAny().map(fp -> {
@@ -56,7 +57,7 @@ public class UidSearchFastPaths {
 
 	private static class OutlookSince implements SearchFastPath {
 
-		private static final Pattern outlookSearch = Pattern.compile("since (.+)", Pattern.CASE_INSENSITIVE);
+		private static final Pattern outlookSearch = Pattern.compile("since ([^\s]+)$", Pattern.CASE_INSENSITIVE);
 		private OutlookUidSince delegate = new OutlookUidSince();
 
 		@Override
@@ -76,9 +77,34 @@ public class UidSearchFastPaths {
 
 	}
 
+	private static class OutlookSinceAll implements SearchFastPath {
+
+		private static final Pattern outlookSearch = Pattern.compile("since ([^\s]+) all$", Pattern.CASE_INSENSITIVE);
+		private OutlookUidSince delegate = new OutlookUidSince();
+
+		@Override
+		public List<Long> search(SelectedFolder sel, String query) {
+			var m = outlookSearch.matcher(query);
+			m.find();
+			String date = m.group(1);
+			return delegate.search(sel, "uid 1:* since " + date);
+		}
+
+		@Override
+		public boolean supports(String query) {
+			return outlookSearch.matcher(query).matches();
+		}
+
+		@Override
+		public String toString() {
+			return "OutlookSinceAll";
+		}
+
+	}
+
 	private static class OutlookUidSince implements SearchFastPath {
 
-		private static final Pattern outlookSearch = Pattern.compile("uid ([^\s]+) since (.+)",
+		private static final Pattern outlookSearch = Pattern.compile("uid ([^\s]+) since ([^\s]+)$",
 				Pattern.CASE_INSENSITIVE);
 
 		@Override

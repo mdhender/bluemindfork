@@ -143,6 +143,26 @@ public class UidSearchTests {
 	}
 
 	@Test
+	public void testOutlookImapUidSinceAll() throws IMAPException, InterruptedException, IOException {
+		try (StoreClient sc = newStore(false)) {
+			sc.select("INBOX");
+			setupBoxContent(5, 10, 12, 10);
+			var since = sc.tagged("UID SEARCH SINCE 16-Apr-2024 ALL");
+			assertTrue(since.isOk());
+		}
+	}
+
+	@Test
+	public void testOutlookImapUidSinceWithSeq() throws IMAPException, InterruptedException, IOException {
+		try (StoreClient sc = newStore(false)) {
+			sc.select("INBOX");
+			setupBoxContent(5, 10, 12, 10);
+			var since = sc.tagged("UID SEARCH SINCE 16-Apr-2024 1:903");
+			assertTrue(since.isOk());
+		}
+	}
+
+	@Test
 	public void testGetSeen() throws IMAPException, InterruptedException, IOException {
 		try (StoreClient sc = newStore(false)) {
 			SearchQuery sq = new SearchQuery();
