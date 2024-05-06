@@ -86,10 +86,8 @@ public class DirEntriesStreamVerticle extends AbstractVerticle {
 	}
 
 	private Set<String> onlyWhiteListed(Set<String> white, Set<String> topics, Config config) {
-		String crpSuffix = config.getString(NAME_SUFFIX);
 		if (config.getBoolean(CrpConfig.Stream.ENFORCE_FOREST)) {
-			return topics.stream().filter(tp -> tp.endsWith(crpSuffix) || white.stream().anyMatch(tp::startsWith))
-					.collect(Collectors.toSet());
+			return topics.stream().filter(tp -> white.stream().anyMatch(tp::startsWith)).collect(Collectors.toSet());
 		} else {
 			return topics;
 		}
