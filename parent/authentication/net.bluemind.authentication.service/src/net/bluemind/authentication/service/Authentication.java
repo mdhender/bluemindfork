@@ -528,7 +528,7 @@ public class Authentication implements IInCoreAuthentication {
 			return resp;
 		}
 
-		return doSu(interactive, domainPart, user);
+		return doSu(interactive, domain, user);
 	}
 
 	private ItemValue<User> findOrGetUser(ItemValue<Domain> domain, String localPart) {
@@ -543,24 +543,23 @@ public class Authentication implements IInCoreAuthentication {
 		return user;
 	}
 
-	private LoginResponse doSu(boolean interactive, String domainPart, ItemValue<User> user) {
-		new RBACManager(context).forDomain(domainPart).forEntry(user.uid).check(BasicRoles.ROLE_SUDO);
+	private LoginResponse doSu(boolean interactive, ItemValue<Domain> domain, ItemValue<User> user) {
+		new RBACManager(context).forDomain(domain.uid).forEntry(user.uid).check(BasicRoles.ROLE_SUDO);
 
 		LoginResponse resp = new LoginResponse();
-		resp.latd = user.value.login + "@" + domainPart;
+		resp.latd = user.value.login + "@" + domain.uid;
 		resp.status = Status.Ok;
 		resp.authKey = UUID.randomUUID().toString();
 
 		ServerSideServiceProvider sp = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
-		Map<String, String> settings = sp.instance(IUserSettings.class, domainPart).get(user.uid);
+		Map<String, String> settings = sp.instance(IUserSettings.class, domain.uid).get(user.uid);
 
-		SecurityContext builtContext = buildSecurityContext(resp.authKey, user, domainPart, settings,
+		SecurityContext builtContext = buildSecurityContext(resp.authKey, user, domain.uid, settings,
 				securityContext.getOrigin(), false, interactive);
 
-		final String finalDomainPart = domainPart;
 		auditLogServiceSupplier.get().ifPresent(auditLogService -> {
 			try {
-				auditLogService.logCreate(builtContext, finalDomainPart);
+				auditLogService.logCreate(builtContext, domain.uid);
 			} catch (Exception e) {
 				logger.error("Error with authentication auditlog: {}", e.getMessage());
 			}
