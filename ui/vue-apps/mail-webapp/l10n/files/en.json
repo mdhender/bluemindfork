@@ -405,7 +405,7 @@
     "mail.message.starter.display.templates": "View templates",
     "mail.message.starter.display.junks": "View spam messages",
     "mail.message.starter.display.trash": "View trash",
-    "mail.message.starter.inbox_full.details.": "Your storage space is full.",
+    "mail.message.starter.inbox_full.details": "Your storage space is full.",
     "mail.message.starter.draft.details": "This folder contains messages you have started composing and have not yet sent.",
     "mail.message.starter.recoverable.details": "to recover from trash",
     "mail.message.starter.elements_counts": "1 item|{count} items",
