@@ -717,7 +717,11 @@ public class MailIndexService implements IMailIndexService {
 						.health(h -> h.index(indexName).waitForStatus(HealthStatus.Green));
 				logger.debug("index health response: {}", health);
 			}
-		} catch (ElasticsearchException | IOException e) {
+		} catch (ElasticsearchException e) {
+			if (e.error() != null && !"resource_already_exists_exception".equals(e.error().type())) {
+				throw new ElasticIndexException(indexName, e);
+			}
+		} catch (IOException e) {
 			throw new ElasticIndexException(indexName, e);
 		}
 	}
