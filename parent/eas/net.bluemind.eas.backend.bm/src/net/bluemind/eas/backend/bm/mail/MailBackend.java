@@ -35,11 +35,15 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.apache.james.mime4j.codec.DecodeMonitor;
 import org.apache.james.mime4j.dom.Message;
 import org.apache.james.mime4j.dom.MessageServiceFactory;
 import org.apache.james.mime4j.dom.address.Mailbox;
+import org.apache.james.mime4j.dom.field.FieldName;
+import org.apache.james.mime4j.field.UnstructuredFieldImpl;
 import org.apache.james.mime4j.message.MessageImpl;
 import org.apache.james.mime4j.parser.MimeStreamParser;
+import org.apache.james.mime4j.stream.RawField;
 import org.asynchttpclient.AsyncCompletionHandler;
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.HttpResponseBodyPart;
@@ -423,6 +427,18 @@ public class MailBackend extends CoreConnect {
 	}
 
 	private void mergeDraft(ItemValue<MailboxItem> draft, MessageImpl message) {
+		for (MessageBody.Header header : draft.value.body.headers) {
+			if (message.getHeader().getField(header.name) == null) {
+				message.getHeader().addField(new RawField(header.name, header.firstValue()));
+			}
+		}
+		if (message.getMessageId() == null) {
+			message.getHeader().addField(UnstructuredFieldImpl.PARSER
+					.parse(new RawField(FieldName.MESSAGE_ID, draft.value.body.messageId), DecodeMonitor.SILENT));
+		}
+		if (message.getFrom() == null) {
+			message.setFrom(parseRecipients(draft.value.body.recipients, RecipientKind.Originator));
+		}
 		if (message.getTo() == null) {
 			message.setTo(parseRecipients(draft.value.body.recipients, RecipientKind.Primary));
 		}
@@ -789,8 +805,8 @@ public class MailBackend extends CoreConnect {
 				AppData data = toAppData(bs, bodyParams, folder, id);
 				res.put(id, data);
 			} catch (Exception e) {
-				EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger,
-						"Fail to convert email {}, folder {}. Skip it.", id, folder);
+				EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger, "Fail to convert email {}, folder {}. Skip it.",
+						id, folder);
 			}
 		});
 

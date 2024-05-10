@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?><Sync
+    xmlns="AirSync">
+    <To xmlns="Email">#To#</To>
+    <Subject xmlns="Email">#Subject#</Subject>
+    <Body xmlns="AirSyncBase">
+        <Type>2</Type>
+        <Data>#HTML#</Data>
+    </Body>
+    <Importance xmlns="Email">1</Importance>
+    <Read xmlns="Email">1</Read>
+    <Flag xmlns="Email"/>
+</Sync>

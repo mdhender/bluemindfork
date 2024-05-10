@@ -21,6 +21,8 @@ package net.bluemind.eas.http.tests.validators;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -52,6 +54,12 @@ public class DomValidator<T> {
 			element = DOMUtils.getUniqueElement(element, subPath[i]);
 		}
 		assertEquals(value, DOMUtils.getElementText(element));
+		return (T) this;
+	}
+
+	public T getValue(String element, AtomicReference<String> reference) {
+		Element domelement = DOMUtils.getUniqueElement(document.getDocumentElement(), element);
+		reference.set(DOMUtils.getElementText(domelement));
 		return (T) this;
 	}
 

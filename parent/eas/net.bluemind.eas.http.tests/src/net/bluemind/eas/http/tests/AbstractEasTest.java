@@ -52,7 +52,6 @@ public class AbstractEasTest {
 	protected ItemValue<Domain> domain;
 	protected String login;
 	protected String password;
-	protected String latd;
 
 	@BeforeClass
 	public static void beforeClass() {
@@ -87,9 +86,8 @@ public class AbstractEasTest {
 		domain = PopulateHelper.createTestDomain(domainUid, esServer, imap);
 
 		PopulateHelper.addUserWithRoles("user", domainUid, "hasEAS");
-		latd = "user@" + domainUid;
+		login = "user@" + domainUid;
 		password = "user";
-		login = latd;
 
 		try {
 			ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ISystemConfiguration.class)

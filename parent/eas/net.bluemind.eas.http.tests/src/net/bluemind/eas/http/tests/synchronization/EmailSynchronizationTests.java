@@ -18,6 +18,8 @@
  */
 package net.bluemind.eas.http.tests.synchronization;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.junit.Test;
 
 import net.bluemind.eas.client.ProtocolVersion;
@@ -28,6 +30,7 @@ import net.bluemind.eas.http.tests.helpers.CoreEmailHelper;
 import net.bluemind.eas.http.tests.helpers.SyncHelper;
 import net.bluemind.eas.http.tests.helpers.SyncRequest;
 import net.bluemind.eas.http.tests.helpers.SyncRequest.SyncRequestBuilder;
+import net.bluemind.eas.http.tests.validators.EmailValidator;
 
 public class EmailSynchronizationTests extends AbstractEasTest {
 
@@ -38,7 +41,7 @@ public class EmailSynchronizationTests extends AbstractEasTest {
 
 		SyncRequest request = new SyncRequestBuilder().withChanges().build();
 		new SyncHelper.SyncHelperBuilder() //
-				.withAuth(latd, password) //
+				.withAuth(login, password) //
 				.withCollectionId(inbox) //
 				.withProtocolVersion(ProtocolVersion.V161).build() //
 				.sync(request.copy() //
@@ -55,7 +58,7 @@ public class EmailSynchronizationTests extends AbstractEasTest {
 
 		SyncRequest request = new SyncRequestBuilder().withChanges().build();
 		new SyncHelper.SyncHelperBuilder() //
-				.withAuth(latd, password) //
+				.withAuth(login, password) //
 				.withCollectionId(drafts) //
 				.withProtocolVersion(ProtocolVersion.V161).build() //
 				.sync(request.copy() //
@@ -64,6 +67,45 @@ public class EmailSynchronizationTests extends AbstractEasTest {
 				.startValidation() //
 				.assertResponseStatus(drafts, 12346, SyncStatus.OBJECT_NOT_FOUND) //
 				.endValidation();
+	}
+
+	@Test
+	public void testMailSyncDraftClientChangesOnlyHTMLShouldMergeChanges() throws Exception {
+		long drafts = CoreEmailHelper.getUserMailFolder("user", domain.uid, "Drafts");
+
+		AtomicReference<String> serverId = new AtomicReference<>();
+		Runnable emailValidation = () -> new EmailValidator.Builder(domain.uid, serverId.get()) //
+				.withFrom("te.fr@bluemind.net") //
+				.withSubject("test") //
+				.withHeader("X-Mailer", "BlueMind-MailApp-v5") //
+				.withTo("te.fr@bluemind.net") //
+				.build().validate();
+
+		SyncRequest request = new SyncRequestBuilder().withChanges().build();
+
+		new SyncHelper.SyncHelperBuilder() //
+				.withAuth(login, password) //
+				.withCollectionId(drafts) //
+				.withProtocolVersion(ProtocolVersion.V161).build() //
+				.execute(() -> CoreEmailHelper.addMail(login, password, "Drafts", "single_body.eml")) //
+				.sync(request) //
+				.startValidation() //
+				.assertSyncKeyChanged() //
+				.getValue("ServerId", serverId) //
+				.endValidation() //
+				.execute(emailValidation) //
+				.sync(request.copy() //
+						.withClientChangesBodyHtmlModify(serverId.get(), "te.fr@bluemind.net", "test",
+								"&lt;div&gt;new body&lt;/div&gt;") //
+						.build()) //
+				.startValidation() //
+				.assertResponseStatus(serverId.get(), SyncStatus.OK) //
+				.assertSyncKeyChanged() //
+				.endValidation() //
+				.sync(request) //
+				.startValidation() //
+				.endValidation() //
+				.execute(emailValidation);
 	}
 
 }

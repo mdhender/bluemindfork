@@ -91,7 +91,13 @@ public class SyncResponseValidator extends DomValidator<SyncResponseValidator> {
 		return this;
 	}
 
-	public SyncResponseValidator assertResponseStatus(long collectionId, int itemId, SyncStatus status) {
+	public SyncResponseValidator assertResponseStatus(String serverId, SyncStatus status) {
+		long collectionId = Long.parseLong(serverId.split(":")[0]);
+		long itemId = Long.parseLong(serverId.split(":")[1]);
+		return assertResponseStatus(collectionId, itemId, status);
+	}
+
+	public SyncResponseValidator assertResponseStatus(long collectionId, long itemId, SyncStatus status) {
 		AtomicBoolean ok = new AtomicBoolean();
 		DOMUtils.forEachElement(currentSyncResponse.dom.getDocumentElement(), "Change", add -> {
 			NodeList children = add.getChildNodes();
@@ -113,4 +119,5 @@ public class SyncResponseValidator extends DomValidator<SyncResponseValidator> {
 	public SyncHelper endValidation() {
 		return sync;
 	}
+
 }

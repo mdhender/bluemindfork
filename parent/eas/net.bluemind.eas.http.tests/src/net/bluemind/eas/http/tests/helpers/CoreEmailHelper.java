@@ -18,13 +18,22 @@
  */
 package net.bluemind.eas.http.tests.helpers;
 
-import java.util.List;
+import static org.junit.Assert.assertTrue;
 
+import java.io.InputStream;
+import java.util.List;
+import java.util.function.Consumer;
+
+import net.bluemind.backend.mail.api.IMailboxItems;
+import net.bluemind.backend.mail.api.MailboxItem;
+import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.core.container.api.ContainerHierarchyNode;
 import net.bluemind.core.container.api.IContainersFlatHierarchy;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.imap.FlagsList;
+import net.bluemind.imap.StoreClient;
 
 public class CoreEmailHelper {
 
@@ -36,4 +45,37 @@ public class CoreEmailHelper {
 		}).findFirst().map(node -> node.internalId).orElse(-1l);
 	}
 
+	public static void addMail(String login, String password, String folder, String eml) {
+		imapAction(login, password, sc -> {
+			int added = sc.append(folder, lookupEml(eml), new FlagsList());
+			assertTrue(added > 0);
+		});
+	}
+
+	private static InputStream lookupEml(String eml) {
+		return CoreEmailHelper.class.getResourceAsStream("/data/" + eml);
+	}
+
+	private static void imapAction(String imapLogin, String imapPass, Consumer<StoreClient> actions) {
+		try (StoreClient sc = new StoreClient("127.0.0.1", 1143, imapLogin, imapPass)) {
+			assertTrue(sc.login());
+			actions.accept(sc);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static ItemValue<MailboxItem> getMail(String domainUid, String serverId) {
+		ServerSideServiceProvider provider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
+		long folderId = Long.parseLong(serverId.split(":")[0]);
+		List<ItemValue<ContainerHierarchyNode>> list = provider
+				.instance(IContainersFlatHierarchy.class, domainUid, "user").list();
+		String uid = list.stream().filter(node -> node.internalId == folderId).findFirst()
+				.map(node -> node.value.containerUid).orElse("-1");
+
+		long itemId = Long.parseLong(serverId.split(":")[1]);
+		IMailboxItems dbRecApi = provider.instance(IMailboxItems.class, IMailReplicaUids.getUniqueId(uid));
+
+		return dbRecApi.getCompleteById(itemId);
+	}
 }

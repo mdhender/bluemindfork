@@ -1,0 +1,33 @@
+Received: from bm-prod.blue-mind.net (bm-prod.int.bluemind.net [192.168.231.2])
+        by bm-prod.blue-mind.loc
+        with SMTP (bm-lmtpd) id LW0HH0G2
+        for te.fr@blue-mind.net;
+        Fri, 10 May 2024 09:37:07 +0000 (GMT)
+Received: from [127.0.1.1] (bm-prod.int.bluemind.net [192.168.231.2])
+	(Authenticated sender: te.fr@blue-mind.net)
+	by bm-prod.blue-mind.net (Postfix) with ESMTPSA id DA57A80275
+	for <te.fr@bluemind.net>; Fri, 10 May 2024 11:37:07 +0200 (CEST)
+MIME-Version: 1.0
+Date: Fri, 10 May 2024 09:37:06 +0000
+Subject: test
+X-Mailer: BlueMind-MailApp-v5
+Message-ID: <lw0hgwip.39aczl43mek00@bluemind.net>
+From: Th Fr <te.fr@bluemind.net>
+To: Th Fr <te.fr@bluemind.net>
+Content-Type: multipart/alternative;
+ boundary="-=Part.1289.f6fceb753ace0b9d.18f61dd06e3.623a391ded747ccd=-"
+
+---=Part.1289.f6fceb753ace0b9d.18f61dd06e3.623a391ded747ccd=-
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+test
+---=Part.1289.f6fceb753ace0b9d.18f61dd06e3.623a391ded747ccd=-
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+<div style=3D"font-family: Montserrat, montserrat, &quot;Source Sans&quot;,=
+ &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; font-size: 9=2E7=
+5pt; color: rgb(0, 0, 0);">test</div><div data-bm-signature=3D"d18dfdd9-de9=
+e-496e-98dd-2f275f457c30"></div>
+---=Part.1289.f6fceb753ace0b9d.18f61dd06e3.623a391ded747ccd=---

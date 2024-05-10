@@ -23,6 +23,8 @@ import java.util.List;
 
 import org.w3c.dom.Document;
 
+import net.bluemind.eas.http.tests.builders.EmailBuilder;
+
 public record SyncRequest(boolean getChanges, List<Document> clientChangesAdd,
 		List<ClientChangesModify> clientChangesModify, List<ClientChangesDelete> clientChangesDelete) {
 
@@ -49,6 +51,13 @@ public record SyncRequest(boolean getChanges, List<Document> clientChangesAdd,
 
 		public SyncRequestBuilder withClientChangesDeleteOccurrence(String serverId, String recurId) {
 			this.clientChangesDelete.add(new ClientChangesDelete(serverId, recurId));
+			return this;
+		}
+
+		public SyncRequestBuilder withClientChangesBodyHtmlModify(String serverId, String to, String subject,
+				String html) throws Exception {
+			this.clientChangesModify.add(new ClientChangesModify(serverId,
+					EmailBuilder.getMailBodyUpdate("SyncMailbodyUpdate.xml", to, subject, html)));
 			return this;
 		}
 

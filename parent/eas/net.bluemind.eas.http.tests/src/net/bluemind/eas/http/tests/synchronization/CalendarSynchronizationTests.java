@@ -40,7 +40,7 @@ public class CalendarSynchronizationTests extends AbstractEasTest {
 
 		SyncRequest request = new SyncRequestBuilder().withChanges().build();
 		new SyncHelper.SyncHelperBuilder() //
-				.withAuth(latd, password) //
+				.withAuth(login, password) //
 				.withCollectionId(calId) //
 				.withProtocolVersion(ProtocolVersion.V161).build() //
 				.sync(request) //
@@ -66,7 +66,7 @@ public class CalendarSynchronizationTests extends AbstractEasTest {
 
 		SyncRequest request = new SyncRequestBuilder().withChanges().build();
 		new SyncHelper.SyncHelperBuilder() //
-				.withAuth(latd, password) //
+				.withAuth(login, password) //
 				.withCollectionId(calId) //
 				.withProtocolVersion(ProtocolVersion.V141).build() //
 				.sync(request) //
@@ -92,7 +92,7 @@ public class CalendarSynchronizationTests extends AbstractEasTest {
 
 		SyncRequest request = new SyncRequestBuilder().withChanges().build();
 		new SyncHelper.SyncHelperBuilder() //
-				.withAuth(latd, password) //
+				.withAuth(login, password) //
 				.withCollectionId(calId) //
 				.withProtocolVersion(ProtocolVersion.V161).build() //
 				.execute(CoreCalendarHelper.validateEventCount(0)) //
@@ -117,7 +117,7 @@ public class CalendarSynchronizationTests extends AbstractEasTest {
 
 		SyncRequest request = new SyncRequestBuilder().withChanges().build();
 		new SyncHelper.SyncHelperBuilder() //
-				.withAuth(latd, password) //
+				.withAuth(login, password) //
 				.withCollectionId(calId) //
 				.withProtocolVersion(ProtocolVersion.V141).build() //
 				.execute(CoreCalendarHelper.validateEventCount(0)) //
@@ -144,7 +144,7 @@ public class CalendarSynchronizationTests extends AbstractEasTest {
 
 		SyncRequest request = new SyncRequestBuilder().withChanges().build();
 		new SyncHelper.SyncHelperBuilder() //
-				.withAuth(latd, password) //
+				.withAuth(login, password) //
 				.withCollectionId(calId) //
 				.withProtocolVersion(ProtocolVersion.V161).build() //
 				.execute(CoreCalendarHelper.validateEventCount(0)) //
