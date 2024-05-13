@@ -26,6 +26,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import com.github.freva.asciitable.AsciiTable;
+import com.google.common.collect.Lists;
 
 import net.bluemind.authentication.api.IAuthentication;
 import net.bluemind.authentication.api.LoginResponse;
@@ -128,19 +129,23 @@ public class UnexpungeCommand implements ICmdLet, Runnable {
 			if (days == 0 && id == 0) {
 				Predicate<MailboxRecordExpunged> filter = mi -> true;
 				List<MailboxRecordExpunged> expungeList = expungeApi.fetch();
-				List<Long> ids = expungeList.stream().filter(e -> filter.test(e)).map(e -> e.itemId).toList();
-				List<ItemValue<MailboxItem>> recordsList = itemsApi.multipleGetById(ids);
-				showDeletedMessages(recordsList, mi -> {
-				});
+				List<Long> ids = expungeList.stream().filter(filter::test).map(e -> e.itemId).toList();
+				for (List<Long> slice : Lists.partition(ids, 450)) {
+					List<ItemValue<MailboxItem>> recordsList = itemsApi.multipleGetById(slice);
+					showDeletedMessages(recordsList, mi -> {
+					});
+				}
 			} else if (days > 0) {
 				ctx.info("Recovering messages less than " + days + " day(s)) old");
 				long now = System.currentTimeMillis();
 				Predicate<MailboxRecordExpunged> filter = mi -> TimeUnit.MILLISECONDS
 						.toDays(now - mi.created.getTime()) < days;
 				List<MailboxRecordExpunged> expungeList = expungeApi.fetch();
-				List<Long> ids = expungeList.stream().filter(e -> filter.test(e)).map(e -> e.itemId).toList();
-				List<ItemValue<MailboxItem>> recordsList = itemsApi.multipleGetById(ids);
-				showDeletedMessages(recordsList, new Unexpunger(ctx, itemsApi));
+				List<Long> ids = expungeList.stream().filter(filter::test).map(e -> e.itemId).toList();
+				for (List<Long> slice : Lists.partition(ids, 450)) {
+					List<ItemValue<MailboxItem>> recordsList = itemsApi.multipleGetById(slice);
+					showDeletedMessages(recordsList, new Unexpunger(ctx, itemsApi));
+				}
 			} else if (id > 0) {
 				ctx.info("Recover message with id " + id);
 				if (!dry) {
