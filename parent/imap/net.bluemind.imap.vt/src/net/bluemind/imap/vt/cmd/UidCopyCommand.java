@@ -31,7 +31,7 @@ import com.google.common.base.Splitter;
 
 import io.vertx.core.buffer.Buffer;
 import net.bluemind.imap.vt.parsing.IncomingChunk;
-import net.bluemind.lib.jutf7.UTF7Converter;
+import net.bluemind.imap.vt.parsing.UTF7Converter;
 
 public class UidCopyCommand extends TaggedCommand<Map<Integer, Integer>> {
 

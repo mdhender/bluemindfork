@@ -22,7 +22,7 @@ import java.util.List;
 import io.netty.buffer.ByteBuf;
 import io.vertx.core.buffer.Buffer;
 import net.bluemind.imap.vt.parsing.IncomingChunk;
-import net.bluemind.lib.jutf7.UTF7Converter;
+import net.bluemind.imap.vt.parsing.UTF7Converter;
 
 public class AppendCommand extends TaggedCommand<Integer> {
 

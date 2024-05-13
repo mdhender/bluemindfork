@@ -23,7 +23,7 @@ import io.vertx.core.buffer.Buffer;
 import net.bluemind.imap.vt.dto.ListInfo;
 import net.bluemind.imap.vt.dto.ListResult;
 import net.bluemind.imap.vt.parsing.IncomingChunk;
-import net.bluemind.lib.jutf7.UTF7Converter;
+import net.bluemind.imap.vt.parsing.UTF7Converter;
 
 public class ListCommand extends TaggedCommand<ListResult> {
 
