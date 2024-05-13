@@ -140,7 +140,7 @@ public class RocksQueue {
 		BlockBasedTableConfig blockCfg = new BlockBasedTableConfig();
 		blockCfg.setBlockCache(new LRUCache(1L * 1024 * 1024));
 		opts.setTableFormatConfig(blockCfg);
-		opts.setWalRecoveryMode(WALRecoveryMode.SkipAnyCorruptedRecords);
+		opts.setWalRecoveryMode(WALRecoveryMode.TolerateCorruptedTailRecords);
 		opts.setCreateIfMissing(true);
 		opts.setCreateMissingColumnFamilies(true);
 
