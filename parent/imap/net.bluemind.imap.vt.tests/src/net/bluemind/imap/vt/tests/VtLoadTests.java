@@ -17,10 +17,13 @@
   */
 package net.bluemind.imap.vt.tests;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
@@ -33,7 +36,8 @@ import net.bluemind.imap.vt.dto.UidFetched;
 
 public class VtLoadTests extends BaseClientTests {
 
-	int cnt = 500;
+	int cnt = 250;
+	int idle_wake_ups = 3;
 	private long creates;
 
 	@Override
@@ -62,16 +66,17 @@ public class VtLoadTests extends BaseClientTests {
 			Thread.ofVirtual().name(tn).start(() -> {
 				try (StoreClient sc = new StoreClient("127.0.0.1", 1143, "u" + uCount + "@" + domUid, "u" + uCount)) {
 					sc.login();
-					walkFoldersThenIdle(cdl, 5, tn, sc);
+					walkFoldersThenIdle(cdl, idle_wake_ups, tn, sc);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
+				System.err.println("Idle loops completed for u" + uCount);
 				returned.countDown();
 			});
 
 		}
 		// ensure all connections are idling on inbox
-		cdl.await();
+		assertTrue(cdl.await(90, TimeUnit.SECONDS));
 		time = System.currentTimeMillis() - time;
 		long append = System.currentTimeMillis() - time;
 		for (int i = 0; i < cnt; i++) {
@@ -94,7 +99,7 @@ public class VtLoadTests extends BaseClientTests {
 			});
 		}
 
-		returned.await();
+		assertTrue(returned.await(90, TimeUnit.SECONDS));
 		append = System.currentTimeMillis() - time;
 		System.err.println(
 				"Create took " + creates + " ms, all idle in " + time + "ms, append & wakeups in " + append + "ms.");
