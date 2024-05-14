@@ -68,7 +68,7 @@ public class PopulateHelper {
 	private static final Logger logger = LoggerFactory.getLogger(PopulateHelper.class);
 
 	static {
-		FileUtils.delete(new File("/var/cache/bm-core"));
+		FileUtils.delete(new File("/var/cache/bm-core/sessions"));
 		System.setProperty("throttle.disabled", "true");
 		System.setProperty("net.fortuna.ical4j.timezone.cache.impl", "net.fortuna.ical4j.util.MapTimeZoneCache");
 	}
