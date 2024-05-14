@@ -160,6 +160,10 @@ public class RocksQueue {
 		this.tailFamily = indexed.get("tail");
 		this.indexFamily = indexed.get("indx");
 		this.dataFamily = indexed.get("data");
+//		setupShutdownHook(topic);
+	}
+
+	private void setupShutdownHook(String topic) {
 		Thread rdbShutdown = new Thread(() -> {
 			try {
 				db.syncWal();
