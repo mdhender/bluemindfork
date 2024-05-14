@@ -11,7 +11,7 @@
 		<bm-plugins-version>1.1.1537</bm-plugins-version>
 		<bm.metrics.agent>1.40.416</bm.metrics.agent>
 		<docker.devenv.tag>5.0.6980</docker.devenv.tag>
-		<target-platform-version>jdk21-1670</target-platform-version>
+		<target-platform-version>jdk21-2430</target-platform-version>
 
 		<!-- Not to be modified usually -->
 		<tycho-version>4.0.6</tycho-version>
