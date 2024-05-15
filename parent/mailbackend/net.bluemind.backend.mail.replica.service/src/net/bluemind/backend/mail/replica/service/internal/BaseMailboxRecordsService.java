@@ -21,6 +21,8 @@ import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 import javax.sql.DataSource;
@@ -83,6 +85,7 @@ public class BaseMailboxRecordsService implements IChangelogSupport, ICountingSu
 	protected final Sanitizer sortDescSanitizer;
 	protected final Supplier<MessageBodyObjectStore> sdsSuppply;
 	protected final Supplier<ContainerSettingsStore> settingsStore;
+	private OnceReadCheck onceRead;
 
 	public BaseMailboxRecordsService(DataSource ds, Container cont, BmContext context, String mailboxUniqueId,
 			MailboxRecordStore recordStore, ContainerStoreService<MailboxRecord> storeService, ReplicasStore store) {
@@ -99,6 +102,23 @@ public class BaseMailboxRecordsService implements IChangelogSupport, ICountingSu
 				.memoize(() -> new MessageBodyObjectStore(context.su(), DataSourceRouter.location(context, cont.uid)));
 		this.settingsStore = Suppliers.memoize(() -> new ContainerSettingsStore(ds, container));
 		this.rbac = RBACManager.forContext(context).forContainer(IMailboxAclUids.uidForMailbox(container.owner));
+		this.onceRead = new OnceReadCheck(rbac);
+	}
+
+	private static final class OnceReadCheck {
+		private final AtomicBoolean once = new AtomicBoolean(false);
+		private final RBACManager mgr;
+		private static final Set<String> READ = Set.of(Verb.Read.name());
+
+		public OnceReadCheck(RBACManager mgr) {
+			this.mgr = mgr;
+		}
+
+		public void readCheck() {
+			if (once.compareAndSet(false, true)) {
+				mgr.check(READ);
+			}
+		}
 	}
 
 	protected ItemValue<MailboxItem> adapt(ItemValue<MailboxRecord> rec) {
@@ -110,31 +130,31 @@ public class BaseMailboxRecordsService implements IChangelogSupport, ICountingSu
 
 	@Override
 	public ItemChangelog itemChangelog(String itemUid, Long since) {
-		rbac.check(Verb.Read.name());
+		onceRead.readCheck();
 		return ChangeLogUtil.getItemChangeLog(itemUid, since, context, container);
 	}
 
 	@Override
 	public ContainerChangeset<String> changeset(Long since) {
-		rbac.check(Verb.Read.name());
+		onceRead.readCheck();
 		return storeService.changeset(since, Long.MAX_VALUE);
 	}
 
 	@Override
 	public ContainerChangeset<Long> changesetById(Long since) {
-		rbac.check(Verb.Read.name());
+		onceRead.readCheck();
 		return storeService.changesetById(since, Long.MAX_VALUE);
 	}
 
 	@Override
 	public ContainerChangeset<ItemVersion> filteredChangesetById(Long since, ItemFlagFilter filter) throws ServerFault {
-		rbac.check(Verb.Read.name());
+		onceRead.readCheck();
 		return storeService.changesetById(since, filter);
 	}
 
 	@Override
 	public long getVersion() {
-		rbac.check(Verb.Read.name());
+		onceRead.readCheck();
 		return storeService.getVersion();
 	}
 
@@ -160,7 +180,7 @@ public class BaseMailboxRecordsService implements IChangelogSupport, ICountingSu
 
 	@Override
 	public List<Long> sortedIds(SortDescriptor sorted) {
-		rbac.check(Verb.Read.name());
+		onceRead.readCheck();
 		try {
 			SortDescriptor sortDesc = sorted;
 			if (sortDesc == null) {
@@ -180,7 +200,7 @@ public class BaseMailboxRecordsService implements IChangelogSupport, ICountingSu
 
 	@Override
 	public ListResult<Long> allIds(String filter, Long knownContainerVersion, Integer limit, Integer offset) {
-		rbac.check(Verb.Read.name());
+		onceRead.readCheck();
 		return storeService.allIds(IdQuery.of(filter, knownContainerVersion, limit, offset));
 	}
 
