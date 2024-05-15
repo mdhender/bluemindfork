@@ -92,6 +92,9 @@ public class ResourceTypeCombo extends Composite {
 
 	private void addItems(List<ResourceType> types) {
 		for (ResourceType type : types) {
+			if ("bm-videoconferencing".equals(type.identifier)) {
+				continue;
+			}
 			String[] labels = type.label.split("\n");
 			String l = null;
 			for (String label : labels) {
