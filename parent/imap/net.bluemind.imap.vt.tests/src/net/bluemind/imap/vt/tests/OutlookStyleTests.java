@@ -23,7 +23,6 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
@@ -37,17 +36,12 @@ import net.bluemind.imap.vt.dto.UidFetched;
 
 public class OutlookStyleTests extends BaseClientTests {
 
-	int cnt = 1;
+	public static final int LOOPS = 4096;
 
 	@Override
 	public void before() throws Exception {
 		super.before();
-		CompletableFuture<?>[] comp = new CompletableFuture<?>[cnt];
-		for (int i = 0; i < comp.length; i++) {
-			final int uCount = i;
-			comp[i] = CompletableFuture.runAsync(() -> addUser("u" + uCount, domUid));
-		}
-		CompletableFuture.allOf(comp).join();
+		addUser("u0", domUid);
 	}
 
 	@Test
@@ -57,7 +51,7 @@ public class OutlookStyleTests extends BaseClientTests {
 			ListResult folders = sc.list("", "*");
 			Stopwatch idling = Stopwatch.createUnstarted();
 			Stopwatch total = Stopwatch.createStarted();
-			for (int i = 0; i < 1024; i++) {
+			for (int i = 0; i < LOOPS; i++) {
 				outlookLoop(idling, sc, folders);
 			}
 			System.err.println("idled for " + idling.elapsed(TimeUnit.MILLISECONDS) + "ms out of "

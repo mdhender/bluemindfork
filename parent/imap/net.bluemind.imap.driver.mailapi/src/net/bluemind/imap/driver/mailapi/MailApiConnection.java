@@ -59,6 +59,7 @@ import co.elastic.clients.elasticsearch._types.aggregations.Aggregate;
 import io.netty.buffer.ByteBuf;
 import io.vertx.core.Context;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.streams.WriteStream;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
@@ -90,10 +91,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.delivery.conversationreference.api.IConversationReference;
-import net.bluemind.hornetq.client.Consumer;
-import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.MQ.SharedMap;
-import net.bluemind.hornetq.client.Topic;
 import net.bluemind.imap.driver.mailapi.UidSearchAnalyzer.QueryBuilderResult;
 import net.bluemind.imap.driver.mailapi.search.UidSearchFastPaths;
 import net.bluemind.imap.endpoint.EndpointRuntimeException;
@@ -147,7 +145,7 @@ public class MailApiConnection implements MailboxConnection {
 	private static final Supplier<ElasticsearchClient> esSupplier = Suppliers.memoize(ESearchActivator::getClient);
 	private static final long MAXIMUM_SEARCH_TIME = TimeUnit.SECONDS.toNanos(15);
 
-	private Consumer activeCons;
+	private MessageConsumer<JsonObject> activeCons;
 
 	// DefaultFolder class is in mailbox.service bundle :'(
 	private static final Set<String> USER_PROTECTED = Set.of("INBOX", "Sent", "Drafts", "Trash", "Junk", "Outbox",
@@ -551,7 +549,7 @@ public class MailApiConnection implements MailboxConnection {
 	public void notIdle() {
 		synchronized (myMailbox) {
 			if (activeCons != null) {
-				activeCons.close();
+				activeCons.unregister();
 				activeCons = null;
 			}
 		}
@@ -569,21 +567,20 @@ public class MailApiConnection implements MailboxConnection {
 			String watchedUid = IMailReplicaUids.mboxRecords(selected.folder.uid);
 			Context idleContext = VertxContext.getOrCreateDuplicatedContext();
 			// we only notify on sequence visible at the start of the idling phase
-			synchronized (myMailbox) {
-				this.activeCons = MQ.registerConsumer(Topic.IMAP_ITEM_NOTIFICATIONS,
-						msg -> idleContext.runOnContext(v -> {
-							JsonObject jsMsg = msg.toJson();
-							String contUid = jsMsg.getString("containerUid");
-
-							if (watchedUid.equals(contUid)) {
-								SelectedMessage[] changed = jsMsg.getJsonArray("changes").stream()
-										.map(JsonObject.class::cast).map(js -> js.mapTo(ImapChange.class))
-										.map(ic -> new SelectedMessage(ic.imap, ic.iid))
-										.toArray(SelectedMessage[]::new);
-								changeListener.accept(changed);
-							}
-						}));
-			}
+			idleContext.runOnContext(v -> {
+				synchronized (myMailbox) {
+					this.activeCons = VertxPlatform.getVertx().eventBus()
+							.consumer("imap.item.per-container." + watchedUid);
+					this.activeCons.handler(msg -> {
+						System.err.println("IDLE handler in " + Thread.currentThread().getName());
+						JsonObject jsMsg = msg.body();
+						SelectedMessage[] changed = jsMsg.getJsonArray("changes").stream().map(JsonObject.class::cast)
+								.map(js -> js.mapTo(ImapChange.class)).map(ic -> new SelectedMessage(ic.imap, ic.iid))
+								.toArray(SelectedMessage[]::new);
+						changeListener.accept(changed);
+					});
+				}
+			});
 		}
 	}
 

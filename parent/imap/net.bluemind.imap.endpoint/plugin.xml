@@ -7,6 +7,9 @@
       <verticle
             impl="net.bluemind.imap.endpoint.ImapVerticle$EndpointFactory">
       </verticle>
+      <verticle
+            impl="net.bluemind.imap.endpoint.events.IdleGlobalChannel$IdleFactory">
+      </verticle>
    </extension>
    <extension
          id="standalone"

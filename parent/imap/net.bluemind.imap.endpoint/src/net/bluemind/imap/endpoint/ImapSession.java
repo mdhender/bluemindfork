@@ -89,7 +89,7 @@ public class ImapSession implements StateChangeListener {
 
 	@Override
 	public void stateChanged(SessionState newState) {
-		logger.info("state change to {}", newState);
+		// ok
 	}
 
 }
