@@ -12,7 +12,7 @@ export default {
     },
     computed: {
         icon() {
-            return this.expanded ? "chevron" : "chevron-right";
+            return this.expanded ? "chevron-down" : "chevron-right";
         }
     }
 };

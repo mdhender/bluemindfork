@@ -4,7 +4,7 @@
             v-model="pattern"
             class="pref-filter mt-2 mb-3"
             :placeholder="$t('common.action.search')"
-            icon="search"
+            icon="magnifier"
             resettable
             left-icon
             :aria-label="$t('common.action.search')"
@@ -64,7 +64,7 @@
                         @click="$emit('edit', cell.item)"
                     />
                     <bm-icon-button class="desktop-only" variant="compact" icon="trash" @click="remove(cell.item)" />
-                    <bm-icon-dropdown variant="compact" icon="3dots" no-caret>
+                    <bm-icon-dropdown variant="compact" icon="3dots-horizontal" no-caret>
                         <bm-dropdown-item-button class="mobile-only" icon="pencil" @click="$emit('edit', cell.item)">
                             {{ $t("common.edit") }}
                         </bm-dropdown-item-button>
@@ -72,14 +72,14 @@
                             {{ $t("common.delete") }}
                         </bm-dropdown-item-button>
                         <bm-dropdown-divider class="mobile-only" />
-                        <bm-dropdown-item-button icon="table-add-row-up" @click="$emit('create-before', cell.item)">
+                        <bm-dropdown-item-button icon="table-row-plus-up" @click="$emit('create-before', cell.item)">
                             {{ $t("preferences.mail.filters.create.before") }}
                         </bm-dropdown-item-button>
-                        <bm-dropdown-item-button icon="table-add-row-down" @click="$emit('create-after', cell.item)">
+                        <bm-dropdown-item-button icon="table-row-plus-down" @click="$emit('create-after', cell.item)">
                             {{ $t("preferences.mail.filters.create.after") }}
                         </bm-dropdown-item-button>
                         <bm-dropdown-item-button
-                            icon="arrow-top"
+                            icon="arrow-up-bar"
                             :disabled="filterIndex(cell.item) === 0"
                             @click="$emit('top', cell.item)"
                         >
@@ -100,7 +100,7 @@
                             {{ $t("preferences.mail.filters.move.down") }}
                         </bm-dropdown-item-button>
                         <bm-dropdown-item-button
-                            icon="arrow-bottom"
+                            icon="arrow-down-bar"
                             :disabled="filterIndex(cell.item) === filters.length - 1"
                             @click="$emit('bottom', cell.item)"
                         >

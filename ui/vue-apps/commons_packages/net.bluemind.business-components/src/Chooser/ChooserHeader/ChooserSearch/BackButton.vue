@@ -1,5 +1,5 @@
 <template>
-    <bm-button variant="outline" class="back-button" icon="arrow-back" @click="unsetSearchMode" />
+    <bm-button variant="outline" class="back-button" icon="arrow-left" @click="unsetSearchMode" />
 </template>
 
 <script>

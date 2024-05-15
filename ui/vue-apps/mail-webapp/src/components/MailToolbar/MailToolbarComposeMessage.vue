@@ -14,7 +14,7 @@
             v-else
             :aria-label="$t('mail.actions.end_template_edition.aria')"
             :title="$t('mail.actions.end_template_edition.aria')"
-            icon="arrow-back"
+            icon="arrow-left"
             :label="$tc('mail.actions.end_template_edition.label')"
             :compact="compact"
             @click="endEdition"
@@ -23,7 +23,7 @@
             :aria-label="$t('mail.actions.attach.aria')"
             :title="$t('mail.actions.attach.aria')"
             :disabled="isSending"
-            icon="paper-clip"
+            icon="paperclip"
             :label="$tc('mail.actions.attach')"
             :compact="compact"
             @click="openFilePicker()"
@@ -32,7 +32,7 @@
             :aria-label="saveActionTitle"
             :title="saveActionTitle"
             :disabled="isSaving || isSending || anyAttachmentInError || isInvalid"
-            :icon="isDraft ? 'save' : 'plus-document'"
+            :icon="isDraft ? 'save' : 'document-plus'"
             :label="$t('common.save')"
             split
             right
@@ -40,7 +40,7 @@
             @click="saveAsap"
         >
             <bm-dropdown-item icon="save" @click="saveAsDraft">{{ $t("mail.actions.save_draft") }}</bm-dropdown-item>
-            <bm-dropdown-item icon="plus-document" @click="saveAsTemplate">{{
+            <bm-dropdown-item icon="document-plus" @click="saveAsTemplate">{{
                 $t("mail.actions.save_template")
             }}</bm-dropdown-item>
         </mail-toolbar-responsive-dropdown>
@@ -64,7 +64,11 @@
             <bm-dropdown-item icon="code" :disabled="!canShowOrDownloadEml" @click.stop="showSource(message)">
                 {{ $t("mail.actions.show_source") }}
             </bm-dropdown-item>
-            <bm-dropdown-item icon="download" :disabled="!canShowOrDownloadEml" @click.stop="downloadEml(message)">
+            <bm-dropdown-item
+                icon="box-arrow-down"
+                :disabled="!canShowOrDownloadEml"
+                @click.stop="downloadEml(message)"
+            >
                 {{ $t("mail.actions.download_eml") }}
             </bm-dropdown-item></template
         >

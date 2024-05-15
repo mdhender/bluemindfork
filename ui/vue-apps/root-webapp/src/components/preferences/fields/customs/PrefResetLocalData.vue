@@ -8,10 +8,10 @@
             <bm-spinner class="d-inline" size="xl" thick />
             {{ $t("preferences.advanced.reinit_local_data.in_progress") }}
         </template>
-        <bm-label-icon v-else-if="status === 'SUCCESS'" class="text-success" icon="check-circle">
+        <bm-label-icon v-else-if="status === 'SUCCESS'" class="text-success" icon="check-circle-fill">
             {{ $t("preferences.advanced.reinit_local_data.success") }}
         </bm-label-icon>
-        <bm-label-icon v-else-if="status === 'ERROR'" class="text-danger" icon="info-circle-plain">
+        <bm-label-icon v-else-if="status === 'ERROR'" class="text-danger" icon="info-circle-fill">
             {{ $t("preferences.advanced.reinit_local_data.error") }}
         </bm-label-icon>
     </div>

@@ -2,7 +2,7 @@
     <div class="pref-tags-table">
         <bm-table :items="tags" :fields="fields" :per-page="perPage" :current-page="currentPage" sort-by="label">
             <template #cell(color)="cell">
-                <bm-icon icon="tag" size="xl" :style="'color: ' + cell.value + ';'" />
+                <bm-icon icon="tag-fill" size="xl" :style="'color: ' + cell.value + ';'" />
             </template>
             <template #cell(label)="cell">
                 <div class="text-truncate" :title="cell.value">

@@ -8,8 +8,8 @@
     >
         <template #prev-text><bm-icon icon="chevron-left" /></template>
         <template #next-text><bm-icon icon="chevron-right" /></template>
-        <template #first-text><bm-icon icon="caret-first" /></template>
-        <template #last-text><bm-icon icon="caret-last" /></template>
+        <template #first-text><bm-icon icon="chevron-left-bar" /></template>
+        <template #last-text><bm-icon icon="chevron-right-bar" /></template>
         <slot />
     </b-pagination>
 </template>

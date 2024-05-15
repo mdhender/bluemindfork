@@ -12,7 +12,7 @@ export default {
         }
     },
     data() {
-        return { title: this.$t("styleguide.rich_editor.bold.tooltip"), icon: "rich-editor-bold" };
+        return { title: this.$t("styleguide.rich_editor.bold.tooltip"), icon: "bold" };
     },
     computed: {
         isActive() {

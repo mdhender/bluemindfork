@@ -14,7 +14,7 @@ export default {
     data() {
         return {
             title: this.$t("styleguide.rich_editor.list.tooltip"),
-            icon: "rich-editor-list"
+            icon: "list-bulleted"
         };
     },
     computed: {

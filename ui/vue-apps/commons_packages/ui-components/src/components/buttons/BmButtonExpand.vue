@@ -5,7 +5,7 @@
         variant="compact"
         v-bind="[$attrs, $props]"
         :size="size"
-        :icon="expanded ? 'chevron' : 'chevron-right'"
+        :icon="expanded ? 'chevron-down' : 'chevron-right'"
         v-on="$listeners"
     />
 </template>

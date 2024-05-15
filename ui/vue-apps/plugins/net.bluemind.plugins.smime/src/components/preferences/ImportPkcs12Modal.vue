@@ -13,7 +13,7 @@
                 <bm-label-icon v-if="importErrorMsg" class="text-error" icon="exclamation-circle-fill">{{
                     file.name
                 }}</bm-label-icon>
-                <bm-label-icon v-else class="text-success" icon="check-circle">{{ file.name }}</bm-label-icon>
+                <bm-label-icon v-else class="text-success" icon="check-circle-fill">{{ file.name }}</bm-label-icon>
                 <bm-form-group
                     class="mt-6"
                     label-for="password"

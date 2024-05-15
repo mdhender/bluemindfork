@@ -18,7 +18,7 @@ export default {
     },
     render(h) {
         if (this.message.hasAttachment) {
-            return h("bm-icon", { props: { icon: "paper-clip" } });
+            return h("bm-icon", { props: { icon: "paperclip" } });
         }
         return this.next();
     }

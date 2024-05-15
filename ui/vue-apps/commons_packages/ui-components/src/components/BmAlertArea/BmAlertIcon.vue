@@ -31,9 +31,9 @@ export default {
                 case AlertTypes.LOADING:
                     return "";
                 case AlertTypes.SUCCESS:
-                    return "check-circle";
+                    return "check-circle-fill";
                 case AlertTypes.INFO:
-                    return "info-circle-plain";
+                    return "info-circle-fill";
                 case AlertTypes.WARNING:
                 case AlertTypes.ERROR:
                     return "exclamation-circle";

@@ -1,7 +1,7 @@
 <template>
     <div class="pref-left-panel scroller-y">
         <div class="pref-title mobile-only">
-            <bm-icon icon="preferences" />
+            <bm-icon icon="gearwheel" />
             <div class="large-bold text-truncate">{{ $t("common.preference") }}</div>
         </div>
         <div class="identity">

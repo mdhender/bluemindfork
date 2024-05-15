@@ -1,5 +1,5 @@
 <template>
-    <bm-icon-dropdown variant="compact" icon="3dots-v" no-caret lazy>
+    <bm-icon-dropdown variant="compact" icon="3dots-vertical" no-caret lazy>
         <bm-dropdown-item-button
             icon="pencil"
             :disabled="container.defaultContainer && !isCalendarType"
@@ -10,7 +10,7 @@
         <bm-dropdown-item-button icon="share" @click="$emit('manage-shares')">
             {{ $t("common.share") }}
         </bm-dropdown-item-button>
-        <bm-dropdown-item-button icon="upload" @click="$emit('import')">
+        <bm-dropdown-item-button icon="box-arrow-up" @click="$emit('import')">
             {{ $t("common.import") }}
         </bm-dropdown-item-button>
         <bm-dropdown-item-button icon="broom" @click="$emit('reset-data')">
@@ -21,7 +21,7 @@
         </bm-dropdown-item-button>
         <bm-dropdown-item-button
             v-if="displaySyncBtn"
-            icon="loop"
+            icon="arrow-round"
             :disabled="isSyncInProgress"
             @click="$emit('synchronize')"
         >

@@ -10,7 +10,7 @@
             v-if="isCollapseActive"
             size="sm"
             class="align-self-start mt-6 ml-3 mb-2"
-            icon="3dots"
+            icon="3dots-horizontal"
             @click="collapse_ = false"
         />
     </div>

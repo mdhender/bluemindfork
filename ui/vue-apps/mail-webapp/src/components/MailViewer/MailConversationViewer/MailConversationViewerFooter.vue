@@ -5,7 +5,7 @@
                 <bm-toolbar-button
                     variant="fill-accent"
                     :title="action.label($t('mail.content.reply.aria'))"
-                    :icon="action.icon('reply')"
+                    :icon="action.icon('arrow-left-broken')"
                     @click="action.execute(() => reply(lastNonDraft, conversation))"
                 >
                     {{ $t("mail.content.reply.aria") }}
@@ -15,7 +15,7 @@
                 <bm-toolbar-button
                     variant="fill-accent"
                     :title="action.label($t('mail.content.reply_all.aria'))"
-                    :icon="action.icon('reply-all')"
+                    :icon="action.icon('arrows-left-broken')"
                     @click="action.execute(() => replyAll(lastNonDraft, conversation))"
                 >
                     {{ $t("mail.content.reply_all.aria") }}

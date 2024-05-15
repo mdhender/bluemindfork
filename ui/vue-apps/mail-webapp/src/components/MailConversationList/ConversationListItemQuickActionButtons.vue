@@ -23,7 +23,7 @@
                 :aria-label="$tc('mail.actions.edit_from_template.aria')"
                 :title="$tc('mail.actions.edit_from_template.aria')"
                 variant="compact"
-                icon="plus-enveloppe"
+                icon="mail-plus"
                 @click.prevent.stop="editFromTemplate(conversation)"
             />
             <bm-toolbar-icon-button
@@ -39,7 +39,7 @@
                 :aria-label="markAsUnreadAriaText(1, subject)"
                 :title="markAsUnreadAriaText(1, subject)"
                 variant="compact"
-                icon="unread"
+                icon="mail-dot"
                 @click.prevent.stop="markAsUnread(conversation)"
             />
             <bm-toolbar-icon-button
@@ -47,7 +47,7 @@
                 :aria-label="markAsFlaggedAriaText(1, subject)"
                 :title="markAsFlaggedAriaText(1, subject)"
                 variant="compact"
-                icon="flag-outline"
+                icon="flag"
                 @click.prevent.stop="markAsFlagged(conversation)"
             />
             <bm-toolbar-icon-button

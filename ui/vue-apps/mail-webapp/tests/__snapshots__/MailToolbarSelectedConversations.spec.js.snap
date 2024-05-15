@@ -7,7 +7,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
 >
   <div
     class="dropdown b-dropdown bm-dropdown btn-group dropdown-text overflow-menu"
-    icon="3dots"
+    icon="3dots-horizontal"
   >
     <!---->
     <button
@@ -21,7 +21,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
           class="mail-toolbar-menu-button btn bm-captioned-icon-button desktop-only btn-captioned-icon"
         >
           <svg
-            data-test-id="3dots"
+            data-test-id="3dots-horizontal"
           />
            
           <span
@@ -52,12 +52,12 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
         >
           <button
             class="dropdown-item text-compact-on-fill-primary"
-            icon="unread"
+            icon="mail-dot"
             role="menuitem"
             type="button"
           >
             <svg
-              data-test-id="unread"
+              data-test-id="mail-dot"
               fixed-width=""
             />
              
@@ -77,12 +77,12 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
         >
           <button
             class="dropdown-item"
-            icon="unread"
+            icon="mail-dot"
             role="menuitem"
             type="button"
           >
             <svg
-              data-test-id="unread"
+              data-test-id="mail-dot"
               fixed-width=""
             />
              
@@ -153,7 +153,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
                       <input
                         autocomplete="off"
                         class="form-control form-control-md with-icon with-reset"
-                        icon="search"
+                        icon="magnifier"
                         resettable="true"
                         type="text"
                         variant="outline"
@@ -164,7 +164,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
                       >
                         <svg
                           class="ornament-icon"
-                          data-test-id="search"
+                          data-test-id="magnifier"
                         />
                       </div>
                     </div>
@@ -476,7 +476,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
                       <input
                         autocomplete="off"
                         class="form-control form-control-md with-icon with-reset"
-                        icon="search"
+                        icon="magnifier"
                         resettable="true"
                         type="text"
                         variant="outline"
@@ -487,7 +487,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
                       >
                         <svg
                           class="ornament-icon"
-                          data-test-id="search"
+                          data-test-id="magnifier"
                         />
                       </div>
                     </div>
@@ -809,12 +809,12 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
         >
           <button
             class="dropdown-item text-compact-on-fill-primary"
-            icon="flag-outline"
+            icon="flag"
             role="menuitem"
             type="button"
           >
             <svg
-              data-test-id="flag-outline"
+              data-test-id="flag"
               fixed-width=""
             />
              
@@ -834,12 +834,12 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
         >
           <button
             class="dropdown-item"
-            icon="flag-outline"
+            icon="flag"
             role="menuitem"
             type="button"
           >
             <svg
-              data-test-id="flag-outline"
+              data-test-id="flag"
               fixed-width=""
             />
              
@@ -856,7 +856,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
       <div
         aria-label=""
         class="mail-toolbar-consult-message-other-actions"
-        icon="3dots"
+        icon="3dots-horizontal"
         label=""
         no-caret=""
         right=""
@@ -986,12 +986,12 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
           <a
             class="dropdown-item"
             href="#"
-            icon="download"
+            icon="box-arrow-down"
             role="menuitem"
             target="_self"
           >
             <svg
-              data-test-id="download"
+              data-test-id="box-arrow-down"
               fixed-width=""
             />
              
@@ -1013,12 +1013,12 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
           <a
             class="dropdown-item"
             href="#"
-            icon="with-attachment"
+            icon="mail-paperclip"
             role="menuitem"
             target="_self"
           >
             <svg
-              data-test-id="with-attachment"
+              data-test-id="mail-paperclip"
               fixed-width=""
             />
              
@@ -1043,26 +1043,26 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
   >
     <button
       class="btn bm-icon-button mobile-only btn-icon-compact-on-fill-primary btn-lg compact on-fill-primary bm-toolbar-icon-button"
-      icon="unread"
+      icon="mail-dot"
       label=""
       title=""
       type="button"
     >
       <svg
-        data-test-id="unread"
+        data-test-id="mail-dot"
       />
     </button>
      
     <button
       caption=""
       class="btn bm-captioned-icon-button desktop-only btn-captioned-icon bm-toolbar-captioned-icon-button"
-      icon="unread"
+      icon="mail-dot"
       label=""
       title=""
       type="button"
     >
       <svg
-        data-test-id="unread"
+        data-test-id="mail-dot"
       />
        
       <span
@@ -1125,7 +1125,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
                   <input
                     autocomplete="off"
                     class="form-control form-control-md with-icon with-reset"
-                    icon="search"
+                    icon="magnifier"
                     resettable="true"
                     type="text"
                     variant="outline"
@@ -1136,7 +1136,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
                   >
                     <svg
                       class="ornament-icon"
-                      data-test-id="search"
+                      data-test-id="magnifier"
                     />
                   </div>
                 </div>
@@ -1452,7 +1452,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
                   <input
                     autocomplete="off"
                     class="form-control form-control-md with-icon with-reset"
-                    icon="search"
+                    icon="magnifier"
                     resettable="true"
                     type="text"
                     variant="outline"
@@ -1463,7 +1463,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
                   >
                     <svg
                       class="ornament-icon"
-                      data-test-id="search"
+                      data-test-id="magnifier"
                     />
                   </div>
                 </div>
@@ -1762,26 +1762,26 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
   >
     <button
       class="btn bm-icon-button mobile-only btn-icon-compact-on-fill-primary btn-lg compact on-fill-primary bm-toolbar-icon-button"
-      icon="flag-outline"
+      icon="flag"
       label=""
       title=""
       type="button"
     >
       <svg
-        data-test-id="flag-outline"
+        data-test-id="flag"
       />
     </button>
      
     <button
       caption=""
       class="btn bm-captioned-icon-button desktop-only btn-captioned-icon bm-toolbar-captioned-icon-button"
-      icon="flag-outline"
+      icon="flag"
       label=""
       title=""
       type="button"
     >
       <svg
-        data-test-id="flag-outline"
+        data-test-id="flag"
       />
        
       <span

@@ -2,7 +2,7 @@
     <bm-form-input
         v-model="folderSearchPattern"
         class="folder-search-input"
-        icon="filter"
+        icon="funnel"
         variant="underline"
         size="sm"
         resettable

@@ -43,12 +43,12 @@
                 <div>{{ saveMessage }}</div>
             </div>
             <div v-else class="save-message">{{ saveMessage }}</div>
-            <bm-toolbar menu-icon="3dots-v" :min-items="4" menu-icon-size="lg" menu-icon-variant="compact">
+            <bm-toolbar menu-icon="3dots-vertical" :min-items="4" menu-icon-size="lg" menu-icon-variant="compact">
                 <bm-toolbar-icon-button
                     v-if="!userPrefTextOnly"
                     variant="compact"
                     size="lg"
-                    icon="text-format"
+                    icon="letter"
                     :aria-label="textFormatterLabel"
                     :title="textFormatterLabel"
                     :disabled="isSending"
@@ -69,7 +69,7 @@
                     extension-id="webapp.mail"
                     variant="compact"
                     size="lg"
-                    icon="paper-clip"
+                    icon="paperclip"
                     :aria-label="$tc('mail.actions.attach.aria')"
                     :title="$tc('mail.actions.attach.aria')"
                     :disabled="isSending"

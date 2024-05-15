@@ -43,7 +43,8 @@ export default {
                 const active = !this.withShiftOnly || (event ? event.shiftKey : this.shift);
                 this.enabled && active ? this.open() : fallback();
             },
-            icon: fallback => (this.enabled && this.withShiftOnly && this.shift && this.hover ? "popup" : fallback),
+            icon: fallback =>
+                this.enabled && this.withShiftOnly && this.shift && this.hover ? "box-arrow-up-right" : fallback,
             label: label => {
                 if (!this.enabled || !this.withShiftOnly) {
                     return label;

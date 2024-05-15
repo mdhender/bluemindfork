@@ -8,7 +8,7 @@
                 </div>
                 <div class="starter-links">
                     <bm-button
-                        icon="arrow-back"
+                        icon="arrow-left"
                         :to="$router.relative({ name: 'v:mail:home', params: { filter: null } }, $route)"
                         variant="link"
                     >

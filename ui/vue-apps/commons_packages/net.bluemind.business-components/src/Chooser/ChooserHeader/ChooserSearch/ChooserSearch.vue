@@ -4,7 +4,7 @@
         <bm-form-input
             v-model="pattern"
             :placeholder="$t('common.search')"
-            icon="search"
+            icon="magnifier"
             resettable
             left-icon
             :aria-label="$t('common.search')"

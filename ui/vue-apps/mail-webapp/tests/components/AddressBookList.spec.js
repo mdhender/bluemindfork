@@ -44,7 +44,7 @@ describe("Addressbooks list [RECIPIENT PICKER]", () => {
             });
             test("Collected addressbook", () => {
                 const wrapper = AddressbookListSUT()._withCollectedContacts().mount();
-                expect(wrapper.find("svg").attributes("data-test-id")).toEqual("envelope-user");
+                expect(wrapper.find("svg").attributes("data-test-id")).toEqual("user-mail");
             });
             test("Personnal addressbook", () => {
                 const wrapper = AddressbookListSUT()._withAddressbooks().mount();
@@ -55,7 +55,7 @@ describe("Addressbooks list [RECIPIENT PICKER]", () => {
         describe("Shared addressboooks", () => {
             it("shared collected addressbook", () => {
                 const wrapper = AddressbookListSUT().withSharedCollectedAddressbook().mount();
-                expect(wrapper.find("svg").attributes("data-test-id")).toEqual("envelope-user-shared");
+                expect(wrapper.find("svg").attributes("data-test-id")).toEqual("user-mail-shared");
             });
             it("shared personnal addressbook", () => {
                 const wrapper = AddressbookListSUT().withSharedOtherAddressbook().mount();

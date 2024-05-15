@@ -29,7 +29,7 @@
                     :placeholder="$t('common.search')"
                     class="desktop-search-input"
                     variant="underline"
-                    icon="search"
+                    icon="magnifier"
                     resettable
                     left-icon
                     :aria-label="$t('common.search')"
@@ -44,7 +44,7 @@
                     :value="pattern"
                     :placeholder="$t('common.search')"
                     class="mobile-search-input"
-                    icon="search"
+                    icon="magnifier"
                     left-icon
                     :aria-label="$t('common.search')"
                     autocomplete="off"
@@ -56,7 +56,7 @@
                     class="mobile-only search-button"
                     variant="compact-on-fill-primary"
                     size="lg"
-                    icon="search"
+                    icon="magnifier"
                     @click="showMobileSearchInput = true"
                 />
             </bm-modal-header>

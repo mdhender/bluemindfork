@@ -18,7 +18,7 @@
                     v-model="search"
                     class="mobile-search-input mobile-only"
                     autofocus
-                    icon="search"
+                    icon="magnifier"
                     left-icon
                     :placeholder="
                         $t('recipient_picker.search_input.placeholder', { addressBookName: selectedAddressBook.name })
@@ -41,7 +41,7 @@
                         class="mobile-only mx-3"
                         variant="compact-on-fill-primary"
                         size="lg"
-                        icon="search"
+                        icon="magnifier"
                         @click="showMobileSearchInput = true"
                     />
                 </template>
@@ -64,7 +64,7 @@
                     ref="desktop-search-input"
                     v-model="search"
                     class="desktop-search-input desktop-only"
-                    :icon="!resettable ? 'search' : 'cancel'"
+                    :icon="!resettable ? 'magnifier' : 'cancel'"
                     left-icon
                     :resettable="resettable"
                     :placeholder="

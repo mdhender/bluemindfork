@@ -33,7 +33,7 @@
                             class="expand-button"
                             :title="action.label($t('mail.actions.extend'))"
                             :disabled="anyAttachmentInError"
-                            :icon="action.icon('extend')"
+                            :icon="action.icon('expand')"
                             @click="saveAsap().then(() => action.execute(() => $router.navigate(route), $event))"
                         />
                     </mail-open-in-popup-with-shift>

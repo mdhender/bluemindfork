@@ -4,7 +4,7 @@
             boundary="viewport"
             variant="compact"
             size="sm"
-            icon="3dots-v"
+            icon="3dots-vertical"
             no-caret
             lazy
             v-on="$listeners"
@@ -23,7 +23,7 @@
             </bm-dropdown-item-button>
             <bm-dropdown-item-button
                 :disabled="folder.unread === 0"
-                icon="read"
+                icon="mail-open"
                 @click="MARK_FOLDER_AS_READ({ folder, mailbox })"
             >
                 {{ $t("mail.folder.mark_read") }}

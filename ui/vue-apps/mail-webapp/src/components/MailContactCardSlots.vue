@@ -28,7 +28,7 @@
                 v-else
                 ref="action"
                 variant="text-accent"
-                icon="user-add"
+                icon="user-plus"
                 :title="$t('mail.actions.add_contact.tooltip')"
                 :loading="loading"
                 href="#"

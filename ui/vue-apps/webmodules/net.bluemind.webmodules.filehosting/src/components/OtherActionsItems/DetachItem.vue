@@ -3,7 +3,7 @@
         v-if="!fhFile && !isReadOnly"
         class="detach-item"
         :disabled="isToolarge"
-        icon="cloud-up"
+        icon="cloud-arrow-up"
         @click.stop="detach"
     >
         {{ $t("filehosting.detach") }}

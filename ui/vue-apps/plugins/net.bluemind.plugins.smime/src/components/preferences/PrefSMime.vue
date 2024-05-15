@@ -7,7 +7,7 @@
             <bm-illustration :value="SMIME_AVAILABLE ? 'lock-true' : 'lock-false'" size="xs" class="mr-5" />
             <div class="d-inline-block align-middle">
                 <template v-if="SMIME_AVAILABLE">
-                    <bm-label-icon icon="check-circle" :inline="false">
+                    <bm-label-icon icon="check-circle-fill" :inline="false">
                         {{ $t("smime.preferences.import_field.cert_and_key_associated") }}
                     </bm-label-icon>
                     <bm-button variant="outline-danger" class="mt-5 ml-6" @click="dissociate">
@@ -77,7 +77,7 @@ export default {
 <style lang="scss">
 @import "~@bluemind/ui-components/src/css/utils/variables.scss";
 .pref-smime {
-    .icon-check-circle {
+    .icon-check-circle-fill {
         color: $success-fg;
     }
 }

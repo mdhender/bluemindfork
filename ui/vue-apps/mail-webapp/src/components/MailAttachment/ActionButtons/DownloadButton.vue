@@ -3,7 +3,7 @@
         variant="compact"
         class="download-button"
         size="sm"
-        icon="download"
+        icon="box-arrow-down"
         :title="$t('common.downloadAttachment')"
         :disabled="disabled"
         @click.stop="download"

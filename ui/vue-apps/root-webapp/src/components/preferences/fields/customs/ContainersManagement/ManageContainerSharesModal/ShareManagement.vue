@@ -8,7 +8,7 @@
                 v-model="searchedInput"
                 :placeholder="$t('common.search')"
                 class="search-input"
-                icon="search"
+                icon="magnifier"
                 left-icon
                 :items="suggestions"
                 @input="onInputUpdate"

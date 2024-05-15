@@ -3,7 +3,7 @@
         <bm-breadcrumb-item
             v-if="!searchResult"
             class="root-item"
-            icon="preferences"
+            icon="gearwheel"
             text="Préférences"
             :active="!section"
             interactive

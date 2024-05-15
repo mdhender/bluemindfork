@@ -5,7 +5,7 @@
         </div>
         <bm-button variant="link" :href="href" target="_blank">
             <div class="d-flex align-items-center">
-                <bm-icon icon="popup" class="mr-3" />
+                <bm-icon icon="box-arrow-up-right" class="mr-3" />
                 <div>{{ $t("common.read_more") }}</div>
             </div>
         </bm-button>

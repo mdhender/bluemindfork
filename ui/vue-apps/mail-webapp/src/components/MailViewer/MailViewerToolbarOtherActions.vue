@@ -26,7 +26,7 @@
         </bm-dropdown-item>
         <mail-open-in-popup-with-shift v-if="isTemplate" v-slot="action" :href="modifyTemplateRoute">
             <bm-dropdown-item
-                :icon="action.icon('plus-document')"
+                :icon="action.icon('document-plus')"
                 :title="action.label($t('mail.actions.modify_template'))"
                 @click="action.execute(modifyTemplate)"
             >
@@ -53,10 +53,10 @@
         <bm-dropdown-item icon="code" @click.stop="showSource(message)">
             {{ $t("mail.actions.show_source") }}
         </bm-dropdown-item>
-        <bm-dropdown-item icon="download" @click.stop="downloadEml(message)">
+        <bm-dropdown-item icon="box-arrow-down" @click.stop="downloadEml(message)">
             {{ $t("mail.actions.download_eml") }}
         </bm-dropdown-item>
-        <bm-dropdown-item icon="with-attachment" @click.stop="forwardEml(conversation, message)">
+        <bm-dropdown-item icon="mail-paperclip" @click.stop="forwardEml(conversation, message)">
             {{ $t("mail.actions.forward_eml") }}
         </bm-dropdown-item>
 

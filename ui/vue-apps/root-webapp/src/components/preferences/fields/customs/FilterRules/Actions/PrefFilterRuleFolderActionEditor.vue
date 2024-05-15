@@ -92,7 +92,7 @@ export default {
                 case DEFAULT_FOLDERS.OUTBOX:
                     return "clock";
                 case DEFAULT_FOLDERS.SENT:
-                    return "paper-plane";
+                    return "sent";
                 case DEFAULT_FOLDERS.TEMPLATES:
                     return "documents";
                 default:

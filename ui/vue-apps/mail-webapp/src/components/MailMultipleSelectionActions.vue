@@ -41,7 +41,7 @@
                         variant="text"
                         :title="markAsReadAriaText()"
                         :aria-label="markAsReadAriaText()"
-                        icon="read"
+                        icon="mail-open"
                         @click="markAsRead()"
                     >
                         {{ markAsReadText }}
@@ -60,7 +60,7 @@
                         variant="text"
                         :title="markAsUnflaggedAriaText()"
                         :aria-label="markAsUnflaggedAriaText()"
-                        icon="flag-outline"
+                        icon="flag"
                         @click="markAsUnflagged()"
                     >
                         {{ markAsUnflaggedText }}

@@ -4,7 +4,7 @@
             <mail-toolbar-responsive-button
                 v-if="isTemplate"
                 :title="$t('mail.actions.edit_from_template.aria', { subject })"
-                icon="plus-enveloppe"
+                icon="mail-plus"
                 :label="$t('mail.actions.edit_from_template')"
                 :compact="compact"
                 @click="editFromTemplate"
@@ -20,7 +20,7 @@
             <mail-toolbar-responsive-button
                 v-if="showMarkAsUnreadInMain(isTemplate)"
                 :title="markAsUnreadAriaText()"
-                icon="unread"
+                icon="mail-dot"
                 :label="markAsUnreadText"
                 :compact="compact"
                 @click="markAsUnread()"
@@ -37,7 +37,7 @@
             <mail-toolbar-responsive-button
                 v-if="showMarkAsFlaggedInMain"
                 :title="markAsFlaggedAriaText()"
-                icon="flag-outline"
+                icon="flag"
                 :label="$t('mail.state.flagging')"
                 :compact="compact"
                 @click="markAsFlagged()"

@@ -12,16 +12,16 @@
             class="dropdown-on-fill-primary"
             size="lg"
             no-caret
-            icon="3dots-v"
+            icon="3dots-vertical"
             lazy
         >
-            <bm-dropdown-item-button icon="preferences" @click="TOGGLE_PREFERENCES()">
+            <bm-dropdown-item-button icon="gearwheel" @click="TOGGLE_PREFERENCES()">
                 {{ $t("common.preference") }}
             </bm-dropdown-item-button>
             <bm-dropdown-item to="#about">
                 {{ $t("banner.about") }}
             </bm-dropdown-item>
-            <bm-dropdown-item icon="sign-out" href="/bluemind_sso_logout">
+            <bm-dropdown-item icon="power" href="/bluemind_sso_logout">
                 {{ $t("banner.menu.logout") }}
             </bm-dropdown-item>
         </bm-icon-dropdown>

@@ -49,7 +49,7 @@ function copyLink() {
         <div v-if="event.conference">
             <bm-dropdown variant="fill-accent" class="event-footer-conference" split right @click="openConference">
                 <template #button-content>
-                    <bm-label-icon icon="video">
+                    <bm-label-icon icon="video-camera">
                         {{ $t("mail.viewer.invitation.conference") }}
                     </bm-label-icon>
                 </template>

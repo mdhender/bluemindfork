@@ -19,7 +19,7 @@
                 variant="outline"
                 :items="itemsOrDefaults()"
                 :state="inputState"
-                icon="search"
+                icon="magnifier"
                 actionable-icon
                 :max-results="maxFolders"
                 autofocus

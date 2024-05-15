@@ -1,7 +1,7 @@
 <template>
     <mail-open-in-popup-with-shift v-slot="action" :href="routeToForwardEventMessage">
         <bm-toolbar-icon-dropdown
-            icon="forward"
+            icon="arrow-right"
             variant="regular-accent"
             right
             split

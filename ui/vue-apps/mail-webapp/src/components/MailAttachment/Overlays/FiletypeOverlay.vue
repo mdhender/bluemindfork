@@ -20,7 +20,7 @@ export default {
     },
     methods: {
         getHoverIcon(file) {
-            return !this.isAllowedToPreview ? "download" : this.matchingPreviewIcon(file);
+            return !this.isAllowedToPreview ? "box-arrow-down" : this.matchingPreviewIcon(file);
         },
         matchingPreviewIcon(file) {
             return MimeType.isAudio(file) || MimeType.isVideo(file) ? "play" : "eye";

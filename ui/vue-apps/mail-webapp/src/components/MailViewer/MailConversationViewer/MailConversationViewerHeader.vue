@@ -10,7 +10,7 @@
                 $emit('expand');
             "
         />
-        <bm-icon-button v-else :title="$t('common.collapse')" icon="collapse" @click="$emit('collapse')" />
+        <bm-icon-button v-else :title="$t('common.collapse')" icon="collapse-vertical" @click="$emit('collapse')" />
     </div>
 </template>
 <script>

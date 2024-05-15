@@ -35,7 +35,7 @@
                         icon="trash"
                         @click="removeLink(external)"
                     />
-                    <bm-icon-button v-else size="sm" icon="loop" @click="regenerateLink" />
+                    <bm-icon-button v-else size="sm" icon="arrow-round" @click="regenerateLink" />
                 </div>
             </bm-row>
         </div>

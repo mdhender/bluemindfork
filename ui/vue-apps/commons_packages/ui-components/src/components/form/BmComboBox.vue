@@ -10,7 +10,7 @@ export default {
         icon: {
             type: String,
             required: false,
-            default: "caret-down"
+            default: "triangle-down"
         },
         actionableIcon: {
             type: Boolean,
@@ -49,7 +49,7 @@ export default {
 
 .bm-form-autocomplete-input {
     .bm-form-input {
-        input[icon="caret-down"] + .icon-wrapper {
+        input[icon="triangle-down"] + .icon-wrapper {
             right: 0;
 
             .bm-icon-button.actionable-icon {

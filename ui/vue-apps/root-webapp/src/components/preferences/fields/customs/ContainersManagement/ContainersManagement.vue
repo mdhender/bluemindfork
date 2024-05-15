@@ -7,7 +7,7 @@
                 v-model="pattern"
                 class="pref-filter mt-2 mb-3"
                 :placeholder="$t('common.filter')"
-                icon="filter"
+                icon="funnel"
                 resettable
                 left-icon
                 :aria-label="$t('common.filter')"

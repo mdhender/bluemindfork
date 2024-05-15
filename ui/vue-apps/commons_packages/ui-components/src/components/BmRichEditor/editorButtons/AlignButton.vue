@@ -3,7 +3,7 @@
         class="align-button"
         variant="compact"
         size="lg"
-        icon="rich-editor-align-left"
+        icon="align-left"
         :disabled="disabled"
         :text="$t('styleguide.rich_editor.align.tooltip')"
     >

@@ -14,7 +14,7 @@ const HANDLED_VERBS = [Verb.All, Verb.Manage, Verb.Write, Verb.Read];
 let otherAcl = [];
 
 export default {
-    matchingIcon: () => "user-enveloppe",
+    matchingIcon: () => "mail-user",
     defaultUserRight: MailboxRight.CAN_READ_MY_MAILBOX,
     maxRight: MailboxRight.CAN_MANAGE_SHARES,
     readRight: MailboxRight.CAN_READ_MY_MAILBOX,

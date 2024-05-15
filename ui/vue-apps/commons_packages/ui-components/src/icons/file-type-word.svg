@@ -1,4 +1,4 @@
 <!-- eslint-disable max-len -->
-<svg viewBox="0 0 12 12">
-    <path d=" M 0,0 V 12 H 12 V 0 Z m 5.25,2.25 h 4.5 v 1 h -4.5 z m -3,2.125 h 7.5 v 1 h -7.5 z m 0,2.25 h 7.5 v 1 h -7.5 z m 0,2.25 h 7.5 v 1 h -7.5 z " />
+<svg viewBox="0 0 16 16">
+    <path d="M16 0H0V16H16V0ZM13 3V4.33333H7V3H13ZM13 5.83333V7.16667H3V5.83333H13ZM13 8.83333V10.1667H3V8.83333H13ZM13 11.8333V13.1667H3V11.8333H13Z" />
 </svg>

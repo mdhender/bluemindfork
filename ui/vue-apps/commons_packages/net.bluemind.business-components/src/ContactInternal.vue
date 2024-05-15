@@ -49,7 +49,7 @@
                         icon="plus"
                         @click.stop="$emit('expand')"
                     />
-                    <bm-avatar size="sm" icon="group" :color="groupColor" />
+                    <bm-avatar size="sm" icon="users2" :color="groupColor" />
                 </template>
                 <span :class="{ ...textClass, 'font-weight-bold': bold || boldDn }">{{ dn }}</span>
             </bm-chip>

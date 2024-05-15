@@ -2,11 +2,11 @@
     <bm-icon
         v-if="compact"
         class="mail-toolbar-menu-button dropdown b-dropdown bm-icon-dropdown btn-group compact dropdown-no-caret"
-        icon="3dots"
+        icon="3dots-horizontal"
     />
     <div v-else>
         <div class="mail-toolbar-menu-button btn bm-captioned-icon-button desktop-only btn-captioned-icon">
-            <bm-icon icon="3dots" />
+            <bm-icon icon="3dots-horizontal" />
             <span class="caption">{{ $t("mail.toolbar.more") }}</span>
         </div>
         <bm-icon class="mail-toolbar-menu-button mobile-only btn-icon-compact-on-fill-primary" icon="3dots" />

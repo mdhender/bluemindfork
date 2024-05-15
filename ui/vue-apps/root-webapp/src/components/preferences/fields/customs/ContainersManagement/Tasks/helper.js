@@ -15,7 +15,7 @@ const HANDLED_VERBS = [Verb.All, Verb.Manage, Verb.Write, Verb.Read];
 let otherAcl = [];
 
 export default {
-    matchingIcon: () => "list",
+    matchingIcon: () => "todolist",
     matchingFileTypeIcon: () => "file-type-ics",
     allowedFileTypes: () => MimeType.TEXT_CALENDAR || MimeType.ICS || MimeType.TEXT_PLAIN,
     importFileRequest: async (containerUid, file, uploadCanceller) => {

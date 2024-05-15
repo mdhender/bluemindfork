@@ -10,7 +10,7 @@
                 variant="regular-accent"
                 :size="size"
                 :title="action.label($t('mail.content.reply.aria'))"
-                icon="reply"
+                icon="arrow-left-broken"
                 @click.stop="action.execute(() => reply(message, conversation))"
             />
         </mail-open-in-popup-with-shift>
@@ -19,7 +19,7 @@
                 variant="regular-accent"
                 :size="size"
                 :title="action.label($t('mail.content.reply_all.aria'))"
-                icon="reply-all"
+                icon="arrows-left-broken"
                 @click.stop="action.execute(() => replyAll(message, conversation))"
             />
         </mail-open-in-popup-with-shift>
@@ -39,7 +39,7 @@
                 variant="regular-accent"
                 :size="size"
                 :title="action.label($t('common.forward'))"
-                icon="forward"
+                icon="arrow-right"
                 @click.stop="action.execute(() => forward(message))"
             />
         </mail-open-in-popup-with-shift>

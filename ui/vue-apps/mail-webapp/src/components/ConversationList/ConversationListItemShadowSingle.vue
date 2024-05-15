@@ -1,7 +1,7 @@
 <template>
     <bm-row class="py-2 no-gutters align-items-center">
         <bm-col cols="1" class="text-right bm-drag-handle">
-            <bm-icon icon="6dots-v" />
+            <bm-icon icon="6dots-vertical" />
         </bm-col>
         <bm-col cols="2" class="pl-1">
             <bm-avatar :alt="from" />

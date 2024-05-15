@@ -9,7 +9,7 @@ export default {
     data() {
         return {
             text: this.$t("styleguide.rich_editor.align_left.tooltip"),
-            icon: "rich-editor-align-left"
+            icon: "align-left"
         };
     },
     methods: {

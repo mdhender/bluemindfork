@@ -14,7 +14,7 @@ export default {
     data() {
         return {
             title: this.$t("styleguide.rich_editor.italic.tooltip"),
-            icon: "rich-editor-italic"
+            icon: "italic"
         };
     },
     computed: {

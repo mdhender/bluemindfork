@@ -14,7 +14,7 @@ export default {
     data() {
         return {
             title: this.$t("styleguide.rich_editor.strikethrough.tooltip"),
-            icon: "rich-editor-strikethrough"
+            icon: "strikethrough"
         };
     },
     computed: {

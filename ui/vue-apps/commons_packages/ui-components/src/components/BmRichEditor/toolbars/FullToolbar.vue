@@ -4,7 +4,7 @@
         :class="{ disabled: disabled }"
         key-nav
         align-right
-        menu-icon="3dots-v"
+        menu-icon="3dots-vertical"
         menu-icon-size="lg"
         menu-icon-variant="compact"
     >

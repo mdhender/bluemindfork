@@ -9,7 +9,7 @@ export default {
     data() {
         return {
             text: this.$t("styleguide.rich_editor.align_center.tooltip"),
-            icon: "rich-editor-align-center"
+            icon: "align-center"
         };
     },
     methods: {

@@ -123,7 +123,7 @@ export default {
         },
         testAccountResultIcon() {
             return this.testStatus === TestStatus.VERIFIED
-                ? "check-circle"
+                ? "check-circle-fill"
                 : this.testStatus === TestStatus.REJECTED
                 ? "exclamation-circle-fill"
                 : "info-circle";

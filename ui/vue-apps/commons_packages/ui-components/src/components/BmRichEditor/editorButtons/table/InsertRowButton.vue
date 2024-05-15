@@ -2,7 +2,7 @@
     <bm-icon-dropdown
         variant="compact"
         size="lg"
-        icon="table-add-row-down"
+        icon="table-row-plus-down"
         split
         :title="$t('styleguide.rich_editor.table.insert_row')"
         @click="insertBelowRow"

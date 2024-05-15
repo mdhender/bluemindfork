@@ -9,7 +9,7 @@
                 id="availabilities-management-search-input"
                 v-model="searchedInput"
                 :placeholder="$t('common.search')"
-                icon="search"
+                icon="magnifier"
                 left-icon
                 :items="suggestions"
                 @input="findSuggestions"

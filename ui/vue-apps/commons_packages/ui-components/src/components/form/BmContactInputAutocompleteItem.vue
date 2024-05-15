@@ -9,7 +9,7 @@
                     size="sm"
                     :alt="dn"
                     :urn="contact.urn"
-                    :icon="isGroup ? 'group' : undefined"
+                    :icon="isGroup ? 'users2' : undefined"
                     :color="isGroup ? groupColor : undefined"
                 />
             </div>
@@ -19,7 +19,7 @@
                 <!-- eslint-disable-next-line vue/no-v-html -->
                 <div class="text-muted text-truncate caption" v-html="address" />
             </div>
-            <div class="ml-auto contact-kind"><bm-icon :icon="contact.kind === 'group' ? 'group' : 'user'" /></div>
+            <div class="ml-auto contact-kind"><bm-icon :icon="contact.kind === 'group' ? 'users2' : 'user'" /></div>
         </div>
         <div v-if="!isGroupWithoutAddress" class="h-100 p-0 delete-autocomplete">
             <bm-button-close

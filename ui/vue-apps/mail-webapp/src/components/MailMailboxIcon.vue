@@ -32,9 +32,9 @@ export default {
         icon() {
             switch (this.mailbox.type) {
                 case MailboxType.MAILSHARE:
-                    return "folder-shared";
+                    return "folder-network";
                 case MailboxType.GROUP:
-                    return "group";
+                    return "users2";
                 default:
                     return undefined;
             }

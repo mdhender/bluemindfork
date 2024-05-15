@@ -6,7 +6,7 @@
         :title="title"
         variant="outline"
     >
-        <bm-label-icon icon="paper-clip">
+        <bm-label-icon icon="paperclip">
             {{ $t("common.attachment") }}
         </bm-label-icon>
     </bm-button>

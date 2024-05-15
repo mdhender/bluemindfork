@@ -6,7 +6,7 @@
         v-on="$listeners"
     >
         <template #dropZone>
-            <bm-icon class="text-neutral" icon="paper-clip" size="xl" />
+            <bm-icon class="text-neutral" icon="attach" size="xl" />
             <div class="text-center text-neutral p-4">
                 <h3 class="p-2">{{ $tc("mail.new.attachments.images.drop.zone", draggedFilesCount) }}</h3>
             </div>

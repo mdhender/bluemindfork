@@ -13,7 +13,11 @@
             </div>
             <div class="align-self-end">
                 <bm-button-close v-if="uploadStatus === 'IN_PROGRESS' && autoUpload" size="sm" @click="cancelUpload" />
-                <bm-label-icon v-else-if="uploadStatus === 'SUCCESS'" icon="check-circle" class="import-successful">
+                <bm-label-icon
+                    v-else-if="uploadStatus === 'SUCCESS'"
+                    icon="check-circle-fill"
+                    class="import-successful"
+                >
                     {{ $t("common.import_successful") }}
                 </bm-label-icon>
                 <bm-label-icon v-else-if="uploadStatus === 'ERROR'" icon="exclamation-circle" class="import-error">

@@ -5,7 +5,7 @@
         size="sm"
         :href="url"
         target="_blank"
-        icon="video"
+        icon="video-camera"
         @mouseup="createRoom"
     />
 </template>

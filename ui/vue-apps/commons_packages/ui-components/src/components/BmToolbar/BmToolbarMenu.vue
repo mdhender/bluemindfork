@@ -19,7 +19,7 @@ import BmIcon from "../BmIcon";
 const props = defineProps({
     icon: {
         type: String,
-        default: "3dots"
+        default: "3dots-horizontal"
     },
     size: {
         type: String,

@@ -20,7 +20,7 @@ function mainCategory(i18n) {
     return {
         id: "main",
         name: i18n.t("common.general"),
-        icon: "wrench",
+        icon: "tool",
         groups: [
             {
                 id: "view",
@@ -148,7 +148,7 @@ function myCalendarsCategory(i18n) {
     return {
         id: "my_calendars",
         name: i18n.t("common.my_calendars"),
-        icon: "user-calendar",
+        icon: "calendar-user",
         groups: [
             {
                 id: "group",
@@ -169,7 +169,7 @@ function otherCalendarsCategory(i18n) {
     return {
         id: "other_calendars",
         name: i18n.t("common.other_calendars"),
-        icon: "3dots-calendar",
+        icon: "calendar-3dots",
         groups: [
             {
                 id: "group",

@@ -34,7 +34,7 @@
             v-model="pattern"
             :placeholder="searchPlaceholder"
             variant="underline"
-            icon="search"
+            icon="magnifier"
             resettable
             left-icon
             :aria-label="searchPlaceholder"

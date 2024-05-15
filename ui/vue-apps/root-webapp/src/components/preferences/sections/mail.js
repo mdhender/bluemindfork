@@ -26,7 +26,7 @@ function main(i18n) {
     return {
         id: "main",
         name: i18n.t("common.general"),
-        icon: "wrench",
+        icon: "tool",
         groups: [
             {
                 id: "thread",
@@ -339,7 +339,7 @@ function myMailbox(i18n) {
     return {
         id: "my_mailbox",
         name: i18n.t("common.my_mailbox"),
-        icon: "user-enveloppe",
+        icon: "mail-user",
         groups: [
             {
                 id: "group",
@@ -354,7 +354,7 @@ function otherMailboxes(i18n) {
     return {
         id: "other_mailboxes",
         name: i18n.t("common.other_mailboxes"),
-        icon: "3dots-enveloppe",
+        icon: "mail-3dots",
         groups: [
             {
                 id: "group",
@@ -369,7 +369,7 @@ function filters(i18n) {
     return {
         id: "filters",
         name: i18n.t("preferences.mail.filters"),
-        icon: "filter",
+        icon: "funnel",
         groups: [
             {
                 id: "filter",

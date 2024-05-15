@@ -9,7 +9,7 @@ export default function (i18n) {
             {
                 id: "main",
                 name: i18n.t("common.general"),
-                icon: "wrench",
+                icon: "tool",
                 groups: [
                     {
                         id: "group",

@@ -19,15 +19,15 @@
             <bm-dropdown-item
                 v-if="canOpenSettings"
                 :title="$t('banner.menu.preferences.aria')"
-                icon="preferences"
+                icon="gearwheel"
                 @click="TOGGLE_PREFERENCES()"
             >
                 {{ $t("common.preference") }}
             </bm-dropdown-item>
-            <bm-dropdown-item icon="blue-mind" to="#about">
+            <bm-dropdown-item icon="bluemind" to="#about">
                 {{ $t("banner.about") }}
             </bm-dropdown-item>
-            <bm-dropdown-item v-if="logged" icon="sign-out" href="/bluemind_sso_logout">
+            <bm-dropdown-item v-if="logged" icon="power" href="/bluemind_sso_logout">
                 {{ $t("banner.menu.logout") }}
             </bm-dropdown-item>
             <bm-dropdown-item v-else icon="user" :href="loginUrl">

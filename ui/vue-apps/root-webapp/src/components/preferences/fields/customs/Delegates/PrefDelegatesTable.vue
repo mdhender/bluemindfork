@@ -104,7 +104,7 @@ const remove = contact => {
             v-model="pattern"
             class="pref-filter mt-2 mb-5"
             :placeholder="$t('common.filter')"
-            icon="filter"
+            icon="funnel"
             resettable
             left-icon
             :aria-label="$t('common.filter')"
@@ -134,7 +134,7 @@ const remove = contact => {
                     <div class="text-truncate">{{ cell.value.shortText(Container.CALENDAR) }}</div>
                     <bm-icon
                         v-if="cell.item.hasCopyImip"
-                        icon="open-envelope"
+                        icon="mail-title"
                         class="ml-4"
                         :title="$t('preferences.account.delegates.calendar.invitations')"
                     />

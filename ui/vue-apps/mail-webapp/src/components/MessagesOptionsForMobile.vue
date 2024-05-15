@@ -4,7 +4,7 @@
         variant="compact-on-fill-primary"
         size="lg"
         class="messages-options-for-mobile w-100"
-        icon="3dots-v"
+        icon="3dots-vertical"
         v-on="$listeners"
         @hide="showSortOptions ? $event.preventDefault() : undefined"
     >

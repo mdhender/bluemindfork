@@ -74,8 +74,8 @@ export default {
 
 const DEFAULT_OPTIONS = { dismissible: true, area: "", renderer: "DefaultAlert" };
 const DEFAULT_LOADING_OPTIONS = { ...DEFAULT_OPTIONS, icon: false, delay: 1000, dismissible: false };
-const DEFAULT_INFO_OPTIONS = { ...DEFAULT_OPTIONS, icon: "info-circle-plain" };
-const DEFAULT_SUCCESS_OPTIONS = { ...DEFAULT_OPTIONS, icon: "check-circle", countDown: 5000 };
+const DEFAULT_INFO_OPTIONS = { ...DEFAULT_OPTIONS, icon: "info-circle-fill" };
+const DEFAULT_SUCCESS_OPTIONS = { ...DEFAULT_OPTIONS, icon: "check-circle-fill", countDown: 5000 };
 const DEFAULT_WARNING_OPTIONS = { ...DEFAULT_OPTIONS, icon: "exclamation-circle" };
 const DEFAULT_ERROR_OPTIONS = { ...DEFAULT_OPTIONS, icon: "exclamation-circle" };
 

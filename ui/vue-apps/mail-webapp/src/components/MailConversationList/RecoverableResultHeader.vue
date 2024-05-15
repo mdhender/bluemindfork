@@ -5,7 +5,7 @@ const route = { name: "v:mail:home", params: { filter: null } };
 
 <template>
     <div class="recoverable-result-header desktop-only">
-        <bm-button icon="arrow-back" variant="text" :to="$router.relative(route, $route)">
+        <bm-button icon="arrow-left" variant="text" :to="$router.relative(route, $route)">
             {{ $t("mail.recoverable.back") }}
         </bm-button>
     </div>

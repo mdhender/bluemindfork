@@ -17,7 +17,7 @@
                     <bm-icon-button
                         v-if="showAvailabilitiesManagement"
                         variant="compact"
-                        icon="arrow-back"
+                        icon="arrow-left"
                         @click="back()"
                     />
                     <div class="custom-modal-title">{{ modalTitle }}</div>

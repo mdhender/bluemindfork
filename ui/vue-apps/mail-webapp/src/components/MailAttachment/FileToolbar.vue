@@ -7,7 +7,7 @@
             class="d-flex align-items-center"
             :file="file"
             :message="message"
-            menu-icon="3dots-v"
+            menu-icon="3dots-vertical"
             menu-icon-variant="compact"
         >
             <preview-button

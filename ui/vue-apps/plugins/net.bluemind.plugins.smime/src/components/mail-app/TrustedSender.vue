@@ -1,7 +1,7 @@
 <template>
     <bm-icon
         v-if="hasSignatureHeader"
-        :icon="isVerified ? 'check-stamp' : 'exclamation-sample-fill'"
+        :icon="isVerified ? 'stamp' : 'stamp-exclamation'"
         :title="tooltip"
         :variant="isVerified ? 'primary' : 'warning'"
         class="mr-3"

@@ -2,7 +2,7 @@
     <bm-icon-button
         class="mail-search-advanced-button"
         :size="size"
-        icon="settings"
+        icon="sliders"
         :variant="variant"
         @click="openAdvancedSearchModal"
     />

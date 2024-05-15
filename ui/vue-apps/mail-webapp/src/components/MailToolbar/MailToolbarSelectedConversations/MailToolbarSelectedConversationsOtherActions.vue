@@ -4,7 +4,7 @@
         :title="$tc('mail.toolbar.more.aria')"
         toggle-class="btn-lg-simple-neutral"
         class="mail-toolbar-consult-message-other-actions"
-        icon="3dots"
+        icon="3dots-horizontal"
         :label="$tc('mail.toolbar.more')"
         no-caret
         right
@@ -17,7 +17,7 @@
         </mail-open-in-popup-with-shift>
         <mail-open-in-popup-with-shift v-if="isTemplate" v-slot="action" :href="modifyTemplateRoute">
             <bm-dropdown-item
-                :icon="action.icon('plus-document')"
+                :icon="action.icon('document-plus')"
                 :title="action.label($t('mail.actions.modify_template'))"
                 @click="action.execute(modifyTemplate)"
             >
@@ -27,7 +27,7 @@
         <bm-dropdown-item
             v-if="showMarkAsReadInOthers(isTemplate)"
             :title="markAsReadAriaText()"
-            icon="read"
+            icon="mail-open"
             @click="markAsRead()"
         >
             {{ markAsReadText }}
@@ -35,7 +35,7 @@
         <bm-dropdown-item
             v-if="showMarkAsUnreadInOthers(isTemplate)"
             :title="markAsUnreadAriaText()"
-            icon="unread"
+            icon="mail-dot"
             @click="markAsUnread()"
         >
             {{ markAsUnreadText }}
@@ -52,7 +52,7 @@
         <bm-dropdown-item
             v-if="showMarkAsUnflaggedInOthers"
             :title="markAsUnflaggedAriaText()"
-            icon="flag-outline"
+            icon="flag"
             @click="markAsUnflagged()"
         >
             {{ markAsUnflaggedText }}
@@ -72,11 +72,11 @@
             <bm-dropdown-item icon="code" @click.stop="showSource(lastMessage)">
                 {{ $t("mail.actions.show_source") }}
             </bm-dropdown-item>
-            <bm-dropdown-item icon="download" @click.stop="downloadEml(lastMessage)">
+            <bm-dropdown-item icon="box-arrow-down" @click.stop="downloadEml(lastMessage)">
                 {{ $t("mail.actions.download_eml") }}
             </bm-dropdown-item>
             <bm-dropdown-item
-                icon="with-attachment"
+                icon="mail-paperclip"
                 @click.stop="forwardEml(CURRENT_CONVERSATION_METADATA, lastMessage)"
             >
                 {{ $t("mail.actions.forward_eml") }}

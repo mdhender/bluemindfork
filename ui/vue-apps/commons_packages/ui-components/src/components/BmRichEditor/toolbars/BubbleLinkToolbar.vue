@@ -1,6 +1,6 @@
 <template>
     <bm-toolbar class="bm-rich-editor-toolbar-base bubble-link-toolbar">
-        <bm-button variant="link" class="link" icon="popup" @click="open">
+        <bm-button variant="link" class="link" icon="box-arrow-up-right" @click="open">
             {{ url }}
         </bm-button>
 

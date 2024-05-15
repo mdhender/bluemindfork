@@ -6,7 +6,7 @@
             size="sm"
             :aria-controls="`collapse-${name}`"
             :aria-expanded="isExpanded"
-            :icon="isExpanded ? 'chevron' : 'chevron-right'"
+            :icon="isExpanded ? 'chevron-down' : 'chevron-right'"
             @click.stop="isExpanded = !isExpanded"
         >
             <folder-tree-header :name="name" :mailbox="mailbox" />

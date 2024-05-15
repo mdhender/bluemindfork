@@ -52,7 +52,7 @@
                 class="text-danger state-icon"
                 icon="exclamation-circle-fill"
             />
-            <bm-icon v-else-if="state === true && !focused" class="text-success state-icon" icon="check-circle" />
+            <bm-icon v-else-if="state === true && !focused" class="text-success state-icon" icon="check-circle-fill" />
             <bm-icon v-else-if="icon" :icon="icon" class="ornament-icon" @click.stop />
         </div>
     </div>

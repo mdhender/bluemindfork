@@ -2,7 +2,7 @@
     <bm-icon-dropdown
         variant="compact"
         size="lg"
-        icon="table-add-column"
+        icon="table-column-plus-right"
         split
         :title="$t('styleguide.rich_editor.table.insert_column')"
         @click="insertRightColumn"

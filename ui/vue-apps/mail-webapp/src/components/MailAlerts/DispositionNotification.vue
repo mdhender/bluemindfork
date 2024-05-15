@@ -21,7 +21,7 @@
             <bm-button variant="text" class="mx-4" @click="ignore">{{ $t("common.ignore") }}</bm-button>
             <bm-icon-button
                 class="mobile-only"
-                icon="preferences"
+                icon="gearwheel"
                 variant="compact"
                 @click.native="
                     $router.push(`${$route.path}${prefPath}`);

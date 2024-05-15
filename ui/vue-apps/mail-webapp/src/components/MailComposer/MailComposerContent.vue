@@ -30,7 +30,7 @@
                 v-if="messageCompose.collapsedContent"
                 size="sm"
                 class="align-self-start mx-5 my-6"
-                icon="3dots"
+                icon="3dots-horizontal"
                 @click="expandContent"
             />
         </bm-rich-editor>

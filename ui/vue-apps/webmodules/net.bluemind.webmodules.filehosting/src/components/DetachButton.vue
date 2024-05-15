@@ -1,6 +1,6 @@
 <template>
     <div class="detach-button">
-        <bm-dropdown-item-button variant="compact" size="lg" icon="cloud-up" @click="openFilePicker()">
+        <bm-dropdown-item-button variant="compact" size="lg" icon="cloud-arrow-up" @click="openFilePicker()">
             {{ $t("filehosting.share.upload") }}
         </bm-dropdown-item-button>
         <input

@@ -48,7 +48,7 @@ export default {
         if (this.enabled) {
             return this.$scopedSlots.default({
                 execute: this.open,
-                icon: "popup",
+                icon: "box-arrow-up-right",
                 label: this.$t("common.open_in_window"),
                 enabled: this.enabled
             });

@@ -3,7 +3,7 @@
         v-if="!CONVERSATION_LIST_DELETED_FILTER_ENABLED"
         variant="regular-accent"
         size="sm"
-        icon="3dots-v"
+        icon="3dots-vertical"
         no-caret
         class="mail-viewer-toolbar-for-mobile d-flex justify-content-end"
         :aria-label="$tc('mail.toolbar.more.aria')"
@@ -11,21 +11,21 @@
         v-on="$listeners"
     >
         <bm-dropdown-item-button
-            icon="reply"
+            icon="arrow-left-broken"
             @click="initRelatedMessage(MY_DRAFTS, MessageCreationModes.REPLY, messageRemoteRefs)"
         >
             {{ $t("mail.content.reply.aria") }}
         </bm-dropdown-item-button>
         <bm-dropdown-divider />
         <bm-dropdown-item-button
-            icon="reply-all"
+            icon="arrows-left-broken"
             @click="initRelatedMessage(MY_DRAFTS, MessageCreationModes.REPLY_ALL, messageRemoteRefs)"
         >
             {{ $t("mail.content.reply_all.aria") }}
         </bm-dropdown-item-button>
         <bm-dropdown-divider />
         <bm-dropdown-item-button
-            icon="forward"
+            icon="arrow-right"
             @click="initRelatedMessage(MY_DRAFTS, MessageCreationModes.FORWARD, messageRemoteRefs)"
         >
             {{ $t("common.forward") }}
@@ -33,18 +33,18 @@
         <bm-dropdown-divider />
         <bm-dropdown-item-button
             v-if="message.flags && !message.flags.includes(Flag.SEEN)"
-            icon="read"
+            icon="mail-open"
             @click="MARK_MESSAGE_AS_READ(message)"
         >
             {{ $tc("mail.actions.mark_read", 1) }}
         </bm-dropdown-item-button>
-        <bm-dropdown-item-button v-else icon="unread" @click="MARK_MESSAGE_AS_UNREAD(message)">
+        <bm-dropdown-item-button v-else icon="mail-dot" @click="MARK_MESSAGE_AS_UNREAD(message)">
             {{ $tc("mail.actions.mark_unread", 1) }}
         </bm-dropdown-item-button>
         <bm-dropdown-divider />
         <bm-dropdown-item-button
             v-if="message.flags && !message.flags.includes(Flag.FLAGGED)"
-            icon="flag-outline"
+            icon="flag"
             @click.prevent.stop="MARK_MESSAGE_AS_FLAGGED(message)"
         >
             {{ $t("mail.actions.mark_flagged") }}

@@ -4,7 +4,7 @@
         :class="{ 'lot-of': count > 2 }"
     >
         <bm-col cols="1" class="text-right bm-drag-handle">
-            <bm-icon icon="6dots-v" />
+            <bm-icon icon="6dots-vertical" />
         </bm-col>
         <bm-col class="p-1 text-overflow font-weight-bold">
             {{ $tc("mail.messages.multiple.drag_shadow", count, { count }) }}

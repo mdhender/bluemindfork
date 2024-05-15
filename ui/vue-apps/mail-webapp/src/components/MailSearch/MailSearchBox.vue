@@ -39,7 +39,7 @@
             <bm-icon-button
                 size="lg"
                 variant="compact-on-fill-primary"
-                icon="search"
+                icon="magnifier"
                 @click="SET_CURRENT_SEARCH_PATTERN('')"
             />
         </div>

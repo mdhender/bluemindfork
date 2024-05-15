@@ -34,7 +34,7 @@ export default {
             state: {},
             getters: {
                 "preferences/SECTIONS": () => [
-                    { code: "main", href: "/main/", icon: "wrench", categories: [{ code: "main" }] }
+                    { code: "main", href: "/main/", icon: "tool", categories: [{ code: "main" }] }
                 ]
             },
             modules: {

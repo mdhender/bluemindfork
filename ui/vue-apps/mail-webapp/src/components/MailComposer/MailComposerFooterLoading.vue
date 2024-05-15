@@ -9,8 +9,8 @@
             </bm-button>
         </div>
         <div class="align-items-center toolbar">
-            <bm-icon-button variant="compact" size="lg" icon="text-format" disabled />
-            <bm-icon-button variant="compact" size="lg" icon="paper-clip" disabled />
+            <bm-icon-button variant="compact" size="lg" icon="letter" disabled />
+            <bm-icon-button variant="compact" size="lg" icon="paperclip" disabled />
         </div>
     </div>
 </template>

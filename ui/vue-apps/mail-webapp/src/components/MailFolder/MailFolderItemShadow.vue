@@ -1,6 +1,6 @@
 <template>
     <div class="mail-folder-item-shadow d-flex py-1 align-items-center">
-        <bm-icon icon="6dots-v" class="bm-drag-handle px-2" />
+        <bm-icon icon="6dots-vertical" class="bm-drag-handle px-2" />
         <mail-folder-icon :folder="folder" :inline="false" class="font-weight-bold pl-2" />
     </div>
 </template>

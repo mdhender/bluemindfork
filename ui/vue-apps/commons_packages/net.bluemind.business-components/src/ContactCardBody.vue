@@ -1,7 +1,7 @@
 <template>
     <div class="contact-card-body ml-3">
         <div v-if="emails.length" class="d-flex">
-            <div><bm-icon icon="user-enveloppe" variant="secondary" /></div>
+            <div><bm-icon icon="mail-user" variant="secondary" /></div>
             <ol class="d-flex flex-column flex-fill p-0 ml-4 mb-0">
                 <li v-for="email in emails" :key="email.address" class="d-flex">
                     <slot name="email" :email="email.address">

@@ -4,7 +4,7 @@
         variant="compact"
         class="add-certificate-button"
         :size="iconSize"
-        icon="certificate"
+        icon="stamp-plus"
         :text="$t('smime.mailapp.viewer.add_certificate.action_short')"
         :title="$t('smime.mailapp.viewer.add_certificate.action', { email: file.extra.ownerEmail })"
         @click.stop="addCertificate"

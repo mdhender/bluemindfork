@@ -1,5 +1,5 @@
 <template>
-    <bm-button variant="outline" class="folder-up-button" icon="folder-up" @click="setPath" />
+    <bm-button variant="outline" class="folder-up-button" icon="folder-arrow-up" @click="setPath" />
 </template>
 
 <script>

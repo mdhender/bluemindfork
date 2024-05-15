@@ -80,12 +80,13 @@ const FLAG_COMPONENT = {
     [Flag.FORWARDED]: {
         components: { BmIcon },
         template:
-            '<bm-icon :aria-label="$t(\'mail.list.forwarded.aria\')" aria-hidden="false" size="xs" icon="forward"/>',
+            '<bm-icon :aria-label="$t(\'mail.list.forwarded.aria\')" aria-hidden="false" size="xs" icon="arrow-right"/>',
         order: 1
     },
     [Flag.ANSWERED]: {
         components: { BmIcon },
-        template: '<bm-icon :aria-label="$t(\'mail.list.replied.aria\')" aria-hidden="false" size="xs" icon="reply"/>',
+        template:
+            '<bm-icon :aria-label="$t(\'mail.list.replied.aria\')" aria-hidden="false" size="xs" icon="arrow-left-broken"/>',
         order: 2
     }
 };

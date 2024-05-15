@@ -8,7 +8,7 @@
         <bm-extension v-if="file" id="webapp.mail" type="chain-of-responsibility" path="file.preview" :file="file_">
             <bm-spinner v-if="loading" />
             <file-viewer-facade v-else-if="isAllowedToPreview" class="scroller-y" :message="message" :file="file_" />
-            <no-preview v-else-if="!src" icon="spam" :text="$t('mail.preview.nopreview')" />
+            <no-preview v-else-if="!src" icon="forbidden" :text="$t('mail.preview.nopreview')" />
             <no-preview v-else :icon="matchingIcon" class="file-type" :text="$t('mail.preview.nopreview.type')" />
         </bm-extension>
     </div>

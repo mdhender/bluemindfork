@@ -13,7 +13,7 @@ export default {
             return { name: "smime.untrusted_sender", uid: "SMIME_UNTRUSTED_SENDER_" + this.message.key };
         },
         options() {
-            return { area: "right-panel", icon: "exclamation-sample-fill", renderer: "UntrustedSenderAlert" };
+            return { area: "right-panel", icon: "stamp-exclamation", renderer: "UntrustedSenderAlert" };
         }
     },
     watch: {

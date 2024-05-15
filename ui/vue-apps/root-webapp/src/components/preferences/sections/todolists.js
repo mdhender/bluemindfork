@@ -19,7 +19,7 @@ function myTodoLists(i18n) {
     return {
         id: "my_todo_lists",
         name: i18n.t("common.my_todo_lists"),
-        icon: "list",
+        icon: "todolist",
         groups: [
             {
                 id: "group",
@@ -34,7 +34,7 @@ function otherTodoLists(i18n) {
     return {
         id: "other_todo_lists",
         name: i18n.t("common.other_todo_lists"),
-        icon: "list-shared",
+        icon: "todolist-network",
         groups: [
             {
                 id: "group",

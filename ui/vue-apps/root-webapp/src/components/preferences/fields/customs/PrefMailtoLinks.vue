@@ -1,6 +1,6 @@
 <template>
     <div v-if="done" class="pref-mailto-links">
-        <bm-label-icon icon="check-circle" class="pl-2 text-success">
+        <bm-label-icon icon="check-circle-fill" class="pl-2 text-success">
             {{ $t("preferences.mail.mailto_links.action.done") }}
         </bm-label-icon>
         <p>

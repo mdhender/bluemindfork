@@ -95,7 +95,7 @@ const withDetails = computed(() => {
             </span>
 
             <div v-if="counterTimeRange" class="event-time-counter">
-                <bm-icon icon="forward" size="xs" />
+                <bm-icon icon="arrow-right" size="xs" />
                 <span>
                     {{ counterTimeRange }}
                 </span>

@@ -2,10 +2,15 @@
     <button class="bm-sort-control" :class="{ 'in-table': inTable }" v-on="$listeners">
         <div class="sort-arrows">
             <div class="caret-wrapper">
-                <bm-icon class="caret caret-up" size="xs" icon="caret-up" :class="{ active: value === 'asc' }" />
+                <bm-icon class="caret caret-up" size="xs" icon="triangle-up" :class="{ active: value === 'asc' }" />
             </div>
             <div class="caret-wrapper">
-                <bm-icon class="caret caret-down" size="xs" icon="caret-down" :class="{ active: value === 'desc' }" />
+                <bm-icon
+                    class="caret caret-down"
+                    size="xs"
+                    icon="triangle-down"
+                    :class="{ active: value === 'desc' }"
+                />
             </div>
         </div>
         <slot />

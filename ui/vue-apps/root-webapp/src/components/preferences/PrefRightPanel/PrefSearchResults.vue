@@ -15,7 +15,7 @@
         <bm-button
             class="toggle-all-button"
             variant="text"
-            :icon="areAllExpanded ? 'collapse' : 'expand'"
+            :icon="areAllExpanded ? 'collapse-vertical' : 'expand'"
             @click="toggleAll"
         >
             {{ areAllExpanded ? $t("common.collapse_all") : $t("common.expand_all") }}

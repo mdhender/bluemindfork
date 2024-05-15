@@ -56,7 +56,7 @@ export default {
             return this.draftPath(this.template ? this.MY_TEMPLATES : this.MY_DRAFTS);
         },
         icon() {
-            return this.template ? "plus-document" : "plus";
+            return this.template ? "document-plus" : "plus";
         },
         label() {
             if (this.template) {

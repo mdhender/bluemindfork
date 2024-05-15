@@ -89,7 +89,7 @@
                 >
                     {{ $t("preferences.account.delegates.calendar.invitations") }}
                     <span class="tail-content ml-2">
-                        <bm-icon class="ml-4" icon="open-envelope" />
+                        <bm-icon class="ml-4" icon="mail-title" />
                         <bm-icon
                             v-if="incoherentCopyImipToDelegate"
                             class="ml-3 text-warning"

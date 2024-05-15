@@ -49,12 +49,12 @@
                                 name: file.name
                             })
                         "
-                        icon="download"
+                        icon="box-arrow-down"
                     />
                     <bm-toolbar-icon-button
                         :title="$t('mail.content.open-new-tab', { name: file.name })"
                         :disabled="!isPreviewable(context.file)"
-                        icon="popup"
+                        icon="box-arrow-up-right"
                         @click="open(context.file)"
                     />
                 </bm-toolbar>
@@ -97,7 +97,7 @@
                     no-caret
                     class="ml-5 mr-3"
                     :title="$t('mail.actions.other')"
-                    icon="3dots-v"
+                    icon="3dots-vertical"
                 >
                     <bm-dropdown-item :disabled="!isPreviewable(context.file)" icon="printer" @click="print(file)">{{
                         $t("mail.content.print", {
@@ -105,13 +105,17 @@
                             name: file.name
                         })
                     }}</bm-dropdown-item>
-                    <bm-dropdown-item :href="file.url" :download="file.name" icon="download">{{
+                    <bm-dropdown-item :href="file.url" :download="file.name" icon="box-arrow-down">{{
                         $t("mail.content.download", {
                             fileType: $t("mail.content." + matchingIcon),
                             name: file.name
                         })
                     }}</bm-dropdown-item>
-                    <bm-dropdown-item :disabled="!isPreviewable(context.file)" icon="popup" @click="open(context.file)">
+                    <bm-dropdown-item
+                        :disabled="!isPreviewable(context.file)"
+                        icon="box-arrow-up-right"
+                        @click="open(context.file)"
+                    >
                         {{ $t("mail.content.open-new-tab", { name: file.name }) }}
                     </bm-dropdown-item>
                 </bm-toolbar-icon-dropdown>

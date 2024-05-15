@@ -14,7 +14,7 @@ export default {
     data() {
         return {
             title: this.$t("styleguide.rich_editor.underline.tooltip"),
-            icon: "rich-editor-underline"
+            icon: "underlined"
         };
     },
     computed: {

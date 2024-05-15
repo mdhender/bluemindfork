@@ -3,7 +3,7 @@
         <bm-icon-button
             variant="compact-on-fill-primary"
             size="lg"
-            icon="arrow-back"
+            icon="arrow-left"
             class="h-100"
             v-bind="$props"
             v-on="$listeners"

@@ -19,7 +19,7 @@ export default {
                 {
                     DIRECTORY: "buildings",
                     PERSONNAL: "user",
-                    COLLECTED: "envelope-user",
+                    COLLECTED: "user-mail",
                     OTHER: "user"
                 }[this.type] + this.sharedSuffix
             );

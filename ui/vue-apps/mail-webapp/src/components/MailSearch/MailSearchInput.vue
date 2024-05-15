@@ -5,7 +5,7 @@
         class="mail-search-input flex-fill"
         :variant="variant"
         :placeholder="noPlaceholder ? null : $t('common.action.search')"
-        :icon="resettable ? 'search' : null"
+        :icon="resettable ? 'magnifier' : null"
         :resettable="resettable"
         left-icon
         :size="size"

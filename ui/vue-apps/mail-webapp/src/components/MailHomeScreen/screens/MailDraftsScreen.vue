@@ -17,7 +17,7 @@
                     </bm-button>
                     <bm-button
                         size="lg"
-                        icon="paper-plane"
+                        icon="sent"
                         :to="{ name: 'v:mail:home', params: { folder: MY_SENT.path } }"
                         variant="link"
                     >

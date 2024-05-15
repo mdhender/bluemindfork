@@ -1,6 +1,6 @@
 <template>
     <div v-if="maxSize" class="files-header">
-        <bm-icon icon="paper-clip" />
+        <bm-icon icon="paperclip" />
         <div class="size-info bold" :class="isTooHeavy ? 'text-danger' : ''">
             <div>
                 {{ $tc("common.attachments", files.length, { count: files.length }) }}
@@ -17,7 +17,7 @@
         />
     </div>
     <div v-else class="files-header">
-        <bm-icon icon="paper-clip" />
+        <bm-icon icon="paperclip" />
         <div class="size-info bold">
             {{ $tc("common.attachments", files.length, { count: files.length }) }}
         </div>

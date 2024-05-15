@@ -63,7 +63,7 @@ watchEffect(() => {
         </bm-button>
         <template v-if="Object.keys(delegates).length">
             <div class="d-flex align-items-center pt-4 regular">
-                <bm-icon icon="open-envelope" class="mr-4 align-self-start" />
+                <bm-icon icon="mail-title" class="mr-4 align-self-start" />
                 <span>
                     <span class="mr-5 align-top">
                         {{

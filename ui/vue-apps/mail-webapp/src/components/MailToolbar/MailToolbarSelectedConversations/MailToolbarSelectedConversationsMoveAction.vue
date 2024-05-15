@@ -18,7 +18,7 @@
             v-slot="{ item }"
             v-model.trim="pattern"
             :items="pattern ? matchingFolders(isExcluded) : [MY_TRASH, MY_INBOX]"
-            icon="search"
+            icon="magnifier"
             :max-results="maxFolders"
             @keydown.esc.native="resetPattern"
         >

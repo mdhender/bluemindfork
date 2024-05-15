@@ -1,7 +1,7 @@
 <template>
     <div>
         <p>{{ $t("preferences.mail.advanced.recipient_autocomplete") }}</p>
-        <bm-label-icon v-if="deleted" class="text-success" icon="check-circle">
+        <bm-label-icon v-if="deleted" class="text-success" icon="check-circle-fill">
             {{ $t("preferences.mail.advanced.recipient_autocomplete.confirm_deletion.success") }}
         </bm-label-icon>
         <bm-button

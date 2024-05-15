@@ -68,7 +68,7 @@ export function folderIcon(path, mailboxType) {
         case DEFAULT_FOLDERS_WITH_ROOT.OUTBOX:
             return "clock";
         case DEFAULT_FOLDERS_WITH_ROOT.SENT:
-            return "paper-plane" + iconSuffix(isShared);
+            return "sent" + iconSuffix(isShared);
         case DEFAULT_FOLDERS_WITH_ROOT.TEMPLATES:
             return "documents";
         case DEFAULT_FOLDERS_WITH_ROOT.ROOT:
