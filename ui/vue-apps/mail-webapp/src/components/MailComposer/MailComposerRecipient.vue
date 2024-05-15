@@ -134,7 +134,7 @@ export default {
             }
         },
         async search(searchedRecipient) {
-            this.searchResults = searchedRecipient === "" ? null : await apiAddressbooks.search(searchedRecipient, -1);
+            this.searchResults = searchedRecipient === "" ? null : await apiAddressbooks.search(searchedRecipient, 50);
         },
         update(contacts) {
             this.contacts = contacts;
