@@ -114,12 +114,20 @@ public class CliUtils {
 	}
 
 	public String getUserUidByLogin(String domainUid, String login) {
+		return getUserByLogin(domainUid, login).uid;
+	}
+
+	public String getUserLogin(String domainUid, String login) {
+		return getUserByLogin(domainUid, login).value.login;
+	}
+
+	private ItemValue<User> getUserByLogin(String domainUid, String login) {
 		IUser userServiceApi = cliContext.adminApi().instance(IUser.class, domainUid);
 		ItemValue<User> resolved = userServiceApi.byLogin(login);
 		if (resolved == null) {
 			throw new CliException("user " + login + " not found");
 		}
-		return resolved.uid;
+		return resolved;
 	}
 
 	public ResolvedMailbox getMailboxByEmail(String email) {

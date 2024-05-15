@@ -151,7 +151,8 @@ public class ContentLog {
 			ItemValue<Domain> domainItem = cliUtils.getDomain(domainPart)
 					.orElseThrow(() -> new CliException(String.format("Domain '%s' not found", domainPart)));
 
-			String user = localPart.concat("_at_").concat(domainItem.displayName);
+			String userLogin = cliUtils.getUserLogin(domainItem.uid, localPart);
+			String user = userLogin.concat("_at_").concat(domainItem.uid);
 			return Optional.of(user);
 		}
 	}
