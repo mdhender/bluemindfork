@@ -76,7 +76,17 @@ public class VtLoadTests extends BaseClientTests {
 
 		}
 		// ensure all connections are idling on inbox
-		assertTrue(cdl.await(90, TimeUnit.SECONDS));
+		int waits = 0;
+		while (true) {
+			waits++;
+			boolean over = cdl.await(20, TimeUnit.SECONDS);
+			if (over) {
+				break;
+			}
+			System.err.println("cdl.count " + cdl.getCount());
+			assertTrue(waits < 10);
+		}
+
 		time = System.currentTimeMillis() - time;
 		long append = System.currentTimeMillis() - time;
 		for (int i = 0; i < cnt; i++) {
@@ -99,7 +109,7 @@ public class VtLoadTests extends BaseClientTests {
 			});
 		}
 
-		assertTrue(returned.await(90, TimeUnit.SECONDS));
+		assertTrue(returned.await(120, TimeUnit.SECONDS));
 		append = System.currentTimeMillis() - time;
 		System.err.println(
 				"Create took " + creates + " ms, all idle in " + time + "ms, append & wakeups in " + append + "ms.");

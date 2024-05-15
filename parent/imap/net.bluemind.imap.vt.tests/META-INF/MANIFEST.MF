@@ -22,7 +22,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.delivery.conversationreference.service;bundle-version="5.0.0",
  net.bluemind.sds.store.cyrusspool;bundle-version="5.0.0",
  net.bluemind.imap.endpoint.notifications;bundle-version="5.0.0",
- net.bluemind.mailindex.schema;bundle-version="5.0.0"
+ net.bluemind.mailindex.schema;bundle-version="5.0.0",
+ com.google.guava;bundle-version="33.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.bluemind.imap.vt.tests
 Bundle-ActivationPolicy: lazy
