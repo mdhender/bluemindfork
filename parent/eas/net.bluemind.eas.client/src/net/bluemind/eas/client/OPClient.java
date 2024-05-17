@@ -45,6 +45,7 @@ import net.bluemind.eas.client.commands.FetchItemSync;
 import net.bluemind.eas.client.commands.FolderSync;
 import net.bluemind.eas.client.commands.GetChangesSync;
 import net.bluemind.eas.client.commands.GetItemEstimate;
+import net.bluemind.eas.client.commands.MoveItemsSync;
 import net.bluemind.eas.client.commands.Options;
 import net.bluemind.eas.client.commands.Settings;
 import net.bluemind.eas.client.commands.Sync;
@@ -109,6 +110,10 @@ public class OPClient {
 
 	public SyncResponse sync(Document doc) throws Exception {
 		return run(new Sync(doc));
+	}
+
+	public MoveItemsResponse moveSync(Document doc) throws Exception {
+		return run(new MoveItemsSync(doc));
 	}
 
 	public EstimateResponse estimate(Folder f) throws Exception {

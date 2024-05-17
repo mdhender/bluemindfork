@@ -38,7 +38,6 @@ import net.bluemind.utils.DOMUtils;
 public class SyncHelper extends EasTestHelper<SyncHelper> {
 
 	private final String collectionId;
-	private final OPClient client;
 	private String currentSyncKey = "0";
 	private SyncResponse lastSyncResponse;
 	private SyncResponse currentSyncResponse;
@@ -46,8 +45,8 @@ public class SyncHelper extends EasTestHelper<SyncHelper> {
 	private static final Logger logger = LoggerFactory.getLogger(SyncHelper.class);
 
 	private SyncHelper(OPClient client, String collectionId) {
+		super(client);
 		this.collectionId = collectionId;
-		this.client = client;
 	}
 
 	public SyncHelper sync(SyncRequest request) throws Exception {
@@ -106,6 +105,7 @@ public class SyncHelper extends EasTestHelper<SyncHelper> {
 				}
 			}
 		}
+		System.err.println("SYNC");
 		logger.info(DOMUtils.logDom(sync));
 
 		currentSyncResponse = client.sync(sync);
@@ -120,6 +120,10 @@ public class SyncHelper extends EasTestHelper<SyncHelper> {
 		}
 		return DOMUtils.getUniqueElement(currentSyncResponse.dom.getDocumentElement(), "SyncKey").getTextContent()
 				.trim();
+	}
+
+	public static String forgeCollectionId(Long subscriptionId, Long collectionId) {
+		return subscriptionId.toString().concat(SHARED_SEPARATOR).concat(collectionId.toString());
 	}
 
 	public SyncResponseValidator startValidation() {
@@ -141,8 +145,8 @@ public class SyncHelper extends EasTestHelper<SyncHelper> {
 
 	public static class SyncHelperBuilder {
 
-		private OPClient client;
-		private ProtocolVersion protocolVersion;
+		protected OPClient client;
+		protected ProtocolVersion protocolVersion;
 		private String collectionId;
 
 		public SyncHelperBuilder() {

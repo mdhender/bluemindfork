@@ -30,7 +30,7 @@ import net.bluemind.utils.DOMUtils;
 
 public class DomValidator<T> {
 
-	private final Document document;
+	protected final Document document;
 
 	public DomValidator(Document document) {
 		this.document = document;
@@ -43,11 +43,13 @@ public class DomValidator<T> {
 		return (T) this;
 	}
 
+	@SuppressWarnings("unchecked")
 	public T assertMissingElement(String element) {
 		assertNull(DOMUtils.getUniqueElement(document.getDocumentElement(), element));
 		return (T) this;
 	}
 
+	@SuppressWarnings("unchecked")
 	public T assertElementText(String value, String... subPath) {
 		Element element = DOMUtils.getUniqueElement(document.getDocumentElement(), subPath[0]);
 		for (int i = 1; i < subPath.length; i++) {
@@ -57,6 +59,15 @@ public class DomValidator<T> {
 		return (T) this;
 	}
 
+	public static void assertElementText(Element doc, String value, String... subPath) {
+		Element element = DOMUtils.getUniqueElement(doc, subPath[0]);
+		for (int i = 1; i < subPath.length; i++) {
+			element = DOMUtils.getUniqueElement(element, subPath[i]);
+		}
+		assertEquals(value, DOMUtils.getElementText(element));
+	}
+
+	@SuppressWarnings("unchecked")
 	public T getValue(String element, AtomicReference<String> reference) {
 		Element domelement = DOMUtils.getUniqueElement(document.getDocumentElement(), element);
 		reference.set(DOMUtils.getElementText(domelement));

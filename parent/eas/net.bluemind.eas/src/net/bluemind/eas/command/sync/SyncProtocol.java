@@ -81,6 +81,7 @@ import net.bluemind.eas.dto.sync.SyncStatus;
 import net.bluemind.eas.dto.type.ItemDataType;
 import net.bluemind.eas.exception.ActiveSyncException;
 import net.bluemind.eas.exception.CollectionNotFoundException;
+import net.bluemind.eas.exception.NotAllowedException;
 import net.bluemind.eas.exception.ObjectNotFoundException;
 import net.bluemind.eas.impl.Backends;
 import net.bluemind.eas.impl.Responder;
@@ -342,7 +343,8 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 					ServerChange conflicted = new ServerChange();
 					ItemChangeReference icr = new ItemChangeReference(dataClass);
 					icr.setServerId(sse.item);
-					AppData data = contentExporter.loadStructure(bs, null, icr);
+					BodyOptions options = new BodyOptions();
+					AppData data = contentExporter.loadStructure(bs, options, icr);
 					conflicted.data = Optional.of(data);
 					if (sse.operation == Operation.CHANGE) {
 						conflicted.type = ServerChange.ChangeType.CHANGE;
@@ -640,47 +642,35 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 			// a draft.
 			try {
 				importer.sendDraft(bs, serverId, appData);
-				return clientChangeSuccess(serverId);
+				return clientChangesResponse(serverId, SyncStatus.OK);
 			} catch (ActiveSyncException e) {
-				return clientChangeError(bs, serverId, e);
+				EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
+				return clientChangesResponse(serverId, SyncStatus.CONFLICT);
 			}
 		}
 
 		try {
 			importer.importMessageChange(bs, collection.getCollectionId(), type, Optional.of(serverId),
 					Optional.ofNullable(recurid), appData, collection.options.conflictPolicy, syncState);
-			return clientChangeSuccess(serverId);
+			return clientChangesResponse(serverId, SyncStatus.OK);
 		} catch (ObjectNotFoundException e) {
-			return clientChangedObjectNotFoundError(bs, serverId, e);
-		} catch (ActiveSyncException e) {
-			return clientChangeError(bs, serverId, e);
+			EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
+			return clientChangesResponse(serverId, SyncStatus.OBJECT_NOT_FOUND);
+		} catch (NotAllowedException e) {
+			logger.error(e.getMessage());
+			EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger, e.getMessage());
+			return clientChangesResponse(serverId, SyncStatus.CONFLICT);
+		} catch (Exception e) {
+			EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
+			return clientChangesResponse(serverId, SyncStatus.CONFLICT);
 		}
 	}
 
-	private CollectionSyncResponse.ServerResponse clientChangeSuccess(String serverId) {
+	private CollectionSyncResponse.ServerResponse clientChangesResponse(String serverId, SyncStatus status) {
 		ServerResponse sr = new ServerResponse();
 		sr.operation = Operation.CHANGE;
 		sr.item = CollectionItem.of(serverId);
-		sr.ackStatus = SyncStatus.OK;
-		return sr;
-	}
-
-	private CollectionSyncResponse.ServerResponse clientChangeError(BackendSession bs, String serverId, Exception e) {
-		EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
-		ServerResponse sr = new ServerResponse();
-		sr.operation = Operation.CHANGE;
-		sr.item = CollectionItem.of(serverId);
-		sr.ackStatus = SyncStatus.CONFLICT;
-		return sr;
-	}
-
-	private CollectionSyncResponse.ServerResponse clientChangedObjectNotFoundError(BackendSession bs, String serverId,
-			Exception e) {
-		EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
-		ServerResponse sr = new ServerResponse();
-		sr.operation = Operation.CHANGE;
-		sr.item = CollectionItem.of(serverId);
-		sr.ackStatus = SyncStatus.OBJECT_NOT_FOUND;
+		sr.ackStatus = status;
 		return sr;
 	}
 
@@ -791,6 +781,7 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 					cc.syncKey = sm.generateSyncKey(st.type, st.version);
 
 				}
+
 				bs.addLastClientSyncState(c.getCollectionId().getValue(), st);
 			}
 		} catch (CollectionNotFoundException e) {

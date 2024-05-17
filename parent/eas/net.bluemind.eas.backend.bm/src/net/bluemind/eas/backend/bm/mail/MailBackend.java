@@ -367,8 +367,16 @@ public class MailBackend extends CoreConnect {
 				// update body in Drafts folder only
 				updateBody(bs.getLoginAtDomain(), service, email, ci);
 			} else {
-				validateFlag(email.isRead(), MailboxItemFlag.System.Seen.value(), service, ci.itemId);
-				validateFlag(email.isStarred(), MailboxItemFlag.System.Flagged.value(), service, ci.itemId);
+				try {
+					validateFlag(email.isRead(), MailboxItemFlag.System.Seen.value(), service, ci.itemId);
+					validateFlag(email.isStarred(), MailboxItemFlag.System.Flagged.value(), service, ci.itemId);
+				} catch (ServerFault e) {
+					if (e.getCode() == ErrorCode.PERMISSION_DENIED) {
+						throw new NotAllowedException(e);
+					} else {
+						throw e;
+					}
+				}
 			}
 			return ci;
 		} else {
@@ -790,7 +798,7 @@ public class MailBackend extends CoreConnect {
 		} catch (ActiveSyncException ase) {
 			throw ase;
 		} catch (Exception e) {
-			throw new ActiveSyncException("Shit happens", e);
+			throw new ActiveSyncException("Fail to fetch mail in collection " + ic.getServerId().collectionId, e);
 		}
 	}
 

@@ -20,6 +20,7 @@ package net.bluemind.eas.storage.jdbc;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -69,6 +70,7 @@ import net.bluemind.eas.exception.CollectionNotFoundException;
 import net.bluemind.eas.store.ISyncStorage;
 import net.bluemind.eas.utils.EasLogUser;
 import net.bluemind.hornetq.client.MQ;
+import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.todolist.api.ITodoList;
 import net.bluemind.user.api.IUserSubscription;
@@ -466,6 +468,20 @@ public class SyncStorage implements ISyncStorage {
 		// FIXME
 		return provider(bs).instance(IMailboxFolders.class, part.name,
 				"user." + bs.getUser().getUid().replace('.', '^'));
+	}
+
+	@Override
+	public boolean userHasWriteAccess(BackendSession bs, String mboxRecordContainerUid) {
+		IContainers containerService = provider(bs).instance(IContainers.class);
+		ContainerDescriptor desc = containerService.get(mboxRecordContainerUid);
+		String mailboxAclUid = IMailboxAclUids.uidForMailbox(desc.owner);
+		boolean canWriteOnMailbox = provider(bs).instance(IContainerManagement.class, mailboxAclUid)
+				.canAccess(List.of(Verb.Write.name()));
+		if (!canWriteOnMailbox) {
+			return provider(bs).instance(IContainerManagement.class, mboxRecordContainerUid)
+					.canAccess(List.of(Verb.Write.name()));
+		}
+		return canWriteOnMailbox;
 	}
 
 }

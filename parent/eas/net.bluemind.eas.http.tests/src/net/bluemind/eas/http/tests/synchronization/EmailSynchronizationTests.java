@@ -31,13 +31,14 @@ import net.bluemind.eas.http.tests.helpers.SyncHelper;
 import net.bluemind.eas.http.tests.helpers.SyncRequest;
 import net.bluemind.eas.http.tests.helpers.SyncRequest.SyncRequestBuilder;
 import net.bluemind.eas.http.tests.validators.EmailValidator;
+import net.bluemind.eas.http.tests.validators.SyncResponseValidator.ResponseSyncType;
 
 public class EmailSynchronizationTests extends AbstractEasTest {
 
 	@Test
 	public void testMailSyncInboxClientChangesModifyShouldReturnStatus1OnNonExistingItemsAndIgnoringChanges()
 			throws Exception {
-		long inbox = CoreEmailHelper.getUserMailFolder("user", domain.uid, "INBOX");
+		long inbox = CoreEmailHelper.getUserMailFolderAsRoot("user", domain.uid, "INBOX");
 
 		SyncRequest request = new SyncRequestBuilder().withChanges().build();
 		new SyncHelper.SyncHelperBuilder() //
@@ -48,13 +49,13 @@ public class EmailSynchronizationTests extends AbstractEasTest {
 						.withClientChangesModify(inbox + ":12345", EmailBuilder.getSimpleMail(ProtocolVersion.V161) //
 						).build()) //
 				.startValidation() //
-				.assertResponseStatus(inbox, 12345, SyncStatus.OK) //
+				.assertResponseStatus(inbox, 12345, SyncStatus.OK, ResponseSyncType.CHANGE) //
 				.endValidation();
 	}
 
 	@Test
 	public void testMailSyncDraftClientChangesModifyShouldReturnStatus8OnNonExistingItem() throws Exception {
-		long drafts = CoreEmailHelper.getUserMailFolder("user", domain.uid, "Drafts");
+		long drafts = CoreEmailHelper.getUserMailFolderAsRoot("user", domain.uid, "Drafts");
 
 		SyncRequest request = new SyncRequestBuilder().withChanges().build();
 		new SyncHelper.SyncHelperBuilder() //
@@ -65,13 +66,13 @@ public class EmailSynchronizationTests extends AbstractEasTest {
 						.withClientChangesModify(drafts + ":12346", EmailBuilder.getSimpleMail(ProtocolVersion.V161) //
 						).build()) //
 				.startValidation() //
-				.assertResponseStatus(drafts, 12346, SyncStatus.OBJECT_NOT_FOUND) //
+				.assertResponseStatus(drafts, 12346, SyncStatus.OBJECT_NOT_FOUND, ResponseSyncType.CHANGE) //
 				.endValidation();
 	}
 
 	@Test
 	public void testMailSyncDraftClientChangesOnlyHTMLShouldMergeChanges() throws Exception {
-		long drafts = CoreEmailHelper.getUserMailFolder("user", domain.uid, "Drafts");
+		long drafts = CoreEmailHelper.getUserMailFolderAsRoot("user", domain.uid, "Drafts");
 
 		AtomicReference<String> serverId = new AtomicReference<>();
 		Runnable emailValidation = () -> new EmailValidator.Builder(domain.uid, serverId.get()) //
@@ -99,7 +100,7 @@ public class EmailSynchronizationTests extends AbstractEasTest {
 								"&lt;div&gt;new body&lt;/div&gt;") //
 						.build()) //
 				.startValidation() //
-				.assertResponseStatus(serverId.get(), SyncStatus.OK) //
+				.assertResponseStatus(serverId.get(), SyncStatus.OK, ResponseSyncType.CHANGE) //
 				.assertSyncKeyChanged() //
 				.endValidation() //
 				.sync(request) //

@@ -35,6 +35,7 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.eas.config.global.GlobalConfig;
 import net.bluemind.lib.vertx.VertxPlatform;
@@ -50,8 +51,18 @@ import net.bluemind.vertx.common.CoreStateListener;
 public class AbstractEasTest {
 
 	protected ItemValue<Domain> domain;
+
 	protected String login;
 	protected String password;
+	protected SecurityContext domainUserSecurityContext;
+
+	protected String login2;
+	protected String password2;
+	protected SecurityContext domainUser2SecurityContext;
+
+	protected String login3;
+	protected String password3;
+	protected SecurityContext domainUser3SecurityContext;
 
 	@BeforeClass
 	public static void beforeClass() {
@@ -63,6 +74,8 @@ public class AbstractEasTest {
 
 	@Before
 	public void setUp() throws Exception {
+		System.setProperty("auditlog.config.path", "resources/auditlog-test.conf");
+
 		DomainBookVerticle.suspended = true;
 		GlobalConfig.DISABLE_POLICIES = true;
 		StateContext.setInternalState(new RunningState());
@@ -88,6 +101,20 @@ public class AbstractEasTest {
 		PopulateHelper.addUserWithRoles("user", domainUid, "hasEAS");
 		login = "user@" + domainUid;
 		password = "user";
+
+		domainUserSecurityContext = BmTestContext.contextWithSession("u1", "user", domainUid).getSecurityContext();
+
+		PopulateHelper.addUserWithRoles("user2", domain.uid, "hasEAS");
+		login2 = "user2@" + domain.uid;
+		password2 = "user2";
+
+		domainUser2SecurityContext = BmTestContext.contextWithSession("u2", "user2", domain.uid).getSecurityContext();
+
+		PopulateHelper.addUserWithRoles("user3", domain.uid, "hasEAS");
+		login3 = "user3@" + domain.uid;
+		password3 = "user3";
+
+		domainUser3SecurityContext = BmTestContext.contextWithSession("u3", "user3", domain.uid).getSecurityContext();
 
 		try {
 			ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ISystemConfiguration.class)

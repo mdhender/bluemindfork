@@ -18,7 +18,7 @@
  */
 package net.bluemind.eas.command.sync;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 import net.bluemind.eas.dto.sync.CollectionSyncResponse.ServerChange;
@@ -26,7 +26,7 @@ import net.bluemind.eas.dto.sync.SyncStatus;
 
 public class CollectionChanges {
 
-	public List<ServerChange> commands = Collections.emptyList();
+	public List<ServerChange> commands = new ArrayList<>();
 	public String syncKey;
 	public boolean moreAvailable;
 	public SyncStatus status = SyncStatus.OK;

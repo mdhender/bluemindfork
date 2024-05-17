@@ -20,6 +20,6 @@ package net.bluemind.eas.client.commands;
 
 public enum NS {
 
-	FolderHierarchy, AirSync, ItemEstimate, Settings;
+	FolderHierarchy, AirSync, ItemEstimate, Settings, Move;
 
 }

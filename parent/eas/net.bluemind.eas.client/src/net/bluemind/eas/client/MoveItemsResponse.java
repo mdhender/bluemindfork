@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2022
+ * Copyright © Blue Mind SAS, 2012-2016
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -16,25 +16,24 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.eas.http.tests.helpers;
+package net.bluemind.eas.client;
 
-import net.bluemind.eas.client.OPClient;
+import java.util.ArrayList;
+import java.util.List;
 
-public class EasTestHelper<T> {
+import org.w3c.dom.Document;
 
-	public static final String SHARED_SEPARATOR = "__";
-	public static final String SERVER_ID_SEPARATOR = ":";
+public class MoveItemsResponse {
 
-	protected final OPClient client;
+	private List<Move> moveItems;
+	public Document dom;
 
-	public EasTestHelper(OPClient client) {
-		this.client = client;
+	public MoveItemsResponse(List<Move> cl) {
+		this.moveItems = new ArrayList<>(cl);
 	}
 
-	@SuppressWarnings("unchecked")
-	public T execute(Runnable op) {
-		op.run();
-		return (T) this;
+	public List<Move> getMoves() {
+		return moveItems;
 	}
 
 }

@@ -19,16 +19,9 @@
 package net.bluemind.eas.http.tests.builders;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
 import java.util.Date;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
 
 import net.bluemind.eas.client.ProtocolVersion;
 import net.bluemind.eas.dto.NamespaceMapping;
@@ -70,27 +63,6 @@ public class EmailBuilder {
 		});
 		return WBXMLTools.toXml(bos.toByteArray());
 
-	}
-
-	public static Document getMailBodyUpdate(String template, String to, String subject, String html) throws Exception {
-		try (InputStream in = EmailBuilder.class.getResourceAsStream("/templates/" + template)) {
-			String xml = readTemplate(in, to, subject, html);
-			DocumentBuilder builder = DocumentBuilderFactory.newDefaultInstance().newDocumentBuilder();
-			return builder.parse(new InputSource(new StringReader(xml)));
-		}
-	}
-
-	private static String readTemplate(InputStream in, String to, String subject, String html) throws IOException {
-		StringBuilder sb = new StringBuilder();
-		int i;
-		while ((i = in.read()) != -1) {
-			sb.append((char) i);
-		}
-		String xml = sb.toString();
-		xml = xml.replace("#To#", to);
-		xml = xml.replace("#Subject#", subject);
-		xml = xml.replace("#HTML#", html);
-		return xml;
 	}
 
 }

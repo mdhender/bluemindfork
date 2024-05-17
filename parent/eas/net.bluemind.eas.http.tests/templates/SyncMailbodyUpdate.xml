@@ -7,6 +7,6 @@
         <Data>#HTML#</Data>
     </Body>
     <Importance xmlns="Email">1</Importance>
-    <Read xmlns="Email">1</Read>
+    <Read xmlns="Email">0</Read>
     <Flag xmlns="Email"/>
 </Sync>

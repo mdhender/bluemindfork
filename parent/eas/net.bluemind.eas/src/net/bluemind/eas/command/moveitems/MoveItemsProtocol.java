@@ -115,6 +115,16 @@ public class MoveItemsProtocol implements IEasProtocol<MoveItemsRequest, MoveIte
 				continue;
 			}
 
+			// mailbox share with only read access case
+			boolean userCanModifysrcFolder = store.userHasWriteAccess(bs, srcFolder.get().containerUid);
+			if (!userCanModifysrcFolder) {
+				EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger,
+						"User has no write access on folder '{}'. Send status 1 InvalidSourceCollectionId",
+						srcFolder.get().containerUid);
+				appendResponseError(response, item, MoveItemsResponse.Response.Status.INVALID_SOURCE_COLLECTION_ID);
+				continue;
+			}
+
 			Optional<HierarchyNode> dstFolder = folderCache.computeIfAbsent(item.dstFldId, this::getAndCheckFolder);
 			if (!dstFolder.isPresent()) {
 				EasLogUser.logWarnAsUser(bs.getLoginAtDomain(), logger,

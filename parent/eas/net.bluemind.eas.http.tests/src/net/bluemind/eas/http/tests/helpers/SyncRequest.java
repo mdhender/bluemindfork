@@ -19,11 +19,14 @@
 package net.bluemind.eas.http.tests.helpers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.w3c.dom.Document;
 
-import net.bluemind.eas.http.tests.builders.EmailBuilder;
+import net.bluemind.eas.http.tests.builders.DocumentRequestBuilder;
+import net.bluemind.eas.http.tests.builders.DocumentRequestBuilder.TemplateKey;
 
 public record SyncRequest(boolean getChanges, List<Document> clientChangesAdd,
 		List<ClientChangesModify> clientChangesModify, List<ClientChangesDelete> clientChangesDelete) {
@@ -49,6 +52,11 @@ public record SyncRequest(boolean getChanges, List<Document> clientChangesAdd,
 			return this;
 		}
 
+		public SyncRequestBuilder withClientChangesDelete(String serverId) {
+			this.clientChangesDelete.add(new ClientChangesDelete(serverId, null));
+			return this;
+		}
+
 		public SyncRequestBuilder withClientChangesDeleteOccurrence(String serverId, String recurId) {
 			this.clientChangesDelete.add(new ClientChangesDelete(serverId, recurId));
 			return this;
@@ -56,8 +64,20 @@ public record SyncRequest(boolean getChanges, List<Document> clientChangesAdd,
 
 		public SyncRequestBuilder withClientChangesBodyHtmlModify(String serverId, String to, String subject,
 				String html) throws Exception {
+			Map<TemplateKey, String> values = new HashMap<>();
+			values.put(TemplateKey.Subject, subject);
+			values.put(TemplateKey.To, to);
+			values.put(TemplateKey.Html, html);
 			this.clientChangesModify.add(new ClientChangesModify(serverId,
-					EmailBuilder.getMailBodyUpdate("SyncMailbodyUpdate.xml", to, subject, html)));
+					DocumentRequestBuilder.getDocumentRequestUpdate("SyncMailbodyUpdate.xml", values)));
+			return this;
+		}
+
+		public SyncRequestBuilder withClientChangesBodyHtmlReadModify(String serverId, boolean read) throws Exception {
+			Map<TemplateKey, String> values = new HashMap<>();
+			values.put(TemplateKey.Read, read ? "1" : "0");
+			this.clientChangesModify.add(new ClientChangesModify(serverId,
+					DocumentRequestBuilder.getDocumentRequestUpdate("SyncMailReadUpdate.xml", values)));
 			return this;
 		}
 

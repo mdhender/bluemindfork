@@ -19,6 +19,7 @@
 package net.bluemind.eas.http.tests.validators;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.HashMap;
@@ -30,7 +31,9 @@ import net.bluemind.backend.mail.api.MailboxItem;
 import net.bluemind.backend.mail.api.MessageBody.Header;
 import net.bluemind.backend.mail.api.MessageBody.Recipient;
 import net.bluemind.backend.mail.api.MessageBody.RecipientKind;
+import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.context.SecurityContext;
 import net.bluemind.eas.http.tests.helpers.CoreEmailHelper;
 
 public class EmailValidator {
@@ -46,8 +49,17 @@ public class EmailValidator {
 	}
 
 	public void validate() {
-		ItemValue<MailboxItem> mail = CoreEmailHelper.getMail(domain, serverId);
+		ItemValue<MailboxItem> mail = CoreEmailHelper.getMailAsRoot(domain, serverId, "user");
+		validations(mail);
+	}
 
+	public void validate(SecurityContext context) {
+		ItemValue<MailboxItem> mail = CoreEmailHelper.getMail(domain, serverId, "user", context);
+		validations(mail);
+	}
+
+	private void validations(ItemValue<MailboxItem> mail) {
+		assertNotNull(mail);
 		for (Entry<Element, String> validation : validations.entrySet()) {
 			switch (validation.getKey()) {
 			case FROM:
@@ -64,6 +76,17 @@ public class EmailValidator {
 				String name = validation.getValue().split(":")[0];
 				String value = validation.getValue().split(":")[1];
 				assertEquals(value, header(mail.value.body.headers, name));
+				break;
+			case READ:
+				if (mail.value.flags.isEmpty()) {
+					assertEquals("0", validation.getValue());
+				} else if (mail.value.flags.stream()
+						.anyMatch(f -> f.value == MailboxItemFlag.System.Seen.value().value)) {
+					assertEquals("1", validation.getValue());
+				} else {
+					throw new UnsupportedOperationException("Read status Not implemented yet for flags : "
+							+ mail.value.flags.stream().map(f -> f.value).toList());
+				}
 				break;
 			case BODY:
 				throw new UnsupportedOperationException("Not implemented yet");
@@ -119,6 +142,11 @@ public class EmailValidator {
 			return this;
 		}
 
+		public Builder withRead(String read) {
+			validations.put(Element.READ, read);
+			return this;
+		}
+
 		public Builder withHeader(String name, String value) {
 			validations.put(Element.HEADER, name + ":" + value);
 			return this;
@@ -131,7 +159,7 @@ public class EmailValidator {
 	}
 
 	public enum Element {
-		FROM, TO, SUBJECT, BODY, HEADER
+		FROM, TO, SUBJECT, BODY, HEADER, READ
 	}
 
 }

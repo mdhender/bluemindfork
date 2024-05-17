@@ -108,4 +108,6 @@ public interface ISyncStorage {
 
 	public Map<String, String> getFolderSyncVersions(Account account);
 
+	public boolean userHasWriteAccess(BackendSession bs, String mboxRecordContainerUid);
+
 }
