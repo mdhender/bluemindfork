@@ -161,16 +161,21 @@ public class AuthProvider {
 				return;
 			}
 
-			if (mailbox == null || mailbox.value.type != Type.user || mailbox.value.archived) {
-				handler.success(null);
-				return;
+			if (mailbox != null) {
+				if (mailbox.value.type != Type.user || mailbox.value.archived) {
+					handler.success(null);
+					return;
+				}
+
+				String realLoginAtdomain = mailbox.value.name + "@" + domainName;
+
+				logger.info("Try sudo with login {} (Submitted login {})", realLoginAtdomain,
+						externalCreds.getLoginAtDomain());
+				externalCreds.setLoginAtDomain(realLoginAtdomain);
+			} else {
+				logger.info("Try sudo with login {}", externalCreds.getLoginAtDomain());
 			}
 
-			String realLoginAtdomain = mailbox.value.name + "@" + domainName;
-
-			logger.info("Try sudo with login {} (Submitted login {})", realLoginAtdomain,
-					externalCreds.getLoginAtDomain());
-			externalCreds.setLoginAtDomain(realLoginAtdomain);
 			doSudo(remoteIps, externalCreds, handler);
 		});
 	}
