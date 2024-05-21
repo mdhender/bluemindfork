@@ -2,8 +2,6 @@
 BlueMind LICENSE
 ////////////////////////////////////////////////////////////////////////////////
 
-URI: http://www.bluemind.net/licenses-3.5+
-
 //========================================//
 // English version (French version below) //
 //========================================//
@@ -17,7 +15,9 @@ You can redistribute and/or modify them since you respect the terms of the licen
 You should have received a copy of the GNU Affero General Public License along with BlueMind. If not,
 see : <http://www.gnu.org/licenses/>.
 
-Finally, BlueMind is made using those external components and libraries. They are listed at the end of this file.
+Finally, BlueMind is made using those external components and libraries. They are listed here:
+
+<https://cvemanager.app.bluemind.net/cvemanager/viewComponents>
 
 //================//
 // French version //
@@ -32,20 +32,6 @@ Vous ne pouvez redistribuer ou modifier ces fichiers que si vous respectez les t
 Vous devriez avoir reçu une copie de la GNU Affero General Public License avec le logiciel BlueMind.
 Si n'est pas le cas, vous les trouverez sur : <http://www.gnu.org/licenses/>.
 
-Enfin, BlueMind utilise des composants et bibliothèques externes. Ils sont listés à la fin de ce fichier.
+Enfin, BlueMind utilise des composants et bibliothèques externes. Ils sont listés ici :
 
-//===========================================================================//
-
-External components, libraries and icons:
-
-- RoundCube : roundcube.net (GNU GPL v3 + exception)
-- Closure library (Apache 2.0)
-- GWT (Apache 2.0)
-- o-push : http://code.google.com/p/o-push/ (AGPLv3)
-- ydn-db : https://bitbucket.org/ytkyaw/ydn-db/overview (Apache 2.0)
-- relief : http://code.google.com/p/relief/ (Apache 2.0)
-- ...
-Some other Open Source components have been used in parts or modified.
-Among those : iCal4j, netty, tigase, elasticsearch, guava, vert.x,...
-
-
+<https://cvemanager.app.bluemind.net/cvemanager/viewComponents>
