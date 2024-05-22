@@ -25,6 +25,7 @@ import com.google.common.collect.Sets;
 
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.directory.common.NoopException;
+import net.bluemind.cli.utils.CliUtils;
 import net.bluemind.cli.utils.Tasks;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.task.api.TaskRef;
@@ -37,13 +38,13 @@ public class CliRepair {
 	protected final boolean dry;
 	private final boolean verbose;
 
-	protected String domainUid;
+	protected String domain;
 	protected ItemValue<DirEntry> dirEntry;
 
 	public CliRepair(CliContext ctx, String domainUid, ItemValue<DirEntry> dirEntry, boolean dry, boolean verbose) {
 		this.ctx = ctx;
 		this.dirEntry = dirEntry;
-		this.domainUid = domainUid;
+		this.domain = domainUid;
 		this.dry = dry;
 		this.verbose = verbose;
 	}
@@ -53,10 +54,11 @@ public class CliRepair {
 	}
 
 	public void repair(String ops) {
-		doRepair(domainUid, dirEntry, ops);
+		doRepair(dirEntry, ops);
 	}
 
-	private void doRepair(String domainUid, ItemValue<DirEntry> de, String ops) {
+	private void doRepair(ItemValue<DirEntry> de, String ops) {
+		String domainUid = new CliUtils(ctx).getDomainUidByDomain(domain);
 		IDirEntryMaintenance demService = ctx.adminApi().instance(IDirEntryMaintenance.class, domainUid, de.uid);
 		Set<String> opsIds = demService.getAvailableOperations().stream().map(mo -> mo.identifier)
 				.collect(Collectors.toSet());
