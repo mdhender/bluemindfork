@@ -105,7 +105,6 @@ public class SyncHelper extends EasTestHelper<SyncHelper> {
 				}
 			}
 		}
-		System.err.println("SYNC");
 		logger.info(DOMUtils.logDom(sync));
 
 		currentSyncResponse = client.sync(sync);

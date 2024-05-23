@@ -368,10 +368,15 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 				csr.syncKey = serverChanges.syncKey;
 				csr.moreAvailable = serverChanges.moreAvailable;
 			} catch (CollectionNotFoundException cnf) {
+				EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), cnf, logger);
 				sr.invalidCollections.add(csr.collectionId);
+				csr.syncKey = sc.getSyncKey();
+				csr.status = SyncStatus.OBJECT_NOT_FOUND;
+				csr.commands = Collections.emptyList();
+				csr.responses = Collections.emptyList();
+				syncErrors++;
 			} catch (Exception e) {
 				EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
-
 				csr.syncKey = sc.getSyncKey();
 				csr.status = SyncStatus.SERVER_ERROR;
 				syncErrors++;
@@ -379,15 +384,6 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 
 			syncResponse.collections.add(csr);
 		}
-
-		sr.invalidCollections.forEach(collectionId -> {
-			CollectionSyncResponse csr = new CollectionSyncResponse();
-			csr.collectionId = collectionId;
-			csr.status = SyncStatus.OBJECT_NOT_FOUND;
-			csr.commands = Collections.emptyList();
-			csr.responses = Collections.emptyList();
-			syncResponse.collections.add(csr);
-		});
 
 		if (syncErrors > 0) {
 			ProtocolCircuitBreaker.INSTANCE.noticeError(bs);

@@ -109,4 +109,21 @@ public class EmailSynchronizationTests extends AbstractEasTest {
 				.execute(emailValidation);
 	}
 
+	@Test
+	public void testMailSyncInstallationContainer() throws Exception {
+		long installationContainerId = 1;
+
+		SyncRequest request = new SyncRequestBuilder().withChanges().build();
+
+		new SyncHelper.SyncHelperBuilder() //
+				.withAuth(login, password) //
+				.withCollectionId(installationContainerId) //
+				.withProtocolVersion(ProtocolVersion.V161).build() //
+				.execute(() -> CoreEmailHelper.addMail(login, password, "Drafts", "single_body.eml")) //
+				.sync(request) //
+				.startValidation() //
+				.assertSyncStatus(String.valueOf(installationContainerId), SyncStatus.OBJECT_NOT_FOUND) //
+				.endValidation();
+	}
+
 }
