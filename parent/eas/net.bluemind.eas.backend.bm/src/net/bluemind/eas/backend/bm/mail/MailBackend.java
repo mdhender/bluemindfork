@@ -20,6 +20,7 @@ package net.bluemind.eas.backend.bm.mail;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -38,6 +39,8 @@ import java.util.stream.Collectors;
 import org.apache.james.mime4j.codec.DecodeMonitor;
 import org.apache.james.mime4j.dom.Message;
 import org.apache.james.mime4j.dom.MessageServiceFactory;
+import org.apache.james.mime4j.dom.Multipart;
+import org.apache.james.mime4j.dom.TextBody;
 import org.apache.james.mime4j.dom.address.Mailbox;
 import org.apache.james.mime4j.dom.field.FieldName;
 import org.apache.james.mime4j.field.UnstructuredFieldImpl;
@@ -48,6 +51,7 @@ import org.asynchttpclient.AsyncCompletionHandler;
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.HttpResponseBodyPart;
 import org.asynchttpclient.Response;
+import org.jsoup.Jsoup;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -75,6 +79,7 @@ import net.bluemind.backend.mail.api.SearchSort;
 import net.bluemind.backend.mail.api.flags.FlagUpdate;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
+import net.bluemind.backend.mail.replica.api.MailApiHeaders;
 import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.VEvent;
@@ -142,6 +147,7 @@ import net.bluemind.icalendar.api.ICalendarElement.Attendee;
 import net.bluemind.imip.parser.IMIPInfos;
 import net.bluemind.imip.parser.IMIPParserFactory;
 import net.bluemind.imip.parser.ITIPMethod;
+import net.bluemind.mime4j.common.AddressableEntity;
 import net.bluemind.mime4j.common.IMailRewriter;
 import net.bluemind.mime4j.common.Mime4JHelper;
 import net.bluemind.mime4j.common.RewriteMode;
@@ -362,47 +368,54 @@ public class MailBackend extends CoreConnect {
 		MSEmail email = (MSEmail) data;
 
 		if (serverId.isPresent()) {
-			CollectionItem ci = CollectionItem.of(serverId.get());
-			if ("Drafts".equals(folder.fullName)) {
-				// update body in Drafts folder only
-				updateBody(bs.getLoginAtDomain(), service, email, ci);
-			} else {
-				try {
-					validateFlag(email.isRead(), MailboxItemFlag.System.Seen.value(), service, ci.itemId);
-					validateFlag(email.isStarred(), MailboxItemFlag.System.Flagged.value(), service, ci.itemId);
-				} catch (ServerFault e) {
-					if (e.getCode() == ErrorCode.PERMISSION_DENIED) {
-						throw new NotAllowedException(e);
-					} else {
-						throw e;
-					}
-				}
-			}
-			return ci;
+			return updateDraft(bs, serverId, folder, service, email);
 		} else {
-			// store new email (Draft)
-			MessageBody messageBody;
-			if (email.getMimeContent() != null) {
-				messageBody = uploadPart(service, email.getMimeContent());
-			} else {
-				try {
-					messageBody = uploadPart(service,
-							BufferByteSource.of(Mime4JHelper.mmapedEML(email.getMessage()).nettyBuffer()));
-				} catch (Exception e) {
-					throw new ActiveSyncException(e.getMessage());
-				}
-			}
-
-			MailboxItem mailboxItem = new MailboxItem();
-			mailboxItem.body = messageBody;
-			mailboxItem.flags = Arrays.asList(MailboxItemFlag.System.Draft.value(),
-					MailboxItemFlag.System.Seen.value());
-			ImapItemIdentifier created = service.create(mailboxItem);
-			return CollectionItem.of(collectionId, created.id);
+			return addDraft(collectionId, service, email);
 		}
 	}
 
-	private void updateBody(String user, IMailboxItems service, MSEmail email, CollectionItem ci)
+	private CollectionItem addDraft(CollectionId collectionId, IMailboxItems service, MSEmail email)
+			throws ActiveSyncException {
+		MessageBody messageBody;
+		if (email.getMimeContent() != null) {
+			messageBody = uploadCompleteEml(service, email.getMimeContent());
+		} else {
+			try {
+				messageBody = uploadCompleteEml(service,
+						BufferByteSource.of(Mime4JHelper.mmapedEML(email.getMessage()).nettyBuffer()));
+			} catch (Exception e) {
+				throw new ActiveSyncException(e.getMessage());
+			}
+		}
+
+		MailboxItem mailboxItem = new MailboxItem();
+		mailboxItem.body = messageBody;
+		mailboxItem.flags = Arrays.asList(MailboxItemFlag.System.Draft.value(), MailboxItemFlag.System.Seen.value());
+		ImapItemIdentifier created = service.create(mailboxItem);
+		return CollectionItem.of(collectionId, created.id);
+	}
+
+	private CollectionItem updateDraft(BackendSession bs, Optional<String> serverId, MailFolder folder,
+			IMailboxItems service, MSEmail email) throws ActiveSyncException, NotAllowedException {
+		CollectionItem ci = CollectionItem.of(serverId.get());
+		if ("Drafts".equals(folder.fullName)) {
+			updateBody(bs, service, email, ci);
+		} else {
+			try {
+				validateFlag(email.isRead(), MailboxItemFlag.System.Seen.value(), service, ci.itemId);
+				validateFlag(email.isStarred(), MailboxItemFlag.System.Flagged.value(), service, ci.itemId);
+			} catch (ServerFault e) {
+				if (e.getCode() == ErrorCode.PERMISSION_DENIED) {
+					throw new NotAllowedException(e);
+				} else {
+					throw e;
+				}
+			}
+		}
+		return ci;
+	}
+
+	private void updateBody(BackendSession bs, IMailboxItems service, MSEmail email, CollectionItem ci)
 			throws ActiveSyncException {
 		MessageBody messageBody = null;
 		ItemValue<MailboxItem> draft = null;
@@ -414,23 +427,69 @@ public class MailBackend extends CoreConnect {
 			throw new ObjectNotFoundException();
 		}
 		if (email.getMimeContent() != null) {
-			// MIME, replace the current draft
-			messageBody = uploadPart(service, email.getMimeContent());
+			messageBody = uploadCompleteEml(service, email.getMimeContent());
 		} else {
 			MessageImpl message = email.getMessage();
-			mergeDraft(draft, message);
 			try {
-				messageBody = uploadPart(service, BufferByteSource.of(Mime4JHelper.mmapedEML(message).nettyBuffer()));
-			} catch (IOException e) {
-				EasLogUser.logErrorExceptionAsUser(user, e, logger, "Failed to update draft {}, '{}'", ci,
-						message.getSubject());
+				messageBody = injectUpdatedBody(service, draft.value.body, message);
+				mergeDraft(draft, message);
+			} catch (Exception e) {
+				EasLogUser.logExceptionAsUser(bs.getLoginAtDomain(), e, logger);
+				return;
 			}
 		}
-		if (messageBody != null) {
-			draft.value.body = messageBody;
-			draft.value.flags = Arrays.asList(MailboxItemFlag.System.Draft.value(),
-					MailboxItemFlag.System.Seen.value());
-			service.updateById(ci.itemId, draft.value);
+		draft.value.body = messageBody;
+		draft.value.body.headers.removeIf(header -> header.name.equals(MailApiHeaders.X_BM_DRAFT_REFRESH_DATE));
+		draft.value.body.headers.add(
+				MessageBody.Header.create(MailApiHeaders.X_BM_DRAFT_REFRESH_DATE, "" + System.currentTimeMillis()));
+		draft.value.flags = Arrays.asList(MailboxItemFlag.System.Draft.value(), MailboxItemFlag.System.Seen.value());
+		service.updateById(ci.itemId, draft.value);
+	}
+
+	private MessageBody injectUpdatedBody(IMailboxItems service, MessageBody currentBody, MessageImpl updatedMessage)
+			throws IOException {
+		Reader reader = null;
+		if (updatedMessage.getBody() instanceof TextBody body) {
+			reader = body.getReader();
+		} else {
+			Multipart mp = (Multipart) updatedMessage.getBody();
+			List<AddressableEntity> parts = Mime4JHelper.expandTree(mp.getBodyParts());
+			reader = ((TextBody) parts.stream().filter(p -> Mime4JHelper.TEXT_HTML.equals(p.getMimeType())).findFirst()
+					.orElseThrow().getBody()).getReader();
+		}
+		StringBuilder sb = readDraftStream(reader);
+		String newHtmlBody = sb.toString();
+		String newTextBody = htmlToPlain(newHtmlBody);
+		String newHtmlPartAddress = service.uploadPart(VertxStream.stream(Buffer.buffer(newHtmlBody.getBytes())));
+		String newTextPartAddress = service.uploadPart(VertxStream.stream(Buffer.buffer(newTextBody.getBytes())));
+		injectIntoPart(currentBody.structure, "text/html", newHtmlPartAddress);
+		injectIntoPart(currentBody.structure, "text/plain", newTextPartAddress);
+		return currentBody;
+	}
+
+	private StringBuilder readDraftStream(Reader reader) throws IOException {
+		int i;
+		char[] charArray = new char[1024];
+		StringBuilder sb = new StringBuilder();
+		try (Reader resolvedReader = reader) {
+			while ((i = reader.read(charArray, 0, charArray.length)) != -1) {
+				sb.append(charArray, 0, i);
+			}
+		}
+		return sb;
+	}
+
+	private String htmlToPlain(String newHtmlBody) {
+		return Jsoup.parse(newHtmlBody).text();
+	}
+
+	private void injectIntoPart(Part part, String mimeType, String newPartAddress) {
+		if (part.mime.equals(mimeType)) {
+			part.address = newPartAddress;
+		} else {
+			for (Part child : part.children) {
+				injectIntoPart(child, mimeType, newPartAddress);
+			}
 		}
 	}
 
@@ -475,7 +534,7 @@ public class MailBackend extends CoreConnect {
 		return mailboxes;
 	}
 
-	private MessageBody uploadPart(IMailboxItems service, ByteSource content) throws ActiveSyncException {
+	private MessageBody uploadCompleteEml(IMailboxItems service, ByteSource content) throws ActiveSyncException {
 		try {
 			Stream eml = streamFromByteSource(content);
 			String partId = service.uploadPart(eml);

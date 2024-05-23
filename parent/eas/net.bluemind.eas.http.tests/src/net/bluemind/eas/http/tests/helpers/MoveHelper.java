@@ -42,16 +42,12 @@ public class MoveHelper extends EasTestHelper<MoveHelper> {
 	private MoveItemsResponse currentMoveResponse;
 
 	private String srcMsgId;
-	private String srcFldId;
-	private String dstFldId;
 
 	private static final Logger logger = LoggerFactory.getLogger(MoveHelper.class);
 
-	private MoveHelper(OPClient client, String srcMsgId, String srcFldId, String dstFldId) {
+	private MoveHelper(OPClient client, String srcMsgId) {
 		super(client);
 		this.srcMsgId = srcMsgId;
-		this.srcFldId = srcFldId;
-		this.dstFldId = dstFldId;
 	}
 
 	public MoveHelper sync(MoveItemRequest request) throws Exception {
@@ -110,8 +106,6 @@ public class MoveHelper extends EasTestHelper<MoveHelper> {
 		protected OPClient client;
 		protected ProtocolVersion protocolVersion;
 		private String srcMsgId;
-		private String srcFldId;
-		private String dstFldId;
 
 		public MoveHelperBuilder() {
 
@@ -125,26 +119,6 @@ public class MoveHelper extends EasTestHelper<MoveHelper> {
 
 		public MoveHelperBuilder withProtocolVersion(ProtocolVersion protocolVersion) {
 			this.protocolVersion = protocolVersion;
-			return this;
-		}
-
-		public MoveHelperBuilder withSrcFldId(String srcFldId) {
-			this.srcFldId = srcFldId;
-			return this;
-		}
-
-		public MoveHelperBuilder withSrcFldId(Long srcFldId) {
-			this.srcFldId = srcFldId.toString();
-			return this;
-		}
-
-		public MoveHelperBuilder withDstFldId(String dstFldId) {
-			this.dstFldId = dstFldId;
-			return this;
-		}
-
-		public MoveHelperBuilder withDstFldId(Long dstFldId) {
-			this.dstFldId = dstFldId.toString();
 			return this;
 		}
 
@@ -168,7 +142,7 @@ public class MoveHelper extends EasTestHelper<MoveHelper> {
 			} else {
 				client.setProtocolVersion(ProtocolVersion.V161);
 			}
-			return new MoveHelper(client, srcMsgId, srcFldId, dstFldId);
+			return new MoveHelper(client, srcMsgId);
 		}
 
 	}

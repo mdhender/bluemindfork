@@ -21,14 +21,18 @@ package net.bluemind.eas.http.tests.validators;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 
 import net.bluemind.backend.mail.api.MailboxItem;
 import net.bluemind.backend.mail.api.MessageBody.Header;
+import net.bluemind.backend.mail.api.MessageBody.Part;
 import net.bluemind.backend.mail.api.MessageBody.Recipient;
 import net.bluemind.backend.mail.api.MessageBody.RecipientKind;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
@@ -40,9 +44,9 @@ public class EmailValidator {
 
 	private final String domain;
 	private final String serverId;
-	private final Map<Element, String> validations;
+	private final Map<Element, Object> validations;
 
-	private EmailValidator(String domain, String serverId, Map<Element, String> validations) {
+	private EmailValidator(String domain, String serverId, Map<Element, Object> validations) {
 		this.serverId = serverId;
 		this.validations = validations;
 		this.domain = domain;
@@ -50,31 +54,32 @@ public class EmailValidator {
 
 	public void validate() {
 		ItemValue<MailboxItem> mail = CoreEmailHelper.getMailAsRoot(domain, serverId, "user");
-		validations(mail);
+		validations(mail, null);
 	}
 
 	public void validate(SecurityContext context) {
 		ItemValue<MailboxItem> mail = CoreEmailHelper.getMail(domain, serverId, "user", context);
-		validations(mail);
+		validations(mail, context);
 	}
 
-	private void validations(ItemValue<MailboxItem> mail) {
+	@SuppressWarnings("unchecked")
+	private void validations(ItemValue<MailboxItem> mail, SecurityContext context) {
 		assertNotNull(mail);
-		for (Entry<Element, String> validation : validations.entrySet()) {
+		for (Entry<Element, Object> validation : validations.entrySet()) {
 			switch (validation.getKey()) {
 			case FROM:
-				assertRecipient(validation.getValue(), mail, RecipientKind.Originator, RecipientKind.Sender);
+				assertRecipient(validation.getValue().toString(), mail, RecipientKind.Originator, RecipientKind.Sender);
 				break;
 			case TO:
-				assertRecipient(validation.getValue(), mail, RecipientKind.Primary, RecipientKind.CarbonCopy,
+				assertRecipient(validation.getValue().toString(), mail, RecipientKind.Primary, RecipientKind.CarbonCopy,
 						RecipientKind.BlindCarbonCopy);
 				break;
 			case SUBJECT:
 				assertEquals(validation.getValue(), mail.value.body.subject);
 				break;
 			case HEADER:
-				String name = validation.getValue().split(":")[0];
-				String value = validation.getValue().split(":")[1];
+				String name = validation.getValue().toString().split(":")[0];
+				String value = validation.getValue().toString().split(":")[1];
 				assertEquals(value, header(mail.value.body.headers, name));
 				break;
 			case READ:
@@ -84,13 +89,54 @@ public class EmailValidator {
 						.anyMatch(f -> f.value == MailboxItemFlag.System.Seen.value().value)) {
 					assertEquals("1", validation.getValue());
 				} else {
-					throw new UnsupportedOperationException("Read status Not implemented yet for flags : "
-							+ mail.value.flags.stream().map(f -> f.value).toList());
+					fail("Read status not set. Flags: " + mail.value.flags.stream().map(f -> f.value).toList());
 				}
 				break;
 			case BODY:
-				throw new UnsupportedOperationException("Not implemented yet");
+				long imapUid = mail.value.imapUid;
+				BodyParts body = (BodyParts) validation.getValue();
+				if (body.plain != null) {
+					validateBodyPart(mail, context, imapUid, body.plain, "text/plain");
+				}
+				if (body.html != null) {
+					validateBodyPart(mail, context, imapUid, body.html, "text/html");
+				}
+				break;
+			case ATTACHMENT:
+				List<Attachment> attachments = (List<Attachment>) validation.getValue();
+				for (Attachment attachment : attachments) {
+					assertTrue("Cannot find attachment " + attachment.name + " of type " + attachment.mimeType,
+							findPart(mail.value.body.structure, attachment));
+				}
+				break;
 			}
+		}
+	}
+
+	private boolean findPart(Part part, Attachment attachment) {
+		Attachment asAttachment = new Attachment(part.fileName, part.mime);
+		if (asAttachment.equals(attachment)) {
+			return true;
+		} else {
+			for (Part child : part.children) {
+				if (findPart(child, attachment)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	private void validateBodyPart(ItemValue<MailboxItem> mail, SecurityContext context, long imapUid, String body,
+			String mime) {
+		Optional<Part> resolvedPart = mail.value.body.structure.parts().stream().filter(part -> part.mime.equals(mime))
+				.findAny();
+		if (resolvedPart.isEmpty()) {
+			fail(mime + " part is missing");
+		} else {
+			byte[] part = CoreEmailHelper.fetchPart(domain, serverId, "user", imapUid, resolvedPart.get().address,
+					context != null ? context : SecurityContext.SYSTEM);
+			assertEquals(body, new String(part));
 		}
 	}
 
@@ -115,7 +161,7 @@ public class EmailValidator {
 	public static class Builder {
 		private final String domain;
 		private final String serverId;
-		private final Map<Element, String> validations = new HashMap<>();
+		private final Map<Element, Object> validations = new HashMap<>();
 
 		public Builder(String domain, String serverId) {
 			this.domain = domain;
@@ -137,8 +183,13 @@ public class EmailValidator {
 			return this;
 		}
 
-		public Builder withBody(String body) {
+		public Builder withBody(BodyParts body) {
 			validations.put(Element.BODY, body);
+			return this;
+		}
+
+		public Builder withAttachments(Attachment... attachments) {
+			validations.put(Element.ATTACHMENT, Arrays.asList(attachments));
 			return this;
 		}
 
@@ -159,7 +210,15 @@ public class EmailValidator {
 	}
 
 	public enum Element {
-		FROM, TO, SUBJECT, BODY, HEADER, READ
+		FROM, TO, SUBJECT, BODY, HEADER, READ, ATTACHMENT
+	}
+
+	public record BodyParts(String plain, String html) {
+
+	}
+
+	public record Attachment(String name, String mimeType) {
+
 	}
 
 }

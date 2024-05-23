@@ -4,7 +4,7 @@
     <Subject xmlns="Email">#Subject#</Subject>
     <Body xmlns="AirSyncBase">
         <Type>2</Type>
-        <Data>#HTML#</Data>
+        <Data>#Html#</Data>
     </Body>
     <Importance xmlns="Email">1</Importance>
     <Read xmlns="Email">0</Read>

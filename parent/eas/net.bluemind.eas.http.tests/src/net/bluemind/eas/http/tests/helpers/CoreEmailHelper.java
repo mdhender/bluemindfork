@@ -40,6 +40,7 @@ import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.core.rest.base.GenericStream;
 import net.bluemind.imap.FlagsList;
 import net.bluemind.imap.StoreClient;
 import net.bluemind.user.api.IUserSubscription;
@@ -124,21 +125,14 @@ public class CoreEmailHelper {
 		return dbRecApi.getCompleteById(itemId);
 	}
 
-//	public static List<ItemValue<ContainerSubscriptionModel>> shareFolder(String domainUid, String containerUid,
-//			String user2, Verb verb, SecurityContext context) {
-//		ServerSideServiceProvider provider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
-//		IContainerManagement aclApi = provider.instance(IContainerManagement.class, containerUid);
-//		List<AccessControlEntry> accessControlList = aclApi.getAccessControlList();
-//		accessControlList.add(AccessControlEntry.create(user2, verb));
-//		aclApi.setAccessControlList(accessControlList);
-//
-//		IUserSubscription subService = provider.instance(IUserSubscription.class, domainUid);
-//		subService.subscribe(context.getSubject(), Arrays.asList(ContainerSubscription.create(containerUid, true)));
-//
-//		return provider.instance(IOwnerSubscriptions.class, domainUid, user2).list().stream()
-//				.filter(s -> s.displayName.equals(containerUid)).collect(Collectors.toList());
-//
-//	}
+	public static byte[] fetchPart(String domainUid, String serverId, String userUid, long imapUid, String part,
+			SecurityContext context) {
+		String folderUid = getFolderUid(domainUid, serverId, userUid);
+		ServerSideServiceProvider provider = ServerSideServiceProvider.getProvider(context);
+		IMailboxItems dbRecApi = provider.instance(IMailboxItems.class, IMailReplicaUids.getUniqueId(folderUid));
+
+		return GenericStream.streamToBytes(dbRecApi.fetch(imapUid, part, null, null, null, null));
+	}
 
 	public static List<ItemValue<ContainerSubscriptionModel>> shareMailbox(String domainUid, String containerUid,
 			String user2, Verb verb, SecurityContext context) {
