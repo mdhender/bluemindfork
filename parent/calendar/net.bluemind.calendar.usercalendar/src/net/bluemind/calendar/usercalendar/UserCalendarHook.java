@@ -55,9 +55,9 @@ public class UserCalendarHook extends DefaultUserHook {
 	@Override
 	public void onUserCreated(BmContext context, String domainUid, ItemValue<User> user) {
 		if (!user.value.system) {
+			createFreebusyContainer(domainUid, user);
 			createDefaultCalendar(domainUid, user);
 			createViewsContainer(domainUid, user);
-			createFreebusyContainer(domainUid, user);
 		}
 	}
 
@@ -95,8 +95,8 @@ public class UserCalendarHook extends DefaultUserHook {
 		}
 
 		try {
-			new UserCalendarServiceFactory().getService(SecurityContext.SYSTEM).addDefaultCalendarInvitationAcl(domainUid,
-					user.uid);
+			new UserCalendarServiceFactory().getService(SecurityContext.SYSTEM)
+					.addDefaultCalendarInvitationAcl(domainUid, user.uid);
 		} catch (ServerFault e) {
 			logger.error(e.getMessage(), e);
 		}
