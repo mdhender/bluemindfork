@@ -170,8 +170,7 @@ public class ItemOperationsProtocol implements IEasProtocol<ItemOperationsReques
 			backend.getContentsImporter(bs).emptyFolderContent(bs, node, op.collectionId, deleteSubFolders);
 			status = ItemOperationsResponse.Status.SUCCESS;
 		} catch (CollectionNotFoundException e) {
-			// FIXME should we use ObjectNotFound ?
-			status = ItemOperationsResponse.Status.RESOURCE_ACCESS_DENIED;
+			status = ItemOperationsResponse.Status.OBJECT_NOT_FOUND;
 		} catch (NotAllowedException e) {
 			status = ItemOperationsResponse.Status.RESOURCE_ACCESS_DENIED;
 		}
