@@ -31,17 +31,20 @@ import com.google.common.collect.ImmutableList;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.domain.api.Domain;
+import net.bluemind.system.ldap.export.Activator;
 
 public class DomainDirectoryRoot extends LdapObjects {
 	private static final String RDN_ATTRIBUTE = "dc";
 
 	private final ItemValue<Domain> domain;
+	private final String dcValue;
 
 	public static final List<String> ldapAttrsStringsValues = ImmutableList.of(//
 			"objectclass", "o", "description");
 
 	public DomainDirectoryRoot(ItemValue<Domain> domain) {
 		this.domain = domain;
+		this.dcValue = Activator.getDomainNameMappedValue(domain.value.name);
 	}
 
 	@Override
@@ -49,7 +52,7 @@ public class DomainDirectoryRoot extends LdapObjects {
 
 		try {
 			Entry ldapEntry = new DefaultEntry(getDn(), "objectClass: organization", "objectClass: dcObject",
-					"objectClass: bmDomain", "o: " + domain.value.label, "dc: " + domain.value.name);
+					"objectClass: bmDomain", "o: " + domain.value.label, "dc: " + dcValue);
 			ldapEntry.add("bmVersion", "0");
 
 			if (domain.value.description != null && !domain.value.description.trim().isEmpty()) {
@@ -70,7 +73,7 @@ public class DomainDirectoryRoot extends LdapObjects {
 
 	@Override
 	public String getRDn() {
-		return RDN_ATTRIBUTE + "=" + domain.value.name;
+		return RDN_ATTRIBUTE + "=" + dcValue;
 	}
 
 	@Override
