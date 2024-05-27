@@ -109,12 +109,7 @@ public class KeycloakHelper {
 
 		String opendIdHost = domain.value.properties.get(AuthDomainProperties.OPENID_HOST.name());
 
-		JsonObject conf;
-		try {
-			conf = getOpenIdConfiguration(opendIdHost);
-		} catch (Exception e) {
-			throw new ServerFault("Failed to fetch OpenId configuration " + e.getMessage());
-		}
+		JsonObject conf = getOpenIdConfiguration(opendIdHost);
 
 		boolean somethingChanged = false;
 
@@ -145,7 +140,7 @@ public class KeycloakHelper {
 
 	}
 
-	private static JsonObject getOpenIdConfiguration(String openIdHost) throws Exception {
+	private static JsonObject getOpenIdConfiguration(String openIdHost) {
 		String configuration = SyncHttpClient.get(openIdHost);
 		return new JsonObject(configuration);
 	}
@@ -162,17 +157,21 @@ public class KeycloakHelper {
 	}
 
 	public static void onDomainUpdate(String domainUid) {
-		ItemValue<Domain> domain = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IDomains.class).get(domainUid);
-		if (domain.value.properties != null
-				&& AuthTypes.OPENID.name().equals(domain.value.properties.get(AuthDomainProperties.AUTH_TYPE.name()))) {
-			initExternalForDomain(domain);
-			ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IKeycloakAdmin.class)
-					.deleteRealm(domainUid);
-			KerberosConfigHelper.updateGlobalRealmKerb();
-			KerberosConfigHelper.updateKrb5Conf();
-		} else {
-			updateKeycloakForDomain(domain);
+		try {
+			ItemValue<Domain> domain = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+					.instance(IDomains.class).get(domainUid);
+			if (domain.value.properties != null && AuthTypes.OPENID.name()
+					.equals(domain.value.properties.get(AuthDomainProperties.AUTH_TYPE.name()))) {
+				initExternalForDomain(domain);
+				ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IKeycloakAdmin.class)
+						.deleteRealm(domainUid);
+				KerberosConfigHelper.updateGlobalRealmKerb();
+				KerberosConfigHelper.updateKrb5Conf();
+			} else {
+				updateKeycloakForDomain(domain);
+			}
+		} catch (Exception e) {
+			logger.error("Unable to get OpenId configuration for domain {}", domainUid, e);
 		}
 	}
 

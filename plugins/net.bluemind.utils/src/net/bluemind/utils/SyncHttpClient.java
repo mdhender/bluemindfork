@@ -18,6 +18,7 @@
  */
 package net.bluemind.utils;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ProxySelector;
 import java.net.URI;
@@ -29,6 +30,7 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.Map;
 
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.system.api.ISystemConfiguration;
@@ -54,22 +56,36 @@ public class SyncHttpClient {
 
 	}
 
-	public static String get(String url) throws Exception {
+	public static String get(String url) {
+		URI uri;
+		try {
+			uri = new URI(url);
+		} catch (Exception e) {
+			throw new ServerFault("Invalid URL: " + url);
+		}
+
 		HttpClient httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).proxy(proxy())
 				.connectTimeout(Duration.ofSeconds(20)).build();
 		BodyPublisher payload = BodyPublishers.noBody();
 		HttpRequest httpRequest = HttpRequest.newBuilder() //
 				.method("GET", payload) //
-				.uri(new URI(url)) //
+				.uri(uri) //
 				.build();
 
-		HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
-		int code = httpResponse.statusCode();
-		if (code != 200) {
-			throw new Exception(httpResponse.body());
-		}
+		HttpResponse<String> httpResponse;
+		try {
+			httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
 
-		return httpResponse.body();
+			int code = httpResponse.statusCode();
+			if (code != 200) {
+				throw new ServerFault(
+						"Response code error " + httpResponse.statusCode() + " on getting from URL: " + url);
+			}
+
+			return httpResponse.body();
+		} catch (IOException | InterruptedException e) {
+			throw new ServerFault("Unable to get from URL: " + url, e);
+		}
 	}
 
 }
