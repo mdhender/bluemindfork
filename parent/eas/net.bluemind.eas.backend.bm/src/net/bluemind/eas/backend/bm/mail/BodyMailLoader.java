@@ -137,6 +137,11 @@ public class BodyMailLoader extends CoreConnect {
 
 	private Part bodyPart(Part root) {
 		if (root.mime.startsWith("multipart/")) {
+			if (root.children.isEmpty()) {
+				EasLogUser.logErrorAsUser(bs.getLoginAtDomain(), logger, "[{}] no parts found in '{}' node ({})",
+						bs.getUniqueIdentifier(), root.mime, folder.uid, folder.name);
+				return root;
+			}
 			switch (root.mime) {
 			case "multipart/mixed":
 				return bodyPart(root.children.get(0));
