@@ -39,19 +39,23 @@ public class MdcLogUser implements IMdcLogUser {
 
 	@Override
 	public void logInfoWithMdc(String format, Object... arguments) {
-		MDC.put("user", user.replace("@", "_at_"));
+		open();
 		logInfo(format, arguments);
 	}
 
 	@Override
 	public void logErrorWithMdc(Throwable e, String format, Object... arguments) {
-		MDC.put("user", user.replace("@", "_at_"));
+		open();
 		logError(e, format, arguments);
 	}
 
 	@Override
 	public void close() throws Exception {
 		MDC.put("user", ANONYMOUS);
+	}
+
+	protected void open() {
+		MDC.put("user", user.replace("@", "_at_"));
 	}
 
 	public static void logInfoAsUser(String user, Logger log, String format, Object... arguments) {

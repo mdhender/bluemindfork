@@ -19,7 +19,6 @@ package net.bluemind.eas.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 
 import net.bluemind.core.commons.logs.MdcLogUser;
 
@@ -86,27 +85,22 @@ public class EasLogUser extends MdcLogUser {
 	}
 
 	private void logDebugWithMdc(String format, Object... arguments) {
-		MDC.put("user", user.replace("@", "_at_"));
+		open();
 		logDebug(format, arguments);
 	}
 
 	private void logWarnWithMdc(String format, Object... arguments) {
-		MDC.put("user", user.replace("@", "_at_"));
+		open();
 		logWarn(format, arguments);
 	}
 
 	private void logExceptionWithMdc(Throwable e) {
-		MDC.put("user", user.replace("@", "_at_"));
+		open();
 		logError(e, null);
 	}
 
 	private void logErrorExceptionWithMdc(Throwable e, String format, Object... arguments) {
-		MDC.put("user", user.replace("@", "_at_"));
+		open();
 		logError(e, format, arguments);
 	}
-
-	public void close() throws Exception {
-		MDC.put("user", ANONYMOUS);
-	}
-
 }
