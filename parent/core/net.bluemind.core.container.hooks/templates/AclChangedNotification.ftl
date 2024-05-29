@@ -2,23 +2,23 @@
 	<head><style><#include "AclChangedNotification.css"></style></head>
 	<body>
 		<p class="desc">${desc}</p>
-		<#if tableHeadDelete??>
+		<#if tableHeadUpdate??>
 		<br/>
 		<table>
 			<thead>
 				<tr>
 					<th></th>
-					<th>${tableHeadDelete}</th>
+					<th>${tableHeadUpdate}</th>
 				</tr>
 			</thead>
 			<tbody>
-			<#list appPermissionsDeleted as app, permissionsDeleted>
+			<#list appPermissionsUpdate as app, permissionsUpdate>
 				<tr>
 					<td class="app">${app}</td>
 					<td class="permission">
 						<ul>
-					    <#list permissionsDeleted as permission>
-					        <li><b>${permission.level()}</b> ${permission.target()}</li>
+					    <#list permissionsUpdate as permission>
+					        <li><b>${permission.level()}</b>(<s>${permission.oldlevel()}</s>) ${permission.target()}</li>
 					    </#list>
 					    </ul>
 					</td>
@@ -37,13 +37,38 @@
 				</tr>
 			</thead>
 			<tbody>
-			<#list appPermissionsAdded as app, permissionsAdded>
+			<#list appPermissionsAdd as app, permissionsAdd>
 				<tr>
 					<td class="app">${app}</td>
 					<td class="permission">
 						<ul>
-					    <#list permissionsAdded as permission>
+					    <#list permissionsAdd as permission>
 					        <li><b>${permission.level()}</b> ${permission.target()}</li>
+					    </#list>
+					    </ul>
+					</td>
+				</tr>
+			</#list>
+			</tbody>
+		</table>
+		</#if>
+		<#if tableHeadDelete??>
+		<br/>
+		<table>
+			<thead>
+				<tr>
+					<th></th>
+					<th>${tableHeadDelete}</th>
+				</tr>
+			</thead>
+			<tbody>
+			<#list appPermissionsDelete as app, permissionsDelete>
+				<tr>
+					<td class="app">${app}</td>
+					<td class="permission">
+						<ul>
+					    <#list permissionsDelete as permission>
+					        <li><b>${permission.oldlevel()}</b> ${permission.target()}</li>
 					    </#list>
 					    </ul>
 					</td>

@@ -1,11 +1,10 @@
 package net.bluemind.core.container.hooks.aclchangednotification;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import net.bluemind.core.container.hooks.IAclHook;
-import net.bluemind.core.container.hooks.aclchangednotification.AclWithStatus.AclStatus;
+import net.bluemind.core.container.hooks.aclchangednotification.AclDiff.AclStatus;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.rest.BmContext;
@@ -20,7 +19,7 @@ public class AclChangedNotificationHook implements IAclHook {
 		previous = AccessControlEntry.compact(previous);
 		current = AccessControlEntry.compact(current);
 
-		List<AclWithStatus> diff = prepareAclDiff(context, previous, current);
+		List<AclDiff> diff = prepareAclDiff(context, previous, current);
 
 		if (!diff.isEmpty()) {
 			AclChangedMsg aclChangeMsg = new AclChangedMsg(context.getSecurityContext().getSubject(),
@@ -33,19 +32,44 @@ public class AclChangedNotificationHook implements IAclHook {
 		}
 	}
 
-	private static List<AclWithStatus> prepareAclDiff(BmContext context, List<AccessControlEntry> previous,
+	private static List<AclDiff> prepareAclDiff(BmContext context, List<AccessControlEntry> previous,
 			List<AccessControlEntry> current) {
-		Set<AclWithStatus> aclsWithStatus = new HashSet<>();
 
-		List<AclWithStatus> newVerbs = current.stream().filter(e -> !previous.contains(e))
-				.map(ace -> new AclWithStatus(ace, AclStatus.ADDED)).toList();
-		List<AclWithStatus> oldVerbs = previous.stream().filter(e -> !current.contains(e))
-				.map(ace -> new AclWithStatus(ace, AclStatus.REMOVED)).toList();
+		List<AccessControlEntry> newVerbs = current.stream()
+				.filter(e -> !previous.contains(e) && !e.subject.equals(context.getSecurityContext().getSubject()))
+				.toList();
+		List<AccessControlEntry> oldVerbs = previous.stream()
+				.filter(e -> !current.contains(e) && !e.subject.equals(context.getSecurityContext().getSubject()))
+				.toList();
 
-		aclsWithStatus.addAll(oldVerbs);
-		aclsWithStatus.addAll(newVerbs);
+		List<AclDiff> diffResult = new ArrayList<AclDiff>();
 
-		return aclsWithStatus.stream()
-				.filter(acs -> !acs.entry().subject.equals(context.getSecurityContext().getSubject())).toList();
+		for (AccessControlEntry oldStatus : oldVerbs) {
+			// search same subject in new
+			newVerbs.stream().filter(v -> v.subject.equals(oldStatus.subject)).findFirst()
+					.ifPresent(v -> diffResult.add(AclDiff.createAclDiffForUpdate(oldStatus, v)));
+		}
+
+		for (AccessControlEntry newStatus : newVerbs) {
+			// search same subject in old
+			oldVerbs.stream().filter(v -> v.subject.equals(newStatus.subject)).findFirst()
+					.ifPresent(v -> diffResult.add(AclDiff.createAclDiffForUpdate(v, newStatus)));
+		}
+
+		if (newVerbs.isEmpty()) {
+			oldVerbs.forEach(aws -> diffResult.add(AclDiff.createAclDiff(aws, AclStatus.REMOVED)));
+		} else {
+			oldVerbs.stream().filter(s -> !newVerbs.stream().map(v -> v.subject).toList().contains(s.subject))
+					.map(aws -> diffResult.add(AclDiff.createAclDiff(aws, AclStatus.REMOVED)));
+		}
+
+		if (oldVerbs.isEmpty()) {
+			newVerbs.forEach(aws -> diffResult.add(AclDiff.createAclDiff(aws, AclStatus.ADDED)));
+		} else {
+			newVerbs.stream().filter(s -> !oldVerbs.stream().map(v -> v.subject).toList().contains(s.subject))
+					.map(aws -> diffResult.add(AclDiff.createAclDiff(aws, AclStatus.ADDED)));
+		}
+
+		return diffResult;
 	}
 }

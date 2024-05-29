@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public record AclChangedMsg(String sourceUserId, String domainUid, String containerUid, String containerName,
-		String containerType, String containerOwnerDisplayname, List<AclWithStatus> changes, boolean isItsOwnContainer) {
+		String containerType, String containerOwnerDisplayname, List<AclDiff> changes, boolean isItsOwnContainer) {
 
 	@Override
 	public String toString() {
@@ -15,6 +15,6 @@ public record AclChangedMsg(String sourceUserId, String domainUid, String contai
 	}
 
 	private String aclToString() {
-		return changes.stream().map(ace -> ace.entry().toString() + ": " + ace.status()).collect(Collectors.joining(", "));
+		return changes.stream().map(ace -> ace.toString()).collect(Collectors.joining(", "));
 	}
 }

@@ -31,9 +31,8 @@ import net.bluemind.configfile.core.CoreConfig;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IContainers;
-import net.bluemind.core.container.hooks.aclchangednotification.AclWithStatus.AclStatus;
+import net.bluemind.core.container.hooks.aclchangednotification.AclDiff.AclStatus;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
-import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.LocalJsonObject;
@@ -80,19 +79,19 @@ public class AclChangedNotificationVerticle extends AbstractVerticle {
 		Map<String, AclChangeInfo> aclChangeInfos = new HashMap<>();
 		while (!ACL_CHANGED_MSGS.isEmpty()) {
 			AclChangedMsg aclChangedMsg = ACL_CHANGED_MSGS.poll();
-			aclChangedMsg.changes().stream()
-					.filter(acm -> isValidTargetUser(acm.entry().subject, aclChangedMsg.domainUid())).forEach(ace -> {
+			aclChangedMsg.changes().stream().filter(acd -> isValidTargetUser(acd.subject(), aclChangedMsg.domainUid()))
+					.forEach(acd -> {
 						String key = AclChangeInfo.key(aclChangedMsg.domainUid(), aclChangedMsg.sourceUserId(),
-								ace.entry().subject);
+								acd.subject());
 						AclChangeInfo aclChangeInfo = aclChangeInfos.computeIfAbsent(key,
 								k -> new AclChangeInfo(aclChangedMsg.domainUid(), aclChangedMsg.sourceUserId(),
-										ace.entry().subject, aclChangedMsg.isItsOwnContainer()));
+										acd.subject(), aclChangedMsg.isItsOwnContainer()));
 						NewVerbs newVerbs = aclChangeInfo.newVerbsByContainer
 								.computeIfAbsent(aclChangedMsg.containerUid(),
 										k -> new NewVerbs(aclChangedMsg.containerUid(), aclChangedMsg.containerName(),
 												aclChangedMsg.containerType(),
 												aclChangedMsg.containerOwnerDisplayname()));
-						newVerbs.verbs.put(ace.entry().verb, ace.status());
+						newVerbs.diffVerb = acd;
 					});
 		}
 		return aclChangeInfos.values();
@@ -119,11 +118,11 @@ public class AclChangedNotificationVerticle extends AbstractVerticle {
 		return Optional.of(domainUid);
 	}
 
-	private static boolean isValidTargetUser(String targerUserUid, String domainUid) {
+	private static boolean isValidTargetUser(String targetUserUid, String domainUid) {
 		BmContext bmContext = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).getContext();
-		Optional<String> domainUserUid = fetchUserDomainUid(bmContext, domainUid, targerUserUid);
+		Optional<String> domainUserUid = fetchUserDomainUid(bmContext, domainUid, targetUserUid);
 		if (domainUserUid.isPresent()) {
-			DirEntry targetUser = fetchUserDirEntry(bmContext, domainUserUid.get(), targerUserUid);
+			DirEntry targetUser = fetchUserDirEntry(bmContext, domainUserUid.get(), targetUserUid);
 			return targetUser != null && targetUser.email != null && targetUser.displayName != null;
 		}
 		return false;
@@ -167,14 +166,12 @@ public class AclChangedNotificationVerticle extends AbstractVerticle {
 				.instance(IUserSettings.class, targetDomainUid);
 		String lang = settingService.get(targetUser.entryUid).get("lang");
 		Locale locale = lang == null || lang.isEmpty() ? Locale.ENGLISH : Locale.forLanguageTag(lang);
+		MessagesResolver resolver = new MessagesResolver(
+				ResourceBundle.getBundle("OSGI-INF/l10n/aclChangedNotification", locale));
 
-		Map<String, Object> ftlDatas = new HashMap<>();
-		if (aclChangeInfo.hasVerbsWithStatus(AclStatus.ADDED)) {
-			ftlDatas.putAll(prepareFtlDataByState(aclChangeInfo, sourceUser, lang, locale, m, AclStatus.ADDED));
-		}
-		if (aclChangeInfo.hasVerbsWithStatus(AclStatus.REMOVED)) {
-			ftlDatas.putAll(prepareFtlDataByState(aclChangeInfo, sourceUser, lang, locale, m, AclStatus.REMOVED));
-		}
+		m.subject = resolver.translate("subject", new Object[] { getActorName(sourceUser, resolver) });
+
+		Map<String, Object> ftlDatas = prepareFtlData(aclChangeInfo, sourceUser, lang, resolver, m);
 
 		m.html = applyTemplate(ftlDatas, locale);
 
@@ -183,20 +180,28 @@ public class AclChangedNotificationVerticle extends AbstractVerticle {
 		return mailsForExpandedGroup.isEmpty() ? Collections.singletonList(m) : mailsForExpandedGroup;
 	}
 
-	private Map<String, Object> prepareFtlDataByState(AclChangeInfo aclChangeInfo, DirEntry sourceUser, String lang,
-			Locale locale, Mail m, AclStatus status) throws IOException, TemplateException {
-		MessagesResolver resolver = new MessagesResolver(
-				ResourceBundle.getBundle("OSGI-INF/l10n/aclChangedNotification", locale));
+	private Map<String, Object> prepareFtlData(AclChangeInfo aclChangeInfo, DirEntry sourceUser, String lang,
+			MessagesResolver resolver, Mail m) throws IOException, TemplateException {
 
-		m.subject = resolver.translate("subject", new Object[] { getActorName(sourceUser, resolver) });
+		Map<String, Object> ftlDatas = new HashMap<>();
 
-		Map<String, Object> ftlData = prepareFtlData(resolver, sourceUser, status);
+		if (aclChangeInfo.hasVerbsWithStatus(AclStatus.ADDED)) {
+			ftlDatas.putAll(prepareFtlDataHeaders(resolver, sourceUser, AclStatus.ADDED));
+		}
+		if (aclChangeInfo.hasVerbsWithStatus(AclStatus.REMOVED)) {
+			ftlDatas.putAll(prepareFtlDataHeaders(resolver, sourceUser, AclStatus.REMOVED));
+		}
+		if (aclChangeInfo.hasVerbsWithStatus(AclStatus.UPDATED)) {
+			ftlDatas.putAll(prepareFtlDataHeaders(resolver, sourceUser, AclStatus.UPDATED));
+		}
+
 		Map<String, String> folderUidType = new HashMap<>();
 
-		aclChangeInfo.newVerbsByContainer.values().stream()
-				.filter(newVerbs -> !newVerbs.verbs.isEmpty() && !newVerbs.listVerbByStatus(status).isEmpty())
+		aclChangeInfo.newVerbsByContainer.values().stream() //
+				.filter(newVerbs -> newVerbs.diffVerb.newVerb() != null || newVerbs.diffVerb.oldVerb() != null) //
 				.forEach(newVerbs -> {
-					buildFtlData(ftlData, newVerbs, resolver, lang, aclChangeInfo, status);
+					buildFtlData(ftlDatas, newVerbs, resolver, lang,
+							aclChangeInfo.isItsOwnContainer ? "default" : "other");
 					addContainerTypeHeader(m, newVerbs, folderUidType);
 				});
 
@@ -204,6 +209,33 @@ public class AclChangedNotificationVerticle extends AbstractVerticle {
 				.map(h -> new RawField("X-BM-FolderUid", h)).toList();
 		m.headers.addAll(list);
 
+		return ftlDatas;
+	}
+
+	private Map<String, Object> prepareFtlDataHeaders(MessagesResolver resolver, DirEntry sourceUser,
+			AclStatus status) {
+
+		Map<String, Object> ftlData = new HashMap<>();
+		ftlData.put("desc", resolver.translate("desc", new Object[] { getActorName(sourceUser, resolver) }));
+		switch (status) {
+		case ADDED: {
+			ftlData.put("appPermissionsAdd", new HashMap<>());
+			ftlData.put("tableHeadAdd", resolver.translate("tableHead.add", null));
+			break;
+		}
+		case REMOVED: {
+			ftlData.put("appPermissionsDelete", new HashMap<>());
+			ftlData.put("tableHeadDelete", resolver.translate("tableHead.delete", null));
+			break;
+		}
+		case UPDATED: {
+			ftlData.put("appPermissionsUpdate", new HashMap<>());
+			ftlData.put("tableHeadUpdate", resolver.translate("tableHead.update", null));
+			break;
+		}
+		default:
+			throw new IllegalArgumentException("Unexpected value: " + status);
+		}
 		return ftlData;
 	}
 
@@ -216,26 +248,6 @@ public class AclChangedNotificationVerticle extends AbstractVerticle {
 		return "global.virt".equals(domainUid) ? targetDomainUid : domainUid;
 	}
 
-	private Map<String, Object> prepareFtlData(MessagesResolver resolver, DirEntry sourceUser, AclStatus status) {
-		Map<String, Object> ftlData = new HashMap<>();
-		ftlData.put("desc", resolver.translate("desc", new Object[] { getActorName(sourceUser, resolver) }));
-		switch (status) {
-		case ADDED: {
-			ftlData.put("appPermissionsAdded", new HashMap<>());
-			ftlData.put("tableHeadAdd", resolver.translate("tableHead.add", null));
-			break;
-		}
-		case REMOVED: {
-			ftlData.put("appPermissionsDeleted", new HashMap<>());
-			ftlData.put("tableHeadDelete", resolver.translate("tableHead.delete", null));
-			break;
-		}
-		default:
-			throw new IllegalArgumentException("Unexpected value: " + status);
-		}
-		return ftlData;
-	}
-
 	private String applyTemplate(Map<String, Object> ftlData, Locale locale) throws TemplateException, IOException {
 		StringWriter sw = new StringWriter();
 		Configuration cfg = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
@@ -246,38 +258,32 @@ public class AclChangedNotificationVerticle extends AbstractVerticle {
 	}
 
 	private void buildFtlData(Map<String, Object> ftlData, NewVerbs newVerbs, MessagesResolver resolver, String lang,
-			AclChangeInfo aclChangeInfo, AclStatus status) {
-		String appPermissionsKeyName = null;
-		switch (status) {
-		case ADDED: {
-			appPermissionsKeyName = "appPermissionsAdded";
-			break;
-		}
-		case REMOVED: {
-			appPermissionsKeyName = "appPermissionsDeleted";
-			break;
-		}
-		default:
-			throw new IllegalArgumentException("Unexpected value: " + status);
-		}
+			String targetKind) {
+
+		String appPermissionsKeyName = newVerbs.getPermissionKeyName();
+
+		Object[] params = new Object[] { newVerbs.containerOwnerDisplayname };
+		String target = resolver.translate("target." + targetKind + "." + newVerbs.containerType, params);
 
 		@SuppressWarnings("unchecked")
 		Map<String, List<Permission>> appPermissions = (Map<String, List<Permission>>) ftlData
 				.get(appPermissionsKeyName);
+//		if (appPermissions == null) {
+//			return;
+//		}
 		String app = resolver.translate("app." + newVerbs.containerType, null);
 		List<Permission> permissions = appPermissions.computeIfAbsent(app, k -> new ArrayList<>());
-		String targetKind = aclChangeInfo.isItsOwnContainer ? "default" : "other";
-		Object[] params = new Object[] { newVerbs.containerOwnerDisplayname };
-		String target = resolver.translate("target." + targetKind + "." + newVerbs.containerType, params);
-		newVerbs.verbs.entrySet().stream().filter(verb -> verb.getValue() == status).forEach(verb -> {
-			String level = resolver.translate(verb.getKey().name(), null);
-			Permission appPermission = new Permission(level, target);
-			permissions.add(appPermission);
-		});
-
+		String oldlevel = newVerbs.diffVerb.oldVerb() != null
+				? resolver.translate(newVerbs.diffVerb.oldVerb().name(), null)
+				: null;
+		String newlevel = newVerbs.diffVerb.newVerb() != null
+				? resolver.translate(newVerbs.diffVerb.newVerb().name(), null)
+				: null;
+		Permission appPermission = new Permission(newlevel, oldlevel, target);
+		permissions.add(appPermission);
 	}
 
-	public record Permission(String level, String target) {
+	public record Permission(String level, String oldlevel, String target) {
 	}
 
 	private void addContainerTypeHeader(Mail m, NewVerbs newVerbs, Map<String, String> folderUidType) {
@@ -336,16 +342,15 @@ public class AclChangedNotificationVerticle extends AbstractVerticle {
 			return String.join("#", domainUid, sourceUserId, targetUserId);
 		}
 
+		public boolean hasVerbsWithStatus(AclStatus status) {
+			return newVerbsByContainer.entrySet().stream().anyMatch(e -> e.getValue().diffVerb.status() == status);
+		}
+
 		@Override
 		public String toString() {
 			return "AclChangeInfo [domainUid=" + domainUid + ", sourceUserId=" + sourceUserId + ", targetUserId="
 					+ targetUserId + ", isItsOwnContainer=" + isItsOwnContainer + ", newVerbsByContainer="
 					+ newVerbsByContainer + "]";
-		}
-
-		public boolean hasVerbsWithStatus(AclStatus status) {
-			return newVerbsByContainer.entrySet().stream()
-					.anyMatch(newVerb -> !newVerb.getValue().listVerbByStatus(status).isEmpty());
 		}
 	}
 
@@ -354,7 +359,7 @@ public class AclChangedNotificationVerticle extends AbstractVerticle {
 		String containerName;
 		String containerOwnerDisplayname;
 		String containerType;
-		Map<Verb, AclStatus> verbs = new HashMap<>();
+		AclDiff diffVerb;
 
 		public NewVerbs(String containerUid, String containerName, String containerType,
 				String containerOwnerDisplayname) {
@@ -367,12 +372,24 @@ public class AclChangedNotificationVerticle extends AbstractVerticle {
 		@Override
 		public String toString() {
 			return "NewVerbs [containerUid=" + containerUid + ", containerName=" + containerName + ", containerType="
-					+ containerType + ", containerOwnerDisplayname=" + containerOwnerDisplayname + ", verbs=" + verbs
-					+ "]";
+					+ containerType + ", containerOwnerDisplayname=" + containerOwnerDisplayname + ", diffVerb="
+					+ diffVerb.toString() + "]";
 		}
 
-		public List<Verb> listVerbByStatus(AclStatus status) {
-			return verbs.entrySet().stream().filter(v -> v.getValue() == status).map(v -> v.getKey()).toList();
+		public String getPermissionKeyName() {
+			switch (diffVerb.status()) {
+			case ADDED: {
+				return "appPermissionsAdd";
+			}
+			case UPDATED: {
+				return "appPermissionsUpdate";
+			}
+			case REMOVED: {
+				return "appPermissionsDelete";
+			}
+			default:
+				throw new IllegalArgumentException("Unexpected value: " + diffVerb.status());
+			}
 		}
 
 	}
