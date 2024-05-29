@@ -25,7 +25,6 @@ export default {
     importFileRequest: (containerUid, file, uploadCanceller) =>
         inject("VEventPersistence", containerUid).importIcs(file, uploadCanceller),
     defaultUserRight: CalendarRight.CAN_EDIT_MY_EVENTS,
-    defaultDomainRight: CalendarRight.CAN_INVITE_ME,
     maxRight: CalendarRight.CAN_MANAGE_SHARES,
     readRight: CalendarRight.CAN_SEE_MY_EVENTS,
     getOptions: (i18n, container) => {
@@ -70,7 +69,8 @@ export default {
         otherAcl = other;
 
         const { domain: domainUid, userId } = inject("UserSession");
-        const domain = aclToRight(domainUid, acl, this.defaultDomainRight);
+
+        const domain = aclToRight(domainUid, acl, CalendarRight.CANT_INVITE_ME);
 
         const userUids = new Set(
             acl.flatMap(({ subject }) =>
@@ -93,7 +93,7 @@ export default {
     },
     saveRights(rightBySubject, container) {
         return inject("ContainerManagementPersistence", container.uid).setAccessControlList(
-            rightsToAcls(rightBySubject)
+            rightsToAcl(rightBySubject)
         );
     }
 };
@@ -130,7 +130,7 @@ function removeReadExtended(uid) {
     }
 }
 
-function rightsToAcls(rightBySubject) {
+function rightsToAcl(rightBySubject) {
     const acl = [];
 
     Object.entries(rightBySubject).forEach(([subject, right]) => {

@@ -23,7 +23,6 @@ export default {
         return inject("VTodoPersistence", containerUid).importIcs(encoded, uploadCanceller);
     },
     defaultUserRight: TodoListRight.CAN_EDIT_MY_TODO_LIST,
-    defaultDomainRight: TodoListRight.HAS_NO_RIGHTS,
     maxRight: TodoListRight.CAN_MANAGE_SHARES,
     readRight: TodoListRight.CAN_READ_MY_TODO_LIST,
     getOptions: i18n => [
@@ -54,7 +53,7 @@ export default {
         otherAcl = other;
 
         const { domain: domainUid, userId } = inject("UserSession");
-        const domain = aclToRight(domainUid, acl, this.defaultDomainRight);
+        const domain = aclToRight(domainUid, acl, TodoListRight.HAS_NO_RIGHTS);
 
         const userUids = new Set(
             acl.flatMap(({ subject }) =>

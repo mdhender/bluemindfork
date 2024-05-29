@@ -23,7 +23,6 @@ export default {
         return inject("VCardServicePersistence", containerUid).importCards(vcard, uploadCanceller);
     },
     defaultUserRight: AddressBookRight.CAN_READ_MY_ADDRESSBOOK,
-    defaultDomainRight: AddressBookRight.HAS_NO_RIGHTS,
     maxRight: AddressBookRight.CAN_MANAGE_SHARES,
     readRight: AddressBookRight.CAN_READ_MY_ADDRESSBOOK,
     getOptions: i18n => [
@@ -54,7 +53,7 @@ export default {
         otherAcl = other;
 
         const { domain: domainUid, userId } = inject("UserSession");
-        const domain = aclToRight(domainUid, acl, this.defaultDomainRight);
+        const domain = aclToRight(domainUid, acl, AddressBookRight.HAS_NO_RIGHTS);
 
         const userUids = new Set(
             acl.flatMap(({ subject }) =>

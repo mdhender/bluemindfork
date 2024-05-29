@@ -16,7 +16,6 @@ let otherAcl = [];
 export default {
     matchingIcon: () => "user-enveloppe",
     defaultUserRight: MailboxRight.CAN_READ_MY_MAILBOX,
-    defaultDomainRight: MailboxRight.HAS_NO_RIGHTS,
     maxRight: MailboxRight.CAN_MANAGE_SHARES,
     readRight: MailboxRight.CAN_READ_MY_MAILBOX,
     getOptions: i18n => [
