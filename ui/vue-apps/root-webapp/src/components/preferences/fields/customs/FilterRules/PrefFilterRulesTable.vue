@@ -21,12 +21,12 @@
         >
             <template #cell(active)="cell">
                 <bm-form-checkbox
-                    v-model="cell.item.active"
+                    :checked="cell.item.active"
                     :disabled="!editable"
                     :value="true"
                     :unchecked-value="false"
                     switch
-                    @input="$emit('toggle-active', cell.item)"
+                    @change="$emit('toggle-active', cell.item)"
                 />
             </template>
             <template #cell(name)="cell">
@@ -72,10 +72,10 @@
                             {{ $t("common.delete") }}
                         </bm-dropdown-item-button>
                         <bm-dropdown-divider class="mobile-only" />
-                        <bm-dropdown-item-button icon="table-add-row-up" @click="$emit('createBefore', cell.item)">
+                        <bm-dropdown-item-button icon="table-add-row-up" @click="$emit('create-before', cell.item)">
                             {{ $t("preferences.mail.filters.create.before") }}
                         </bm-dropdown-item-button>
-                        <bm-dropdown-item-button icon="table-add-row-down" @click="$emit('createAfter', cell.item)">
+                        <bm-dropdown-item-button icon="table-add-row-down" @click="$emit('create-after', cell.item)">
                             {{ $t("preferences.mail.filters.create.after") }}
                         </bm-dropdown-item-button>
                         <bm-dropdown-item-button

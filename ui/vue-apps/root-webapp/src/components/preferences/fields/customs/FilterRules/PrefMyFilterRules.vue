@@ -12,8 +12,9 @@
             @down="moveDown"
             @top="moveTop"
             @bottom="moveBottom"
-            @createBefore="createBefore"
-            @createAfter="createAfter"
+            @create-before="createBefore"
+            @create-after="createAfter"
+            @toggle-active="toggleActive"
         />
     </div>
 </template>
@@ -83,6 +84,9 @@ export default {
         createAfter(filter) {
             this.editingFilter = { ...NEW_FILTER, addAfter: filter };
             this.$refs["filters-editing-modal"].show();
+        },
+        toggleActive(filter) {
+            this.dispatchWithAlert("UPDATE_RULE", { ...filter, active: !filter.active });
         }
     }
 };
