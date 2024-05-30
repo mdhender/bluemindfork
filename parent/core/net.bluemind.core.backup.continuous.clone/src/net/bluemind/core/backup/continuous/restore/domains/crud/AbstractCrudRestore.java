@@ -9,6 +9,7 @@ import net.bluemind.core.backup.continuous.dto.VersionnedItem;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreDomainType;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreLogger;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreState;
+import net.bluemind.core.backup.continuous.tools.Locks;
 import net.bluemind.core.container.api.IRestoreSupport;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.utils.JsonUtils.ValueReader;
@@ -59,14 +60,20 @@ public abstract class AbstractCrudRestore<T, U, V extends IRestoreSupport<U>> im
 		createOrUpdate(api, key, item);
 	}
 
-	protected void createOrUpdate(V api, RecordKey key, VersionnedItem<T> item) {
-		boolean exists = exists(api, key, item);
-		if (exists) {
-			log.update(type(), key);
-			update(api, key, item);
-		} else {
-			log.create(type(), key);
-			create(api, key, item);
+	protected final void createOrUpdate(V api, RecordKey key, VersionnedItem<T> item) {
+		String lockKey = Locks.key(domain.uid, item.uid);
+		try {
+			Locks.GLOBAL.lock(lockKey);
+			boolean exists = exists(api, key, item);
+			if (exists) {
+				log.update(type(), key);
+				update(api, key, item);
+			} else {
+				log.create(type(), key);
+				create(api, key, item);
+			}
+		} finally {
+			Locks.GLOBAL.unlock(lockKey);
 		}
 	}
 

@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import net.bluemind.core.backup.continuous.RecordKey;
 import net.bluemind.core.backup.continuous.dto.OrgUnitAdminRole;
-import net.bluemind.core.backup.continuous.tools.LockByKey;
+import net.bluemind.core.backup.continuous.tools.Locks;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
@@ -26,7 +26,6 @@ public class RestoreOrgUnitAdminRoles implements RestoreDomainType {
 	private final RestoreLogger log;
 	private final ItemValue<Domain> domain;
 	private final IServiceProvider target;
-	private final LockByKey<String> lock = new LockByKey<>();
 
 	public RestoreOrgUnitAdminRoles(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target) {
 		this.log = log;
@@ -45,9 +44,9 @@ public class RestoreOrgUnitAdminRoles implements RestoreDomainType {
 		OrgUnitAdminRole adminRoleEvent = itemValue.value;
 		Item orgUnitItem = itemValue.item();
 
-		String lockKey = domain.uid + "-" + orgUnitItem.uid;
+		String lockKey = Locks.key(domain.uid, orgUnitItem.uid);
 		try {
-			lock.lock(lockKey);
+			Locks.GLOBAL.lock(lockKey);
 
 			IOrgUnits orgUnitApi = target.instance(IOrgUnits.class, domain.uid);
 			ItemValue<OrgUnit> existingOrgUnitItem = orgUnitApi.getComplete(orgUnitItem.uid);
@@ -60,7 +59,7 @@ public class RestoreOrgUnitAdminRoles implements RestoreDomainType {
 			log.set(type(), key);
 			orgUnitApi.setAdministratorRoles(orgUnitItem.uid, adminRoleEvent.dirUid, adminRoleEvent.roles);
 		} finally {
-			lock.unlock(lockKey);
+			Locks.GLOBAL.unlock(lockKey);
 		}
 	}
 }

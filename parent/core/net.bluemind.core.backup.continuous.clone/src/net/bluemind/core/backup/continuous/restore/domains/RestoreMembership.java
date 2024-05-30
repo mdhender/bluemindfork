@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import net.bluemind.core.backup.continuous.RecordKey;
 import net.bluemind.core.backup.continuous.dto.GroupMembership;
 import net.bluemind.core.backup.continuous.dto.VersionnedItem;
-import net.bluemind.core.backup.continuous.tools.LockByKey;
+import net.bluemind.core.backup.continuous.tools.Locks;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.task.api.TaskRef;
@@ -33,8 +33,6 @@ public class RestoreMembership implements RestoreDomainType {
 	private final IServiceProvider target;
 	private final RestoreState state;
 
-	private final LockByKey<String> lock = new LockByKey<>();
-
 	public RestoreMembership(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target, RestoreState state) {
 		this.log = log;
 		this.domain = domain;
@@ -53,9 +51,9 @@ public class RestoreMembership implements RestoreDomainType {
 		ms.uid = state.uidAlias(ms.uid);
 		IInCoreGroup groupApi = target.instance(IInCoreGroup.class, domain.uid);
 
-		String lockKey = domain.uid + "-" + ms.uid;
+		String lockKey = Locks.key(domain.uid, ms.uid);
 		try {
-			lock.lock(lockKey);
+			Locks.GLOBAL.lock(lockKey);
 			ItemValue<Group> existingGroup = groupApi.getComplete(ms.uid);
 
 			// fix user / admin group with our old uid
@@ -94,7 +92,7 @@ public class RestoreMembership implements RestoreDomainType {
 				groupApi.remove(ms.uid, Arrays.asList(ms.value.member));
 			}
 		} finally {
-			lock.unlock(lockKey);
+			Locks.GLOBAL.unlock(lockKey);
 		}
 	}
 }

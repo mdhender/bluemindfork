@@ -8,6 +8,7 @@ import net.bluemind.core.backup.continuous.dto.VersionnedItem;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreLogger;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreState;
 import net.bluemind.core.backup.continuous.restore.domains.crud.AbstractCrudRestore;
+import net.bluemind.core.backup.continuous.tools.LockByKey;
 import net.bluemind.core.container.api.IRestoreDirEntryWithMailboxSupport;
 import net.bluemind.core.container.api.IRestoreItemCrudSupport;
 import net.bluemind.core.container.api.IRestoreSupport;
@@ -23,6 +24,7 @@ public abstract class CrudDirEntryRestore<T, V extends IRestoreSupport<T>>
 		extends AbstractCrudRestore<FullDirEntry<T>, T, V> {
 
 	protected final IServiceProvider target;
+	private final LockByKey<String> ouLock = new LockByKey<>();
 
 	protected CrudDirEntryRestore(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target,
 			RestoreState state) {
@@ -45,11 +47,16 @@ public abstract class CrudDirEntryRestore<T, V extends IRestoreSupport<T>>
 	protected void ensureOrgUnitUidExists(String ouUid) {
 		if (ouUid != null) {
 			IOrgUnits ouApi = target.instance(IOrgUnits.class, domain.uid);
-			if (ouApi.get(ouUid) == null) {
-				OrgUnit placeholder = new OrgUnit();
-				placeholder.name = "placeholder of " + ouUid;
-				log.monitor().log("Placeholder OrgUnit {}", ouUid);
-				ouApi.create(ouUid, placeholder);
+			try {
+				ouLock.lock(ouUid);
+				if (ouApi.get(ouUid) == null) {
+					OrgUnit placeholder = new OrgUnit();
+					placeholder.name = "placeholder of " + ouUid;
+					log.monitor().log("Placeholder OrgUnit {}", ouUid);
+					ouApi.create(ouUid, placeholder);
+				}
+			} finally {
+				ouLock.unlock(ouUid);
 			}
 		}
 	}
