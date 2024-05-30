@@ -18,6 +18,7 @@
  */
 package net.bluemind.imap.driver.mailapi;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,7 +32,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
@@ -303,8 +303,9 @@ public class MailApiConnection implements MailboxConnection {
 			mr.acls.add(Acl.create(me.uid + "@" + me.domainUid, "lrswipkxtecda"));
 			mr.acls.add(Acl.create("admin0", "lrswipkxtecda"));
 			mr.deleted = false;
-			String pipoUid = UUID.randomUUID().toString();
-			resolvedFoldersApi.create(pipoUid, mr);
+			String uniqueKey = Hashing.murmur3_128().hashString(owner.uid + "#" + mr.fullName, StandardCharsets.UTF_8)
+					.toString();
+			resolvedFoldersApi.create(uniqueKey, mr);
 		}
 		return fName;
 	}
