@@ -45,7 +45,6 @@ public class UserSettingsService implements IUserSettings {
 
 	private final ContainerStoreService<UserSettings> userSettingsStoreService;
 	private final Container userSettings;
-	private final UserSettingsStore userSettingsStore;
 	private final IDomainSettings domainSettingsService;
 	private final UserSettingsSanitizer sanitizer;
 	private RBACManager rbacManager;
@@ -55,7 +54,7 @@ public class UserSettingsService implements IUserSettings {
 		this.userSettings = userSettings;
 		this.sanitizer = new UserSettingsSanitizer();
 		this.domainSettingsService = domainSettingsService;
-		this.userSettingsStore = new UserSettingsStore(context.getDataSource(), userSettings);
+		var userSettingsStore = new UserSettingsStore(context.getDataSource(), userSettings);
 		this.userSettingsStoreService = new ContainerStoreService<>(context.getDataSource(),
 				context.getSecurityContext(), userSettings, userSettingsStore);
 		this.rbacManager = new RBACManager(context).forDomain(domainUid);
@@ -82,21 +81,21 @@ public class UserSettingsService implements IUserSettings {
 		rbacManager.forEntry(uid).check(BasicRoles.ROLE_SELF, BasicRoles.ROLE_MANAGER);
 
 		logger.debug("Get user settings: {}", uid);
-		Map<String, String> userSettings = new HashMap<>();
+		Map<String, String> loadedSettings = new HashMap<>();
 
 		Map<String, String> ds = domainSettingsService.get();
 		if (ds != null && ds.size() > 0) {
-			userSettings.putAll(ds);
+			loadedSettings.putAll(ds);
 		}
 
 		ItemValue<UserSettings> us = userSettingsStoreService.get(uid, null);
 		if (us == null) {
-			return userSettings;
+			return loadedSettings;
 		} else if (us.value != null && us.value.values != null && us.value.values.size() > 0) {
-			userSettings.putAll(us.value.values);
+			loadedSettings.putAll(us.value.values);
 		}
 
-		return userSettings;
+		return loadedSettings;
 	}
 
 	@Override
