@@ -6,6 +6,9 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.core.type.TypeReference;
+
 import io.vertx.core.Handler;
 import net.bluemind.core.backup.continuous.DataElement;
 import net.bluemind.core.backup.continuous.RecordKey;
@@ -35,6 +38,8 @@ import net.bluemind.core.backup.continuous.restore.domains.replication.RestoreRe
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.task.service.IServerTaskMonitor;
+import net.bluemind.core.utils.JsonUtils;
+import net.bluemind.core.utils.JsonUtils.ValueReader;
 import net.bluemind.domain.api.Domain;
 
 public class DomainRestorationHandler implements Handler<DataElement> {
@@ -83,6 +88,14 @@ public class DomainRestorationHandler implements Handler<DataElement> {
 				.stream().collect(Collectors.toMap(RestoreDomainType::type, Function.identity()));
 	}
 
+	@JsonIgnoreProperties(ignoreUnknown = true)
+	private static class WithUid {
+		public String uid;
+	}
+
+	private static final ValueReader<WithUid> justUid = JsonUtils.reader(new TypeReference<WithUid>() {
+	});
+
 	@Override
 	public void handle(DataElement event) {
 		fixupKey(event.key);
@@ -93,9 +106,16 @@ public class DomainRestorationHandler implements Handler<DataElement> {
 
 		if (restore != null && !skip.contains(event.key.type)) {
 			if (!ownerChecker.isKnown(event.key.owner)) {
-				log.monitor().log("[{}:{}] owner of {} is not known to CRP: ignore entry", event.part, event.offset,
+				log.monitor().log("[{}:{}] owner of {} is not known to CRP: ignore errors", event.part, event.offset,
 						event.key);
 				ignoreFailure = true;
+			} else if (event.key.owner.equals("system") && event.key.type.equals("dir") && event.payload != null) {
+				WithUid checked = justUid.read(event.payload);
+				if (!ownerChecker.isKnown(checked.uid)) {
+					log.monitor().log("[{}:{}] owner of {} is not known to CRP: ignore errors", event.part,
+							event.offset, event.key);
+					ignoreFailure = true;
+				}
 			}
 
 			try {
