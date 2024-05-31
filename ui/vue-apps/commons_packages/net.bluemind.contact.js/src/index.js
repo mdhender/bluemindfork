@@ -112,21 +112,21 @@ async function fetchMembersWithAddress(contactContainerUid, contactUid) {
     const members = vCard?.value.organizational?.member;
     return members?.length
         ? (
-              await Promise.all(
-                  members.map(async m =>
-                      m.mailto
-                          ? {
-                                address: m.mailto,
-                                dn: m.dn || m.commonName,
-                                containerUid: m.containerUid,
-                                uid: m.itemUid,
-                                memberCount: m.memberCount || 0,
-                                kind: m.kind || VCard.Kind.individual
-                            }
-                          : await fetchMembersWithAddress(m.containerUid || contactContainerUid, m.itemUid)
-                  )
-              )
-          ).flatMap(r => r)
+            await Promise.all(
+                members.map(async m =>
+                    m.mailto
+                        ? {
+                            address: m.mailto,
+                            dn: m.dn || m.commonName,
+                            containerUid: m.containerUid,
+                            uid: m.itemUid,
+                            memberCount: m.memberCount || 0,
+                            kind: m.kind || VCard.Kind.individual
+                        }
+                        : await fetchMembersWithAddress(m.containerUid || contactContainerUid, m.itemUid)
+                )
+            )
+        ).flatMap(r => r)
         : [];
 }
 
@@ -200,7 +200,34 @@ function hasMailOrMember(vCard) {
     );
 }
 
+function contactContainerUid(contact) {
+    return contact.urn?.split("@")[1];
+}
+
+function removeDuplicatedContacts(contacts) {
+    return contacts.reduce(
+        (allContacts, current) => {
+            if (!containsContact(allContacts, current)) {
+                allContacts.push(current);
+            }
+            return allContacts;
+        },
+        []
+    );
+}
+
+function containsContact(contacts, contact) {
+    return contacts.some(c =>
+        contact.address
+            ? c.address === contact.address
+            : contact.kind === "group"
+                ? contact.dn === c.dn && contact.members?.length === c.members?.length
+                : false
+    );
+}
+
 export {
+    contactContainerUid,
     ContactValidator,
     DirEntryAdaptor,
     fetchContactMembers,
@@ -213,6 +240,7 @@ export {
     isPersonalAddressBook,
     RecipientAdaptor,
     recipientStringToVCardItem,
+    removeDuplicatedContacts,
     searchVCardsByIdHelper,
     searchVCardsHelper,
     sortAddressBooks,

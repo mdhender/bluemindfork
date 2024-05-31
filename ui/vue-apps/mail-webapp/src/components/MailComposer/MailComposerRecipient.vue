@@ -25,7 +25,7 @@
 <script>
 import debounce from "lodash/debounce";
 import { mapMutations } from "vuex";
-import { fetchContactMembers, RecipientAdaptor, VCardInfoAdaptor } from "@bluemind/contact";
+import { contactContainerUid, fetchContactMembers, RecipientAdaptor,removeDuplicatedContacts, VCardInfoAdaptor } from "@bluemind/contact";
 import { EmailValidator } from "@bluemind/email";
 import { ContactInput } from "@bluemind/business-components";
 import { mailTipUtils } from "@bluemind/mail";
@@ -121,18 +121,9 @@ export default {
             const contact = contacts[index];
             contact.members = await fetchContactMembers(contactContainerUid(contact), contact.uid);
             contacts.splice(index, 1, ...contact.members);
-            this.update(this.removeDuplicates(contacts));
+            this.update(removeDuplicatedContacts(contacts));
         },
-        removeDuplicates(contacts) {
-            return contacts.reduce(
-                (allContacts, current) => (isDuplicate(allContacts, current) ? allContacts : [...allContacts, current]),
-                []
-            );
 
-            function isDuplicate(contacts, aContact) {
-                return contacts.findIndex(c => c.address === aContact.address) !== -1;
-            }
-        },
         async search(searchedRecipient) {
             this.searchResults = searchedRecipient === "" ? null : await apiAddressbooks.search(searchedRecipient, -1);
         },
@@ -147,8 +138,4 @@ export default {
         }
     }
 };
-
-function contactContainerUid(contact) {
-    return contact.urn?.split("@")[1];
-}
 </script>
