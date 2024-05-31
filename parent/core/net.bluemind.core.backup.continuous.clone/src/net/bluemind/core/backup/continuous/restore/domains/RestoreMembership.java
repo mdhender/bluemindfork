@@ -73,7 +73,8 @@ public class RestoreMembership implements RestoreDomainType {
 				if (existingGroup != null) {
 					log.deleteParent(type(), key, ms.uid);
 					TaskRef ref = groupApi.delete(ms.uid);
-					TaskUtils.logStreamWait(target, ref);
+					String output = TaskUtils.logStreamWait(target, ref);
+					log.debug("Group {} deletion output: {}", ms.uid, output);
 				}
 				// We remove any existing datalocation to prevent default mailbboxes to be
 				// created as we don't have their ids here. They will be created with
