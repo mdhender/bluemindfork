@@ -26,7 +26,7 @@
 		<maven-enforcer-plugin-version>3.1.0</maven-enforcer-plugin-version>
 		<maven-assembly-plugin-version>3.4.0</maven-assembly-plugin-version>
 		<maven-antrun-plugin-version>3.1.0</maven-antrun-plugin-version>
-		<org-json-version>20230618</org-json-version>
+		<org-json-version>20231013</org-json-version>
 		<xerces-version>2.12.2</xerces-version>
 		<junit-version>4.13.2</junit-version>
 
